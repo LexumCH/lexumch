@@ -1,6 +1,7 @@
 // src/pages/PerAvvocati.jsx
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import ArchivioRicercaAnimatedDemo from '@/components/ArchivioRicercaAnimatedDemo'
 import {
     ArrowRight, BookOpen, TrendingUp, Users, Sparkles,
     Shield, Check, ChevronDown, Brain, Star, Zap, Lock,
@@ -461,43 +462,7 @@ export default function PerAvvocati() {
                         ]}
                     >
                         <VisualBlock label="Ricerca nell'archivio">
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2 px-3 py-2 bg-petrolio border border-oro/15">
-                                    <Search size={11} className="text-oro/60 shrink-0" />
-                                    <span className="font-body text-xs text-nebbia/70 flex-1">contratto locazione 2024</span>
-                                    <button className="font-body text-[10px] px-2 py-1 bg-oro/10 border border-oro/30 text-oro uppercase tracking-widest shrink-0">
-                                        Cerca
-                                    </button>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="bg-petrolio border border-salvia/15 p-3">
-                                        <div className="flex items-start gap-2.5">
-                                            <FileText size={12} className="text-salvia mt-0.5 shrink-0" />
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-body text-xs text-nebbia/70 mb-0.5 truncate">Contratto_locazione_Rossi.pdf</p>
-                                                <p className="font-body text-[10px] text-nebbia/35 leading-relaxed">"...il presente contratto avra durata di 4+4 anni a partire dal 01/09/2024, con canone mensile di EUR 1.200..."</p>
-                                                <div className="flex gap-1 mt-2 flex-wrap">
-                                                    <span className="font-body text-[9px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/35">Pratica 2026/047</span>
-                                                    <span className="font-body text-[9px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/35">Locazione</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="bg-petrolio border border-white/8 p-3">
-                                        <div className="flex items-start gap-2.5">
-                                            <FileText size={12} className="text-nebbia/40 mt-0.5 shrink-0" />
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-body text-xs text-nebbia/70 mb-0.5 truncate">Diffida_locatore_2024-11.pdf</p>
-                                                <p className="font-body text-[10px] text-nebbia/35 leading-relaxed">"...si invita il locatore alla risoluzione delle problematiche evidenziate nel contratto del 01/09/2024..."</p>
-                                                <div className="flex gap-1 mt-2 flex-wrap">
-                                                    <span className="font-body text-[9px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/35">Pratica 2026/047</span>
-                                                    <span className="font-body text-[9px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/35">Diffida</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <ArchivioRicercaAnimatedDemo />
                         </VisualBlock>
                     </FeatureRow>
 

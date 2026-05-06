@@ -1,6 +1,7 @@
 // src/pages/Home.jsx
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import ArchivioAnimatedDemo from '@/components/ArchivioAnimatedDemo'
 import {
   ArrowRight, Sparkles, FolderOpen, Users, FileText,
   BookOpen, Shield, Zap, ChevronDown, Check, Scale,
@@ -435,121 +436,7 @@ export default function Home() {
                 Carichi, ritrovi, condividi. La gestione e la ricerca dell'archivio in un flusso unico, senza mai uscire dal contesto della pratica.
               </p>
             </FadeIn>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-10">
-              <FadeIn delay={0.1}>
-                <div className="bg-slate border border-white/5 p-4">
-                  <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-3">Caricamento in corso</p>
-                  <div className="space-y-2.5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 flex items-center justify-center border border-salvia/20 bg-salvia/10 shrink-0">
-                        <Check size={12} className="text-salvia" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-body text-xs text-nebbia/70 truncate">Curriculum_Bianchi_Mario.pdf</p>
-                        <p className="font-body text-[10px] text-nebbia/30">Caricato in: Pratica 2026/047 - Mario Rossi</p>
-                      </div>
-                      <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/10 border border-salvia/20 text-salvia/80 uppercase tracking-widest shrink-0">Completato</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 flex items-center justify-center border border-oro/20 bg-oro/5 shrink-0">
-                        <FileText size={12} className="text-oro" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-body text-xs text-nebbia/70 truncate">Contratto_locazione.pdf</p>
-                        <div className="h-1 bg-petrolio mt-1 overflow-hidden">
-                          <div className="h-full bg-oro/60" style={{ width: '64%' }} />
-                        </div>
-                      </div>
-                      <span className="font-body text-[10px] text-nebbia/40 shrink-0">64%</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 flex items-center justify-center border border-oro/20 bg-oro/5 shrink-0">
-                        <FileText size={12} className="text-oro" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-body text-xs text-nebbia/70 truncate">Contratto.pdf</p>
-                        <div className="h-1 bg-petrolio mt-1 overflow-hidden">
-                          <div className="h-full bg-oro/60" style={{ width: '90%' }} />
-                        </div>
-                      </div>
-                      <span className="font-body text-[10px] text-nebbia/40 shrink-0">90%</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 flex items-center justify-center border border-salvia/20 bg-salvia/10 shrink-0">
-                        <Check size={12} className="text-salvia" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-body text-xs text-nebbia/70 truncate">Perizia_tecnica_Rossi.pdf</p>
-                        <p className="font-body text-[10px] text-nebbia/30">Caricato in: Pratica 2026/047 - Mario Rossi</p>
-                      </div>
-                      <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/10 border border-salvia/20 text-salvia/80 uppercase tracking-widest shrink-0">Completato</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 flex items-center justify-center border border-oro/20 bg-oro/5 shrink-0">
-                        <FileText size={12} className="text-oro" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-body text-xs text-nebbia/70 truncate">Diffida_ACME_srl.docx</p>
-                        <div className="h-1 bg-petrolio mt-1 overflow-hidden">
-                          <div className="h-full bg-oro/60" style={{ width: '28%' }} />
-                        </div>
-                      </div>
-                      <span className="font-body text-[10px] text-nebbia/40 shrink-0">28%</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 flex items-center justify-center border border-salvia/20 bg-salvia/10 shrink-0">
-                        <Check size={12} className="text-salvia" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-body text-xs text-nebbia/70 truncate">Statuto_societa_srl.pdf</p>
-                        <p className="font-body text-[10px] text-nebbia/30">Caricato in: Pratica 2026/047 - Mario Rossi</p>
-                      </div>
-                      <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/10 border border-salvia/20 text-salvia/80 uppercase tracking-widest shrink-0">Completato</span>
-                    </div>
-                  </div>
-                </div>
-              </FadeIn>
-              <FadeIn delay={0.2}>
-                <div className="bg-slate border border-white/5 p-4">
-                  <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-3">Ricerca nell'archivio</p>
-                  <div className="flex items-center gap-2 px-3 py-2 bg-petrolio border border-oro/15 mb-3">
-                    <Search size={11} className="text-oro/60 shrink-0" />
-                    <span className="font-body text-xs text-nebbia/70 flex-1">Rossi 2024</span>
-                    <button className="font-body text-[10px] px-2 py-1 bg-oro/10 border border-oro/30 text-oro uppercase tracking-widest shrink-0">
-                      Cerca
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="bg-petrolio border border-salvia/15 p-3">
-                      <div className="flex items-start gap-2.5">
-                        <FileText size={12} className="text-salvia mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-body text-xs text-nebbia/70 mb-0.5 truncate">Perizia_tecnica_Rossi.pdf</p>
-                          <p className="font-body text-[10px] text-nebbia/35 leading-relaxed">"...la perizia evidenzia vizi strutturali al locale, con responsabilita imputabile al locatore ai sensi dell'art. 1578 c.c..."</p>
-                          <div className="flex gap-1 mt-2 flex-wrap">
-                            <span className="font-body text-[9px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/35">Pratica 2026/047</span>
-                            <span className="font-body text-[9px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/35">Locazione</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-petrolio border border-white/8 p-3">
-                      <div className="flex items-start gap-2.5">
-                        <FileText size={12} className="text-nebbia/40 mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-body text-xs text-nebbia/70 mb-0.5 truncate">Email_Rossi_2024-11-08.pdf</p>
-                          <p className="font-body text-[10px] text-nebbia/35 leading-relaxed">"...allego come da accordi la perizia tecnica relativa all'immobile di via Roma 12..."</p>
-                          <div className="flex gap-1 mt-2 flex-wrap">
-                            <span className="font-body text-[9px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/35">Pratica 2026/047</span>
-                            <span className="font-body text-[9px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/35">Corrispondenza</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </FadeIn>
-            </div>
+            <ArchivioAnimatedDemo />
           </div>
 
         </div>
@@ -774,7 +661,7 @@ export default function Home() {
               <span className="text-oro">Fai la tua prima ricerca.</span>
             </h2>
             <p className="font-body text-base text-nebbia/45 leading-relaxed mb-10 max-w-xl mx-auto">
-              Registrati e inizia subito. Quattro milioni di norme consultabili. Lex AI con crediti di benvenuto. Gestionale e portale clienti pronti.
+              Registrati e inizia subito.  milioni di norme consultabili. Lex AI con crediti di benvenuto. Gestionale e portale clienti pronti.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/registrati" className="flex items-center gap-2.5 px-10 py-4 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-all hover:scale-[1.02] shadow-xl shadow-oro/20">

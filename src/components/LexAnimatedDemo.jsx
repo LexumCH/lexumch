@@ -346,7 +346,7 @@ export default function LexAnimatedDemo() {
                         transitionDuration: `${FADE_DURATION}ms`,
                         transitionProperty: 'min-height',
                         minHeight: phase === PHASE.LEX_SEARCHING || phase === PHASE.TRANSITION_TO_RESPONSE
-                            ? '220px'
+                            ? '200px'
                             : (responseOpacity ? 'auto' : '0px'),
                     }}
                 >
