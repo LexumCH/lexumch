@@ -110,19 +110,19 @@ export default function PerAvvocati() {
     return (
         <div className="min-h-screen bg-petrolio text-nebbia overflow-x-hidden pt-20">
             <Helmet>
-                <title>Lexum per Studi Legali — Tutto il lavoro dello studio in un unico ambiente</title>
+                <title>Lexum per Studi Legali — Gestionale, AI e collaborazione di team</title>
                 <meta
                     name="description"
-                    content="Gestionale, calendario, archivio intelligente, Lex AI, banca dati condivisa e collaborazione di team. Tutto cio che serve a uno studio legale, in un ambiente coerente."
+                    content="Multi-accesso con permessi granulari, calendario condiviso, archivio intelligente, Lex AI e monetizzazione delle sentenze. Tutto il lavoro dello studio in un ambiente coerente."
                 />
                 <link rel="canonical" href="https://www.lexum.it/per-avvocati" />
 
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://www.lexum.it/per-avvocati" />
-                <meta property="og:title" content="Lexum per Studi Legali" />
+                <meta property="og:title" content="Lexum per Studi Legali — Gestionale, AI e team" />
                 <meta
                     property="og:description"
-                    content="Tutto cio che serve a uno studio legale, in un ambiente coerente. Gestionale, AI, archivio, collaborazione di team."
+                    content="Gestionale, multi-accesso, calendario, archivio intelligente, Lex AI e monetizzazione dell'archivio. Tutto in un ambiente coerente."
                 />
                 <meta property="og:image" content="https://www.lexum.it/logo.png" />
                 <meta property="og:locale" content="it_IT" />
@@ -131,7 +131,7 @@ export default function PerAvvocati() {
                 <meta name="twitter:title" content="Lexum per Studi Legali" />
                 <meta
                     name="twitter:description"
-                    content="Tutto cio che serve a uno studio legale, in un ambiente coerente."
+                    content="Gestionale, AI e collaborazione di team per studi legali italiani."
                 />
                 <meta name="twitter:image" content="https://www.lexum.it/logo.png" />
             </Helmet>

@@ -8,6 +8,7 @@ import {
   Search, Brain, Lock, FileSignature, Library, Bookmark,
   FolderSearch, Briefcase
 } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 
 // Scroll animation hook
 function useInView(threshold = 0.12) {
@@ -173,7 +174,32 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-petrolio text-nebbia overflow-x-hidden">
+      <Helmet>
+        <title>Lexum — Banca dati legale gratuita e Lex AI per avvocati italiani</title>
+        <meta
+          name="description"
+          content="Oltre 4 milioni di norme, sentenze e prassi consultabili gratis. Salva ricerche, collegale a una pratica, ragiona con Lex AI. Per studi legali e avvocati italiani."
+        />
+        <link rel="canonical" href="https://www.lexum.it/" />
 
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.lexum.it/" />
+        <meta property="og:title" content="Lexum — Banca dati legale gratuita e Lex AI" />
+        <meta
+          property="og:description"
+          content="4 milioni di norme consultabili gratis, ricerche personali, gestionale e assistente AI. Per avvocati italiani."
+        />
+        <meta property="og:image" content="https://www.lexum.it/logo.png" />
+        <meta property="og:locale" content="it_IT" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Lexum — Banca dati legale gratuita e Lex AI" />
+        <meta
+          name="twitter:description"
+          content="4 milioni di norme consultabili gratis, Lex AI e gestionale per avvocati italiani."
+        />
+        <meta name="twitter:image" content="https://www.lexum.it/logo.png" />
+      </Helmet>
       {/* 1. HERO */}
       <section className="relative min-h-screen flex items-center justify-center pt-32 md:pt-28 pb-16 overflow-hidden">
         {/* Background */}
