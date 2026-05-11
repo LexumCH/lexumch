@@ -1257,51 +1257,45 @@ export function AvvocatoClientiDettaglio() {
   async function salvaCliente() {
     setErroreCliente(''); setSalvandoCliente(true)
     try {
-      const tipo = formCliente.tipo_soggetto ?? 'persona_fisica'
-      const payload = {
-        tipo_soggetto: tipo,
-        email: formCliente.email,
-        telefono: formCliente.telefono || null,
-        pec: formCliente.pec || null,
-        cf: formCliente.cf || null,
-        indirizzo: formCliente.indirizzo || null,
-        comune: formCliente.comune || null,
-        provincia: formCliente.provincia || null,
-        cap: formCliente.cap || null,
-        avvocato_id: avvocatoId || null,
-        aggiornato_da: meId,
-      }
-
-      if (tipo === 'persona_fisica') {
-        payload.nome = formCliente.nome
-        payload.cognome = formCliente.cognome
-        payload.data_nascita = formCliente.data_nascita || null
-        payload.luogo_nascita = formCliente.luogo_nascita || null
-        // Pulisci campi PG se presenti
-        payload.ragione_sociale = null
-        payload.partita_iva = null
-        payload.sede_legale = null
-        payload.rappr_nome = null
-        payload.rappr_cognome = null
-        payload.rappr_cf = null
-        payload.rappr_carica = null
-      } else {
-        payload.nome = formCliente.ragione_sociale
-        payload.cognome = null
-        payload.ragione_sociale = formCliente.ragione_sociale
-        payload.partita_iva = formCliente.partita_iva || null
-        payload.sede_legale = formCliente.sede_legale || null
-        payload.rappr_nome = formCliente.rappr_nome || null
-        payload.rappr_cognome = formCliente.rappr_cognome || null
-        payload.rappr_cf = formCliente.rappr_cf || null
-        payload.rappr_carica = formCliente.rappr_carica || null
-        payload.data_nascita = null
-        payload.luogo_nascita = null
-      }
-
-      const { error } = await supabase.from('profiles').update(payload).eq('id', id)
-      if (error) throw new Error(error.message)
-      setCliente(prev => ({ ...prev, ...payload }))
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-cliente`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            cliente_id: id,
+            tipo_soggetto: formCliente.tipo_soggetto ?? 'persona_fisica',
+            nome: formCliente.nome,
+            cognome: formCliente.cognome,
+            ragione_sociale: formCliente.ragione_sociale,
+            partita_iva: formCliente.partita_iva,
+            sede_legale: formCliente.sede_legale,
+            rappr_nome: formCliente.rappr_nome,
+            rappr_cognome: formCliente.rappr_cognome,
+            rappr_cf: formCliente.rappr_cf,
+            rappr_carica: formCliente.rappr_carica,
+            cf: formCliente.cf,
+            data_nascita: formCliente.data_nascita,
+            luogo_nascita: formCliente.luogo_nascita,
+            email: formCliente.email,
+            telefono: formCliente.telefono,
+            pec: formCliente.pec,
+            indirizzo: formCliente.indirizzo,
+            comune: formCliente.comune,
+            provincia: formCliente.provincia,
+            cap: formCliente.cap,
+            avvocato_id: avvocatoId || null,
+          }),
+        }
+      )
+      const json = await res.json()
+      if (!json.ok) throw new Error(json.error)
+      setCliente(json.cliente)
+      setFormCliente(json.cliente)
       setEditPanoramica(false)
     } catch (err) {
       setErroreCliente(err.message)
