@@ -10,6 +10,7 @@ import {
     AlertTriangle, ChevronRight, GitCompare, Square, CheckSquare,
     BookOpen, Landmark, ScrollText, ExternalLink,
 } from 'lucide-react'
+import AggiungiAPratica from '@/components/AggiungiAPratica'
 
 const PALETTE = [
     '#C9A45C', '#7FA39A', '#8B7BB8', '#D49B6F',
@@ -1129,6 +1130,26 @@ function CardElemento({
                     </div>
                 </div>
             )}
+            <div className="pt-3 border-t border-white/5 flex items-center justify-end gap-2 flex-wrap">
+                <AggiungiAPratica
+                    ricerca={{
+                        tipo: el.kind,
+                        domanda: el.titolo ?? '',
+                        risposta: el.contenuto ?? '',
+                        testo: el.contenuto ?? '',
+                        codice: el.metadati?.codice ?? null,
+                    }}
+                    ricercaSalvataId={el.id}
+                    setRicercaSalvataId={() => { }}
+                    onRicercaSalvata={onAggiornata}
+                    variant="compact"
+                />
+                <AggiungiAEtichetta
+                    elemento={{ tipo: el.kind, id: el.id }}
+                    variant="compact"
+                    onCambio={onAggiornata}
+                />
+            </div>
         </div>
     )
 }
