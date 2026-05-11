@@ -37,6 +37,35 @@ function labelRuolo(v) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// FIELD (a livello di modulo: non si rimonta a ogni render del parent)
+// ─────────────────────────────────────────────────────────────
+function Field({
+    label,
+    type = 'text',
+    placeholder = '',
+    value,
+    onChange,
+    colSpan = 1,
+    maxLength,
+    className = '',
+    uppercase = false,
+}) {
+    return (
+        <div style={{ gridColumn: `span ${colSpan}` }}>
+            <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1.5">{label}</label>
+            <input
+                type={type}
+                placeholder={placeholder}
+                value={value ?? ''}
+                onChange={onChange}
+                maxLength={maxLength}
+                className={`w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25 ${uppercase ? 'uppercase' : ''} ${className}`}
+            />
+        </div>
+    )
+}
+
+// ─────────────────────────────────────────────────────────────
 // SWITCHER PF / PG (riusabile, simile a Clienti.jsx)
 // ─────────────────────────────────────────────────────────────
 function SwitcherTipo({ value, onChange }) {
@@ -107,7 +136,10 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
         !!(controparte?.legale_nome || controparte?.legale_cognome || controparte?.legale_foro)
     )
 
-    const f = k => ({ value: form[k], onChange: e => setForm(p => ({ ...p, [k]: e.target.value })) })
+    const f = k => ({
+        value: form[k],
+        onChange: e => setForm(p => ({ ...p, [k]: e.target.value })),
+    })
 
     async function handleSalva() {
         setErrore('')
@@ -184,16 +216,6 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
         }
     }
 
-    function Field({ label, type = 'text', placeholder = '', name, colSpan = 1 }) {
-        return (
-            <div style={{ gridColumn: `span ${colSpan}` }}>
-                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1.5">{label}</label>
-                <input type={type} placeholder={placeholder} {...f(name)}
-                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
-            </div>
-        )
-    }
-
     return (
         <div className="bg-petrolio/40 border border-oro/30 p-4 space-y-4">
             <div className="flex items-center justify-between">
@@ -221,32 +243,32 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
             {tipo === 'persona_fisica' ? (
                 <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
-                        <Field label="Nome *" name="nome" placeholder="Tizio" />
-                        <Field label="Cognome *" name="cognome" placeholder="Caio" />
+                        <Field label="Nome *" placeholder="Tizio" {...f('nome')} />
+                        <Field label="Cognome *" placeholder="Caio" {...f('cognome')} />
                     </div>
-                    <Field label="Codice fiscale" name="cf" placeholder="TZICAI70A01H501Z" />
+                    <Field label="Codice fiscale" placeholder="TZICAI70A01H501Z" {...f('cf')} />
                     <div className="grid grid-cols-2 gap-3">
-                        <Field label="Data nascita" type="date" name="data_nascita" />
-                        <Field label="Luogo nascita" name="luogo_nascita" placeholder="Roma" />
+                        <Field label="Data nascita" type="date" {...f('data_nascita')} />
+                        <Field label="Luogo nascita" placeholder="Roma" {...f('luogo_nascita')} />
                     </div>
                 </div>
             ) : (
                 <div className="space-y-3">
-                    <Field label="Ragione sociale *" name="ragione_sociale" placeholder="Alfa Srl" />
+                    <Field label="Ragione sociale *" placeholder="Alfa Srl" {...f('ragione_sociale')} />
                     <div className="grid grid-cols-2 gap-3">
-                        <Field label="Partita IVA" name="partita_iva" placeholder="12345678901" />
-                        <Field label="Codice fiscale" name="cf" placeholder="se diverso da P.IVA" />
+                        <Field label="Partita IVA" placeholder="12345678901" {...f('partita_iva')} />
+                        <Field label="Codice fiscale" placeholder="se diverso da P.IVA" {...f('cf')} />
                     </div>
-                    <Field label="Sede legale" name="sede_legale" placeholder="Via Roma 1, Milano" />
+                    <Field label="Sede legale" placeholder="Via Roma 1, Milano" {...f('sede_legale')} />
                     <div className="border-t border-white/8 pt-3 space-y-3">
                         <p className="font-body text-[10px] text-nebbia/40 tracking-widest uppercase">Rappresentante legale</p>
                         <div className="grid grid-cols-2 gap-3">
-                            <Field label="Nome" name="rappr_nome" />
-                            <Field label="Cognome" name="rappr_cognome" />
+                            <Field label="Nome" {...f('rappr_nome')} />
+                            <Field label="Cognome" {...f('rappr_cognome')} />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <Field label="CF rappresentante" name="rappr_cf" />
-                            <Field label="Carica" name="rappr_carica" placeholder="Es. Amministratore Unico" />
+                            <Field label="CF rappresentante" {...f('rappr_cf')} />
+                            <Field label="Carica" placeholder="Es. Amministratore Unico" {...f('rappr_carica')} />
                         </div>
                     </div>
                 </div>
@@ -255,30 +277,22 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
             {/* Indirizzo */}
             <div className="border-t border-white/8 pt-3 space-y-3">
                 <p className="font-body text-[10px] text-nebbia/40 tracking-widest uppercase">Indirizzo</p>
-                <Field label="Indirizzo" name="indirizzo" placeholder="Via Garibaldi 5" />
+                <Field label="Indirizzo" placeholder="Via Garibaldi 5" {...f('indirizzo')} />
                 <div className="grid grid-cols-3 gap-3">
-                    <div style={{ gridColumn: 'span 2' }}>
-                        <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1.5">Comune</label>
-                        <input {...f('comune')} placeholder="Milano"
-                            className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
-                    </div>
-                    <div>
-                        <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1.5">Prov.</label>
-                        <input {...f('provincia')} maxLength={2} placeholder="MI"
-                            className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25 uppercase" />
-                    </div>
+                    <Field label="Comune" placeholder="Milano" colSpan={2} {...f('comune')} />
+                    <Field label="Prov." placeholder="MI" maxLength={2} uppercase {...f('provincia')} />
                 </div>
-                <Field label="CAP" name="cap" placeholder="20100" />
+                <Field label="CAP" placeholder="20100" {...f('cap')} />
             </div>
 
             {/* Contatti */}
             <div className="border-t border-white/8 pt-3 space-y-3">
                 <p className="font-body text-[10px] text-nebbia/40 tracking-widest uppercase">Contatti</p>
                 <div className="grid grid-cols-2 gap-3">
-                    <Field label="Email" type="email" name="email" />
-                    <Field label="Telefono" name="telefono" />
+                    <Field label="Email" type="email" {...f('email')} />
+                    <Field label="Telefono" {...f('telefono')} />
                 </div>
-                <Field label="PEC" type="email" name="pec" placeholder="esempio@pec.it" />
+                <Field label="PEC" type="email" placeholder="esempio@pec.it" {...f('pec')} />
             </div>
 
             {/* Legale avversario (collassabile) */}
@@ -293,14 +307,14 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
                 {mostraLegale && (
                     <div className="space-y-3 mt-3 pl-2">
                         <div className="grid grid-cols-2 gap-3">
-                            <Field label="Nome" name="legale_nome" />
-                            <Field label="Cognome" name="legale_cognome" />
+                            <Field label="Nome" {...f('legale_nome')} />
+                            <Field label="Cognome" {...f('legale_cognome')} />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <Field label="Foro" name="legale_foro" placeholder="Foro di Milano" />
-                            <Field label="N. albo" name="legale_albo" />
+                            <Field label="Foro" placeholder="Foro di Milano" {...f('legale_foro')} />
+                            <Field label="N. albo" {...f('legale_albo')} />
                         </div>
-                        <Field label="PEC legale" type="email" name="legale_pec" />
+                        <Field label="PEC legale" type="email" {...f('legale_pec')} />
                     </div>
                 )}
             </div>
