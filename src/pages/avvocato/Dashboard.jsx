@@ -1,514 +1,807 @@
 // src/pages/avvocato/Dashboard.jsx
+//
+// Agenda operativa + sintesi periodo. Box contatori in alto (clienti,
+// pratiche aperte, pratiche chiuse nel periodo, fatturato nel periodo).
+// Range globale in alto a destra che pilota: pratiche chiuse + fatturato.
+// Agenda (Oggi/7gg/Messaggi/Pratiche attenzione) NON dipende dal range.
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { PageHeader, StatCard } from '@/components/shared'
-import { ArrowRight, AlertTriangle, TrendingUp, Calendar } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import {
+  Calendar, AlertTriangle, Briefcase, Receipt, MessageSquare,
+  ArrowRight, Clock, Scale, FileText, TrendingUp, Inbox,
+  User, Building2, Users, FolderOpen, FolderCheck, ChevronDown
+} from 'lucide-react'
 
 // ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
-function defaultPeriodo() {
-  const now = new Date()
-  const from = new Date(now.getFullYear(), now.getMonth(), 1)
-  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-  return { from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) }
+function nomeCliente(c) {
+  if (!c) return ''
+  if (c.tipo_soggetto === 'persona_giuridica') return c.ragione_sociale ?? c.nome ?? '—'
+  return `${c.nome ?? ''} ${c.cognome ?? ''}`.trim() || '—'
 }
 
-function oraDa(iso) {
-  if (!iso) return ''
-  return new Date(iso).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+function plural(n, sing, plur) {
+  return n === 1 ? `1 ${sing}` : `${n} ${plur}`
 }
 
-// ─────────────────────────────────────────────────────────────
-// FILTRO PERIODO
-// ─────────────────────────────────────────────────────────────
-function FiltroPeriodo({ from, to, onChange }) {
-  return (
-    <div className="flex items-center gap-3 flex-wrap">
-      <div className="flex items-center gap-1.5">
-        <Calendar size={13} className="text-nebbia/30" />
-        <span className="font-body text-xs text-nebbia/30">Periodo</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <label className="font-body text-xs text-nebbia/30">Dal</label>
-        <input type="date" value={from} onChange={e => onChange({ from: e.target.value, to })}
-          className="bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-1.5 outline-none focus:border-oro/50" />
-      </div>
-      <div className="flex items-center gap-2">
-        <label className="font-body text-xs text-nebbia/30">Al</label>
-        <input type="date" value={to} onChange={e => onChange({ from, to: e.target.value })}
-          className="bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-1.5 outline-none focus:border-oro/50" />
-      </div>
-      <button onClick={() => onChange(defaultPeriodo())}
-        className="font-body text-xs text-nebbia/25 hover:text-oro transition-colors border border-white/5 px-2 py-1.5">
-        Questo mese
-      </button>
-    </div>
-  )
+function fmtEUR(n) {
+  return new Intl.NumberFormat('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n ?? 0)
+}
+
+function giorniDa(data) {
+  if (!data) return null
+  const oggi = new Date()
+  oggi.setHours(0, 0, 0, 0)
+  const d = new Date(data)
+  d.setHours(0, 0, 0, 0)
+  return Math.floor((d - oggi) / (1000 * 60 * 60 * 24))
+}
+
+function badgeUrgenza(gg) {
+  if (gg < 0) return { label: `${Math.abs(gg)}gg fa`, color: 'text-red-400 border-red-400/30 bg-red-500/10' }
+  if (gg === 0) return { label: 'Oggi', color: 'text-red-400 border-red-400/30 bg-red-500/10' }
+  if (gg <= 3) return { label: `Fra ${gg}gg`, color: 'text-oro border-oro/30 bg-oro/10' }
+  if (gg <= 7) return { label: `Fra ${gg}gg`, color: 'text-salvia border-salvia/30 bg-salvia/10' }
+  return { label: `Fra ${gg}gg`, color: 'text-nebbia/50 border-white/10 bg-petrolio/40' }
 }
 
 // ─────────────────────────────────────────────────────────────
-// SUB-COMPONENTI
+// RANGE DATE: helper
 // ─────────────────────────────────────────────────────────────
-function PraticheStato({ stato }) {
-  return (
-    <div className="bg-slate border border-white/5 p-5">
-      <p className="section-label mb-4">Pratiche</p>
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        {[
-          { label: 'Totale', val: stato.totale, color: 'text-nebbia/70' },
-          { label: 'In corso', val: stato.in_corso, color: 'text-salvia' },
-          { label: 'In udienza', val: stato.in_udienza, color: 'text-amber-400' },
-          { label: 'In attesa', val: stato.in_attesa, color: 'text-nebbia/50' },
-          { label: 'Chiuse', val: stato.chiuse, color: 'text-nebbia/40' },
-        ].map(({ label, val, color }) => (
-          <div key={label} className="text-center p-3 bg-petrolio/40 border border-white/5">
-            <p className={`font-display text-2xl font-semibold ${color}`}>{val}</p>
-            <p className="font-body text-xs text-nebbia/40 mt-1">{label}</p>
-          </div>
-        ))}
-      </div>
-      <Link to="/pratiche" className="font-body text-xs text-oro hover:text-oro/70 flex items-center gap-1 mt-4">
-        Vai alle pratiche <ArrowRight size={12} />
-      </Link>
-    </div>
-  )
-}
+function calcolaRange(preset, customStart, customEnd) {
+  const oggi = new Date()
+  let inizio, fine, label
 
-function ProssimiAppuntamenti({ appuntamenti, isStudio }) {
-  return (
-    <div className="bg-slate border border-white/5 p-5">
-      <p className="section-label mb-4">Prossimi appuntamenti</p>
-      {appuntamenti.length === 0 ? (
-        <p className="font-body text-sm text-nebbia/30 italic">Nessun appuntamento in programma</p>
-      ) : appuntamenti.map(a => (
-        <div key={a.id} className="flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0">
-          <div className="flex-1 min-w-0">
-            <p className="font-body text-sm text-nebbia">{a.cliente?.nome} {a.cliente?.cognome}</p>
-            <p className="font-body text-xs text-nebbia/40">
-              {a.tipo}{isStudio && a.avvocato ? ` · Avv. ${a.avvocato.cognome}` : ''}
-            </p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="font-body text-xs text-nebbia/60">{new Date(a.data_ora_inizio).toLocaleDateString('it-IT')}</p>
-            <p className="font-body text-xs text-oro">{oraDa(a.data_ora_inizio)}</p>
-          </div>
-        </div>
-      ))}
-      <Link to="/calendario" className="font-body text-xs text-oro hover:text-oro/70 flex items-center gap-1 mt-4">
-        Vai al calendario <ArrowRight size={12} />
-      </Link>
-    </div>
-  )
-}
+  switch (preset) {
+    case 'mese-corrente': {
+      inizio = new Date(oggi.getFullYear(), oggi.getMonth(), 1)
+      fine = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0)
+      label = oggi.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
+      label = label.charAt(0).toUpperCase() + label.slice(1)
+      break
+    }
+    case 'mese-scorso': {
+      inizio = new Date(oggi.getFullYear(), oggi.getMonth() - 1, 1)
+      fine = new Date(oggi.getFullYear(), oggi.getMonth(), 0)
+      label = inizio.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
+      label = label.charAt(0).toUpperCase() + label.slice(1)
+      break
+    }
+    case 'ultimi-90': {
+      fine = new Date(oggi)
+      inizio = new Date(oggi); inizio.setDate(inizio.getDate() - 90)
+      label = 'Ultimi 90 giorni'
+      break
+    }
+    case 'personalizzato': {
+      inizio = customStart ? new Date(customStart) : new Date(oggi.getFullYear(), oggi.getMonth(), 1)
+      fine = customEnd ? new Date(customEnd) : new Date(oggi)
+      label = `${inizio.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })} - ${fine.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}`
+      break
+    }
+    default: {
+      inizio = new Date(oggi.getFullYear(), oggi.getMonth(), 1)
+      fine = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0)
+      label = 'Questo mese'
+    }
+  }
 
-function UltimiMovimenti({ fatture, compensi, isStudio }) {
-  const movimenti = [
-    ...fatture.map(f => ({
-      id: `f-${f.id}`, origine: 'cliente',
-      nome: `${f.cliente?.nome ?? ''} ${f.cliente?.cognome ?? ''}`.trim(),
-      avv: f.avvocato ? `Avv. ${f.avvocato.cognome}` : null,
-      importo: parseFloat(f.importo ?? 0), data: f.data_emissione,
-    })),
-    ...compensi.map(c => ({
-      id: `c-${c.id}`, origine: 'sentenza',
-      nome: c.sentenza?.titolo ?? '—', avv: null,
-      importo: parseFloat(c.quota_autore ?? 0), data: c.created_at,
-    })),
-  ].sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 6)
-
-  return (
-    <div className="bg-slate border border-white/5 p-5">
-      <p className="section-label mb-4">Ultimi movimenti</p>
-      {movimenti.length === 0 ? (
-        <p className="font-body text-sm text-nebbia/30 italic">Nessun movimento nel periodo</p>
-      ) : movimenti.map(p => (
-        <div key={p.id} className="flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0">
-          <span className={`font-body text-[10px] px-2 py-0.5 border shrink-0 ${p.origine === 'sentenza'
-            ? 'border-oro/25 text-oro/70 bg-oro/5'
-            : 'border-salvia/25 text-salvia/70 bg-salvia/5'}`}>
-            {p.origine === 'sentenza' ? 'Sentenza' : 'Cliente'}
-          </span>
-          <div className="flex-1 min-w-0">
-            <p className="font-body text-sm text-nebbia truncate">{p.nome}</p>
-            {isStudio && p.avv && <p className="font-body text-xs text-nebbia/30">{p.avv}</p>}
-          </div>
-          <div className="text-right shrink-0">
-            <p className={`font-body text-sm font-medium ${p.origine === 'sentenza' ? 'text-oro' : 'text-salvia'}`}>
-              + € {p.importo.toFixed(2)}
-            </p>
-            <p className="font-body text-[10px] text-nebbia/30">{new Date(p.data).toLocaleDateString('it-IT')}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
+  inizio.setHours(0, 0, 0, 0)
+  fine.setHours(23, 59, 59, 999)
+  return { inizio, fine, label }
 }
 
 // ─────────────────────────────────────────────────────────────
-// HOOK — carica tutti i dati
-// ids = [meId] per singolo, [meId, ...collaboratoriIds] per studio
+// SELETTORE RANGE
 // ─────────────────────────────────────────────────────────────
-function useDashboard(meId, ids, periodo) {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
+function SelettoreRange({ preset, onPresetChange, customStart, customEnd, onCustomChange, label }) {
+  const [aperto, setAperto] = useState(false)
+  const ref = useRef(null)
 
   useEffect(() => {
-    if (!meId || ids.length === 0) return
-
-    async function carica() {
-      setLoading(true)
-
-      const from = periodo.from
-      const to = periodo.to + 'T23:59:59'
-      const nowIso = new Date().toISOString()
-      const isStudio = ids.length > 1
-
-      const [
-        { data: pratiche },
-        { data: appuntamenti },
-        { data: fatture },
-        { data: compensi },
-        { count: nClienti },
-        { data: collaboratori },
-      ] = await Promise.all([
-
-        // Pratiche
-        supabase.from('pratiche')
-          .select('stato')
-          .in('avvocato_id', ids),
-
-        // Appuntamenti prossimi
-        supabase.from('appuntamenti')
-          .select('id, data_ora_inizio, tipo, cliente:cliente_id(nome, cognome), avvocato:avvocato_id(cognome)')
-          .in('avvocato_id', ids)
-          .eq('stato', 'programmato')
-          .gte('data_ora_inizio', nowIso)
-          .order('data_ora_inizio').limit(5),
-
-        // Fatture nel periodo
-        supabase.from('fatture')
-          .select('id, importo, data_emissione, cliente:cliente_id(nome, cognome), avvocato:avvocato_id(cognome)')
-          .in('avvocato_id', ids)
-          .gte('data_emissione', from).lte('data_emissione', to)
-          .order('data_emissione', { ascending: false }).limit(5),
-
-        // Compensi sentenze nel periodo
-        supabase.from('accessi_sentenze')
-          .select('id, quota_autore, created_at, sentenza:sentenza_id(titolo, autore_id)')
-          .in('sentenza.autore_id', ids)
-          .gte('created_at', from).lte('created_at', to)
-          .order('created_at', { ascending: false }).limit(10),
-
-        // Clienti count
-        supabase.from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .in('avvocato_id', ids)
-          .eq('role', 'cliente'),
-
-        // Collaboratori (per sezione membri)
-        isStudio
-          ? supabase.from('profiles').select('id, nome, cognome').in('id', ids)
-          : Promise.resolve({ data: [] }),
-      ])
-
-      // Conta pratiche per stato
-      const ps = pratiche ?? []
-      const statoMap = { in_corso: 0, in_udienza: 0, in_attesa: 0, chiuse: 0 }
-      ps.forEach(p => {
-        if (p.stato === 'in_corso') statoMap.in_corso++
-        else if (p.stato === 'in_udienza') statoMap.in_udienza++
-        else if (p.stato === 'in_attesa') statoMap.in_attesa++
-        else if (p.stato === 'chiusa') statoMap.chiuse++
-      })
-
-      const compMiei = (compensi ?? []).filter(c => ids.includes(c.sentenza?.autore_id))
-      const guadagniSentenze = compMiei.reduce((a, c) => a + parseFloat(c.quota_autore ?? 0), 0)
-      const guadagniClienti = (fatture ?? []).reduce((a, f) => a + parseFloat(f.importo ?? 0), 0)
-
-      setData({
-        pratiche: { ...statoMap, totale: ps.length },
-        appuntamenti: appuntamenti ?? [],
-        fatture: fatture ?? [],
-        compensi: compMiei,
-        guadagniSentenze,
-        guadagniClienti,
-        guadagniTotale: guadagniSentenze + guadagniClienti,
-        nClienti: nClienti ?? 0,
-        collaboratori: collaboratori ?? [],
-      })
-      setLoading(false)
+    function handleClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setAperto(false)
     }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
-    carica()
-  }, [meId, ids.join(','), periodo.from, periodo.to])
-
-  return { data, loading }
-}
-
-// ─────────────────────────────────────────────────────────────
-// DASHBOARD SINGOLA
-// ─────────────────────────────────────────────────────────────
-function DashboardSingola({ profile, meId, showTrialFeedback, setShowTrialFeedback }) {
-  const [periodo, setPeriodo] = useState(defaultPeriodo)
-  const { data, loading } = useDashboard(meId, [meId], periodo)
-
-  const pctSent = data && data.guadagniTotale > 0
-    ? Math.round((data.guadagniSentenze / data.guadagniTotale) * 100) : 0
+  const opzioni = [
+    { value: 'mese-corrente', label: 'Questo mese' },
+    { value: 'mese-scorso', label: 'Mese scorso' },
+    { value: 'ultimi-90', label: 'Ultimi 90 giorni' },
+    { value: 'personalizzato', label: 'Personalizzato' },
+  ]
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <PageHeader label="Dashboard" title={`Buongiorno, Avv. ${profile?.cognome ?? ''}`} />
-        {showTrialFeedback && (
-          <div className="bg-slate border border-oro/25 p-5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-oro/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none" />
-            <div className="relative flex items-start justify-between gap-4 flex-wrap">
-              <div className="space-y-1.5">
-                <p className="font-body text-sm font-medium text-oro">La tua prova gratuita è scaduta</p>
-                <p className="font-body text-xs text-nebbia/50 leading-relaxed max-w-lg">
-                  Come ti sei trovato con Lexum? Scegli un piano per continuare a lavorare
-                  con le tue pratiche, clienti e documenti.
-                </p>
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setAperto(v => !v)}
+        className="flex items-center gap-2 px-3 py-2 bg-petrolio/60 border border-white/10 text-nebbia/70 font-body text-xs hover:border-oro/30 hover:text-nebbia transition-colors"
+      >
+        <Calendar size={11} className="text-oro/60" />
+        <span>{label}</span>
+        <ChevronDown size={10} className={`text-nebbia/40 transition-transform ${aperto ? 'rotate-180' : ''}`} />
+      </button>
+
+      {aperto && (
+        <div className="absolute top-full right-0 mt-1 w-56 bg-slate border border-white/10 z-20 shadow-xl">
+          {opzioni.map(o => (
+            <button
+              key={o.value}
+              onClick={() => {
+                onPresetChange(o.value)
+                if (o.value !== 'personalizzato') setAperto(false)
+              }}
+              className={`w-full text-left px-3 py-2 font-body text-xs hover:bg-petrolio/60 transition-colors flex items-center justify-between ${preset === o.value ? 'text-oro' : 'text-nebbia/70'
+                }`}
+            >
+              {o.label}
+              {preset === o.value && <span className="w-1 h-1 bg-oro rounded-full" />}
+            </button>
+          ))}
+
+          {preset === 'personalizzato' && (
+            <div className="border-t border-white/10 p-3 space-y-2">
+              <div>
+                <label className="block font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">Da</label>
+                <input
+                  type="date"
+                  value={customStart || ''}
+                  onChange={e => onCustomChange('start', e.target.value)}
+                  className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40"
+                />
               </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <button
-                  onClick={() => setShowTrialFeedback(false)}
-                  className="font-body text-xs text-nebbia/30 hover:text-nebbia transition-colors"
-                >
-                  Dopo
-                </button>
-                <a
-                  href="/studio?tab=acquista"
-                  className="flex items-center gap-2 px-5 py-2.5 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors"
-                >
-                  Vedi i piani →
-                </a>
+              <div>
+                <label className="block font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">A</label>
+                <input
+                  type="date"
+                  value={customEnd || ''}
+                  onChange={e => onCustomChange('end', e.target.value)}
+                  className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40"
+                />
               </div>
-            </div>
-          </div>
-        )}
-        <FiltroPeriodo from={periodo.from} to={periodo.to} onChange={setPeriodo} />
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-32">
-          <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 gap-4">
-            <StatCard label="Clienti attivi" value={data.nClienti} colorClass="text-oro" />
-            <StatCard label="Appuntamenti nel periodo" value={data.appuntamenti.length} colorClass="text-nebbia/60" />
-          </div>
-
-          <div className="bg-slate/40 border border-white/5 p-4 space-y-3">
-            <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest flex items-center gap-2">
-              <TrendingUp size={13} /> Guadagni nel periodo
-            </p>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-slate border border-white/5 p-4">
-                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Totale</p>
-                <p className="font-display text-2xl font-semibold text-oro">€ {data.guadagniTotale.toLocaleString('it-IT')}</p>
-              </div>
-              <div className="bg-slate border border-white/5 p-4">
-                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Da sentenze</p>
-                <p className="font-display text-2xl font-semibold text-oro">€ {data.guadagniSentenze.toLocaleString('it-IT')}</p>
-                <p className="font-body text-xs text-nebbia/30 mt-1">{pctSent}% del totale</p>
-              </div>
-              <div className="bg-slate border border-white/5 p-4">
-                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Da clienti</p>
-                <p className="font-display text-2xl font-semibold text-salvia">€ {data.guadagniClienti.toLocaleString('it-IT')}</p>
-              </div>
-            </div>
-          </div>
-
-          <PraticheStato stato={data.pratiche} />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <ProssimiAppuntamenti appuntamenti={data.appuntamenti} isStudio={false} />
-            <UltimiMovimenti fatture={data.fatture} compensi={data.compensi} isStudio={false} />
-          </div>
-        </>
-      )}
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────
-// DASHBOARD STUDIO
-// ─────────────────────────────────────────────────────────────
-function DashboardStudio({ profile, meId, collaboratoriIds }) {
-  const [periodo, setPeriodo] = useState(defaultPeriodo)
-  const ids = [meId, ...collaboratoriIds]
-  const { data, loading } = useDashboard(meId, ids, periodo)
-
-  const pctSent = data && data.guadagniTotale > 0
-    ? Math.round((data.guadagniSentenze / data.guadagniTotale) * 100) : 0
-
-  const scadenza = profile?.abbonamento_scadenza
-  const giorni = scadenza ? Math.ceil((new Date(scadenza) - new Date()) / (1000 * 60 * 60 * 24)) : null
-  const inScadenza = giorni !== null && giorni <= 30 && giorni > 0
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <PageHeader
-          label="Dashboard Studio"
-          title={`Buongiorno, Avv. ${profile?.cognome ?? ''}`}
-          subtitle={profile?.studio ?? ''}
-        />
-        <FiltroPeriodo from={periodo.from} to={periodo.to} onChange={setPeriodo} />
-      </div>
-
-      {!loading && inScadenza && (
-        <div className="bg-amber-900/10 border border-amber-500/20 p-4 flex items-center gap-3">
-          <AlertTriangle size={15} className="text-amber-400 shrink-0" />
-          <p className="font-body text-sm text-nebbia/60 flex-1">
-            Abbonamento <span className="text-amber-400">{profile?.abbonamento_tipo ?? ''}</span> in scadenza tra{' '}
-            <span className="text-amber-400 font-medium">{giorni} giorni</span>.
-          </p>
-          <Link to="/studio" className="font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors whitespace-nowrap">
-            Rinnova →
-          </Link>
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex items-center justify-center py-32">
-          <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 gap-4">
-            <StatCard label="Clienti studio" value={data.nClienti} colorClass="text-oro" />
-            <StatCard label="Appuntamenti nel periodo" value={data.appuntamenti.length} colorClass="text-nebbia/60" />
-          </div>
-
-          <div className="bg-slate/40 border border-white/5 p-4 space-y-3">
-            <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest flex items-center gap-2">
-              <TrendingUp size={13} /> Guadagni studio nel periodo
-            </p>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-slate border border-white/5 p-4">
-                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Totale</p>
-                <p className="font-display text-2xl font-semibold text-oro">€ {data.guadagniTotale.toLocaleString('it-IT')}</p>
-              </div>
-              <div className="bg-slate border border-white/5 p-4">
-                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Da sentenze</p>
-                <p className="font-display text-2xl font-semibold text-oro">€ {data.guadagniSentenze.toLocaleString('it-IT')}</p>
-                <p className="font-body text-xs text-nebbia/30 mt-1">{pctSent}% del totale</p>
-              </div>
-              <div className="bg-slate border border-white/5 p-4">
-                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Da clienti</p>
-                <p className="font-display text-2xl font-semibold text-salvia">€ {data.guadagniClienti.toLocaleString('it-IT')}</p>
-              </div>
-            </div>
-          </div>
-
-          <PraticheStato stato={data.pratiche} />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <ProssimiAppuntamenti appuntamenti={data.appuntamenti} isStudio={true} />
-            <UltimiMovimenti fatture={data.fatture} compensi={data.compensi} isStudio={true} />
-          </div>
-
-          {/* Collaboratori */}
-          {data.collaboratori.length > 0 && (
-            <div className="bg-slate border border-white/5 p-5">
-              <div className="flex items-center justify-between mb-4">
-                <p className="section-label">Collaboratori</p>
-                <Link to="/studio" className="font-body text-xs text-oro hover:text-oro/70 flex items-center gap-1">
-                  Gestisci <ArrowRight size={12} />
-                </Link>
-              </div>
-              <div className="space-y-0">
-                {data.collaboratori.map(c => (
-                  <div key={c.id} className="flex items-center gap-4 py-3 border-b border-white/5 last:border-0">
-                    <div className="w-8 h-8 bg-salvia/20 border border-salvia/30 flex items-center justify-center shrink-0">
-                      <span className="font-display text-xs font-semibold text-salvia">{(c.nome ?? '?')[0]}</span>
-                    </div>
-                    <p className="font-body text-sm font-medium text-nebbia">{c.nome} {c.cognome}</p>
-                  </div>
-                ))}
-              </div>
+              <button
+                onClick={() => setAperto(false)}
+                className="w-full px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors"
+              >
+                Applica
+              </button>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   )
 }
 
 // ─────────────────────────────────────────────────────────────
-// ENTRY POINT
+// BOX CONTATORE
+// ─────────────────────────────────────────────────────────────
+function BoxContatore({ icon: Icon, label, value, sublabel, accent = 'nebbia', link }) {
+  const accentClasses = {
+    nebbia: 'text-nebbia/85',
+    oro: 'text-oro',
+    salvia: 'text-salvia',
+  }
+  const iconClasses = {
+    nebbia: 'text-nebbia/40 bg-petrolio/40 border-white/10',
+    oro: 'text-oro bg-oro/10 border-oro/20',
+    salvia: 'text-salvia bg-salvia/10 border-salvia/20',
+  }
+  const content = (
+    <div className="bg-slate border border-white/5 p-4 hover:border-oro/20 transition-colors group h-full">
+      <div className="flex items-center justify-between mb-3">
+        <div className={`w-8 h-8 flex items-center justify-center border ${iconClasses[accent]}`}>
+          <Icon size={13} />
+        </div>
+        {link && (
+          <ArrowRight size={12} className="text-nebbia/20 group-hover:text-oro transition-colors" />
+        )}
+      </div>
+      <p className={`font-display text-2xl font-light leading-none mb-1 ${accentClasses[accent]}`}>{value}</p>
+      <p className="font-body text-[11px] text-nebbia/40 uppercase tracking-widest">{label}</p>
+      {sublabel && <p className="font-body text-[10px] text-nebbia/30 mt-1">{sublabel}</p>}
+    </div>
+  )
+  return link ? <Link to={link} className="block h-full">{content}</Link> : content
+}
+
+// ─────────────────────────────────────────────────────────────
+// SECTION CARD
+// ─────────────────────────────────────────────────────────────
+function SectionCard({ title, icon: Icon, count, link, linkLabel, children, empty }) {
+  return (
+    <div className="bg-slate border border-white/5 flex flex-col">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+        <div className="flex items-center gap-2">
+          {Icon && <Icon size={13} className="text-nebbia/40" />}
+          <h3 className="font-body text-xs font-medium text-nebbia/60 tracking-widest uppercase">{title}</h3>
+          {count !== undefined && count > 0 && (
+            <span className="font-body text-[10px] text-nebbia/30">({count})</span>
+          )}
+        </div>
+        {link && (
+          <Link to={link} className="font-body text-[10px] text-nebbia/30 hover:text-oro transition-colors flex items-center gap-1">
+            {linkLabel ?? 'Vedi tutti'} <ArrowRight size={9} />
+          </Link>
+        )}
+      </div>
+      <div className="flex-1 p-3">
+        {children || (
+          <p className="font-body text-xs text-nebbia/30 italic text-center py-6">{empty ?? 'Niente da mostrare.'}</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function EventoItem({ icon: Icon, titolo, sottotitolo, badge, link, accent = 'oro' }) {
+  const iconColor = accent === 'red' ? 'text-red-400' : accent === 'salvia' ? 'text-salvia' : 'text-oro'
+  const content = (
+    <div className="flex items-center gap-3 px-2.5 py-2 hover:bg-petrolio/40 transition-colors group">
+      <Icon size={12} className={`${iconColor} shrink-0`} />
+      <div className="flex-1 min-w-0">
+        <p className="font-body text-xs text-nebbia/85 truncate group-hover:text-oro transition-colors">{titolo}</p>
+        {sottotitolo && <p className="font-body text-[11px] text-nebbia/40 truncate">{sottotitolo}</p>}
+      </div>
+      {badge && (
+        <span className={`font-body text-[10px] px-2 py-0.5 border ${badge.color} shrink-0`}>
+          {badge.label}
+        </span>
+      )}
+    </div>
+  )
+  return link ? <Link to={link}>{content}</Link> : content
+}
+
+// ─────────────────────────────────────────────────────────────
+// COMPONENTE PRINCIPALE
 // ─────────────────────────────────────────────────────────────
 export default function AvvocatoDashboard() {
   const { profile } = useAuth()
+
   const [showTrialFeedback, setShowTrialFeedback] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function checkTrial() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('prova_gratuita_usata, abbonamento_scadenza, piano_id, abbonamento_tipo')
-        .eq('id', user.id)
-        .single()
-
-      if (
-        prof?.prova_gratuita_usata &&
-        prof?.abbonamento_scadenza &&
-        new Date(prof.abbonamento_scadenza) < new Date() &&
-        !prof?.piano_id
-      ) {
-        setShowTrialFeedback(true)
-      }
-    }
-    checkTrial()
-  }, [])
-  const [meId, setMeId] = useState(null)
-  const [isStudio, setIsStudio] = useState(false)
-  const [collaboratoriIds, setCollaboratoriIds] = useState([])
-  const [loaded, setLoaded] = useState(false)
-
-  useEffect(() => {
-    async function carica() {
-      const { data: { user } } = await supabase.auth.getUser()
-      setMeId(user.id)
-
-      const { data: p } = await supabase
-        .from('profiles')
-        .select('posti_acquistati')
-        .eq('id', user.id)
-        .single()
-
-      const haStudio = (p?.posti_acquistati ?? 1) > 1
-      setIsStudio(haStudio)
-
-      if (haStudio) {
-        const { data: collabs } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('titolare_id', user.id)
-        setCollaboratoriIds((collabs ?? []).map(c => c.id))
-      }
-
-      setLoaded(true)
-    }
-    carica()
-  }, [])
-
-  if (!loaded || !meId) return (
-    <div className="flex items-center justify-center py-40">
-      <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
-    </div>
+  // ─── Range globale ───────────────────────────────────────
+  const [rangePreset, setRangePreset] = useState('mese-corrente')
+  const [customStart, setCustomStart] = useState('')
+  const [customEnd, setCustomEnd] = useState('')
+  const range = useMemo(
+    () => calcolaRange(rangePreset, customStart, customEnd),
+    [rangePreset, customStart, customEnd]
   )
 
-  if (isStudio) return <DashboardStudio profile={profile} meId={meId} collaboratoriIds={collaboratoriIds} />
-  return <DashboardSingola profile={profile} meId={meId} showTrialFeedback={showTrialFeedback} setShowTrialFeedback={setShowTrialFeedback} />
+  // ─── Dati: contatori globali (snapshot, no range) ────────
+  const [tot, setTot] = useState({ clienti: 0, pratiche_aperte: 0 })
+
+  // ─── Dati: metriche di periodo (col range) ───────────────
+  const [periodo, setPeriodo] = useState({ pratiche_chiuse: 0, fatturato_tot: 0, incassato: 0, da_incassare: 0 })
+
+  // ─── Dati: agenda (no range, sempre "adesso") ────────────
+  const [eventiOggi, setEventiOggi] = useState([])
+  const [eventiSettimana, setEventiSettimana] = useState([])
+  const [praticheAttenzione, setPraticheAttenzione] = useState([])
+  const [fatture, setFatture] = useState({ scadute: [], in_scadenza: [] })
+  const [messaggi, setMessaggi] = useState([])
+
+  // ─── Carica agenda (una volta) ───────────────────────────
+  useEffect(() => {
+    if (!profile?.id) return
+    caricaAgenda()
+    caricaContatoriGlobali()
+    controllaTrial()
+  }, [profile?.id])
+
+  // ─── Carica metriche periodo (ad ogni cambio range) ──────
+  useEffect(() => {
+    if (!profile?.id) return
+    caricaPeriodo()
+  }, [profile?.id, range.inizio.getTime(), range.fine.getTime()])
+
+  async function controllaTrial() {
+    const { data: prof } = await supabase
+      .from('profiles')
+      .select('prova_gratuita_usata, abbonamento_scadenza, piano_id')
+      .eq('id', profile.id)
+      .single()
+
+    if (
+      prof?.prova_gratuita_usata &&
+      prof?.abbonamento_scadenza &&
+      new Date(prof.abbonamento_scadenza) < new Date() &&
+      !prof?.piano_id
+    ) {
+      setShowTrialFeedback(true)
+    }
+  }
+
+  async function caricaContatoriGlobali() {
+    // Clienti totali
+    const { count: countClienti } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('role', 'cliente')
+      .eq('avvocato_id', profile.id)
+
+    // Pratiche aperte
+    const { count: countAperte } = await supabase
+      .from('pratiche')
+      .select('*', { count: 'exact', head: true })
+      .eq('avvocato_id', profile.id)
+      .eq('stato', 'aperta')
+
+    setTot({
+      clienti: countClienti ?? 0,
+      pratiche_aperte: countAperte ?? 0,
+    })
+  }
+
+  async function caricaPeriodo() {
+    const inizioISO = range.inizio.toISOString()
+    const fineISO = range.fine.toISOString()
+
+    // Pratiche chiuse nel periodo (assumo colonna data_chiusura o updated_at quando stato='chiusa')
+    // Se hai una colonna specifica come `chiusa_at`, sostituiscila qui
+    const { count: countChiuse } = await supabase
+      .from('pratiche')
+      .select('*', { count: 'exact', head: true })
+      .eq('avvocato_id', profile.id)
+      .eq('stato', 'chiusa')
+      .gte('updated_at', inizioISO)
+      .lte('updated_at', fineISO)
+
+    // Fatturato nel periodo (per data_emissione)
+    const { data: fattPeriodo } = await supabase
+      .from('fatture')
+      .select('totale_lordo, stato, data_pagamento')
+      .eq('autore_id', profile.id)
+      .gte('data_emissione', inizioISO.split('T')[0])
+      .lte('data_emissione', fineISO.split('T')[0])
+
+    let fatturatoTot = 0
+    let incassato = 0
+    let daIncassare = 0
+
+    for (const f of fattPeriodo ?? []) {
+      const imp = Number(f.totale_lordo) || 0
+      if (f.stato !== 'bozza') fatturatoTot += imp
+      if (f.stato === 'pagata') incassato += imp
+      else if (f.stato !== 'bozza') daIncassare += imp
+    }
+
+    setPeriodo({
+      pratiche_chiuse: countChiuse ?? 0,
+      fatturato_tot: fatturatoTot,
+      incassato,
+      da_incassare: daIncassare,
+    })
+  }
+
+  async function caricaAgenda() {
+    setLoading(true)
+
+    const oggi = new Date()
+    const inizioGiorno = new Date(oggi); inizioGiorno.setHours(0, 0, 0, 0)
+    const fineGiorno = new Date(oggi); fineGiorno.setHours(23, 59, 59, 999)
+    const fra7gg = new Date(oggi); fra7gg.setDate(fra7gg.getDate() + 7)
+    const fra3gg = new Date(oggi); fra3gg.setDate(fra3gg.getDate() + 3); fra3gg.setHours(23, 59, 59, 999)
+    const fra14gg = new Date(oggi); fra14gg.setDate(fra14gg.getDate() + 14)
+
+    // OGGI
+    const { data: appOggi } = await supabase
+      .from('appuntamenti')
+      .select('id, titolo, data_inizio, tipo, pratica_id, pratica:pratica_id(titolo)')
+      .eq('avvocato_id', profile.id)
+      .gte('data_inizio', inizioGiorno.toISOString())
+      .lte('data_inizio', fineGiorno.toISOString())
+      .order('data_inizio')
+
+    // SETTIMANA
+    const domani = new Date(oggi); domani.setDate(domani.getDate() + 1); domani.setHours(0, 0, 0, 0)
+    const { data: appSettimana } = await supabase
+      .from('appuntamenti')
+      .select('id, titolo, data_inizio, tipo, pratica_id, pratica:pratica_id(titolo)')
+      .eq('avvocato_id', profile.id)
+      .gte('data_inizio', domani.toISOString())
+      .lte('data_inizio', fra7gg.toISOString())
+      .order('data_inizio')
+      .limit(8)
+
+    // PRATICHE ATTENZIONE
+    const { data: praticheUrgenti } = await supabase
+      .from('pratiche')
+      .select(`
+                id, titolo, tipo, stato, updated_at, prossima_udienza,
+                cliente:cliente_id(nome, cognome, ragione_sociale, tipo_soggetto)
+            `)
+      .eq('avvocato_id', profile.id)
+      .eq('stato', 'aperta')
+      .or(`prossima_udienza.gte.${oggi.toISOString()},prossima_udienza.lte.${fra14gg.toISOString()}`)
+      .order('prossima_udienza', { ascending: true, nullsFirst: false })
+      .limit(5)
+
+    // FATTURE in attesa (scadute + in scadenza 3gg) - NO range, è agenda
+    const { data: tutteFatture } = await supabase
+      .from('fatture')
+      .select(`
+                id, numero, anno, data_scadenza, data_pagamento, totale_lordo, stato,
+                cliente:cliente_id(nome, cognome, ragione_sociale, tipo_soggetto)
+            `)
+      .eq('autore_id', profile.id)
+      .order('data_scadenza', { ascending: true })
+
+    let scadute = []
+    let inScadenza = []
+
+    for (const f of tutteFatture ?? []) {
+      if (f.stato === 'pagata' || f.stato === 'bozza') continue
+      const dataScad = f.data_scadenza ? new Date(f.data_scadenza) : null
+      if (!dataScad) continue
+      if (dataScad < inizioGiorno) scadute.push(f)
+      else if (dataScad <= fra3gg) inScadenza.push(f)
+    }
+    scadute = scadute.slice(0, 5)
+    inScadenza = inScadenza.slice(0, 4)
+
+    // MESSAGGI
+    const { data: tickets } = await supabase
+      .from('ticket_assistenza')
+      .select(`
+                id, oggetto, ultimo_messaggio_at, stato,
+                cliente:cliente_id(nome, cognome, ragione_sociale, tipo_soggetto),
+                ultimo_messaggio_autore_id
+            `)
+      .eq('avvocato_id', profile.id)
+      .neq('ultimo_messaggio_autore_id', profile.id)
+      .in('stato', ['aperto', 'in_lavorazione'])
+      .order('ultimo_messaggio_at', { ascending: false })
+      .limit(5)
+
+    setEventiOggi(appOggi ?? [])
+    setEventiSettimana(appSettimana ?? [])
+    setPraticheAttenzione(praticheUrgenti ?? [])
+    setFatture({ scadute, in_scadenza: inScadenza })
+    setMessaggi(tickets ?? [])
+    setLoading(false)
+  }
+
+  function handleCustomChange(key, value) {
+    if (key === 'start') setCustomStart(value)
+    else setCustomEnd(value)
+  }
+
+  // ─── Sommario header ─────────────────────────────────────
+  const sommario = useMemo(() => {
+    const udienze = eventiOggi.filter(e => e.tipo === 'udienza').length
+    const termini = eventiOggi.filter(e => e.tipo === 'scadenza').length
+    const appuntamenti = eventiOggi.filter(e => e.tipo === 'appuntamento' || e.tipo === 'chiamata').length
+
+    const parti = []
+    if (udienze > 0) parti.push(plural(udienze, 'udienza', 'udienze'))
+    if (termini > 0) parti.push(plural(termini, 'termine', 'termini'))
+    if (appuntamenti > 0) parti.push(plural(appuntamenti, 'appuntamento', 'appuntamenti'))
+
+    const totFatture = fatture.scadute.length + fatture.in_scadenza.length
+    let frase = ''
+
+    if (parti.length === 0 && totFatture === 0 && messaggi.length === 0) {
+      frase = 'Niente in calendario per oggi. Approfittane per aggiornare le pratiche o organizzare le ricerche.'
+    } else {
+      if (parti.length > 0) frase = `Oggi hai ${parti.join(', ')}.`
+      if (totFatture > 0) frase += (frase ? ' ' : '') + `${plural(totFatture, 'fattura', 'fatture')} in attesa.`
+      if (messaggi.length > 0) frase += (frase ? ' ' : '') + `${plural(messaggi.length, 'messaggio nuovo', 'messaggi nuovi')}.`
+    }
+    return frase
+  }, [eventiOggi, fatture, messaggi])
+
+  const orarioGiorno = useMemo(() => {
+    const h = new Date().getHours()
+    if (h < 6) return 'Buonanotte'
+    if (h < 13) return 'Buongiorno'
+    if (h < 19) return 'Buon pomeriggio'
+    return 'Buonasera'
+  }, [])
+
+  return (
+    <div className="space-y-5">
+      {/* ─── HEADER + range selector ───────────────────── */}
+      <div className="bg-slate border border-white/5 px-6 py-5">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <p className="font-body text-xs text-oro/60 tracking-widest uppercase mb-1">Dashboard</p>
+            <h1 className="font-display text-2xl font-light text-nebbia mb-2">
+              {orarioGiorno}, {profile?.nome ?? ''}.
+            </h1>
+            <p className="font-body text-sm text-nebbia/55 leading-relaxed">{sommario}</p>
+          </div>
+          <div className="shrink-0">
+            <SelettoreRange
+              preset={rangePreset}
+              onPresetChange={setRangePreset}
+              customStart={customStart}
+              customEnd={customEnd}
+              onCustomChange={handleCustomChange}
+              label={range.label}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Banner trial scaduto ───────────────────────── */}
+      {showTrialFeedback && (
+        <div className="bg-slate border border-oro/25 p-5 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-oro/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none" />
+          <div className="relative flex items-start justify-between gap-4 flex-wrap">
+            <div className="space-y-1.5">
+              <p className="font-body text-sm font-medium text-oro">La tua prova gratuita e scaduta</p>
+              <p className="font-body text-xs text-nebbia/50 leading-relaxed max-w-lg">
+                Scegli un piano per continuare a lavorare con le tue pratiche, clienti e documenti.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <button onClick={() => setShowTrialFeedback(false)}
+                className="font-body text-xs text-nebbia/30 hover:text-nebbia transition-colors">
+                Dopo
+              </button>
+              <Link to="/studio?tab=acquista"
+                className="flex items-center gap-2 px-5 py-2.5 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors">
+                Vedi i piani →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 3 BOX CONTATORI ───────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <BoxContatore
+          icon={Users}
+          label="Clienti"
+          value={tot.clienti}
+          sublabel="Totale"
+          accent="nebbia"
+          link="/clienti"
+        />
+        <BoxContatore
+          icon={FolderOpen}
+          label="Pratiche aperte"
+          value={tot.pratiche_aperte}
+          sublabel="Adesso"
+          accent="oro"
+          link="/pratiche"
+        />
+        <BoxContatore
+          icon={FolderCheck}
+          label="Pratiche chiuse"
+          value={periodo.pratiche_chiuse}
+          sublabel={range.label}
+          accent="salvia"
+          link="/pratiche"
+        />
+      </div>
+
+      {/* ─── Loading ───────────────────────────────────── */}
+      {loading && (
+        <div className="flex items-center justify-center py-10">
+          <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
+        </div>
+      )}
+
+      {/* ─── Griglia agenda ─────────────────────────────── */}
+      {!loading && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+          {/* OGGI */}
+          <SectionCard
+            title="Oggi"
+            icon={Clock}
+            count={eventiOggi.length}
+            link="/calendario"
+            empty="Nessun impegno oggi."
+          >
+            {eventiOggi.length > 0 && (
+              <div className="space-y-0.5">
+                {eventiOggi.map(e => {
+                  const ora = new Date(e.data_inizio).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                  const tipoIcon = e.tipo === 'udienza' ? Scale : e.tipo === 'scadenza' ? AlertTriangle : Calendar
+                  const accent = e.tipo === 'scadenza' ? 'red' : e.tipo === 'udienza' ? 'oro' : 'salvia'
+                  return (
+                    <EventoItem
+                      key={e.id}
+                      icon={tipoIcon}
+                      titolo={e.titolo}
+                      sottotitolo={e.pratica?.titolo}
+                      badge={{ label: ora, color: 'text-nebbia/60 border-white/10 bg-petrolio/40' }}
+                      link={e.pratica_id ? `/pratiche/${e.pratica_id}` : '/calendario'}
+                      accent={accent}
+                    />
+                  )
+                })}
+              </div>
+            )}
+          </SectionCard>
+
+          {/* FATTURE */}
+          <SectionCard
+            title="Fatturazione"
+            icon={Receipt}
+            link="/pagamenti"
+          >
+            {/* Hero stat: incassato + da incassare nel range */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="bg-salvia/5 border border-salvia/15 px-3 py-2.5">
+                <p className="font-body text-[10px] text-salvia/60 uppercase tracking-widest mb-1 flex items-center gap-1">
+                  <TrendingUp size={9} /> Incassato
+                </p>
+                <p className="font-body text-base text-salvia">EUR {fmtEUR(periodo.incassato)}</p>
+                <p className="font-body text-[10px] text-nebbia/30 mt-0.5 truncate">{range.label}</p>
+              </div>
+              <div className="bg-petrolio/40 border border-white/5 px-3 py-2.5">
+                <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">Da incassare</p>
+                <p className="font-body text-base text-nebbia/85">EUR {fmtEUR(periodo.da_incassare)}</p>
+                <p className="font-body text-[10px] text-nebbia/30 mt-0.5 truncate">{range.label}</p>
+              </div>
+            </div>
+
+            {/* Fatture scadute (agenda, non range) */}
+            {fatture.scadute.length > 0 && (
+              <div className="space-y-0.5 pt-1">
+                {fatture.scadute.map(f => {
+                  const gg = giorniDa(f.data_scadenza)
+                  return (
+                    <EventoItem
+                      key={f.id}
+                      icon={FileText}
+                      titolo={`Fattura ${f.anno}/${f.numero}`}
+                      sottotitolo={`${nomeCliente(f.cliente)} - EUR ${fmtEUR(f.totale_lordo)}`}
+                      badge={badgeUrgenza(gg)}
+                      link="/pagamenti"
+                      accent="red"
+                    />
+                  )
+                })}
+              </div>
+            )}
+
+            {fatture.in_scadenza.length > 0 && (
+              <div className="space-y-0.5">
+                {fatture.in_scadenza.map(f => {
+                  const gg = giorniDa(f.data_scadenza)
+                  return (
+                    <EventoItem
+                      key={f.id}
+                      icon={FileText}
+                      titolo={`Fattura ${f.anno}/${f.numero}`}
+                      sottotitolo={`${nomeCliente(f.cliente)} - EUR ${fmtEUR(f.totale_lordo)}`}
+                      badge={badgeUrgenza(gg)}
+                      link="/pagamenti"
+                      accent="oro"
+                    />
+                  )
+                })}
+              </div>
+            )}
+
+            {fatture.scadute.length === 0 && fatture.in_scadenza.length === 0 && (
+              <p className="font-body text-xs text-nebbia/30 italic text-center py-3">Nessuna fattura in attesa.</p>
+            )}
+          </SectionCard>
+
+          {/* PROSSIMI 7 GIORNI */}
+          <SectionCard
+            title="Prossimi 7 giorni"
+            icon={Calendar}
+            count={eventiSettimana.length}
+            link="/calendario"
+            empty="Nessun impegno nei prossimi 7 giorni."
+          >
+            {eventiSettimana.length > 0 && (
+              <div className="space-y-0.5">
+                {eventiSettimana.map(e => {
+                  const gg = giorniDa(e.data_inizio)
+                  const tipoIcon = e.tipo === 'udienza' ? Scale : e.tipo === 'scadenza' ? AlertTriangle : Calendar
+                  const accent = e.tipo === 'scadenza' ? 'red' : e.tipo === 'udienza' ? 'oro' : 'salvia'
+                  return (
+                    <EventoItem
+                      key={e.id}
+                      icon={tipoIcon}
+                      titolo={e.titolo}
+                      sottotitolo={e.pratica?.titolo}
+                      badge={badgeUrgenza(gg)}
+                      link={e.pratica_id ? `/pratiche/${e.pratica_id}` : '/calendario'}
+                      accent={accent}
+                    />
+                  )
+                })}
+              </div>
+            )}
+          </SectionCard>
+
+          {/* MESSAGGI */}
+          <SectionCard
+            title="Messaggi non letti"
+            icon={MessageSquare}
+            count={messaggi.length}
+            link="/assistenza"
+            empty="Nessun messaggio in attesa."
+          >
+            {messaggi.length > 0 && (
+              <div className="space-y-0.5">
+                {messaggi.map(t => {
+                  const data = t.ultimo_messaggio_at
+                    ? new Date(t.ultimo_messaggio_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })
+                    : null
+                  return (
+                    <EventoItem
+                      key={t.id}
+                      icon={Inbox}
+                      titolo={t.oggetto || 'Senza oggetto'}
+                      sottotitolo={nomeCliente(t.cliente)}
+                      badge={data ? { label: data, color: 'text-nebbia/60 border-white/10 bg-petrolio/40' } : null}
+                      link={`/assistenza/${t.id}`}
+                      accent="salvia"
+                    />
+                  )
+                })}
+              </div>
+            )}
+          </SectionCard>
+
+        </div>
+      )}
+
+      {/* ─── PRATICHE ATTENZIONE (sempre visibile con empty) ─── */}
+      {!loading && (
+        <SectionCard
+          title="Pratiche che richiedono attenzione"
+          icon={Briefcase}
+          count={praticheAttenzione.length}
+          link="/pratiche"
+          empty="Nessuna pratica con scadenza imminente."
+        >
+          {praticheAttenzione.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {praticheAttenzione.map(p => {
+                const gg = p.prossima_udienza ? giorniDa(p.prossima_udienza) : null
+                const badge = gg !== null ? badgeUrgenza(gg) : null
+                const cli = p.cliente
+                const IconCli = cli?.tipo_soggetto === 'persona_giuridica' ? Building2 : User
+                return (
+                  <Link
+                    key={p.id}
+                    to={`/pratiche/${p.id}`}
+                    className="block bg-petrolio/40 border border-white/5 p-3 hover:border-oro/25 transition-colors group"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <p className="font-body text-xs font-medium text-nebbia/85 leading-snug group-hover:text-oro transition-colors line-clamp-2">
+                        {p.titolo}
+                      </p>
+                      {badge && (
+                        <span className={`font-body text-[10px] px-2 py-0.5 border ${badge.color} shrink-0`}>
+                          {badge.label}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-nebbia/40">
+                      <IconCli size={10} />
+                      <p className="font-body text-[11px] truncate">{nomeCliente(cli)}</p>
+                    </div>
+                    {p.tipo && (
+                      <p className="font-body text-[10px] text-nebbia/30 mt-1 uppercase tracking-widest">{p.tipo}</p>
+                    )}
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </SectionCard>
+      )}
+    </div>
+  )
 }
