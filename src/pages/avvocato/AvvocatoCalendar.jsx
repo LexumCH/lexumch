@@ -1,14 +1,27 @@
 // src/pages/avvocato/Calendario.jsx
 
 import { useState, useEffect, useCallback } from 'react'
-import { MapPin, Video, Phone, Calendar, ChevronLeft, ChevronRight, X, Check, Plus, Clock, Search } from 'lucide-react'
+import { MapPin, Video, Phone, Calendar, ChevronLeft, ChevronRight, X, Check, Plus, Clock, Search, AlertTriangle } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 
 const MESI = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
 const GIORNI = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
 
-const TIPO_ICON = { presenza: MapPin, videocall: Video, telefonico: Phone, udienza: Calendar }
-const TIPO_LABEL = { presenza: 'In presenza', videocall: 'Videocall', telefonico: 'Telefonico', udienza: 'Udienza' }
+const TIPO_ICON = {
+  presenza: MapPin,
+  videocall: Video,
+  telefonico: Phone,
+  udienza: Calendar,
+  scadenza: AlertTriangle,
+}
+const TIPO_LABEL = {
+  presenza: 'In presenza',
+  videocall: 'Videocall',
+  telefonico: 'Telefonico',
+  udienza: 'Udienza',
+  scadenza: 'Scadenza',
+}
 
 const STATO_CONFIG = {
   programmato: { label: 'Programmato', bg: 'bg-oro/10', text: 'text-oro', border: 'border-oro/30' },
@@ -52,6 +65,7 @@ export default function AvvocatoCalendar() {
   const [isStudio, setIsStudio] = useState(false)
   const [membri, setMembri] = useState([])
   const [ids, setIds] = useState([])
+  const [praticheCollab, setPraticheCollab] = useState([])  // pratiche su cui sono collaboratore (non titolare)
 
   const [appuntamenti, setAppuntamenti] = useState([])
   const [clienti, setClienti] = useState([])
@@ -67,6 +81,7 @@ export default function AvvocatoCalendar() {
   const [tabellaFrom, setTabellaFrom] = useState('')
   const [tabellaTo, setTabellaTo] = useState('')
   const [tabellaStato, setTabellaStato] = useState('')
+  const [tabellaTipo, setTabellaTipo] = useState('')
   const [tabellaSort, setTabellaSort] = useState('asc')
 
   const formVuoto = { titolo: '', cliente_id: '', tipo: 'presenza', data: '', ora_inizio: '09:00', ora_fine: '10:00', note_cliente: '', note_interne: '', link_videocall: '', avvocato_id: '' }
@@ -80,18 +95,24 @@ export default function AvvocatoCalendar() {
       setMeId(user.id)
       setForm(f => ({ ...f, avvocato_id: user.id }))
 
+      // Fix bug: titolare = posti > 1 AND titolare_id IS NULL
       const { data: profilo } = await supabase
-        .from('profiles').select('posti_acquistati').eq('id', user.id).single()
+        .from('profiles')
+        .select('posti_acquistati, titolare_id')
+        .eq('id', user.id)
+        .single()
 
-      const haStudio = (profilo?.posti_acquistati ?? 1) > 1
-      setIsStudio(haStudio)
+      const sonoTitolare = (profilo?.posti_acquistati ?? 1) > 1 && !profilo?.titolare_id
+      setIsStudio(sonoTitolare)
 
       let allIds = [user.id]
       let memoriStudio = []
 
-      if (haStudio) {
+      if (sonoTitolare) {
         const { data: collabs } = await supabase
-          .from('profiles').select('id, nome, cognome').eq('titolare_id', user.id)
+          .from('profiles')
+          .select('id, nome, cognome')
+          .eq('titolare_id', user.id)
         memoriStudio = (collabs ?? []).map((c, i) => ({
           id: c.id, nome: c.nome, cognome: c.cognome,
           color: AVATAR_COLORS[i % AVATAR_COLORS.length],
@@ -102,9 +123,21 @@ export default function AvvocatoCalendar() {
 
       setIds(allIds)
 
+      // Pratiche su cui sono collaboratore (non titolare) — per opzione C
+      const { data: collabPratiche } = await supabase
+        .from('pratica_collaboratori')
+        .select('pratica_id')
+        .eq('avvocato_id', user.id)
+      const idsPraticheCollab = (collabPratiche ?? []).map(p => p.pratica_id)
+      setPraticheCollab(idsPraticheCollab)
+
+      // Carica clienti (solo per il form nuovo appuntamento)
       const { data: cl } = await supabase
-        .from('profiles').select('id, nome, cognome')
-        .eq('role', 'cliente').in('avvocato_id', allIds).order('cognome')
+        .from('profiles')
+        .select('id, nome, cognome')
+        .eq('role', 'cliente')
+        .in('avvocato_id', allIds)
+        .order('cognome')
       setClienti(cl ?? [])
     }
     init()
@@ -113,14 +146,31 @@ export default function AvvocatoCalendar() {
   const caricaAppuntamenti = useCallback(async () => {
     if (!meId || ids.length === 0) return
     setLoadingApp(true)
+
+    // Opzione C: appuntamenti propri/studio + appuntamenti delle pratiche su cui collaboro
+    // Costruiamo il filtro OR:
+    //   avvocato_id IN (miei ids)   <-- copre singolo + studio del titolare
+    //   OR pratica_id IN (pratiche su cui collaboro come membro)
+    const orFilter = praticheCollab.length > 0
+      ? `avvocato_id.in.(${ids.join(',')}),pratica_id.in.(${praticheCollab.join(',')})`
+      : `avvocato_id.in.(${ids.join(',')})`
+
     const { data } = await supabase
       .from('appuntamenti')
-      .select('id, titolo, tipo, stato, data_ora_inizio, data_ora_fine, note_cliente, note_interne, link_videocall, avvocato_id, cliente:cliente_id(id, nome, cognome), avvocato:avvocato_id(id, nome, cognome)')
-      .in('avvocato_id', ids)
+      .select(`
+        id, titolo, tipo, stato, data_ora_inizio, data_ora_fine,
+        note_cliente, note_interne, link_videocall,
+        avvocato_id, pratica_id,
+        cliente:cliente_id(id, nome, cognome),
+        avvocato:avvocato_id(id, nome, cognome),
+        pratica:pratica_id(id, titolo)
+      `)
+      .or(orFilter)
       .order('data_ora_inizio')
+
     setAppuntamenti(data ?? [])
     setLoadingApp(false)
-  }, [meId, ids])
+  }, [meId, ids, praticheCollab])
 
   useEffect(() => { caricaAppuntamenti() }, [caricaAppuntamenti])
 
@@ -130,8 +180,8 @@ export default function AvvocatoCalendar() {
   const ultimo = new Date(anno, mese + 1, 0)
   const offset = (primo.getDay() + 6) % 7
   const giorni = []
-  for (let i = offset - 1; i >= 0; i--)        giorni.push({ date: new Date(anno, mese, -i), cur: false })
-  for (let i = 1; i <= ultimo.getDate(); i++)   giorni.push({ date: new Date(anno, mese, i), cur: true })
+  for (let i = offset - 1; i >= 0; i--) giorni.push({ date: new Date(anno, mese, -i), cur: false })
+  for (let i = 1; i <= ultimo.getDate(); i++) giorni.push({ date: new Date(anno, mese, i), cur: true })
   for (let i = 1; i <= 42 - giorni.length; i++) giorni.push({ date: new Date(anno, mese + 1, i), cur: false })
 
   const appFiltrate = appuntamenti.filter(a => !filtroAvv || a.avvocato_id === filtroAvv)
@@ -147,9 +197,10 @@ export default function AvvocatoCalendar() {
   const isSelected = d => selectedDay && dateKey(d) === dateKey(selectedDay)
 
   const todayStr = dateKey(today)
-  const programmati = appuntamenti.filter(a => a.stato === 'programmato').length
-  const oggiCount = appuntamenti.filter(a => dataDa(a.data_ora_inizio) === todayStr).length
-  const udienze = appuntamenti.filter(a => a.tipo === 'udienza' && a.stato === 'programmato').length
+  const programmati = appuntamenti.filter(a => a.stato === 'programmato' && a.tipo !== 'scadenza').length
+  const oggiCount = appuntamenti.filter(a => dataDa(a.data_ora_inizio) === todayStr && a.stato !== 'annullato').length
+  const udienze = appuntamenti.filter(a => a.tipo === 'udienza' && a.stato === 'programmato' && a.data_ora_inizio >= today.toISOString()).length
+  const scadenze = appuntamenti.filter(a => a.tipo === 'scadenza' && a.stato === 'programmato' && a.data_ora_inizio >= today.toISOString()).length
   const conclusi = appuntamenti.filter(a => a.stato === 'concluso').length
 
   async function handleSalva() {
@@ -185,6 +236,7 @@ export default function AvvocatoCalendar() {
     .filter(a => {
       const ds = dataDa(a.data_ora_inizio)
       if (tabellaStato && a.stato !== tabellaStato) return false
+      if (tabellaTipo && a.tipo !== tabellaTipo) return false
       if (tabellaFrom && ds < tabellaFrom) return false
       if (tabellaTo && ds > tabellaTo) return false
       if (tabellaSearch) {
@@ -224,10 +276,11 @@ export default function AvvocatoCalendar() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <StatBox label="Programmati" value={loadingApp ? '—' : programmati} colorClass="text-oro" />
         <StatBox label="Oggi" value={loadingApp ? '—' : oggiCount} colorClass="text-salvia" />
         <StatBox label="Udienze future" value={loadingApp ? '—' : udienze} colorClass="text-red-400" />
+        <StatBox label="Scadenze future" value={loadingApp ? '—' : scadenze} colorClass="text-amber-400" />
         <StatBox label="Conclusi" value={loadingApp ? '—' : conclusi} colorClass="text-nebbia/50" />
       </div>
 
@@ -252,7 +305,8 @@ export default function AvvocatoCalendar() {
               const k = dateKey(date)
               const eventi = perGiorno[k] ?? []
               const nUd = eventi.filter(e => e.tipo === 'udienza' && e.stato !== 'annullato').length
-              const nApp = eventi.filter(e => e.tipo !== 'udienza' && e.stato !== 'annullato').length
+              const nScad = eventi.filter(e => e.tipo === 'scadenza' && e.stato !== 'annullato').length
+              const nApp = eventi.filter(e => e.tipo !== 'udienza' && e.tipo !== 'scadenza' && e.stato !== 'annullato').length
               const avvIds = [...new Set(eventi.map(e => e.avvocato_id))]
               return (
                 <button key={i}
@@ -263,6 +317,7 @@ export default function AvvocatoCalendar() {
                   </span>
                   <div className="flex flex-wrap gap-0.5 mt-auto">
                     {nUd > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-red-900/30 text-red-400 border border-red-500/40 font-body">⚖ {nUd}</span>}
+                    {nScad > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-amber-900/30 text-amber-400 border border-amber-500/40 font-body">⏱ {nScad}</span>}
                     {nApp > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-oro/15 text-oro border border-oro/30 font-body">{nApp} app.</span>}
                     {isStudio && !filtroAvv && avvIds.length > 0 && (
                       <div className="flex gap-0.5 mt-0.5">
@@ -281,6 +336,7 @@ export default function AvvocatoCalendar() {
           <div className="flex items-center gap-5 mt-4 pt-3 border-t border-white/5 flex-wrap">
             <div className="flex items-center gap-2"><span className="w-3 h-3 bg-oro/15 border border-oro/30 inline-block" /><span className="font-body text-xs text-nebbia/40">Appuntamento</span></div>
             <div className="flex items-center gap-2"><span className="w-3 h-3 bg-red-900/30 border border-red-500/40 inline-block" /><span className="font-body text-xs text-nebbia/40">Udienza</span></div>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-900/30 border border-amber-500/40 inline-block" /><span className="font-body text-xs text-nebbia/40">Scadenza</span></div>
             {isStudio && membri.map(m => (
               <div key={m.id} className="flex items-center gap-1.5">
                 <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${m.color}`}>{m.nome[0]}</span>
@@ -298,9 +354,10 @@ export default function AvvocatoCalendar() {
                 <p className="font-body text-xs text-nebbia/30 tracking-widest uppercase">{GIORNI[(selectedDay.getDay() + 6) % 7]}</p>
                 <h3 className="font-display text-2xl font-semibold text-nebbia mt-0.5">{selectedDay.getDate()} {MESI[selectedDay.getMonth()]}</h3>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">App.</p><p className="font-display text-lg font-semibold text-oro">{eventiGiorno.filter(e => e.tipo !== 'udienza').length}</p></div>
+              <div className="flex items-center gap-2">
+                <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">App.</p><p className="font-display text-lg font-semibold text-oro">{eventiGiorno.filter(e => e.tipo !== 'udienza' && e.tipo !== 'scadenza').length}</p></div>
                 <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">Ud.</p><p className="font-display text-lg font-semibold text-red-400">{eventiGiorno.filter(e => e.tipo === 'udienza').length}</p></div>
+                <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">Scad.</p><p className="font-display text-lg font-semibold text-amber-400">{eventiGiorno.filter(e => e.tipo === 'scadenza').length}</p></div>
                 <button onClick={() => { setSelectedDay(null); setShowNew(false) }} className="text-nebbia/30 hover:text-nebbia ml-2"><X size={16} /></button>
               </div>
             </div>
@@ -310,6 +367,9 @@ export default function AvvocatoCalendar() {
                 className="btn-primary text-xs w-full justify-center py-2.5">
                 <Plus size={13} /> Nuovo appuntamento
               </button>
+              <p className="font-body text-[10px] text-nebbia/30 text-center mt-2">
+                Le scadenze processuali si aggiungono dalla scheda pratica
+              </p>
             </div>
 
             {showNew && (
@@ -324,14 +384,14 @@ export default function AvvocatoCalendar() {
                 </select>
 
                 <div className="grid grid-cols-4 gap-1">
-                  {Object.entries(TIPO_LABEL).map(([t, l]) => {
+                  {['presenza', 'videocall', 'telefonico', 'udienza'].map(t => {
                     const Icon = TIPO_ICON[t]; const isUd = t === 'udienza'
                     return (
                       <button key={t} type="button" onClick={() => setForm(f => ({ ...f, tipo: t }))}
                         className={`flex items-center justify-center gap-1 py-2 text-xs font-body border transition-all ${form.tipo === t
                           ? isUd ? 'bg-red-500/70 text-white border-red-500' : 'bg-oro text-petrolio border-oro'
                           : isUd ? 'text-red-400/60 border-red-500/25' : 'text-nebbia/50 border-white/10 hover:border-oro/30'}`}>
-                        <Icon size={10} /> {l.split(' ')[0]}
+                        <Icon size={10} /> {TIPO_LABEL[t].split(' ')[0]}
                       </button>
                     )
                   })}
@@ -390,18 +450,35 @@ export default function AvvocatoCalendar() {
               ) : [...eventiGiorno].sort((a, b) => (a.data_ora_inizio ?? '').localeCompare(b.data_ora_inizio ?? '')).map(e => {
                 const isExp = expandedEvent === e.id
                 const isUd = e.tipo === 'udienza'
+                const isScad = e.tipo === 'scadenza'
                 const Icon = TIPO_ICON[e.tipo] ?? MapPin
                 const membre = membri.find(m => m.id === e.avvocato_id)
+
+                // Stile evento basato sul tipo
+                const cardStyle = isUd
+                  ? 'border-red-500/30 bg-red-900/10'
+                  : isScad
+                    ? 'border-amber-500/30 bg-amber-900/10'
+                    : 'border-white/8 bg-petrolio/40 hover:bg-petrolio/60'
+
+                const iconStyle = isUd
+                  ? 'text-red-400'
+                  : isScad
+                    ? 'text-amber-400'
+                    : 'text-oro/60'
+
                 return (
                   <div key={e.id}
-                    className={`border p-3 cursor-pointer transition-colors ${isUd ? 'border-red-500/30 bg-red-900/10' : 'border-white/8 bg-petrolio/40 hover:bg-petrolio/60'}`}
+                    className={`border p-3 cursor-pointer transition-colors ${cardStyle}`}
                     onClick={() => setExpandedEvent(isExp ? null : e.id)}>
                     <div className="flex items-start gap-2">
-                      <Icon size={13} className={`${isUd ? 'text-red-400' : 'text-oro/60'} shrink-0 mt-0.5`} />
+                      <Icon size={13} className={`${iconStyle} shrink-0 mt-0.5`} />
                       <div className="flex-1 min-w-0">
                         <p className="font-body text-sm font-medium text-nebbia truncate">{e.titolo}</p>
                         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                          <span className="font-body text-xs text-nebbia/40">{oraDa(e.data_ora_inizio)}{e.data_ora_fine ? ` – ${oraDa(e.data_ora_fine)}` : ''}</span>
+                          <span className="font-body text-xs text-nebbia/40">
+                            {oraDa(e.data_ora_inizio)}{e.data_ora_fine ? ` – ${oraDa(e.data_ora_fine)}` : ''}
+                          </span>
                           {e.cliente && <span className="font-body text-xs text-nebbia/40">· {e.cliente.nome} {e.cliente.cognome}</span>}
                           {isStudio && membre && <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${membre.color}`}>{membre.nome[0]}</span>}
                         </div>
@@ -410,10 +487,24 @@ export default function AvvocatoCalendar() {
                     </div>
                     {isExp && (
                       <div className="mt-3 space-y-2 border-t border-white/5 pt-3" onClick={ev => ev.stopPropagation()}>
+                        {e.pratica && (
+                          <Link
+                            to={`/pratiche/${e.pratica.id}`}
+                            className="block bg-oro/5 border border-oro/15 p-2 hover:bg-oro/10 transition-colors"
+                          >
+                            <p className="font-body text-[10px] text-oro uppercase tracking-widest mb-1">Pratica</p>
+                            <p className="font-body text-xs text-nebbia">{e.pratica.titolo}</p>
+                          </Link>
+                        )}
                         {e.note_interne && <div className="bg-oro/5 border border-oro/15 p-2"><p className="font-body text-[10px] text-oro uppercase tracking-widest mb-1">Note interne</p><p className="font-body text-xs text-nebbia/60">{e.note_interne}</p></div>}
                         {e.note_cliente && <div className="bg-salvia/5 border border-salvia/15 p-2"><p className="font-body text-[10px] text-salvia uppercase tracking-widest mb-1">Note cliente</p><p className="font-body text-xs text-nebbia/60">{e.note_cliente}</p></div>}
                         {e.link_videocall && <a href={e.link_videocall} target="_blank" rel="noreferrer" className="font-body text-xs text-oro hover:underline block truncate">{e.link_videocall}</a>}
-                        {e.stato === 'programmato' && (
+                        {isScad && (
+                          <p className="font-body text-[10px] text-amber-400/80 italic">
+                            Questa scadenza è stata generata automaticamente. Per modificarla o segnarla come compiuta, vai sulla scheda pratica.
+                          </p>
+                        )}
+                        {e.stato === 'programmato' && !isScad && (
                           <div className="flex gap-2">
                             <button onClick={() => cambiaStato(e.id, 'concluso')} className="flex-1 font-body text-xs py-1.5 border border-salvia/30 text-salvia hover:bg-salvia/10 transition-colors flex items-center justify-center gap-1">
                               <Check size={11} /> Concluso
@@ -436,7 +527,7 @@ export default function AvvocatoCalendar() {
         <div className="p-5 border-b border-white/5 flex flex-col sm:flex-row sm:items-center gap-3">
           <div>
             <h2 className="font-display text-xl font-semibold text-nebbia">Riepilogo agenda</h2>
-            <p className="font-body text-xs text-nebbia/40 mt-0.5">Tutti gli appuntamenti</p>
+            <p className="font-body text-xs text-nebbia/40 mt-0.5">Tutti gli eventi: appuntamenti, udienze, scadenze</p>
           </div>
           <div className="sm:ml-auto flex flex-wrap gap-2">
             <div className="relative">
@@ -446,6 +537,14 @@ export default function AvvocatoCalendar() {
             </div>
             <input type="date" value={tabellaFrom} onChange={e => setTabellaFrom(e.target.value)} className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-3 py-2 outline-none focus:border-oro/50" />
             <input type="date" value={tabellaTo} onChange={e => setTabellaTo(e.target.value)} className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-3 py-2 outline-none focus:border-oro/50" />
+            <select value={tabellaTipo} onChange={e => setTabellaTipo(e.target.value)} className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-3 py-2 outline-none focus:border-oro/50">
+              <option value="">Tutti i tipi</option>
+              <option value="presenza">In presenza</option>
+              <option value="videocall">Videocall</option>
+              <option value="telefonico">Telefonico</option>
+              <option value="udienza">Udienza</option>
+              <option value="scadenza">Scadenza</option>
+            </select>
             <select value={tabellaStato} onChange={e => setTabellaStato(e.target.value)} className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-3 py-2 outline-none focus:border-oro/50">
               <option value="">Tutti gli stati</option>
               <option value="programmato">Programmato</option>
@@ -461,12 +560,12 @@ export default function AvvocatoCalendar() {
           {loadingApp ? (
             <div className="flex items-center justify-center py-16"><span className="animate-spin w-5 h-5 border-2 border-oro border-t-transparent rounded-full" /></div>
           ) : righe.length === 0 ? (
-            <p className="text-center py-12 font-body text-sm text-nebbia/30">Nessun appuntamento trovato</p>
+            <p className="text-center py-12 font-body text-sm text-nebbia/30">Nessun evento trovato</p>
           ) : (
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/5">
-                  {['Tipo', 'Titolo', 'Cliente', ...(isStudio ? ['Avvocato'] : []), 'Data & Ora', 'Stato'].map(h => (
+                  {['Tipo', 'Titolo', 'Cliente', ...(isStudio ? ['Avvocato'] : []), 'Pratica', 'Data & Ora', 'Stato'].map(h => (
                     <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                   ))}
                 </tr>
@@ -476,12 +575,20 @@ export default function AvvocatoCalendar() {
                   const Icon = TIPO_ICON[r.tipo] ?? MapPin
                   const membre = membri.find(m => m.id === r.avvocato_id)
                   const isUd = r.tipo === 'udienza'
+                  const isScad = r.tipo === 'scadenza'
                   const dataOra = r.data_ora_inizio ? `${new Date(r.data_ora_inizio).toLocaleDateString('it-IT')} ${oraDa(r.data_ora_inizio)}` : '—'
+
+                  const tipoColor = isUd
+                    ? 'border-red-500/30 text-red-400'
+                    : isScad
+                      ? 'border-amber-500/30 text-amber-400'
+                      : 'border-oro/30 text-oro'
+
                   return (
                     <tr key={r.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
                       <td className="px-4 py-3">
-                        <span className={`font-body text-[10px] px-2 py-0.5 border tracking-widest uppercase flex items-center gap-1 w-fit ${isUd ? 'border-red-500/30 text-red-400' : 'border-oro/30 text-oro'}`}>
-                          <Icon size={10} /> {TIPO_LABEL[r.tipo]}
+                        <span className={`font-body text-[10px] px-2 py-0.5 border tracking-widest uppercase flex items-center gap-1 w-fit ${tipoColor}`}>
+                          <Icon size={10} /> {TIPO_LABEL[r.tipo] ?? r.tipo}
                         </span>
                       </td>
                       <td className="px-4 py-3 font-body text-sm font-medium text-nebbia">{r.titolo}</td>
@@ -496,6 +603,13 @@ export default function AvvocatoCalendar() {
                           )}
                         </td>
                       )}
+                      <td className="px-4 py-3 font-body text-xs text-nebbia/60">
+                        {r.pratica ? (
+                          <Link to={`/pratiche/${r.pratica.id}`} className="text-oro/70 hover:text-oro hover:underline truncate inline-block max-w-[180px]" title={r.pratica.titolo}>
+                            {r.pratica.titolo}
+                          </Link>
+                        ) : '—'}
+                      </td>
                       <td className="px-4 py-3 font-body text-xs text-nebbia/60 whitespace-nowrap">{dataOra}</td>
                       <td className="px-4 py-3"><BadgeStato stato={r.stato} /></td>
                     </tr>

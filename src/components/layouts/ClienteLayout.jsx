@@ -6,6 +6,7 @@ import {
   Home, FolderOpen, Calendar, FileText,
   MessageSquare, CreditCard, User, LogOut, Menu
 } from 'lucide-react'
+import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 
 const NAV = [
   { path: '/portale', label: 'Panoramica', icon: Home },
@@ -76,10 +77,21 @@ export default function ClienteLayout({ children }) {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
+
+        {/* Header desktop con campanella */}
+        <header className="hidden lg:flex items-center justify-end px-6 py-3 border-b border-white/5 bg-slate">
+          <CampanellaNotifiche />
+        </header>
+
+        {/* Header mobile */}
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-white/5 bg-slate">
           <button onClick={() => setOpen(true)} className="text-nebbia/50 hover:text-nebbia"><Menu size={20} /></button>
           <img src={logo} alt="Lexum" className="h-10 w-auto" />
+          <div className="ml-auto">
+            <CampanellaNotifiche />
+          </div>
         </div>
+
         <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
     </div>

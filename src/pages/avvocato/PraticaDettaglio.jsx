@@ -12,6 +12,7 @@ import UdienzaModal from '@/components/UdienzaModal'
 import ContropartiBox from '@/components/ContropartiBox'
 import ChatPratica from '@/components/ChatPratica'
 import GeneraDocumentoMenu from '@/components/GeneraDocumentoMenu'
+import BoxUdienzeETermini from '@/components/avvocato/BoxUdienzeETermini'
 
 const STATI = {
     aperta: { label: 'Aperta', variant: 'salvia' },
@@ -29,18 +30,6 @@ async function caricaContesto(userId) {
         collaboratori = c ?? []
     }
     return { haStudio, collaboratori, ids: [userId, ...collaboratori.map(c => c.id)] }
-}
-
-// ─────────────────────────────────────────────────────────────
-// MINI EMPTY
-// ─────────────────────────────────────────────────────────────
-function MiniEmpty({ icon: Icon, label }) {
-    return (
-        <div className="flex items-center gap-2 py-3 px-1 text-nebbia/30">
-            <Icon size={13} />
-            <span className="font-body text-xs">{label}</span>
-        </div>
-    )
 }
 
 function BackToPratiche() {
@@ -254,10 +243,6 @@ export default function PraticaDettaglio() {
     const [salvandoRicerca, setSalvandoRicerca] = useState(false)
     const [erroreRicerca, setErroreRicerca] = useState(null)
 
-    const [udienze, setUdienze] = useState([])
-    const [loadingUdienze, setLoadingUdienze] = useState(false)
-    const [udienzaModale, setUdienzaModale] = useState(null)
-
     const [documenti, setDocumenti] = useState([])
     const [loadingDocs, setLoadingDocs] = useState(false)
 
@@ -271,17 +256,6 @@ export default function PraticaDettaglio() {
             .order('created_at', { ascending: false })
         setRicerche(data ?? [])
         setLoadingRicerche(false)
-    }
-
-    async function caricaUdienze() {
-        setLoadingUdienze(true)
-        const { data } = await supabase
-            .from('udienze')
-            .select('*')
-            .eq('pratica_id', id)
-            .order('data_ora', { ascending: false })
-        setUdienze(data ?? [])
-        setLoadingUdienze(false)
     }
 
     useEffect(() => {
@@ -308,7 +282,6 @@ export default function PraticaDettaglio() {
 
             await caricaRicerche()
             await caricaDocumenti()
-            await caricaUdienze()
             setLoading(false)
         }
         load()
@@ -443,10 +416,6 @@ export default function PraticaDettaglio() {
         }
     }
 
-    function ora_corrente_globale() {
-        return new Date()
-    }
-
     function nomeClienteDisplay(c) {
         if (!c) return '—'
         if (c.tipo_soggetto === 'persona_giuridica') return c.ragione_sociale ?? '—'
@@ -559,15 +528,16 @@ export default function PraticaDettaglio() {
                 </div>
             </div>
 
-            {/* ═══════════════ SEZIONE 1 — Top con Ricerche fissa ═══════════════ */}
+            {/* ═══════════════ SEZIONE 1 — Grid 5 colonne ═══════════════ */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-start">
 
-                {/* Sinistra (3/5) — auto height */}
+                {/* SINISTRA (3/5) */}
                 <div className="lg:col-span-3 space-y-5">
 
+                    {/* Riga 1: Dettagli + Controparti affiancati */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-                        {/* Dettagli — auto */}
+                        {/* Dettagli */}
                         <div className="bg-slate border border-white/5 p-5 space-y-3">
                             <p className="section-label">Dettagli</p>
                             {[
@@ -618,113 +588,33 @@ export default function PraticaDettaglio() {
                             )}
                         </div>
 
-                        {/* Udienze — auto */}
-                        <div className="bg-slate border border-white/5 p-5">
-                            <div className="flex items-center justify-between mb-3">
-                                <p className="section-label flex items-center gap-2">
-                                    <Gavel size={12} className="text-oro/60" />
-                                    Udienze ed esiti ({udienze.length})
-                                </p>
-                                <button
-                                    onClick={() => setUdienzaModale({})}
-                                    className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors"
-                                >
-                                    <Plus size={11} /> Aggiungi
-                                </button>
-                            </div>
-                            {loadingUdienze ? (
-                                <div className="flex justify-center py-6">
-                                    <span className="animate-spin w-5 h-5 border-2 border-oro border-t-transparent rounded-full" />
-                                </div>
-                            ) : udienze.length === 0 ? (
-                                <MiniEmpty icon={Gavel} label="Nessuna udienza programmata" />
-                            ) : (
-                                <div className="space-y-2 max-h-[280px] overflow-y-auto -mr-1 pr-1">
-                                    {udienze.map(u => {
-                                        const dataU = new Date(u.data_ora)
-                                        const ora = ora_corrente_globale()
-                                        const isPassata = dataU < ora && u.stato === 'programmata'
-                                        const isProssima = u.stato === 'programmata' && dataU >= ora &&
-                                            !udienze.some(u2 => u2.stato === 'programmata' &&
-                                                new Date(u2.data_ora) >= ora &&
-                                                new Date(u2.data_ora) < dataU)
-
-                                        const statoColors = {
-                                            programmata: isProssima
-                                                ? 'border-oro/40 bg-oro/5'
-                                                : isPassata
-                                                    ? 'border-amber-500/30 bg-amber-500/5'
-                                                    : 'border-white/10',
-                                            svolta: 'border-salvia/30 bg-salvia/5',
-                                            rinviata: 'border-amber-500/30 bg-amber-500/5',
-                                            annullata: 'border-white/10 opacity-50',
-                                        }
-
-                                        return (
-                                            <button
-                                                key={u.id}
-                                                onClick={() => setUdienzaModale(u)}
-                                                className={`w-full text-left p-3 border ${statoColors[u.stato]} hover:border-oro/50 transition-colors group`}
-                                            >
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                                                            <span className={`font-body text-sm font-medium ${isProssima ? 'text-oro' : 'text-nebbia'}`}>
-                                                                {dataU.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                            </span>
-                                                            <span className="font-body text-xs text-nebbia/40 flex items-center gap-1">
-                                                                <Clock size={10} />
-                                                                {dataU.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                                                            </span>
-                                                            {isProssima && (
-                                                                <span className="font-body text-[10px] text-oro border border-oro/30 px-1.5 py-0.5 uppercase tracking-wider">
-                                                                    Prossima
-                                                                </span>
-                                                            )}
-                                                            {isPassata && (
-                                                                <span className="font-body text-[10px] text-amber-400 border border-amber-500/30 px-1.5 py-0.5 uppercase tracking-wider">
-                                                                    Da aggiornare
-                                                                </span>
-                                                            )}
-                                                            {u.stato !== 'programmata' && (
-                                                                <span className={`font-body text-[10px] px-1.5 py-0.5 uppercase tracking-wider border ${u.stato === 'svolta' ? 'border-salvia/30 text-salvia' :
-                                                                    u.stato === 'rinviata' ? 'border-amber-500/30 text-amber-400' :
-                                                                        'border-white/10 text-nebbia/40'
-                                                                    }`}>
-                                                                    {u.stato}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <p className="font-body text-sm text-nebbia/70 truncate">{u.tipo}</p>
-                                                        {u.tribunale && (
-                                                            <p className="font-body text-xs text-nebbia/40 mt-0.5 flex items-center gap-1">
-                                                                <MapPin size={9} />
-                                                                {[u.tribunale, u.sezione].filter(Boolean).join(' · ')}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                    <ChevronRight size={13} className="text-nebbia/20 group-hover:text-oro transition-colors shrink-0 mt-1" />
-                                                </div>
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            )}
-                        </div>
+                        {/* Controparti */}
+                        <ContropartiBox praticaId={id} />
                     </div>
 
-                    {/* Controparti — auto */}
-                    <ContropartiBox praticaId={id} />
-
-                    {/* Documenti — auto */}
+                    {/* Riga 2: Udienze + Termini (full-width) */}
+                    <BoxUdienzeETermini
+                        praticaId={id}
+                        clienteId={pratica.cliente_id}
+                        praticaTitolo={pratica.titolo}
+                        onUdienzaSaved={async () => {
+                            const { data: p } = await supabase
+                                .from('pratiche')
+                                .select('prossima_udienza')
+                                .eq('id', id)
+                                .single()
+                            if (p) setPratica(prev => ({ ...prev, prossima_udienza: p.prossima_udienza }))
+                        }}
+                    />
+                    {/* Riga 3: Documenti (full-width) */}
                     <div className="bg-slate border border-white/5 p-5">
                         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                             <p className="section-label">Documenti pratica ({documenti.length})</p>
                             <Link
-                                to={`/archivio?pratica_id=${id}`}
+                                to="/archivio"
                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors"
                             >
-                                <Plus size={11} /> Carica in archivio
+                                <Plus size={11} /> Aggiungi documento
                             </Link>
                         </div>
                         <p className="font-body text-xs text-nebbia/30 mb-3">
@@ -737,13 +627,8 @@ export default function PraticaDettaglio() {
                         ) : documenti.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-8 px-1 text-nebbia/30 text-center">
                                 <FileText size={20} className="mb-2 text-nebbia/20" />
-                                <span className="font-body text-xs mb-3">Nessun documento collegato a questa pratica</span>
-                                <Link
-                                    to={`/archivio?pratica_id=${id}`}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors"
-                                >
-                                    <Plus size={11} /> Carica primo documento
-                                </Link>
+                                <span className="font-body text-xs">Nessun documento collegato a questa pratica</span>
+                                <span className="font-body text-xs text-nebbia/25 mt-1">Usa "Aggiungi documento" qui sopra per caricarlo</span>
                             </div>
                         ) : (
                             <div className={`space-y-2 ${documenti.length > 5 ? 'max-h-80 overflow-y-auto -mr-1 pr-1' : ''}`}>
@@ -787,7 +672,7 @@ export default function PraticaDettaglio() {
                     </div>
                 </div>
 
-                {/* Destra (2/5) — Ricerche con altezza fissa */}
+                {/* DESTRA (2/5) — Ricerche con altezza fissa */}
                 <div className="lg:col-span-2 bg-slate border border-white/5 flex flex-col h-[600px]">
 
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 shrink-0">
@@ -937,35 +822,6 @@ export default function PraticaDettaglio() {
                     <GeneraDocumentoMenu praticaId={id} />
                 </div>
             </div>
-
-            {/* Modale udienza */}
-            {udienzaModale && (
-                <UdienzaModal
-                    praticaId={id}
-                    praticaTitolo={pratica.titolo}
-                    clienteId={pratica.cliente_id}
-                    udienza={udienzaModale.id ? udienzaModale : null}
-                    onClose={() => setUdienzaModale(null)}
-                    onSaved={async () => {
-                        await caricaUdienze()
-                        const { data: p } = await supabase
-                            .from('pratiche')
-                            .select('prossima_udienza')
-                            .eq('id', id)
-                            .single()
-                        if (p) setPratica(prev => ({ ...prev, prossima_udienza: p.prossima_udienza }))
-                    }}
-                    onDeleted={async () => {
-                        await caricaUdienze()
-                        const { data: p } = await supabase
-                            .from('pratiche')
-                            .select('prossima_udienza')
-                            .eq('id', id)
-                            .single()
-                        if (p) setPratica(prev => ({ ...prev, prossima_udienza: p.prossima_udienza }))
-                    }}
-                />
-            )}
 
             {/* Modale Note interne */}
             {mostraNoteModal && (

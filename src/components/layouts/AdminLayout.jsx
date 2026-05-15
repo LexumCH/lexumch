@@ -3,10 +3,11 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import logo from '@/assets/logo.png'
 import {
-  LayoutDashboard, Users, Package, Mail,
-  BookOpen, CreditCard, Headphones,
+  LayoutDashboard, Users, Package, Mail, UserCircle,
+  BookOpen, CreditCard, Headphones, Calendar,
   LogOut, Menu, ChevronRight, Gavel, Activity
 } from 'lucide-react'
+import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 
 export default function AdminLayout({ children }) {
   const [open, setOpen] = useState(false)
@@ -15,6 +16,7 @@ export default function AdminLayout({ children }) {
 
   const NAV = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/admin/calendario', label: 'Calendario', icon: Calendar },
     { path: '/admin/utenti', label: 'Utenti', icon: Users },
     { path: '/admin/prodotti', label: 'Prodotti', icon: Package },
     { path: '/admin/sentenze', label: 'Sentenze', icon: Gavel },
@@ -23,6 +25,7 @@ export default function AdminLayout({ children }) {
     { path: '/admin/mail-log', label: 'Mail Log', icon: Mail },
     { path: '/admin/lex-logs', label: 'Lex Logs', icon: Activity },
     { path: '/admin/assistenza', label: 'Assistenza', icon: Headphones },
+    { path: '/admin/profilo', label: 'Profilo', icon: UserCircle },
   ]
 
   async function handleSignOut() {
@@ -94,7 +97,15 @@ export default function AdminLayout({ children }) {
             <Menu size={20} />
           </button>
           <img src={logo} alt="Lexum" className="h-10 w-auto" />
+          <div className="ml-auto">
+            <CampanellaNotifiche />
+          </div>
         </div>
+        {/* Header desktop con campanella */}
+        <header className="hidden lg:flex items-center justify-end px-6 py-3 border-b border-white/5 bg-slate">
+          <CampanellaNotifiche />
+        </header>
+
         <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
     </div>

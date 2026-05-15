@@ -8,7 +8,7 @@ import {
     FileText, FileSignature, Calendar, FolderOpen, Search,
     Eye, EyeOff, UserCheck, Briefcase, CreditCard,
     Bookmark, FolderSearch, Scale, ShieldCheck, Activity,
-    Library,
+    Library, Receipt,
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 
@@ -204,7 +204,7 @@ export default function PerAvvocati() {
 
                     <FeatureRow
                         icon={Users}
-                        title="Lo studio resta tuo. Tu decidi chi vede cosa."
+                        title="Tu decidi chi vede cosa."
                         text="Ogni membro dello studio ha il suo profilo. Tu scegli chi accede all'archivio completo e chi vede solo le pratiche assegnate. Le informazioni sensibili restano protette, anche all'interno del team."
                         points={[
                             'Ruoli e permessi configurabili',
@@ -546,6 +546,268 @@ export default function PerAvvocati() {
                             </VisualBlock>
                         </FadeIn>
                     </div>
+                </div>
+            </section>
+
+            {/* ══════════════════════════════════════════
+          8. CONTABILITÀ INTEGRATA
+      ══════════════════════════════════════════ */}
+            <section className="py-24 px-6 border-t border-white/5">
+                <div className="max-w-5xl mx-auto">
+
+                    <FadeIn className="text-center mb-16 max-w-2xl mx-auto">
+                        <SectionLabel>Contabilita integrata</SectionLabel>
+                        <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia mb-4">
+                            Sistema di,{' '}
+                            <span className="text-oro">Fatturazione.</span>
+                        </h2>
+                        <p className="font-body text-base text-nebbia/40 leading-relaxed">
+                            Le fatture, si emettono in pochi click. La contabilita dello studio assieme a
+                            clienti, pratiche e documenti, vivono all'interno dello stesso ambiente.
+                        </p>
+                    </FadeIn>
+
+                    {/* FeatureRow principale */}
+                    <FeatureRow
+                        icon={Receipt}
+                        title="Fatture professionali, gia pronte."
+                        text="Ogni fattura nasce collegata a una pratica e a un cliente. Lexum calcola automaticamente IVA, CPA forense e ritenuta d'acconto. La numerazione e progressiva per anno. Il PDF e generato in formato compatibile SDI, pronto per il tuo commercialista o per il Sistema di Interscambio."
+                        points={[
+                            'Calcoli automatici IVA, CPA, ritenuta',
+                            'Numerazione progressiva annuale',
+                            'PDF compatibile SDI',
+                            'Archiviazione automatica nell archivio dello studio',
+                        ]}
+                    >
+                        <VisualBlock label="Fattura 2026/048 - Mario Rossi">
+                            <div className="space-y-3">
+                                {/* Intestazione */}
+                                <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                                    <div>
+                                        <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Numero</p>
+                                        <p className="font-body text-sm text-nebbia">2026/048</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Data</p>
+                                        <p className="font-body text-sm text-nebbia">15/05/2026</p>
+                                    </div>
+                                </div>
+
+                                {/* Righe */}
+                                <div className="space-y-1.5">
+                                    <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1">Prestazioni</p>
+                                    {[
+                                        { d: 'Consulenza causa civile', i: '1.200,00' },
+                                        { d: 'Comparsa di costituzione', i: '800,00' },
+                                        { d: 'Udienza prima comparizione', i: '500,00' },
+                                    ].map(({ d, i }) => (
+                                        <div key={d} className="flex justify-between p-2 bg-petrolio/50 border border-white/5">
+                                            <span className="font-body text-[11px] text-nebbia/65 truncate">{d}</span>
+                                            <span className="font-body text-[11px] text-nebbia/65 shrink-0 ml-2">EUR {i}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Totali calcolati */}
+                                <div className="space-y-1 pt-2 border-t border-white/5">
+                                    {[
+                                        { l: 'Imponibile', v: '2.500,00', c: 'text-nebbia/55' },
+                                        { l: 'CPA 4%', v: '100,00', c: 'text-nebbia/50' },
+                                        { l: 'IVA 22%', v: '572,00', c: 'text-nebbia/50' },
+                                        { l: 'Ritenuta d acconto 20%', v: '-500,00', c: 'text-nebbia/50' },
+                                    ].map(({ l, v, c }) => (
+                                        <div key={l} className="flex justify-between text-[11px]">
+                                            <span className={`font-body ${c}`}>{l}</span>
+                                            <span className={`font-body ${c}`}>EUR {v}</span>
+                                        </div>
+                                    ))}
+                                    <div className="flex justify-between pt-2 mt-1 border-t border-white/5">
+                                        <span className="font-body text-xs text-nebbia/70">Totale netto da pagare</span>
+                                        <span className="font-body text-sm text-oro font-medium">EUR 2.672,00</span>
+                                    </div>
+                                </div>
+
+                                {/* Badge SDI */}
+                                <div className="flex items-center gap-2 p-2 bg-oro/5 border border-oro/15">
+                                    <FileText size={11} className="text-oro shrink-0" />
+                                    <p className="font-body text-[11px] text-nebbia/55">
+                                        PDF generato in formato SDI - archiviato in <span className="text-oro/80">Archivio &gt; Fatture &gt; 2026</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </VisualBlock>
+                    </FeatureRow>
+
+                    {/* Grid 3 colonne con sotto-feature */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-16">
+
+                        {/* Card 1: Scadenzario */}
+                        <FadeIn delay={0.1}>
+                            <div className="bg-slate border border-white/5 p-6 h-full hover:border-oro/20 transition-colors">
+                                <div className="w-10 h-10 flex items-center justify-center border border-oro/20 bg-oro/5 text-oro mb-4">
+                                    <Activity size={16} />
+                                </div>
+                                <h3 className="font-display text-lg font-medium text-nebbia mb-2">Scadenzario sotto controllo</h3>
+                                <p className="font-body text-xs text-nebbia/40 leading-relaxed mb-4">
+                                    Vedi a colpo d occhio chi deve pagare, cosa e scaduto, cosa e in arrivo. Stati colorati per fattura: in attesa, pagata, scaduta.
+                                </p>
+                                <div className="space-y-1.5 pt-3 border-t border-white/5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-salvia rounded-full" />
+                                        <span className="font-body text-[11px] text-nebbia/50">Pagata</span>
+                                        <span className="font-body text-[11px] text-nebbia/30 ml-auto">EUR 4.200</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-oro rounded-full" />
+                                        <span className="font-body text-[11px] text-nebbia/50">In attesa</span>
+                                        <span className="font-body text-[11px] text-nebbia/30 ml-auto">EUR 2.672</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+                                        <span className="font-body text-[11px] text-nebbia/50">Scaduta</span>
+                                        <span className="font-body text-[11px] text-red-400/70 ml-auto">EUR 1.100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </FadeIn>
+
+                        {/* Card 2: Pagamenti parziali */}
+                        <FadeIn delay={0.15}>
+                            <div className="bg-slate border border-white/5 p-6 h-full hover:border-oro/20 transition-colors">
+                                <div className="w-10 h-10 flex items-center justify-center border border-oro/20 bg-oro/5 text-oro mb-4">
+                                    <CreditCard size={16} />
+                                </div>
+                                <h3 className="font-display text-lg font-medium text-nebbia mb-2">Pagamenti parziali tracciati</h3>
+                                <p className="font-body text-xs text-nebbia/40 leading-relaxed mb-4">
+                                    Acconti, saldi, bonifici, contanti, assegni. Cinque metodi di pagamento tracciati per ogni fattura. Lo stato si aggiorna da solo quando il saldo e completato.
+                                </p>
+                                <div className="space-y-1.5 pt-3 border-t border-white/5">
+                                    {[
+                                        { l: 'Bonifico', d: '12/03', i: '1.500,00' },
+                                        { l: 'Contanti', d: '20/03', i: '700,00' },
+                                        { l: 'Saldo da incassare', d: '—', i: '472,00', open: true },
+                                    ].map(({ l, d, i, open }) => (
+                                        <div key={l} className="flex items-center justify-between gap-2">
+                                            <span className={`font-body text-[11px] ${open ? 'text-oro' : 'text-nebbia/50'}`}>{l}</span>
+                                            <span className={`font-body text-[10px] ${open ? 'text-oro/60' : 'text-nebbia/30'}`}>{d}</span>
+                                            <span className={`font-body text-[11px] ${open ? 'text-oro' : 'text-nebbia/50'}`}>EUR {i}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </FadeIn>
+
+                        {/* Card 3: Promemoria automatici */}
+                        <FadeIn delay={0.2}>
+                            <div className="bg-slate border border-white/5 p-6 h-full hover:border-oro/20 transition-colors">
+                                <div className="w-10 h-10 flex items-center justify-center border border-oro/20 bg-oro/5 text-oro mb-4">
+                                    <Zap size={16} />
+                                </div>
+                                <h3 className="font-display text-lg font-medium text-nebbia mb-2">Promemoria automatici</h3>
+                                <p className="font-body text-xs text-nebbia/40 leading-relaxed mb-4">
+                                    Lexum ti avvisa tre giorni prima della scadenza e il giorno in cui una fattura va in ritardo. Niente piu solleciti scordati, niente piu mail dimenticate al cliente.
+                                </p>
+                                <div className="space-y-2 pt-3 border-t border-white/5">
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-1.5 h-1.5 bg-oro rounded-full mt-1.5 shrink-0" />
+                                        <div>
+                                            <p className="font-body text-[11px] text-nebbia/55">Tra 3 giorni</p>
+                                            <p className="font-body text-[10px] text-nebbia/30">Fattura 2026/048 - Rossi</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-1.5 h-1.5 bg-red-400 rounded-full mt-1.5 shrink-0" />
+                                        <div>
+                                            <p className="font-body text-[11px] text-red-400/80">Scaduta oggi</p>
+                                            <p className="font-body text-[10px] text-nebbia/30">Fattura 2026/041 - Verdi</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </FadeIn>
+
+                    </div>
+
+                    {/* Lex sui pagamenti - destacato */}
+                    <FadeIn delay={0.25} className="mt-16">
+                        <div className="bg-slate border border-salvia/15 p-8 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-salvia/[0.04] rounded-full blur-3xl pointer-events-none" />
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative">
+                                <div className="space-y-4">
+                                    <div className="w-10 h-10 flex items-center justify-center border border-salvia/20 bg-salvia/10 text-salvia">
+                                        <Sparkles size={18} />
+                                    </div>
+                                    <h3 className="font-display text-2xl md:text-3xl font-light text-nebbia">
+                                        Chiedi a Lex{' '}
+                                        <span className="text-salvia">chi non ha ancora pagato.</span>
+                                    </h3>
+                                    <p className="font-body text-sm text-nebbia/50 leading-relaxed">
+                                        L'unico gestionale legale dove puoi chiedere in italiano «quali fatture sono scadute da piu di trenta giorni?» o «quanto mi deve ancora pagare il cliente Rossi?» e ricevere la risposta in pochi secondi.
+                                    </p>
+                                    <ul className="space-y-2 pt-2">
+                                        {[
+                                            'Domande in linguaggio naturale',
+                                            'Risposte immediate con i numeri',
+                                            'Link diretti alle fatture rilevanti',
+                                            'Nessun report da generare, nessun filtro',
+                                        ].map((p, i) => (
+                                            <li key={i} className="flex items-center gap-2 font-body text-xs text-nebbia/40">
+                                                <div className="w-1 h-1 bg-salvia rounded-full shrink-0" />
+                                                {p}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <VisualBlock label="Lex su pagamenti" accent="salvia">
+                                    <div className="space-y-3">
+                                        <div className="flex justify-end">
+                                            <div className="max-w-[85%] bg-petrolio/60 border border-white/5 p-3">
+                                                <p className="font-body text-xs text-nebbia/60 leading-relaxed">
+                                                    Quali clienti hanno fatture scadute da piu di 30 giorni?
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex">
+                                            <div className="max-w-[90%] bg-salvia/5 border border-salvia/15 p-3 space-y-2">
+                                                <p className="font-body text-xs text-salvia/80 font-medium flex items-center gap-1">
+                                                    <Sparkles size={10} /> Lex AI
+                                                </p>
+                                                <p className="font-body text-xs text-nebbia/55 leading-relaxed">
+                                                    Ho trovato 3 fatture scadute da oltre 30 giorni, per un totale di EUR 4.150,00.
+                                                </p>
+                                                <div className="space-y-1 pt-1">
+                                                    <div className="flex justify-between items-center p-2 bg-petrolio/60 border border-white/5">
+                                                        <div>
+                                                            <p className="font-body text-[11px] text-nebbia/70">Mario Rossi - 2026/041</p>
+                                                            <p className="font-body text-[10px] text-red-400/70">Scaduta da 42 giorni</p>
+                                                        </div>
+                                                        <span className="font-body text-[11px] text-nebbia/70">EUR 1.100,00</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center p-2 bg-petrolio/60 border border-white/5">
+                                                        <div>
+                                                            <p className="font-body text-[11px] text-nebbia/70">L. Verdi srl - 2026/035</p>
+                                                            <p className="font-body text-[10px] text-red-400/70">Scaduta da 35 giorni</p>
+                                                        </div>
+                                                        <span className="font-body text-[11px] text-nebbia/70">EUR 1.800,00</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center p-2 bg-petrolio/60 border border-white/5">
+                                                        <div>
+                                                            <p className="font-body text-[11px] text-nebbia/70">A. Bianchi - 2026/028</p>
+                                                            <p className="font-body text-[10px] text-red-400/70">Scaduta da 31 giorni</p>
+                                                        </div>
+                                                        <span className="font-body text-[11px] text-nebbia/70">EUR 1.250,00</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </VisualBlock>
+                            </div>
+                        </div>
+                    </FadeIn>
+
                 </div>
             </section>
 

@@ -9,6 +9,7 @@ import {
   Building2, LogOut, Menu, ChevronRight, Library, Search, Sparkles,
   Plus, HardDrive, AlertTriangle
 } from 'lucide-react'
+import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 
 const NAV = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -20,7 +21,7 @@ const NAV = [
   { path: '/ricerche', label: 'Ricerche', icon: Search },
   { path: '/studio', label: 'Studio', icon: Building2 },
   { path: '/archivio', label: 'Archivio', icon: Archive },
-  { path: '/pagamenti', label: 'Pagamenti', icon: CreditCard },
+  { path: '/fatturazione', label: 'Fatturazione', icon: CreditCard },
   { path: '/assistenza', label: 'Assistenza', icon: Headphones },
   { path: '/profilo', label: 'Profilo', icon: User },
 ]
@@ -159,6 +160,9 @@ export default function AvvocatoLayout({ children }) {
           <div /> {/* spacer */}
           <div className="flex items-center gap-3">
 
+            {/* Campanella notifiche */}
+            <CampanellaNotifiche />
+
             {/* Scadenza piano (solo se ≤ 7 giorni) */}
             {mostraScadenza && (
               <Link to="/studio?tab=acquista"
@@ -220,6 +224,9 @@ export default function AvvocatoLayout({ children }) {
           <img src={logo} alt="Lexum" className="h-10 w-auto" />
 
           <div className="ml-auto flex items-center gap-1.5">
+            {/* Campanella notifiche mobile */}
+            <CampanellaNotifiche />
+
             {/* Scadenza mobile */}
             {mostraScadenza && (
               <Link to="/studio?tab=acquista"

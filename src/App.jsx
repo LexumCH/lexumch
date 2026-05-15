@@ -6,6 +6,7 @@ import ScrollToTop from './components/ScrollToTop'
 import { Analytics } from '@vercel/analytics/react'
 import { useAuth } from './context/AuthContext'
 import { HelmetProvider } from 'react-helmet-async'
+import Verifica2FA from './pages/auth/Verifica2FA'
 
 import AdminLayout from './components/layouts/AdminLayout'
 import AvvocatoLayout from './components/layouts/AvvocatoLayout'
@@ -40,17 +41,23 @@ import AdminNormativa from './pages/admin/Normativa'
 import AdminNormativaDettaglio from './pages/admin/NormativaDettaglio'
 import LexLogs from './pages/admin/LexLogs'
 import MailLog from '@/pages/admin/MailLog'
+import AdminCalendario from './pages/admin/Calendario'
+import AdminProfilo from './pages/admin/Profilo'
 
 // ── Avvocato ──
 import AvvocatoDashboard from './pages/avvocato/Dashboard'
-import { AvvocatoClienti, AvvocatoClientiNuovo, AvvocatoClientiDettaglio } from './pages/avvocato/Clienti'
+import { AvvocatoClienti } from './pages/avvocato/clienti/Lista'
+import AvvocatoClientiNuovo from './pages/avvocato/clienti/Nuovo'
+import AvvocatoClientiDettaglio from './pages/avvocato/clienti/Dettaglio'
 import { AvvocatoPratiche, AvvocatoPraticheNuova } from './pages/avvocato/Pratiche'
 import PraticaDettaglio from './pages/avvocato/PraticaDettaglio'
 import { AvvocatoSentenze, AvvocatoSentenzeNuova, AvvocatoSentenzeDettaglio, } from './pages/avvocato/Sentenze'
 import AvvocatoStudio from './pages/avvocato/Studio'
 import { AvvocatoAssistenza, AvvocatoAssistenzaNuovo, AvvocatoAssistenzaDettaglio } from './pages/avvocato/Assistenza'
 import AvvocatoProfilo from './pages/avvocato/Profilo'
-import AvvocatoPagamenti from './pages/avvocato/Pagamenti'
+import AvvocatoFatturazione from './pages/avvocato/Fatturazione'
+import AvvocatoFatturazioneNuova from './pages/avvocato/FatturazioneNuova'
+import AvvocatoFatturazioneDettaglio from './pages/avvocato/FatturazioneDettaglio'
 import AvvocatoCalendar from './pages/avvocato/AvvocatoCalendar'
 import { BancaDati } from './pages/avvocato/BancaDati'
 import Archivio from '@/pages/avvocato/Archivio'
@@ -135,6 +142,11 @@ export default function App() {
               <Route path="/recupera-password" element={<RecuperaPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/email-verificata" element={<EmailVerificata />} />
+              <Route path="/verifica-2fa" element={
+                <ProtectedRoute roles={['admin', 'avvocato', 'cliente', 'user']}>
+                  <Verifica2FA />
+                </ProtectedRoute>
+              } />
 
               {/* ═══════════════════════════════════════════════════════
                 ADMIN
@@ -157,6 +169,8 @@ export default function App() {
               {/* Retrocompat: vecchia rotta /admin/normativa/:codice → /admin/normativa/it/:codice */}
               <Route path="/admin/normativa/:codice" element={<Adm><AdminNormativaDettaglio /></Adm>} />
               <Route path="/admin/lex-logs" element={<Adm><LexLogs /></Adm>} />
+              <Route path="/admin/calendario" element={<Adm><AdminCalendario /></Adm>} />
+              <Route path="/admin/profilo" element={<Adm><AdminProfilo /></Adm>} />
 
               {/* ═══════════════════════════════════════════════════════
                 AVVOCATO
@@ -172,7 +186,9 @@ export default function App() {
               <Route path="/sentenze" element={<Avv><AvvocatoSentenze /></Avv>} />
               <Route path="/sentenze/nuova" element={<Avv><AvvocatoSentenzeNuova /></Avv>} />
               <Route path="/sentenze/:id" element={<Avv><AvvocatoSentenzeDettaglio /></Avv>} />
-              <Route path="/pagamenti" element={<Avv><AvvocatoPagamenti /></Avv>} />
+              <Route path="/fatturazione" element={<Avv><AvvocatoFatturazione /></Avv>} />
+              <Route path="/fatturazione/nuova" element={<Avv><AvvocatoFatturazioneNuova /></Avv>} />
+              <Route path="/fatturazione/:id" element={<Avv><AvvocatoFatturazioneDettaglio /></Avv>} />
               <Route path="/assistenza" element={<Avv><AvvocatoAssistenza /></Avv>} />
               <Route path="/assistenza/nuovo" element={<Avv><AvvocatoAssistenzaNuovo /></Avv>} />
               <Route path="/assistenza/:id" element={<Avv><AvvocatoAssistenzaDettaglio /></Avv>} />
@@ -237,7 +253,7 @@ export default function App() {
               {/* ═══════════════════════════════════════════════════════
                 REDIRECT (retro-compatibilità)
                 ═══════════════════════════════════════════════════════ */}
-              <Route path="/area-personale" element={<Navigate to="/area" replace />} />
+              <Route path="/pagamenti" element={<Navigate to="/fatturazione" replace />} />
               <Route path="/abbonamenti" element={<Navigate to="/area/acquista" replace />} />
               <Route path="/abbonamenti/checkout" element={<Navigate to="/area/acquista" replace />} />
               <Route path="/normativa" element={<Navigate to="/banca-dati" replace />} />

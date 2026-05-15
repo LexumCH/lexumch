@@ -331,9 +331,14 @@ export function AvvocatoPraticheNuova() {
             </>
           )}
 
-          <TextareaField label="Note iniziali" rows={4}
-            placeholder="Descrizione della causa, fatti salienti, strategia difensiva..."
-            {...f('note')} />
+          <div>
+            <TextareaField label="Note interne (opzionale)" rows={4}
+              placeholder="Descrizione della causa, fatti salienti, strategia difensiva..."
+              {...f('note')} />
+            <p className="font-body text-xs text-nebbia/30 mt-2">
+              Queste note saranno visibili nella sezione "Note interne" della scheda pratica e potrai modificarle in qualsiasi momento. Lex AI non le legge.
+            </p>
+          </div>
 
           {errore && (
             <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">

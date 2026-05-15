@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader, Badge } from '@/components/shared'
-import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale, ArrowRight } from 'lucide-react'
+import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale, ArrowRight, Shield, ShieldCheck } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
+import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
 
 function Campo({ label, value, placeholder = '—', type = 'text', disabled = false, editing, onChange }) {
     if (!editing || disabled) {
@@ -59,6 +61,16 @@ export default function AvvocatoProfilo() {
     const [okPwd, setOkPwd] = useState(false)
     const [errPwd, setErrPwd] = useState('')
 
+    // 2FA
+    const [mfaAttivo, setMfaAttivo] = useState(false)
+    const [mfaAttivatoAt, setMfaAttivatoAt] = useState(null)
+    const [codiciRestanti, setCodiciRestanti] = useState(null)
+    const [modal2FA, setModal2FA] = useState(false)
+    const [codiciDaMostrare, setCodiciDaMostrare] = useState(null)
+    const [rigenerando, setRigenerando] = useState(false)
+    const [disattivando, setDisattivando] = useState(false)
+    const [err2FA, setErr2FA] = useState('')
+
     useEffect(() => {
         async function carica() {
             try {
@@ -66,7 +78,7 @@ export default function AvvocatoProfilo() {
 
                 const { data: profilo } = await supabase
                     .from('profiles')
-                    .select('nome, cognome, email, telefono, specializzazioni, studio, tipo_account, verification_status, piano_id, abbonamento_tipo, abbonamento_scadenza, posti_acquistati, include_banca_dati, include_monetizzazione, foro, numero_albo, pec, data_iscrizione_albo')
+                    .select('nome, cognome, email, telefono, specializzazioni, studio, tipo_account, verification_status, piano_id, abbonamento_tipo, abbonamento_scadenza, posti_acquistati, include_banca_dati, include_monetizzazione, foro, numero_albo, pec, data_iscrizione_albo, mfa_attivo, mfa_attivato_at')
                     .eq('id', user.id)
                     .single()
 
@@ -104,6 +116,21 @@ export default function AvvocatoProfilo() {
                             include_banca_dati: profilo.include_banca_dati ?? false,
                             include_monetizzazione: profilo.include_monetizzazione ?? false,
                         })
+                    }
+
+                    // 2FA
+                    setMfaAttivo(profilo.mfa_attivo ?? false)
+                    setMfaAttivatoAt(profilo.mfa_attivato_at ?? null)
+
+                    if (profilo.mfa_attivo) {
+                        try {
+                            const { data } = await supabase.functions.invoke('mfa-backup-codes', {
+                                body: { action: 'status' }
+                            })
+                            if (data?.ok) setCodiciRestanti(data.restanti)
+                        } catch (err) {
+                            console.error('Status backup codes:', err)
+                        }
                     }
                 }
             } catch (err) {
@@ -168,6 +195,48 @@ export default function AvvocatoProfilo() {
             setTimeout(() => setOkPwd(false), 3000)
         } catch (err) { setErrPwd(err.message) }
         finally { setSalvandoPwd(false) }
+    }
+
+    // ─── 2FA HANDLERS ──────────────────────────────────────────
+    async function handleAttiva2FASuccess(codici) {
+        setModal2FA(false)
+        setMfaAttivo(true)
+        setMfaAttivatoAt(new Date().toISOString())
+        setCodiciDaMostrare(codici)
+        setCodiciRestanti(codici.length)
+    }
+
+    async function handleRigeneraCodici() {
+        if (!confirm('Rigenerare i codici di recupero? I codici precedenti diventeranno invalidi.')) return
+        setRigenerando(true); setErr2FA('')
+        try {
+            const { data, error } = await supabase.functions.invoke('mfa-backup-codes', {
+                body: { action: 'regenerate' }
+            })
+            if (error) throw new Error(error.message)
+            if (!data?.ok) throw new Error(data?.error ?? 'Errore')
+            setCodiciDaMostrare(data.codici)
+            setCodiciRestanti(data.codici.length)
+        } catch (err) { setErr2FA(err.message) }
+        finally { setRigenerando(false) }
+    }
+
+    async function handleDisattiva2FA() {
+        if (!confirm('Disattivare il 2FA? Il tuo account sara meno sicuro.')) return
+        setDisattivando(true); setErr2FA('')
+        try {
+            const { data: factors } = await supabase.auth.mfa.listFactors()
+            for (const f of (factors?.totp ?? [])) {
+                await supabase.auth.mfa.unenroll({ factorId: f.id })
+            }
+            // Pulisci backup codes
+            const { data: { user } } = await supabase.auth.getUser()
+            await supabase.from('mfa_backup_codes').delete().eq('user_id', user.id)
+            setMfaAttivo(false)
+            setMfaAttivatoAt(null)
+            setCodiciRestanti(null)
+        } catch (err) { setErr2FA(err.message) }
+        finally { setDisattivando(false) }
     }
 
     const isMembro = tipoAccount === 'membro' || tipoAccount === 'referente'
@@ -350,7 +419,7 @@ export default function AvvocatoProfilo() {
                 </div>
 
                 {!editingPwd ? (
-                    <p className="font-body text-sm text-nebbia/30 py-2 border-b border-white/8">••••••••••••</p>
+                    <p className="font-body text-sm text-nebbia/30 py-2 border-b border-white/8">............</p>
                 ) : (
                     <>
                         {['nuova', 'conferma'].map(k => (
@@ -361,7 +430,7 @@ export default function AvvocatoProfilo() {
                                 <div className="relative">
                                     <input type={showPwd ? 'text' : 'password'} value={pwd[k]}
                                         onChange={e => setPwd(p => ({ ...p, [k]: e.target.value }))}
-                                        placeholder="••••••••"
+                                        placeholder="........"
                                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 pr-10 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
                                     {k === 'conferma' && (
                                         <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-nebbia/30 hover:text-oro">
@@ -379,6 +448,88 @@ export default function AvvocatoProfilo() {
                 )}
                 {okPwd && <div className="flex items-center gap-2 text-salvia text-xs font-body p-3 bg-salvia/5 border border-salvia/20"><CheckCircle size={14} /> Password aggiornata.</div>}
             </div>
+
+            {/* SICUREZZA — 2FA */}
+            <div className="bg-slate border border-white/5 p-6 space-y-5">
+                <div className="flex items-center gap-2">
+                    {mfaAttivo
+                        ? <ShieldCheck size={14} className="text-salvia" />
+                        : <Shield size={14} className="text-nebbia/40" />
+                    }
+                    <p className="section-label !m-0">Sicurezza</p>
+                </div>
+
+                <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                        <p className="font-body text-sm text-nebbia mb-1">
+                            Autenticazione a due fattori (2FA)
+                        </p>
+                        <p className="font-body text-xs text-nebbia/40 leading-relaxed">
+                            {mfaAttivo
+                                ? `Attiva dal ${new Date(mfaAttivatoAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}. Al login ti verra chiesto un codice dall'app autenticatore.`
+                                : 'Proteggi il tuo account con un codice generato da app come Google Authenticator, Authy o 1Password.'
+                            }
+                        </p>
+                    </div>
+                    <span className={`font-body text-[10px] px-2 py-0.5 uppercase tracking-wider whitespace-nowrap ${mfaAttivo
+                        ? 'text-salvia border border-salvia/30 bg-salvia/5'
+                        : 'text-nebbia/40 border border-white/10 bg-white/5'
+                        }`}>
+                        {mfaAttivo ? 'Attivo' : 'Non attivo'}
+                    </span>
+                </div>
+
+                {mfaAttivo && codiciRestanti !== null && (
+                    <div className="bg-petrolio border border-white/5 p-4 flex items-center justify-between">
+                        <div>
+                            <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-1">Codici di recupero</p>
+                            <p className="font-body text-sm text-nebbia">{codiciRestanti} su 10 disponibili</p>
+                            {codiciRestanti <= 3 && (
+                                <p className="font-body text-xs text-amber-400 mt-1">
+                                    Codici quasi esauriti — rigenerali per sicurezza.
+                                </p>
+                            )}
+                        </div>
+                        <button onClick={handleRigeneraCodici} disabled={rigenerando}
+                            className="font-body text-xs text-oro hover:text-oro/70 border border-oro/30 hover:border-oro/60 px-3 py-1.5 disabled:opacity-40">
+                            {rigenerando ? 'Rigenero…' : 'Rigenera codici'}
+                        </button>
+                    </div>
+                )}
+
+                {err2FA && (
+                    <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
+                        <AlertCircle size={14} /> {err2FA}
+                    </div>
+                )}
+
+                <div className="flex gap-2">
+                    {!mfaAttivo ? (
+                        <button onClick={() => setModal2FA(true)} className="btn-primary text-sm flex items-center gap-2">
+                            <Shield size={14} /> Attiva 2FA
+                        </button>
+                    ) : (
+                        <button onClick={handleDisattiva2FA} disabled={disattivando}
+                            className="font-body text-sm text-red-400/80 hover:text-red-400 border border-red-500/30 hover:border-red-500/60 px-4 py-2.5 disabled:opacity-40">
+                            {disattivando ? 'Disattivo…' : 'Disattiva 2FA'}
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* MODALS 2FA */}
+            {modal2FA && (
+                <ModalAttiva2FA
+                    onClose={() => setModal2FA(false)}
+                    onSuccess={handleAttiva2FASuccess}
+                />
+            )}
+            {codiciDaMostrare && (
+                <ModalBackupCodes
+                    codici={codiciDaMostrare}
+                    onClose={() => setCodiciDaMostrare(null)}
+                />
+            )}
         </div>
     )
 }

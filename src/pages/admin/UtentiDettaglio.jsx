@@ -5,9 +5,10 @@ import { useParams, Link } from 'react-router-dom'
 import { BackButton, Badge, StatCard } from '@/components/shared'
 import {
   ShieldOff, Lock, Clock, FileText,
-  FolderOpen, User,
-  CheckCircle, XCircle, AlertCircle, ArrowRight
+  FolderOpen, User, KeyRound, Mail, X, Eye, EyeOff, Copy, Check,
+  CheckCircle, XCircle, AlertCircle, ArrowRight, RefreshCw
 } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 
 // ─────────────────────────────────────────────────────────────
@@ -719,8 +720,11 @@ function SezioneUser({ utente, onDecision }) {
 // ─────────────────────────────────────────────────────────────
 export default function AdminUtentiDettaglio() {
   const { id } = useParams()
+  const { profile: adminProfile } = useAuth()
   const [utente, setUtente] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  const isSelf = adminProfile?.id === id
 
   useEffect(() => {
     async function carica() {
@@ -770,6 +774,9 @@ export default function AdminUtentiDettaglio() {
         </div>
       </div>
 
+      {/* Strumenti di assistenza (nascosto se admin guarda se stesso) */}
+      {!isSelf && <SezioneStrumentiAssistenza utente={utente} />}
+
       {utente.role === 'avvocato' && <SezioneAvvocato utente={utente} />}
       {utente.role === 'cliente' && <SezioneCliente utente={utente} />}
       {utente.role === 'user' && (
@@ -783,6 +790,335 @@ export default function AdminUtentiDettaglio() {
           <p className="font-body text-sm text-nebbia/40">Account amministratore.</p>
         </div>
       )}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
+// SEZIONE STRUMENTI DI ASSISTENZA (visibile solo se admin != target)
+// ─────────────────────────────────────────────────────────────
+function SezioneStrumentiAssistenza({ utente }) {
+  const [errore, setErrore] = useState('')
+  const [successo, setSuccesso] = useState('')
+  const [busy, setBusy] = useState(null) // 'reset' | 'mfa' | null
+  const [modalPwd, setModalPwd] = useState(false)
+
+  async function callAction(action, body = {}) {
+    setErrore(''); setSuccesso('')
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-user-actions', {
+        body: { action, user_id: utente.id, ...body }
+      })
+      if (error) throw new Error(error.message)
+      if (!data?.ok) throw new Error(data?.error ?? 'Errore')
+      return data
+    } catch (err) {
+      setErrore(err.message)
+      throw err
+    }
+  }
+
+  async function handleSendResetEmail() {
+    if (!confirm(`Inviare email di reset password a ${utente.email}?`)) return
+    setBusy('reset')
+    try {
+      const data = await callAction('send-reset-email')
+      setSuccesso(data.messaggio)
+      setTimeout(() => setSuccesso(''), 5000)
+    } catch (_) { } finally { setBusy(null) }
+  }
+
+  async function handleDisableMFA() {
+    if (!confirm(`Disattivare il 2FA di ${utente.nome} ${utente.cognome}? L'utente potra accedere senza codice TOTP al prossimo login.`)) return
+    setBusy('mfa')
+    try {
+      const data = await callAction('disable-mfa')
+      setSuccesso(data.messaggio)
+      setTimeout(() => setSuccesso(''), 5000)
+      // Forza reload dei dati utente per aggiornare mfa_attivo
+      setTimeout(() => window.location.reload(), 1500)
+    } catch (_) { } finally { setBusy(null) }
+  }
+
+  return (
+    <>
+      <div className="bg-slate border border-amber-500/20 p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <ShieldOff size={14} className="text-amber-400" />
+          <p className="section-label !m-0">Strumenti di assistenza</p>
+        </div>
+
+        {errore && (
+          <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
+            <AlertCircle size={14} /> {errore}
+          </div>
+        )}
+        {successo && (
+          <div className="flex items-center gap-2 text-salvia text-xs font-body p-3 bg-salvia/5 border border-salvia/20">
+            <CheckCircle size={14} /> {successo}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Email reset */}
+          <button
+            onClick={handleSendResetEmail}
+            disabled={busy !== null}
+            className="flex flex-col items-start gap-2 p-4 bg-petrolio border border-white/10 hover:border-oro/40 transition-colors text-left disabled:opacity-40"
+          >
+            <div className="flex items-center gap-2">
+              {busy === 'reset'
+                ? <span className="animate-spin w-3.5 h-3.5 border-2 border-oro border-t-transparent rounded-full" />
+                : <Mail size={14} className="text-oro" />
+              }
+              <span className="font-body text-sm font-medium text-nebbia">Invia email reset password</span>
+            </div>
+            <p className="font-body text-xs text-nebbia/40 leading-relaxed">
+              L'utente riceve un link per impostare una nuova password.
+            </p>
+          </button>
+
+          {/* Cambia password diretta */}
+          <button
+            onClick={() => setModalPwd(true)}
+            disabled={busy !== null}
+            className="flex flex-col items-start gap-2 p-4 bg-petrolio border border-white/10 hover:border-oro/40 transition-colors text-left disabled:opacity-40"
+          >
+            <div className="flex items-center gap-2">
+              <KeyRound size={14} className="text-oro" />
+              <span className="font-body text-sm font-medium text-nebbia">Cambia password</span>
+            </div>
+            <p className="font-body text-xs text-nebbia/40 leading-relaxed">
+              Imposta tu una password temporanea da comunicargli a voce.
+            </p>
+          </button>
+
+          {/* Disattiva 2FA */}
+          <button
+            onClick={handleDisableMFA}
+            disabled={busy !== null || !utente.mfa_attivo}
+            className="flex flex-col items-start gap-2 p-4 bg-petrolio border border-white/10 hover:border-red-400/40 transition-colors text-left disabled:opacity-40"
+          >
+            <div className="flex items-center gap-2">
+              {busy === 'mfa'
+                ? <span className="animate-spin w-3.5 h-3.5 border-2 border-red-400 border-t-transparent rounded-full" />
+                : <ShieldOff size={14} className={utente.mfa_attivo ? 'text-red-400' : 'text-nebbia/30'} />
+              }
+              <span className="font-body text-sm font-medium text-nebbia">Disattiva 2FA</span>
+            </div>
+            <p className="font-body text-xs text-nebbia/40 leading-relaxed">
+              {utente.mfa_attivo
+                ? "L'utente potra accedere senza TOTP al prossimo login."
+                : "L'utente non ha 2FA attivo."
+              }
+            </p>
+          </button>
+        </div>
+      </div>
+
+      {modalPwd && (
+        <ModalCambiaPassword
+          utente={utente}
+          onClose={() => setModalPwd(false)}
+          onSuccess={(msg) => {
+            setSuccesso(msg)
+            setTimeout(() => setSuccesso(''), 10000)
+          }}
+        />
+      )}
+    </>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODAL CAMBIO PASSWORD
+// ─────────────────────────────────────────────────────────────
+function ModalCambiaPassword({ utente, onClose, onSuccess }) {
+  const [modo, setModo] = useState('genera') // 'genera' | 'manuale'
+  const [pwdManuale, setPwdManuale] = useState('')
+  const [showPwd, setShowPwd] = useState(false)
+  const [inviando, setInviando] = useState(false)
+  const [errore, setErrore] = useState('')
+  const [risultato, setRisultato] = useState(null)
+  const [copiato, setCopiato] = useState(false)
+
+  async function handleConferma() {
+    setErrore(''); setInviando(true)
+    try {
+      const body = { action: 'set-password', user_id: utente.id }
+      if (modo === 'manuale') {
+        if (!pwdManuale || pwdManuale.length < 8) {
+          throw new Error('Password minimo 8 caratteri')
+        }
+        body.new_password = pwdManuale
+      }
+      const { data, error } = await supabase.functions.invoke('admin-user-actions', { body })
+      if (error) throw new Error(error.message)
+      if (!data?.ok) throw new Error(data?.error ?? 'Errore')
+      setRisultato(data)
+    } catch (err) {
+      setErrore(err.message)
+    } finally {
+      setInviando(false)
+    }
+  }
+
+  function handleCopia() {
+    if (!risultato?.password) return
+    navigator.clipboard.writeText(risultato.password)
+    setCopiato(true)
+    setTimeout(() => setCopiato(false), 2000)
+  }
+
+  function handleChiudi() {
+    if (risultato) {
+      onSuccess(`Password aggiornata per ${utente.nome} ${utente.cognome}`)
+    }
+    onClose()
+  }
+
+  // ─── Schermata risultato ─────────────────────────────────
+  if (risultato) {
+    return (
+      <div className="fixed inset-0 z-50 bg-petrolio/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-slate border border-salvia/30 w-full max-w-md p-6 space-y-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-salvia/10 border border-salvia/30 flex items-center justify-center">
+              <CheckCircle size={18} className="text-salvia" />
+            </div>
+            <h2 className="font-display text-lg text-nebbia">Password aggiornata</h2>
+          </div>
+
+          {risultato.generata && (
+            <>
+              <div className="bg-amber-900/10 border border-amber-500/30 p-3">
+                <p className="font-body text-xs text-amber-400 leading-relaxed">
+                  <span className="font-medium">Importante:</span> questa password viene mostrata una sola volta.
+                  Comunicala in modo sicuro all'utente (telefono, di persona) — non via email o chat non cifrata.
+                </p>
+              </div>
+
+              <div>
+                <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
+                  Password temporanea
+                </label>
+                <div className="flex items-center gap-2 bg-petrolio border border-white/10 p-3">
+                  <code className="flex-1 font-mono text-base text-nebbia tracking-wider">{risultato.password}</code>
+                  <button onClick={handleCopia} className="text-oro hover:text-oro/70 shrink-0">
+                    {copiato ? <Check size={15} /> : <Copy size={15} />}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {!risultato.generata && (
+            <p className="font-body text-sm text-nebbia/60">
+              La password e stata aggiornata. Comunicala all'utente.
+            </p>
+          )}
+
+          <button onClick={handleChiudi} className="btn-primary text-sm w-full justify-center">
+            Ho preso nota, chiudi
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ─── Schermata input ────────────────────────────────────
+  return (
+    <div className="fixed inset-0 z-50 bg-petrolio/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-slate border border-white/10 w-full max-w-md">
+        <div className="flex items-center justify-between p-5 border-b border-white/8">
+          <div className="flex items-center gap-2">
+            <KeyRound size={16} className="text-oro" />
+            <h2 className="font-display text-lg text-nebbia">Cambia password</h2>
+          </div>
+          <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-5">
+          <p className="font-body text-sm text-nebbia/60 leading-relaxed">
+            Stai cambiando la password di <span className="text-nebbia font-medium">{utente.nome} {utente.cognome}</span>.
+          </p>
+
+          {/* Selettore modo */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setModo('genera')}
+              className={`flex flex-col items-start gap-1 p-3 border text-left transition-colors ${modo === 'genera'
+                ? 'border-oro bg-oro/10'
+                : 'border-white/10 hover:border-white/20'
+                }`}
+            >
+              <div className="flex items-center gap-2">
+                <RefreshCw size={12} className={modo === 'genera' ? 'text-oro' : 'text-nebbia/40'} />
+                <span className="font-body text-sm font-medium text-nebbia">Genera casuale</span>
+              </div>
+              <p className="font-body text-xs text-nebbia/40">12 caratteri sicuri</p>
+            </button>
+            <button
+              onClick={() => setModo('manuale')}
+              className={`flex flex-col items-start gap-1 p-3 border text-left transition-colors ${modo === 'manuale'
+                ? 'border-oro bg-oro/10'
+                : 'border-white/10 hover:border-white/20'
+                }`}
+            >
+              <div className="flex items-center gap-2">
+                <KeyRound size={12} className={modo === 'manuale' ? 'text-oro' : 'text-nebbia/40'} />
+                <span className="font-body text-sm font-medium text-nebbia">Manuale</span>
+              </div>
+              <p className="font-body text-xs text-nebbia/40">Scegli tu</p>
+            </button>
+          </div>
+
+          {/* Input manuale */}
+          {modo === 'manuale' && (
+            <div>
+              <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
+                Nuova password (min 8 caratteri)
+              </label>
+              <div className="relative">
+                <input
+                  type={showPwd ? 'text' : 'password'}
+                  value={pwdManuale}
+                  onChange={e => setPwdManuale(e.target.value)}
+                  placeholder="........"
+                  autoFocus
+                  className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 pr-10 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
+                />
+                <button type="button" onClick={() => setShowPwd(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-nebbia/30 hover:text-oro">
+                  {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {errore && (
+            <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
+              <AlertCircle size={14} /> {errore}
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <button onClick={onClose} disabled={inviando}
+              className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">
+              Annulla
+            </button>
+            <button onClick={handleConferma} disabled={inviando || (modo === 'manuale' && pwdManuale.length < 8)}
+              className="btn-primary text-sm flex-1 justify-center disabled:opacity-40">
+              {inviando
+                ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
+                : 'Conferma cambio password'
+              }
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react'
 import { PageHeader, Badge, StatCard } from '@/components/shared'
 import {
-    Download, Search, ChevronUp, ChevronDown,
+    Download, Search, ChevronUp, ChevronDown, Plus,
     ArrowUpDown, CheckCircle, XCircle, AlertCircle, ArrowRight
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import ModalGeneraAcquisto from '@/components/admin/ModalGeneraAcquisto'
 
 const STATO_PAG_BADGE = {
     completato: { label: 'Completato', variant: 'salvia' },
@@ -521,6 +522,7 @@ function TabRichieste() {
 export function AdminPagamenti() {
     const [tab, setTab] = useState('pagamenti')
     const [nRichieste, setNRichieste] = useState(0)
+    const [mostraModal, setMostraModal] = useState(false)
 
     useEffect(() => {
         supabase.from('richieste_pagamento').select('id', { count: 'exact', head: true }).eq('stato', 'in_attesa')
@@ -535,7 +537,16 @@ export function AdminPagamenti() {
 
     return (
         <div className="space-y-5">
-            <PageHeader label="Admin" title="Pagamenti & Compensi" />
+            {/* HEADER con bottone "Genera acquisto manuale" allineato a destra */}
+            <div className="flex items-start justify-between gap-4">
+                <PageHeader label="Admin" title="Pagamenti & Compensi" />
+                <button
+                    onClick={() => setMostraModal(true)}
+                    className="btn-primary text-sm flex items-center gap-2 whitespace-nowrap shrink-0"
+                >
+                    <Plus size={14} /> Genera acquisto manuale
+                </button>
+            </div>
 
             <div className="flex gap-0 border-b border-white/8">
                 {TABS.map(t => (
@@ -554,6 +565,14 @@ export function AdminPagamenti() {
             {tab === 'pagamenti' && <TabPagamenti />}
             {tab === 'compensi' && <TabCompensi />}
             {tab === 'richieste' && <TabRichieste />}
+
+            {/* MODAL GENERA ACQUISTO */}
+            {mostraModal && (
+                <ModalGeneraAcquisto
+                    onClose={() => setMostraModal(false)}
+                    onSuccess={() => window.location.reload()}
+                />
+            )}
         </div>
     )
 }

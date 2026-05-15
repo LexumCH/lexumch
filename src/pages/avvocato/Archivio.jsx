@@ -7,7 +7,7 @@ import {
     AlertCircle, Tag, User, FolderOpen, Folder, Eye, Trash2, Filter,
     Archive, Lock, HardDrive, Gavel, Calendar, ArrowRight, ArrowLeft,
     AlertTriangle, Loader2, Building2, CalendarDays, Plus,
-    ChevronRight, ChevronDown, Edit2, Save, Tags,
+    ChevronRight, ChevronDown, Edit2, Save, Tags, Receipt,
 } from 'lucide-react'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import { supabase } from '@/lib/supabase'
@@ -395,8 +395,8 @@ function CardCartella({ categoria, count, onClick, vuota = false }) {
         <button
             onClick={onClick}
             className={`p-5 text-left transition-all group ${vuota
-                    ? 'bg-slate/40 border border-dashed border-white/5 hover:border-oro/20 hover:bg-petrolio/20 opacity-60 hover:opacity-100'
-                    : 'bg-slate border border-white/5 hover:border-oro/30 hover:bg-petrolio/40'
+                ? 'bg-slate/40 border border-dashed border-white/5 hover:border-oro/20 hover:bg-petrolio/20 opacity-60 hover:opacity-100'
+                : 'bg-slate border border-white/5 hover:border-oro/30 hover:bg-petrolio/40'
                 }`}
         >
             <div className="flex items-start justify-between gap-3 mb-3">
@@ -1001,6 +1001,13 @@ function CardDocumento({
     const evidenzia = (testo) => evidenziaParole(testo, paroleChiave)
 
     async function apriDocumento() {
+        // Per le fatture, naviga alla pagina dedicata di Fatturazione
+        // (la pagina /fatturazione/:id gestisce download PDF, pagamenti, etc.)
+        if (doc.metadati?.kind === 'fattura' && doc.metadati?.fattura_id) {
+            navigate(`/fatturazione/${doc.metadati.fattura_id}`)
+            return
+        }
+
         // Per le sentenze, naviga alla pagina dedicata
         if (isSentenza) {
             navigate(`/sentenze/${doc.id}`)
@@ -1013,21 +1020,25 @@ function CardDocumento({
 
         try {
             // Recupera storage_path se non presente nel doc (es. risultati search)
+            // Recupera anche metadati.bucket se non gia' presente, per documenti
+            // archiviati in bucket diversi (fatture, archivio, etc).
             let path = doc.storage_path
+            let bucket = doc.metadati?.bucket ?? 'archivio'
             if (!path) {
                 const { data } = await supabase
                     .from('archivio_documenti')
-                    .select('storage_path')
+                    .select('storage_path, metadati')
                     .eq('id', doc.id)
                     .single()
                 path = data?.storage_path
+                bucket = data?.metadati?.bucket ?? 'archivio'
             }
             if (!path) {
                 setCaricandoAnteprima(false)
                 return
             }
 
-            const { data: signed } = await supabase.storage.from('archivio').createSignedUrl(path, 3600)
+            const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(path, 3600)
             if (!signed?.signedUrl) {
                 setCaricandoAnteprima(false)
                 return
@@ -1055,11 +1066,13 @@ function CardDocumento({
         <div className="bg-slate border border-white/5 hover:border-white/10 transition-colors">
             <div className="p-4 flex items-start gap-3">
                 <div className="w-9 h-9 flex items-center justify-center border border-white/10 shrink-0 mt-0.5">
-                    {isSentenza
-                        ? <Gavel size={15} className="text-oro/60" />
-                        : doc.tipo === 'pdf'
-                            ? <FileText size={15} className="text-oro/60" />
-                            : <File size={15} className="text-nebbia/30" />
+                    {doc.metadati?.kind === 'fattura'
+                        ? <Receipt size={15} className="text-salvia" />
+                        : isSentenza
+                            ? <Gavel size={15} className="text-oro/60" />
+                            : doc.tipo === 'pdf'
+                                ? <FileText size={15} className="text-oro/60" />
+                                : <File size={15} className="text-nebbia/30" />
                     }
                 </div>
 
@@ -1112,7 +1125,12 @@ function CardDocumento({
 
                         {/* Status + tipo Haiku (salvia, dx) */}
                         <div className="flex items-center gap-1.5 shrink-0">
-                            {tipoDocLabel && (
+                            {doc.metadati?.kind === 'fattura' && (
+                                <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/15 border border-salvia/40 text-salvia uppercase tracking-wider flex items-center gap-1 font-semibold">
+                                    <Receipt size={9} /> Fattura
+                                </span>
+                            )}
+                            {tipoDocLabel && doc.metadati?.kind !== 'fattura' && (
                                 <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/5 border border-salvia/20 text-salvia uppercase tracking-wider flex items-center gap-1">
                                     <Sparkles size={9} /> {tipoDocLabel}
                                 </span>
@@ -1212,8 +1230,8 @@ function CardDocumento({
                         </div>
                     )}
 
-                    {/* Azioni: pratica + etichette (solo per documenti, non sentenze) */}
-                    {!isSentenza && (
+                    {/* Azioni: pratica + etichette (solo per documenti normali, non sentenze ne fatture) */}
+                    {!isSentenza && doc.metadati?.kind !== 'fattura' && (
                         <div className="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-white/5">
                             {/* Aggiungi a pratica */}
                             {praticaCorrente ? (
@@ -1301,7 +1319,7 @@ function CardDocumento({
                     >
                         {isSentenza ? <ArrowRight size={13} /> : <Eye size={13} />}
                     </button>
-                    {!isSentenza && (
+                    {!isSentenza && doc.metadati?.kind !== 'fattura' && (
                         <button
                             onClick={() => onElimina(doc)}
                             className="w-7 h-7 flex items-center justify-center text-nebbia/25 hover:text-red-400 transition-colors"

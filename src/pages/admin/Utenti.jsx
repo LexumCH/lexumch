@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader, Badge, StatCard } from '@/components/shared'
-import { Search, ArrowRight, CheckCircle, XCircle, AlertCircle, FileText } from 'lucide-react'
+import {
+  Search, ArrowRight, CheckCircle, XCircle, AlertCircle, FileText,
+  UserPlus, X, Copy, Check, ShieldAlert
+} from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const ROLE_BADGE = {
@@ -11,6 +14,376 @@ const ROLE_BADGE = {
   avvocato: { label: 'Avvocato', variant: 'oro' },
   cliente: { label: 'Cliente', variant: 'salvia' },
   user: { label: 'User', variant: 'gray' },
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODAL CREA UTENTE (side panel)
+// ─────────────────────────────────────────────────────────────
+function ModalCreaUtente({ open, onClose, onCreated }) {
+  // Stati form
+  const [role, setRole] = useState('user')
+  const [nome, setNome] = useState('')
+  const [cognome, setCognome] = useState('')
+  const [email, setEmail] = useState('')
+  const [telefono, setTelefono] = useState('')
+  const [cf, setCf] = useState('')
+  const [indirizzo, setIndirizzo] = useState('')
+  const [noteIniziali, setNoteIniziali] = useState('')
+  const [avvocatoId, setAvvocatoId] = useState('')
+  const [confirmAdmin, setConfirmAdmin] = useState(false)
+
+  // Stati flusso
+  const [avvocati, setAvvocati] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [errore, setErrore] = useState('')
+  const [successo, setSuccesso] = useState(null)  // { user_id, password_temp }
+  const [copiato, setCopiato] = useState(false)
+
+  // Carica avvocati alla prima apertura per il select cliente → avvocato
+  useEffect(() => {
+    if (!open) return
+    async function caricaAvvocati() {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, nome, cognome, studio')
+        .eq('role', 'avvocato')
+        .eq('verification_status', 'approved')
+        .order('cognome')
+      setAvvocati(data ?? [])
+    }
+    caricaAvvocati()
+  }, [open])
+
+  // Reset alla chiusura
+  function reset() {
+    setRole('user'); setNome(''); setCognome(''); setEmail('')
+    setTelefono(''); setCf(''); setIndirizzo(''); setNoteIniziali('')
+    setAvvocatoId(''); setConfirmAdmin(false)
+    setErrore(''); setSuccesso(null); setCopiato(false)
+  }
+
+  function handleClose() {
+    if (successo) onCreated()  // refresh lista se è stato creato qualcuno
+    reset()
+    onClose()
+  }
+
+  async function handleSubmit() {
+    setErrore('')
+
+    // Validazioni client
+    if (!nome.trim()) return setErrore('Nome obbligatorio')
+    if (!cognome.trim()) return setErrore('Cognome obbligatorio')
+    if (!email.trim()) return setErrore('Email obbligatoria')
+    if (!/\S+@\S+\.\S+/.test(email)) return setErrore('Email non valida')
+    if (role === 'cliente' && !avvocatoId) return setErrore("Seleziona l'avvocato di appartenenza")
+    if (role === 'admin' && !confirmAdmin) return setErrore('Devi confermare la creazione del nuovo admin')
+
+    setLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-create-user`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            role,
+            email: email.trim().toLowerCase(),
+            nome: nome.trim(),
+            cognome: cognome.trim(),
+            telefono: telefono.trim() || null,
+            cf: cf.trim() || null,
+            indirizzo: indirizzo.trim() || null,
+            note_iniziali: noteIniziali.trim() || null,
+            avvocato_id: role === 'cliente' ? avvocatoId : null,
+            confirm_admin: role === 'admin' ? true : undefined,
+          }),
+        }
+      )
+      const json = await res.json()
+      if (!json.ok) throw new Error(json.error)
+
+      setSuccesso({
+        user_id: json.user_id,
+        password_temp: json.password_temp,
+        email: email.trim().toLowerCase(),
+        nome: nome.trim(),
+        cognome: cognome.trim(),
+        role,
+      })
+    } catch (err) {
+      setErrore(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleCopia() {
+    try {
+      await navigator.clipboard.writeText(successo.password_temp)
+      setCopiato(true)
+      setTimeout(() => setCopiato(false), 2500)
+    } catch {
+      // fallback per browser senza clipboard API
+      const ta = document.createElement('textarea')
+      ta.value = successo.password_temp
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+      setCopiato(true)
+      setTimeout(() => setCopiato(false), 2500)
+    }
+  }
+
+  if (!open) return null
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-petrolio/80 backdrop-blur-sm z-40 animate-fade-in"
+        onClick={handleClose}
+      />
+
+      {/* Side panel */}
+      <div className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-slate border-l border-white/10 z-50 overflow-y-auto animate-fade-in">
+        <div className="p-6 space-y-5">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="section-label mb-1">Admin</p>
+              <h2 className="font-display text-2xl font-light text-nebbia">
+                {successo ? 'Utente creato' : 'Nuovo utente'}
+              </h2>
+            </div>
+            <button onClick={handleClose}
+              className="w-8 h-8 flex items-center justify-center text-nebbia/40 hover:text-nebbia hover:bg-petrolio transition-colors">
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* ── STATO 1: SUCCESSO ──────────────────────────────── */}
+          {successo ? (
+            <div className="space-y-5">
+              <div className="bg-salvia/10 border border-salvia/30 p-4 flex items-start gap-3">
+                <CheckCircle size={18} className="text-salvia shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <p className="font-body text-sm font-medium text-salvia mb-0.5">
+                    {ROLE_BADGE[successo.role].label} creato con successo
+                  </p>
+                  <p className="font-body text-xs text-nebbia/60 break-all">
+                    {successo.nome} {successo.cognome} — {successo.email}
+                  </p>
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase">
+                  Password temporanea
+                </label>
+                <div className="relative">
+                  <input
+                    readOnly
+                    value={successo.password_temp}
+                    className="w-full bg-petrolio border border-oro/30 text-oro font-mono text-sm px-4 py-3 pr-24 outline-none select-all"
+                  />
+                  <button onClick={handleCopia}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-oro/15 border border-oro/30 text-oro font-body text-xs hover:bg-oro/25 transition-colors flex items-center gap-1.5">
+                    {copiato ? <><Check size={12} /> Copiata</> : <><Copy size={12} /> Copia</>}
+                  </button>
+                </div>
+              </div>
+
+              {/* Warning */}
+              <div className="bg-amber-900/10 border border-amber-500/25 p-3 flex items-start gap-2">
+                <AlertCircle size={14} className="text-amber-400 shrink-0 mt-0.5" />
+                <p className="font-body text-xs text-amber-400 leading-relaxed">
+                  Salva questa password ora. Non sarà più visibile dopo aver chiuso questa finestra.
+                  Comunicala all'utente tramite un canale sicuro (di persona, telefono, messaggio cifrato).
+                </p>
+              </div>
+
+              {/* Azioni */}
+              <div className="flex gap-2">
+                <Link to={`/admin/utenti/${successo.user_id}`}
+                  onClick={handleClose}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-petrolio border border-white/10 text-nebbia font-body text-sm hover:border-oro/30 transition-colors">
+                  Apri scheda <ArrowRight size={14} />
+                </Link>
+                <button onClick={handleClose}
+                  className="px-5 py-3 bg-oro/15 border border-oro/40 text-oro font-body text-sm hover:bg-oro/25 transition-colors">
+                  Chiudi
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* ── STATO 0: FORM ──────────────────────────────────── */
+            <div className="space-y-5">
+              {/* Selezione ruolo */}
+              <div>
+                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
+                  Tipo utente
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'user', label: 'User', desc: 'Account base' },
+                    { id: 'cliente', label: 'Cliente', desc: 'Per avvocato' },
+                    { id: 'admin', label: 'Admin', desc: 'Pieni poteri' },
+                  ].map(r => (
+                    <button key={r.id}
+                      onClick={() => { setRole(r.id); setErrore(''); setConfirmAdmin(false) }}
+                      disabled={loading}
+                      className={`p-3 border text-left transition-all ${role === r.id
+                        ? 'bg-oro/10 border-oro/40'
+                        : 'bg-petrolio border-white/10 hover:border-oro/20'
+                        }`}>
+                      <p className={`font-body text-sm font-medium ${role === r.id ? 'text-oro' : 'text-nebbia'}`}>{r.label}</p>
+                      <p className="font-body text-[10px] text-nebbia/40 mt-0.5">{r.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Campi base */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
+                    Nome <span className="text-red-400 normal-case tracking-normal">*</span>
+                  </label>
+                  <input value={nome} onChange={e => setNome(e.target.value)} disabled={loading}
+                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50" />
+                </div>
+                <div>
+                  <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
+                    Cognome <span className="text-red-400 normal-case tracking-normal">*</span>
+                  </label>
+                  <input value={cognome} onChange={e => setCognome(e.target.value)} disabled={loading}
+                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
+                  Email <span className="text-red-400 normal-case tracking-normal">*</span>
+                </label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} disabled={loading}
+                  className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50" />
+              </div>
+
+              {/* Campi specifici per CLIENTE */}
+              {role === 'cliente' && (
+                <>
+                  <div>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
+                      Avvocato di appartenenza <span className="text-red-400 normal-case tracking-normal">*</span>
+                    </label>
+                    <select value={avvocatoId} onChange={e => setAvvocatoId(e.target.value)} disabled={loading}
+                      className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50">
+                      <option value="">— Seleziona avvocato —</option>
+                      {avvocati.map(a => (
+                        <option key={a.id} value={a.id}>
+                          {a.cognome} {a.nome}{a.studio ? ` — ${a.studio}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    {avvocati.length === 0 && (
+                      <p className="font-body text-xs text-nebbia/40 mt-1">
+                        Nessun avvocato verificato disponibile.
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
+                      Telefono
+                    </label>
+                    <input value={telefono} onChange={e => setTelefono(e.target.value)} disabled={loading}
+                      className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50" />
+                  </div>
+
+                  <div>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
+                      Codice fiscale
+                    </label>
+                    <input value={cf} onChange={e => setCf(e.target.value.toUpperCase())} disabled={loading} maxLength={16}
+                      className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 uppercase" />
+                  </div>
+
+                  <div>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
+                      Indirizzo
+                    </label>
+                    <input value={indirizzo} onChange={e => setIndirizzo(e.target.value)} disabled={loading}
+                      className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50" />
+                  </div>
+
+                  <div>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
+                      Note iniziali
+                    </label>
+                    <textarea rows={2} value={noteIniziali} onChange={e => setNoteIniziali(e.target.value)} disabled={loading}
+                      className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 resize-none" />
+                  </div>
+                </>
+              )}
+
+              {/* Conferma extra per ADMIN */}
+              {role === 'admin' && (
+                <div className="bg-red-900/10 border border-red-500/25 p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <ShieldAlert size={16} className="text-red-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-body text-sm font-medium text-red-400">Stai creando un nuovo amministratore</p>
+                      <p className="font-body text-xs text-nebbia/60 mt-1 leading-relaxed">
+                        Un account admin ha accesso a tutti i dati di tutti gli utenti, può creare ed eliminare account,
+                        approvare verifiche e modificare prodotti.
+                      </p>
+                    </div>
+                  </div>
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" checked={confirmAdmin} onChange={e => setConfirmAdmin(e.target.checked)} disabled={loading}
+                      className="mt-0.5 accent-red-400" />
+                    <span className="font-body text-xs text-nebbia/80 leading-relaxed">
+                      Confermo di voler creare un nuovo amministratore e mi assumo la responsabilità di comunicargli
+                      la password tramite un canale sicuro.
+                    </span>
+                  </label>
+                </div>
+              )}
+
+              {/* Errore */}
+              {errore && (
+                <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
+                  <AlertCircle size={14} /> {errore}
+                </div>
+              )}
+
+              {/* Footer azioni */}
+              <div className="flex gap-2 pt-2">
+                <button onClick={handleClose} disabled={loading}
+                  className="flex-1 py-3 bg-petrolio border border-white/10 text-nebbia/60 font-body text-sm hover:border-white/30 hover:text-nebbia transition-colors disabled:opacity-40">
+                  Annulla
+                </button>
+                <button onClick={handleSubmit} disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-oro/15 border border-oro/40 text-oro font-body text-sm hover:bg-oro/25 transition-colors disabled:opacity-40">
+                  {loading
+                    ? <span className="animate-spin w-4 h-4 border-2 border-oro border-t-transparent rounded-full" />
+                    : <><UserPlus size={14} /> Crea utente</>
+                  }
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -119,6 +492,9 @@ function TabellaUtenti({ data, loading }) {
   )
 }
 
+// ─────────────────────────────────────────────────────────────
+// TAB VERIFICHE
+// ─────────────────────────────────────────────────────────────
 function DocumentiVerifica({ userId }) {
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)
@@ -141,11 +517,7 @@ function DocumentiVerifica({ userId }) {
     if (data?.signedUrl) window.open(data.signedUrl, '_blank')
   }
 
-  const LABEL = {
-    identita: 'Documento identità',
-    albo: 'Iscrizione Albo',
-    laurea: 'Laurea',
-  }
+  const LABEL = { identita: 'Documento identità', albo: 'Iscrizione Albo', laurea: 'Laurea' }
 
   if (loading) return (
     <div className="flex items-center justify-center py-4">
@@ -185,9 +557,6 @@ function DocumentiVerifica({ userId }) {
   )
 }
 
-// ─────────────────────────────────────────────────────────────
-// TAB VERIFICHE
-// ─────────────────────────────────────────────────────────────
 function TabVerifiche({ data, loading, onDecision }) {
   const [selected, setSelected] = useState(null)
   const [motivazione, setMotivazione] = useState('')
@@ -290,6 +659,7 @@ export default function AdminUtenti() {
   const [utenti, setUtenti] = useState([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('tutti')
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => { carica() }, [])
 
@@ -322,7 +692,13 @@ export default function AdminUtenti() {
 
   return (
     <div className="space-y-5">
-      <PageHeader label="Admin" title="Utenti" />
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <PageHeader label="Admin" title="Utenti" />
+        <button onClick={() => setModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-oro/15 border border-oro/40 text-oro font-body text-sm hover:bg-oro/25 transition-colors">
+          <UserPlus size={14} /> Crea utente
+        </button>
+      </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard label="Totale" value={nTotale} colorClass="text-nebbia" />
@@ -350,6 +726,12 @@ export default function AdminUtenti() {
         ? <TabVerifiche data={utenti} loading={loading} onDecision={handleDecision} />
         : <TabellaUtenti data={utenti} loading={loading} />
       }
+
+      <ModalCreaUtente
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onCreated={carica}
+      />
     </div>
   )
 }

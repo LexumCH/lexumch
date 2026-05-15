@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import ArchivioAnimatedDemo from '@/components/ArchivioAnimatedDemo'
+import ClientiLexAnimatedDemo from '@/components/ClientiLexAnimatedDemo'
 import {
   ArrowRight, Sparkles, FolderOpen, Users, FileText,
   BookOpen, Shield, Zap, ChevronDown, Check, Scale,
@@ -301,7 +302,7 @@ export default function Home() {
             <SectionLabel>Il problema</SectionLabel>
             <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia mb-6">
               Il problema non e solo il carico di lavoro.{' '}
-              <span className="text-nebbia/35">E la frammentazione.</span>
+              <span className="text-red-400/60">E la frammentazione.</span>
             </h2>
           </FadeIn>
 
@@ -344,52 +345,71 @@ export default function Home() {
       <section id="features" className="py-24 px-6 border-t border-white/5">
         <div className="max-w-5xl mx-auto space-y-24">
 
-          <FadeIn className="text-center mb-4 max-w-2xl mx-auto">
-            <SectionLabel>Funzionalita</SectionLabel>
-            <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia">
-              Quello che lo studio fa ogni giorno,{' '}
-              <span className="text-oro">in un unico flusso.</span>
-            </h2>
-          </FadeIn>
-
-          {/* 3.1 Gestionale */}
+          {/* 3.1 Gestionale + Lex (fuso) */}
           <div id="gestionale" className="scroll-mt-28">
-            <FeatureRow
-              icon={FolderOpen}
-              title="Gestionale per studio, pratiche e clienti"
-              text="Pratiche, clienti, appuntamenti, udienze, scadenze e attivita operative collegate al caso. Ogni informazione resta dove serve, vicino al lavoro che la richiede."
-              points={['Pratiche e anagrafiche clienti', 'Appuntamenti e udienze', 'Attivita e scadenze', 'Panoramica operativa per pratica']}
-              reverse
-            >
-              <VisualBlock label="Pratica - Omicidio stradale">
-                <div className="space-y-2">
-                  {[
-                    { l: 'Cliente', v: 'Mario Rossi' },
-                    { l: 'Tipo', v: 'Penale' },
-                    { l: 'Pross. udienza', v: '25/04/2026', c: 'text-oro' },
-                    { l: 'Stato', v: 'Aperta', c: 'text-salvia' },
-                  ].map(({ l, v, c }) => (
-                    <div key={l} className="flex justify-between py-1.5 border-b border-white/5">
-                      <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
-                      <span className={`font-body text-xs ${c || 'text-nebbia/70'}`}>{v}</span>
-                    </div>
-                  ))}
-                  <div className="pt-2">
-                    <p className="font-body text-xs text-nebbia/25 mb-2">Ricerche (3)</p>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 p-2 bg-petrolio/50">
-                        <Sparkles size={9} className="text-salvia" />
-                        <span className="font-body text-xs text-nebbia/50">Analisi Lex - Art. 589-bis c.p.</span>
+            <FadeIn className="text-center max-w-2xl mx-auto mb-10">
+              <h3 className="font-display text-2xl md:text-3xl font-light text-nebbia mb-3">
+                Il gestionale di studio,{' '}
+                <span className="text-oro">con Lex sempre accanto.</span>
+              </h3>
+              <p className="font-body text-sm text-nebbia/45 leading-relaxed">
+                Pratiche, clienti, appuntamenti, udienze, fatture e scadenze nello stesso posto. E quando ti serve un resoconto, Lex legge tutto e ti risponde in italiano.
+              </p>
+            </FadeIn>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+
+              {/* SINISTRA — Mockup statico pratica */}
+              <FadeIn delay={0.1}>
+                <VisualBlock label="Pratica civile - Mario Rossi">
+                  <div className="space-y-2">
+                    {[
+                      { l: 'Cliente', v: 'Mario Rossi' },
+                      { l: 'Tipo', v: 'Civile - Locazione' },
+                      { l: 'Stato', v: 'Aperta dal 08/2025', c: 'text-salvia' },
+                      { l: 'Pross. udienza', v: '28/05/2026', c: 'text-oro' },
+                    ].map(({ l, v, c }) => (
+                      <div key={l} className="flex justify-between py-1.5 border-b border-white/5">
+                        <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
+                        <span className={`font-body text-xs ${c || 'text-nebbia/70'}`}>{v}</span>
                       </div>
-                      <div className="flex items-center gap-2 p-2 bg-petrolio/50">
-                        <Search size={9} className="text-oro" />
-                        <span className="font-body text-xs text-nebbia/50">Revoca patente - note manuali</span>
+                    ))}
+
+                    {/* Fatturazione */}
+                    <div className="pt-3">
+                      <p className="font-body text-xs text-nebbia/25 mb-2">Fatturazione</p>
+                      <div className="flex items-center justify-between p-2 bg-petrolio/50 border border-red-400/20">
+                        <span className="font-body text-xs text-nebbia/60">Fattura 2026/041</span>
+                        <span className="font-body text-xs text-red-400/80">EUR 1.100 - scaduta</span>
+                      </div>
+                    </div>
+
+                    {/* Ricerche */}
+                    <div className="pt-3">
+                      <p className="font-body text-xs text-nebbia/25 mb-2">Ricerche (3)</p>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 p-2 bg-petrolio/50">
+                          <Sparkles size={9} className="text-salvia" />
+                          <span className="font-body text-xs text-nebbia/50">Analisi Lex - art. 1578 c.c.</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-petrolio/50">
+                          <Search size={9} className="text-oro" />
+                          <span className="font-body text-xs text-nebbia/50">Eccezione inadempimento locatore</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-petrolio/50">
+                          <Bookmark size={9} className="text-oro" />
+                          <span className="font-body text-xs text-nebbia/50">Cass. Civ. III 4439/2024</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </VisualBlock>
-            </FeatureRow>
+                </VisualBlock>
+              </FadeIn>
+
+              {/* DESTRA — Demo Lex animato */}
+              <ClientiLexAnimatedDemo />
+
+            </div>
           </div>
 
           <Divider />
