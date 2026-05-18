@@ -6,7 +6,7 @@ import { PageHeader, BackButton, Badge, StatCard } from '@/components/shared'
 import {
   Send, Search, ChevronUp, ChevronDown,
   ArrowUpDown, ArrowRight, AlertCircle, MessageSquare,
-  Plus, X
+  Plus, X, Trash2
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -537,6 +537,20 @@ export function AdminAssistenzaDettaglio() {
     setStato(nuovoStato)
   }
 
+  async function eliminaMessaggio(msgId) {
+    if (!window.confirm('Eliminare definitivamente questo messaggio?')) return
+    const { error } = await supabase
+      .from('messaggi_ticket')
+      .delete()
+      .eq('id', msgId)
+      .eq('autore_id', meId)  // safety: solo i propri messaggi
+    if (error) {
+      alert(`Errore eliminazione: ${error.message}`)
+      return
+    }
+    setMessaggi(prev => prev.filter(m => m.id !== msgId))
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-40">
@@ -605,12 +619,22 @@ export function AdminAssistenzaDettaglio() {
           ) : messaggi.map(msg => {
             const isMio = msg.autore_tipo === 'admin'
             return (
-              <div key={msg.id} className={`flex ${isMio ? 'justify-end' : 'justify-start'}`}>
+              <div key={msg.id} className={`group flex ${isMio ? 'justify-end' : 'justify-start'} items-start gap-2`}>
+                {/* Bottone elimina (solo se messaggio mio, visibile on-hover) */}
+                {isMio && (
+                  <button
+                    onClick={() => eliminaMessaggio(msg.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity self-center text-nebbia/30 hover:text-red-400 p-1"
+                    title="Elimina messaggio"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                )}
                 <div className={`max-w-xl px-4 py-3 ${isMio ? 'bg-oro/15 border border-oro/20' : 'bg-petrolio/60 border border-white/8'}`}>
                   <p className={`font-body text-[10px] font-medium mb-1 ${isMio ? 'text-oro/60 text-right' : 'text-nebbia/40'}`}>
                     {msg.autore?.nome} {msg.autore?.cognome}
                   </p>
-                  <p className="font-body text-sm text-nebbia leading-relaxed">{msg.testo}</p>
+                  <p className="font-body text-sm text-nebbia leading-relaxed whitespace-pre-wrap">{msg.testo}</p>
                   <p className={`font-body text-[10px] text-nebbia/25 mt-1 ${isMio ? 'text-right' : ''}`}>
                     {new Date(msg.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                   </p>

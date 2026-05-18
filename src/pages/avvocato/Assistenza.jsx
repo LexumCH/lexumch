@@ -672,7 +672,7 @@ export function AvvocatoAssistenzaDettaglio() {
                         <div key={m.id} className={`flex ${isMio ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[75%] p-3 space-y-1 ${isMio ? 'bg-oro/15 border border-oro/20' : 'bg-petrolio/60 border border-white/8'}`}>
                                 <p className={`font-body text-[10px] font-medium ${isMio ? 'text-oro/60' : 'text-nebbia/40'}`}>{nomeAutore}</p>
-                                <p className="font-body text-sm text-nebbia leading-relaxed">{m.testo}</p>
+                                <p className="font-body text-sm text-nebbia leading-relaxed whitespace-pre-wrap">{m.testo}</p>
                                 <p className="font-body text-[10px] text-nebbia/25">
                                     {new Date(m.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                 </p>
