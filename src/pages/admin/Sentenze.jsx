@@ -362,7 +362,7 @@ export function AdminSentenze() {
                     </td>
                     <td className="px-4 py-3"><Badge label={sb.label} variant={sb.variant} /></td>
                     <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">
-                      {new Date(s.created_at).toLocaleDateString('it-IT')}
+                      {new Date(s.created_at).toLocaleDateString('it-CH')}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1 items-center justify-end">
@@ -503,7 +503,7 @@ export function AdminSentenzeDettaglio() {
           <p className="font-body text-sm text-nebbia/40 mt-2">{titolo}</p>
           {dataVisibile && (
             <p className="font-body text-xs text-nebbia/30 mt-1 flex items-center gap-1.5">
-              <Calendar size={11} /> Pubblicata il {new Date(dataVisibile).toLocaleDateString('it-IT')}
+              <Calendar size={11} /> Pubblicata il {new Date(dataVisibile).toLocaleDateString('it-CH')}
             </p>
           )}
         </div>
@@ -513,8 +513,8 @@ export function AdminSentenzeDettaglio() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="Accessi" value={nAccessi} colorClass="text-oro" />
         <StatCard label="Guadagno" value={`EUR ${guadagno.toFixed(2)}`} colorClass="text-salvia" />
-        <StatCard label="Caricata" value={new Date(s.created_at).toLocaleDateString('it-IT')} colorClass="text-nebbia/50" />
-        <StatCard label="Aggiornata" value={s.updated_at ? new Date(s.updated_at).toLocaleDateString('it-IT') : '—'} colorClass="text-nebbia/50" />
+        <StatCard label="Caricata" value={new Date(s.created_at).toLocaleDateString('it-CH')} colorClass="text-nebbia/50" />
+        <StatCard label="Aggiornata" value={s.updated_at ? new Date(s.updated_at).toLocaleDateString('it-CH') : '—'} colorClass="text-nebbia/50" />
       </div>
 
       {/* Autore */}
@@ -549,7 +549,7 @@ export function AdminSentenzeDettaglio() {
             ['Numero', s.numero],
             ['Anno', s.anno],
             ['Tipo', labelTipoProvvedimento(s.tipo_provvedimento)],
-            ['Data deposito', s.data_deposito ? new Date(s.data_deposito).toLocaleDateString('it-IT') : null],
+            ['Data deposito', s.data_deposito ? new Date(s.data_deposito).toLocaleDateString('it-CH') : null],
             ['Fonte', s.fonte],
             ['Vigente', s.vigente ? 'Si' : 'No'],
           ].filter(([, v]) => v).map(([l, v]) => (

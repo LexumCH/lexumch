@@ -1,0 +1,28 @@
+{
+    "loading_label": "Upload läuft",
+    "uploaded_to_prefix": "Hochgeladen in: Dossier 2026/047 - Mario Rossi",
+    "status_completed": "Abgeschlossen",
+    "files": {
+        "curriculum": "Lebenslauf_Bianchi_Mario.pdf",
+        "contratto_locazione": "Mietvertrag.pdf",
+        "contratto": "Vertrag.pdf",
+        "perizia": "Technisches_Gutachten_Rossi.pdf",
+        "diffida": "Abmahnung_ACME_AG.docx",
+        "statuto": "Statuten_GmbH.pdf"
+    },
+    "search_label": "Suche im Archiv",
+    "search_query": "Rossi 2024",
+    "search_button": "Suchen",
+    "result1": {
+        "filename": "Technisches_Gutachten_Rossi.pdf",
+        "snippet": "\"...das Gutachten zeigt strukturelle Mängel des Lokals, mit Verantwortung des Vermieters gemäss Art. 259a OR...\"",
+        "tag1": "Dossier 2026/047",
+        "tag2": "Miete"
+    },
+    "result2": {
+        "filename": "Email_Rossi_2024-11-08.pdf",
+        "snippet": "\"...gemäss Vereinbarung füge ich das technische Gutachten zur Liegenschaft in der Via Roma 12 bei...\"",
+        "tag1": "Dossier 2026/047",
+        "tag2": "Korrespondenz"
+    }
+}

@@ -178,7 +178,7 @@ export default function ArchivioDettaglio() {
                     <p className="section-label mb-2">Documento</p>
                     <h1 className="font-display text-3xl font-light text-nebbia">{doc.titolo}</h1>
                     <p className="font-body text-xs text-nebbia/30 mt-1">
-                        {new Date(doc.created_at).toLocaleDateString('it-IT')} · {formatSize(doc.dimensione)}
+                        {new Date(doc.created_at).toLocaleDateString('it-CH')} · {formatSize(doc.dimensione)}
                     </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -469,7 +469,7 @@ export default function ArchivioDettaglio() {
                                 {[
                                     ['Tipo', doc.tipo?.toUpperCase() ?? '—'],
                                     ['Dimensione', formatSize(doc.dimensione)],
-                                    ['Caricato il', new Date(doc.created_at).toLocaleDateString('it-IT')],
+                                    ['Caricato il', new Date(doc.created_at).toLocaleDateString('it-CH')],
                                 ].map(([l, v]) => (
                                     <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                         <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>

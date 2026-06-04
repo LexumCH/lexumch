@@ -1,0 +1,29 @@
+{
+    "navbar": {
+        "home": "Accueil",
+        "avvocati": "Cabinets d'avocats",
+        "fiduciari": "Fiduciaires",
+        "lex_ai": "Lex AI",
+        "contatti": "Contact",
+        "accedi": "Se connecter",
+        "registrati": "S'inscrire",
+        "inizia_ora": "Commencer",
+        "la_mia_area": "Mon espace"
+    },
+    "footer": {
+        "tagline": "La première plateforme tout-en-un pour les cabinets d'avocats et fiduciaires suisses avec IA intégrée.",
+        "diritti": "Tous droits réservés",
+        "privacy": "Confidentialité",
+        "termini": "Conditions d'utilisation"
+    },
+    "azioni": {
+        "salva": "Enregistrer",
+        "annulla": "Annuler",
+        "elimina": "Supprimer",
+        "modifica": "Modifier",
+        "conferma": "Confirmer",
+        "indietro": "Retour",
+        "avanti": "Suivant",
+        "chiudi": "Fermer"
+    }
+}

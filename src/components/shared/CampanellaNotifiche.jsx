@@ -38,7 +38,7 @@ function tempoRelativo(iso) {
     if (diff < 3600) return `${Math.floor(diff / 60)}min fa`
     if (diff < 86400) return `${Math.floor(diff / 3600)}h fa`
     if (diff < 604800) return `${Math.floor(diff / 86400)}g fa`
-    return new Date(iso).toLocaleDateString('it-IT')
+    return new Date(iso).toLocaleDateString('it-CH')
 }
 
 export default function CampanellaNotifiche() {

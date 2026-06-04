@@ -309,7 +309,7 @@ function VistaCodici({ config, titolo }) {
                                     </div>
                                 </td>
                                 <td className="px-4 py-3 font-body text-xs text-nebbia/30">
-                                    {c.aggiornato_al ? new Date(c.aggiornato_al).toLocaleDateString('it-IT') : '—'}
+                                    {c.aggiornato_al ? new Date(c.aggiornato_al).toLocaleDateString('it-CH') : '—'}
                                 </td>
                                 <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                                     <div className="flex items-center gap-3">

@@ -1,17 +1,111 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { Upload, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2 } from 'lucide-react'
+import { Upload, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2, Scale, Calculator } from 'lucide-react'
+
+// ── Config set documentale per direzione ──────────────────────
+const SET_DOCUMENTALE = {
+    avvocato: {
+        titolo: 'Diventa avvocato su Lexum',
+        intro: 'Per accedere alla piattaforma come avvocato devi verificare la tua identità professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.',
+        documenti: [
+            { key: 'identita', label: 'Documento di identità', hint: "Carta d'identità o passaporto valido", req: true },
+            { key: 'albo', label: "Iscrizione all'Albo", hint: "Certificato di iscrizione all'Albo degli Avvocati", req: true },
+            { key: 'laurea', label: 'Laurea in Giurisprudenza', hint: 'Opzionale — accelera la verifica', req: false },
+        ],
+    },
+    fiduciario: {
+        titolo: 'Diventa fiduciario su Lexum',
+        intro: 'Per accedere alla piattaforma come fiduciario devi verificare la tua attività professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.',
+        documenti: [
+            { key: 'identita', label: 'Documento di identità', hint: "Carta d'identità o passaporto valido", req: true },
+            { key: 'registro', label: 'Estratto registro di commercio', hint: 'Estratto del registro di commercio o attestazione UID', req: true },
+            { key: 'affiliazione', label: 'Affiliazione professionale', hint: 'Opzionale — associazione di categoria (TREUHAND|SUISSE, EXPERTsuisse) o OAD. Accelera la verifica', req: false },
+        ],
+    },
+}
+
+// ── SCELTA DIREZIONE (se tipo_richiesta non ancora impostato) ──
+function SceltaDirezione({ onScelta, loading }) {
+    return (
+        <div className="space-y-6 max-w-2xl">
+            <div>
+                <p className="section-label mb-3">Verifica professionale</p>
+                <h1 className="font-display text-4xl font-light text-nebbia mb-2">Che professionista sei?</h1>
+                <p className="font-body text-sm text-nebbia/50 leading-relaxed">
+                    Scegli il tuo percorso. In base alla tua professione ti chiederemo i documenti adeguati e attiveremo gli strumenti giusti per te.
+                </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+                <button
+                    disabled={loading}
+                    onClick={() => onScelta('avvocato')}
+                    className="bg-slate border border-white/5 hover:border-oro/40 p-6 text-left transition-colors group disabled:opacity-40"
+                >
+                    <Scale size={28} className="text-oro mb-4" />
+                    <p className="font-display text-xl text-nebbia mb-2">Avvocato</p>
+                    <p className="font-body text-xs text-nebbia/50 leading-relaxed">
+                        Gestione clienti, pratiche, banca dati legale, sentenze e termini processuali.
+                    </p>
+                </button>
+
+                <button
+                    disabled={loading}
+                    onClick={() => onScelta('fiduciario')}
+                    className="bg-slate border border-white/5 hover:border-oro/40 p-6 text-left transition-colors group disabled:opacity-40"
+                >
+                    <Calculator size={28} className="text-oro mb-4" />
+                    <p className="font-display text-xl text-nebbia mb-2">Fiduciario</p>
+                    <p className="font-body text-xs text-nebbia/50 leading-relaxed">
+                        Gestione mandati, contabilità, reportistica, fatturazione e strumenti per fogli di calcolo.
+                    </p>
+                </button>
+            </div>
+        </div>
+    )
+}
 
 // ── UPLOAD DOCUMENTI ──────────────────────────────────────────
 export function UserVerifica() {
-    const [docs, setDocs] = useState({ identita: null, albo: null, laurea: null })
+    const { profile, reloadProfile } = useAuth()
+    const navigate = useNavigate()
+
+    const direzione = profile?.tipo_richiesta ?? null
+    const [docs, setDocs] = useState({})
     const [loading, setLoading] = useState(false)
+    const [salvandoDirezione, setSalvandoDirezione] = useState(false)
     const [errore, setErrore] = useState('')
     const [inviato, setInviato] = useState(false)
 
-    const allReq = docs.identita && docs.albo
+    // Se l'utente non ha ancora scelto la direzione, mostra la scelta
+    async function handleScelta(scelta) {
+        setSalvandoDirezione(true)
+        setErrore('')
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            const { error } = await supabase
+                .from('profiles')
+                .update({ tipo_richiesta: scelta })
+                .eq('id', user.id)
+            if (error) throw new Error(error.message)
+            // ricarica il profilo nel context così la pagina si aggiorna
+            if (reloadProfile) await reloadProfile()
+        } catch (err) {
+            setErrore(err.message)
+        } finally {
+            setSalvandoDirezione(false)
+        }
+    }
+
+    if (!direzione) {
+        return <SceltaDirezione onScelta={handleScelta} loading={salvandoDirezione} />
+    }
+
+    const config = SET_DOCUMENTALE[direzione] ?? SET_DOCUMENTALE.avvocato
+    const documentiObbligatori = config.documenti.filter(d => d.req).map(d => d.key)
+    const allReq = documentiObbligatori.every(k => docs[k])
 
     async function handleInvia() {
         if (!allReq || loading) return
@@ -22,11 +116,9 @@ export function UserVerifica() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error('Utente non autenticato')
 
-            const uploads = [
-                { file: docs.identita, path: `${user.id}/identita` },
-                { file: docs.albo, path: `${user.id}/albo` },
-                ...(docs.laurea ? [{ file: docs.laurea, path: `${user.id}/laurea` }] : []),
-            ]
+            const uploads = config.documenti
+                .filter(d => docs[d.key])
+                .map(d => ({ file: docs[d.key], path: `${user.id}/${d.key}` }))
 
             for (const { file, path } of uploads) {
                 const ext = file.name.split('.').pop()
@@ -68,19 +160,12 @@ export function UserVerifica() {
         <div className="space-y-6 max-w-2xl">
             <div>
                 <p className="section-label mb-3">Verifica identità</p>
-                <h1 className="font-display text-4xl font-light text-nebbia mb-2">Diventa avvocato su Lexum</h1>
-                <p className="font-body text-sm text-nebbia/50 leading-relaxed">
-                    Per accedere alla piattaforma come avvocato devi verificare la tua identità professionale.
-                    Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.
-                </p>
+                <h1 className="font-display text-4xl font-light text-nebbia mb-2">{config.titolo}</h1>
+                <p className="font-body text-sm text-nebbia/50 leading-relaxed">{config.intro}</p>
             </div>
 
             <div className="space-y-4">
-                {[
-                    { key: 'identita', label: "Documento di identità", hint: "Carta d'identità o passaporto valido", req: true },
-                    { key: 'albo', label: "Iscrizione all'Albo", hint: "Certificato di iscrizione all'Albo degli Avvocati", req: true },
-                    { key: 'laurea', label: "Laurea in Giurisprudenza", hint: "Opzionale — accelera la verifica", req: false },
-                ].map(({ key, label, hint, req }) => (
+                {config.documenti.map(({ key, label, hint, req }) => (
                     <div key={key} className={`bg-slate border p-5 ${docs[key] ? 'border-salvia/30' : 'border-white/5'}`}>
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
@@ -153,7 +238,7 @@ export function UserVerificaStato() {
 
     const CONFIG = {
         pending: { icon: Clock, color: 'text-amber-400', title: 'Verifica in corso', desc: 'Il team Lexum sta esaminando i tuoi documenti. Riceverai una notifica email entro 24-48 ore.' },
-        approved: { icon: CheckCircle, color: 'text-salvia', title: 'Verifica approvata!', desc: 'Ottimo! Ora puoi scegliere il piano di abbonamento oppure accedere direttamente alla banca dati.' },
+        approved: { icon: CheckCircle, color: 'text-salvia', title: 'Verifica approvata!', desc: 'Ottimo! Ora puoi scegliere il piano di abbonamento adatto a te per attivare il tuo account.' },
         rejected: { icon: XCircle, color: 'text-red-400', title: 'Verifica non approvata', desc: 'Non è stato possibile verificare la tua identità con i documenti forniti.' },
     }
 
@@ -169,11 +254,8 @@ export function UserVerificaStato() {
 
             {stato === 'approved' && (
                 <div className="space-y-3">
-                    <Link to="/abbonamenti" className="btn-primary justify-center inline-flex w-full">
+                    <Link to="/area/acquista" className="btn-primary justify-center inline-flex w-full">
                         Scegli un piano <ArrowRight size={16} />
-                    </Link>
-                    <Link to="/banca-dati" className="btn-secondary justify-center inline-flex w-full">
-                        Accedi alla banca dati
                     </Link>
                 </div>
             )}
@@ -182,7 +264,7 @@ export function UserVerificaStato() {
                     <div className="bg-red-900/10 border border-red-500/20 p-4 text-left">
                         <p className="font-body text-xs text-red-400 mb-1">Motivazione</p>
                         <p className="font-body text-sm text-nebbia/60">
-                            {profile?.note_iniziali || 'Documenti non leggibili o incompleti. Ricarica i file in alta qualità.'}
+                            {profile?.verification_note || profile?.note_iniziali || 'Documenti non leggibili o incompleti. Ricarica i file in alta qualità.'}
                         </p>
                     </div>
                     <Link to="/verifica" className="btn-primary justify-center inline-flex">Ricarica documenti</Link>

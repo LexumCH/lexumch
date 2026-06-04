@@ -1,4 +1,9 @@
-// src/pages/avvocato/clienti/Lista.jsx
+// src/pages/avvocato/clienti/Lista.jsx — Lexum CH
+//
+// Identico all'IT: NON usa campi italiani (la select clienti prende solo
+// id, nome, cognome, ragione_sociale, tipo_soggetto, email, telefono,
+// created_at, avvocato_id — tutti presenti su profiles CH).
+// Date già in it-CH. Nessun importo/valuta. Pronto as-is per CH.
 
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
@@ -472,7 +477,7 @@ export function AvvocatoClienti() {
                                                 : 'Tu'}
                                         </td>
                                     )}
-                                    <td className="px-4 py-3 font-body text-sm text-nebbia/50 whitespace-nowrap">{new Date(c.created_at).toLocaleDateString('it-IT')}</td>
+                                    <td className="px-4 py-3 font-body text-sm text-nebbia/50 whitespace-nowrap">{new Date(c.created_at).toLocaleDateString('it-CH')}</td>
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
                                             <button

@@ -78,12 +78,12 @@ export default function ClientePratiche() {
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="bg-petrolio/40 border border-white/5 p-3">
                                         <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Aperta il</p>
-                                        <p className="font-body text-sm text-nebbia">{new Date(p.created_at).toLocaleDateString('it-IT')}</p>
+                                        <p className="font-body text-sm text-nebbia">{new Date(p.created_at).toLocaleDateString('it-CH')}</p>
                                     </div>
                                     <div className="bg-petrolio/40 border border-white/5 p-3">
                                         <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Prossima udienza</p>
                                         <p className="font-body text-sm text-nebbia">
-                                            {p.prossima_udienza ? new Date(p.prossima_udienza).toLocaleDateString('it-IT') : '—'}
+                                            {p.prossima_udienza ? new Date(p.prossima_udienza).toLocaleDateString('it-CH') : '—'}
                                         </p>
                                     </div>
                                 </div>

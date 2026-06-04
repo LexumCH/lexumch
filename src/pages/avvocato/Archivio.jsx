@@ -10,6 +10,7 @@ import {
     ChevronRight, ChevronDown, Edit2, Save, Tags, Receipt,
 } from 'lucide-react'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
+import AssegnaDocumento from '@/components/AssegnaDocumento'
 import { supabase } from '@/lib/supabase'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 
@@ -106,39 +107,7 @@ const STATUS_CONFIG = {
 
 const COLORE_DEFAULT_CATEGORIA = '#C9A45C'
 
-// Normalizza una sentenza propria nella stessa shape usata per i documenti
-function normalizzaSentenza(s) {
-    const titoloComp = titoloSentenza(s)
-    const titoloFinale = s.oggetto ? `${titoloComp} — ${s.oggetto}` : titoloComp
-    return {
-        _kind: 'sentenza',
-        id: s.id,
-        titolo: titoloFinale,
-        categoria_id: s.categoria_id ?? null,
-        sottocategoria_id: s.sottocategoria_id ?? null,
-        cliente_id: null,
-        pratica_id: null,
-        tipo: 'pdf',
-        storage_path: s.pdf_storage_path,
-        tipo_file: 'application/pdf',
-        dimensione: s.pdf_size_bytes,
-        ocr_status: 'completed',
-        verificato: true,
-        created_at: s.created_at,
-        tags: s.parole_chiave ?? [],
-        categoria: null,
-        metadati: {
-            suggeriti: {
-                riepilogo: s.principio_diritto?.slice(0, 240) ?? null,
-                categoria_suggerita: null,
-                tipo_documento: s.tipo_provvedimento ?? null,
-                tags: s.parole_chiave ?? [],
-                soggetti: [],
-            }
-        },
-        _sentenza: s,
-    }
-}
+
 
 // Filtro data caricamento
 function passaFiltroData(doc, filtroData, dataDa, dataA) {
@@ -1177,7 +1146,7 @@ function CardDocumento({
                             </span>
                         )}
                         <span className="font-body text-xs text-nebbia/25">
-                            {new Date(doc.created_at).toLocaleDateString('it-IT')}
+                            {new Date(doc.created_at).toLocaleDateString('it-CH')}
                         </span>
                         {doc.dimensione && (
                             <span className="font-body text-xs text-nebbia/25">{formatSize(doc.dimensione)}</span>
@@ -1233,57 +1202,8 @@ function CardDocumento({
                     {/* Azioni: pratica + etichette (solo per documenti normali, non sentenze ne fatture) */}
                     {!isSentenza && doc.metadati?.kind !== 'fattura' && (
                         <div className="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-white/5">
-                            {/* Aggiungi a pratica */}
-                            {praticaCorrente ? (
-                                <div className="flex items-center gap-1.5 px-2 py-1 bg-oro/5 border border-oro/20 text-oro font-body text-xs">
-                                    <FolderOpen size={10} />
-                                    <span className="max-w-[160px] truncate">{praticaCorrente.titolo}</span>
-                                    <button
-                                        onClick={rimuoviDaPratica}
-                                        disabled={salvandoPratica}
-                                        className="text-oro/50 hover:text-red-400 transition-colors ml-1"
-                                        title="Rimuovi dalla pratica"
-                                    >
-                                        <X size={10} />
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="relative">
-                                    <button
-                                        onClick={() => setPickerPratica(v => !v)}
-                                        className="flex items-center gap-1.5 px-2 py-1 border border-white/10 text-nebbia/50 hover:border-oro/30 hover:text-oro transition-colors font-body text-xs"
-                                    >
-                                        <FolderOpen size={10} />
-                                        Aggiungi a pratica
-                                    </button>
-                                    {pickerPratica && (
-                                        <div className="absolute z-20 top-full left-0 mt-1 w-72 bg-slate border border-white/10 shadow-2xl">
-                                            <div className="flex items-center justify-between p-2 border-b border-white/5">
-                                                <p className="font-body text-xs text-nebbia/40">Scegli una pratica</p>
-                                                <button onClick={() => setPickerPratica(false)} className="text-nebbia/30 hover:text-nebbia">
-                                                    <X size={12} />
-                                                </button>
-                                            </div>
-                                            <div className="max-h-64 overflow-y-auto">
-                                                {pratiche.length === 0 ? (
-                                                    <p className="p-3 text-center font-body text-xs text-nebbia/25">
-                                                        Nessuna pratica aperta
-                                                    </p>
-                                                ) : pratiche.map(p => (
-                                                    <button
-                                                        key={p.id}
-                                                        onClick={() => assegnaAPratica(p.id)}
-                                                        disabled={salvandoPratica}
-                                                        className="w-full text-left px-3 py-2 hover:bg-petrolio/50 transition-colors disabled:opacity-50"
-                                                    >
-                                                        <p className="font-body text-sm text-nebbia/70 truncate">{p.titolo}</p>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                            {/* Assegnazione documento: cliente / dipendente / pratica-mandato */}
+                            <AssegnaDocumento doc={doc} onAggiornato={onAggiornata} />
 
                             {/* Etichette assegnate (display) */}
                             {etichetteAssegnate.map(e => (
@@ -1383,195 +1303,6 @@ function CardDocumento({
     )
 }
 
-// ─── TAB SENTENZE ACQUISTATE (invariato) ───────────────────
-
-function TabSentenzeAcquistate({ meId }) {
-    const [acquisti, setAcquisti] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [searchTesto, setSearchTesto] = useState('')
-    const [filtroAnno, setFiltroAnno] = useState('')
-    const [filtroTipo, setFiltroTipo] = useState('')
-
-    useEffect(() => {
-        async function carica() {
-            if (!meId) return
-            setLoading(true)
-            const { data } = await supabase
-                .from('accessi_sentenze')
-                .select(`
-                    id, prezzo, created_at,
-                    sentenza:sentenza_id(
-                        id, oggetto, organo, sezione, numero, anno,
-                        data_pubblicazione, data_deposito,
-                        tipo_provvedimento, categorie_lex, principio_diritto,
-                        autore:autore_id(nome, cognome)
-                    )
-                `)
-                .eq('acquirente_id', meId)
-                .order('created_at', { ascending: false })
-            setAcquisti(data ?? [])
-            setLoading(false)
-        }
-        carica()
-    }, [meId])
-
-    const acquistiFiltrati = acquisti.filter(a => {
-        const s = a.sentenza
-        if (!s) return false
-        if (filtroAnno && String(s.anno) !== filtroAnno) return false
-        if (filtroTipo && s.tipo_provvedimento !== filtroTipo) return false
-        if (searchTesto.trim()) {
-            const h = `${s.oggetto ?? ''} ${s.organo ?? ''} ${(s.categorie_lex ?? []).join(' ')}`.toLowerCase()
-            if (!h.includes(searchTesto.toLowerCase())) return false
-        }
-        return true
-    })
-
-    const totaleSpesa = acquisti.reduce((sum, a) => sum + parseFloat(a.prezzo ?? 0), 0)
-    const anniDisponibili = [...new Set(acquisti.map(a => a.sentenza?.anno).filter(Boolean))].sort((a, b) => b - a)
-
-    const TIPI_FILTRO = [
-        { v: '', l: 'Tutti i tipi' },
-        { v: 'sentenza', l: 'Sentenza' },
-        { v: 'ordinanza', l: 'Ordinanza' },
-        { v: 'ordinanza_interlocutoria', l: 'Ord. interlocutoria' },
-        { v: 'decreto_presidenziale', l: 'Decreto presidenziale' },
-    ]
-
-    if (loading) return (
-        <div className="flex items-center justify-center py-16">
-            <Loader2 size={24} className="animate-spin text-oro" />
-        </div>
-    )
-
-    return (
-        <div className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate border border-white/5 p-4">
-                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Sentenze acquistate</p>
-                    <p className="font-display text-2xl font-light text-oro">{acquisti.length}</p>
-                </div>
-                <div className="bg-slate border border-white/5 p-4">
-                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Totale speso</p>
-                    <p className="font-display text-2xl font-light text-salvia">EUR {totaleSpesa.toFixed(2)}</p>
-                </div>
-            </div>
-
-            {acquisti.length > 0 && (
-                <div className="bg-slate border border-white/5 p-4 space-y-3">
-                    <div className="relative">
-                        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                        <input
-                            placeholder="Cerca per oggetto, organo, categoria..."
-                            value={searchTesto}
-                            onChange={e => setSearchTesto(e.target.value)}
-                            className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
-                        />
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-3">
-                        <div className="flex items-center gap-1.5 text-nebbia/30">
-                            <Filter size={12} />
-                            <span className="font-body text-xs uppercase tracking-widest">Filtri</span>
-                        </div>
-
-                        {anniDisponibili.length > 0 && (
-                            <select value={filtroAnno} onChange={e => setFiltroAnno(e.target.value)}
-                                className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                                <option value="">Tutti gli anni</option>
-                                {anniDisponibili.map(a => <option key={a} value={a}>{a}</option>)}
-                            </select>
-                        )}
-
-                        <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}
-                            className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                            {TIPI_FILTRO.map(t => <option key={t.v} value={t.v}>{t.l}</option>)}
-                        </select>
-
-                        {(searchTesto || filtroAnno || filtroTipo) && (
-                            <button onClick={() => { setSearchTesto(''); setFiltroAnno(''); setFiltroTipo('') }}
-                                className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1">
-                                <X size={11} /> Reset
-                            </button>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {acquisti.length === 0 ? (
-                <EmptyState
-                    icon={Gavel}
-                    title="Nessuna sentenza acquistata"
-                    desc="Esplora la banca dati per trovare e acquistare sentenze rilevanti per le tue pratiche."
-                />
-            ) : acquistiFiltrati.length === 0 ? (
-                <div className="py-12 text-center">
-                    <p className="font-body text-sm text-nebbia/30">Nessun risultato con questi filtri</p>
-                </div>
-            ) : (
-                <div className="space-y-3">
-                    {acquistiFiltrati.map(a => {
-                        const s = a.sentenza
-                        if (!s) return null
-                        const titolo = titoloSentenza(s)
-                        const dataSentenza = s.data_pubblicazione ?? s.data_deposito
-                        return (
-                            <Link
-                                key={a.id}
-                                to={`/banca-dati/avvocato/${s.id}`}
-                                className="block bg-slate border border-white/5 hover:border-oro/20 transition-colors p-5 group"
-                            >
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                            <span className="font-body text-xs text-nebbia/50">{titolo}</span>
-                                            {s.tipo_provvedimento && (
-                                                <span className="font-body text-[10px] text-nebbia/50 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">
-                                                    {labelTipoProvvedimento(s.tipo_provvedimento)}
-                                                </span>
-                                            )}
-                                            {dataSentenza && (
-                                                <span className="font-body text-[10px] text-nebbia/30 flex items-center gap-1">
-                                                    <Calendar size={9} /> {new Date(dataSentenza).toLocaleDateString('it-IT')}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <h3 className="font-display text-base font-medium text-nebbia group-hover:text-oro transition-colors mb-1">
-                                            {s.oggetto ?? 'Sentenza'}
-                                        </h3>
-                                        {s.principio_diritto && (
-                                            <p className="font-body text-xs text-nebbia/50 leading-relaxed line-clamp-2">
-                                                {s.principio_diritto}
-                                            </p>
-                                        )}
-                                        <div className="flex items-center gap-3 mt-3 flex-wrap">
-                                            {s.autore && (
-                                                <span className="font-body text-xs text-nebbia/35">
-                                                    Di Avv. {s.autore.nome} {s.autore.cognome}
-                                                </span>
-                                            )}
-                                            <span className="font-body text-xs text-nebbia/25">
-                                                · Acquistata il {new Date(a.created_at).toLocaleDateString('it-IT')}
-                                            </span>
-                                            <span className="font-body text-xs text-oro/50">
-                                                · EUR {parseFloat(a.prezzo ?? 0).toFixed(2)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="shrink-0 flex items-center gap-2 text-oro/50 group-hover:text-oro transition-colors">
-                                        <span className="font-body text-xs">Apri</span>
-                                        <ArrowRight size={13} />
-                                    </div>
-                                </div>
-                            </Link>
-                        )
-                    })}
-                </div>
-            )}
-        </div>
-    )
-}
-
 // ─── PAGINA PRINCIPALE ─────────────────────────────────────
 
 export default function Archivio() {
@@ -1618,6 +1349,7 @@ export default function Archivio() {
     const [erroreLex, setErroreLex] = useState('')
 
     const [filtroCliente, setFiltroCliente] = useState('')
+    const [filtroDipendente, setFiltroDipendente] = useState('')
     const [filtroPratica, setFiltroPratica] = useState('')
     const [filtroEtichetta, setFiltroEtichetta] = useState('')
     const [filtroStato, setFiltroStato] = useState('')
@@ -1634,10 +1366,10 @@ export default function Archivio() {
         const params = new URLSearchParams(location.search)
         const clienteId = params.get('cliente_id')
         if (clienteId) setFiltroCliente(clienteId)
+        const dipendenteId = params.get('dipendente_id')
+        if (dipendenteId) setFiltroDipendente(dipendenteId)
         const praticaId = params.get('pratica_id')
         if (praticaId) setFiltroPratica(praticaId)
-        const tab = params.get('tab')
-        if (tab === 'sentenze') setTabPrincipale('sentenze')
     }, [location.search])
 
     useEffect(() => {
@@ -1673,7 +1405,6 @@ export default function Archivio() {
             { data: tagList },
             { data: tagAssign },
             { data: cats },
-            { data: sentenzeProprie },
         ] = await Promise.all([
             supabase
                 .from('archivio_documenti')
@@ -1706,11 +1437,6 @@ export default function Archivio() {
                 .select('id, nome, colore')
                 .eq('titolare_id', tIdF)
                 .order('nome'),
-            supabase
-                .from('sentenze')
-                .select('id, organo, sezione, numero, anno, oggetto, principio_diritto, tipo_provvedimento, data_pubblicazione, data_deposito, parole_chiave, pdf_storage_path, pdf_size_bytes, categoria_id, sottocategoria_id, created_at, stato')
-                .eq('autore_id', uIdF)
-                .order('created_at', { ascending: false }),
         ])
 
         // Sottocategorie: query separata su FK
@@ -1725,9 +1451,7 @@ export default function Archivio() {
             subs = subsData ?? []
         }
 
-        // Merge documenti + sentenze proprie normalizzate
-        const sentenzeNormalizzate = (sentenzeProprie ?? []).map(normalizzaSentenza)
-        const tutti = [...(docs ?? []), ...sentenzeNormalizzate]
+        const tutti = [...(docs ?? [])]
         tutti.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
         setDocumenti(tutti)
@@ -1754,7 +1478,6 @@ export default function Archivio() {
             .eq('titolare_id', tIdF)
 
         const occupatoBytes = (tuttiDocStudio ?? []).reduce((s, d) => s + (d.dimensione ?? 0), 0)
-            + (sentenzeProprie ?? []).reduce((s, sn) => s + (sn.pdf_size_bytes ?? 0), 0)
 
         setQuota({
             gb_piano: q?.gb_piano ?? 0,
@@ -1922,6 +1645,7 @@ export default function Archivio() {
                 autore_id: user.id,
                 titolare_id: titolareId,
                 cliente_id: metadati.cliente_id || null,
+                dipendente_id: metadati.dipendente_id || null,
                 pratica_id: metadati.pratica_id || null,
                 categoria_id: metadati.categoria_id || null,
                 sottocategoria_id: metadati.sottocategoria_id || null,
@@ -1951,6 +1675,7 @@ export default function Archivio() {
         const params = new URLSearchParams(location.search)
         const praticaId = params.get('pratica_id')
         const clienteId = params.get('cliente_id')
+        const dipendenteId = params.get('dipendente_id')
 
         setUploadInCorso(true)
         setFileCorrente(null)
@@ -1973,6 +1698,7 @@ export default function Archivio() {
                         titolo: (titoli[idx] ?? '').trim() || file.name,
                         pratica_id: praticaId || '',
                         cliente_id: clienteId || '',
+                        dipendente_id: dipendenteId || '',
                         categoria_id: categoriaBatch || '',
                         sottocategoria_id: sottocatBatch || '',
                     }
@@ -2112,6 +1838,7 @@ export default function Archivio() {
 
     function passaFiltriBase(d) {
         if (filtroCliente && d.cliente_id !== filtroCliente) return false
+        if (filtroDipendente && d.dipendente_id !== filtroDipendente) return false
         if (filtroPratica && d.pratica_id !== filtroPratica) return false
         if (filtroEtichetta) {
             const etDoc = tagsByDoc[d.id] ?? []
@@ -2124,7 +1851,7 @@ export default function Archivio() {
 
     const docsFiltrati = useMemo(
         () => documenti.filter(passaFiltriBase),
-        [documenti, filtroCliente, filtroPratica, filtroEtichetta, filtroStato, filtroData, filtroDataDa, filtroDataA, tagsByDoc]
+        [documenti, filtroCliente, filtroDipendente, filtroPratica, filtroEtichetta, filtroStato, filtroData, filtroDataDa, filtroDataA, tagsByDoc]
     )
 
     const docsInElaborazione = codaUpload.filter(i => ['pending', 'processing'].includes(i.status)).length
@@ -2181,7 +1908,7 @@ export default function Archivio() {
     )
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-16">
             <PageHeader
                 label="Avvocato"
                 title="Archivio"
@@ -2228,19 +1955,6 @@ export default function Archivio() {
                     </Link>
                 )}
             />
-
-            <div className="flex gap-0 border-b border-white/8">
-                <button onClick={() => setTabPrincipale('documenti')}
-                    className={`flex items-center gap-2 px-5 py-3 font-body text-sm border-b-2 transition-colors ${tabPrincipale === 'documenti' ? 'border-oro text-oro' : 'border-transparent text-nebbia/40 hover:text-nebbia'
-                        }`}>
-                    <Archive size={14} strokeWidth={1.5} /> Documenti
-                </button>
-                <button onClick={() => setTabPrincipale('sentenze')}
-                    className={`flex items-center gap-2 px-5 py-3 font-body text-sm border-b-2 transition-colors ${tabPrincipale === 'sentenze' ? 'border-oro text-oro' : 'border-transparent text-nebbia/40 hover:text-nebbia'
-                        }`}>
-                    <Gavel size={14} strokeWidth={1.5} /> Sentenze acquistate
-                </button>
-            </div>
 
             {tabPrincipale === 'documenti' && (
                 <>
@@ -2726,10 +2440,6 @@ export default function Archivio() {
                         })()
                     )}
                 </>
-            )}
-
-            {tabPrincipale === 'sentenze' && (
-                <TabSentenzeAcquistate meId={meId} />
             )}
         </div>
     )

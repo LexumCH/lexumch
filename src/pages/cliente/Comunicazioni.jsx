@@ -141,7 +141,7 @@ export function ClienteComunicazioni() {
                                 </div>
                                 <div className="text-right shrink-0 ml-4 space-y-1">
                                     <p className="font-body text-xs text-nebbia/30">
-                                        {new Date(t.updated_at).toLocaleDateString('it-IT')}
+                                        {new Date(t.updated_at).toLocaleDateString('it-CH')}
                                     </p>
                                     <Badge label={t.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={t.stato === 'aperto' ? 'salvia' : 'gray'} />
                                 </div>
@@ -259,7 +259,7 @@ export function ClienteComunicazioniDettaglio() {
                     <p className="section-label mb-1">Con {controparte || 'Avvocato'}</p>
                     <h1 className="font-display text-3xl font-light text-nebbia">{ticket.oggetto}</h1>
                     <p className="font-body text-xs text-nebbia/30 mt-1">
-                        Aperto il {new Date(ticket.created_at).toLocaleDateString('it-IT')}
+                        Aperto il {new Date(ticket.created_at).toLocaleDateString('it-CH')}
                     </p>
                 </div>
                 <Badge label={ticket.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={ticket.stato === 'aperto' ? 'salvia' : 'gray'} />
@@ -283,7 +283,7 @@ export function ClienteComunicazioniDettaglio() {
                                 </p>
                                 <p className="font-body text-sm text-nebbia leading-relaxed whitespace-pre-wrap">{m.testo}</p>
                                 <p className="font-body text-[10px] text-nebbia/25">
-                                    {new Date(m.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                    {new Date(m.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                 </p>
                             </div>
                         </div>

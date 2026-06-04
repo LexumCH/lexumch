@@ -150,10 +150,10 @@ export function AvvocatoPratiche() {
                     <td className="px-4 py-3 font-body text-xs text-nebbia/40">{p.tipo ?? '—'}</td>
                     {isStudio && <td className="px-4 py-3 font-body text-sm text-nebbia/60">{nomeAvv(p.avvocato_id)}</td>}
                     <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
-                    <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">{new Date(p.created_at).toLocaleDateString('it-IT')}</td>
+                    <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">{new Date(p.created_at).toLocaleDateString('it-CH')}</td>
                     <td className="px-4 py-3">
                       {p.prossima_udienza
-                        ? <span className="font-body text-xs text-oro">{new Date(p.prossima_udienza).toLocaleDateString('it-IT')}</span>
+                        ? <span className="font-body text-xs text-oro">{new Date(p.prossima_udienza).toLocaleDateString('it-CH')}</span>
                         : <span className="font-body text-xs text-nebbia/25">—</span>}
                     </td>
                     <td className="px-4 py-3 text-right">

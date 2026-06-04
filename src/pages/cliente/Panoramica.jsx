@@ -129,7 +129,7 @@ export default function ClientePanoramica() {
                                     {new Date(prossimo.data_ora_inizio).getDate()}
                                 </p>
                                 <p className="font-body text-[10px] text-oro/60 uppercase">
-                                    {new Date(prossimo.data_ora_inizio).toLocaleString('it-IT', { month: 'short' })}
+                                    {new Date(prossimo.data_ora_inizio).toLocaleString('it-CH', { month: 'short' })}
                                 </p>
                             </div>
                             <div>
@@ -140,7 +140,7 @@ export default function ClientePanoramica() {
                                 <div className="flex items-center gap-1.5 mt-1.5">
                                     <Clock size={11} className="text-nebbia/30" />
                                     <span className="font-body text-xs text-nebbia/40">
-                                        {new Date(prossimo.data_ora_inizio).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                        {new Date(prossimo.data_ora_inizio).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })}
                                         {' · '}{prossimo.tipo}
                                     </span>
                                 </div>
@@ -200,7 +200,7 @@ export default function ClientePanoramica() {
                                         <div className="min-w-0">
                                             <p className="font-body text-sm font-medium text-nebbia truncate">{t.oggetto}</p>
                                             <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                                {new Date(t.updated_at).toLocaleDateString('it-IT')}
+                                                {new Date(t.updated_at).toLocaleDateString('it-CH')}
                                             </p>
                                         </div>
                                     </div>

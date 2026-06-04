@@ -1,0 +1,287 @@
+{
+    "meta": {
+        "title": "Lexum — Die Plattform für Schweizer Anwaltskanzleien und Treuhänder",
+        "description": "Die erste All-in-One-Plattform für Schweizer Anwaltskanzleien und Treuhänder mit integrierter KI. Kostenlose Datenbank: Bundesrecht, kantonales Recht, BG-Entscheide, Praxis der Behörden. Lex AI für die Recherche.",
+        "og_title": "Lexum — Für Schweizer Anwaltskanzleien und Treuhänder",
+        "og_description": "Kostenlose Schweizer Datenbank, Lex AI, Kanzleimanagement für Anwaltskanzleien und Treuhänder. Bundesrecht, kantonales Recht und EU-Recht.",
+        "twitter_description": "Erste All-in-One-Plattform CH mit integrierter KI. Anwälte, Treuhänder, kostenlose Datenbank."
+    },
+    "hero": {
+        "badge": "Für Schweizer Treuhänder und Anwaltskanzleien",
+        "title_part1": "Plattform für Treuhänder und Anwaltskanzleien",
+        "title_highlight": "mit integrierter KI",
+        "subtitle": "Schweizer Rechtsdatenbank, Kanzleimanagement, intelligentes Archiv und Lex AI in einer einzigen Umgebung. Gedacht für Anwälte und Treuhänder, die besser arbeiten wollen.",
+        "cta_primary": "Gratis starten mit der Datenbank",
+        "cta_secondary": "Funktionen entdecken",
+        "no_card": "Die Schweizer Datenbank ist immer kostenlos."
+    },
+    "database_hero": {
+        "label": "Schweizer Datenbank",
+        "count": "1'632'000",
+        "count_plus": "+",
+        "headline": "Schweizer und europäische Rechtsdokumente.",
+        "description": "Bundesrecht, kantonales Recht, Entscheide des Bundesgerichts und der Verwaltungsbehörden, Praxis der Behörden.",
+        "open_access": "Offen für alle, gratis. Ohne Abonnements pro Rechtsgebiet, ohne Konsultationsgrenzen.",
+        "items": [
+            {
+                "t": "Bundesrecht (Fedlex)",
+                "s": "Gesetzbücher, Gesetze und Verordnungen"
+            },
+            {
+                "t": "Kantonales Recht und Praxis",
+                "s": "Erlasse und Praxis der 26 Kantone"
+            },
+            {
+                "t": "Bundesrechtsprechung",
+                "s": "BGer, BGE, BVGer und BStGer"
+            },
+            {
+                "t": "Kantonale Rechtsprechung",
+                "s": "Urteile der Gerichte der 26 Kantone"
+            },
+            {
+                "t": "Verwaltungspraxis",
+                "s": "ESTV, SECO, BSV, FINMA, BJ, MROS"
+            },
+            {
+                "t": "Recht der Europäischen Union",
+                "s": "Verordnungen, Richtlinien, EuGH"
+            }
+        ]
+    },
+    "corpus_it_card": {
+        "title": "Italienisches Corpus zur Konsultation verfügbar",
+        "badge": "Auf Italienisch",
+        "description": "Haben Sie Mandanten mit Sitz in Italien oder grenzüberschreitende Fälle? Greifen Sie auch auf das italienische Rechtskorpus zu: <span>über 4 Millionen Dokumente</span> zwischen Kassationshof, Gesetzgebung, Praxis und EU-Recht. Verfügbar auf Italienisch zur Konsultation und für Rechtsvergleichung."
+    },
+    "mini_cards": [
+        {
+            "title": "Juristische Recherche",
+            "text": "Finden Sie Artikel, Entscheide und Praxis. Lex AI versteht natürliche Sprache: fragen Sie auf Italienisch, Deutsch oder Französisch."
+        },
+        {
+            "title": "Speichern Sie Ihre Recherchen",
+            "text": "Organisieren Sie sie mit persönlichen Etiketten, vergleichen Sie sie, verbinden Sie sie mit einem Dossier oder einem Treuhandmandat."
+        },
+        {
+            "title": "Intelligentes Archiv",
+            "text": "Laden Sie Ihre Dokumente hoch. Lex AI hilft Ihnen zu finden, was Sie brauchen, wenn Sie es brauchen."
+        },
+        {
+            "title": "Fallanalyse",
+            "text": "Lex liest die Recherchen des Dossiers, prüft was fehlt, schlägt Verfahrensstrategien und anwendbare Normen vor."
+        },
+        {
+            "title": "Erstellung von Akten",
+            "text": "Akten, Schriftsätze, Verträge und Erklärungen, generiert von Lex AI ausgehend von den Daten des Dossiers."
+        },
+        {
+            "title": "Mandantenportal",
+            "text": "Der Mandant greift auf Dokumente, Verhandlungen, Steuerfristen zu. Sie arbeiten, er bleibt informiert."
+        }
+    ],
+    "problema": {
+        "label": "Das Problem",
+        "title_part1": "Das Problem ist nicht nur die Arbeitsbelastung.",
+        "title_highlight": "Es ist die Fragmentierung.",
+        "oggi_label": "Heute",
+        "oggi_text": "Anwälte und Treuhänder arbeiten zwischen Kanzleisoftware, Archiven, Dokumenten, E-Mails, Notizen, Datenbanken und separaten KI-Tools. Jede Tätigkeit erfordert zusätzliche Schritte, wiederholte Recherchen und Zeitverlust beim Kontextwechsel.",
+        "oggi_tags": [
+            "Kanzleisoftware",
+            "Archiv",
+            "E-Mail",
+            "Notizen",
+            "Datenbanken",
+            "Externe KI"
+        ],
+        "lexum_label": "Mit Lexum",
+        "lexum_text": "Alles bleibt verbunden und an den Fall oder das Mandat geknüpft. Die Recherchen fliessen in die Dossiers ein, die Dokumente sind dort wo sie gebraucht werden, die KI arbeitet mit Ihren Materialien und auf verifizierten Quellen.",
+        "lexum_tags": [
+            "Kanzleisoftware",
+            "Archiv",
+            "Mandantenbereich",
+            "Datenbank",
+            "Lex AI"
+        ],
+        "lexum_footer": "Eine kohärente Umgebung, nicht eine Summe von Werkzeugen."
+    },
+    "gestionale": {
+        "title_part1": "Die geführte Kanzlei,",
+        "title_highlight": "mit Lex immer daneben.",
+        "subtitle": "Dossiers, Mandate, Mandanten, Termine, Verhandlungen, Rechnungen und Fristen am selben Ort. Und wenn Sie eine Übersicht brauchen, liest Lex alles und antwortet in Ihrer Sprache.",
+        "pratica_label": "Zivildossier - Mario Rossi",
+        "pratica_rows": [
+            {
+                "l": "Mandant",
+                "v": "Mario Rossi"
+            },
+            {
+                "l": "Typ",
+                "v": "Zivil - Miete"
+            },
+            {
+                "l": "Status",
+                "v": "Offen seit 08/2025"
+            },
+            {
+                "l": "Nächste Verhandlung",
+                "v": "28.05.2026"
+            }
+        ],
+        "fatturazione_label": "Rechnungsstellung",
+        "fattura_numero": "Rechnung 2026/041",
+        "fattura_stato": "CHF 1'100 - überfällig",
+        "ricerche_label": "Recherchen (3)",
+        "ricerche_items": [
+            "Lex-Analyse - Art. 259d OR",
+            "Mängel der Mietsache",
+            "BGE 142 III 557"
+        ]
+    },
+    "ricerche": {
+        "title": "Ihre Recherchen, etikettiert und verbunden",
+        "text": "Sie speichern jede juristische Recherche, die Sie machen, kategorisieren sie mit Ihren Etiketten, verbinden sie mit einem Dossier oder einem Treuhandmandat. Lex AI findet die verwandten, schlägt Artikel vor die Sie nicht in Betracht gezogen hatten, denkt zusammen mit Ihnen.",
+        "points": [
+            "Persönliche Etiketten",
+            "Vergleich zwischen Recherchen",
+            "Verbindung mit Dossier oder Mandat",
+            "Von Lex AI vorgeschlagene verwandte"
+        ],
+        "visual_label": "Recherchen - Miete und Mängel",
+        "search_query": "Mängel der Mietsache Haftung",
+        "results_count": "14 Ergebnisse",
+        "tags": [
+            "Miete",
+            "Rossi - Mängel",
+            "Zu vertiefen"
+        ],
+        "saved_items": [
+            {
+                "t": "Art. 259d OR - Mängel während der Miete",
+                "sub": "Gespeichert vor 2 Tagen"
+            },
+            {
+                "t": "BGE 142 III 557 - Herabsetzung des Mietzinses",
+                "sub": "Gespeichert vor 5 Tagen"
+            },
+            {
+                "t": "Art. 259e OR - Schadenersatz",
+                "sub": "Gespeichert vor 1 Woche"
+            }
+        ],
+        "ai_suggestion_prefix": "Lex schlägt vor: ",
+        "ai_suggestion_highlight": "Art. 259a OR",
+        "ai_suggestion_suffix": " über die Rechte des Mieters bei Mängeln - verwandt."
+    },
+    "archivio": {
+        "title_part1": "Die Dokumente der Kanzlei,",
+        "title_highlight": "immer zur Hand.",
+        "subtitle": "Sie laden hoch, finden wieder, teilen. Verwaltung und Suche im Archiv in einem einzigen Fluss, ohne je den Kontext des Dossiers zu verlassen."
+    },
+    "lexai": {
+        "label": "Künstliche Intelligenz",
+        "title_part1": "Ein persönlicher Assistent",
+        "title_highlight": "für die schweizerische juristische Arbeit.",
+        "subtitle": "Es ist kein generischer Chat geöffnet in einem separaten Fenster. Es ist ein Werkzeug gedacht für den Kontext des schweizerischen Rechts.",
+        "features": [
+            {
+                "t": "Normanalyse",
+                "d": "Sucht im geltenden Bundes- und kantonalen Recht, erklärt welche Artikel auf den Fall anwendbar sind, mit vollständiger Begründung."
+            },
+            {
+                "t": "Verfahrensstrategien",
+                "d": "Schlägt konkrete Strategien vor, einzulegende Einreden und in der Verhandlung zu entwickelnde Argumente nach der schweizerischen ZPO."
+            },
+            {
+                "t": "Fortlaufendes Gespräch",
+                "d": "Vertiefen Sie, wechseln Sie den Blickwinkel, fragen Sie nach. Das Gespräch entwickelt sich mit der Zeit."
+            },
+            {
+                "t": "Massgeschneiderte Strategie",
+                "d": "Liest alle Recherchen des Dossiers und generiert eine personalisierte Verfahrensstrategie."
+            },
+            {
+                "t": "Verwandte Rechtsprechung",
+                "d": "Schlägt vor welche Entscheide des Bundesgerichts oder der kantonalen Gerichte zu konsultieren sind, basierend auf dem Fall."
+            },
+            {
+                "t": "Bereits ausgefüllte Akten",
+                "d": "Liest die Daten des Dossiers und produziert Beschwerden, Schriftsätze, Eingaben und andere Akten bereit für den Export."
+            }
+        ],
+        "quote": "\"Das Ziel ist nicht den Fachmann zu ersetzen. Es ist ihm echte Zeit zu sparen.\"",
+        "chat1": {
+            "label": "Lex AI - Miete",
+            "domanda": "Mein Mandant erleidet Wassereintritt in der Wohnung und der Vermieter greift nicht ein. Was kann ich tun?",
+            "risposta": "Auf der Grundlage der Art. 259a-259d OR und des BGE 142 III 557 hat der Mieter das Recht, die Reparatur, die Herabsetzung des Mietzinses oder, in schweren Fällen, den Schadenersatz nach Art. 259e OR zu verlangen. Ich rate Ihnen, formell die Reparatur zu verlangen...",
+            "tag1": "BGE 142 III 557",
+            "tag2": "Art. 259d OR"
+        },
+        "chat2": {
+            "label": "Lex AI - Arbeit",
+            "domanda": "Der Angestellte wurde während der Krankheit entlassen. Ist die Kündigungsfrist gültig?",
+            "risposta": "Art. 336c OR sieht den Schutz gegen die Kündigung während der Arbeitsverhinderung wegen Krankheit vor: die Frist ist nichtig wenn sie während der Schutzperiode mitgeteilt wird. Die Schutzdauer variiert je nach Dienstjahren (30/90/180 Tage)...",
+            "tag1": "Art. 336c OR",
+            "tag2": "BGE 128 III 271"
+        }
+    },
+    "corpus_italiano_section": {
+        "label": "Für wer über die Grenze hinaus arbeitet",
+        "title_part1": "Auch das italienische Recht,",
+        "title_highlight": "zur Hand.",
+        "subtitle": "Wenn Sie Mandanten mit Sitz in Italien haben, grenzüberschreitende Fälle oder Unternehmen die in beiden Märkten tätig sind, gibt Ihnen Lexum CH auch Zugang zum italienischen Rechtskorpus.",
+        "feature_title": "Italienisches Rechtskorpus zur Konsultation",
+        "feature_text": "Über 4 Millionen Dokumente zwischen Kassationshof, Gesetzgebung, Praxis und EU-Recht. Verfügbar auf Italienisch zur Konsultation und für Rechtsvergleichung. Nützlich für Kanzleien mit internationaler Klientel oder Treuhänder die Gesellschaften betreuen welche in Italien tätig sind.",
+        "feature_points": [
+            "Italienische Rechtsprechung (Kassationshof, Berufungsgerichte)",
+            "Konsolidierte italienische Gesetzgebung",
+            "Praxis der italienischen Behörden",
+            "EU-Recht auf Italienisch"
+        ],
+        "visual_label": "Italienisches Corpus - Konsultation",
+        "search_query": "italienische Gesellschaft - Besteuerung ausgeschütteter Gewinne",
+        "search_lang_badge": "auf italienisch",
+        "results": [
+            {
+                "t": "TUIR - Art. 89 - Dividenden und Zinsen",
+                "sub": "Italienische Gesetzgebung"
+            },
+            {
+                "t": "Kass. Zivil V 12345/2024 - ausgeschüttete Gewinne",
+                "sub": "Italienische Rechtsprechung"
+            },
+            {
+                "t": "Rundschreiben AdE 26/E - konzerninterne Dividenden",
+                "sub": "Praxis der italienischen Steueragentur"
+            }
+        ],
+        "unique_message": "Einzigartiges Differenzierungsmerkmal: keine andere CH-Plattform bietet Zugang zum italienischen Corpus."
+    },
+    "cliente": {
+        "label": "Mandantenbereich",
+        "title_part1": "Auch der Mandant",
+        "title_highlight": "hat seinen Raum.",
+        "subtitle": "Dokumente, Termine, Verhandlungen, Steuerfristen und Mitteilungen in einem geschützten Bereich. Die Kanzlei arbeitet, der Mandant bleibt informiert.",
+        "feature_title": "Ein gewidmeter Zugang auch für den Mandanten",
+        "feature_text": "Der Mandant greift auf seinen geschützten Bereich zu und findet Dokumente, Termine, Verhandlungen und von der Kanzlei geteilte Materialien. Er kann Dateien direkt auf die Plattform hochladen. Weniger verstreute E-Mails, weniger verlorene Dateien.",
+        "feature_points": [
+            "Geschützter Zugang",
+            "Geteilte Dokumente",
+            "Geordnete Fristen und Mitteilungen"
+        ],
+        "visual_label": "Mandantenbereich - Paolo Rossi",
+        "doc_condiviso": "Technisches Gutachten.pdf",
+        "doc_condiviso_badge": "Geteilt",
+        "doc_caricato": "Vertrag_unterschrieben.pdf",
+        "doc_caricato_badge": "Von Ihnen hochgeladen",
+        "prossima_udienza": "Nächste Verhandlung: 25.04.2026"
+    },
+    "cta_finale": {
+        "label": "Jetzt starten",
+        "title_part1": "Die Schweizer Datenbank ist kostenlos.",
+        "title_highlight": "Machen Sie Ihre erste Recherche.",
+        "subtitle": "Registrieren Sie sich und beginnen Sie sofort. Über 1,6 Millionen Schweizer Dokumente, EU-Recht und Zugang zum italienischen Corpus. Lex AI mit Willkommens-Credits. Kanzleimanagement und Mandantenportal bereit.",
+        "cta_primary": "Gratis starten",
+        "login_link": "Haben Sie bereits ein Konto? Anmelden"
+    }
+}

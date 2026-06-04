@@ -1,10 +1,12 @@
-// src/pages/avvocato/FatturazioneNuova.jsx
+// src/pages/avvocato/FatturazioneNuova.jsx — Lexum CH
 //
-// Wizard creazione fattura:
-// - Step unico, layout 2 colonne (form a sinistra, preview live a destra)
-// - Cliente obbligatorio, pratica opzionale (filtrata sul cliente selezionato)
-// - Righe multiple, totali calcolati LIVE in browser (stessa formula del DB)
-// - 2 bottoni in fondo: "Salva bozza" e "Salva e genera PDF"
+// Wizard creazione fattura svizzera:
+// - Layout 2 colonne (form a sinistra, preview live a destra)
+// - Cliente obbligatorio, pratica opzionale (filtrata sul cliente)
+// - Righe multiple, totali calcolati LIVE (stessa formula del trigger CH)
+// - Modello fiscale CH: imponibile → IVA (o esente) → totale. Niente CPA/ritenuta.
+// - Body allineato alla edge crea-fattura CH: aliquota_iva, esente_iva,
+//   esente_iva_motivo, iban (NON iva_percentuale/cpa/ritenuta/iban_pagamento).
 
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -15,6 +17,8 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
+const ALIQUOTA_IVA_DEFAULT = 8.1 // IVA normale svizzera 2024+
+
 // ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
@@ -24,33 +28,27 @@ function nomeCliente(c) {
     return `${c.nome ?? ''} ${c.cognome ?? ''}`.trim() || '—'
 }
 
-function fmtEUR(n) {
+function fmtCHF(n) {
     const v = Number(n ?? 0)
-    return v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    return v.toLocaleString('it-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-// Stessa formula del trigger Postgres ricalcola_totali_fattura
-// cpa     = imponibile * cpa%
-// iva     = (imponibile + cpa) * iva%
-// ritenuta = imponibile * ritenuta%  (se applica_ritenuta)
-// lordo   = imponibile + cpa + iva
-// netto   = lordo - ritenuta
-function calcolaTotali({ righe, ivaPct, cpaPct, applicaRitenuta, ritenutaPct }) {
+// Stessa formula del trigger Postgres CH (ricalcola_totali_fattura_ch):
+//   imponibile = somma righe
+//   iva        = esente ? 0 : imponibile * aliquota / 100
+//   totale     = imponibile + iva
+function calcolaTotali({ righe, aliquotaIva, esente }) {
     const imponibile = righe.reduce((s, r) => {
         const q = parseFloat(r.quantita) || 0
         const p = parseFloat(r.prezzo_unitario) || 0
         return s + q * p
     }, 0)
-    const cpa = Math.round(imponibile * cpaPct) / 100
-    const iva = Math.round((imponibile + cpa) * ivaPct) / 100
-    const ritenuta = applicaRitenuta ? Math.round(imponibile * ritenutaPct) / 100 : 0
-    const lordo = imponibile + cpa + iva
-    const netto = lordo - ritenuta
+    const iva = esente ? 0 : Math.round(imponibile * aliquotaIva) / 100
+    const totale = imponibile + iva
     return {
         imponibile: Math.round(imponibile * 100) / 100,
-        cpa, iva, ritenuta,
-        lordo: Math.round(lordo * 100) / 100,
-        netto: Math.round(netto * 100) / 100,
+        iva: Math.round(iva * 100) / 100,
+        totale: Math.round(totale * 100) / 100,
     }
 }
 
@@ -58,7 +56,7 @@ function calcolaTotali({ righe, ivaPct, cpaPct, applicaRitenuta, ritenutaPct }) 
 // COMPONENTE PREVIEW (colonna destra, sticky)
 // ─────────────────────────────────────────────────────────────
 function PreviewFattura({ form, righe, totali, cliente, pratica }) {
-    const oggi = new Date().toLocaleDateString('it-IT')
+    const oggi = new Date().toLocaleDateString('it-CH')
 
     return (
         <div className="bg-slate border border-white/5 p-5 space-y-4 sticky top-4">
@@ -67,11 +65,7 @@ function PreviewFattura({ form, righe, totali, cliente, pratica }) {
             <div className="space-y-1">
                 <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Destinatario</p>
                 {cliente ? (
-                    <>
-                        <p className="font-body text-sm font-medium text-nebbia">{nomeCliente(cliente)}</p>
-                        {cliente.cf && <p className="font-body text-xs text-nebbia/40">C.F. {cliente.cf}</p>}
-                        {cliente.partita_iva && <p className="font-body text-xs text-nebbia/40">P.IVA {cliente.partita_iva}</p>}
-                    </>
+                    <p className="font-body text-sm font-medium text-nebbia">{nomeCliente(cliente)}</p>
                 ) : (
                     <p className="font-body text-sm text-nebbia/25 italic">Seleziona un cliente</p>
                 )}
@@ -80,11 +74,11 @@ function PreviewFattura({ form, righe, totali, cliente, pratica }) {
             <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
                     <p className="font-body text-nebbia/30 uppercase tracking-widest mb-1">Data emissione</p>
-                    <p className="font-body text-nebbia/70">{form.data_emissione ? new Date(form.data_emissione).toLocaleDateString('it-IT') : oggi}</p>
+                    <p className="font-body text-nebbia/70">{form.data_emissione ? new Date(form.data_emissione).toLocaleDateString('it-CH') : oggi}</p>
                 </div>
                 <div>
                     <p className="font-body text-nebbia/30 uppercase tracking-widest mb-1">Scadenza</p>
-                    <p className="font-body text-nebbia/70">{form.data_scadenza ? new Date(form.data_scadenza).toLocaleDateString('it-IT') : '—'}</p>
+                    <p className="font-body text-nebbia/70">{form.data_scadenza ? new Date(form.data_scadenza).toLocaleDateString('it-CH') : '—'}</p>
                 </div>
             </div>
 
@@ -107,7 +101,7 @@ function PreviewFattura({ form, righe, totali, cliente, pratica }) {
                             return (
                                 <div key={i} className="flex justify-between gap-2 text-xs">
                                     <span className="font-body text-nebbia/70 truncate flex-1">{r.descrizione}</span>
-                                    <span className="font-body text-nebbia/40 whitespace-nowrap">{q} x EUR {fmtEUR(p)}</span>
+                                    <span className="font-body text-nebbia/40 whitespace-nowrap">{q} x CHF {fmtCHF(p)}</span>
                                 </div>
                             )
                         })}
@@ -118,34 +112,23 @@ function PreviewFattura({ form, righe, totali, cliente, pratica }) {
             <div className="border-t border-white/5 pt-3 space-y-1.5">
                 <div className="flex justify-between text-xs font-body text-nebbia/60">
                     <span>Imponibile</span>
-                    <span>EUR {fmtEUR(totali.imponibile)}</span>
+                    <span>CHF {fmtCHF(totali.imponibile)}</span>
                 </div>
-                {totali.cpa > 0 && (
+                {form.esente_iva ? (
                     <div className="flex justify-between text-xs font-body text-nebbia/60">
-                        <span>CPA {form.cpa_percentuale}%</span>
-                        <span>EUR {fmtEUR(totali.cpa)}</span>
+                        <span>IVA — esente</span>
+                        <span className="text-nebbia/40 italic truncate max-w-[160px]">{form.esente_iva_motivo || '—'}</span>
+                    </div>
+                ) : (
+                    <div className="flex justify-between text-xs font-body text-nebbia/60">
+                        <span>IVA {form.aliquota_iva}%</span>
+                        <span>CHF {fmtCHF(totali.iva)}</span>
                     </div>
                 )}
-                <div className="flex justify-between text-xs font-body text-nebbia/60">
-                    <span>IVA {form.iva_percentuale}%</span>
-                    <span>EUR {fmtEUR(totali.iva)}</span>
-                </div>
                 <div className="flex justify-between pt-2 border-t border-white/10">
                     <span className="font-body text-sm font-medium text-nebbia">Totale fattura</span>
-                    <span className="font-body text-base font-semibold text-oro">EUR {fmtEUR(totali.lordo)}</span>
+                    <span className="font-body text-base font-semibold text-oro">CHF {fmtCHF(totali.totale)}</span>
                 </div>
-                {form.applica_ritenuta && (
-                    <>
-                        <div className="flex justify-between text-xs font-body text-red-400/80 pt-1">
-                            <span>Ritenuta {form.ritenuta_percentuale}%</span>
-                            <span>- EUR {fmtEUR(totali.ritenuta)}</span>
-                        </div>
-                        <div className="flex justify-between pt-2 border-t border-white/10">
-                            <span className="font-body text-sm font-medium text-nebbia">Netto a pagare</span>
-                            <span className="font-body text-base font-semibold text-salvia">EUR {fmtEUR(totali.netto)}</span>
-                        </div>
-                    </>
-                )}
             </div>
         </div>
     )
@@ -161,7 +144,7 @@ export default function AvvocatoFatturazioneNuova() {
     const praticaPreselezionata = searchParams.get('pratica_id')
 
     const [clienti, setClienti] = useState([])
-    const [pratiche, setPratiche] = useState([]) // tutte le pratiche dello studio
+    const [pratiche, setPratiche] = useState([])
     const [profiloAvv, setProfiloAvv] = useState(null)
     const [loading, setLoading] = useState(true)
 
@@ -179,14 +162,13 @@ export default function AvvocatoFatturazioneNuova() {
         pratica_id: praticaPreselezionata ?? '',
         data_emissione: oggi,
         data_scadenza: tra30giorni,
-        iva_percentuale: 22,
-        cpa_percentuale: 4,
-        applica_ritenuta: false,
-        ritenuta_percentuale: 20,
+        aliquota_iva: ALIQUOTA_IVA_DEFAULT,
+        esente_iva: false,
+        esente_iva_motivo: '',
         note_pubbliche: '',
         note_interne: '',
         metodo_pagamento: 'Bonifico bancario',
-        iban_pagamento: '',
+        iban: '',
     })
 
     const [righe, setRighe] = useState([
@@ -209,7 +191,7 @@ export default function AvvocatoFatturazioneNuova() {
             setProfiloAvv(prof)
 
             // Pre-popola IBAN dal profilo se presente
-            if (prof?.iban) setForm(p => ({ ...p, iban_pagamento: prof.iban }))
+            if (prof?.iban) setForm(p => ({ ...p, iban: prof.iban }))
 
             const { data: collabIds } = await supabase
                 .from('profiles').select('id').eq('titolare_id', titolareId)
@@ -218,7 +200,7 @@ export default function AvvocatoFatturazioneNuova() {
             const [{ data: cli }, { data: prat }] = await Promise.all([
                 supabase
                     .from('profiles')
-                    .select('id, nome, cognome, ragione_sociale, tipo_soggetto, cf, partita_iva, email')
+                    .select('id, nome, cognome, ragione_sociale, tipo_soggetto, email')
                     .eq('role', 'cliente')
                     .in('avvocato_id', idsAvvocati)
                     .order('cognome'),
@@ -260,24 +242,20 @@ export default function AvvocatoFatturazioneNuova() {
         [pratiche, form.pratica_id]
     )
 
-    // Totali calcolati live
+    // Totali calcolati live (formula CH)
     const totali = useMemo(() => calcolaTotali({
         righe,
-        ivaPct: Number(form.iva_percentuale) || 0,
-        cpaPct: Number(form.cpa_percentuale) || 0,
-        applicaRitenuta: form.applica_ritenuta,
-        ritenutaPct: Number(form.ritenuta_percentuale) || 0,
-    }), [righe, form.iva_percentuale, form.cpa_percentuale, form.applica_ritenuta, form.ritenuta_percentuale])
+        aliquotaIva: Number(form.aliquota_iva) || 0,
+        esente: form.esente_iva,
+    }), [righe, form.aliquota_iva, form.esente_iva])
 
     // ─── Manipolazione righe ────────────────────────────────────
     function aggiornaRiga(i, campo, valore) {
         setRighe(prev => prev.map((r, idx) => idx === i ? { ...r, [campo]: valore } : r))
     }
-
     function aggiungiRiga() {
         setRighe(prev => [...prev, { descrizione: '', quantita: 1, prezzo_unitario: '' }])
     }
-
     function rimuoviRiga(i) {
         setRighe(prev => prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev)
     }
@@ -287,7 +265,7 @@ export default function AvvocatoFatturazioneNuova() {
         if (!form.cliente_id) return 'Seleziona un cliente'
         if (!form.data_emissione) return 'Data emissione obbligatoria'
         const righeValide = righe.filter(r => r.descrizione?.trim() && Number(r.quantita) > 0)
-        if (righeValide.length === 0) return 'Almeno una riga con descrizione e quantita > 0'
+        if (righeValide.length === 0) return 'Almeno una riga con descrizione e quantità > 0'
         for (const r of righeValide) {
             if (isNaN(Number(r.prezzo_unitario))) return 'Tutti i prezzi devono essere numerici'
         }
@@ -311,21 +289,20 @@ export default function AvvocatoFatturazioneNuova() {
                     ordine: idx,
                 }))
 
-            // 1. Crea fattura
+            // 1. Crea fattura — body allineato a crea-fattura CH
             const { data: creaRes, error: creaErr } = await supabase.functions.invoke('crea-fattura', {
                 body: {
                     cliente_id: form.cliente_id,
                     pratica_id: form.pratica_id || null,
                     data_emissione: form.data_emissione,
                     data_scadenza: form.data_scadenza || null,
-                    iva_percentuale: Number(form.iva_percentuale),
-                    cpa_percentuale: Number(form.cpa_percentuale),
-                    applica_ritenuta: form.applica_ritenuta,
-                    ritenuta_percentuale: Number(form.ritenuta_percentuale),
+                    aliquota_iva: Number(form.aliquota_iva),
+                    esente_iva: form.esente_iva,
+                    esente_iva_motivo: form.esente_iva ? (form.esente_iva_motivo?.trim() || null) : null,
                     note_pubbliche: form.note_pubbliche?.trim() || null,
                     note_interne: form.note_interne?.trim() || null,
                     metodo_pagamento: form.metodo_pagamento?.trim() || null,
-                    iban_pagamento: form.iban_pagamento?.trim() || null,
+                    iban: form.iban?.trim() || null,
                     righe: righeValide,
                 }
             })
@@ -380,10 +357,7 @@ export default function AvvocatoFatturazioneNuova() {
                             >
                                 <option value="">Seleziona cliente...</option>
                                 {clienti.map(c => (
-                                    <option key={c.id} value={c.id}>
-                                        {nomeCliente(c)}
-                                        {c.tipo_soggetto === 'persona_giuridica' && c.partita_iva ? ` (P.IVA ${c.partita_iva})` : ''}
-                                    </option>
+                                    <option key={c.id} value={c.id}>{nomeCliente(c)}</option>
                                 ))}
                             </select>
                             {clienti.length === 0 && (
@@ -474,7 +448,7 @@ export default function AvvocatoFatturazioneNuova() {
                                         </div>
 
                                         <input
-                                            placeholder="Descrizione prestazione (es. Consulenza preliminare causa civile c/Bianchi)"
+                                            placeholder="Descrizione prestazione (es. Consulenza legale)"
                                             value={r.descrizione}
                                             onChange={e => aggiornaRiga(i, 'descrizione', e.target.value)}
                                             className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -482,23 +456,18 @@ export default function AvvocatoFatturazioneNuova() {
 
                                         <div className="grid grid-cols-3 gap-2">
                                             <div>
-                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">Quantita</label>
+                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">Quantità</label>
                                                 <input
-                                                    type="number"
-                                                    min="0.01"
-                                                    step="0.01"
+                                                    type="number" min="0.01" step="0.01"
                                                     value={r.quantita}
                                                     onChange={e => aggiornaRiga(i, 'quantita', e.target.value)}
                                                     className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">Prezzo unit. (EUR)</label>
+                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">Prezzo unit. (CHF)</label>
                                                 <input
-                                                    type="number"
-                                                    min="0"
-                                                    step="0.01"
-                                                    placeholder="0.00"
+                                                    type="number" min="0" step="0.01" placeholder="0.00"
                                                     value={r.prezzo_unitario}
                                                     onChange={e => aggiornaRiga(i, 'prezzo_unitario', e.target.value)}
                                                     className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -507,7 +476,7 @@ export default function AvvocatoFatturazioneNuova() {
                                             <div>
                                                 <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">Totale riga</label>
                                                 <div className="bg-slate border border-white/5 px-3 py-2 font-body text-sm text-oro">
-                                                    EUR {fmtEUR(tot)}
+                                                    CHF {fmtCHF(tot)}
                                                 </div>
                                             </div>
                                         </div>
@@ -517,71 +486,54 @@ export default function AvvocatoFatturazioneNuova() {
                         </div>
                     </div>
 
-                    {/* Step 4: Parametri fiscali */}
+                    {/* Step 4: IVA (modello CH) */}
                     <div className="bg-slate border border-white/5 p-5 space-y-4">
-                        <p className="section-label">Parametri fiscali</p>
+                        <p className="section-label">IVA</p>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">IVA %</label>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                checked={form.esente_iva}
+                                onChange={e => setForm(p => ({ ...p, esente_iva: e.target.checked }))}
+                                className="w-4 h-4 accent-oro"
+                            />
+                            <div className="flex-1">
+                                <p className="font-body text-sm text-nebbia group-hover:text-oro transition-colors">Esente IVA</p>
+                                <p className="font-body text-xs text-nebbia/40 mt-0.5">Spunta se non sei assoggettato all'IVA (es. cifra d'affari sotto la soglia LIVA).</p>
+                            </div>
+                        </label>
+
+                        {form.esente_iva ? (
+                            <div className="pl-7">
+                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
+                                    Motivo esenzione <span className="text-nebbia/25 normal-case tracking-normal">— opzionale, compare in fattura</span>
+                                </label>
                                 <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    step="0.01"
-                                    value={form.iva_percentuale}
-                                    onChange={e => setForm(p => ({ ...p, iva_percentuale: e.target.value }))}
-                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
+                                    placeholder="Es. Non assoggettato IVA (art. 10 cpv. 2 LIVA)"
+                                    value={form.esente_iva_motivo}
+                                    onChange={e => setForm(p => ({ ...p, esente_iva_motivo: e.target.value }))}
+                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                                 />
                             </div>
-                            <div>
-                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">CPA %</label>
+                        ) : (
+                            <div className="pl-7">
+                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Aliquota IVA %</label>
                                 <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    step="0.01"
-                                    value={form.cpa_percentuale}
-                                    onChange={e => setForm(p => ({ ...p, cpa_percentuale: e.target.value }))}
-                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
+                                    type="number" min="0" max="100" step="0.1"
+                                    value={form.aliquota_iva}
+                                    onChange={e => setForm(p => ({ ...p, aliquota_iva: e.target.value }))}
+                                    className="w-full max-w-[200px] bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                                 />
+                                <p className="font-body text-xs text-nebbia/40 mt-2">
+                                    Aliquote svizzere 2024: normale 8.1%, ridotta 2.6%, alloggio 3.8%.
+                                </p>
                             </div>
-                        </div>
-
-                        <div className="border-t border-white/5 pt-4">
-                            <label className="flex items-center gap-3 cursor-pointer group">
-                                <input
-                                    type="checkbox"
-                                    checked={form.applica_ritenuta}
-                                    onChange={e => setForm(p => ({ ...p, applica_ritenuta: e.target.checked }))}
-                                    className="w-4 h-4 accent-oro"
-                                />
-                                <div className="flex-1">
-                                    <p className="font-body text-sm text-nebbia group-hover:text-oro transition-colors">Applica ritenuta d'acconto</p>
-                                    <p className="font-body text-xs text-nebbia/40 mt-0.5">Spunta se il cliente e' sostituto d'imposta (azienda, professionista). Per privati lascia disattivato.</p>
-                                </div>
-                            </label>
-
-                            {form.applica_ritenuta && (
-                                <div className="mt-3 pl-7">
-                                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Ritenuta %</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        step="0.01"
-                                        value={form.ritenuta_percentuale}
-                                        onChange={e => setForm(p => ({ ...p, ritenuta_percentuale: e.target.value }))}
-                                        className="w-full max-w-[200px] bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
-                                    />
-                                </div>
-                            )}
-                        </div>
+                        )}
                     </div>
 
                     {/* Step 5: Pagamento */}
                     <div className="bg-slate border border-white/5 p-5 space-y-4">
-                        <p className="section-label">Modalita di pagamento</p>
+                        <p className="section-label">Modalità di pagamento</p>
 
                         <div>
                             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Metodo</label>
@@ -591,29 +543,31 @@ export default function AvvocatoFatturazioneNuova() {
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                             >
                                 <option value="Bonifico bancario">Bonifico bancario</option>
-                                <option value="Bonifico SEPA">Bonifico SEPA</option>
+                                <option value="QR-fattura">QR-fattura</option>
                                 <option value="Contanti">Contanti</option>
-                                <option value="Assegno">Assegno</option>
-                                <option value="POS / Carta">POS / Carta</option>
+                                <option value="Carta / TWINT">Carta / TWINT</option>
                                 <option value="">Altro / Non specificato</option>
                             </select>
                         </div>
 
                         <InputField
                             label="IBAN per pagamento"
-                            placeholder="IT60X0542811101000000123456"
-                            value={form.iban_pagamento}
-                            onChange={e => setForm(p => ({ ...p, iban_pagamento: e.target.value }))}
+                            placeholder="CH93 0076 2011 6238 5295 7"
+                            value={form.iban}
+                            onChange={e => setForm(p => ({ ...p, iban: e.target.value }))}
                         />
-                        {profiloAvv?.iban && form.iban_pagamento !== profiloAvv.iban && (
+                        {profiloAvv?.iban && form.iban !== profiloAvv.iban && (
                             <button
                                 type="button"
-                                onClick={() => setForm(p => ({ ...p, iban_pagamento: profiloAvv.iban }))}
+                                onClick={() => setForm(p => ({ ...p, iban: profiloAvv.iban }))}
                                 className="font-body text-xs text-oro/60 hover:text-oro"
                             >
                                 Usa IBAN del profilo
                             </button>
                         )}
+                        <p className="font-body text-xs text-nebbia/40">
+                            L'IBAN e i tuoi dati di profilo (indirizzo, CAP, città) vengono usati per generare la QR-fattura svizzera nel PDF.
+                        </p>
                     </div>
 
                     {/* Step 6: Note */}
@@ -697,7 +651,7 @@ export default function AvvocatoFatturazioneNuova() {
                                 <span className="font-medium text-nebbia/80">Salva bozza</span> — la fattura viene creata con un numero progressivo definitivo, ma il PDF non viene generato. Puoi modificarla in seguito.
                             </p>
                             <p className="font-body text-xs text-nebbia/60">
-                                <span className="font-medium text-nebbia/80">Salva e genera PDF</span> — la fattura viene archiviata anche nell'archivio dello studio e il PDF e' pronto per essere inviato al cliente.
+                                <span className="font-medium text-nebbia/80">Salva e genera PDF</span> — la fattura viene archiviata nell'archivio dello studio e il PDF con QR-fattura è pronto per il cliente.
                             </p>
                         </div>
                     </div>

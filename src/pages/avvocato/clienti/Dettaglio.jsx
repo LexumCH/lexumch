@@ -1,4 +1,16 @@
-// src/pages/avvocato/clienti/Dettaglio.jsx
+// src/pages/avvocato/clienti/Dettaglio.jsx — Lexum CH
+//
+// Clone dell'IT con adattamenti svizzeri:
+//   - Anagrafica CH: cf→numero_avs, comune→citta, provincia→cantone,
+//     partita_iva→uid, rappr_cf→rappr_avs, +forma_giuridica +iva_attiva, pec rimosso.
+//   - salvaCliente: payload verso update-cliente con nomi campo CH (+ note).
+//   - TabPagamenti: EUR→CHF, fatt.importo→fatt.totale. "Segna pagata" apre
+//     ModalRegistraPagamento (chiede metodo/data/importo); lo stato passa a
+//     'pagata' da solo via trigger trg_pagamenti_fattura_stato su CH.
+//   - PannelloPratica sezione Ricerche: da note_interne → ricerche (tabella
+//     unificata), testo→contenuto, tipi ['ricerca_ai','ricerca_manuale'].
+//   - TabNoteInterne: punta a note_interne (tabella creata su CH), usa testo. Invariato.
+//   - Date in it-CH (già nell'IT).
 
 import { useState, useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -8,9 +20,12 @@ import {
     CreditCard, StickyNote, User, FolderOpen, ArrowRight, Sparkles,
     Edit2, Check, X, Calendar, Clock, AlertCircle, Trash2, Building2,
     ExternalLink, Eye, Upload, KeyRound, Mail, Eye as EyeIcon, EyeOff,
-    Copy, RefreshCw, CheckCircle, ShieldOff
+    Copy, RefreshCw, CheckCircle, ShieldOff, Wallet, Users
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/context/AuthContext'
+import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
+import GestioneMandati from '@/components/fiduciario/GestioneMandati'
 
 // ─────────────────────────────────────────────────────────────
 // COSTANTI
@@ -35,14 +50,16 @@ const STATUS_OCR = {
     skipped: { label: 'Manuale', variant: 'gray' },
 }
 
-const TABS = [
-    { id: 'panoramica', label: 'Panoramica', icon: User },
-    { id: 'pratiche', label: 'Pratiche', icon: FolderOpen },
-    { id: 'documenti', label: 'Documenti', icon: FileText },
-    { id: 'comunicazioni', label: 'Comunicazioni', icon: MessageSquare },
-    { id: 'note_interne', label: 'Note interne', icon: Lock },
-    { id: 'pagamenti', label: 'Pagamenti', icon: CreditCard },
+// Metodi pagamento svizzeri (allineati a FatturazioneDettaglio CH)
+const METODI_PAGAMENTO = [
+    { value: 'bonifico', label: 'Bonifico bancario' },
+    { value: 'qr', label: 'QR-fattura' },
+    { value: 'contanti', label: 'Contanti' },
+    { value: 'carta', label: 'Carta / TWINT' },
+    { value: 'altro', label: 'Altro' },
 ]
+
+// TABS calcolato in base al ruolo (vedi dentro AvvocatoClientiDettaglio)
 
 // ─────────────────────────────────────────────────────────────
 // HELPERS
@@ -52,6 +69,11 @@ function formatSize(bytes) {
     if (bytes < 1024) return `${bytes} B`
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function fmtCHF(n) {
+    const v = Number(n ?? 0)
+    return v.toLocaleString('it-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 function nomeCliente(c) {
@@ -173,7 +195,7 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
 
                     {!risultato.generata && (
                         <p className="font-body text-sm text-nebbia/60">
-                            La password e stata aggiornata. Comunicala al cliente.
+                            La password è stata aggiornata. Comunicala al cliente.
                         </p>
                     )}
 
@@ -339,7 +361,7 @@ function SezioneStrumentiAssistenza({ cliente }) {
                             <span className="font-body text-sm font-medium text-nebbia">Invia email reset password</span>
                         </div>
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            Il cliente ricevera un link per impostare una nuova password da solo.
+                            Il cliente riceverà un link per impostare una nuova password da solo.
                         </p>
                     </button>
 
@@ -353,7 +375,7 @@ function SezioneStrumentiAssistenza({ cliente }) {
                             <span className="font-body text-sm font-medium text-nebbia">Cambia password</span>
                         </div>
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            Imposta tu una password temporanea dovrai comunicarla al cliente.
+                            Imposta tu una password temporanea — dovrai comunicarla al cliente.
                         </p>
                     </button>
                 </div>
@@ -372,6 +394,7 @@ function SezioneStrumentiAssistenza({ cliente }) {
         </>
     )
 }
+
 // ─────────────────────────────────────────────────────────────
 // TAB DOCUMENTI
 // ─────────────────────────────────────────────────────────────
@@ -471,7 +494,7 @@ function TabDocumenti({ clienteId }) {
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/40">{formatSize(doc.dimensione)}</td>
                                         <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">
-                                            {new Date(doc.created_at).toLocaleDateString('it-IT')}
+                                            {new Date(doc.created_at).toLocaleDateString('it-CH')}
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-1 justify-end">
@@ -590,7 +613,7 @@ function TabNoteInterne({ clienteId }) {
                                                 <div className="flex items-center justify-between mt-2">
                                                     <div className="flex items-center gap-2">
                                                         <Clock size={11} className="text-nebbia/25" />
-                                                        <span className="font-body text-xs text-nebbia/30">{n.autore?.nome} {n.autore?.cognome} · {new Date(n.created_at).toLocaleString('it-IT')}</span>
+                                                        <span className="font-body text-xs text-nebbia/30">{n.autore?.nome} {n.autore?.cognome} · {new Date(n.created_at).toLocaleString('it-CH')}</span>
                                                     </div>
                                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button onClick={() => { setEditingId(n.id); setEditVal(n.testo) }} className="text-nebbia/30 hover:text-oro p-1 transition-colors"><Edit2 size={12} /></button>
@@ -609,11 +632,161 @@ function TabNoteInterne({ clienteId }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// TAB PAGAMENTI (resterà semplice qui, la pagina dedicata verrà in Step 2)
+// MODAL REGISTRA PAGAMENTO (riuso dal flusso fatturazione CH)
+// Inserisce in pagamenti_fattura; lo stato fattura passa a 'pagata'
+// automaticamente via trigger trg_pagamenti_fattura_stato su CH.
+// ─────────────────────────────────────────────────────────────
+function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
+    const [form, setForm] = useState({
+        data_pagamento: new Date().toISOString().slice(0, 10),
+        importo: residuo.toFixed(2),
+        metodo: 'bonifico',
+        riferimento: '',
+        note: '',
+    })
+    const [salvando, setSalvando] = useState(false)
+    const [errore, setErrore] = useState('')
+
+    async function handleSalva() {
+        setErrore('')
+        const imp = Number(form.importo)
+        if (isNaN(imp) || imp <= 0) { setErrore('Importo non valido'); return }
+        if (!form.data_pagamento) { setErrore('Data pagamento obbligatoria'); return }
+
+        setSalvando(true)
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            const { error } = await supabase.from('pagamenti_fattura').insert({
+                fattura_id: fattura.id,
+                data_pagamento: form.data_pagamento,
+                importo: imp,
+                metodo: form.metodo,
+                riferimento: form.riferimento?.trim() || null,
+                note: form.note?.trim() || null,
+                registrato_da: user.id,
+            })
+            if (error) throw new Error(error.message)
+            onSuccess()
+        } catch (err) {
+            setErrore(err.message)
+        } finally {
+            setSalvando(false)
+        }
+    }
+
+    return (
+        <div className="fixed inset-0 z-50 bg-petrolio/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-slate border border-white/10 w-full max-w-md">
+                <div className="flex items-center justify-between p-5 border-b border-white/8">
+                    <div className="flex items-center gap-2">
+                        <Wallet size={16} className="text-salvia" />
+                        <h2 className="font-display text-lg text-nebbia">Registra pagamento</h2>
+                    </div>
+                    <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia">
+                        <X size={18} />
+                    </button>
+                </div>
+
+                <div className="p-6 space-y-4">
+                    <div className="bg-petrolio/40 border border-white/5 p-3 space-y-1">
+                        <p className="font-body text-xs text-nebbia/40">
+                            Fattura <span className="text-nebbia/70">{fattura.numero}</span>
+                        </p>
+                        <p className="font-body text-xs text-nebbia/40">
+                            Residuo da incassare: <span className="text-oro font-medium">CHF {fmtCHF(residuo)}</span>
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Data *</label>
+                            <input
+                                type="date"
+                                value={form.data_pagamento}
+                                onChange={e => setForm(p => ({ ...p, data_pagamento: e.target.value }))}
+                                className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
+                            />
+                        </div>
+                        <div>
+                            <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Importo (CHF) *</label>
+                            <input
+                                type="number" step="0.01" min="0.01"
+                                value={form.importo}
+                                onChange={e => setForm(p => ({ ...p, importo: e.target.value }))}
+                                className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Metodo *</label>
+                        <select
+                            value={form.metodo}
+                            onChange={e => setForm(p => ({ ...p, metodo: e.target.value }))}
+                            className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
+                        >
+                            {METODI_PAGAMENTO.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
+                            Riferimento <span className="text-nebbia/25 normal-case tracking-normal">— opzionale</span>
+                        </label>
+                        <input
+                            placeholder="Es. n. operazione, riferimento bonifico..."
+                            value={form.riferimento}
+                            onChange={e => setForm(p => ({ ...p, riferimento: e.target.value }))}
+                            className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
+                            Note <span className="text-nebbia/25 normal-case tracking-normal">— opzionale</span>
+                        </label>
+                        <textarea
+                            rows={2}
+                            value={form.note}
+                            onChange={e => setForm(p => ({ ...p, note: e.target.value }))}
+                            className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 resize-none"
+                        />
+                    </div>
+
+                    {errore && (
+                        <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
+                            <AlertCircle size={14} /> {errore}
+                        </div>
+                    )}
+
+                    <div className="flex gap-2 pt-2">
+                        <button onClick={onClose} disabled={salvando}
+                            className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">
+                            Annulla
+                        </button>
+                        <button onClick={handleSalva} disabled={salvando}
+                            className="btn-primary text-sm flex-1 justify-center disabled:opacity-40">
+                            {salvando
+                                ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
+                                : <><Check size={14} /> Registra pagamento</>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─────────────────────────────────────────────────────────────
+// TAB PAGAMENTI
+// Quick "Segna pagata" apre ModalRegistraPagamento (chiede metodo/data/importo);
+// lo stato fattura passa a 'pagata' via trigger DB su pagamenti_fattura.
 // ─────────────────────────────────────────────────────────────
 function TabPagamenti({ clienteId, avvocatoId }) {
     const [fatture, setFatture] = useState([])
     const [loading, setLoading] = useState(true)
+    const [fatturaPagamento, setFatturaPagamento] = useState(null)
 
     useEffect(() => { caricaTutto() }, [clienteId])
 
@@ -624,14 +797,19 @@ function TabPagamenti({ clienteId, avvocatoId }) {
         setLoading(false)
     }
 
-    async function segnaComePagata(id) {
-        const oggi = new Date().toISOString().slice(0, 10)
-        await supabase.from('fatture').update({ stato: 'pagata', data_pagamento: oggi }).eq('id', id)
-        setFatture(prev => prev.map(f => f.id === id ? { ...f, stato: 'pagata', data_pagamento: oggi } : f))
+    // Residuo della fattura selezionata = totale - somma pagamenti già registrati
+    async function apriPagamento(fatt) {
+        const { data: pag } = await supabase
+            .from('pagamenti_fattura')
+            .select('importo')
+            .eq('fattura_id', fatt.id)
+        const giaPagato = (pag ?? []).reduce((a, p) => a + Number(p.importo ?? 0), 0)
+        const residuo = Math.max(0, Number(fatt.totale ?? 0) - giaPagato)
+        setFatturaPagamento({ ...fatt, residuo })
     }
 
-    const totaleAperto = fatture.filter(f => ['in_attesa', 'scaduta'].includes(f.stato)).reduce((a, f) => a + parseFloat(f.importo ?? 0), 0)
-    const totalePagato = fatture.filter(f => f.stato === 'pagata').reduce((a, f) => a + parseFloat(f.importo ?? 0), 0)
+    const totaleAperto = fatture.filter(f => ['in_attesa', 'scaduta'].includes(f.stato)).reduce((a, f) => a + parseFloat(f.totale ?? 0), 0)
+    const totalePagato = fatture.filter(f => f.stato === 'pagata').reduce((a, f) => a + parseFloat(f.totale ?? 0), 0)
 
     return (
         <div className="space-y-4">
@@ -639,11 +817,11 @@ function TabPagamenti({ clienteId, avvocatoId }) {
                 <div className="grid grid-cols-2 gap-3">
                     <div className="bg-slate border border-white/5 p-4">
                         <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Da incassare</p>
-                        <p className="font-display text-2xl font-semibold text-oro">EUR {totaleAperto.toFixed(2)}</p>
+                        <p className="font-display text-2xl font-semibold text-oro">CHF {fmtCHF(totaleAperto)}</p>
                     </div>
                     <div className="bg-slate border border-white/5 p-4">
                         <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Incassato</p>
-                        <p className="font-display text-2xl font-semibold text-salvia">EUR {totalePagato.toFixed(2)}</p>
+                        <p className="font-display text-2xl font-semibold text-salvia">CHF {fmtCHF(totalePagato)}</p>
                     </div>
                 </div>
             )}
@@ -670,14 +848,14 @@ function TabPagamenti({ clienteId, avvocatoId }) {
                                         return (
                                             <tr key={fatt.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
                                                 <td className="px-4 py-3 font-body text-xs text-nebbia/60 font-medium">{fatt.numero}</td>
-                                                <td className="px-4 py-3 font-body text-sm font-semibold text-oro">EUR {parseFloat(fatt.importo).toFixed(2)}</td>
+                                                <td className="px-4 py-3 font-body text-sm font-semibold text-oro">CHF {fmtCHF(fatt.totale)}</td>
                                                 <td className="px-4 py-3 font-body text-xs text-nebbia/50 max-w-xs truncate">{fatt.descrizione ?? '—'}</td>
-                                                <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(fatt.data_emissione).toLocaleDateString('it-IT')}</td>
-                                                <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{fatt.data_scadenza ? new Date(fatt.data_scadenza).toLocaleDateString('it-IT') : '—'}</td>
+                                                <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(fatt.data_emissione).toLocaleDateString('it-CH')}</td>
+                                                <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{fatt.data_scadenza ? new Date(fatt.data_scadenza).toLocaleDateString('it-CH') : '—'}</td>
                                                 <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
                                                 <td className="px-4 py-3 text-right">
-                                                    {fatt.stato === 'in_attesa' && (
-                                                        <button onClick={() => segnaComePagata(fatt.id)} className="font-body text-xs text-salvia hover:text-salvia/70 transition-colors whitespace-nowrap">Segna pagata</button>
+                                                    {['in_attesa', 'scaduta'].includes(fatt.stato) && (
+                                                        <button onClick={() => apriPagamento(fatt)} className="font-body text-xs text-salvia hover:text-salvia/70 transition-colors whitespace-nowrap">Segna pagata</button>
                                                     )}
                                                 </td>
                                             </tr>
@@ -687,6 +865,15 @@ function TabPagamenti({ clienteId, avvocatoId }) {
                             </table>
                         </div>
                     )}
+
+            {fatturaPagamento && (
+                <ModalRegistraPagamento
+                    fattura={fatturaPagamento}
+                    residuo={fatturaPagamento.residuo}
+                    onClose={() => setFatturaPagamento(null)}
+                    onSuccess={() => { setFatturaPagamento(null); caricaTutto() }}
+                />
+            )}
         </div>
     )
 }
@@ -787,7 +974,7 @@ function TabComunicazioni({ clienteId }) {
                                     <div className={`max-w-sm px-4 py-2.5 ${isMio ? 'bg-oro/15 border border-oro/20' : 'bg-petrolio border border-white/10'}`}>
                                         <p className="font-body text-sm text-nebbia leading-relaxed">{msg.testo}</p>
                                         <p className={`font-body text-[10px] mt-1 ${isMio ? 'text-oro/50 text-right' : 'text-nebbia/30'}`}>
-                                            {new Date(msg.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                            {new Date(msg.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                         </p>
                                     </div>
                                 </div>
@@ -850,7 +1037,7 @@ function TabComunicazioni({ clienteId }) {
                                                 {nonLetto && <span className="w-1.5 h-1.5 rounded-full bg-oro shrink-0" />}
                                                 <div className="min-w-0">
                                                     <p className="font-body text-sm font-medium text-nebbia truncate">{t.oggetto}</p>
-                                                    <p className="font-body text-xs text-nebbia/25 mt-1">{new Date(t.created_at).toLocaleDateString('it-IT')}</p>
+                                                    <p className="font-body text-xs text-nebbia/25 mt-1">{new Date(t.created_at).toLocaleDateString('it-CH')}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2 shrink-0">
@@ -886,10 +1073,12 @@ function PannelloPratica({ pratica, onClose }) {
                     .select('id, nome_file, dimensione, created_at')
                     .eq('pratica_id', pratica.id)
                     .order('created_at', { ascending: false }),
-                supabase.from('note_interne')
-                    .select('id, tipo, testo, metadati, created_at, autore:autore_id(nome, cognome)')
+                // CH: le ricerche vivono nella tabella unificata "ricerche"
+                // (campo testo si chiama "contenuto"); niente 'sentenza_acquistata'
+                supabase.from('ricerche')
+                    .select('id, tipo, titolo, contenuto, metadati, created_at, autore:autore_id(nome, cognome)')
                     .eq('pratica_id', pratica.id)
-                    .in('tipo', ['ricerca_ai', 'ricerca_manuale', 'sentenza_acquistata'])
+                    .in('tipo', ['ricerca_ai', 'ricerca_manuale'])
                     .order('created_at', { ascending: false }),
             ])
             setDocumenti(docs ?? [])
@@ -926,7 +1115,7 @@ function PannelloPratica({ pratica, onClose }) {
                 <p className="section-label mb-2">Dettagli</p>
                 {[
                     ['Tipo', pratica.tipo ?? '—'],
-                    ['Creata il', new Date(pratica.created_at).toLocaleDateString('it-IT')],
+                    ['Creata il', new Date(pratica.created_at).toLocaleDateString('it-CH')],
                     ['Stato', sc.label],
                     ...(pratica.esito ? [['Esito', pratica.esito.charAt(0).toUpperCase() + pratica.esito.slice(1)]] : []),
                 ].map(([l, v]) => (
@@ -941,7 +1130,7 @@ function PannelloPratica({ pratica, onClose }) {
                     <Calendar size={16} className="text-red-400" />
                     <div>
                         <p className="font-body text-xs text-red-400/60 uppercase tracking-widest mb-0.5">Prossima udienza</p>
-                        <span className="font-body text-sm text-red-400">{new Date(pratica.prossima_udienza).toLocaleDateString('it-IT')}</span>
+                        <span className="font-body text-sm text-red-400">{new Date(pratica.prossima_udienza).toLocaleDateString('it-CH')}</span>
                     </div>
                 </div>
             ) : (
@@ -968,7 +1157,7 @@ function PannelloPratica({ pratica, onClose }) {
                                 <FileText size={12} className="text-nebbia/30 shrink-0" />
                                 <p className="font-body text-xs text-nebbia/70 truncate flex-1">{d.nome_file}</p>
                                 <span className="font-body text-xs text-nebbia/25">
-                                    {new Date(d.created_at).toLocaleDateString('it-IT')}
+                                    {new Date(d.created_at).toLocaleDateString('it-CH')}
                                 </span>
                             </div>
                         ))}
@@ -985,10 +1174,10 @@ function PannelloPratica({ pratica, onClose }) {
                                         : <Search size={10} className="text-oro shrink-0" />
                                     }
                                     <p className="font-body text-xs font-medium text-nebbia/70 truncate">
-                                        {r.metadati?.domanda ?? '—'}
+                                        {r.metadati?.domanda ?? r.titolo ?? '—'}
                                     </p>
                                 </div>
-                                <p className="font-body text-xs text-nebbia/40 line-clamp-2 ml-4">{r.testo}</p>
+                                <p className="font-body text-xs text-nebbia/40 line-clamp-2 ml-4">{r.contenuto}</p>
                             </div>
                         ))}
                     </div>
@@ -1029,9 +1218,9 @@ function ProssimiAppuntamenti({ clienteId }) {
                         <div className="min-w-0 flex-1">
                             <p className="font-body text-sm text-nebbia truncate">{a.titolo}</p>
                             <p className={`font-body text-xs mt-0.5 ${a.tipo === 'udienza' ? 'text-red-400/60' : 'text-nebbia/30'}`}>
-                                {new Date(a.data_ora_inizio).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                {new Date(a.data_ora_inizio).toLocaleDateString('it-CH', { day: '2-digit', month: 'long', year: 'numeric' })}
                                 {' — '}
-                                {new Date(a.data_ora_inizio).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(a.data_ora_inizio).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })}
                             </p>
                         </div>
                         {a.tipo === 'udienza' && (
@@ -1085,7 +1274,7 @@ function ModalResetPassword({ cliente, onClose }) {
                         <h2 className="font-display text-lg text-nebbia">Password aggiornata</h2>
                     </div>
                     <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                        La nuova password e attiva. Comunicala al cliente con il canale che preferisci (telefono, whatsapp, di persona).
+                        La nuova password è attiva. Comunicala al cliente con il canale che preferisci (telefono, whatsapp, di persona).
                     </p>
                     <button onClick={onClose} className="btn-primary text-sm w-full justify-center">
                         Chiudi
@@ -1175,6 +1364,26 @@ function ModalResetPassword({ cliente, onClose }) {
 // ─────────────────────────────────────────────────────────────
 export default function AvvocatoClientiDettaglio() {
     const { id } = useParams()
+    const { role } = useAuth()
+    const isFiduciario = role === 'fiduciario'
+    const TABS = isFiduciario
+        ? [
+            { id: 'panoramica', label: 'Panoramica', icon: User },
+            { id: 'mandati', label: 'Mandati', icon: FolderOpen },
+            { id: 'dipendenti', label: 'Dipendenti', icon: Users },
+            { id: 'documenti', label: 'Documenti', icon: FileText },
+            { id: 'comunicazioni', label: 'Comunicazioni', icon: MessageSquare },
+            { id: 'note_interne', label: 'Note interne', icon: Lock },
+            { id: 'pagamenti', label: 'Pagamenti', icon: CreditCard },
+        ]
+        : [
+            { id: 'panoramica', label: 'Panoramica', icon: User },
+            { id: 'pratiche', label: 'Pratiche', icon: FolderOpen },
+            { id: 'documenti', label: 'Documenti', icon: FileText },
+            { id: 'comunicazioni', label: 'Comunicazioni', icon: MessageSquare },
+            { id: 'note_interne', label: 'Note interne', icon: Lock },
+            { id: 'pagamenti', label: 'Pagamenti', icon: CreditCard },
+        ]
     const [cliente, setCliente] = useState(null)
     const [tab, setTab] = useState('panoramica')
     const [pratiche, setPratiche] = useState([])
@@ -1196,8 +1405,10 @@ export default function AvvocatoClientiDettaglio() {
             const { data: { user } } = await supabase.auth.getUser()
             setMeId(user.id)
 
+            // CH: anagrafica svizzera — numero_avs, uid, forma_giuridica, iva_attiva,
+            // citta, cantone, rappr_avs; niente cf/partita_iva/pec/comune/provincia
             const { data: c } = await supabase.from('profiles')
-                .select('id, tipo_soggetto, nome, cognome, ragione_sociale, partita_iva, sede_legale, rappr_nome, rappr_cognome, rappr_cf, rappr_carica, email, telefono, pec, cf, data_nascita, luogo_nascita, indirizzo, comune, provincia, cap, note_iniziali, avvocato_id, created_at')
+                .select('id, tipo_soggetto, nome, cognome, ragione_sociale, uid, forma_giuridica, iva_attiva, sede_legale, rappr_nome, rappr_cognome, rappr_avs, rappr_carica, email, telefono, numero_avs, data_nascita, luogo_nascita, indirizzo, citta, cantone, cap, note_iniziali, avvocato_id, created_at')
                 .eq('id', id).single()
             if (c) {
                 const cliente = { ...c, tipo_soggetto: c.tipo_soggetto ?? 'persona_fisica' }
@@ -1236,21 +1447,22 @@ export default function AvvocatoClientiDettaglio() {
                         nome: formCliente.nome,
                         cognome: formCliente.cognome,
                         ragione_sociale: formCliente.ragione_sociale,
-                        partita_iva: formCliente.partita_iva,
+                        uid: formCliente.uid,
+                        forma_giuridica: formCliente.forma_giuridica,
+                        iva_attiva: formCliente.iva_attiva,
                         sede_legale: formCliente.sede_legale,
                         rappr_nome: formCliente.rappr_nome,
                         rappr_cognome: formCliente.rappr_cognome,
-                        rappr_cf: formCliente.rappr_cf,
+                        rappr_avs: formCliente.rappr_avs,
                         rappr_carica: formCliente.rappr_carica,
-                        cf: formCliente.cf,
+                        numero_avs: formCliente.numero_avs,
                         data_nascita: formCliente.data_nascita,
                         luogo_nascita: formCliente.luogo_nascita,
                         email: formCliente.email,
                         telefono: formCliente.telefono,
-                        pec: formCliente.pec,
                         indirizzo: formCliente.indirizzo,
-                        comune: formCliente.comune,
-                        provincia: formCliente.provincia,
+                        citta: formCliente.citta,
+                        cantone: formCliente.cantone,
                         cap: formCliente.cap,
                         avvocato_id: avvocatoId || null,
                     }),
@@ -1355,23 +1567,29 @@ export default function AvvocatoClientiDettaglio() {
                                             <InputField label="Nome" {...fc('nome')} />
                                             <InputField label="Cognome" {...fc('cognome')} />
                                         </div>
-                                        <InputField label="Codice fiscale" {...fc('cf')} />
+                                        <InputField label="Numero AVS" placeholder="756.XXXX.XXXX.XX" {...fc('numero_avs')} />
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
                                                 <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Data nascita</label>
                                                 <input type="date" {...fc('data_nascita')}
                                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50" />
                                             </div>
-                                            <InputField label="Luogo nascita" placeholder="Es. Milano" {...fc('luogo_nascita')} />
+                                            <InputField label="Luogo nascita" placeholder="Es. Lugano" {...fc('luogo_nascita')} />
                                         </div>
                                     </>
                                 ) : (
                                     <>
                                         <InputField label="Ragione sociale" {...fc('ragione_sociale')} />
                                         <div className="grid grid-cols-2 gap-3">
-                                            <InputField label="Partita IVA" {...fc('partita_iva')} />
-                                            <InputField label="Codice fiscale" {...fc('cf')} />
+                                            <InputField label="Numero UID" placeholder="CHE-XXX.XXX.XXX" {...fc('uid')} />
+                                            <InputField label="Forma giuridica" placeholder="Es. SA, Sàrl" {...fc('forma_giuridica')} />
                                         </div>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={!!formCliente.iva_attiva}
+                                                onChange={e => setFormCliente(p => ({ ...p, iva_attiva: e.target.checked }))}
+                                                className="accent-oro w-4 h-4" />
+                                            <span className="font-body text-sm text-nebbia/70">Assoggettato IVA</span>
+                                        </label>
                                         <InputField label="Sede legale" {...fc('sede_legale')} />
                                         <div className="border-t border-white/8 pt-3 space-y-3">
                                             <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">Rappresentante legale</p>
@@ -1380,8 +1598,8 @@ export default function AvvocatoClientiDettaglio() {
                                                 <InputField label="Cognome" {...fc('rappr_cognome')} />
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <InputField label="CF rappresentante" {...fc('rappr_cf')} />
-                                                <InputField label="Carica" placeholder="Es. Amministratore Unico" {...fc('rappr_carica')} />
+                                                <InputField label="Numero AVS rappr." placeholder="756.XXXX.XXXX.XX" {...fc('rappr_avs')} />
+                                                <InputField label="Carica" placeholder="Es. Amministratore" {...fc('rappr_carica')} />
                                             </div>
                                         </div>
                                     </>
@@ -1390,22 +1608,19 @@ export default function AvvocatoClientiDettaglio() {
                                 <div className="border-t border-white/8 pt-3 space-y-3">
                                     <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">Contatti</p>
                                     <InputField label="Email" type="email" {...fc('email')} />
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <InputField label="Telefono" {...fc('telefono')} />
-                                        <InputField label="PEC" {...fc('pec')} />
-                                    </div>
+                                    <InputField label="Telefono" placeholder="+41 ..." {...fc('telefono')} />
                                 </div>
 
                                 <div className="border-t border-white/8 pt-3 space-y-3">
                                     <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">Indirizzo</p>
-                                    <InputField label="Indirizzo" placeholder="Via Roma 1" {...fc('indirizzo')} />
+                                    <InputField label="Indirizzo" placeholder="Via ..." {...fc('indirizzo')} />
                                     <div className="grid grid-cols-3 gap-3">
                                         <div className="col-span-2">
-                                            <InputField label="Comune" {...fc('comune')} />
+                                            <InputField label="Località" placeholder="Es. Lugano" {...fc('citta')} />
                                         </div>
-                                        <InputField label="Provincia" placeholder="MI" {...fc('provincia')} />
+                                        <InputField label="Cantone" placeholder="TI" {...fc('cantone')} />
                                     </div>
-                                    <InputField label="CAP" {...fc('cap')} />
+                                    <InputField label="NPA" placeholder="6900" {...fc('cap')} />
                                 </div>
 
                                 {erroreCliente && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20"><AlertCircle size={14} /> {erroreCliente}</div>}
@@ -1414,8 +1629,8 @@ export default function AvvocatoClientiDettaglio() {
                             <div className="space-y-3">
                                 {isPF ? [
                                     ['Nome completo', `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`.trim() || '—'],
-                                    ['Codice fiscale', cliente.cf || '—'],
-                                    ['Data nascita', cliente.data_nascita ? new Date(cliente.data_nascita).toLocaleDateString('it-IT') : '—'],
+                                    ['Numero AVS', cliente.numero_avs || '—'],
+                                    ['Data nascita', cliente.data_nascita ? new Date(cliente.data_nascita).toLocaleDateString('it-CH') : '—'],
                                     ['Luogo nascita', cliente.luogo_nascita || '—'],
                                 ].map(([l, v]) => (
                                     <div key={l} className="flex justify-between border-b border-white/5 pb-2">
@@ -1424,8 +1639,9 @@ export default function AvvocatoClientiDettaglio() {
                                     </div>
                                 )) : [
                                     ['Ragione sociale', cliente.ragione_sociale || '—'],
-                                    ['Partita IVA', cliente.partita_iva || '—'],
-                                    ['Codice fiscale', cliente.cf || '—'],
+                                    ['Numero UID', cliente.uid || '—'],
+                                    ['Forma giuridica', cliente.forma_giuridica || '—'],
+                                    ['Assoggettato IVA', cliente.iva_attiva ? 'Sì' : 'No'],
                                     ['Sede legale', cliente.sede_legale || '—'],
                                 ].map(([l, v]) => (
                                     <div key={l} className="flex justify-between border-b border-white/5 pb-2">
@@ -1439,7 +1655,7 @@ export default function AvvocatoClientiDettaglio() {
                                         <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Rappresentante legale</p>
                                         {[
                                             ['Nome', `${cliente.rappr_nome ?? ''} ${cliente.rappr_cognome ?? ''}`.trim() || '—'],
-                                            ['Codice fiscale', cliente.rappr_cf || '—'],
+                                            ['Numero AVS', cliente.rappr_avs || '—'],
                                             ['Carica', cliente.rappr_carica || '—'],
                                         ].map(([l, v]) => (
                                             <div key={l} className="flex justify-between border-b border-white/5 pb-2">
@@ -1455,7 +1671,6 @@ export default function AvvocatoClientiDettaglio() {
                                     {[
                                         ['Email', cliente.email],
                                         ['Telefono', cliente.telefono || '—'],
-                                        ['PEC', cliente.pec || '—'],
                                     ].map(([l, v]) => (
                                         <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                             <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -1468,9 +1683,9 @@ export default function AvvocatoClientiDettaglio() {
                                     <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Indirizzo</p>
                                     {[
                                         ['Indirizzo', cliente.indirizzo || '—'],
-                                        ['Comune', cliente.comune || '—'],
-                                        ['Provincia', cliente.provincia || '—'],
-                                        ['CAP', cliente.cap || '—'],
+                                        ['Località', cliente.citta || '—'],
+                                        ['Cantone', cliente.cantone || '—'],
+                                        ['NPA', cliente.cap || '—'],
                                     ].map(([l, v]) => (
                                         <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                             <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -1517,7 +1732,7 @@ export default function AvvocatoClientiDettaglio() {
                                             <div className="flex items-center gap-1.5 shrink-0 px-2 py-1 bg-red-900/20 border border-red-500/25">
                                                 <Calendar size={10} className="text-red-400" />
                                                 <span className="font-body text-xs text-red-400/80">
-                                                    Udienza {new Date(p.prossima_udienza).toLocaleDateString('it-IT')}
+                                                    Udienza {new Date(p.prossima_udienza).toLocaleDateString('it-CH')}
                                                 </span>
                                             </div>
                                         )}
@@ -1535,6 +1750,8 @@ export default function AvvocatoClientiDettaglio() {
                 </div>
             )}
 
+            {tab === 'mandati' && <GestioneMandati clienteId={id} />}
+            {tab === 'dipendenti' && <GestioneDipendenti clienteId={id} />}
             {tab === 'documenti' && <TabDocumenti clienteId={id} />}
             {tab === 'comunicazioni' && <TabComunicazioni clienteId={id} />}
             {tab === 'note_interne' && <TabNoteInterne clienteId={id} />}

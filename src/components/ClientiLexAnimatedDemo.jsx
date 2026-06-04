@@ -1,67 +1,56 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sparkles } from 'lucide-react'
 
 /**
- * ClientiLexAnimatedDemo
+ * ClientiLexAnimatedDemo — i18n ready
  * ────────────────────────────────────────────────────────
- * Home — Sezione "Funzionalita" — blocco Agente clienti.
+ * Home — Sezione "Funzionalità" — blocco Agente clienti.
  *
  * Chat conversazionale: typing della domanda, spinner, poi typing
  * progressivo della risposta di Lex come fa la chat vera in streaming.
+ *
+ * I segmenti della risposta vengono da risposta_segments nel JSON.
+ * Ogni segmento ha { type: 'text'|'strong'|'alert'|'italic'|'break', text }
  *
  * IntersectionObserver con threshold + rootMargin centrale.
  * One-shot. ~9s totale.
  */
 
-const DOMANDA = 'Fammi un resoconto sul cliente Mario Rossi.'
-
-// Risposta segmentata: ogni elemento e una sezione che si scrive in sequenza.
-// type='text' = testo normale, type='strong' = testo evidenziato, type='alert' = rosso, type='break' = nuovo paragrafo
-const RISPOSTA = [
-    { type: 'strong', text: 'Mario Rossi' },
-    { type: 'text', text: ' e cliente dal ' },
-    { type: 'strong', text: '14 marzo 2024' },
-    { type: 'text', text: '. Ha 3 pratiche: 2 chiuse (locazione e successione) e una aperta dall agosto 2025 sulla causa civile in materia di locazione.' },
-    { type: 'break', text: '' },
-    { type: 'text', text: 'Hai fatturato ' },
-    { type: 'strong', text: 'EUR 8.450' },
-    { type: 'text', text: ' e incassato ' },
-    { type: 'strong', text: 'EUR 7.350' },
-    { type: 'text', text: '. Resta in attesa la fattura 2026/041 da ' },
-    { type: 'alert', text: 'EUR 1.100, scaduta da 42 giorni' },
-    { type: 'text', text: '.' },
-    { type: 'break', text: '' },
-    { type: 'text', text: 'Prossimi impegni: udienza il ' },
-    { type: 'strong', text: '28/05/2026' },
-    { type: 'text', text: ' al Tribunale di Milano e appuntamento il 22/05/2026 alle 15:00.' },
-    { type: 'break', text: '' },
-    { type: 'italic', text: 'Ti suggerisco di sollecitare la fattura prima dell udienza.' },
-]
-
-// Lunghezza totale per calcolo durata
-const RISPOSTA_TOTAL_CHARS = RISPOSTA.reduce((acc, s) => acc + s.text.length, 0)
-
-// ── Velocita typing ─────────────────────────────────────
 const TYPE_SPEED_BASE_DOMANDA = 50
 const TYPE_SPEED_VAR_DOMANDA = 25
-const TYPE_SPEED_RISPOSTA = 15  // piu veloce, come streaming AI
+const TYPE_SPEED_RISPOSTA = 15
 
-// ── Timeline (ms dall'avvio) ─────────────────────────────
 const T_TYPING_START = 600
 const T_PAUSA_PRE_SUBMIT = 500
 const T_LOADER_DUR = 1200
 
-// Durata stimata del typing della risposta
-const T_RISPOSTA_DURATION = RISPOSTA_TOTAL_CHARS * TYPE_SPEED_RISPOSTA
-
-const T_END = T_TYPING_START
-    + DOMANDA.length * (TYPE_SPEED_BASE_DOMANDA + 10)
-    + T_PAUSA_PRE_SUBMIT
-    + T_LOADER_DUR
-    + T_RISPOSTA_DURATION
-    + 800
-
 export default function ClientiLexAnimatedDemo() {
+    const { t } = useTranslation('lex_demo')
+
+    // Helper: forza qualsiasi valore a essere un array
+    const toArray = (val) => Array.isArray(val) ? val : []
+    // Helper: forza qualsiasi valore a essere una stringa
+    const toString = (val) => typeof val === 'string' ? val : ''
+
+    const DOMANDA = toString(t('domanda'))
+    const RISPOSTA = toArray(t('risposta_segments', { returnObjects: true }))
+    const LOADER_TEXT = toString(t('loader_text'))
+    const HEADER_LABEL = toString(t('header_label'))
+
+    const RISPOSTA_TOTAL_CHARS = Array.isArray(RISPOSTA)
+        ? RISPOSTA.reduce((acc, s) => acc + (s.text?.length || 0), 0)
+        : 0
+
+    const T_RISPOSTA_DURATION = RISPOSTA_TOTAL_CHARS * TYPE_SPEED_RISPOSTA
+
+    const T_END = T_TYPING_START
+        + DOMANDA.length * (TYPE_SPEED_BASE_DOMANDA + 10)
+        + T_PAUSA_PRE_SUBMIT
+        + T_LOADER_DUR
+        + T_RISPOSTA_DURATION
+        + 800
+
     const sectionRef = useRef(null)
     const startTimeRef = useRef(null)
     const [started, setStarted] = useState(false)
@@ -70,7 +59,6 @@ export default function ClientiLexAnimatedDemo() {
     const [domandaDoneTimestamp, setDomandaDoneTimestamp] = useState(null)
     const [rispostaCharIndex, setRispostaCharIndex] = useState(0)
 
-    // ── IntersectionObserver ────────────────────────────────
     useEffect(() => {
         if (!sectionRef.current || started) return
         const observer = new IntersectionObserver(
@@ -89,14 +77,12 @@ export default function ClientiLexAnimatedDemo() {
         return () => observer.disconnect()
     }, [started])
 
-    // ── startTime ───────────────────────────────────────────
     useEffect(() => {
         if (started && !startTimeRef.current) {
             startTimeRef.current = performance.now()
         }
     }, [started])
 
-    // ── Tick globale ────────────────────────────────────────
     useEffect(() => {
         if (!started) return
         const startTime = performance.now()
@@ -112,9 +98,8 @@ export default function ClientiLexAnimatedDemo() {
         }
         raf = requestAnimationFrame(tick)
         return () => cancelAnimationFrame(raf)
-    }, [started])
+    }, [started, T_END])
 
-    // ── Typing DOMANDA (utente) ─────────────────────────────
     useEffect(() => {
         if (!started) return
         let timeoutId
@@ -146,9 +131,8 @@ export default function ClientiLexAnimatedDemo() {
             cancelled = true
             clearTimeout(timeoutId)
         }
-    }, [started])
+    }, [started, DOMANDA])
 
-    // ── Stati derivati ──────────────────────────────────────
     const sinceDomandaDone = domandaDoneTimestamp !== null ? now - domandaDoneTimestamp : 0
     const domandaDone = domandaDoneTimestamp !== null
 
@@ -159,7 +143,6 @@ export default function ClientiLexAnimatedDemo() {
     const rispostaShouldStart = domandaDone && sinceDomandaDone >= T_PAUSA_PRE_SUBMIT + T_LOADER_DUR
     const rispostaVisible = rispostaShouldStart
 
-    // ── Typing RISPOSTA (Lex) ───────────────────────────────
     useEffect(() => {
         if (!rispostaShouldStart) return
         if (rispostaCharIndex >= RISPOSTA_TOTAL_CHARS) return
@@ -169,10 +152,11 @@ export default function ClientiLexAnimatedDemo() {
         }, TYPE_SPEED_RISPOSTA)
 
         return () => clearTimeout(timeoutId)
-    }, [rispostaShouldStart, rispostaCharIndex])
+    }, [rispostaShouldStart, rispostaCharIndex, RISPOSTA_TOTAL_CHARS])
 
-    // ── Helper: rendering risposta progressivo ──────────────
     const renderRisposta = () => {
+        if (!Array.isArray(RISPOSTA)) return null
+
         let charsRemaining = rispostaCharIndex
         const elements = []
 
@@ -207,7 +191,6 @@ export default function ClientiLexAnimatedDemo() {
         return elements
     }
 
-    // ── Cursori ─────────────────────────────────────────────
     const isTypingDomanda = started && now >= T_TYPING_START && !domandaDone
     const showCursorDomanda = isTypingDomanda || (started && now >= T_TYPING_START - 200 && now < T_TYPING_START + 200)
 
@@ -216,19 +199,17 @@ export default function ClientiLexAnimatedDemo() {
 
     return (
         <div ref={sectionRef} className="bg-slate border border-salvia/15 overflow-hidden h-full flex flex-col">
-            {/* Header finestra */}
             <div className="px-4 py-2.5 border-b border-white/5 bg-petrolio/40 flex items-center gap-2">
                 <div className="flex gap-1">
                     <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
                     <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
                     <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
                 </div>
-                <span className="font-body text-xs text-nebbia/25 ml-2">Lex AI</span>
+                <span className="font-body text-xs text-nebbia/25 ml-2">{HEADER_LABEL}</span>
             </div>
 
             <div className="p-5 space-y-3 flex-1 min-h-[260px]">
 
-                {/* Bubble utente */}
                 <div className="flex justify-end">
                     <div className="max-w-[85%] bg-petrolio/60 border border-white/5 px-3.5 py-2.5">
                         <span className="font-body text-xs text-nebbia/70 leading-relaxed">
@@ -240,22 +221,20 @@ export default function ClientiLexAnimatedDemo() {
                     </div>
                 </div>
 
-                {/* Loader */}
                 {loaderVisible && (
                     <div className="flex">
                         <div className="flex items-center gap-2 px-3.5 py-2.5 bg-salvia/5 border border-salvia/15">
                             <span className="animate-spin w-3 h-3 border border-salvia/40 border-t-salvia rounded-full" />
-                            <span className="font-body text-xs text-salvia/60 italic">Lex sta analizzando...</span>
+                            <span className="font-body text-xs text-salvia/60 italic">{LOADER_TEXT}</span>
                         </div>
                     </div>
                 )}
 
-                {/* Risposta Lex - typing progressivo */}
                 {rispostaVisible && (
                     <div className="flex">
                         <div className="max-w-[95%] bg-salvia/5 border border-salvia/15 px-3.5 py-3 space-y-1">
                             <p className="font-body text-xs text-salvia/80 font-medium flex items-center gap-1 mb-2">
-                                <Sparkles size={10} /> Lex AI
+                                <Sparkles size={10} /> {HEADER_LABEL}
                             </p>
                             <div className="font-body text-xs leading-relaxed">
                                 {renderRisposta()}

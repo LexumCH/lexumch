@@ -1,3 +1,11 @@
+// src/components/avvocato/UdienzaModal.jsx — Lexum CH
+//
+// Identico all'IT salvo TIPI_UDIENZA (terminologia processuale svizzera
+// federale CPC/CPP). Timezone e colonne già allineati allo schema CH:
+//   - data_ora / data_rinvio scritti con new Date(`${data}T${ora}:00`).toISOString()
+//   - sync con appuntamenti (data_ora_inizio/fine) via .toISOString()
+// Date di visualizzazione: il file usa slice ISO, neutro.
+
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import {
@@ -5,51 +13,39 @@ import {
     AlertCircle, Loader2, Trash2, FileText
 } from 'lucide-react'
 
-// Tipi udienza raggruppati per area
+// Tipi udienza raggruppati per area — terminologia federale CH (CPC/CPP)
 const TIPI_UDIENZA = {
-    'Civile': [
-        'Prima comparizione (art. 183 c.p.c.)',
-        'Trattazione',
-        'Istruttoria - prove orali',
-        'Istruttoria - CTU',
-        'Discussione orale',
-        'Precisazione conclusioni',
-        'Decisione',
-    ],
-    'Penale': [
-        'Udienza preliminare (GUP)',
-        'Convalida arresto/fermo',
-        'Riesame',
-        'Dibattimento',
-        'Esame imputato',
-        'Esame testi',
+    'Civile (CPC)': [
+        'Udienza di conciliazione',
+        'Dibattimento principale',
+        'Udienza istruttoria',
+        'Interrogatorio delle parti',
+        'Audizione testimoni',
         'Discussione finale',
-        'Lettura sentenza',
+        'Procedura sommaria',
     ],
-    'Lavoro': [
-        'Discussione (rito Fornero)',
-        'Tentativo di conciliazione',
-        'Istruttoria',
+    'Penale (CPP)': [
+        'Dibattimento di primo grado',
+        'Udienza dibattimentale d\'appello',
+        'Interrogatorio dell\'imputato',
+        'Audizione testimoni / periti',
+        'Convalida della carcerazione',
+        'Procedura del decreto d\'accusa',
+        'Comunicazione della sentenza',
     ],
-    'Amministrativo/Tributario': [
-        'Camera di consiglio',
+    'Amministrativo / Esecuzioni': [
         'Udienza pubblica',
-        'Cautelare (sospensiva)',
-        'Pubblica discussione',
+        'Deliberazione (camera di consiglio)',
+        'Udienza cautelare (misure provvisionali)',
+        'Pignoramento / esecuzione (LEF)',
+        'Udienza fallimentare (LEF)',
     ],
-    'Famiglia/Minori': [
-        'Comparizione personale parti',
-        'Audizione minore',
-        'Camera di consiglio (famiglia)',
+    'Famiglia / Protezione': [
+        'Audizione delle parti',
+        'Audizione del minore',
+        'Misure a protezione dell\'unione coniugale',
     ],
-    'Esecuzioni/Fallimentare': [
-        'Esecutiva immobiliare',
-        'Esecutiva mobiliare',
-        'Verifica crediti',
-        'Dichiarazione fallimento',
-        'Adunanza creditori',
-    ],
-    'Arbitrato/Mediazione': [
+    'Arbitrato / ADR': [
         'Mediazione',
         'Arbitrato',
         'Conciliazione',
@@ -165,7 +161,7 @@ export default function UdienzaModal({
         try {
             const { data: { user } } = await supabase.auth.getUser()
 
-            // Costruisci data_ora
+            // Costruisci data_ora (timestamptz)
             const dataOra = new Date(`${form.data}T${form.ora || '09:00'}:00`)
 
             const payload = {
@@ -424,7 +420,7 @@ export default function UdienzaModal({
                             type="text"
                             value={form.oggetto}
                             onChange={e => aggiorna('oggetto', e.target.value)}
-                            placeholder="Es. Discussione testimoniale, comparizione personale parti..."
+                            placeholder="Es. Audizione testimoni, interrogatorio delle parti..."
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                         />
                     </div>
@@ -439,14 +435,14 @@ export default function UdienzaModal({
                                 type="text"
                                 value={form.tribunale}
                                 onChange={e => aggiorna('tribunale', e.target.value)}
-                                placeholder="Tribunale (es. Milano)"
+                                placeholder="Tribunale / Pretura (es. Lugano)"
                                 className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                             <input
                                 type="text"
                                 value={form.sezione}
                                 onChange={e => aggiorna('sezione', e.target.value)}
-                                placeholder="Sezione (es. III Civile)"
+                                placeholder="Sezione / Camera"
                                 className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                             <input
@@ -460,7 +456,7 @@ export default function UdienzaModal({
                                 type="text"
                                 value={form.giudice}
                                 onChange={e => aggiorna('giudice', e.target.value)}
-                                placeholder="Giudice / Magistrato"
+                                placeholder="Giudice / Pretore"
                                 className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                         </div>

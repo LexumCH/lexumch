@@ -96,10 +96,10 @@ export default function ClienteFatture() {
                                                 € {parseFloat(f.importo).toFixed(2)}
                                             </td>
                                             <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
-                                                {f.data_emissione ? new Date(f.data_emissione).toLocaleDateString('it-IT') : '—'}
+                                                {f.data_emissione ? new Date(f.data_emissione).toLocaleDateString('it-CH') : '—'}
                                             </td>
                                             <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
-                                                {f.data_scadenza ? new Date(f.data_scadenza).toLocaleDateString('it-IT') : '—'}
+                                                {f.data_scadenza ? new Date(f.data_scadenza).toLocaleDateString('it-CH') : '—'}
                                             </td>
                                             <td className="px-4 py-3"><Badge label={st.label} variant={st.variant} /></td>
                                         </tr>

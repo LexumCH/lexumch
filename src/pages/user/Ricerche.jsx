@@ -8,7 +8,7 @@ import {
     Sparkles, Search, Plus, X, Loader2, AlertCircle, Check, Save,
     Tag, Edit2, Trash2, Filter, FolderOpen, MessageSquare,
     AlertTriangle, ChevronRight, GitCompare, Square, CheckSquare,
-    BookOpen, Landmark, ScrollText, ExternalLink,
+    BookOpen, Landmark, ScrollText, ExternalLink, MapPin, Globe, Scale,
 } from 'lucide-react'
 import AggiungiAPratica from '@/components/AggiungiAPratica'
 
@@ -19,19 +19,96 @@ const PALETTE = [
 
 const TIPI_RICERCA = ['ricerca_ai', 'ricerca_manuale', 'chat_lex']
 
+// Tipi corpus CH (granulari, 1:1 con la tabella di provenienza)
+const TIPI_CORPUS = ['norma_federale', 'norma_cantonale', 'norma_ue', 'giurisprudenza', 'sentenza_ue', 'prassi']
+
 const FILTRO_TIPI = [
     { id: 'tutti', label: 'Tutti' },
     { id: 'ricerca_ai', label: 'Ricerche AI' },
     { id: 'ricerca_manuale', label: 'Ricerche manuali' },
     { id: 'chat_lex', label: 'Chat con Lex' },
-    { id: 'norma', label: 'Norme' },
-    { id: 'sentenza', label: 'Sentenze' },
+    { id: 'norma_federale', label: 'Norme federali' },
+    { id: 'norma_cantonale', label: 'Norme cantonali' },
+    { id: 'norma_ue', label: 'Norme UE' },
+    { id: 'giurisprudenza', label: 'Giurisprudenza' },
+    { id: 'sentenza_ue', label: 'Sentenze UE' },
     { id: 'prassi', label: 'Prassi' },
 ]
 
 const LIMITE_ORFANE = 20
 const SOGLIA_AVVISO = 15
 const MAX_CONFRONTO = 3
+
+// ── Risoluzione multilingua (replicata dalle pagine dettaglio CH) ──
+const ORDINE_LINGUE = ['it', 'de', 'fr', 'en', 'rm']
+
+function risolviJsonb(campo, linguaPref) {
+    if (campo && typeof campo === 'object') {
+        if (linguaPref && campo[linguaPref]) return campo[linguaPref]
+        for (const k of ORDINE_LINGUE) if (campo[k]) return campo[k]
+    }
+    return null
+}
+
+function risolviTitoloGiur(s, linguaPref) {
+    const ordine = [linguaPref, 'it', 'de', 'fr'].filter(Boolean)
+    for (const l of ordine) {
+        const v = s[`titolo_${l}`]
+        if (v && v.trim()) return v
+    }
+    return s.signature ?? s.reference ?? '—'
+}
+
+// Label fonti giurisprudenza (allineate a SentenzaDettaglio CH)
+const FONTI_FEDERALI = {
+    TF: 'Tribunale federale',
+    CH_BGE: 'DTF — Raccolta ufficiale',
+    TAF: 'Tribunale amministrativo federale',
+    TPF: 'Tribunale penale federale',
+}
+const CAMERA_LABEL = {
+    OG: 'Obergericht',
+    VG: 'Verwaltungsgericht',
+    SVG: 'Sozialversicherungsgericht',
+    BR: 'Baurekursgericht',
+    SR: 'Steuerrekursgericht',
+    FI: 'Tribunal',
+}
+function labelFonteGiur(fonte) {
+    if (!fonte) return '—'
+    if (FONTI_FEDERALI[fonte]) return FONTI_FEDERALI[fonte]
+    const m = /^CANT_([A-Z]{2})_(.+)$/.exec(fonte)
+    if (m) {
+        const cam = CAMERA_LABEL[m[2]] ?? m[2]
+        return `${m[1]} · ${cam}`
+    }
+    return fonte
+}
+
+// Label emittenti prassi (allineate a PrassiDettaglio CH)
+const EMITTENTI_FEDERALI = {
+    estv: 'AFC — Contribuzioni federali',
+    ufas: 'UFAS — Assicurazioni sociali',
+    seco: 'SECO — Economia',
+    finma: 'FINMA — Vigilanza finanziaria',
+    udsc: 'UDSC — Dogane',
+    sem: 'SEM — Migrazione',
+    ufg: 'UFG — Giustizia',
+    weko: 'COMCO — Concorrenza',
+    ifpdt: 'IFPDT — Protezione dati',
+    mros: 'MROS — Riciclaggio',
+}
+function troncaEmittente(nome) {
+    if (!nome) return ''
+    const primo = nome.split(/[\/|;]/)[0].trim()
+    return primo.length > 60 ? primo.slice(0, 60) + '…' : primo
+}
+function labelFontePrassi(p) {
+    if (p.fonte === 'fisco_cant') {
+        return p.cantone ? `Fisco cantonale · ${p.cantone}` : 'Fisco cantonale'
+    }
+    return EMITTENTI_FEDERALI[p.fonte] ?? (p.emittente_nome ? troncaEmittente(p.emittente_nome) : (p.fonte ?? '—'))
+}
 
 function coloreCasuale() {
     return PALETTE[Math.floor(Math.random() * PALETTE.length)]
@@ -47,7 +124,6 @@ function evidenziaParola(testo, cerca) {
 function evidenziaParoleMultiple(testo, parole, classe = 'bg-salvia/30') {
     if (!parole?.length || !testo) return testo ?? ''
     let risultato = testo
-    // Ordina dalle più lunghe alle più corte per evitare match parziali
     const ordinate = [...parole].sort((a, b) => b.length - a.length)
     for (const parola of ordinate) {
         if (!parola?.trim()) continue
@@ -66,14 +142,17 @@ function corpusElemento(el) {
     if (TIPI_RICERCA.includes(el.kind)) {
         return `${el.titolo ?? ''} ${el.contenuto ?? ''}`.toLowerCase()
     }
-    if (el.kind === 'norma') {
-        return `${el.codice ?? ''} ${el.articolo ?? ''} ${el.rubrica ?? ''} ${el.testo ?? ''}`.toLowerCase()
+    if (el.kind === 'norma_federale' || el.kind === 'norma_cantonale' || el.kind === 'norma_ue') {
+        return `${el.atto_titolo ?? ''} ${el.articolo_label ?? ''} ${el.rubrica ?? ''} ${el.testo ?? ''}`.toLowerCase()
     }
-    if (el.kind === 'sentenza') {
-        return `${el.organo ?? ''} ${el.oggetto ?? ''} ${el.principio_diritto ?? ''}`.toLowerCase()
+    if (el.kind === 'giurisprudenza') {
+        return `${el.organo ?? ''} ${el.oggetto ?? ''} ${el.principio_diritto ?? ''} ${el.titolo ?? ''}`.toLowerCase()
+    }
+    if (el.kind === 'sentenza_ue') {
+        return `${el.organo ?? ''} ${el.oggetto ?? ''} ${el.parti ?? ''}`.toLowerCase()
     }
     if (el.kind === 'prassi') {
-        return `${el.fonte ?? ''} ${el.oggetto ?? ''} ${el.sintesi ?? ''}`.toLowerCase()
+        return `${el.fonte_label ?? ''} ${el.oggetto ?? ''} ${el.titolo ?? ''}`.toLowerCase()
     }
     return ''
 }
@@ -83,8 +162,9 @@ export default function Ricerche() {
     const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
 
-    const basePathEtichette = profile?.role === 'avvocato' ? '/etichette' : '/area/etichette'
-    const basePathBancaDati = profile?.role === 'avvocato' ? '/banca-dati' : '/area'
+    const isPro = profile?.role === 'avvocato' || profile?.role === 'fiduciario'
+    const basePathEtichette = isPro ? '/etichette' : '/area/etichette'
+    const basePathBancaDati = isPro ? '/banca-dati' : '/area'
 
     const [elementi, setElementi] = useState([])
     const [etichette, setEtichette] = useState([])
@@ -114,6 +194,8 @@ export default function Ricerche() {
     const [erroreLex, setErroreLex] = useState('')
 
     const [conteggioOrfane, setConteggioOrfane] = useState(0)
+
+    const linguaPref = (profile?.lingua ?? 'it')
 
     useEffect(() => { caricaTutto() }, [])
     useEffect(() => { caricaRateLimit() }, [])
@@ -177,36 +259,69 @@ export default function Ricerche() {
             setEtichette(e ?? [])
             setPratiche(p ?? [])
 
-            const idsPerTipo = { norma: [], sentenza: [], prassi: [] }
+            // Raccoglie gli id taggati per ciascun tipo corpus CH
+            const idsPerTipo = {
+                norma_federale: [], norma_cantonale: [], norma_ue: [],
+                giurisprudenza: [], sentenza_ue: [], prassi: [],
+            }
             for (const rel of relAll ?? []) {
                 if (idsPerTipo[rel.tipo]) idsPerTipo[rel.tipo].push(rel.elemento_id)
             }
             for (const k of Object.keys(idsPerTipo)) {
                 idsPerTipo[k] = [...new Set(idsPerTipo[k])]
             }
+            // norma_ue ha id BIGINT: converto a numero per la query .in()
+            const idsNormaUe = idsPerTipo.norma_ue.map(x => Number(x)).filter(n => !Number.isNaN(n))
 
-            const [normeRes, giurRes, sentRes, prassiRes] = await Promise.all([
-                idsPerTipo.norma.length > 0
-                    ? supabase.from('norme')
-                        .select('id, codice, articolo, rubrica, testo')
-                        .in('id', idsPerTipo.norma)
+            const [fedArtRes, cantArtRes, ueArtRes, giurRes, ueSentRes, prassiRes] = await Promise.all([
+                idsPerTipo.norma_federale.length > 0
+                    ? supabase.from('norme_ch_articoli')
+                        .select('id, norma_id, articolo_label, rubrica_articolo, testo')
+                        .in('id', idsPerTipo.norma_federale)
                     : Promise.resolve({ data: [] }),
-                idsPerTipo.sentenza.length > 0
-                    ? supabase.from('giurisprudenza')
-                        .select('id, organo, sezione, numero, anno, oggetto, principio_diritto, tipo_provvedimento, data_pubblicazione')
-                        .in('id', idsPerTipo.sentenza)
+                idsPerTipo.norma_cantonale.length > 0
+                    ? supabase.from('norme_cantonali_ch_articoli')
+                        .select('id, norma_id, article_num, article_suffix, rubrica, testo')
+                        .in('id', idsPerTipo.norma_cantonale)
                     : Promise.resolve({ data: [] }),
-                idsPerTipo.sentenza.length > 0
-                    ? supabase.from('sentenze')
-                        .select('id, organo, sezione, numero, anno, oggetto, principio_diritto, tipo_provvedimento, data_pubblicazione')
-                        .in('id', idsPerTipo.sentenza)
+                idsNormaUe.length > 0
+                    ? supabase.from('norme_ue')
+                        .select('id, articolo, rubrica, testo, titolo_doc, titolo_breve, celex')
+                        .in('id', idsNormaUe)
+                    : Promise.resolve({ data: [] }),
+                idsPerTipo.giurisprudenza.length > 0
+                    ? supabase.from('giurisprudenza_ch')
+                        .select('id, fonte, camera_codice, signature, reference, anno_deposito, data_decisione, oggetto, principio_diritto, titolo_it, titolo_de, titolo_fr')
+                        .in('id', idsPerTipo.giurisprudenza)
+                    : Promise.resolve({ data: [] }),
+                idsPerTipo.sentenza_ue.length > 0
+                    ? supabase.from('eur_lex')
+                        .select('id, organo, numero_caso, ecli, celex_id, oggetto, parti, data_decisione')
+                        .in('id', idsPerTipo.sentenza_ue)
                     : Promise.resolve({ data: [] }),
                 idsPerTipo.prassi.length > 0
-                    ? supabase.from('prassi')
-                        .select('id, fonte, numero, anno, oggetto, sintesi, data_pubblicazione')
+                    ? supabase.from('prassi_ch')
+                        .select('id, fonte, cantone, emittente_nome, numero, anno, oggetto, titolo, data_emanazione')
                         .in('id', idsPerTipo.prassi)
                     : Promise.resolve({ data: [] }),
             ])
+
+            // Carico i titoli degli atti padre (federali + cantonali) in batch
+            const fedArt = fedArtRes.data ?? []
+            const cantArt = cantArtRes.data ?? []
+            const fedNormaIds = [...new Set(fedArt.map(a => a.norma_id).filter(Boolean))]
+            const cantNormaIds = [...new Set(cantArt.map(a => a.norma_id).filter(Boolean))]
+
+            const [fedAttiRes, cantAttiRes] = await Promise.all([
+                fedNormaIds.length > 0
+                    ? supabase.from('norme_ch').select('id, titolo, titolo_short, rs_numero').in('id', fedNormaIds)
+                    : Promise.resolve({ data: [] }),
+                cantNormaIds.length > 0
+                    ? supabase.from('norme_cantonali_ch').select('id, title, title_by_lang, abbreviation, canton, systematic_number').in('id', cantNormaIds)
+                    : Promise.resolve({ data: [] }),
+            ])
+            const fedAttiMap = new Map((fedAttiRes.data ?? []).map(a => [a.id, a]))
+            const cantAttiMap = new Map((cantAttiRes.data ?? []).map(a => [a.id, a]))
 
             const elementiUnificati = []
 
@@ -223,59 +338,98 @@ export default function Ricerche() {
                     created_at: ric.created_at,
                 })
             }
-            for (const n of normeRes.data ?? []) {
+
+            // Norme federali (articolo + atto padre)
+            for (const a of fedArt) {
+                const atto = fedAttiMap.get(a.norma_id)
+                const attoTit = atto
+                    ? (risolviJsonb(atto.titolo_short, linguaPref) || risolviJsonb(atto.titolo, linguaPref) || atto.rs_numero || '')
+                    : ''
                 elementiUnificati.push({
-                    kind: 'norma',
-                    id: n.id,
-                    codice: n.codice,
-                    articolo: n.articolo,
-                    rubrica: n.rubrica,
-                    testo: n.testo,
+                    kind: 'norma_federale',
+                    id: a.id,
+                    atto_titolo: attoTit,
+                    rs_numero: atto?.rs_numero ?? null,
+                    articolo_label: a.articolo_label,
+                    rubrica: a.rubrica_articolo,
+                    testo: a.testo,
                     created_at: null,
                 })
             }
-            for (const s of giurRes.data ?? []) {
+
+            // Norme cantonali (articolo + atto padre)
+            for (const a of cantArt) {
+                const atto = cantAttiMap.get(a.norma_id)
+                const attoTit = atto
+                    ? (risolviJsonb(atto.title_by_lang, linguaPref) || atto.title || atto.abbreviation || '')
+                    : ''
+                const artLabel = a.article_num
+                    ? `Art. ${a.article_num}${a.article_suffix ?? ''}`
+                    : null
                 elementiUnificati.push({
-                    kind: 'sentenza',
-                    fonte_sentenza: 'lexum',
-                    id: s.id,
-                    organo: s.organo,
-                    sezione: s.sezione,
-                    numero: s.numero,
-                    anno: s.anno,
-                    oggetto: s.oggetto,
-                    principio_diritto: s.principio_diritto,
-                    tipo_provvedimento: s.tipo_provvedimento,
-                    created_at: s.data_pubblicazione,
+                    kind: 'norma_cantonale',
+                    id: a.id,
+                    atto_titolo: attoTit,
+                    canton: atto?.canton ?? null,
+                    articolo_label: artLabel,
+                    rubrica: a.rubrica,
+                    testo: a.testo,
+                    created_at: null,
                 })
             }
-            for (const s of sentRes.data ?? []) {
-                if (!elementiUnificati.find(x => x.kind === 'sentenza' && x.id === s.id)) {
-                    elementiUnificati.push({
-                        kind: 'sentenza',
-                        fonte_sentenza: 'avvocato',
-                        id: s.id,
-                        organo: s.organo,
-                        sezione: s.sezione,
-                        numero: s.numero,
-                        anno: s.anno,
-                        oggetto: s.oggetto,
-                        principio_diritto: s.principio_diritto,
-                        tipo_provvedimento: s.tipo_provvedimento,
-                        created_at: s.data_pubblicazione,
-                    })
-                }
+
+            // Norme UE (riga unica, no atto padre)
+            for (const a of ueArtRes.data ?? []) {
+                elementiUnificati.push({
+                    kind: 'norma_ue',
+                    id: a.id,
+                    atto_titolo: a.titolo_breve || a.titolo_doc || a.celex || '',
+                    articolo_label: a.articolo ? `Art. ${a.articolo}` : null,
+                    rubrica: a.rubrica,
+                    testo: a.testo,
+                    created_at: null,
+                })
             }
+
+            // Giurisprudenza CH
+            for (const s of giurRes.data ?? []) {
+                elementiUnificati.push({
+                    kind: 'giurisprudenza',
+                    id: s.id,
+                    organo: labelFonteGiur(s.fonte),
+                    titolo: risolviTitoloGiur(s, linguaPref),
+                    numero: s.signature ?? s.reference,
+                    anno: s.anno_deposito,
+                    oggetto: s.oggetto,
+                    principio_diritto: s.principio_diritto,
+                    created_at: s.data_decisione,
+                })
+            }
+
+            // Sentenze UE (eur_lex)
+            for (const s of ueSentRes.data ?? []) {
+                elementiUnificati.push({
+                    kind: 'sentenza_ue',
+                    id: s.id,
+                    organo: s.organo ?? 'CGUE',
+                    numero: s.numero_caso ?? s.ecli ?? s.celex_id,
+                    oggetto: s.oggetto,
+                    parti: s.parti,
+                    created_at: s.data_decisione,
+                })
+            }
+
+            // Prassi CH
             for (const pr of prassiRes.data ?? []) {
                 elementiUnificati.push({
                     kind: 'prassi',
                     id: pr.id,
-                    fonte: pr.fonte,
+                    fonte_label: labelFontePrassi(pr),
                     numero: pr.numero,
                     anno: pr.anno,
                     oggetto: pr.oggetto,
-                    sintesi: pr.sintesi,
-                    created_at: pr.data_pubblicazione,
+                    titolo: pr.titolo,
+                    created_at: pr.data_emanazione,
                 })
             }
 
@@ -327,10 +481,6 @@ export default function Ricerche() {
                 if (!TIPI_RICERCA.includes(el.kind)) return false
                 if (el.pratica_id !== praticaSelezionata) return false
             }
-            // Quando Lex ha filtrato, NON applichiamo anche il match letterale
-            // (Lex ha già selezionato semanticamente). La barra di ricerca rimane visibile
-            // per consentire di iniziare una nuova ricerca, ma il filtraggio letterale
-            // si attiva solo se Lex non è attivo E l'utente ha cliccato "Cerca".
             if (risultatiLexChiavi === null && cercaApplicata.trim()) {
                 if (!corpusElemento(el).includes(cercaApplicata.toLowerCase())) return false
             }
@@ -353,9 +503,7 @@ export default function Ricerche() {
     }
 
     function applicaCercaTradizionale() {
-        // Click esplicito su "Cerca" → applica il testo corrente al filtro
         setCercaApplicata(cerca)
-        // Se Lex era attivo, lo azzera (mutuo esclusione)
         if (risultatiLexChiavi !== null) azzeraRicercaLex()
     }
 
@@ -482,7 +630,7 @@ export default function Ricerche() {
                     <p className="section-label mb-2">Le mie ricerche legali</p>
                     <h1 className="font-display text-4xl font-light text-nebbia">Ricerche</h1>
                     <p className="font-body text-sm text-nebbia/40 mt-1">
-                        Tutto quello che hai pensato, ricercato e taggato — ricerche, norme, sentenze e prassi.
+                        Tutto quello che hai pensato, ricercato e taggato — ricerche, norme, giurisprudenza e prassi.
                     </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -584,7 +732,7 @@ export default function Ricerche() {
                 <>
                     <div className="bg-slate border border-white/5 p-4 space-y-3">
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            Cerca tra le tue ricerche, norme, sentenze e prassi. Usa la ricerca tradizionale per parole chiave letterali, o Lex per query in linguaggio naturale.
+                            Cerca tra le tue ricerche, norme, giurisprudenza e prassi. Usa la ricerca tradizionale per parole chiave letterali, o Lex per query in linguaggio naturale.
                         </p>
 
                         <div className="flex items-stretch gap-2">
@@ -592,7 +740,7 @@ export default function Ricerche() {
                                 <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30 pointer-events-none" />
                                 <input
                                     type="text"
-                                    placeholder="Cerca tra le tue ricerche, norme, sentenze, prassi..."
+                                    placeholder="Cerca tra le tue ricerche, norme, giurisprudenza, prassi..."
                                     value={cerca}
                                     onChange={e => {
                                         const v = e.target.value
@@ -777,7 +925,7 @@ export default function Ricerche() {
                             </p>
                             <p className="font-body text-xs text-nebbia/20 max-w-md mx-auto leading-relaxed">
                                 {elementi.length === 0
-                                    ? 'Le ricerche AI, manuali, chat e gli articoli/sentenze/prassi che taggherai compariranno qui.'
+                                    ? 'Le ricerche AI, manuali, chat e gli elementi (norme, giurisprudenza, prassi) che taggherai compariranno qui.'
                                     : 'Prova a cambiare i filtri o a cercare con parole diverse.'}
                             </p>
                         </div>
@@ -846,7 +994,54 @@ export default function Ricerche() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// CARD ELEMENTO (invariato)
+// META / TITOLO / LINK per tipo (CH) — usato da Card e Colonna
+// ═══════════════════════════════════════════════════════════════
+function metaTipo(kind) {
+    if (kind === 'ricerca_ai') return { Icon: Sparkles, color: 'text-salvia', label: 'Ricerca AI' }
+    if (kind === 'chat_lex') return { Icon: MessageSquare, color: 'text-salvia', label: 'Chat con Lex' }
+    if (kind === 'ricerca_manuale') return { Icon: Search, color: 'text-oro', label: 'Ricerca manuale' }
+    if (kind === 'norma_federale') return { Icon: Landmark, color: 'text-oro', label: 'Norma federale' }
+    if (kind === 'norma_cantonale') return { Icon: MapPin, color: 'text-oro', label: 'Norma cantonale' }
+    if (kind === 'norma_ue') return { Icon: Globe, color: 'text-oro', label: 'Norma UE' }
+    if (kind === 'giurisprudenza') return { Icon: Scale, color: 'text-oro', label: 'Giurisprudenza' }
+    if (kind === 'sentenza_ue') return { Icon: Globe, color: 'text-oro', label: 'Sentenza UE' }
+    if (kind === 'prassi') return { Icon: ScrollText, color: 'text-salvia', label: 'Prassi' }
+    return { Icon: Search, color: 'text-nebbia', label: kind }
+}
+
+function titoloCorpus(el) {
+    if (TIPI_RICERCA.includes(el.kind)) return el.titolo ?? metaTipo(el.kind).label
+    if (el.kind === 'norma_federale' || el.kind === 'norma_cantonale' || el.kind === 'norma_ue') {
+        const parti = [el.atto_titolo, el.articolo_label].filter(Boolean)
+        return parti.join(' · ') || 'Norma'
+    }
+    if (el.kind === 'giurisprudenza') {
+        const parti = [el.organo, el.numero, el.anno].filter(Boolean)
+        return parti.join(' · ') || 'Giurisprudenza'
+    }
+    if (el.kind === 'sentenza_ue') {
+        const parti = [el.organo, el.numero].filter(Boolean)
+        return parti.join(' · ') || 'Sentenza UE'
+    }
+    if (el.kind === 'prassi') {
+        const parti = [el.fonte_label, el.numero && `n. ${el.numero}`, el.anno].filter(Boolean)
+        return parti.join(' · ') || 'Prassi'
+    }
+    return metaTipo(el.kind).label
+}
+
+function linkCorpus(el, basePathBancaDati) {
+    if (el.kind === 'norma_federale') return `${basePathBancaDati}/norma-federale/${el.id}`
+    if (el.kind === 'norma_cantonale') return `${basePathBancaDati}/norma-cantonale/${el.id}`
+    if (el.kind === 'norma_ue') return `${basePathBancaDati}/norma-ue/${el.id}`
+    if (el.kind === 'giurisprudenza') return `${basePathBancaDati}/sentenza-ch/${el.id}`
+    if (el.kind === 'sentenza_ue') return `${basePathBancaDati}/sentenza-ue/${el.id}`
+    if (el.kind === 'prassi') return `${basePathBancaDati}/prassi-ch/${el.id}`
+    return null
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CARD ELEMENTO
 // ═══════════════════════════════════════════════════════════════
 function CardElemento({
     elemento: el, chiave, etichetteElemento, etichetteDisponibili, aperto, onToggleApri, onAggiornata,
@@ -856,8 +1051,6 @@ function CardElemento({
     const [mostraTagPicker, setMostraTagPicker] = useState(false)
     const [eliminando, setEliminando] = useState(false)
 
-    // Helper: usa evidenziazione Lex (salvia, multipla) se attivo, altrimenti
-    // ricerca tradizionale (oro, singola)
     const evidenzia = (testo) => {
         if (attivoLex && paroleChiaveLex?.length > 0) {
             return evidenziaParoleMultiple(testo, paroleChiaveLex, 'bg-salvia/30')
@@ -865,35 +1058,14 @@ function CardElemento({
         return evidenziaParola(testo, cerca)
     }
 
-    const meta = (() => {
-        if (el.kind === 'ricerca_ai') return { Icon: Sparkles, color: 'text-salvia', label: 'Ricerca AI' }
-        if (el.kind === 'chat_lex') return { Icon: MessageSquare, color: 'text-salvia', label: 'Chat con Lex' }
-        if (el.kind === 'ricerca_manuale') return { Icon: Search, color: 'text-oro', label: 'Ricerca manuale' }
-        if (el.kind === 'norma') return { Icon: BookOpen, color: 'text-oro', label: 'Norma' }
-        if (el.kind === 'sentenza') return { Icon: Landmark, color: 'text-oro', label: 'Sentenza' }
-        if (el.kind === 'prassi') return { Icon: ScrollText, color: 'text-salvia', label: 'Prassi' }
-        return { Icon: Search, color: 'text-nebbia', label: el.kind }
-    })()
-    const { Icon, color, label } = meta
-
-    const titolo = (() => {
-        if (TIPI_RICERCA.includes(el.kind)) return el.titolo ?? label
-        if (el.kind === 'norma') return `${el.codice?.toUpperCase() ?? ''} · Art. ${el.articolo}`
-        if (el.kind === 'sentenza') {
-            const parti = [el.organo, el.sezione, el.numero && `n. ${el.numero}`, el.anno].filter(Boolean)
-            return parti.join(' · ') || 'Sentenza'
-        }
-        if (el.kind === 'prassi') {
-            const parti = [el.fonte, el.numero && `n. ${el.numero}`, el.anno].filter(Boolean)
-            return parti.join(' · ') || 'Prassi'
-        }
-        return label
-    })()
+    const { Icon, color, label } = metaTipo(el.kind)
+    const titolo = titoloCorpus(el)
 
     const sottotitolo = (() => {
-        if (el.kind === 'norma') return el.rubrica ?? ''
-        if (el.kind === 'sentenza') return el.oggetto ?? ''
-        if (el.kind === 'prassi') return el.oggetto ?? ''
+        if (el.kind === 'norma_federale' || el.kind === 'norma_cantonale' || el.kind === 'norma_ue') return el.rubrica ?? ''
+        if (el.kind === 'giurisprudenza') return el.titolo ?? el.oggetto ?? ''
+        if (el.kind === 'sentenza_ue') return el.oggetto ?? el.parti ?? ''
+        if (el.kind === 'prassi') return el.titolo ?? el.oggetto ?? ''
         return null
     })()
 
@@ -901,22 +1073,14 @@ function CardElemento({
         if (TIPI_RICERCA.includes(el.kind)) {
             return (el.contenuto ?? '').replace(/[#*_`]/g, '').slice(0, 400)
         }
-        if (el.kind === 'norma') return (el.testo ?? '').slice(0, 400)
-        if (el.kind === 'sentenza') return el.principio_diritto ?? ''
-        if (el.kind === 'prassi') return el.sintesi ?? ''
+        if (el.kind === 'norma_federale' || el.kind === 'norma_cantonale' || el.kind === 'norma_ue') return (el.testo ?? '').slice(0, 400)
+        if (el.kind === 'giurisprudenza') return el.principio_diritto ?? el.oggetto ?? ''
+        if (el.kind === 'sentenza_ue') return el.oggetto ?? ''
+        if (el.kind === 'prassi') return el.oggetto ?? ''
         return ''
     })()
 
-    const linkDettaglio = (() => {
-        if (el.kind === 'norma') return `${basePathBancaDati}/norma/${el.id}`
-        if (el.kind === 'sentenza') {
-            return el.fonte_sentenza === 'lexum'
-                ? `${basePathBancaDati}/lexum/${el.id}`
-                : `${basePathBancaDati}/avvocato/${el.id}`
-        }
-        if (el.kind === 'prassi') return `${basePathBancaDati}/prassi/${el.id}`
-        return null
-    })()
+    const linkDettaglio = linkCorpus(el, basePathBancaDati)
 
     async function elimina() {
         if (TIPI_RICERCA.includes(el.kind)) {
@@ -995,7 +1159,7 @@ function CardElemento({
                         <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-wider">
                             {label}
                             {el.created_at && (
-                                <> · {new Date(el.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}</>
+                                <> · {new Date(el.created_at).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })}</>
                             )}
                         </p>
                     </div>
@@ -1405,7 +1569,6 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
         setStreamingTesto('')
         setAzioneCorrente(azione)
 
-        // Costruisci messaggio "user" da mostrare in chat
         let etichettaInput = ''
         if (azione === 'libera') {
             etichettaInput = domandaTesto
@@ -1451,7 +1614,6 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                 throw new Error(err.error ?? `Errore ${res.status}`)
             }
 
-            // Streaming SSE
             const reader = res.body.getReader()
             const decoder = new TextDecoder()
             let buffer = ''
@@ -1478,7 +1640,6 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                 }
             }
 
-            // Finalizza conversazione
             setConversazione([...nuovaConv, { role: 'assistant', content: testoAccumulato, azione }])
             setStreamingTesto('')
         } catch (e) {
@@ -1566,7 +1727,6 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                     )}
                 </div>
 
-                {/* Storia conversazione */}
                 {(conversazione.length > 0 || cercando || streamingTesto) && (
                     <div className="px-5 py-4 space-y-5 max-h-[55vh] overflow-y-auto">
                         {conversazione.map((m, i) => (
@@ -1607,7 +1767,6 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                             </div>
                         ))}
 
-                        {/* Streaming in corso */}
                         {streamingTesto && (
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2">
@@ -1630,14 +1789,12 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                             </div>
                         )}
 
-                        {/* Animazione mentre attende il primo chunk */}
                         {cercando && !streamingTesto && (
                             <LexAnimazioneConfronto azione={azioneCorrente} />
                         )}
                     </div>
                 )}
 
-                {/* Pannello azioni guidate */}
                 {!cercando && (
                     <div className="px-5 py-4 space-y-3">
                         {conversazione.length === 0 && (
@@ -1694,8 +1851,6 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                         </button>
                     </div>
                 )}
-
-                {/* Stato cercando senza storia precedente: non mostra nulla qui (animazione è dentro la storia) */}
             </div>
 
             {mostraModaleSalva && (
@@ -1720,50 +1875,23 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
 // ═══════════════════════════════════════════════════════════════
 function titoloElemento(el) {
     if (TIPI_RICERCA.includes(el.kind)) return el.titolo ?? '(senza titolo)'
-    if (el.kind === 'norma') return `${el.codice?.toUpperCase() ?? ''} Art. ${el.articolo}${el.rubrica ? ` — ${el.rubrica}` : ''}`
-    if (el.kind === 'sentenza') {
-        const parti = [el.organo, el.sezione, el.numero && `n. ${el.numero}`, el.anno].filter(Boolean)
-        return parti.join(' · ')
-    }
-    if (el.kind === 'prassi') {
-        const parti = [el.fonte, el.numero && `n. ${el.numero}`, el.anno].filter(Boolean)
-        return parti.join(' · ')
-    }
-    return ''
+    return titoloCorpus(el)
 }
 
 function contenutoElemento(el) {
     if (TIPI_RICERCA.includes(el.kind)) return el.contenuto ?? ''
-    if (el.kind === 'norma') return el.testo ?? ''
-    if (el.kind === 'sentenza') return [el.oggetto, el.principio_diritto].filter(Boolean).join('\n\n')
-    if (el.kind === 'prassi') return [el.oggetto, el.sintesi].filter(Boolean).join('\n\n')
+    if (el.kind === 'norma_federale' || el.kind === 'norma_cantonale' || el.kind === 'norma_ue') return el.testo ?? ''
+    if (el.kind === 'giurisprudenza') return [el.oggetto, el.principio_diritto].filter(Boolean).join('\n\n')
+    if (el.kind === 'sentenza_ue') return [el.oggetto, el.parti].filter(Boolean).join('\n\n')
+    if (el.kind === 'prassi') return [el.titolo, el.oggetto].filter(Boolean).join('\n\n')
     return ''
 }
 
 function ColonnaConfronto({ elemento: el, basePathBancaDati }) {
-    const meta = (() => {
-        if (el.kind === 'ricerca_ai') return { Icon: Sparkles, color: 'text-salvia', label: 'Ricerca AI' }
-        if (el.kind === 'chat_lex') return { Icon: MessageSquare, color: 'text-salvia', label: 'Chat con Lex' }
-        if (el.kind === 'ricerca_manuale') return { Icon: Search, color: 'text-oro', label: 'Ricerca manuale' }
-        if (el.kind === 'norma') return { Icon: BookOpen, color: 'text-oro', label: 'Norma' }
-        if (el.kind === 'sentenza') return { Icon: Landmark, color: 'text-oro', label: 'Sentenza' }
-        if (el.kind === 'prassi') return { Icon: ScrollText, color: 'text-salvia', label: 'Prassi' }
-        return { Icon: Search, color: 'text-nebbia', label: el.kind }
-    })()
-
+    const meta = metaTipo(el.kind)
     const titolo = titoloElemento(el)
     const contenuto = contenutoElemento(el)
-
-    const linkDettaglio = (() => {
-        if (el.kind === 'norma') return `${basePathBancaDati}/norma/${el.id}`
-        if (el.kind === 'sentenza') {
-            return el.fonte_sentenza === 'lexum'
-                ? `${basePathBancaDati}/lexum/${el.id}`
-                : `${basePathBancaDati}/avvocato/${el.id}`
-        }
-        if (el.kind === 'prassi') return `${basePathBancaDati}/prassi/${el.id}`
-        return null
-    })()
+    const linkDettaglio = linkCorpus(el, basePathBancaDati)
 
     return (
         <div className="p-4 space-y-3">
@@ -1776,7 +1904,7 @@ function ColonnaConfronto({ elemento: el, basePathBancaDati }) {
                     <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-wider mt-0.5">
                         {meta.label}
                         {el.created_at && (
-                            <> · {new Date(el.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}</>
+                            <> · {new Date(el.created_at).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })}</>
                         )}
                     </p>
                 </div>
@@ -1823,7 +1951,7 @@ function ColonnaConfronto({ elemento: el, basePathBancaDati }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MODALE SALVA SINTESI (invariata)
+// MODALE SALVA SINTESI
 // ═══════════════════════════════════════════════════════════════
 function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette, onClose, onSalvata }) {
     const titoloAuto = `Confronto: ${elementiConfrontati.map(el => titoloElemento(el)).join(' · ').slice(0, 100)}`
@@ -1989,7 +2117,7 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MODALE NUOVA RICERCA (invariata)
+// MODALE NUOVA RICERCA
 // ═══════════════════════════════════════════════════════════════
 function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
     const [titolo, setTitolo] = useState('')
@@ -2163,7 +2291,7 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MODALE NUOVA ETICHETTA (invariata)
+// MODALE NUOVA ETICHETTA
 // ═══════════════════════════════════════════════════════════════
 function ModaleNuovaEtichetta({ onClose, onSalvata }) {
     const [nome, setNome] = useState('')
@@ -2217,7 +2345,7 @@ function ModaleNuovaEtichetta({ onClose, onSalvata }) {
                         value={nome}
                         onChange={e => setNome(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && salva()}
-                        placeholder="Es. Violenza sulle donne, Diritto del lavoro..."
+                        placeholder="Es. Diritto del lavoro, Responsabilità civile..."
                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                     />
                 </div>
@@ -2259,7 +2387,7 @@ function ModaleNuovaEtichetta({ onClose, onSalvata }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MODALE GESTIONE ETICHETTE (invariata)
+// MODALE GESTIONE ETICHETTE
 // ═══════════════════════════════════════════════════════════════
 function ModaleGestioneEtichette({ etichette, basePathEtichette, onClose, onAggiornate }) {
     const [modificando, setModificando] = useState(null)

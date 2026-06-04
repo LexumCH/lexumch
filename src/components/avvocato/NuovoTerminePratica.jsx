@@ -1,12 +1,20 @@
-// src/components/avvocato/NuovoTerminePratica.jsx
+// src/components/avvocato/NuovoTerminePratica.jsx — Lexum CH
 //
 // Modal per aggiungere un termine processuale a una pratica.
-// Flow:
-//   1. Selezione tipo termine (raggruppato per materia)
-//   2. Inserimento data evento (la label cambia in base al tipo)
-//   3. Anteprima calcolo live tramite RPC calcola_termine
-//   4. Note opzionali
-//   5. Salva: insert in termini_processuali (trigger DB crea evento calendario)
+//
+// Due modalita':
+//   1. STANDARD       - selezione tipo da tipi_termini, calcolo automatico via RPC
+//   2. PERSONALIZZATO - nome libero + data scadenza diretta, nessun calcolo
+//
+// Differenze rispetto all'IT:
+//   - Il "verso" del calcolo (a ritroso) NON e' piu' una lista hardcoded:
+//     vive sul tipo (tipi_termini.a_ritroso) e si legge da tipoCorrente.
+//   - Testi sulle ferie giudiziarie aggiornati al diritto FEDERALE svizzero
+//     (Pasqua +/-, 15.7-15.8, 18.12-2.1) invece dell'agosto italiano.
+//   - Date in it-CH.
+//
+// In entrambi i casi il trigger DB su termini_processuali crea l'evento
+// corrispondente nel calendario.
 
 import { useState, useEffect } from 'react'
 import { X, Calendar, AlertTriangle, Loader2, Info } from 'lucide-react'
@@ -19,32 +27,49 @@ const MATERIA_LABEL = {
     tributario: 'Tributario',
 }
 
-// Tipi che si calcolano "a ritroso" dalla data evento (es. dall'udienza)
-const TIPI_A_RITROSO = [
-    'comparsa_costituzione',
-    'atto_citazione_termine',
-    'memoria_183_n1',
-    'memoria_183_n2',
-    'memoria_183_n3',
-]
-
 function fmtDataLunga(iso) {
     if (!iso) return ''
-    return new Date(iso).toLocaleDateString('it-IT', {
+    return new Date(iso).toLocaleDateString('it-CH', {
         weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
     })
 }
 
+function isDataPassata(iso) {
+    if (!iso) return false
+    const oggi = new Date()
+    oggi.setHours(0, 0, 0, 0)
+    return new Date(iso) < oggi
+}
+
+function giorniDifferenza(iso) {
+    if (!iso) return 0
+    const oggi = new Date()
+    oggi.setHours(0, 0, 0, 0)
+    const target = new Date(iso)
+    target.setHours(0, 0, 0, 0)
+    return Math.round((oggi - target) / (1000 * 60 * 60 * 24))
+}
+
 export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
+    // ── modalita' ──
+    const [modalita, setModalita] = useState('standard') // 'standard' | 'personalizzato'
+
+    // ── stato comune ──
+    const [noteAvvocato, setNoteAvvocato] = useState('')
+    const [salvando, setSalvando] = useState(false)
+    const [errore, setErrore] = useState(null)
+
+    // ── stato STANDARD ──
     const [tipi, setTipi] = useState([])
     const [tipoSelected, setTipoSelected] = useState('')
     const [dataEvento, setDataEvento] = useState(new Date().toISOString().slice(0, 10))
     const [eventoDescrizione, setEventoDescrizione] = useState('')
-    const [noteAvvocato, setNoteAvvocato] = useState('')
     const [anteprima, setAnteprima] = useState(null)
     const [calcolando, setCalcolando] = useState(false)
-    const [salvando, setSalvando] = useState(false)
-    const [errore, setErrore] = useState(null)
+
+    // ── stato PERSONALIZZATO ──
+    const [nomePersonalizzato, setNomePersonalizzato] = useState('')
+    const [dataScadenzaPers, setDataScadenzaPers] = useState('')
 
     // Chiudi con ESC
     useEffect(() => {
@@ -53,7 +78,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
         return () => window.removeEventListener('keydown', onKey)
     }, [onClose, salvando])
 
-    // Carica tipi termini
+    // Carica tipi termini (solo per modalita' standard)
     useEffect(() => {
         supabase
             .from('tipi_termini')
@@ -70,9 +95,13 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
             })
     }, [])
 
-    // Calcola anteprima
+    // tipoCorrente e aRitroso: il verso si legge dal tipo (DB), non da lista hardcoded
+    const tipoCorrente = tipi.find(t => t.codice === tipoSelected)
+    const aRitroso = tipoCorrente?.a_ritroso ?? false
+
+    // Calcola anteprima (solo per modalita' standard)
     useEffect(() => {
-        if (!tipoSelected || !dataEvento) {
+        if (modalita !== 'standard' || !tipoSelected || !dataEvento) {
             setAnteprima(null)
             return
         }
@@ -80,8 +109,6 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
         let cancelled = false
         setCalcolando(true)
         setErrore(null)
-
-        const aRitroso = TIPI_A_RITROSO.includes(tipoSelected)
 
         supabase
             .rpc('calcola_termine', {
@@ -101,10 +128,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
             })
 
         return () => { cancelled = true }
-    }, [tipoSelected, dataEvento])
-
-    const tipoCorrente = tipi.find(t => t.codice === tipoSelected)
-    const aRitroso = TIPI_A_RITROSO.includes(tipoSelected)
+    }, [modalita, tipoSelected, dataEvento, aRitroso])
 
     // Raggruppa tipi per materia
     const tipiPerMateria = tipi.reduce((acc, t) => {
@@ -114,9 +138,29 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
         return acc
     }, {})
 
+    // Cambio modalita' — reset stato dell'altra modalita'
+    function cambiaModalita(nuova) {
+        if (nuova === modalita) return
+        setErrore(null)
+        if (nuova === 'standard') {
+            setNomePersonalizzato('')
+            setDataScadenzaPers('')
+        } else {
+            setTipoSelected('')
+            setEventoDescrizione('')
+            setAnteprima(null)
+        }
+        setModalita(nuova)
+    }
+
+    // Validazione salva
+    const puoSalvareStandard = tipoSelected && dataEvento && anteprima && !calcolando
+    const puoSalvarePers = nomePersonalizzato.trim().length > 0 && dataScadenzaPers
+    const puoSalvare = modalita === 'standard' ? puoSalvareStandard : puoSalvarePers
+
     // Salva
     async function salva() {
-        if (!tipoSelected || !dataEvento || !anteprima) return
+        if (!puoSalvare) return
         setSalvando(true)
         setErrore(null)
 
@@ -127,9 +171,8 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
             return
         }
 
-        const { error } = await supabase
-            .from('termini_processuali')
-            .insert({
+        const payload = modalita === 'standard'
+            ? {
                 pratica_id: praticaId,
                 tipo_codice: tipoSelected,
                 tipo_label: tipoCorrente.label,
@@ -143,7 +186,26 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                 note_avvocato: noteAvvocato.trim() || null,
                 stato: 'in_corso',
                 autore_id: user.id,
-            })
+            }
+            : {
+                pratica_id: praticaId,
+                tipo_codice: 'personalizzato',
+                tipo_label: nomePersonalizzato.trim(),
+                data_evento: dataScadenzaPers,
+                evento_descrizione: null,
+                a_ritroso: false,
+                data_scadenza: dataScadenzaPers,
+                data_scadenza_grezza: dataScadenzaPers,
+                giorni_sospensione: 0,
+                note_calcolo: null,
+                note_avvocato: noteAvvocato.trim() || null,
+                stato: 'in_corso',
+                autore_id: user.id,
+            }
+
+        const { error } = await supabase
+            .from('termini_processuali')
+            .insert(payload)
 
         setSalvando(false)
         if (error) {
@@ -167,7 +229,10 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                     <div>
                         <p className="font-display text-lg text-nebbia">Aggiungi termine processuale</p>
                         <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                            La scadenza viene calcolata automaticamente in base al tipo di termine
+                            {modalita === 'standard'
+                                ? 'La scadenza viene calcolata automaticamente in base al tipo di termine'
+                                : 'Inserisci manualmente il nome del termine e la data di scadenza'
+                            }
                         </p>
                     </div>
                     <button
@@ -179,116 +244,264 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                     </button>
                 </div>
 
+                {/* Tabs modalita' */}
+                <div className="flex border-b border-white/5">
+                    <button
+                        onClick={() => cambiaModalita('standard')}
+                        disabled={salvando}
+                        className={`flex-1 px-6 py-3 font-body text-sm transition-colors ${modalita === 'standard'
+                            ? 'text-oro border-b-2 border-oro bg-petrolio/30'
+                            : 'text-nebbia/50 hover:text-nebbia/80 border-b-2 border-transparent'
+                            }`}
+                    >
+                        Standard
+                    </button>
+                    <button
+                        onClick={() => cambiaModalita('personalizzato')}
+                        disabled={salvando}
+                        className={`flex-1 px-6 py-3 font-body text-sm transition-colors ${modalita === 'personalizzato'
+                            ? 'text-oro border-b-2 border-oro bg-petrolio/30'
+                            : 'text-nebbia/50 hover:text-nebbia/80 border-b-2 border-transparent'
+                            }`}
+                    >
+                        Personalizzato
+                    </button>
+                </div>
+
                 <div className="p-6 space-y-5">
 
-                    {/* Tipo termine */}
-                    <div>
-                        <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                            Tipo di termine *
-                        </label>
-                        <select
-                            value={tipoSelected}
-                            onChange={e => setTipoSelected(e.target.value)}
-                            className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50"
-                        >
-                            <option value="">Seleziona un tipo di termine...</option>
-                            {Object.entries(tipiPerMateria).map(([materia, list]) => (
-                                <optgroup key={materia} label={MATERIA_LABEL[materia] ?? materia}>
-                                    {list.map(t => (
-                                        <option key={t.codice} value={t.codice}>{t.label}</option>
-                                    ))}
-                                </optgroup>
-                            ))}
-                        </select>
-                        {tipoCorrente?.descrizione && (
-                            <p className="font-body text-xs text-nebbia/40 mt-2 italic flex items-start gap-1.5">
-                                <Info size={11} className="mt-0.5 shrink-0" />
-                                <span>{tipoCorrente.descrizione}</span>
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Data evento */}
-                    {tipoCorrente && (
-                        <div>
-                            <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                                {tipoCorrente.da_evento_label} *
-                            </label>
-                            <input
-                                type="date"
-                                value={dataEvento}
-                                onChange={e => setDataEvento(e.target.value)}
-                                className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50"
-                            />
-                            <p className="font-body text-xs text-nebbia/40 mt-2">
-                                {aRitroso
-                                    ? `Il termine viene calcolato a ritroso (${tipoCorrente.giorni} giorni prima)`
-                                    : `Il termine viene calcolato in avanti (${tipoCorrente.giorni} giorni dopo)`
-                                }
-                                {tipoCorrente.sospensione_feriale
-                                    ? ' - con sospensione feriale 1-31 agosto'
-                                    : ' - senza sospensione feriale'
-                                }
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Descrizione evento (opzionale) */}
-                    {tipoCorrente && (
-                        <div>
-                            <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                                Descrizione evento (opzionale)
-                            </label>
-                            <input
-                                type="text"
-                                value={eventoDescrizione}
-                                onChange={e => setEventoDescrizione(e.target.value)}
-                                placeholder={`es. ${tipoCorrente.da_evento_label} del ${new Date(dataEvento).toLocaleDateString('it-IT')}`}
-                                className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
-                            />
-                            <p className="font-body text-xs text-nebbia/30 mt-1.5">
-                                Annotazione di servizio per ricordarti il contesto dell'evento
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Anteprima calcolo */}
-                    {tipoSelected && (
-                        <div className="bg-petrolio/50 border border-oro/20 p-4">
-                            <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-3">
-                                Anteprima calcolo
-                            </p>
-                            {calcolando ? (
-                                <div className="flex items-center gap-2 text-nebbia/50">
-                                    <Loader2 size={14} className="animate-spin" />
-                                    <span className="font-body text-sm">Calcolo in corso...</span>
+                    {/* ═══════════════════════════════════════════════
+                         MODALITA' STANDARD
+                       ═══════════════════════════════════════════════ */}
+                    {modalita === 'standard' && (
+                        <>
+                            {/* Avviso se non ci sono tipi seedati */}
+                            {tipi.length === 0 && (
+                                <div className="bg-petrolio/50 border border-amber-500/20 p-4 flex items-start gap-2.5">
+                                    <Info size={14} className="text-amber-400/70 mt-0.5 shrink-0" />
+                                    <p className="font-body text-xs text-nebbia/60 leading-relaxed">
+                                        Nessun tipo di termine ancora configurato. Usa la modalità <span className="text-oro">Personalizzato</span> per inserire un termine con data libera.
+                                    </p>
                                 </div>
-                            ) : anteprima ? (
-                                <div className="space-y-3">
-                                    <div className="flex items-start gap-3">
-                                        <Calendar size={18} className="text-oro mt-0.5 shrink-0" />
-                                        <div className="flex-1">
-                                            <p className="font-display text-xl font-semibold text-oro capitalize">
-                                                {fmtDataLunga(anteprima.data_scadenza)}
-                                            </p>
-                                            <p className="font-body text-xs text-nebbia/50 mt-0.5">Scadenza calcolata</p>
+                            )}
+
+                            {/* Tipo termine */}
+                            <div>
+                                <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
+                                    Tipo di termine *
+                                </label>
+                                <select
+                                    value={tipoSelected}
+                                    onChange={e => setTipoSelected(e.target.value)}
+                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50"
+                                >
+                                    <option value="">Seleziona un tipo di termine...</option>
+                                    {Object.entries(tipiPerMateria).map(([materia, list]) => (
+                                        <optgroup key={materia} label={MATERIA_LABEL[materia] ?? materia}>
+                                            {list.map(t => (
+                                                <option key={t.codice} value={t.codice}>{t.label}</option>
+                                            ))}
+                                        </optgroup>
+                                    ))}
+                                </select>
+                                {tipoCorrente?.descrizione && (
+                                    <p className="font-body text-xs text-nebbia/40 mt-2 italic flex items-start gap-1.5">
+                                        <Info size={11} className="mt-0.5 shrink-0" />
+                                        <span>{tipoCorrente.descrizione}</span>
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Data evento */}
+                            {tipoCorrente && (
+                                <div>
+                                    <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
+                                        {tipoCorrente.da_evento_label || 'Data evento'} *
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={dataEvento}
+                                        onChange={e => setDataEvento(e.target.value)}
+                                        className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50"
+                                    />
+                                    <p className="font-body text-xs text-nebbia/40 mt-2">
+                                        {aRitroso
+                                            ? `Il termine viene calcolato a ritroso (${tipoCorrente.giorni} giorni prima)`
+                                            : `Il termine viene calcolato in avanti (${tipoCorrente.giorni} giorni dopo)`
+                                        }
+                                        {tipoCorrente.sospensione_feriale
+                                            ? anteprima && anteprima.giorni_sospensione > 0
+                                                ? ` — sospensione applicata (+${anteprima.giorni_sospensione} giorni per le ferie giudiziarie)`
+                                                : ' — soggetto a sospensione durante le ferie giudiziarie federali'
+                                            : ' — senza sospensione feriale'
+                                        }
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Descrizione evento (opzionale) */}
+                            {tipoCorrente && (
+                                <div>
+                                    <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
+                                        Descrizione evento (opzionale)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={eventoDescrizione}
+                                        onChange={e => setEventoDescrizione(e.target.value)}
+                                        placeholder={`es. ${tipoCorrente.da_evento_label || 'evento'} del ${new Date(dataEvento).toLocaleDateString('it-CH')}`}
+                                        className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
+                                    />
+                                    <p className="font-body text-xs text-nebbia/30 mt-1.5">
+                                        Annotazione di servizio per ricordarti il contesto dell'evento
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Anteprima calcolo */}
+                            {tipoSelected && (
+                                <div className="bg-petrolio/50 border border-oro/20 p-4">
+                                    <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-3">
+                                        Anteprima calcolo
+                                    </p>
+                                    {calcolando ? (
+                                        <div className="flex items-center gap-2 text-nebbia/50">
+                                            <Loader2 size={14} className="animate-spin" />
+                                            <span className="font-body text-sm">Calcolo in corso...</span>
                                         </div>
-                                    </div>
-                                    {anteprima.note && (
-                                        <div className="flex items-start gap-3 pt-2 border-t border-white/5">
-                                            <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />
-                                            <p className="font-body text-xs text-amber-400/90">{anteprima.note}</p>
+                                    ) : anteprima ? (
+                                        <div className="space-y-3">
+                                            <div className="flex items-start gap-3">
+                                                <Calendar size={18} className="text-oro mt-0.5 shrink-0" />
+                                                <div className="flex-1">
+                                                    <p className="font-display text-xl font-semibold text-oro capitalize">
+                                                        {fmtDataLunga(anteprima.data_scadenza)}
+                                                    </p>
+                                                    <p className="font-body text-xs text-nebbia/50 mt-0.5">Scadenza calcolata</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Warning scadenza nel passato */}
+                                            {isDataPassata(anteprima.data_scadenza) && (
+                                                <div className="flex items-start gap-3 pt-3 border-t border-white/5">
+                                                    <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />
+                                                    <div className="font-body text-xs text-amber-400/90 space-y-1">
+                                                        <p className="font-medium">
+                                                            Questa scadenza è già trascorsa ({giorniDifferenza(anteprima.data_scadenza)} giorni fa).
+                                                        </p>
+                                                        {aRitroso ? (
+                                                            <p className="text-amber-400/70">
+                                                                Per "{tipoCorrente?.label}" il termine andava rispettato {tipoCorrente?.giorni} giorni prima dell'evento. L'evento che hai indicato è troppo vicino o già passato: il termine non è pianificabile.
+                                                                <br />
+                                                                Inserisci comunque solo se stai registrando uno storico (es. pratica ripresa da un altro studio).
+                                                            </p>
+                                                        ) : (
+                                                            <p className="text-amber-400/70">
+                                                                L'evento di partenza che hai indicato è nel passato e i {tipoCorrente?.giorni} giorni di termine sono già decorsi. Inserisci comunque solo se stai registrando uno storico.
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Nota di calcolo */}
+                                            {anteprima.note && (
+                                                <div className="flex items-start gap-3 pt-2 border-t border-white/5">
+                                                    <Info size={14} className="text-nebbia/50 mt-0.5 shrink-0" />
+                                                    <p className="font-body text-xs text-nebbia/60">{anteprima.note}</p>
+                                                </div>
+                                            )}
+
+                                            {/* Disclaimer verifica professionale (CH) */}
+                                            <div className="flex items-start gap-3 pt-2 border-t border-white/5">
+                                                <AlertTriangle size={13} className="text-nebbia/40 mt-0.5 shrink-0" />
+                                                <p className="font-body text-xs text-nebbia/40 leading-relaxed">
+                                                    Calcolo basato sulle ferie giudiziarie federali (art. 145 CPC). Non tiene conto dei festivi cantonali né delle regole proprie del rito penale o amministrativo. Verifica sempre la scadenza.
+                                                </p>
+                                            </div>
                                         </div>
+                                    ) : (
+                                        <p className="font-body text-sm text-nebbia/40">Seleziona un tipo e una data per vedere il calcolo</p>
                                     )}
                                 </div>
-                            ) : (
-                                <p className="font-body text-sm text-nebbia/40">Seleziona un tipo e una data per vedere il calcolo</p>
                             )}
-                        </div>
+                        </>
                     )}
 
-                    {/* Note avvocato */}
-                    {tipoCorrente && (
+                    {/* ═══════════════════════════════════════════════
+                         MODALITA' PERSONALIZZATO
+                       ═══════════════════════════════════════════════ */}
+                    {modalita === 'personalizzato' && (
+                        <>
+                            {/* Nome termine */}
+                            <div>
+                                <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
+                                    Nome termine *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={nomePersonalizzato}
+                                    onChange={e => setNomePersonalizzato(e.target.value)}
+                                    placeholder="es. Deposito perizia concordata"
+                                    maxLength={120}
+                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
+                                />
+                                <p className="font-body text-xs text-nebbia/30 mt-1.5">
+                                    Etichetta del termine così come comparirà nella pratica e nel calendario
+                                </p>
+                            </div>
+
+                            {/* Data scadenza */}
+                            <div>
+                                <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
+                                    Data scadenza *
+                                </label>
+                                <input
+                                    type="date"
+                                    value={dataScadenzaPers}
+                                    onChange={e => setDataScadenzaPers(e.target.value)}
+                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50"
+                                />
+                                <p className="font-body text-xs text-nebbia/30 mt-1.5">
+                                    Nessun calcolo automatico: la data inserita viene salvata così com'è (nessuna sospensione feriale, nessuno slittamento)
+                                </p>
+                            </div>
+
+                            {/* Anteprima personalizzato */}
+                            {dataScadenzaPers && (
+                                <div className="bg-petrolio/50 border border-oro/20 p-4">
+                                    <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-3">
+                                        Anteprima
+                                    </p>
+                                    <div className="space-y-3">
+                                        <div className="flex items-start gap-3">
+                                            <Calendar size={18} className="text-oro mt-0.5 shrink-0" />
+                                            <div className="flex-1">
+                                                <p className="font-display text-xl font-semibold text-oro capitalize">
+                                                    {fmtDataLunga(dataScadenzaPers)}
+                                                </p>
+                                                <p className="font-body text-xs text-nebbia/50 mt-0.5">
+                                                    {nomePersonalizzato.trim() || 'Termine personalizzato'}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {isDataPassata(dataScadenzaPers) && (
+                                            <div className="flex items-start gap-3 pt-3 border-t border-white/5">
+                                                <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />
+                                                <p className="font-body text-xs text-amber-400/90">
+                                                    Questa scadenza è già trascorsa ({giorniDifferenza(dataScadenzaPers)} giorni fa). Inserisci comunque solo se stai registrando uno storico.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {/* Note avvocato (comune) */}
+                    {((modalita === 'standard' && tipoCorrente) || modalita === 'personalizzato') && (
                         <div>
                             <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
                                 Note (opzionale)
@@ -304,11 +517,11 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                     )}
 
                     {/* Info trigger calendario */}
-                    {tipoCorrente && anteprima && (
+                    {puoSalvare && (
                         <div className="flex items-start gap-2 text-nebbia/40">
                             <Info size={11} className="mt-0.5 shrink-0" />
                             <p className="font-body text-xs">
-                                Salvando, il termine verra' aggiunto anche al calendario come scadenza
+                                Salvando, il termine verrà aggiunto anche al calendario come scadenza
                             </p>
                         </div>
                     )}
@@ -332,7 +545,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                     </button>
                     <button
                         onClick={salva}
-                        disabled={!tipoSelected || !dataEvento || !anteprima || salvando || calcolando}
+                        disabled={!puoSalvare || salvando}
                         className="flex items-center gap-2 px-5 py-2 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         {salvando ? (

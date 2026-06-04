@@ -236,7 +236,7 @@ export default function AdminProfilo() {
                         </p>
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
                             {mfaAttivo
-                                ? `Attiva dal ${new Date(mfaAttivatoAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}. Per accedere al pannello admin ti verrà chiesto il codice da app autenticatore.`
+                                ? `Attiva dal ${new Date(mfaAttivatoAt).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}. Per accedere al pannello admin ti verrà chiesto il codice da app autenticatore.`
                                 : 'Proteggi il tuo account con un codice generato da app come Google Authenticator, Authy o 1Password. Obbligatorio per gli amministratori.'
                             }
                         </p>

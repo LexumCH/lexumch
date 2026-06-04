@@ -1,0 +1,287 @@
+{
+    "meta": {
+        "title": "Lexum — La piattaforma per studi legali e fiduciari svizzeri",
+        "description": "La prima piattaforma all-in-one per studi legali e fiduciari svizzeri con AI integrata. Banca dati gratuita: diritto federale, cantonale, sentenze TF, prassi delle autorità. Lex AI per la consultazione.",
+        "og_title": "Lexum — Per studi legali e fiduciari svizzeri",
+        "og_description": "Banca dati svizzera gratuita, Lex AI, gestionale per studi legali e fiduciari. Diritto federale, cantonale e UE.",
+        "twitter_description": "Prima piattaforma all-in-one CH con AI integrata. Avvocati, fiduciari, banca dati gratuita."
+    },
+    "hero": {
+        "badge": "Per fiduciari e studi legali svizzeri",
+        "title_part1": "Piattaforma per fiduciari e studi legali",
+        "title_highlight": "con AI integrata",
+        "subtitle": "Banca dati giuridica svizzera, gestione studio, archivio intelligente e Lex AI in un unico ambiente. Pensato per avvocati e fiduciari che vogliono lavorare meglio.",
+        "cta_primary": "Inizia gratis con la banca dati",
+        "cta_secondary": "Scopri le funzionalità",
+        "no_card": "La banca dati svizzera è sempre gratuita."
+    },
+    "database_hero": {
+        "label": "Banca dati svizzera",
+        "count": "1.632.000",
+        "count_plus": "+",
+        "headline": "documenti giuridici svizzeri ed europei.",
+        "description": "Diritto federale, cantonale, sentenze del Tribunale federale e degli organi amministrativi, prassi delle autorità.",
+        "open_access": "Aperta a chiunque, gratis. Senza abbonamenti per area, senza limiti di consultazione.",
+        "items": [
+            {
+                "t": "Diritto federale (Fedlex)",
+                "s": "Codici, leggi e ordinanze"
+            },
+            {
+                "t": "Diritto e prassi cantonale",
+                "s": "Norme e prassi dei 26 cantoni"
+            },
+            {
+                "t": "Giurisprudenza federale",
+                "s": "TF, DTF, TAF e TPF"
+            },
+            {
+                "t": "Giurisprudenza cantonale",
+                "s": "Sentenze dei tribunali dei 26 cantoni"
+            },
+            {
+                "t": "Prassi delle autorità",
+                "s": "AFC, IFD, SECO, UFAS, FINMA, UFG, MROS"
+            },
+            {
+                "t": "Diritto dell'Unione Europea",
+                "s": "Regolamenti, direttive, CGUE"
+            }
+        ]
+    },
+    "corpus_it_card": {
+        "title": "Corpus italiano disponibile in consultazione",
+        "badge": "In italiano",
+        "description": "Hai clienti con sede in Italia o cause transfrontaliere? Accedi anche al corpus giuridico italiano: <span>oltre 4 milioni di documenti</span> tra Giurisprudenza, normativa, prassi e diritto UE. Disponibile in italiano per consultazione e diritto comparato."
+    },
+    "mini_cards": [
+        {
+            "title": "Ricerca giuridica",
+            "text": "Trova articoli, sentenze e prassi. Lex AI capisce il linguaggio naturale: chiedi in italiano, tedesco o francese."
+        },
+        {
+            "title": "Salva le tue ricerche",
+            "text": "Organizzale con etichette personali, confrontale, collegale a una pratica o a un mandato fiduciario."
+        },
+        {
+            "title": "Archivio intelligente",
+            "text": "Carica i tuoi documenti. Lex AI ti aiuta a trovare quello che ti serve quando ti serve."
+        },
+        {
+            "title": "Analisi del caso",
+            "text": "Lex legge le ricerche della pratica, verifica cosa manca, suggerisce strategie processuali e norme applicabili."
+        },
+        {
+            "title": "Generazione atti",
+            "text": "Atti, memorie, contratti e dichiarazioni generati da Lex AI a partire dai dati della pratica."
+        },
+        {
+            "title": "Portale clienti",
+            "text": "Il cliente accede a documenti, udienze, scadenze fiscali. Tu lavori, lui resta informato."
+        }
+    ],
+    "problema": {
+        "label": "Il problema",
+        "title_part1": "Il problema non è solo il carico di lavoro.",
+        "title_highlight": "È la frammentazione.",
+        "oggi_label": "Oggi",
+        "oggi_text": "Avvocati e fiduciari lavorano tra gestionale, archivi, documenti, email, note, banche dati e strumenti AI separati. Ogni attività richiede passaggi in più, ricerche ripetute e tempo perso nel cambiare contesto.",
+        "oggi_tags": [
+            "Gestionale",
+            "Archivio",
+            "Email",
+            "Note",
+            "Banche dati",
+            "AI esterno"
+        ],
+        "lexum_label": "Con Lexum",
+        "lexum_text": "Tutto resta connesso e collegato al caso o al mandato. Le ricerche entrano nelle pratiche, i documenti si trovano dove servono, l'AI lavora su materiali tuoi e su fonti verificate.",
+        "lexum_tags": [
+            "Gestionale",
+            "Archivio",
+            "Area cliente",
+            "Banca dati",
+            "Lex AI"
+        ],
+        "lexum_footer": "Un ambiente coerente, non una somma di strumenti."
+    },
+    "gestionale": {
+        "title_part1": "Lo studio gestito,",
+        "title_highlight": "con Lex sempre accanto.",
+        "subtitle": "Pratiche, mandati, clienti, appuntamenti, udienze, fatture e scadenze nello stesso posto. E quando ti serve un resoconto, Lex legge tutto e ti risponde nella tua lingua.",
+        "pratica_label": "Pratica civile - Mario Rossi",
+        "pratica_rows": [
+            {
+                "l": "Cliente",
+                "v": "Mario Rossi"
+            },
+            {
+                "l": "Tipo",
+                "v": "Civile - Locazione"
+            },
+            {
+                "l": "Stato",
+                "v": "Aperta dal 08/2025"
+            },
+            {
+                "l": "Pross. udienza",
+                "v": "28/05/2026"
+            }
+        ],
+        "fatturazione_label": "Fatturazione",
+        "fattura_numero": "Fattura 2026/041",
+        "fattura_stato": "CHF 1.100 - scaduta",
+        "ricerche_label": "Ricerche (3)",
+        "ricerche_items": [
+            "Analisi Lex - art. 259d CO",
+            "Difetti della cosa locata",
+            "DTF 142 III 557"
+        ]
+    },
+    "ricerche": {
+        "title": "Le tue ricerche, etichettate e collegate",
+        "text": "Salvi ogni ricerca giuridica che fai, la categorizzi con le tue etichette, la colleghi a una pratica o a un mandato fiduciario. Lex AI trova le correlate, suggerisce articoli che non avevi considerato, ragiona insieme a te.",
+        "points": [
+            "Etichette personali",
+            "Confronto tra ricerche",
+            "Collegamento a pratica o mandato",
+            "Correlate suggerite da Lex AI"
+        ],
+        "visual_label": "Ricerche - Locazione e difetti",
+        "search_query": "difetti della cosa locata responsabilità",
+        "results_count": "14 risultati",
+        "tags": [
+            "Locazione",
+            "Rossi - difetti",
+            "Da approfondire"
+        ],
+        "saved_items": [
+            {
+                "t": "Art. 259d CO - difetti durante la locazione",
+                "sub": "Salvata 2 giorni fa"
+            },
+            {
+                "t": "DTF 142 III 557 - riduzione del corrispettivo",
+                "sub": "Salvata 5 giorni fa"
+            },
+            {
+                "t": "Art. 259e CO - risarcimento danni",
+                "sub": "Salvata 1 settimana fa"
+            }
+        ],
+        "ai_suggestion_prefix": "Lex suggerisce: ",
+        "ai_suggestion_highlight": "art. 259a CO",
+        "ai_suggestion_suffix": " sui diritti del conduttore in caso di difetti - correlato."
+    },
+    "archivio": {
+        "title_part1": "I documenti dello studio,",
+        "title_highlight": "sempre a portata.",
+        "subtitle": "Carichi, ritrovi, condividi. La gestione e la ricerca dell'archivio in un flusso unico, senza mai uscire dal contesto della pratica."
+    },
+    "lexai": {
+        "label": "Intelligenza artificiale",
+        "title_part1": "Un assistente personale",
+        "title_highlight": "per il lavoro giuridico svizzero.",
+        "subtitle": "Non è una chat generica aperta in una finestra a parte. È uno strumento pensato per il contesto del diritto svizzero.",
+        "features": [
+            {
+                "t": "Analisi normativa",
+                "d": "Cerca nel diritto federale e cantonale vigente, spiega quali articoli si applicano al caso, con ragionamento completo."
+            },
+            {
+                "t": "Strategie processuali",
+                "d": "Suggerisce strategie concrete, eccezioni da sollevare e argomenti da sviluppare in udienza secondo il CPC svizzero."
+            },
+            {
+                "t": "Conversazione continua",
+                "d": "Approfondisci, cambia angolazione, chiedi follow-up. La conversazione si sviluppa nel tempo."
+            },
+            {
+                "t": "Strategia su misura",
+                "d": "Legge tutte le ricerche della pratica e genera una strategia processuale personalizzata."
+            },
+            {
+                "t": "Giurisprudenza correlata",
+                "d": "Suggerisce quali sentenze del Tribunale federale o cantonali consultare, basandosi sul caso."
+            },
+            {
+                "t": "Atti già compilati",
+                "d": "Legge i dati della pratica e produce ricorsi, memorie, istanze e altri atti pronti per l'esportazione."
+            }
+        ],
+        "quote": "\"L'obiettivo non è sostituire il professionista. È fargli risparmiare tempo vero.\"",
+        "chat1": {
+            "label": "Lex AI - Locazione",
+            "domanda": "Il mio cliente subisce infiltrazioni nell'appartamento e il locatore non interviene. Cosa posso fare?",
+            "risposta": "Sulla base degli artt. 259a-259d CO e della DTF 142 III 557, il conduttore ha diritto a richiedere la riparazione, la riduzione del corrispettivo o, nei casi gravi, il risarcimento danni ex art. 259e CO. Ti consiglio di intimare formalmente la riparazione...",
+            "tag1": "DTF 142 III 557",
+            "tag2": "Art. 259d CO"
+        },
+        "chat2": {
+            "label": "Lex AI - Lavoro",
+            "domanda": "Il dipendente è stato licenziato durante la malattia. Il termine di disdetta è valido?",
+            "risposta": "L'art. 336c CO prevede la protezione contro la disdetta durante l'impedimento al lavoro per malattia: il termine è nullo se notificato durante il periodo di protezione. La durata di protezione varia in base agli anni di servizio (30/90/180 giorni)...",
+            "tag1": "Art. 336c CO",
+            "tag2": "DTF 128 III 271"
+        }
+    },
+    "corpus_italiano_section": {
+        "label": "Per chi lavora oltre confine",
+        "title_part1": "Anche il diritto italiano,",
+        "title_highlight": "sotto mano.",
+        "subtitle": "Se hai clienti con sede in Italia, cause transfrontaliere o aziende che operano nei due mercati, Lexum CH ti dà accesso anche al corpus giuridico italiano.",
+        "feature_title": "Corpus giuridico italiano in consultazione",
+        "feature_text": "Oltre 4 milioni di documenti tra Giurisprudenza, normativa, prassi e diritto UE. Disponibile in italiano per consultazione e diritto comparato. Utile per studi con clientela internazionale o fiduciari che assistono società operanti in Italia.",
+        "feature_points": [
+            "Giurisprudenza italiana",
+            "Normativa italiana consolidata",
+            "Prassi delle autorità italiane",
+            "Diritto UE in lingua italiana"
+        ],
+        "visual_label": "Corpus italiano - Consultazione",
+        "search_query": "società italiana - tassazione utili distribuiti",
+        "search_lang_badge": "in italiano",
+        "results": [
+            {
+                "t": "TUIR - Art. 89 - Dividendi e interessi",
+                "sub": "Normativa italiana"
+            },
+            {
+                "t": "Cass. Civ. V 12345/2024 - utili distribuiti",
+                "sub": "Giurisprudenza italiana"
+            },
+            {
+                "t": "Circolare AdE 26/E - dividendi infragruppo",
+                "sub": "Prassi Agenzia delle Entrate"
+            }
+        ],
+        "unique_message": "Differenziale unico: nessuna altra piattaforma CH offre accesso al corpus italiano."
+    },
+    "cliente": {
+        "label": "Area cliente",
+        "title_part1": "Anche il cliente",
+        "title_highlight": "ha il suo spazio.",
+        "subtitle": "Documenti, appuntamenti, udienze, scadenze fiscali e comunicazioni in un'area riservata. Lo studio lavora, il cliente resta informato.",
+        "feature_title": "Un accesso dedicato anche per il cliente",
+        "feature_text": "Il cliente accede alla propria area riservata e trova documenti, appuntamenti, udienze e materiali condivisi dallo studio. Può caricare file direttamente in piattaforma. Meno email disperse, meno file persi.",
+        "feature_points": [
+            "Accesso riservato",
+            "Documenti condivisi",
+            "Scadenze e comunicazioni ordinate"
+        ],
+        "visual_label": "Area cliente - Paolo Rossi",
+        "doc_condiviso": "Perizia tecnica.pdf",
+        "doc_condiviso_badge": "Condiviso",
+        "doc_caricato": "Contratto_firmato.pdf",
+        "doc_caricato_badge": "Caricato da te",
+        "prossima_udienza": "Prossima udienza: 25/04/2026"
+    },
+    "cta_finale": {
+        "label": "Inizia ora",
+        "title_part1": "La banca dati svizzera è gratuita.",
+        "title_highlight": "Fai la tua prima ricerca.",
+        "subtitle": "Registrati e inizia subito. Oltre 1,6 milioni di documenti svizzeri, diritto UE e accesso al corpus italiano. Lex AI con crediti di benvenuto. Gestionale e portale clienti pronti.",
+        "cta_primary": "Inizia gratis",
+        "login_link": "Hai già un account? Accedi"
+    }
+}

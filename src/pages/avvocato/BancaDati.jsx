@@ -1,49 +1,55 @@
-// src/pages/avvocato/BancaDati.jsx
-// Pagina "Banca dati" — 4 tab primari: Italiana | UE | Sentenze | Prassi
-// Salvataggio in pratica tramite popover inline (no pannello laterale)
+// src/pages/avvocato/BancaDati.jsx  (LEXUM CH)
+// ═══════════════════════════════════════════════════════════════
+// Banca dati svizzera — SCHELETRO (step 1/N)
+//
+// Struttura:
+//   1. Chat Lex in alto (ricerca semantica AI, chiama il Lead CH via SSE)
+//   2. Cinque tab corpus sotto:
+//        Federale · Cantonale · Giurisprudenza · Prassi · UE
+//      In questo step i tab sono PLACEHOLDER: li riempiamo uno alla volta,
+//      ognuno legge la propria materialized view dei conteggi.
+//
+// Costanti di config in cima (endpoint Lead, lingue) per ritocchi rapidi.
+// ═══════════════════════════════════════════════════════════════
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Fragment } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { PageHeader } from '@/components/shared'
+import BottoniSalvataggio from '@/components/BottoniSalvataggio'
+import AggiungiAPratica from '@/components/AggiungiAPratica'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
-import { rottaSentenza } from '@/lib/rotte'
 import {
     Search, Sparkles, ChevronRight, ChevronLeft,
-    BookOpen, AlertCircle, ArrowRight, X, Save,
-    FileText, Plus, Eye, Flag, Globe, Clock,
-    Scale, Filter, Landmark, Calendar, Building2, ScrollText
+    BookOpen, AlertCircle, X, FileText,
+    Landmark, Building2, ScrollText, Globe, Scale, MapPin
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 
 // ═══════════════════════════════════════════════════════════════
-// CONFIG (norme italiane / UE)
+// CONFIG
 // ═══════════════════════════════════════════════════════════════
-const CONFIG_IT = {
-    key: 'it',
-    tabella: 'norme',
-    rpcStats: 'get_stats_per_codice',
-    tabellaLabel: 'codici_norme',
-    lexAbilitato: true,
-    campiRicerca: ['articolo', 'rubrica', 'testo'],
-    placeholderGlobale: 'Cerca in tutti i codici per articolo, rubrica o testo...',
-    placeholderCategoria: 'Cerca per numero articolo, rubrica o testo...',
-}
 
-const CONFIG_UE = {
-    key: 'ue',
-    tabella: 'norme_ue',
-    rpcStats: 'get_stats_per_categoria_ue',
-    tabellaLabel: 'codici_norme_ue',
-    lexAbilitato: false,
-    campiRicerca: ['articolo', 'rubrica', 'testo', 'celex', 'titolo_doc'],
-    placeholderGlobale: 'Cerca in tutte le norme UE per articolo, rubrica, testo o celex...',
-    placeholderCategoria: 'Cerca per articolo, rubrica, testo o documento...',
+// ⚠️ VERIFICA: nome esatto dell'edge function del Lead su CH.
+// Sull'IT è 'lex-lead'. Se su CH è diverso (es. 'lex-lead-ch'), cambia QUI.
+const LEAD_ENDPOINT = 'lex-lead'
+
+// Le "fasi" emesse dal Lead CH via SSE → etichette leggibili.
+// Allineate ai 5 subagent svizzeri + fasi di orchestrazione.
+const FASI_LABEL = {
+    analisi: 'Analizzo la richiesta',
+    instradamento: 'Individuo le fonti da consultare',
+    norme_federali: 'Consulto il diritto federale (Fedlex)',
+    norme_cantonali: 'Cerco nel diritto cantonale',
+    giurisprudenza: 'Confronto la giurisprudenza',
+    prassi: 'Verifico la prassi amministrativa',
+    eu: 'Esamino il diritto UE',
+    sintesi: 'Compongo la risposta',
 }
 
 // ═══════════════════════════════════════════════════════════════
-// HOOK CREDITI
+// HOOK CREDITI  (identico all'IT: stessa tabella crediti_ai)
 // ═══════════════════════════════════════════════════════════════
 function useCreditiAI() {
     const [crediti, setCrediti] = useState(null)
@@ -57,10 +63,7 @@ function useCreditiAI() {
             .select('crediti_totali, crediti_usati, periodo_fine, tipo')
             .eq('user_id', user.id)
 
-        if (!data || data.length === 0) {
-            setCrediti(0)
-            return
-        }
+        if (!data || data.length === 0) { setCrediti(0); return }
 
         const now = new Date()
         const totale = data.reduce((acc, row) => {
@@ -68,7 +71,6 @@ function useCreditiAI() {
             const scaduto = row.periodo_fine && new Date(row.periodo_fine) < now
             return acc + (residui > 0 && !scaduto ? residui : 0)
         }, 0)
-
         setCrediti(totale)
     }
 
@@ -83,17 +85,17 @@ function useCreditiAI() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// LEX ANIMAZIONE — invariato
+// LEX ANIMAZIONE — libri + raggio, frasi rotative (ricerca legale CH)
+// Identica a ChatPratica; le frasi default raccontano la consultazione
+// del corpus svizzero. Se arriva una fase reale dal Lead, usala come frase.
 // ═══════════════════════════════════════════════════════════════
-function LexAnimazione({ faseAttiva }) {
-    const frasiRotative = [
-        'Sto ricercando nell\'archivio Lex',
-        'Identifico le fonti rilevanti',
-        'Confronto sentenze e giurisprudenza',
-        'Analizzo le interpretazioni dottrinali',
-        'Consulto codici e normative',
-        'Verifico le prassi amministrative',
-        'Sto sfogliando le pagine giuste',
+function LexAnimazione({ frasi }) {
+    const frasiRotative = frasi ?? [
+        'Analizzo la richiesta',
+        'Consulto il diritto federale',
+        'Cerco nel diritto cantonale',
+        'Confronto la giurisprudenza',
+        'Verifico la prassi amministrativa',
         'Compongo una risposta strutturata',
     ]
 
@@ -104,48 +106,37 @@ function LexAnimazione({ faseAttiva }) {
             setIndiceFrase((i) => (i + 1) % frasiRotative.length)
         }, 4000)
         return () => clearInterval(interval)
-    }, [])
+    }, [frasiRotative.length])
 
     const testoVisibile = frasiRotative[indiceFrase]
 
     return (
         <div className="px-3 py-4 max-w-[600px] mx-auto">
             <style>{`
-            .lex-stage {
-                position: relative;
-                width: 100%;
-                aspect-ratio: 16 / 7;
-                margin: 0 auto;
-            }
+                .lex-stage { position: relative; width: 100%; aspect-ratio: 16 / 7; margin: 0 auto; }
                 .lex-stage svg { width: 100%; height: 100%; display: block; }
-
-                .lex-ray {
-                    animation: lexRayCycle 27s ease-in-out infinite;
-                }
+                .lex-ray { animation: lexRayCycle 27s ease-in-out infinite; }
                 @keyframes lexRayCycle {
-                    0%   { transform: translateX(-30px); opacity: 0; }
-                    3%   { opacity: 0.8; }
-                    8%   { transform: translateX(85px); opacity: 0.9; }
-                    12%  { transform: translateX(85px); opacity: 1; }
-                    16%  { transform: translateX(85px); opacity: 0; }
-                    33%  { transform: translateX(85px); opacity: 0; }
-                    34%  { transform: translateX(-30px); opacity: 0; }
-                    37%  { opacity: 0.8; }
-                    42%  { transform: translateX(180px); opacity: 0.9; }
-                    46%  { transform: translateX(180px); opacity: 1; }
-                    50%  { transform: translateX(180px); opacity: 0; }
-                    66%  { transform: translateX(180px); opacity: 0; }
-                    67%  { transform: translateX(-30px); opacity: 0; }
-                    70%  { opacity: 0.8; }
-                    78%  { transform: translateX(290px); opacity: 0.9; }
-                    82%  { transform: translateX(290px); opacity: 1; }
-                    86%  { transform: translateX(290px); opacity: 0; }
+                    0% { transform: translateX(-30px); opacity: 0; }
+                    3% { opacity: 0.8; }
+                    8% { transform: translateX(85px); opacity: 0.9; }
+                    12% { transform: translateX(85px); opacity: 1; }
+                    16% { transform: translateX(85px); opacity: 0; }
+                    33% { transform: translateX(85px); opacity: 0; }
+                    34% { transform: translateX(-30px); opacity: 0; }
+                    37% { opacity: 0.8; }
+                    42% { transform: translateX(180px); opacity: 0.9; }
+                    46% { transform: translateX(180px); opacity: 1; }
+                    50% { transform: translateX(180px); opacity: 0; }
+                    66% { transform: translateX(180px); opacity: 0; }
+                    67% { transform: translateX(-30px); opacity: 0; }
+                    70% { opacity: 0.8; }
+                    78% { transform: translateX(290px); opacity: 0.9; }
+                    82% { transform: translateX(290px); opacity: 1; }
+                    86% { transform: translateX(290px); opacity: 0; }
                     100% { transform: translateX(290px); opacity: 0; }
                 }
-
-                .lex-book-a {
-                    animation: lexBookGlowA 27s ease-in-out infinite;
-                }
+                .lex-book-a { animation: lexBookGlowA 27s ease-in-out infinite; }
                 @keyframes lexBookGlowA {
                     0%, 8% { fill: #243447; stroke: rgba(201, 164, 92, 0.2); stroke-width: 1; transform: translateY(0); }
                     12% { fill: rgba(201, 164, 92, 0.25); stroke: #C9A45C; stroke-width: 1.5; transform: translateY(0); }
@@ -153,10 +144,7 @@ function LexAnimazione({ faseAttiva }) {
                     24% { fill: rgba(201, 164, 92, 0.05); stroke: rgba(201, 164, 92, 0.3); stroke-width: 1; transform: translateY(8px); }
                     32%, 100% { fill: #243447; stroke: rgba(201, 164, 92, 0.2); stroke-width: 1; transform: translateY(0); }
                 }
-
-                .lex-book-b {
-                    animation: lexBookGlowB 27s ease-in-out infinite;
-                }
+                .lex-book-b { animation: lexBookGlowB 27s ease-in-out infinite; }
                 @keyframes lexBookGlowB {
                     0%, 41% { fill: #243447; stroke: rgba(201, 164, 92, 0.2); stroke-width: 1; transform: translateY(0); }
                     46% { fill: rgba(201, 164, 92, 0.25); stroke: #C9A45C; stroke-width: 1.5; transform: translateY(0); }
@@ -164,10 +152,7 @@ function LexAnimazione({ faseAttiva }) {
                     58% { fill: rgba(201, 164, 92, 0.05); stroke: rgba(201, 164, 92, 0.3); stroke-width: 1; transform: translateY(8px); }
                     66%, 100% { fill: #243447; stroke: rgba(201, 164, 92, 0.2); stroke-width: 1; transform: translateY(0); }
                 }
-
-                .lex-book-c {
-                    animation: lexBookGlowC 27s ease-in-out infinite;
-                }
+                .lex-book-c { animation: lexBookGlowC 27s ease-in-out infinite; }
                 @keyframes lexBookGlowC {
                     0%, 75% { fill: #243447; stroke: rgba(201, 164, 92, 0.2); stroke-width: 1; transform: translateY(0); }
                     82% { fill: rgba(201, 164, 92, 0.25); stroke: #C9A45C; stroke-width: 1.5; transform: translateY(0); }
@@ -175,67 +160,15 @@ function LexAnimazione({ faseAttiva }) {
                     94% { fill: rgba(201, 164, 92, 0.05); stroke: rgba(201, 164, 92, 0.3); stroke-width: 1; transform: translateY(8px); }
                     100% { fill: #243447; stroke: rgba(201, 164, 92, 0.2); stroke-width: 1; transform: translateY(0); }
                 }
-
-                .lex-open-a { opacity: 0; transform-origin: center; animation: lexOpenA 27s ease-in-out infinite; }
-                @keyframes lexOpenA {
-                    0%, 16% { opacity: 0; transform: translateY(20px) scale(0.7); }
-                    20% { opacity: 1; transform: translateY(0) scale(1); }
-                    28% { opacity: 1; transform: translateY(0) scale(1); }
-                    32% { opacity: 0; transform: translateY(-10px) scale(0.95); }
-                    100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
-                }
-                .lex-open-b { opacity: 0; transform-origin: center; animation: lexOpenB 27s ease-in-out infinite; }
-                @keyframes lexOpenB {
-                    0%, 50% { opacity: 0; transform: translateY(20px) scale(0.7); }
-                    54% { opacity: 1; transform: translateY(0) scale(1); }
-                    62% { opacity: 1; transform: translateY(0) scale(1); }
-                    66% { opacity: 0; transform: translateY(-10px) scale(0.95); }
-                    100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
-                }
-                .lex-open-c { opacity: 0; transform-origin: center; animation: lexOpenC 27s ease-in-out infinite; }
-                @keyframes lexOpenC {
-                    0%, 86% { opacity: 0; transform: translateY(20px) scale(0.7); }
-                    90% { opacity: 1; transform: translateY(0) scale(1); }
-                    97% { opacity: 1; transform: translateY(0) scale(1); }
-                    100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
-                }
-
-                .lex-particle-a { opacity: 0; animation: lexParticleA 27s ease-in-out infinite; }
-                @keyframes lexParticleA {
-                    0%, 22% { opacity: 0; transform: translateY(0); }
-                    24% { opacity: 1; transform: translateY(-5px); }
-                    30% { opacity: 0.6; transform: translateY(-25px); }
-                    33%, 100% { opacity: 0; transform: translateY(-35px); }
-                }
-                .lex-particle-b { opacity: 0; animation: lexParticleB 27s ease-in-out infinite; }
-                @keyframes lexParticleB {
-                    0%, 56% { opacity: 0; transform: translateY(0); }
-                    58% { opacity: 1; transform: translateY(-5px); }
-                    64% { opacity: 0.6; transform: translateY(-25px); }
-                    67%, 100% { opacity: 0; transform: translateY(-35px); }
-                }
-                .lex-particle-c { opacity: 0; animation: lexParticleC 27s ease-in-out infinite; }
-                @keyframes lexParticleC {
-                    0%, 92% { opacity: 0; transform: translateY(0); }
-                    94% { opacity: 1; transform: translateY(-5px); }
-                    99% { opacity: 0.6; transform: translateY(-25px); }
-                    100% { opacity: 0; transform: translateY(-35px); }
-                }
-
                 .lex-fade-text { animation: lexFadeIn 0.6s ease-out; }
                 @keyframes lexFadeIn {
-                    0%   { opacity: 0; transform: translateY(4px); }
+                    0% { opacity: 0; transform: translateY(4px); }
                     100% { opacity: 1; transform: translateY(0); }
                 }
-
                 .lex-dots-container { display: inline-flex; gap: 3px; margin-left: 6px; align-items: center; }
                 .lex-dot {
-                    display: inline-block;
-                    width: 3px;
-                    height: 3px;
-                    border-radius: 50%;
-                    background: #C9A45C;
-                    opacity: 0.4;
+                    display: inline-block; width: 3px; height: 3px;
+                    border-radius: 50%; background: #C9A45C; opacity: 0.4;
                     animation: lexDotPulse 1.4s ease-in-out infinite;
                 }
                 .lex-dot:nth-child(1) { animation-delay: 0s; }
@@ -249,129 +182,29 @@ function LexAnimazione({ faseAttiva }) {
 
             <div className="lex-stage">
                 <svg viewBox="62 27 416 185" xmlns="http://www.w3.org/2000/svg" role="img">
-                    <title>Lex sta cercando</title>
+                    <title>Lex sta consultando le fonti</title>
                     <line x1="60" y1="172" x2="480" y2="172" stroke="rgba(201, 164, 92, 0.4)" strokeWidth="0.8" />
 
                     <rect x="80" y="100" width="22" height="72" rx="1" fill="#243447" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="86" y1="115" x2="96" y2="115" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-                    <line x1="86" y1="120" x2="96" y2="120" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect x="105" y="92" width="20" height="80" rx="1" fill="#1d2c3a" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="110" y1="108" x2="120" y2="108" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect x="128" y="105" width="24" height="67" rx="1" fill="#2a3b4f" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="134" y1="120" x2="146" y2="120" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-                    <line x1="134" y1="125" x2="146" y2="125" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect className="lex-book-a" x="155" y="96" width="22" height="76" rx="1" fill="#243447" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="161" y1="112" x2="171" y2="112" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect x="180" y="108" width="20" height="64" rx="1" fill="#1d2c3a" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="185" y1="122" x2="195" y2="122" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-                    <line x1="185" y1="127" x2="195" y2="127" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect x="203" y="98" width="22" height="74" rx="1" fill="#2a3b4f" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="209" y1="113" x2="219" y2="113" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect x="228" y="103" width="24" height="69" rx="1" fill="#243447" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="234" y1="118" x2="246" y2="118" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect className="lex-book-b" x="255" y="90" width="26" height="82" rx="1.5" fill="#243447" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="261" y1="115" x2="275" y2="115" stroke="rgba(201, 164, 92, 0.4)" strokeWidth="0.5" />
-                    <line x1="261" y1="125" x2="275" y2="125" stroke="rgba(201, 164, 92, 0.4)" strokeWidth="0.5" />
-                    <line x1="261" y1="135" x2="275" y2="135" stroke="rgba(201, 164, 92, 0.4)" strokeWidth="0.5" />
-
                     <rect x="284" y="97" width="22" height="75" rx="1" fill="#1d2c3a" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="290" y1="113" x2="300" y2="113" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect x="309" y="104" width="24" height="68" rx="1" fill="#2a3b4f" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="315" y1="119" x2="327" y2="119" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-                    <line x1="315" y1="124" x2="327" y2="124" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect x="336" y="93" width="22" height="79" rx="1" fill="#243447" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="342" y1="109" x2="352" y2="109" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect className="lex-book-c" x="361" y="106" width="20" height="66" rx="1" fill="#1d2c3a" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="366" y1="121" x2="376" y2="121" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect x="384" y="100" width="22" height="72" rx="1" fill="#2a3b4f" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="390" y1="115" x2="400" y2="115" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-
                     <rect x="409" y="95" width="24" height="77" rx="1" fill="#243447" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
-                    <line x1="415" y1="111" x2="427" y2="111" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
-                    <line x1="415" y1="116" x2="427" y2="116" stroke="rgba(201, 164, 92, 0.3)" strokeWidth="0.5" />
 
                     <g className="lex-ray">
                         <ellipse cx="80" cy="135" rx="22" ry="55" fill="#C9A45C" opacity="0.18" />
                         <ellipse cx="80" cy="135" rx="14" ry="45" fill="#C9A45C" opacity="0.25" />
                         <ellipse cx="80" cy="135" rx="6" ry="35" fill="#C9A45C" opacity="0.4" />
                         <line x1="80" y1="80" x2="80" y2="180" stroke="#C9A45C" strokeWidth="0.5" opacity="0.6" />
-                    </g>
-
-                    <g className="lex-open-a" transform="translate(-115, 0)">
-                        <path d="M 240 195 L 240 145 Q 240 142 243 142 L 268 142 L 268 195 Z" fill="#F4F7F8" stroke="#C9A45C" strokeWidth="0.8" opacity="0.95" />
-                        <path d="M 268 142 L 293 142 Q 296 142 296 145 L 296 195 L 268 195 Z" fill="#F4F7F8" stroke="#C9A45C" strokeWidth="0.8" opacity="0.95" />
-                        <line x1="244" y1="152" x2="266" y2="152" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="158" x2="264" y2="158" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="164" x2="266" y2="164" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="170" x2="262" y2="170" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="176" x2="266" y2="176" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="152" x2="292" y2="152" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="158" x2="290" y2="158" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="164" x2="292" y2="164" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="170" x2="288" y2="170" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="176" x2="292" y2="176" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="268" y1="142" x2="268" y2="195" stroke="#C9A45C" strokeWidth="0.5" opacity="0.6" />
-                    </g>
-
-                    <g className="lex-open-b">
-                        <path d="M 240 195 L 240 145 Q 240 142 243 142 L 268 142 L 268 195 Z" fill="#F4F7F8" stroke="#C9A45C" strokeWidth="0.8" opacity="0.95" />
-                        <path d="M 268 142 L 293 142 Q 296 142 296 145 L 296 195 L 268 195 Z" fill="#F4F7F8" stroke="#C9A45C" strokeWidth="0.8" opacity="0.95" />
-                        <line x1="244" y1="152" x2="266" y2="152" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="158" x2="264" y2="158" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="164" x2="266" y2="164" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="170" x2="262" y2="170" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="176" x2="266" y2="176" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="152" x2="292" y2="152" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="158" x2="290" y2="158" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="164" x2="292" y2="164" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="170" x2="288" y2="170" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="176" x2="292" y2="176" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="268" y1="142" x2="268" y2="195" stroke="#C9A45C" strokeWidth="0.5" opacity="0.6" />
-                    </g>
-
-                    <g className="lex-open-c" transform="translate(105, 0)">
-                        <path d="M 240 195 L 240 145 Q 240 142 243 142 L 268 142 L 268 195 Z" fill="#F4F7F8" stroke="#C9A45C" strokeWidth="0.8" opacity="0.95" />
-                        <path d="M 268 142 L 293 142 Q 296 142 296 145 L 296 195 L 268 195 Z" fill="#F4F7F8" stroke="#C9A45C" strokeWidth="0.8" opacity="0.95" />
-                        <line x1="244" y1="152" x2="266" y2="152" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="158" x2="264" y2="158" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="164" x2="266" y2="164" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="170" x2="262" y2="170" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="244" y1="176" x2="266" y2="176" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="152" x2="292" y2="152" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="158" x2="290" y2="158" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="164" x2="292" y2="164" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="170" x2="288" y2="170" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="270" y1="176" x2="292" y2="176" stroke="#0B1F2A" strokeWidth="0.4" opacity="0.5" />
-                        <line x1="268" y1="142" x2="268" y2="195" stroke="#C9A45C" strokeWidth="0.5" opacity="0.6" />
-                    </g>
-
-                    <g transform="translate(140, 140)">
-                        <circle className="lex-particle-a" cx="0" cy="0" r="1.5" fill="#C9A45C" />
-                        <circle className="lex-particle-a" cx="8" cy="0" r="1.2" fill="#C9A45C" style={{ animationDelay: '0.3s' }} />
-                        <circle className="lex-particle-a" cx="16" cy="0" r="1.8" fill="#C9A45C" style={{ animationDelay: '0.6s' }} />
-                    </g>
-                    <g transform="translate(255, 140)">
-                        <circle className="lex-particle-b" cx="0" cy="0" r="1.5" fill="#C9A45C" />
-                        <circle className="lex-particle-b" cx="8" cy="0" r="1.2" fill="#C9A45C" style={{ animationDelay: '0.3s' }} />
-                        <circle className="lex-particle-b" cx="16" cy="0" r="1.8" fill="#C9A45C" style={{ animationDelay: '0.6s' }} />
-                        <circle className="lex-particle-b" cx="24" cy="0" r="1.2" fill="#C9A45C" style={{ animationDelay: '0.9s' }} />
-                        <circle className="lex-particle-b" cx="32" cy="0" r="1.5" fill="#C9A45C" style={{ animationDelay: '1.2s' }} />
-                    </g>
-                    <g transform="translate(360, 140)">
-                        <circle className="lex-particle-c" cx="0" cy="0" r="1.5" fill="#C9A45C" />
-                        <circle className="lex-particle-c" cx="8" cy="0" r="1.2" fill="#C9A45C" style={{ animationDelay: '0.3s' }} />
-                        <circle className="lex-particle-c" cx="16" cy="0" r="1.8" fill="#C9A45C" style={{ animationDelay: '0.6s' }} />
                     </g>
                 </svg>
             </div>
@@ -396,237 +229,39 @@ function LexAnimazione({ faseAttiva }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// AGGIUNGI A PRATICA — popover inline con cerca
-// Stesso pattern di AggiungiAEtichetta
+// CHAT LEX — ricerca semantica AI (streaming SSE dal Lead CH)
+// Derivata dalla RicercaAI dell'IT. Differenze:
+//   - endpoint via LEAD_ENDPOINT
+//   - FASI_LABEL svizzere
+//   - niente blocco sentenze_marketplace (non esiste su CH)
 // ═══════════════════════════════════════════════════════════════
-function AggiungiAPratica({ ricerca, onRicercaSalvata, ricercaSalvataId, setRicercaSalvataId, variant = 'default' }) {
-    const { profile } = useAuth()
-    const [aperto, setAperto] = useState(false)
-    const [cerca, setCerca] = useState('')
-    const [pratiche, setPratiche] = useState([])
-    const [loading, setLoading] = useState(false)
-    const [salvando, setSalvando] = useState(null)
-    const [salvatoIn, setSalvatoIn] = useState(null)
-    const [errore, setErrore] = useState(null)
-    const containerRef = useRef(null)
-
-    useEffect(() => {
-        if (!aperto) return
-        function handleClick(e) {
-            if (containerRef.current && !containerRef.current.contains(e.target)) {
-                setAperto(false)
-            }
-        }
-        document.addEventListener('mousedown', handleClick)
-        return () => document.removeEventListener('mousedown', handleClick)
-    }, [aperto])
-
-    useEffect(() => {
-        if (!aperto) return
-        async function carica() {
-            setLoading(true)
-            try {
-                const { data: { user } } = await supabase.auth.getUser()
-                const { data } = await supabase
-                    .from('pratiche')
-                    .select('id, titolo, cliente:cliente_id(nome, cognome)')
-                    .eq('avvocato_id', user.id)
-                    .eq('stato', 'aperta')
-                    .order('updated_at', { ascending: false })
-                    .limit(50)
-                setPratiche(data ?? [])
-            } finally {
-                setLoading(false)
-            }
-        }
-        carica()
-    }, [aperto])
-
-    async function salva(pratica) {
-        setSalvando(pratica.id)
-        setErrore(null)
-        try {
-            const { data: { user } } = await supabase.auth.getUser()
-
-            if (ricercaSalvataId) {
-                // Riga già creata da un altro bottone (es. etichetta): aggiorna pratica_id
-                const { error } = await supabase
-                    .from('ricerche')
-                    .update({ pratica_id: pratica.id })
-                    .eq('id', ricercaSalvataId)
-                if (error) throw new Error(error.message)
-            } else {
-                // Prima volta: crea la riga
-                const { data, error } = await supabase
-                    .from('ricerche')
-                    .insert({
-                        pratica_id: pratica.id,
-                        user_id: user.id,
-                        autore_id: user.id,
-                        tipo: ricerca.tipo,
-                        titolo: ricerca.domanda,
-                        contenuto: ricerca.tipo === 'ricerca_ai' ? ricerca.risposta : ricerca.testo,
-                        metadati: {
-                            sentenze: ricerca.sentenze ?? false,
-                            codice: ricerca.codice ?? null,
-                            ts: new Date().toISOString(),
-                        }
-                    })
-                    .select('id')
-                    .single()
-                if (error) throw new Error(error.message)
-                if (setRicercaSalvataId) setRicercaSalvataId(data.id)
-            }
-
-            setSalvatoIn(pratica)
-            setAperto(false)
-            if (onRicercaSalvata) onRicercaSalvata()
-        } catch (e) {
-            setErrore(e.message)
-        } finally {
-            setSalvando(null)
-        }
-    }
-
-    if (profile?.role !== 'avvocato') return null
-
-    if (salvatoIn) return (
-        <span className="font-body text-xs text-salvia flex items-center gap-1.5 px-3 py-2 border border-salvia/30 bg-salvia/5">
-            <Sparkles size={11} /> Salvato in "{salvatoIn.titolo}"
-        </span>
-    )
-
-    const buttonClass = variant === 'compact'
-        ? 'flex items-center gap-1.5 px-2.5 py-1.5 border border-white/10 text-nebbia/50 hover:border-oro/30 hover:text-oro transition-colors font-body text-xs'
-        : 'flex items-center gap-2 px-4 py-2 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors'
-
-    const pratichefiltrate = cerca.trim()
-        ? pratiche.filter(p => p.titolo.toLowerCase().includes(cerca.toLowerCase()))
-        : pratiche
-
-    return (
-        <div ref={containerRef} className="relative inline-block">
-            <button
-                type="button"
-                onClick={() => setAperto(v => !v)}
-                className={buttonClass}
-            >
-                <FileText size={variant === 'compact' ? 11 : 13} />
-                <span>Salva in pratica</span>
-            </button>
-
-            {aperto && (
-                <div className="absolute z-50 mt-2 w-80 bg-slate border border-white/10 shadow-2xl">
-                    <div className="p-3 border-b border-white/5">
-                        <div className="relative">
-                            <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                            <input
-                                autoFocus
-                                value={cerca}
-                                onChange={e => setCerca(e.target.value)}
-                                placeholder="Cerca pratica..."
-                                className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-8 pr-8 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
-                            />
-                            <button
-                                onClick={() => setAperto(false)}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-nebbia/30 hover:text-nebbia"
-                            >
-                                <X size={12} />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="max-h-72 overflow-y-auto">
-                        {loading ? (
-                            <div className="p-4 flex items-center justify-center gap-2 text-nebbia/30">
-                                <span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" />
-                                <span className="font-body text-xs">Caricamento...</span>
-                            </div>
-                        ) : pratichefiltrate.length === 0 ? (
-                            <p className="p-4 text-center font-body text-xs text-nebbia/25">
-                                {cerca ? 'Nessuna pratica trovata' : 'Nessuna pratica aperta'}
-                            </p>
-                        ) : (
-                            pratichefiltrate.map(p => {
-                                const isLoading = salvando === p.id
-                                return (
-                                    <button
-                                        key={p.id}
-                                        onClick={() => salva(p)}
-                                        disabled={isLoading}
-                                        className="w-full text-left px-3 py-2.5 hover:bg-petrolio/50 transition-colors border-b border-white/5 last:border-0 disabled:opacity-50"
-                                    >
-                                        <p className="font-body text-sm text-nebbia/80 truncate">{p.titolo}</p>
-                                        {p.cliente && (
-                                            <p className="font-body text-xs text-nebbia/30 mt-0.5 truncate">
-                                                {p.cliente.nome} {p.cliente.cognome}
-                                            </p>
-                                        )}
-                                        {isLoading && (
-                                            <span className="font-body text-xs text-oro mt-1 flex items-center gap-1">
-                                                <span className="animate-spin w-2.5 h-2.5 border border-oro border-t-transparent rounded-full" />
-                                                Salvataggio...
-                                            </span>
-                                        )}
-                                    </button>
-                                )
-                            })
-                        )}
-                    </div>
-
-                    {errore && (
-                        <div className="p-2 bg-red-900/15 border-t border-red-500/20">
-                            <p className="font-body text-xs text-red-400">{errore}</p>
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
-    )
-}
-
-// ═══════════════════════════════════════════════════════════════
-// LEX — RICERCA AI (multi-agent streaming)
-// ═══════════════════════════════════════════════════════════════
-function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggiornaMessaggi, onRicercaSalvata }) {
+function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
     const [domanda, setDomanda] = useState('')
     const [cercando, setCercando] = useState(false)
     const [errore, setErrore] = useState(null)
     const [conversazione, setConversazione] = useState([])
     const [faseCorrente, setFaseCorrente] = useState(null)
     const [streamingTesto, setStreamingTesto] = useState('')
-    const [meta, setMeta] = useState(null)
-
     const [clientConversationId, setClientConversationId] = useState(() => crypto.randomUUID())
-
-    // Riga `ricerche` condivisa tra "Salva in pratica" e "Aggiungi a etichetta"
     const [ricercaSalvataId, setRicercaSalvataId] = useState(null)
-
     const abortControllerRef = useRef(null)
 
     async function cerca(domandaInput, opzioni = {}) {
         const domandaCorrente = domandaInput ?? domanda
         if (!domandaCorrente.trim()) return
-        if (crediti !== null && crediti <= 0) { setErrore('Crediti Lex esauriti.'); return }
+        if (crediti !== null && crediti <= 0) { setErrore('crediti_esauriti'); return }
 
-        if (!opzioni.tipoRichiesta || opzioni.tipoRichiesta === 'query_iniziale') {
-            setDomanda('')
-        }
-        setCercando(true)
-        setErrore(null)
-        setFaseCorrente(null)
-        setStreamingTesto('')
-        setMeta(null)
+        if (!opzioni.tipoRichiesta || opzioni.tipoRichiesta === 'query_iniziale') setDomanda('')
+        setCercando(true); setErrore(null); setFaseCorrente(null); setStreamingTesto('')
 
         const nuovaConv = [...conversazione, { role: 'user', content: domandaCorrente }]
         setConversazione(nuovaConv)
-
         abortControllerRef.current = new AbortController()
 
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lex-lead`,
+                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${LEAD_ENDPOINT}`,
                 {
                     method: 'POST',
                     headers: {
@@ -647,11 +282,7 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
 
             if (!res.ok) {
                 const errBody = await res.json().catch(() => ({ error: 'Errore sconosciuto' }))
-                if (errBody.crediti_esauriti) {
-                    setErrore('crediti_esauriti')
-                } else {
-                    setErrore(errBody.error ?? `Errore ${res.status}`)
-                }
+                setErrore(errBody.crediti_esauriti ? 'crediti_esauriti' : (errBody.error ?? `Errore ${res.status}`))
                 setConversazione(conversazione)
                 setCercando(false)
                 return
@@ -667,7 +298,6 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
             while (true) {
                 const { value, done } = await reader.read()
                 if (done) break
-
                 buffer += decoder.decode(value, { stream: true })
                 const lines = buffer.split('\n')
                 buffer = lines.pop() ?? ''
@@ -675,95 +305,55 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
                 let eventoCorrente = null
                 for (const line of lines) {
                     if (!line.trim()) continue
-
-                    if (line.startsWith('event: ')) {
-                        eventoCorrente = line.slice(7).trim()
-                        continue
-                    }
-
+                    if (line.startsWith('event: ')) { eventoCorrente = line.slice(7).trim(); continue }
                     if (line.startsWith('data: ')) {
                         const payload = line.slice(6).trim()
                         try {
                             const data = JSON.parse(payload)
-
                             if (eventoCorrente === 'fase') {
-                                if (data.fase === 'rigetto' || data.fase === 'no_copertura') {
-                                    setFaseCorrente(null)
-                                } else {
-                                    setFaseCorrente(data.fase)
-                                }
+                                setFaseCorrente(
+                                    (data.fase === 'rigetto' || data.fase === 'no_copertura') ? null : data.fase
+                                )
                             }
-
                             if (eventoCorrente === 'chunk') {
                                 testoAccumulato += data.text ?? ''
                                 setStreamingTesto(testoAccumulato)
                                 if (faseCorrente !== null) setFaseCorrente(null)
                             }
-
                             if (eventoCorrente === 'done') {
                                 metaFinale = data.meta
                                 tipoRisposta = data.tipo_risposta
                                 if (data.crediti_rimasti !== undefined) setCrediti(data.crediti_rimasti)
                             }
-
-                            if (eventoCorrente === 'error') {
-                                setErrore(data.error ?? 'Errore nello streaming')
-                            }
-                        } catch (e) {
-                            // ignore malformed
-                        }
+                            if (eventoCorrente === 'error') setErrore(data.error ?? 'Errore nello streaming')
+                        } catch { /* ignore */ }
                     }
                 }
             }
 
-            const messaggioCompleto = {
-                role: 'assistant',
-                content: testoAccumulato,
-                meta: metaFinale,
-                tipo_risposta: tipoRisposta,
-            }
-            const convFinale = [...nuovaConv, messaggioCompleto]
+            const convFinale = [...nuovaConv, {
+                role: 'assistant', content: testoAccumulato, meta: metaFinale, tipo_risposta: tipoRisposta,
+            }]
             setConversazione(convFinale)
             setStreamingTesto('')
-            setMeta(metaFinale)
 
-            const nuoviMessaggi = [
+            if (onAggiornaMessaggi) onAggiornaMessaggi([
                 ...(messaggi ?? []),
                 { role: 'user', content: domandaCorrente },
                 { role: 'assistant', content: testoAccumulato },
-            ]
-            if (onAggiornaMessaggi) onAggiornaMessaggi(nuoviMessaggi)
-            if (onRisultato) onRisultato({
-                tipo: 'ricerca_ai',
-                domanda: domandaCorrente,
-                risposta: testoAccumulato,
-                meta: metaFinale,
-                codice,
-                ts: new Date()
-            })
-
+            ])
         } catch (e) {
-            if (e.name === 'AbortError') {
-                setConversazione(conversazione)
-            } else {
-                setErrore(e.message)
-                setConversazione(conversazione)
-            }
+            if (e.name !== 'AbortError') setErrore(e.message)
+            setConversazione(conversazione)
         } finally {
-            setCercando(false)
-            setFaseCorrente(null)
-            abortControllerRef.current = null
+            setCercando(false); setFaseCorrente(null); abortControllerRef.current = null
         }
     }
 
     function nuovaSessione() {
         if (abortControllerRef.current) abortControllerRef.current.abort()
-        setConversazione([])
-        setStreamingTesto('')
-        setFaseCorrente(null)
-        setMeta(null)
+        setConversazione([]); setStreamingTesto(''); setFaseCorrente(null)
         setClientConversationId(crypto.randomUUID())
-        setRicercaSalvataId(null)
         if (onAggiornaMessaggi) onAggiornaMessaggi([])
     }
 
@@ -787,29 +377,12 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
         hr: () => <hr className="my-4 border-white/10" />,
         a: ({ href, children }) => {
             if (!href) return <span>{children}</span>
-
             const isAreaUtente = window.location.pathname.startsWith('/area')
             const prefix = isAreaUtente ? '/area' : '/banca-dati'
-
-            let finalHref = href
-
-            if (href.startsWith('/banca-dati/norma/')) {
-                const id = href.split('/').pop()
-                finalHref = `${prefix}/norma/${id}`
-            } else if (href.startsWith('/banca-dati/archivio/')) {
-                const id = href.split('/').pop()
-                finalHref = `${prefix}/norma/${id}`
-            } else if (href.startsWith('/banca-dati/')) {
-                finalHref = href.replace('/banca-dati/', `${prefix}/`)
-            }
-
+            const finalHref = href.startsWith('/banca-dati/') ? href.replace('/banca-dati/', `${prefix}/`) : href
             return (
-                <a
-                    href={finalHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-oro hover:text-oro/80 underline decoration-oro/30 hover:decoration-oro transition-colors"
-                >
+                <a href={finalHref} target="_blank" rel="noopener noreferrer"
+                    className="text-oro hover:text-oro/80 underline decoration-oro/30 hover:decoration-oro transition-colors">
                     {children}
                 </a>
             )
@@ -821,7 +394,7 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
             <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
                 <div className="flex items-center gap-2">
                     <Sparkles size={14} className="text-salvia" />
-                    <p className="font-body text-sm font-medium text-nebbia">Lex — AI Assistant</p>
+                    <p className="font-body text-sm font-medium text-nebbia">Lex — Assistente AI</p>
                     {conversazione.length > 0 && (
                         <span className="font-body text-xs text-salvia/60 border border-salvia/20 px-2 py-0.5">
                             {Math.floor(conversazione.length / 2)} scambi
@@ -847,14 +420,10 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
                                     {m.role === 'user' ? 'Tu' : 'Lex'}
                                 </span>
                                 {m.tipo_risposta === 'rigettata' && (
-                                    <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">
-                                        non interpretata
-                                    </span>
+                                    <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">non interpretata</span>
                                 )}
                                 {m.tipo_risposta === 'messaggio_standard' && (
-                                    <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">
-                                        nessun risultato
-                                    </span>
+                                    <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">nessun risultato</span>
                                 )}
                             </div>
 
@@ -862,71 +431,25 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
                                 <p className="font-body text-sm text-nebbia/60 leading-relaxed">{m.content}</p>
                             ) : (
                                 <div className="font-body text-sm text-nebbia/80 leading-relaxed space-y-2">
-                                    <ReactMarkdown components={markdownComponents}>
-                                        {m.content}
-                                    </ReactMarkdown>
-
-                                    {m.meta?.sentenze_marketplace?.length > 0 && (
-                                        <div className="mt-5 pt-4 border-t border-white/5 space-y-3">
-                                            <div className="flex items-center gap-2">
-                                                <BookOpen size={12} className="text-oro" />
-                                                <p className="font-body text-xs font-medium text-oro uppercase tracking-widest">
-                                                    Sentenze annotate da colleghi
-                                                </p>
-                                            </div>
-                                            <div className="space-y-2">
-                                                {m.meta.sentenze_marketplace.map(s => (
-                                                    <div key={s.id} className="bg-petrolio border border-oro/15 p-3 flex items-start justify-between gap-3">
-                                                        <div className="min-w-0 flex-1">
-                                                            <p className="font-body text-xs font-medium text-nebbia/80">
-                                                                {s.organo} · {s.anno}
-                                                            </p>
-                                                            <p className="font-body text-xs text-nebbia/40 mt-0.5 line-clamp-2">{s.oggetto}</p>
-                                                        </div>
-                                                        <a
-                                                            href={`/banca-dati/avvocato/${s.id}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="shrink-0 flex flex-col items-end gap-1"
-                                                        >
-                                                            <span className="font-display text-base font-semibold text-oro">EUR {s.prezzo}</span>
-                                                            <span className="font-body text-[10px] text-oro/60 uppercase tracking-wider">vedi</span>
-                                                        </a>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
+                                    <ReactMarkdown components={markdownComponents}>{m.content}</ReactMarkdown>
 
                                     {m.meta?.approfondimenti_disponibili?.length > 0 && (
                                         <div className="mt-5 pt-4 border-t border-white/5 space-y-3">
                                             <div className="flex items-center gap-2">
                                                 <Sparkles size={12} className="text-salvia" />
-                                                <p className="font-body text-xs font-medium text-salvia uppercase tracking-widest">
-                                                    Approfondimenti suggeriti
-                                                </p>
+                                                <p className="font-body text-xs font-medium text-salvia uppercase tracking-widest">Approfondimenti suggeriti</p>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                                 {m.meta.approfondimenti_disponibili.map((a, idx) => (
-                                                    <button
-                                                        key={idx}
+                                                    <button key={idx}
                                                         onClick={() => approfondisci(a.filtro_key, a.label, a.subagent_source)}
                                                         disabled={cercando}
-                                                        className="text-left bg-petrolio border border-salvia/15 hover:border-salvia/40 p-3 transition-colors disabled:opacity-40 group"
-                                                    >
+                                                        className="text-left bg-petrolio border border-salvia/15 hover:border-salvia/40 p-3 transition-colors disabled:opacity-40 group">
                                                         <div className="flex items-start justify-between gap-2 mb-1">
-                                                            <p className="font-body text-xs font-medium text-nebbia/80 group-hover:text-salvia transition-colors leading-snug">
-                                                                {a.label}
-                                                            </p>
-                                                            <span className="font-body text-[10px] text-salvia/60 shrink-0 mt-0.5">
-                                                                {a.conteggio}
-                                                            </span>
+                                                            <p className="font-body text-xs font-medium text-nebbia/80 group-hover:text-salvia transition-colors leading-snug">{a.label}</p>
+                                                            <span className="font-body text-[10px] text-salvia/60 shrink-0 mt-0.5">{a.conteggio}</span>
                                                         </div>
-                                                        {a.teaser && (
-                                                            <p className="font-body text-[11px] text-nebbia/40 line-clamp-2 leading-relaxed">
-                                                                {a.teaser}
-                                                            </p>
-                                                        )}
+                                                        {a.teaser && <p className="font-body text-[11px] text-nebbia/40 line-clamp-2 leading-relaxed">{a.teaser}</p>}
                                                     </button>
                                                 ))}
                                             </div>
@@ -939,19 +462,14 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
 
                     {cercando && (
                         <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                                <span className="font-body text-xs font-medium text-salvia/70">Lex</span>
-                            </div>
-
-                            {streamingTesto.length === 0 && (
-                                <LexAnimazione faseAttiva={faseCorrente} />
-                            )}
-
-                            {streamingTesto.length > 0 && (
+                            <span className="font-body text-xs font-medium text-salvia/70">Lex</span>
+                            {streamingTesto.length === 0 ? (
+                                <LexAnimazione
+                                    frasi={faseCorrente ? [FASI_LABEL[faseCorrente] ?? faseCorrente] : undefined}
+                                />
+                            ) : (
                                 <div className="font-body text-sm text-nebbia/80 leading-relaxed space-y-2">
-                                    <ReactMarkdown components={markdownComponents}>
-                                        {streamingTesto}
-                                    </ReactMarkdown>
+                                    <ReactMarkdown components={markdownComponents}>{streamingTesto}</ReactMarkdown>
                                     <span className="inline-block w-1 h-4 bg-oro/60 align-middle animate-pulse ml-0.5" />
                                 </div>
                             )}
@@ -960,62 +478,37 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
                 </div>
             )}
 
-            {/* Salvataggio in pratica + etichetta — popover inline entrambi */}
+            {/* Salvataggio della conversazione Lex in pratica + etichetta (tipo ricerca_ai, come IT) */}
             {conversazione.length >= 2 && !cercando && (
                 <div className="px-5 pb-3 flex flex-wrap gap-2 [&>div>button]:h-[38px]">
                     <AggiungiAPratica
                         ricerca={{
                             tipo: 'ricerca_ai',
                             domanda: conversazione[0]?.content ?? '',
-                            risposta: conversazione
-                                .filter(m => m.role === 'assistant')
-                                .map(m => m.content)
-                                .join('\n\n---\n\n'),
-                            sentenze: conversazione.some(m => m.meta?.sentenze_marketplace?.length > 0),
-                            codice
+                            risposta: conversazione.filter(m => m.role === 'assistant').map(m => m.content).join('\n\n---\n\n'),
                         }}
-                        onRicercaSalvata={onRicercaSalvata}
                         ricercaSalvataId={ricercaSalvataId}
                         setRicercaSalvataId={setRicercaSalvataId}
                     />
                     <AggiungiAEtichetta
                         elemento={{ tipo: 'ricerca_ai' }}
                         domanda={conversazione[0]?.content ?? ''}
-                        risposta={conversazione
-                            .filter(m => m.role === 'assistant')
-                            .map(m => m.content)
-                            .join('\n\n---\n\n')}
-                        metadati={{
-                            sentenze: conversazione.some(m => m.meta?.sentenze_marketplace?.length > 0),
-                            codice,
-                            tipo_query: 'banca_dati',
-                            ts: new Date().toISOString(),
-                        }}
+                        risposta={conversazione.filter(m => m.role === 'assistant').map(m => m.content).join('\n\n---\n\n')}
                         ricercaIdEsterno={ricercaSalvataId}
                         onRicercaCreata={setRicercaSalvataId}
                     />
                 </div>
             )}
 
-            {/* Input area */}
             <div className="px-5 py-4 space-y-3 border-t border-white/5">
                 {conversazione.length === 0 && (
                     <p className="font-body text-xs text-nebbia/30">
-                        Descrivi il caso legale — Lex consulterà norme, giurisprudenza e prassi.
+                        INDICA IL CANTONE IN CUI CERCARE PER RISULTATI MIGLIORI.
                     </p>
                 )}
-                {conversazione.length === 0 && (
-                    <div className="bg-petrolio/60 border border-salvia/10 px-4 py-3 mb-2">
-                        <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            💡 <span className="text-nebbia/60">Per una ricerca più precisa</span>, specifica: fase processuale, tribunale e ruolo del cliente.<br />
-                            <span className="text-nebbia/30">Es: "Il mio cliente è imputato per omicidio colposo, fase dibattimentale, Tribunale di Milano"</span>
-                        </p>
-                    </div>
-                )}
-
                 <textarea
                     rows={3}
-                    placeholder={conversazione.length > 0 ? 'Approfondisci o fai una nuova domanda...' : 'Es. Il mio cliente è accusato di omicidio colposo...'}
+                    placeholder={conversazione.length > 0 ? 'Approfondisci o fai una nuova domanda…' : 'Es. Responsabilità del datore di lavoro per infortunio sul lavoro CANTON TICINO…'}
                     value={domanda}
                     onChange={e => setDomanda(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) cerca() }}
@@ -1024,9 +517,7 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
                 />
 
                 {errore && errore !== 'crediti_esauriti' && (
-                    <p className="font-body text-xs text-red-400 flex items-center gap-1.5">
-                        <AlertCircle size={11} />{errore}
-                    </p>
+                    <p className="font-body text-xs text-red-400 flex items-center gap-1.5"><AlertCircle size={11} />{errore}</p>
                 )}
                 {errore === 'crediti_esauriti' && (
                     <div className="flex items-center justify-between gap-3 p-3 bg-oro/5 border border-oro/20">
@@ -1034,26 +525,18 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
                             <AlertCircle size={13} className="text-oro shrink-0" />
                             <p className="font-body text-xs text-nebbia/60">Crediti Lex esauriti.</p>
                         </div>
-                        <a
-                            href="/studio?tab=acquista"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors whitespace-nowrap"
-                        >
+                        <a href="/studio?tab=acquista" target="_blank" rel="noopener noreferrer"
+                            className="font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors whitespace-nowrap">
                             Acquista crediti →
                         </a>
                     </div>
                 )}
 
-                <button
-                    onClick={() => cerca()}
-                    disabled={cercando || !domanda.trim()}
-                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40"
-                >
+                <button onClick={() => cerca()} disabled={cercando || !domanda.trim()}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40">
                     {cercando
-                        ? <><span className="animate-spin w-4 h-4 border-2 border-salvia border-t-transparent rounded-full" /> Lex sta lavorando...</>
-                        : <><Sparkles size={13} /> {conversazione.length > 0 ? 'Continua conversazione' : 'Cerca con Lex'}</>
-                    }
+                        ? <><span className="animate-spin w-4 h-4 border-2 border-salvia border-t-transparent rounded-full" /> Lex sta lavorando…</>
+                        : <><Sparkles size={13} /> {conversazione.length > 0 ? 'Continua conversazione' : 'Cerca con Lex'}</>}
                 </button>
             </div>
         </div>
@@ -1061,291 +544,325 @@ function RicercaAI({ codice, onRisultato, crediti, setCrediti, messaggi, onAggio
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TAB NORMATIVA (Italiana + UE)
+// PLACEHOLDER tab — sostituito uno alla volta nei prossimi step
 // ═══════════════════════════════════════════════════════════════
-function TabNormativa({ datasetFonte, crediti, setCrediti, refreshNoOp, messaggiConversazione, setMessaggiConversazione }) {
+function TabPlaceholder({ nome }) {
+    return (
+        <div className="bg-slate border border-white/5 p-12 text-center">
+            <p className="font-body text-sm text-nebbia/40">
+                Tab “{nome}” — in costruzione. La aggiungiamo nel prossimo step.
+            </p>
+        </div>
+    )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DEFINIZIONE TAB CORPUS
+// ═══════════════════════════════════════════════════════════════
+const TABS = [
+    { key: 'federale', label: 'Federale', icon: Landmark },
+    { key: 'cantonale', label: 'Cantonale', icon: MapPin },
+    { key: 'giurisprudenza', label: 'Giurisprudenza', icon: Scale },
+    { key: 'prassi', label: 'Prassi', icon: ScrollText },
+    { key: 'ue', label: 'UE', icon: Globe },
+]
+
+// ═══════════════════════════════════════════════════════════════
+// COMPONENTE PRINCIPALE
+// ═══════════════════════════════════════════════════════════════
+export function BancaDati() {
+    const { crediti, setCrediti } = useCreditiAI()
+    const [messaggiConversazione, setMessaggiConversazione] = useState([])
+    const [tabAttivo, setTabAttivo] = useState('federale')
+
+    return (
+        <div className="space-y-5 pb-24">
+            <PageHeader
+                label="Banca Dati"
+                title="Diritto svizzero, giurisprudenza e prassi"
+                subtitle="Cerca con Lex AI o sfoglia diritto federale, cantonale, giurisprudenza, prassi amministrativa e diritto UE"
+            />
+
+            {/* Chat Lex — sempre in alto, cross-fonte */}
+            <ChatLex
+                crediti={crediti}
+                setCrediti={setCrediti}
+                messaggi={messaggiConversazione}
+                onAggiornaMessaggi={setMessaggiConversazione}
+            />
+
+            {/* Tab corpus */}
+            <div className="!mt-10 pt-6 border-t border-white/5 space-y-5">
+                <div className="flex items-center gap-3 flex-wrap">
+                    <p className="section-label !m-0">Sfoglia</p>
+                    <div className="flex gap-1 bg-slate border border-white/5 p-1 flex-wrap">
+                        {TABS.map(t => {
+                            const Icon = t.icon
+                            return (
+                                <button key={t.key} onClick={() => setTabAttivo(t.key)}
+                                    className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${tabAttivo === t.key ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
+                                    <Icon size={12} /> {t.label}
+                                </button>
+                            )
+                        })}
+                    </div>
+                </div>
+
+                {tabAttivo === 'federale' && <TabFederale />}
+                {tabAttivo === 'cantonale' && <TabCantonale />}
+                {tabAttivo === 'giurisprudenza' && <TabGiurisprudenza />}
+                {tabAttivo === 'prassi' && <TabPrassi />}
+                {tabAttivo === 'ue' && <TabUE />}
+            </div>
+        </div>
+    )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB FEDERALE (Fedlex) v3  —  blocco 2/N di BancaDati.jsx (CH)
+//
+// NOVITÀ v3:
+//   - SELETTORE LINGUA GLOBALE in cima al tab (IT · DE · FR), default = lingua
+//     piattaforma. Governa lista atti + articoli in modo coerente.
+//   - TITOLO LISTA da `titolo` (lungo): esiste al 100% in it/de/fr, quindi
+//     scegliendo FR si vede tutto in francese senza buchi. `titolo_short`
+//     (sigla, presente solo ~20% degli atti) mostrato come complemento.
+//   - FALLBACK + BADGE: se un atto/articolo non esiste nella lingua scelta,
+//     viene mostrato comunque ripiegando sulla prima lingua disponibile, con
+//     badge che indica la lingua reale (opzione A). Sul federale è raro;
+//     serve sul cantonale (atto TI solo in italiano, ecc.).
+//   - DEDUPLICA anti-fantasma: abrogato=false AND testo non vuoto.
+//
+// Sostituzione in BancaDati: {tabAttivo === 'federale' && <TabFederale />}
+// Icone richieste (già in cima al file): Search, ChevronRight, ChevronLeft, X.
+// ═══════════════════════════════════════════════════════════════
+
+// Lingua piattaforma. Isolata: quando caberai l'i18n, sostituisci il corpo.
+function linguaPiattaforma() {
+    try {
+        const ls = localStorage.getItem('i18nextLng') || localStorage.getItem('lingua')
+        if (ls) {
+            const base = ls.slice(0, 2).toLowerCase()
+            if (['it', 'de', 'fr'].includes(base)) return base
+        }
+    } catch { /* ignore */ }
+    return 'it'
+}
+
+const LINGUE_LABEL = { it: 'IT', de: 'DE', fr: 'FR', en: 'EN', rm: 'RM' }
+const ORDINE_LINGUE = ['it', 'de', 'fr', 'en', 'rm']
+const LINGUE_SELETTORE = ['it', 'de', 'fr']   // selettore globale: lingue ufficiali
+
+// Risolve un jsonb multilingua nella lingua scelta; se assente, ripiega in
+// ordine e ritorna ANCHE la lingua effettivamente usata (per il badge).
+function risolviMultilingua(campoJsonb, linguaScelta) {
+    if (!campoJsonb || typeof campoJsonb !== 'object') return { testo: null, lingua: null }
+    if (linguaScelta && campoJsonb[linguaScelta]) return { testo: campoJsonb[linguaScelta], lingua: linguaScelta }
+    for (const k of ORDINE_LINGUE) {
+        if (campoJsonb[k]) return { testo: campoJsonb[k], lingua: k }
+    }
+    return { testo: null, lingua: null }
+}
+
+const TIPO_ATTO_LABEL = {
+    legge_federale: 'Leggi federali',
+    ordinanza: 'Ordinanze',
+    costituzione: 'Costituzione',
+    decreto: 'Decreti',
+    regolamento: 'Regolamenti',
+    trattato: 'Trattati internazionali',
+    altro: 'Altri atti',
+}
+
+const PER_PAGINA_ATTI_FED = 50
+const PER_PAGINA_ART_FED = 50
+
+function TabFederale() {
     const navigate = useNavigate()
-    const [dataset, setDataset] = useState(datasetFonte)
-    const config = dataset === 'ue' ? CONFIG_UE : CONFIG_IT
 
     const [vista, setVista] = useState('catalogo')
-    const [codiceSelezionato, setCodice] = useState(null)
-    const [labelSelezionato, setLabel] = useState('')
 
-    const [codici, setCodici] = useState([])
-    const [codiciLabel, setCodiciLabel] = useState({})
-    const [loadingCodici, setLoadingCodici] = useState(true)
+    // Lingua GLOBALE del tab (governa lista + articoli)
+    const [lingua, setLingua] = useState(linguaPiattaforma())
 
-    const [inputTradGlobale, setInputTradGlobale] = useState('')
-    const [cercaTradGlobale, setCercaTradGlobale] = useState('')
-    const [normeGlobali, setNormeGlobali] = useState([])
-    const [totaleGlobale, setTotaleGlobale] = useState(0)
-    const [loadingGlobale, setLoadingGlobale] = useState(false)
-    const [articoloApertoGlobale, setArticoloApertoGlobale] = useState(null)
+    // L1 — catalogo
+    const [conteggi, setConteggi] = useState([])
+    const [loadingConteggi, setLoadingConteggi] = useState(true)
 
-    const [norme, setNorme] = useState([])
-    const [loadingNorme, setLoadingNorme] = useState(false)
-    const [totaleNorme, setTotaleNorme] = useState(0)
-    const [pagina, setPagina] = useState(0)
-    const PER_PAGINA = 50
-    const [inputTrad, setInputTrad] = useState('')
-    const [cercaTrad, setCercaTrad] = useState('')
-    const [tab, setTab] = useState('tradizionale')
-    const [articoloAperto, setArticoloAperto] = useState(null)
+    // L2 — lista atti
+    const [tipoSel, setTipoSel] = useState(null)
+    const [atti, setAtti] = useState([])
+    const [totaleAtti, setTotaleAtti] = useState(0)
+    const [loadingAtti, setLoadingAtti] = useState(false)
+    const [paginaAtti, setPaginaAtti] = useState(0)
+    const [inputAtti, setInputAtti] = useState('')
+    const [cercaAtti, setCercaAtti] = useState('')
 
+    // L3 — articoli
+    const [attoSel, setAttoSel] = useState(null)
+    const [lingueAtto, setLingueAtto] = useState([])
+    const [linguaArt, setLinguaArt] = useState(null)   // lingua effettiva articoli (può ripiegare)
+    const [articoli, setArticoli] = useState([])
+    const [totaleArt, setTotaleArt] = useState(0)
+    const [loadingArt, setLoadingArt] = useState(false)
+    const [paginaArt, setPaginaArt] = useState(0)
+    const [inputArt, setInputArt] = useState('')
+    const [cercaArt, setCercaArt] = useState('')
+    const [artAperto, setArtAperto] = useState(null)
+
+    // ── L1: conteggi dalla MV (lista tipi + ordine) ──
     useEffect(() => {
-        setVista('catalogo')
-        setCodice(null)
-        setLabel('')
-        setNorme([]); setTotaleNorme(0)
-        setNormeGlobali([]); setTotaleGlobale(0)
-        setInputTrad(''); setCercaTrad('')
-        setInputTradGlobale(''); setCercaTradGlobale('')
-        setPagina(0)
-        setArticoloAperto(null); setArticoloApertoGlobale(null)
-        setTab('tradizionale')
-        caricaCodici()
-    }, [dataset])
+        async function carica() {
+            setLoadingConteggi(true)
+            const { data } = await supabase
+                .from('conteggi_norme_federali_ch')
+                .select('tipo_atto')
+            const ordine = Object.keys(TIPO_ATTO_LABEL)
+            const sorted = (data ?? []).sort((a, b) => {
+                const ia = ordine.indexOf(a.tipo_atto); const ib = ordine.indexOf(b.tipo_atto)
+                return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
+            })
+            setConteggi(sorted)
+            setLoadingConteggi(false)
+        }
+        carica()
+    }, [])
 
+    // ── L2: lista atti ──
     useEffect(() => {
-        if (vista === 'codice' && codiceSelezionato) caricaNorme()
-    }, [codiceSelezionato, cercaTrad, pagina])
-
-    async function caricaCodici() {
-        setLoadingCodici(true)
-        try {
-            const { data: labelData } = await supabase.from(config.tabellaLabel).select('codice, label')
-            const mappa = {}
-            for (const r of labelData ?? []) mappa[r.codice] = r.label
-            setCodiciLabel(mappa)
-            const { data } = await supabase.rpc(config.rpcStats)
-            setCodici(data ?? [])
-        } finally { setLoadingCodici(false) }
-    }
-
-    async function avviaRicercaGlobale() {
-        if (!inputTradGlobale.trim()) return
-        setCercaTradGlobale(inputTradGlobale)
-        setLoadingGlobale(true)
-        setArticoloApertoGlobale(null)
-        try {
-            const campiSelect = dataset === 'ue'
-                ? 'id, articolo, rubrica, testo, tipo_elemento, tipo_atto, numero_atto, anno_atto, titolo_breve, celex, categorie_lex'
-                : 'id, codice, articolo, rubrica, testo'
-
-            let q = supabase.from(config.tabella).select(campiSelect, { count: 'exact' })
-            if (dataset === 'ue') q = q.eq('vigente', true)
-
-            const filtroOr = config.campiRicerca.map(c => `${c}.ilike.%${inputTradGlobale}%`).join(',')
-            q = q.or(filtroOr)
-            q = dataset === 'ue' ? q.order('celex').order('articolo') : q.order('codice').order('articolo')
-
-            const { data, count } = await q.limit(50)
-            setNormeGlobali(data ?? [])
-            setTotaleGlobale(count ?? 0)
-        } finally { setLoadingGlobale(false) }
-    }
-
-    async function caricaNorme() {
-        setLoadingNorme(true)
-        try {
-            const campiSelect = dataset === 'ue'
-                ? 'id, articolo, rubrica, testo, tipo_elemento, tipo_atto, numero_atto, anno_atto, titolo_breve, celex'
-                : 'id, articolo, rubrica, testo'
-
-            let q = supabase.from(config.tabella).select(campiSelect, { count: 'exact' })
-
-            if (dataset === 'ue') {
-                q = q.contains('categorie_lex', [codiceSelezionato]).eq('vigente', true)
-                q = q.order('celex').order('articolo')
-            } else {
-                q = q.eq('codice', codiceSelezionato)
-                q = q.order('articolo')
-            }
-
-            q = q.range(pagina * PER_PAGINA, (pagina + 1) * PER_PAGINA - 1)
-
-            if (cercaTrad.trim()) {
-                const filtroOr = config.campiRicerca.map(c => `${c}.ilike.%${cercaTrad}%`).join(',')
-                q = q.or(filtroOr)
-            }
-
+        if (vista !== 'tipo' || !tipoSel) return
+        async function carica() {
+            setLoadingAtti(true)
+            let q = supabase
+                .from('norme_ch')
+                .select('id, rs_numero, titolo, titolo_short, tipo_atto, abrogato, lingue_disponibili', { count: 'exact' })
+                .eq('tipo_atto', tipoSel)
+            if (cercaAtti.trim()) q = q.ilike('rs_numero', `%${cercaAtti}%`)
+            q = q.order('rs_numero', { ascending: true, nullsFirst: false })
+                .range(paginaAtti * PER_PAGINA_ATTI_FED, (paginaAtti + 1) * PER_PAGINA_ATTI_FED - 1)
             const { data, count } = await q
-            setNorme(data ?? [])
-            setTotaleNorme(count ?? 0)
-        } finally { setLoadingNorme(false) }
+            setAtti(data ?? [])
+            setTotaleAtti(count ?? 0)
+            setLoadingAtti(false)
+        }
+        carica()
+    }, [vista, tipoSel, cercaAtti, paginaAtti])
+
+    // ── L3: articoli (filtro lingua effettiva + deduplica anti-fantasma) ──
+    useEffect(() => {
+        if (vista !== 'atto' || !attoSel || !linguaArt) return
+        async function carica() {
+            setLoadingArt(true)
+            let q = supabase
+                .from('norme_ch_articoli')
+                .select('id, norma_id, articolo_label, articolo_num, rubrica_articolo, rubrica_completa, parte_titolo, titolo_titolo, capo_titolo, testo, lingua', { count: 'exact' })
+                .eq('norma_id', attoSel.id)
+                .eq('lingua', linguaArt)
+                .eq('abrogato', false)
+                .not('testo', 'is', null)
+                .neq('testo', '')
+            if (cercaArt.trim()) {
+                q = q.or(`articolo_label.ilike.%${cercaArt}%,rubrica_articolo.ilike.%${cercaArt}%,testo.ilike.%${cercaArt}%`)
+            }
+            q = q.order('articolo_num', { ascending: true, nullsFirst: false })
+                .range(paginaArt * PER_PAGINA_ART_FED, (paginaArt + 1) * PER_PAGINA_ART_FED - 1)
+            const { data, count } = await q
+            setArticoli(data ?? [])
+            setTotaleArt(count ?? 0)
+            setLoadingArt(false)
+        }
+        carica()
+    }, [vista, attoSel, linguaArt, cercaArt, paginaArt])
+
+    // ── navigazione ──
+    function apriTipo(tipo) {
+        setTipoSel(tipo); setVista('tipo')
+        setInputAtti(''); setCercaAtti(''); setPaginaAtti(0)
+    }
+    function apriAtto(atto) {
+        setAttoSel(atto); setVista('atto')
+        setInputArt(''); setCercaArt(''); setPaginaArt(0); setArtAperto(null)
+        // Lingue disponibili dell'atto, ordinate
+        const disp = Array.isArray(atto.lingue_disponibili)
+            ? atto.lingue_disponibili.filter(l => ORDINE_LINGUE.includes(l))
+                .sort((a, b) => ORDINE_LINGUE.indexOf(a) - ORDINE_LINGUE.indexOf(b))
+            : []
+        setLingueAtto(disp)
+        // Lingua articoli = lingua globale se l'atto la offre, altrimenti ripiega (opzione A)
+        setLinguaArt(disp.includes(lingua) ? lingua : (disp[0] ?? lingua))
+    }
+    function tornaCatalogo() { setVista('catalogo'); setTipoSel(null); setAttoSel(null) }
+    function tornaTipo() { setVista('tipo'); setAttoSel(null) }
+
+    // Cambio lingua GLOBALE dal selettore in cima
+    function cambiaLinguaGlobale(l) {
+        if (l === lingua) return
+        setLingua(l)
+        // Se sto guardando un atto, riallineo la lingua articoli (con fallback)
+        if (vista === 'atto' && lingueAtto.length) {
+            setLinguaArt(lingueAtto.includes(l) ? l : lingueAtto[0])
+            setPaginaArt(0); setArtAperto(null)
+        }
+    }
+    // Cambio lingua articoli SOLO per l'atto corrente (mini-selettore)
+    function cambiaLinguaArt(l) {
+        if (l === linguaArt) return
+        setLinguaArt(l); setPaginaArt(0); setArtAperto(null)
     }
 
-    function apriCodice(codice) {
-        setCodice(codice)
-        setLabel(codiciLabel[codice] ?? codice)
-        setVista('codice')
-        setInputTrad(''); setCercaTrad('')
-        setPagina(0); setArticoloAperto(null)
-        setTab('tradizionale')
-    }
-
-    function tornaAlCatalogo() { setVista('catalogo'); setCodice(null) }
-    function avviaRicercaTrad() { setPagina(0); setCercaTrad(inputTrad); setArticoloAperto(null) }
-
-    function evidenziaTesto(testo, cerca) {
-        if (!cerca.trim() || !testo) return ''
-        const idx = testo.toLowerCase().indexOf(cerca.toLowerCase())
-        if (idx === -1) return testo.slice(0, 150) + '...'
-        const start = Math.max(0, idx - 80)
-        const end = Math.min(testo.length, idx + cerca.length + 80)
-        return (start > 0 ? '...' : '') + testo.slice(start, end) + (end < testo.length ? '...' : '')
-    }
-
-    function evidenziaParola(testo, cerca) {
+    function evidenzia(testo, cerca) {
         if (!cerca?.trim() || !testo) return testo
         const regex = new RegExp(`(${cerca.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
         return testo.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
     }
-
-    function docLabel(n) {
-        if (!n.tipo_atto) return ''
-        const num = n.numero_atto && n.anno_atto ? `${n.numero_atto}/${n.anno_atto}` : (n.numero_atto ?? n.anno_atto ?? '')
-        return `${n.tipo_atto}${num ? ` ${num}` : ''}`
+    function collocazione(a) {
+        return [a.parte_titolo, a.titolo_titolo, a.capo_titolo].filter(Boolean).join(' › ')
     }
 
-    function BadgeTipoElemento({ tipo }) {
-        if (!tipo || tipo === 'articolo') return null
-        return (
-            <span className="ml-2 font-body text-xs text-salvia/70 border border-salvia/20 px-1.5 py-0.5 uppercase tracking-wider">
-                {tipo}
-            </span>
-        )
-    }
+    const pagineArt = Math.ceil(totaleArt / PER_PAGINA_ART_FED)
+    const pagineAtti = Math.ceil(totaleAtti / PER_PAGINA_ATTI_FED)
 
-    const pagine = Math.ceil(totaleNorme / PER_PAGINA)
+    // Titolo atto risolto nella lingua globale (con lingua effettiva per il badge)
+    const attoTit = attoSel ? risolviMultilingua(attoSel.titolo, lingua) : { testo: null, lingua: null }
+    const attoSigla = attoSel ? risolviMultilingua(attoSel.titolo_short, lingua).testo : null
+
+    // Selettore lingua globale — componente inline riusato in cima ai vari livelli
+    const SelettoreLinguaGlobale = () => (
+        <div className="flex items-center gap-2">
+            <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+            <div className="flex gap-1 bg-slate border border-white/5 p-1">
+                {LINGUE_SELETTORE.map(l => (
+                    <button key={l} onClick={() => cambiaLinguaGlobale(l)}
+                        className={`px-2.5 py-1 font-body text-xs transition-colors ${lingua === l ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
+                        {LINGUE_LABEL[l]}
+                    </button>
+                ))}
+            </div>
+        </div>
+    )
 
     return (
         <div className="space-y-5">
+
+            {/* ═════ L1 — CATALOGO ═════ */}
             {vista === 'catalogo' && (
                 <>
-                    <div className="flex gap-2">
-                        <div className="relative flex-1">
-                            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                            <input
-                                placeholder={config.placeholderGlobale}
-                                value={inputTradGlobale}
-                                onChange={e => setInputTradGlobale(e.target.value)}
-                                onKeyDown={e => { if (e.key === 'Enter') avviaRicercaGlobale() }}
-                                className="w-full bg-slate border border-oro/50 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/60 placeholder:text-nebbia/25"
-                            />
-                        </div>
-                        <button onClick={avviaRicercaGlobale} className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                            <Search size={13} /> Cerca
-                        </button>
+                    <div className="flex items-center justify-end">
+                        <SelettoreLinguaGlobale />
                     </div>
-
-                    {loadingGlobale && (
-                        <div className="flex items-center justify-center py-8">
-                            <span className="animate-spin w-5 h-5 border-2 border-oro border-t-transparent rounded-full" />
-                        </div>
-                    )}
-
-                    {!loadingGlobale && cercaTradGlobale && normeGlobali.length === 0 && (
-                        <p className="font-body text-sm text-nebbia/30 text-center py-8">Nessun risultato per "{cercaTradGlobale}"</p>
-                    )}
-
-                    {!loadingGlobale && normeGlobali.length > 0 && (
-                        <div className="bg-slate border border-white/5">
-                            <div className="px-4 py-3 border-b border-white/5">
-                                <p className="font-body text-xs text-nebbia/30">{totaleGlobale} risultati per "{cercaTradGlobale}"</p>
-                            </div>
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b border-white/5">
-                                        <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{dataset === 'ue' ? 'Documento' : 'Codice'}</th>
-                                        <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Articolo</th>
-                                        <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Rubrica</th>
-                                        <th className="px-4 py-3 w-8" />
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {normeGlobali.map(n => (
-                                        <>
-                                            <tr key={n.id}
-                                                className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
-                                                onClick={() => setArticoloApertoGlobale(articoloApertoGlobale?.id === n.id ? null : n)}
-                                            >
-                                                <td className="px-4 py-3">
-                                                    {dataset === 'ue' ? (
-                                                        <>
-                                                            <span className="font-body text-xs text-nebbia/60">{docLabel(n)}</span>
-                                                            {n.titolo_breve && <p className="font-body text-xs text-nebbia/30 mt-0.5 truncate max-w-xs">{n.titolo_breve}</p>}
-                                                        </>
-                                                    ) : (
-                                                        <span className="font-body text-xs text-nebbia/40">{codiciLabel[n.codice] ?? n.codice}</span>
-                                                    )}
-                                                </td>
-                                                <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap">
-                                                    {n.articolo}
-                                                    {dataset === 'ue' && <BadgeTipoElemento tipo={n.tipo_elemento} />}
-                                                </td>
-                                                <td className="px-4 py-3 font-body text-sm text-nebbia/60 max-w-lg">
-                                                    {n.rubrica && <p className="font-medium text-nebbia/80 mb-0.5" dangerouslySetInnerHTML={{ __html: evidenziaParola(n.rubrica, cercaTradGlobale) }} />}
-                                                    <p className="text-xs text-nebbia/40 line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenziaParola(evidenziaTesto(n.testo ?? '', cercaTradGlobale), cercaTradGlobale) }} />
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <ChevronRight size={13} className={`text-nebbia/20 transition-transform ${articoloApertoGlobale?.id === n.id ? 'rotate-90' : ''}`} />
-                                                </td>
-                                            </tr>
-                                            {articoloApertoGlobale?.id === n.id && (
-                                                <tr key={`${n.id}-testo`} className="border-b border-white/5 bg-petrolio/20">
-                                                    <td colSpan={4} className="px-4 py-4">
-                                                        <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: evidenziaParola(n.testo ?? '', cercaTradGlobale) }} />
-                                                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                                                            <AggiungiAPratica
-                                                                ricerca={{
-                                                                    tipo: 'ricerca_manuale',
-                                                                    domanda: `${n.articolo}${n.rubrica ? ` — ${n.rubrica}` : ''}${dataset === 'ue' ? ` (${docLabel(n)})` : ''}`,
-                                                                    testo: n.testo,
-                                                                    codice: dataset === 'ue' ? (n.categorie_lex?.[0] ?? null) : n.codice
-                                                                }}
-                                                                variant="compact"
-                                                            />
-                                                            <AggiungiAEtichetta
-                                                                elemento={{ tipo: 'norma', id: n.id }}
-                                                                variant="compact"
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation()
-                                                                    const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'
-                                                                    navigate(`${prefix}/norma/${n.id}`)
-                                                                }}
-                                                                className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto"
-                                                            >
-                                                                Apri pagina dedicata <ChevronRight size={11} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-
-                    {loadingCodici ? (
+                    {loadingConteggi ? (
                         <div className="flex items-center justify-center py-20">
                             <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {codici.map(c => (
-                                <button key={c.codice} onClick={() => apriCodice(c.codice)}
+                            {conteggi.map(c => (
+                                <button key={c.tipo_atto} onClick={() => apriTipo(c.tipo_atto)}
                                     className="bg-slate border border-white/5 p-4 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
                                     <div className="flex items-center justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors truncate">{codiciLabel[c.codice] ?? c.codice}</p>
-                                        </div>
+                                        <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors">
+                                            {TIPO_ATTO_LABEL[c.tipo_atto] ?? c.tipo_atto}
+                                        </p>
                                         <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
                                     </div>
                                 </button>
@@ -1355,33 +872,179 @@ function TabNormativa({ datasetFonte, crediti, setCrediti, refreshNoOp, messaggi
                 </>
             )}
 
-            {vista === 'codice' && (
+            {/* ═════ L2 — LISTA ATTI ═════ */}
+            {vista === 'tipo' && (
                 <div className="space-y-4">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <button onClick={tornaAlCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                            <ChevronLeft size={13} /> {dataset === 'ue' ? 'Tutte le categorie' : 'Tutti i codici'}
+                        <button onClick={tornaCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                            <ChevronLeft size={13} /> Tutti i tipi di atto
                         </button>
-                        <p className="font-display text-xl text-nebbia">{labelSelezionato}</p>
+                        <div className="flex items-center gap-4">
+                            <SelettoreLinguaGlobale />
+                            <p className="font-display text-xl text-nebbia">{TIPO_ATTO_LABEL[tipoSel] ?? tipoSel}</p>
+                        </div>
                     </div>
 
                     <div className="flex gap-2">
                         <div className="relative flex-1">
                             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                             <input
-                                placeholder={config.placeholderCategoria}
-                                value={inputTrad}
-                                onChange={e => setInputTrad(e.target.value)}
-                                onKeyDown={e => { if (e.key === 'Enter') avviaRicercaTrad() }}
+                                placeholder="Cerca per numero RS (es. 220, 311.0)…"
+                                value={inputAtti}
+                                onChange={e => setInputAtti(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') { setPaginaAtti(0); setCercaAtti(inputAtti) } }}
                                 className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                         </div>
-                        <button onClick={avviaRicercaTrad}
+                        <button onClick={() => { setPaginaAtti(0); setCercaAtti(inputAtti) }}
                             className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
                             <Search size={13} /> Cerca
                         </button>
+                        {cercaAtti && (
+                            <button onClick={() => { setInputAtti(''); setCercaAtti(''); setPaginaAtti(0) }}
+                                className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
+                                <X size={11} /> Pulisci
+                            </button>
+                        )}
                     </div>
 
-                    {cercaTrad && <p className="font-body text-xs text-nebbia/30">{totaleNorme} risultati per "{cercaTrad}"</p>}
+                    {cercaAtti && <p className="font-body text-xs text-nebbia/30">{totaleAtti.toLocaleString('it-CH')} atti per "{cercaAtti}"</p>}
+
+                    <div className="bg-slate border border-white/5">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-white/5">
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">RS</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Titolo</th>
+                                    <th className="px-4 py-3 w-8" />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loadingAtti ? (
+                                    <tr><td colSpan={3} className="px-4 py-20 text-center">
+                                        <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" />
+                                    </td></tr>
+                                ) : atti.length === 0 ? (
+                                    <tr><td colSpan={3} className="px-4 py-20 text-center">
+                                        <p className="font-body text-sm text-nebbia/30">Nessun atto trovato</p>
+                                    </td></tr>
+                                ) : atti.map(a => {
+                                    const t = risolviMultilingua(a.titolo, lingua)
+                                    const sigla = risolviMultilingua(a.titolo_short, lingua).testo
+                                    const fallback = t.lingua && t.lingua !== lingua
+                                    return (
+                                        <tr key={a.id}
+                                            className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
+                                            onClick={() => apriAtto(a)}>
+                                            <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
+                                                {a.rs_numero ?? '—'}
+                                                {a.abrogato && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">abrogato</span>}
+                                            </td>
+                                            <td className="px-4 py-3 font-body text-sm text-nebbia/70 leading-snug">
+                                                <span className="flex items-center gap-2 flex-wrap">
+                                                    {sigla && <span className="text-nebbia/40 font-medium">{sigla}</span>}
+                                                    <span>{t.testo ?? '(senza titolo)'}</span>
+                                                    {fallback && (
+                                                        <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 uppercase">
+                                                            {LINGUE_LABEL[t.lingua]}
+                                                        </span>
+                                                    )}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <ChevronRight size={13} className="text-nebbia/20" />
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                        {pagineAtti > 1 && (
+                            <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
+                                <p className="font-body text-xs text-nebbia/30">
+                                    {paginaAtti * PER_PAGINA_ATTI_FED + 1}–{Math.min((paginaAtti + 1) * PER_PAGINA_ATTI_FED, totaleAtti)} di {totaleAtti.toLocaleString('it-CH')}
+                                </p>
+                                <div className="flex gap-2">
+                                    <button onClick={() => setPaginaAtti(p => Math.max(0, p - 1))} disabled={paginaAtti === 0}
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                    <button onClick={() => setPaginaAtti(p => Math.min(pagineAtti - 1, p + 1))} disabled={paginaAtti >= pagineAtti - 1}
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* ═════ L3 — ARTICOLI ═════ */}
+            {vista === 'atto' && attoSel && (
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <button onClick={tornaCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                <ChevronLeft size={13} /> Tutti i tipi
+                            </button>
+                            <span className="text-nebbia/20">/</span>
+                            <button onClick={tornaTipo} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                {TIPO_ATTO_LABEL[tipoSel] ?? tipoSel}
+                            </button>
+                        </div>
+                        <p className="font-display text-lg text-nebbia text-right">
+                            {attoSel.rs_numero ? `RS ${attoSel.rs_numero}` : ''}
+                        </p>
+                    </div>
+                    <p className="font-body text-sm text-nebbia/50 leading-relaxed -mt-2 flex items-center gap-2 flex-wrap">
+                        {attoSigla && <span className="text-nebbia/40 font-medium">{attoSigla}</span>}
+                        <span>{attoTit.testo ?? '(senza titolo)'}</span>
+                        {attoTit.lingua && attoTit.lingua !== lingua && (
+                            <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 uppercase">{LINGUE_LABEL[attoTit.lingua]}</span>
+                        )}
+                    </p>
+
+                    {/* Mini-selettore lingua dell'atto: salta tra le lingue di QUESTO atto */}
+                    {lingueAtto.length > 1 && (
+                        <div className="flex items-center gap-2">
+                            <span className="font-body text-xs text-nebbia/30">Versione:</span>
+                            <div className="flex gap-1 bg-slate border border-white/5 p-1">
+                                {lingueAtto.map(l => (
+                                    <button key={l} onClick={() => cambiaLinguaArt(l)}
+                                        className={`px-2.5 py-1 font-body text-xs transition-colors ${linguaArt === l ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
+                                        {LINGUE_LABEL[l] ?? l.toUpperCase()}
+                                    </button>
+                                ))}
+                            </div>
+                            {linguaArt && linguaArt !== lingua && (
+                                <span className="font-body text-[10px] text-nebbia/30">
+                                    (non disponibile in {LINGUE_LABEL[lingua]})
+                                </span>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
+                            <input
+                                placeholder="Cerca per articolo, rubrica o testo…"
+                                value={inputArt}
+                                onChange={e => setInputArt(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') { setPaginaArt(0); setCercaArt(inputArt) } }}
+                                className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
+                            />
+                        </div>
+                        <button onClick={() => { setPaginaArt(0); setCercaArt(inputArt) }}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
+                            <Search size={13} /> Cerca
+                        </button>
+                        {cercaArt && (
+                            <button onClick={() => { setInputArt(''); setCercaArt(''); setPaginaArt(0) }}
+                                className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
+                                <X size={11} /> Pulisci
+                            </button>
+                        )}
+                    </div>
+
+                    {cercaArt && <p className="font-body text-xs text-nebbia/30">{totaleArt.toLocaleString('it-CH')} risultati per "{cercaArt}"</p>}
 
                     <div className="bg-slate border border-white/5">
                         <table className="w-full">
@@ -1393,82 +1056,73 @@ function TabNormativa({ datasetFonte, crediti, setCrediti, refreshNoOp, messaggi
                                 </tr>
                             </thead>
                             <tbody>
-                                {loadingNorme ? (
+                                {loadingArt ? (
                                     <tr><td colSpan={3} className="px-4 py-20 text-center">
                                         <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" />
                                     </td></tr>
-                                ) : norme.length === 0 ? (
+                                ) : articoli.length === 0 ? (
                                     <tr><td colSpan={3} className="px-4 py-20 text-center">
-                                        <p className="font-body text-sm text-nebbia/30">Nessun articolo trovato</p>
+                                        <p className="font-body text-sm text-nebbia/30">Nessun articolo trovato in questa lingua</p>
                                     </td></tr>
-                                ) : norme.map(n => (
-                                    <>
-                                        <tr key={n.id}
+                                ) : articoli.map(n => (
+                                    <Fragment key={n.id}>
+                                        <tr
                                             className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
-                                            onClick={() => setArticoloAperto(articoloAperto?.id === n.id ? null : n)}
-                                        >
-                                            <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap">
-                                                {n.articolo}
-                                                {dataset === 'ue' && <BadgeTipoElemento tipo={n.tipo_elemento} />}
-                                                {dataset === 'ue' && docLabel(n) && (
-                                                    <p className="font-body text-xs text-nebbia/30 mt-1 font-normal">{docLabel(n)}</p>
-                                                )}
+                                            onClick={() => setArtAperto(artAperto?.id === n.id ? null : n)}>
+                                            <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
+                                                {n.articolo_label ?? '—'}
                                             </td>
                                             <td className="px-4 py-3 font-body text-sm text-nebbia/60 max-w-lg">
-                                                {n.rubrica && <p className="font-medium text-nebbia/80 mb-0.5" dangerouslySetInnerHTML={{ __html: evidenziaParola(n.rubrica, cercaTrad) }} />}
-                                                {cercaTrad && <p className="text-xs text-nebbia/40 line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenziaParola(evidenziaTesto(n.testo ?? '', cercaTrad), cercaTrad) }} />}
+                                                {n.rubrica_articolo && <p className="font-medium text-nebbia/80 mb-0.5" dangerouslySetInnerHTML={{ __html: evidenzia(n.rubrica_articolo, cercaArt) }} />}
+                                                {cercaArt && n.testo && <p className="text-xs text-nebbia/40 line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenzia(n.testo.slice(0, 200), cercaArt) }} />}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <ChevronRight size={13} className={`text-nebbia/20 transition-transform ${articoloAperto?.id === n.id ? 'rotate-90' : ''}`} />
+                                                <ChevronRight size={13} className={`text-nebbia/20 transition-transform ${artAperto?.id === n.id ? 'rotate-90' : ''}`} />
                                             </td>
                                         </tr>
-                                        {articoloAperto?.id === n.id && (
+                                        {artAperto?.id === n.id && (
                                             <tr key={`${n.id}-testo`} className="border-b border-white/5 bg-petrolio/20">
                                                 <td colSpan={3} className="px-4 py-4">
-                                                    <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: evidenziaParola(n.testo ?? '', cercaTrad) }} />
+                                                    {collocazione(n) && (
+                                                        <p className="font-body text-[11px] text-nebbia/30 uppercase tracking-wider mb-2">{collocazione(n)}</p>
+                                                    )}
+                                                    <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed"
+                                                        dangerouslySetInnerHTML={{ __html: evidenzia(n.testo ?? '(testo non disponibile)', cercaArt) }} />
                                                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                                                        <AggiungiAPratica
-                                                            ricerca={{
-                                                                tipo: 'ricerca_manuale',
-                                                                domanda: `${n.articolo}${n.rubrica ? ` — ${n.rubrica}` : ''}${dataset === 'ue' ? ` (${docLabel(n)})` : ''}`,
-                                                                testo: n.testo,
-                                                                codice: dataset === 'ue' ? (n.categorie_lex?.[0] ?? null) : n.codice
-                                                            }}
-                                                            variant="compact"
-                                                        />
-                                                        <AggiungiAEtichetta
-                                                            elemento={{ tipo: 'norma', id: n.id }}
-                                                            variant="compact"
+                                                        <BottoniSalvataggio
+                                                            tipo="norma_federale"
+                                                            id={n.id}
+                                                            titolo={[n.articolo_label, n.rubrica_articolo].filter(Boolean).join(' — ')}
+                                                            testo={n.testo}
                                                         />
                                                         <button
                                                             type="button"
                                                             onClick={(e) => {
                                                                 e.stopPropagation()
                                                                 const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'
-                                                                navigate(`${prefix}/norma/${n.id}`)
+                                                                navigate(`${prefix}/norma-federale/${n.id}`)
                                                             }}
-                                                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto"
-                                                        >
+                                                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
                                                             Apri pagina dedicata <ChevronRight size={11} />
                                                         </button>
                                                     </div>
                                                 </td>
                                             </tr>
                                         )}
-                                    </>
+                                    </Fragment>
                                 ))}
                             </tbody>
                         </table>
-                        {pagine > 1 && (
+                        {pagineArt > 1 && (
                             <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
                                 <p className="font-body text-xs text-nebbia/30">
-                                    {pagina * PER_PAGINA + 1}–{Math.min((pagina + 1) * PER_PAGINA, totaleNorme)} di {totaleNorme.toLocaleString()}
+                                    {paginaArt * PER_PAGINA_ART_FED + 1}–{Math.min((paginaArt + 1) * PER_PAGINA_ART_FED, totaleArt)} di {totaleArt.toLocaleString('it-CH')}
                                 </p>
                                 <div className="flex gap-2">
-                                    <button onClick={() => setPagina(p => Math.max(0, p - 1))} disabled={pagina === 0}
-                                        className="px-3 py-1.5 bg-slate border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prev</button>
-                                    <button onClick={() => setPagina(p => Math.min(pagine - 1, p + 1))} disabled={pagina >= pagine - 1}
-                                        className="px-3 py-1.5 bg-slate border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Next →</button>
+                                    <button onClick={() => setPaginaArt(p => Math.max(0, p - 1))} disabled={paginaArt === 0}
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                    <button onClick={() => setPaginaArt(p => Math.min(pagineArt - 1, p + 1))} disabled={paginaArt >= pagineArt - 1}
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
                                 </div>
                             </div>
                         )}
@@ -1480,353 +1134,216 @@ function TabNormativa({ datasetFonte, crediti, setCrediti, refreshNoOp, messaggi
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TAB LEGGI E DECRETI (norme_archivio) — NUOVO
-// Naviga: tipo_atto → atto specifico → articoli
-// Tutto sempre con barra di ricerca globale visibile in alto.
+// TAB CANTONALE  —  blocco 3/N di BancaDati.jsx (CH)
+//
+// Navigazione 3 livelli:
+//   L1 catalogo  → 26 cantoni come quadrati (sigla al centro), ordine alfabetico
+//   L2 lista leggi → norme_cantonali_ch del cantone, paginata + ricerca
+//   L3 articoli  → norme_cantonali_ch_articoli per norma_id, paginata + ricerca
+//
+// Schema reale (≠ federale):
+//   leggi:    title, title_by_lang(jsonb), abbreviation, is_active,
+//             lingue_disponibili(text[]), systematic_number, materia_macro_lbl
+//   articoli: article_num, article_num_int, article_suffix, rubrica,
+//             testo, gerarchia(jsonb), is_abrogato, lingua
+//
+// Lingue: selettore SOLO per i 4 bilingui (BE/FR/VS de+fr, GR de+it).
+//   Monolingui (altri 22) → niente selettore, solo badge lingua.
+// Niente deduplica anti-fantasma: sul cantonale non ci sono righe vuote
+//   (verificato). Escludo solo is_abrogato=true (pochi).
+//
+// Sostituzione in BancaDati: {tabAttivo === 'cantonale' && <TabCantonale />}
+// Icone richieste (già in cima al file): Search, ChevronRight, ChevronLeft, X.
 // ═══════════════════════════════════════════════════════════════
-function TabLeggiDecreti() {
+
+const LINGUE_LABEL_CANT = { it: 'IT', de: 'DE', fr: 'FR' }
+const ORDINE_LINGUE_CANT = ['it', 'de', 'fr']
+
+// Lingue per cantone (dai dati reali). Bilingui: BE/FR/VS de+fr, GR de+it.
+// Tutti gli altri monolingui. Serve perché la MV conteggi non porta le lingue.
+const LINGUE_CANTONE = {
+    AG: ['de'], AI: ['de'], AR: ['de'], BE: ['de', 'fr'], BL: ['de'],
+    BS: ['de'], FR: ['de', 'fr'], GE: ['fr'], GL: ['de'], GR: ['de', 'it'],
+    JU: ['fr'], LU: ['de'], NE: ['fr'], NW: ['de'], OW: ['de'],
+    SG: ['de'], SH: ['de'], SO: ['de'], SZ: ['de'], TG: ['de'],
+    TI: ['it'], UR: ['de'], VD: ['fr'], VS: ['de', 'fr'], ZG: ['de'], ZH: ['de'],
+}
+
+// Risolve title_by_lang (jsonb) nella lingua scelta; fallback ordinato.
+// Ritorna anche la lingua effettiva (per il badge).
+function risolviTitoloCant(byLang, fallbackPlain, linguaScelta) {
+    if (byLang && typeof byLang === 'object') {
+        if (linguaScelta && byLang[linguaScelta]) return { testo: byLang[linguaScelta], lingua: linguaScelta }
+        for (const k of ORDINE_LINGUE_CANT) {
+            if (byLang[k]) return { testo: byLang[k], lingua: k }
+        }
+    }
+    // fallback sul campo title semplice
+    return { testo: fallbackPlain ?? null, lingua: null }
+}
+
+const PER_PAGINA_LEGGI = 50
+const PER_PAGINA_ART_CANT = 50
+
+function TabCantonale() {
     const navigate = useNavigate()
 
-    // Vista: 'catalogo' | 'tipo' | 'atto'
     const [vista, setVista] = useState('catalogo')
-    const [tipoAttoSelezionato, setTipoAtto] = useState(null)
-    const [attoSelezionato, setAtto] = useState(null)
 
-    // Catalogo tipi_atto
-    const [tipi, setTipi] = useState([])
-    const [loadingTipi, setLoadingTipi] = useState(true)
+    // L1 — catalogo cantoni
+    const [cantoni, setCantoni] = useState([])      // [{canton, n_leggi, lingue:[]}]
+    const [loadingCantoni, setLoadingCantoni] = useState(true)
 
-    // Ricerca globale (sempre visibile)
-    const [inputGlobale, setInputGlobale] = useState('')
-    const [cercaGlobale, setCercaGlobale] = useState('')
-    const [risultatiGlobali, setRisultatiGlobali] = useState([])
-    const [totaleGlobale, setTotaleGlobale] = useState(0)
-    const [loadingGlobale, setLoadingGlobale] = useState(false)
-    const [articoloApertoGlobale, setArticoloApertoGlobale] = useState(null)
+    // L2 — lista leggi
+    const [cantoneSel, setCantoneSel] = useState(null)   // {canton, lingue:[]}
+    const [lingua, setLingua] = useState('it')           // lingua attiva (per bilingui)
+    const [leggi, setLeggi] = useState([])
+    const [totaleLeggi, setTotaleLeggi] = useState(0)
+    const [loadingLeggi, setLoadingLeggi] = useState(false)
+    const [paginaLeggi, setPaginaLeggi] = useState(0)
+    const [inputLeggi, setInputLeggi] = useState('')
+    const [cercaLeggi, setCercaLeggi] = useState('')
 
-    // Vista tipo_atto: lista atti
-    const [atti, setAtti] = useState([])
-    const [loadingAtti, setLoadingAtti] = useState(false)
-    const [paginaAtti, setPaginaAtti] = useState(0)
-    const [filtroAnno, setFiltroAnno] = useState('')
-    const [inputCercaAtti, setInputCercaAtti] = useState('')
-    const [cercaAtti, setCercaAtti] = useState('')
-    const PER_PAGINA_ATTI = 50
-
-    // Vista atto: lista articoli
+    // L3 — articoli
+    const [leggeSel, setLeggeSel] = useState(null)
     const [articoli, setArticoli] = useState([])
-    const [loadingArticoli, setLoadingArticoli] = useState(false)
+    const [totaleArt, setTotaleArt] = useState(0)
+    const [loadingArt, setLoadingArt] = useState(false)
     const [paginaArt, setPaginaArt] = useState(0)
-    const [inputCercaArt, setInputCercaArt] = useState('')
+    const [inputArt, setInputArt] = useState('')
     const [cercaArt, setCercaArt] = useState('')
-    const [articoloAperto, setArticoloAperto] = useState(null)
-    const PER_PAGINA_ART = 50
+    const [artAperto, setArtAperto] = useState(null)
 
+    // ── L1: cantoni dalla MV ──
     useEffect(() => {
-        caricaTipi()
+        async function carica() {
+            setLoadingCantoni(true)
+            // La MV conteggi_norme_cantonali_ch ha (canton, n_leggi, ...). Le lingue
+            // per cantone le ricavo dalla MV se presenti, altrimenti da una mappa fissa.
+            const { data } = await supabase
+                .from('conteggi_norme_cantonali_ch')
+                .select('canton, n_leggi')
+                .order('canton', { ascending: true })
+            setCantoni((data ?? []).map(c => ({
+                canton: c.canton,
+                n_leggi: c.n_leggi,
+                lingue: LINGUE_CANTONE[c.canton] ?? [],
+            })))
+            setLoadingCantoni(false)
+        }
+        carica()
     }, [])
 
+    // ── L2: lista leggi ──
     useEffect(() => {
-        if (vista === 'tipo' && tipoAttoSelezionato) caricaAtti()
-    }, [vista, tipoAttoSelezionato, cercaAtti, filtroAnno, paginaAtti])
-
-    useEffect(() => {
-        if (vista === 'atto' && attoSelezionato) caricaArticoli()
-    }, [vista, attoSelezionato, cercaArt, paginaArt])
-
-    async function caricaTipi() {
-        setLoadingTipi(true)
-        try {
-            const { data } = await supabase.rpc('get_stats_per_tipo_atto')
-            setTipi(data ?? [])
-        } finally {
-            setLoadingTipi(false)
-        }
-    }
-
-    async function avviaRicercaGlobale() {
-        if (!inputGlobale.trim()) return
-        setCercaGlobale(inputGlobale)
-        setLoadingGlobale(true)
-        setArticoloApertoGlobale(null)
-        try {
-            const filtroOr = `articolo.ilike.%${inputGlobale}%,rubrica.ilike.%${inputGlobale}%,testo.ilike.%${inputGlobale}%,titolo_doc.ilike.%${inputGlobale}%`
-            const { data } = await supabase
-                .from('norme_archivio')
-                .select('id, urn, tipo_atto, numero_atto, anno_atto, titolo_doc, articolo, rubrica, testo, tipo_elemento')
-                .eq('vigente', true)
-                .or(filtroOr)
-                .order('tipo_atto')
-                .order('anno_atto', { ascending: false })
-                .order('articolo')
-                .limit(50)
-            setRisultatiGlobali(data ?? [])
-        } finally {
-            setLoadingGlobale(false)
-        }
-    }
-
-    async function caricaAtti() {
-        setLoadingAtti(true)
-        try {
-            // Postgres senza DISTINCT via REST: prendiamo articoli e dedup lato client
+        if (vista !== 'cantone' || !cantoneSel) return
+        async function carica() {
+            setLoadingLeggi(true)
             let q = supabase
-                .from('norme_archivio')
-                .select('tipo_atto, numero_atto, anno_atto, titolo_doc, urn')
-                .eq('vigente', true)
-                .eq('tipo_atto', tipoAttoSelezionato)
-
-            if (filtroAnno) q = q.eq('anno_atto', parseInt(filtroAnno))
-            if (cercaAtti.trim()) q = q.ilike('titolo_doc', `%${cercaAtti}%`)
-
-            q = q.order('anno_atto', { ascending: false, nullsFirst: false })
-                .order('numero_atto', { ascending: false, nullsFirst: false })
-
-            // Range largo per dedup lato client
-            q = q.range(paginaAtti * PER_PAGINA_ATTI * 5, paginaAtti * PER_PAGINA_ATTI * 5 + PER_PAGINA_ATTI * 5 - 1)
-
-            const { data } = await q
-
-            const seen = new Set()
-            const dedup = []
-            for (const row of (data ?? [])) {
-                const key = `${row.tipo_atto}|${row.numero_atto ?? ''}|${row.anno_atto ?? ''}`
-                if (seen.has(key)) continue
-                seen.add(key)
-                dedup.push(row)
-                if (dedup.length >= PER_PAGINA_ATTI) break
+                .from('norme_cantonali_ch')
+                .select('id, systematic_number, title, title_by_lang, abbreviation, is_active, lingue_disponibili, materia_macro_lbl', { count: 'exact' })
+                .eq('canton', cantoneSel.canton)
+            if (cercaLeggi.trim()) {
+                q = q.or(`title.ilike.%${cercaLeggi}%,abbreviation.ilike.%${cercaLeggi}%,systematic_number.ilike.%${cercaLeggi}%`)
             }
-
-            setAtti(dedup)
-        } finally {
-            setLoadingAtti(false)
+            q = q.order('systematic_number', { ascending: true, nullsFirst: false })
+                .range(paginaLeggi * PER_PAGINA_LEGGI, (paginaLeggi + 1) * PER_PAGINA_LEGGI - 1)
+            const { data, count } = await q
+            setLeggi(data ?? [])
+            setTotaleLeggi(count ?? 0)
+            setLoadingLeggi(false)
         }
-    }
+        carica()
+    }, [vista, cantoneSel, cercaLeggi, paginaLeggi])
 
-    async function caricaArticoli() {
-        setLoadingArticoli(true)
-        try {
+    // ── L3: articoli ──
+    useEffect(() => {
+        if (vista !== 'legge' || !leggeSel) return
+        async function carica() {
+            setLoadingArt(true)
             let q = supabase
-                .from('norme_archivio')
-                .select('id, urn, tipo_atto, numero_atto, anno_atto, articolo, rubrica, testo, tipo_elemento, titolo_doc')
-                .eq('vigente', true)
-                .eq('tipo_atto', attoSelezionato.tipo_atto)
-
-            if (attoSelezionato.numero_atto) q = q.eq('numero_atto', attoSelezionato.numero_atto)
-            if (attoSelezionato.anno_atto) q = q.eq('anno_atto', attoSelezionato.anno_atto)
-
+                .from('norme_cantonali_ch_articoli')
+                .select('id, norma_id, article_num, article_num_int, article_suffix, rubrica, testo, gerarchia, lingua, is_abrogato', { count: 'exact' })
+                .eq('norma_id', leggeSel.id)
+                .eq('is_abrogato', false)
+            // Filtro lingua solo se il cantone è bilingue
+            if (cantoneSel?.lingue?.length > 1) {
+                q = q.eq('lingua', lingua)
+            }
             if (cercaArt.trim()) {
-                q = q.or(`articolo.ilike.%${cercaArt}%,rubrica.ilike.%${cercaArt}%,testo.ilike.%${cercaArt}%`)
+                q = q.or(`article_num.ilike.%${cercaArt}%,rubrica.ilike.%${cercaArt}%,testo.ilike.%${cercaArt}%`)
             }
-
-            q = q.order('articolo').range(paginaArt * PER_PAGINA_ART, (paginaArt + 1) * PER_PAGINA_ART - 1)
-
+            q = q.order('article_num_int', { ascending: true, nullsFirst: false })
+                .range(paginaArt * PER_PAGINA_ART_CANT, (paginaArt + 1) * PER_PAGINA_ART_CANT - 1)
             const { data, count } = await q
             setArticoli(data ?? [])
-            setTotaleArticoli(count ?? 0)
-        } finally {
-            setLoadingArticoli(false)
+            setTotaleArt(count ?? 0)
+            setLoadingArt(false)
         }
+        carica()
+    }, [vista, leggeSel, lingua, cantoneSel, cercaArt, paginaArt])
+
+    // ── navigazione ──
+    function apriCantone(c) {
+        setCantoneSel(c); setVista('cantone')
+        setInputLeggi(''); setCercaLeggi(''); setPaginaLeggi(0)
+        // lingua iniziale: se bilingue, prima lingua del cantone; se mono, la sua
+        setLingua((c.lingue && c.lingue[0]) ?? 'it')
+    }
+    function apriLegge(l) {
+        setLeggeSel(l); setVista('legge')
+        setInputArt(''); setCercaArt(''); setPaginaArt(0); setArtAperto(null)
+    }
+    function tornaCatalogo() { setVista('catalogo'); setCantoneSel(null); setLeggeSel(null) }
+    function tornaCantone() { setVista('cantone'); setLeggeSel(null) }
+
+    function cambiaLingua(l) {
+        if (l === lingua) return
+        setLingua(l); setPaginaArt(0); setArtAperto(null)
     }
 
-    function apriTipo(tipo) {
-        setTipoAtto(tipo)
-        setVista('tipo')
-        setInputCercaAtti(''); setCercaAtti('')
-        setFiltroAnno('')
-        setPaginaAtti(0)
-    }
-
-    function apriAtto(atto) {
-        setAtto({
-            tipo_atto: atto.tipo_atto,
-            numero_atto: atto.numero_atto,
-            anno_atto: atto.anno_atto,
-            titolo_doc: atto.titolo_doc,
-        })
-        setVista('atto')
-        setInputCercaArt(''); setCercaArt('')
-        setPaginaArt(0)
-        setArticoloAperto(null)
-    }
-
-    function tornaAlCatalogo() {
-        setVista('catalogo')
-        setTipoAtto(null)
-        setAtto(null)
-    }
-
-    function tornaAlTipo() {
-        setVista('tipo')
-        setAtto(null)
-    }
-
-    function evidenziaTesto(testo, cerca) {
-        if (!cerca?.trim() || !testo) return ''
-        const idx = testo.toLowerCase().indexOf(cerca.toLowerCase())
-        if (idx === -1) return testo.slice(0, 150) + '...'
-        const start = Math.max(0, idx - 80)
-        const end = Math.min(testo.length, idx + cerca.length + 80)
-        return (start > 0 ? '...' : '') + testo.slice(start, end) + (end < testo.length ? '...' : '')
-    }
-
-    function evidenziaParola(testo, cerca) {
+    function evidenzia(testo, cerca) {
         if (!cerca?.trim() || !testo) return testo
         const regex = new RegExp(`(${cerca.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
         return testo.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
     }
-
-    function attoLabel(a) {
-        const num = a.numero_atto && a.anno_atto ? `${a.numero_atto}/${a.anno_atto}` : (a.numero_atto ?? a.anno_atto ?? '')
-        return `${a.tipo_atto}${num ? ` ${num}` : ''}`
+    function gerarchiaLabel(g) {
+        // gerarchia jsonb: provo a comporre una stringa leggibile dai valori
+        if (!g || typeof g !== 'object') return ''
+        const vals = Array.isArray(g) ? g : Object.values(g)
+        return vals.filter(v => typeof v === 'string' && v.trim()).join(' › ')
+    }
+    function articoloEtichetta(a) {
+        const base = a.article_num ?? (a.article_num_int != null ? String(a.article_num_int) : '—')
+        return a.article_suffix ? `Art. ${base}${a.article_suffix}` : `Art. ${base}`
     }
 
-    function BadgeTipoElemento({ tipo }) {
-        if (!tipo || tipo === 'articolo') return null
-        return (
-            <span className="ml-2 font-body text-xs text-salvia/70 border border-salvia/20 px-1.5 py-0.5 uppercase tracking-wider">
-                {tipo}
-            </span>
-        )
-    }
+    const pagineArt = Math.ceil(totaleArt / PER_PAGINA_ART_CANT)
+    const pagineLeggi = Math.ceil(totaleLeggi / PER_PAGINA_LEGGI)
 
-    const annoCorrente = new Date().getFullYear()
-    const anniOpzioni = Array.from({ length: 80 }, (_, i) => annoCorrente - i)
+    const isBilingue = cantoneSel?.lingue?.length > 1
 
     return (
         <div className="space-y-5">
 
-            {/* Barra ricerca globale — sempre visibile */}
-            <div className="flex gap-2">
-                <div className="relative flex-1">
-                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                    <input
-                        placeholder="Cerca in tutte le leggi e decreti per articolo, rubrica, testo o titolo..."
-                        value={inputGlobale}
-                        onChange={e => setInputGlobale(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') avviaRicercaGlobale() }}
-                        className="w-full bg-slate border border-oro/50 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/60 placeholder:text-nebbia/25"
-                    />
-                </div>
-                <button onClick={avviaRicercaGlobale} className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                    <Search size={13} /> Cerca
-                </button>
-            </div>
-
-            {loadingGlobale && (
-                <div className="flex items-center justify-center py-8">
-                    <span className="animate-spin w-5 h-5 border-2 border-oro border-t-transparent rounded-full" />
-                </div>
-            )}
-
-            {!loadingGlobale && cercaGlobale && risultatiGlobali.length === 0 && (
-                <p className="font-body text-sm text-nebbia/30 text-center py-8">Nessun risultato per "{cercaGlobale}"</p>
-            )}
-
-            {!loadingGlobale && risultatiGlobali.length > 0 && (
-                <div className="bg-slate border border-white/5">
-                    <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-                        <p className="font-body text-xs text-nebbia/30">Risultati per "{cercaGlobale}" (max 50)</p>
-                        <button
-                            onClick={() => { setRisultatiGlobali([]); setCercaGlobale(''); setInputGlobale('') }}
-                            className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1">
-                            <X size={11} /> Pulisci
-                        </button>
-                    </div>
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-white/5">
-                                <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Documento</th>
-                                <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Articolo</th>
-                                <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Rubrica / Anteprima</th>
-                                <th className="px-4 py-3 w-8" />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {risultatiGlobali.map(n => (
-                                <>
-                                    <tr key={n.id}
-                                        className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
-                                        onClick={() => setArticoloApertoGlobale(articoloApertoGlobale?.id === n.id ? null : n)}
-                                    >
-                                        <td className="px-4 py-3">
-                                            <span className="font-body text-xs text-nebbia/60">{attoLabel(n)}</span>
-                                            {n.titolo_doc && <p className="font-body text-xs text-nebbia/30 mt-0.5 truncate max-w-xs">{n.titolo_doc}</p>}
-                                        </td>
-                                        <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap">
-                                            {n.articolo}
-                                            <BadgeTipoElemento tipo={n.tipo_elemento} />
-                                        </td>
-                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 max-w-lg">
-                                            {n.rubrica && <p className="font-medium text-nebbia/80 mb-0.5" dangerouslySetInnerHTML={{ __html: evidenziaParola(n.rubrica, cercaGlobale) }} />}
-                                            <p className="text-xs text-nebbia/40 line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenziaParola(evidenziaTesto(n.testo ?? '', cercaGlobale), cercaGlobale) }} />
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <ChevronRight size={13} className={`text-nebbia/20 transition-transform ${articoloApertoGlobale?.id === n.id ? 'rotate-90' : ''}`} />
-                                        </td>
-                                    </tr>
-                                    {articoloApertoGlobale?.id === n.id && (
-                                        <tr key={`${n.id}-testo`} className="border-b border-white/5 bg-petrolio/20">
-                                            <td colSpan={4} className="px-4 py-4">
-                                                <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: evidenziaParola(n.testo ?? '', cercaGlobale) }} />
-                                                <div className="mt-3 flex flex-wrap items-center gap-2">
-                                                    <AggiungiAPratica
-                                                        ricerca={{
-                                                            tipo: 'ricerca_manuale',
-                                                            domanda: `${n.articolo}${n.rubrica ? ` — ${n.rubrica}` : ''} (${attoLabel(n)})`,
-                                                            testo: n.testo,
-                                                            codice: null
-                                                        }}
-                                                        variant="compact"
-                                                    />
-                                                    <AggiungiAEtichetta
-                                                        elemento={{ tipo: 'norma_archivio', id: n.id }}
-                                                        variant="compact"
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'
-                                                            navigate(`${prefix}/norma/${n.id}`)
-                                                        }}
-                                                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto"
-                                                    >
-                                                        Apri pagina dedicata <ChevronRight size={11} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            {/* CATALOGO: card per tipo_atto */}
+            {/* ═════ L1 — CATALOGO CANTONI (quadrati) ═════ */}
             {vista === 'catalogo' && (
                 <>
-                    {loadingTipi ? (
+                    {loadingCantoni ? (
                         <div className="flex items-center justify-center py-20">
                             <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
                         </div>
-                    ) : tipi.length === 0 ? (
-                        <div className="bg-slate border border-white/5 p-12 text-center">
-                            <p className="font-body text-sm text-nebbia/40">Nessun atto disponibile</p>
-                        </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {tipi.map(t => (
-                                <button key={t.tipo_atto} onClick={() => apriTipo(t.tipo_atto)}
-                                    className="bg-slate border border-white/5 p-4 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors truncate">{t.tipo_atto}</p>
-                                        </div>
-                                        <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
-                                    </div>
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                            {cantoni.map(c => (
+                                <button key={c.canton} onClick={() => apriCantone(c)}
+                                    className="aspect-square bg-slate border border-white/5 flex flex-col items-center justify-center gap-1.5 hover:border-oro/40 hover:bg-petrolio/60 transition-all group">
+                                    <span className="font-display text-3xl font-semibold text-nebbia group-hover:text-oro transition-colors tracking-wide">
+                                        {c.canton}
+                                    </span>
+                                    <span className="font-body text-[10px] text-salvia/50 uppercase tracking-wider">
+                                        {(c.lingue ?? []).map(l => LINGUE_LABEL_CANT[l] ?? l.toUpperCase()).join(' · ')}
+                                    </span>
                                 </button>
                             ))}
                         </div>
@@ -1834,148 +1351,180 @@ function TabLeggiDecreti() {
                 </>
             )}
 
-            {/* VISTA TIPO: lista atti */}
-            {vista === 'tipo' && (
+            {/* ═════ L2 — LISTA LEGGI ═════ */}
+            {vista === 'cantone' && cantoneSel && (
                 <div className="space-y-4">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <button onClick={tornaAlCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                            <ChevronLeft size={13} /> Tutti i tipi di atto
+                        <button onClick={tornaCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                            <ChevronLeft size={13} /> Tutti i cantoni
                         </button>
-                        <p className="font-display text-xl text-nebbia">{tipoAttoSelezionato}</p>
-                    </div>
-
-                    <div className="bg-slate border border-white/5 p-4 space-y-3">
-                        <div className="flex gap-2">
-                            <div className="relative flex-1">
-                                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                                <input
-                                    placeholder="Cerca in titolo del documento..."
-                                    value={inputCercaAtti}
-                                    onChange={e => setInputCercaAtti(e.target.value)}
-                                    onKeyDown={e => { if (e.key === 'Enter') { setPaginaAtti(0); setCercaAtti(inputCercaAtti) } }}
-                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
-                                />
-                            </div>
-                            <button onClick={() => { setPaginaAtti(0); setCercaAtti(inputCercaAtti) }}
-                                className="flex items-center gap-2 px-4 py-2 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                                <Search size={13} /> Cerca
-                            </button>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="flex items-center gap-1.5 text-nebbia/30">
-                                <Filter size={12} />
-                                <span className="font-body text-xs uppercase tracking-widest">Filtri</span>
-                            </div>
-                            <select value={filtroAnno} onChange={e => { setPaginaAtti(0); setFiltroAnno(e.target.value) }}
-                                className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                                <option value="">Tutti gli anni</option>
-                                {anniOpzioni.map(a => <option key={a} value={a}>{a}</option>)}
-                            </select>
-                            {(filtroAnno || cercaAtti) && (
-                                <button onClick={() => {
-                                    setFiltroAnno(''); setCercaAtti(''); setInputCercaAtti('')
-                                    setPaginaAtti(0)
-                                }}
-                                    className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1">
-                                    <X size={11} /> Reset
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    {loadingAtti ? (
-                        <div className="flex items-center justify-center py-16">
-                            <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
-                        </div>
-                    ) : atti.length === 0 ? (
-                        <div className="bg-slate border border-white/5 p-12 text-center">
-                            <p className="font-body text-sm text-nebbia/40">Nessun atto trovato con questi filtri</p>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="bg-slate border border-white/5">
-                                <table className="w-full">
-                                    <thead>
-                                        <tr className="border-b border-white/5">
-                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Atto</th>
-                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Titolo</th>
-                                            <th className="px-4 py-3 w-8" />
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {atti.map((a, idx) => (
-                                            <tr key={`${a.tipo_atto}-${a.numero_atto}-${a.anno_atto}-${idx}`}
-                                                className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
-                                                onClick={() => apriAtto(a)}>
-                                                <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap">
-                                                    {a.numero_atto && a.anno_atto ? `${a.numero_atto}/${a.anno_atto}` : (a.numero_atto ?? a.anno_atto ?? '—')}
-                                                </td>
-                                                <td className="px-4 py-3 font-body text-sm text-nebbia/70 leading-snug">
-                                                    {a.titolo_doc ?? <span className="text-nebbia/30 italic">senza titolo</span>}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <ChevronRight size={13} className="text-nebbia/20" />
-                                                </td>
-                                            </tr>
+                        <div className="flex items-center gap-4">
+                            {isBilingue && (
+                                <div className="flex items-center gap-2">
+                                    <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+                                    <div className="flex gap-1 bg-slate border border-white/5 p-1">
+                                        {cantoneSel.lingue.map(l => (
+                                            <button key={l} onClick={() => cambiaLingua(l)}
+                                                className={`px-2.5 py-1 font-body text-xs transition-colors ${lingua === l ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
+                                                {LINGUE_LABEL_CANT[l] ?? l.toUpperCase()}
+                                            </button>
                                         ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </div>
+                                </div>
+                            )}
+                            <p className="font-display text-2xl text-nebbia tracking-wide">{cantoneSel.canton}</p>
+                        </div>
+                    </div>
 
-                            <div className="flex items-center justify-between bg-slate border border-white/5 px-4 py-3">
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
+                            <input
+                                placeholder="Cerca per titolo, sigla o numero…"
+                                value={inputLeggi}
+                                onChange={e => setInputLeggi(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') { setPaginaLeggi(0); setCercaLeggi(inputLeggi) } }}
+                                className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
+                            />
+                        </div>
+                        <button onClick={() => { setPaginaLeggi(0); setCercaLeggi(inputLeggi) }}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
+                            <Search size={13} /> Cerca
+                        </button>
+                        {cercaLeggi && (
+                            <button onClick={() => { setInputLeggi(''); setCercaLeggi(''); setPaginaLeggi(0) }}
+                                className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
+                                <X size={11} /> Pulisci
+                            </button>
+                        )}
+                    </div>
+
+                    {cercaLeggi && <p className="font-body text-xs text-nebbia/30">{totaleLeggi.toLocaleString('it-CH')} leggi per "{cercaLeggi}"</p>}
+
+                    <div className="bg-slate border border-white/5">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-white/5">
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">N.</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Titolo</th>
+                                    <th className="px-4 py-3 w-8" />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loadingLeggi ? (
+                                    <tr><td colSpan={3} className="px-4 py-20 text-center">
+                                        <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" />
+                                    </td></tr>
+                                ) : leggi.length === 0 ? (
+                                    <tr><td colSpan={3} className="px-4 py-20 text-center">
+                                        <p className="font-body text-sm text-nebbia/30">Nessuna legge trovata</p>
+                                    </td></tr>
+                                ) : leggi.map(l => {
+                                    const t = risolviTitoloCant(l.title_by_lang, l.title, lingua)
+                                    const fallback = isBilingue && t.lingua && t.lingua !== lingua
+                                    return (
+                                        <tr key={l.id}
+                                            className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
+                                            onClick={() => apriLegge(l)}>
+                                            <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
+                                                {l.systematic_number ?? '—'}
+                                                {l.is_active === false && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">abrogata</span>}
+                                            </td>
+                                            <td className="px-4 py-3 font-body text-sm text-nebbia/70 leading-snug">
+                                                <span className="flex items-center gap-2 flex-wrap">
+                                                    {l.abbreviation && <span className="text-nebbia/40 font-medium">{l.abbreviation}</span>}
+                                                    <span>{t.testo ?? '(senza titolo)'}</span>
+                                                    {fallback && (
+                                                        <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 uppercase">{LINGUE_LABEL_CANT[t.lingua]}</span>
+                                                    )}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <ChevronRight size={13} className="text-nebbia/20" />
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                        {pagineLeggi > 1 && (
+                            <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
                                 <p className="font-body text-xs text-nebbia/30">
-                                    Pagina {paginaAtti + 1} · {atti.length} atti
+                                    {paginaLeggi * PER_PAGINA_LEGGI + 1}–{Math.min((paginaLeggi + 1) * PER_PAGINA_LEGGI, totaleLeggi)} di {totaleLeggi.toLocaleString('it-CH')}
                                 </p>
                                 <div className="flex gap-2">
-                                    <button onClick={() => setPaginaAtti(p => Math.max(0, p - 1))} disabled={paginaAtti === 0}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prev</button>
-                                    <button onClick={() => setPaginaAtti(p => p + 1)} disabled={atti.length < PER_PAGINA_ATTI}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Next →</button>
+                                    <button onClick={() => setPaginaLeggi(p => Math.max(0, p - 1))} disabled={paginaLeggi === 0}
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                    <button onClick={() => setPaginaLeggi(p => Math.min(pagineLeggi - 1, p + 1))} disabled={paginaLeggi >= pagineLeggi - 1}
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
                                 </div>
                             </div>
-                        </>
-                    )}
+                        )}
+                    </div>
                 </div>
             )}
 
-            {/* VISTA ATTO: lista articoli */}
-            {vista === 'atto' && attoSelezionato && (
+            {/* ═════ L3 — ARTICOLI ═════ */}
+            {vista === 'legge' && leggeSel && (
                 <div className="space-y-4">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-3 flex-wrap">
-                            <button onClick={tornaAlCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                <ChevronLeft size={13} /> Tutti i tipi
+                            <button onClick={tornaCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                <ChevronLeft size={13} /> Tutti i cantoni
                             </button>
                             <span className="text-nebbia/20">/</span>
-                            <button onClick={tornaAlTipo} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                {attoSelezionato.tipo_atto}
+                            <button onClick={tornaCantone} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                {cantoneSel?.canton}
                             </button>
                         </div>
-                        <p className="font-display text-xl text-nebbia">{attoLabel(attoSelezionato)}</p>
+                        <p className="font-display text-lg text-nebbia text-right">
+                            {leggeSel.systematic_number ?? ''}
+                        </p>
                     </div>
-                    {attoSelezionato.titolo_doc && (
-                        <p className="font-body text-sm text-nebbia/50 leading-relaxed -mt-2">{attoSelezionato.titolo_doc}</p>
+                    <p className="font-body text-sm text-nebbia/50 leading-relaxed -mt-2 flex items-center gap-2 flex-wrap">
+                        {leggeSel.abbreviation && <span className="text-nebbia/40 font-medium">{leggeSel.abbreviation}</span>}
+                        <span>{risolviTitoloCant(leggeSel.title_by_lang, leggeSel.title, lingua).testo ?? '(senza titolo)'}</span>
+                    </p>
+
+                    {/* Selettore lingua solo per cantoni bilingui */}
+                    {isBilingue && (
+                        <div className="flex items-center gap-2">
+                            <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+                            <div className="flex gap-1 bg-slate border border-white/5 p-1">
+                                {cantoneSel.lingue.map(l => (
+                                    <button key={l} onClick={() => cambiaLingua(l)}
+                                        className={`px-2.5 py-1 font-body text-xs transition-colors ${lingua === l ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
+                                        {LINGUE_LABEL_CANT[l] ?? l.toUpperCase()}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     )}
 
                     <div className="flex gap-2">
                         <div className="relative flex-1">
                             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                             <input
-                                placeholder="Cerca per articolo, rubrica o testo..."
-                                value={inputCercaArt}
-                                onChange={e => setInputCercaArt(e.target.value)}
-                                onKeyDown={e => { if (e.key === 'Enter') { setPaginaArt(0); setCercaArt(inputCercaArt) } }}
+                                placeholder="Cerca per articolo, rubrica o testo…"
+                                value={inputArt}
+                                onChange={e => setInputArt(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') { setPaginaArt(0); setCercaArt(inputArt) } }}
                                 className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                         </div>
-                        <button onClick={() => { setPaginaArt(0); setCercaArt(inputCercaArt) }}
+                        <button onClick={() => { setPaginaArt(0); setCercaArt(inputArt) }}
                             className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
                             <Search size={13} /> Cerca
                         </button>
+                        {cercaArt && (
+                            <button onClick={() => { setInputArt(''); setCercaArt(''); setPaginaArt(0) }}
+                                className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
+                                <X size={11} /> Pulisci
+                            </button>
+                        )}
                     </div>
 
-                    {cercaArt && <p className="font-body text-xs text-nebbia/30">Risultati per "{cercaArt}"</p>}
+                    {cercaArt && <p className="font-body text-xs text-nebbia/30">{totaleArt.toLocaleString('it-CH')} risultati per "{cercaArt}"</p>}
 
                     <div className="bg-slate border border-white/5">
                         <table className="w-full">
@@ -1987,7 +1536,7 @@ function TabLeggiDecreti() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {loadingArticoli ? (
+                                {loadingArt ? (
                                     <tr><td colSpan={3} className="px-4 py-20 text-center">
                                         <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" />
                                     </td></tr>
@@ -1996,70 +1545,64 @@ function TabLeggiDecreti() {
                                         <p className="font-body text-sm text-nebbia/30">Nessun articolo trovato</p>
                                     </td></tr>
                                 ) : articoli.map(n => (
-                                    <>
-                                        <tr key={n.id}
+                                    <Fragment key={n.id}>
+                                        <tr
                                             className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
-                                            onClick={() => setArticoloAperto(articoloAperto?.id === n.id ? null : n)}
-                                        >
-                                            <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap">
-                                                {n.articolo}
-                                                <BadgeTipoElemento tipo={n.tipo_elemento} />
+                                            onClick={() => setArtAperto(artAperto?.id === n.id ? null : n)}>
+                                            <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
+                                                {articoloEtichetta(n)}
                                             </td>
                                             <td className="px-4 py-3 font-body text-sm text-nebbia/60 max-w-lg">
-                                                {n.rubrica && <p className="font-medium text-nebbia/80 mb-0.5" dangerouslySetInnerHTML={{ __html: evidenziaParola(n.rubrica, cercaArt) }} />}
-                                                {cercaArt && <p className="text-xs text-nebbia/40 line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenziaParola(evidenziaTesto(n.testo ?? '', cercaArt), cercaArt) }} />}
+                                                {n.rubrica && <p className="font-medium text-nebbia/80 mb-0.5" dangerouslySetInnerHTML={{ __html: evidenzia(n.rubrica, cercaArt) }} />}
+                                                {cercaArt && n.testo && <p className="text-xs text-nebbia/40 line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenzia(n.testo.slice(0, 200), cercaArt) }} />}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <ChevronRight size={13} className={`text-nebbia/20 transition-transform ${articoloAperto?.id === n.id ? 'rotate-90' : ''}`} />
+                                                <ChevronRight size={13} className={`text-nebbia/20 transition-transform ${artAperto?.id === n.id ? 'rotate-90' : ''}`} />
                                             </td>
                                         </tr>
-                                        {articoloAperto?.id === n.id && (
+                                        {artAperto?.id === n.id && (
                                             <tr key={`${n.id}-testo`} className="border-b border-white/5 bg-petrolio/20">
                                                 <td colSpan={3} className="px-4 py-4">
-                                                    <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: evidenziaParola(n.testo ?? '', cercaArt) }} />
+                                                    {gerarchiaLabel(n.gerarchia) && (
+                                                        <p className="font-body text-[11px] text-nebbia/30 uppercase tracking-wider mb-2">{gerarchiaLabel(n.gerarchia)}</p>
+                                                    )}
+                                                    <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed"
+                                                        dangerouslySetInnerHTML={{ __html: evidenzia(n.testo ?? '(testo non disponibile)', cercaArt) }} />
                                                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                                                        <AggiungiAPratica
-                                                            ricerca={{
-                                                                tipo: 'ricerca_manuale',
-                                                                domanda: `${n.articolo}${n.rubrica ? ` — ${n.rubrica}` : ''} (${attoLabel(n)})`,
-                                                                testo: n.testo,
-                                                                codice: null
-                                                            }}
-                                                            variant="compact"
-                                                        />
-                                                        <AggiungiAEtichetta
-                                                            elemento={{ tipo: 'norma_archivio', id: n.id }}
-                                                            variant="compact"
+                                                        <BottoniSalvataggio
+                                                            tipo="norma_cantonale"
+                                                            id={n.id}
+                                                            titolo={[`Art. ${n.article_num ?? ''}${n.article_suffix ?? ''}`.trim(), n.rubrica].filter(Boolean).join(' — ')}
+                                                            testo={n.testo}
                                                         />
                                                         <button
                                                             type="button"
                                                             onClick={(e) => {
                                                                 e.stopPropagation()
                                                                 const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'
-                                                                navigate(`${prefix}/norma/${n.id}`)
+                                                                navigate(`${prefix}/norma-cantonale/${n.id}`)
                                                             }}
-                                                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto"
-                                                        >
+                                                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
                                                             Apri pagina dedicata <ChevronRight size={11} />
                                                         </button>
                                                     </div>
                                                 </td>
                                             </tr>
                                         )}
-                                    </>
+                                    </Fragment>
                                 ))}
                             </tbody>
                         </table>
-                        {(articoli.length >= PER_PAGINA_ART || paginaArt > 0) && (
+                        {pagineArt > 1 && (
                             <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
                                 <p className="font-body text-xs text-nebbia/30">
-                                    Pagina {paginaArt + 1} · {articoli.length} articoli
+                                    {paginaArt * PER_PAGINA_ART_CANT + 1}–{Math.min((paginaArt + 1) * PER_PAGINA_ART_CANT, totaleArt)} di {totaleArt.toLocaleString('it-CH')}
                                 </p>
                                 <div className="flex gap-2">
                                     <button onClick={() => setPaginaArt(p => Math.max(0, p - 1))} disabled={paginaArt === 0}
-                                        className="px-3 py-1.5 bg-slate border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prev</button>
-                                    <button onClick={() => setPaginaArt(p => p + 1)} disabled={articoli.length < PER_PAGINA_ART}
-                                        className="px-3 py-1.5 bg-slate border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Next →</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                    <button onClick={() => setPaginaArt(p => Math.min(pagineArt - 1, p + 1))} disabled={paginaArt >= pagineArt - 1}
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
                                 </div>
                             </div>
                         )}
@@ -2071,1695 +1614,1042 @@ function TabLeggiDecreti() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TAB SENTENZE — sub-tab "Per categoria" + "Per fonte"
-// 
-// Sostituisci INTERAMENTE la funzione TabSentenze esistente in
-// src/pages/avvocato/BancaDati.jsx con questo blocco.
-// 
-// Le costanti FONTI_MACRO e TAR_LABELS vanno fuori dalla funzione,
-// vicino agli altri moduli costanti del file (es. CONFIG_IT/CONFIG_UE).
+// TAB GIURISPRUDENZA  —  blocco 4/N di BancaDati.jsx (CH)
+//
+// Mono-tabella giurisprudenza_ch (no atto→articoli). Navigazione:
+//   L1 macro     → 2 card: Tribunali federali / Tribunali cantonali
+//   L2a federali → lista tribunali (TF, TAF, TPF, BGE, minori)
+//   L2b cantonali→ griglia cantoni (quadrati) — camere appiattite
+//   L3 sentenze  → lista paginata, riga espandibile (principio + oggetto)
+//
+// Lingue:
+//   - Federali (TF/TAF/BGE multilingue) → FILTRO lingua IT/DE/FR + badge.
+//   - Cantonali (monolingui di fatto)   → solo badge lingua, niente filtro.
+//   Titoli titolo_it/_de/_fr sempre valorizzati → uso lingua piattaforma.
+//
+// Anni: la MV conteggi_giurisprudenza_ch ha anni-spazzatura (8476, 1701…).
+//   Filtro a range sensato [ANNO_MIN..anno corrente].
+//
+// Sostituzione in BancaDati: {tabAttivo === 'giurisprudenza' && <TabGiurisprudenza />}
+// Icone richieste (già in cima al file): Search, ChevronRight, ChevronLeft, X.
 // ═══════════════════════════════════════════════════════════════
 
+const ANNO_MIN_GIUR = 1900
+const ANNO_MAX_GIUR = new Date().getFullYear()
+const PER_PAGINA_SENT = 50
 
-const FONTI_MACRO = [
-    {
-        key: 'cassazione',
-        label: 'Corte di Cassazione',
-        descrizione: 'Sezioni civili, penali, costituzionali e Massimario',
-        sotto: [
-            { v: 'cassazione_civile', l: 'Sezione Civile' },
-            { v: 'cassazione_penale', l: 'Sezione Penale' },
-            { v: 'cassazione_costituzionale', l: 'Sezione Costituzionale' },
-            { v: 'cassazione_relazioni', l: 'Massimario / Relazioni' },
-        ],
-    },
-    {
-        key: 'corte_costituzionale',
-        label: 'Corte Costituzionale',
-        descrizione: 'Sentenze e ordinanze costituzionali',
-        sotto: [
-            { v: 'corte_costituzionale', l: 'Corte Costituzionale' },
-        ],
-    },
-    {
-        key: 'consiglio_stato',
-        label: 'Consiglio di Stato',
-        descrizione: 'Sezioni giurisdizionali e consultive',
-        sotto: [
-            { v: 'consiglio_stato', l: 'Consiglio di Stato' },
-            { v: 'cds', l: 'CdS — pronunce' },
-            { v: 'cds_pareri', l: 'CdS — pareri' },
-        ],
-    },
-    {
-        key: 'cgars',
-        label: 'CGARS — Sicilia',
-        descrizione: 'Consiglio di Giustizia Amministrativa Regione Siciliana',
-        sotto: [
-            { v: 'cgars', l: 'CGARS — pronunce' },
-            { v: 'cgars_pareri', l: 'CGARS — pareri' },
-            { v: 'cgagiur', l: 'Sezione giurisdizionale' },
-            { v: 'cgacons', l: 'Sezione consultiva' },
-        ],
-    },
-    {
-        key: 'corte_conti',
-        label: 'Corte dei Conti',
-        descrizione: 'Sezioni giurisdizionali e consultive',
-        sotto: [
-            { v: 'corte_conti', l: 'Corte dei Conti' },
-            { v: 'consul', l: 'Sezione consultiva' },
-        ],
-    },
-    {
-        key: 'giuri_tributaria_def',
-        label: 'Giurisprudenza Tributaria (MEF)',
-        descrizione: 'Cassazione tributaria, CGT, ex CTP/CTR storiche, CGUE — Banca Dati MEF',
-        sotto: [
-            { v: 'cassazione', l: 'Cassazione tributaria' },
-            { v: 'cgt_secondo_grado', l: 'CGT — Secondo grado' },
-            { v: 'cgt_primo_grado', l: 'CGT — Primo grado' },
-            { v: 'altra_giuri', l: 'CTP/CTR storiche e altri organi' },
-            { v: 'cgue', l: 'Corte di Giustizia UE' },
-            { v: 'corte_appello', l: 'Corte d\'Appello' },
-        ],
-    },
-    {
-        key: 'tar',
-        label: 'TAR — Tribunali Amministrativi Regionali',
-        descrizione: 'Tutti i TAR provinciali italiani',
-        richiedeSottoSelezione: true,
-        sotto: [
-            { v: 'tar_an', l: 'Ancona' },
-            { v: 'tar_ao', l: 'Aosta' },
-            { v: 'tar_aq', l: "L'Aquila" },
-            { v: 'tar_ba', l: 'Bari' },
-            { v: 'tar_bo', l: 'Bologna' },
-            { v: 'tar_bs', l: 'Brescia' },
-            { v: 'tar_bz', l: 'Bolzano' },
-            { v: 'tar_ca', l: 'Cagliari' },
-            { v: 'tar_cb', l: 'Campobasso' },
-            { v: 'tar_ct', l: 'Catania' },
-            { v: 'tar_cz', l: 'Catanzaro' },
-            { v: 'tar_fi', l: 'Firenze' },
-            { v: 'tar_ge', l: 'Genova' },
-            { v: 'tar_le', l: 'Lecce' },
-            { v: 'tar_lt', l: 'Latina' },
-            { v: 'tar_mi', l: 'Milano' },
-            { v: 'tar_na', l: 'Napoli' },
-            { v: 'tar_pa', l: 'Palermo' },
-            { v: 'tar_pe', l: 'Pescara' },
-            { v: 'tar_pg', l: 'Perugia' },
-            { v: 'tar_pr', l: 'Parma' },
-            { v: 'tar_pz', l: 'Potenza' },
-            { v: 'tar_rc', l: 'Reggio Calabria' },
-            { v: 'tar_rm', l: 'Roma' },
-            { v: 'tar_sa', l: 'Salerno' },
-            { v: 'tar_tn', l: 'Trento' },
-            { v: 'tar_to', l: 'Torino' },
-            { v: 'tar_ts', l: 'Trieste' },
-            { v: 'tar_ve', l: 'Venezia' },
-        ],
-    },
+// Fonti federali → label leggibile. L'ordine qui è anche l'ordine di visualizzazione.
+const FONTI_FEDERALI = [
+    { fonte: 'TF', label: 'Tribunale federale (TF)' },
+    { fonte: 'CH_BGE', label: 'DTF — Raccolta ufficiale (BGE)' },
+    { fonte: 'TAF', label: 'Tribunale amministrativo federale (TAF)' },
+    { fonte: 'TPF', label: 'Tribunale penale federale (TPF)' },
+    { fonte: 'CH_BPATG', label: 'Tribunale federale dei brevetti' },
+    { fonte: 'CH_WEKO', label: 'COMCO — Commissione concorrenza' },
+    { fonte: 'CH_EDOEB', label: 'IFPDT — Protezione dati' },
+    { fonte: 'CH_VB', label: 'Autorità di vigilanza' },
+    { fonte: 'CH_BUNDESRAT', label: 'Consiglio federale' },
+    { fonte: 'CH_UNIBE', label: 'Università di Berna' },
+    { fonte: 'TA_SST', label: 'TA — SST' },
+    { fonte: 'MISC_UPLOAD', label: 'Altri / caricamenti' },
 ]
-
-// Mappa rapida sotto_fonte -> label per rendering tabellare
-const SOTTO_FONTE_LABEL = (() => {
-    const m = {}
-    for (const macro of FONTI_MACRO) {
-        for (const s of macro.sotto) m[s.v] = s.l
-    }
-    return m
-})()
-
-
-// ─── FUNZIONE TabSentenze ───────────────────────────────────────
-function TabSentenze() {
-    const navigate = useNavigate()
-
-    // Sub-tab principale
-    const [subTab, setSubTab] = useState('categoria')   // 'categoria' | 'fonte'
-
-    // ── PER CATEGORIA (esistente) ──
-    const [categorieRaggruppate, setCategorieRaggruppate] = useState([])
-    const [conteggiPerCategoria, setConteggiPerCategoria] = useState({})
-
-    // ── PER FONTE (nuovo) ──
-    // Mappa { macro_fonte: totale } e { sotto_fonte: totale }
-    const [conteggiMacroFonte, setConteggiMacroFonte] = useState({})
-    const [conteggiSottoFonte, setConteggiSottoFonte] = useState({})
-    const [macroFonteSelezionata, setMacroFonteSelezionata] = useState(null)
-    const [sottoFonteSelezionataObj, setSottoFonteSelezionataObj] = useState(null)
-    const [filtroSottoFonte, setFiltroSottoFonte] = useState('')
-
-    // ── COMUNI ──
-    const [organiDisponibili, setOrganiDisponibili] = useState([])
-    const [loading, setLoading] = useState(true)
-
-    const [vista, setVista] = useState('catalogo')   // 'catalogo' | 'categoria' | 'catalogo_fonte' | 'fonte'
-    const [categoriaSelezionata, setCategoriaSelezionata] = useState(null)
-
-    const [ricerca, setRicerca] = useState('')
-    const [ricercaAttiva, setRicercaAttiva] = useState('')
-    const [filtroAnno, setFiltroAnno] = useState('')
-    const [filtroOrgano, setFiltroOrgano] = useState('')
-    const [filtroTipo, setFiltroTipo] = useState('')
-    const [filtroFonte, setFiltroFonte] = useState('tutte')
-
-    const [risultati, setRisultati] = useState([])
-    const [totaleSentenze, setTotaleSentenze] = useState(0)
-    const [paginaSentenze, setPaginaSentenze] = useState(0)
-    const [loadingRisultati, setLoadingRisultati] = useState(false)
-
-    const [prezzoAccesso, setPrezzoAccesso] = useState(15)
-
-    const PER_PAGINA_SENTENZE = 50
-
-    // ═══════════════════════════════════════════════════════════
-    // CARICAMENTO INIZIALE — categorie + conteggi (entrambe le MV)
-    // ═══════════════════════════════════════════════════════════
-    useEffect(() => {
-        async function caricaDatiBase() {
-            setLoading(true)
-
-            // 1. Categorie raggruppate per macro_label
-            const { data: cat } = await supabase
-                .from('codici_lex')
-                .select('codice, label, macro_area, macro_label, ordine')
-                .order('macro_label').order('ordine')
-
-            const gruppi = {}
-            for (const c of cat ?? []) {
-                const k = c.macro_label || 'Altro'
-                if (!gruppi[k]) gruppi[k] = []
-                gruppi[k].push(c)
-            }
-            setCategorieRaggruppate(Object.entries(gruppi).map(([macro, items]) => ({ macro, items })))
-
-            // 2. Conteggi per categoria — MV precalcolata
-            const { data: conteggiCatData } = await supabase
-                .from('conteggi_categorie_sentenze')
-                .select('codice, totale')
-            const conteggiCat = {}
-            for (const r of conteggiCatData ?? []) {
-                conteggiCat[r.codice] = Number(r.totale)
-            }
-            setConteggiPerCategoria(conteggiCat)
-
-            const { data: conteggiFontiData } = await supabase
-                .from('conteggi_fonti_sentenze')
-                .select('sotto_fonte, totale')
-            const sottoMap = {}
-            for (const r of conteggiFontiData ?? []) {
-                sottoMap[r.sotto_fonte] = Number(r.totale)
-            }
-            const macroMap = {}
-            for (const macro of FONTI_MACRO) {
-                let totale = 0
-                for (const s of macro.sotto) {
-                    totale += sottoMap[s.v] ?? 0
-                }
-                macroMap[macro.key] = totale
-            }
-            setConteggiMacroFonte(macroMap)
-            setConteggiSottoFonte(sottoMap)
-
-            // 4. Prezzo accesso singolo
-            const { data: prod } = await supabase
-                .from('prodotti').select('prezzo').eq('tipo', 'accesso_singolo').eq('attivo', true).maybeSingle()
-            if (prod) setPrezzoAccesso(prod.prezzo)
-
-            setLoading(false)
-        }
-        caricaDatiBase()
-    }, [])
-
-    // ═══════════════════════════════════════════════════════════
-    // RESET PAGINA al cambio filtri
-    // ═══════════════════════════════════════════════════════════
-    useEffect(() => {
-        setPaginaSentenze(0)
-    }, [
-        categoriaSelezionata?.codice,
-        macroFonteSelezionata?.key,
-        filtroSottoFonte,
-        ricercaAttiva, filtroAnno, filtroOrgano, filtroTipo, filtroFonte,
-    ])
-
-    // ═══════════════════════════════════════════════════════════
-    // CARICA SENTENZE — vista per categoria (esistente)
-    // ═══════════════════════════════════════════════════════════
-    useEffect(() => {
-        if (vista !== 'categoria' || !categoriaSelezionata) return
-        caricaSentenzeCategoria()
-    }, [vista, categoriaSelezionata, ricercaAttiva, filtroAnno, filtroOrgano, filtroTipo, filtroFonte, paginaSentenze])
-
-    async function caricaSentenzeCategoria() {
-        setLoadingRisultati(true)
-
-        const PER_PAGINA = PER_PAGINA_SENTENZE
-        const offsetStart = paginaSentenze * PER_PAGINA
-        const offsetEnd = offsetStart + PER_PAGINA - 1
-
-        try {
-            // ── COUNT ──
-            const countFetchers = []
-            if (filtroFonte !== 'pagamento') {
-                let qc = supabase
-                    .from('giurisprudenza_navigabile')
-                    .select('id', { count: 'exact', head: true })
-                    .contains('categorie_lex', [categoriaSelezionata.codice])
-                    .eq('vigente', true)
-                if (filtroAnno) qc = qc.eq('anno', parseInt(filtroAnno))
-                if (filtroOrgano) qc = qc.eq('organo_macro', filtroOrgano)
-                if (filtroTipo) qc = qc.eq('tipo_provvedimento', filtroTipo)
-                if (ricercaAttiva.trim()) {
-                    qc = qc.or(`oggetto.ilike.%${ricercaAttiva}%,principio_diritto.ilike.%${ricercaAttiva}%`)
-                }
-                countFetchers.push(qc)
-            } else countFetchers.push(null)
-
-            if (filtroFonte !== 'gratuite') {
-                let qc = supabase
-                    .from('sentenze')
-                    .select('id', { count: 'exact', head: true })
-                    .contains('categorie_lex', [categoriaSelezionata.codice])
-                    .eq('stato', 'pubblica')
-                if (filtroAnno) qc = qc.eq('anno', parseInt(filtroAnno))
-                if (filtroTipo) qc = qc.eq('tipo_provvedimento', filtroTipo)
-                if (ricercaAttiva.trim()) {
-                    qc = qc.or(`oggetto.ilike.%${ricercaAttiva}%,principio_diritto.ilike.%${ricercaAttiva}%`)
-                }
-                countFetchers.push(qc)
-            } else countFetchers.push(null)
-
-            const [countGiur, countSent] = await Promise.all(
-                countFetchers.map(f => f ?? Promise.resolve({ count: 0 }))
-            )
-            const totale = (countGiur?.count ?? 0) + (countSent?.count ?? 0)
-            setTotaleSentenze(totale)
-
-            // ── DATA ──
-            const fetchers = []
-            if (filtroFonte !== 'pagamento') {
-                let q = supabase
-                    .from('giurisprudenza_navigabile')
-                    .select('id, fonte, organo, organo_macro, sezione, numero, anno, data_deposito, data_pubblicazione, oggetto, tipo_provvedimento, categorie_lex, principio_diritto')
-                    .contains('categorie_lex', [categoriaSelezionata.codice])
-                    .eq('vigente', true)
-                if (filtroAnno) q = q.eq('anno', parseInt(filtroAnno))
-                if (filtroOrgano) q = q.eq('organo_macro', filtroOrgano)
-                if (filtroTipo) q = q.eq('tipo_provvedimento', filtroTipo)
-                if (ricercaAttiva.trim()) {
-                    q = q.or(`oggetto.ilike.%${ricercaAttiva}%,principio_diritto.ilike.%${ricercaAttiva}%`)
-                }
-                fetchers.push(q.order('data_pubblicazione', { ascending: false, nullsFirst: false }).range(offsetStart, offsetEnd))
-            }
-
-            if (filtroFonte !== 'gratuite') {
-                let q = supabase
-                    .from('sentenze')
-                    .select('id, fonte, organo, sezione, numero, anno, data_deposito, data_pubblicazione, oggetto, tipo_provvedimento, categorie_lex, principio_diritto, autore_id, autore:autore_id(nome, cognome)')
-                    .contains('categorie_lex', [categoriaSelezionata.codice])
-                    .eq('stato', 'pubblica')
-                if (filtroAnno) q = q.eq('anno', parseInt(filtroAnno))
-                if (filtroTipo) q = q.eq('tipo_provvedimento', filtroTipo)
-                if (ricercaAttiva.trim()) {
-                    q = q.or(`oggetto.ilike.%${ricercaAttiva}%,principio_diritto.ilike.%${ricercaAttiva}%`)
-                }
-                fetchers.push(q.order('data_pubblicazione', { ascending: false, nullsFirst: false }).range(offsetStart, offsetEnd))
-            }
-
-            const responses = await Promise.all(fetchers)
-
-            let merged = []
-            if (filtroFonte !== 'pagamento' && responses[0]?.data) {
-                merged = merged.concat(responses[0].data.map(r => ({ ...r, sorgente: 'giurisprudenza' })))
-            }
-            const sentIdx = filtroFonte === 'pagamento' ? 0 : (filtroFonte === 'gratuite' ? -1 : 1)
-            if (sentIdx >= 0 && responses[sentIdx]?.data) {
-                merged = merged.concat(responses[sentIdx].data.map(r => ({
-                    ...r,
-                    sorgente: 'sentenza_avvocato',
-                    organo_macro: null,
-                })))
-            }
-
-            merged.sort((a, b) => {
-                const dA = a.data_pubblicazione ?? a.data_deposito ?? (a.anno ? `${a.anno}-01-01` : '')
-                const dB = b.data_pubblicazione ?? b.data_deposito ?? (b.anno ? `${b.anno}-01-01` : '')
-                return dB.localeCompare(dA)
-            })
-            merged = merged.slice(0, PER_PAGINA)
-
-            setRisultati(merged)
-
-            const organi = new Set()
-            for (const r of merged) {
-                if (r.organo_macro) organi.add(r.organo_macro)
-                else if (r.organo) organi.add(r.organo)
-            }
-            setOrganiDisponibili([...organi].sort())
-        } finally {
-            setLoadingRisultati(false)
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // CARICA SENTENZE — vista per fonte (NUOVA)
-    // ═══════════════════════════════════════════════════════════
-    useEffect(() => {
-        if (vista !== 'fonte' || !macroFonteSelezionata) return
-        caricaSentenzePerFonte()
-    }, [vista, macroFonteSelezionata, filtroSottoFonte, ricercaAttiva, filtroAnno, filtroTipo, paginaSentenze])
-
-    async function caricaSentenzePerFonte() {
-        setLoadingRisultati(true)
-
-        const PER_PAGINA = PER_PAGINA_SENTENZE
-        const offsetStart = paginaSentenze * PER_PAGINA
-        const offsetEnd = offsetStart + PER_PAGINA - 1
-
-        // Quali fonti raw filtrare?
-        const fontiInScope = filtroSottoFonte
-            ? [filtroSottoFonte]
-            : macroFonteSelezionata.sotto.map(s => s.v)
-
-        try {
-            // ── COUNT ──
-            // Se non ci sono filtri attivi (anno/tipo/ricerca), usiamo la MV
-            // gia' aggregata: count diretto su giurisprudenza con IN(6 fonti)
-            // impiega ~13s e va in timeout PostgREST.
-            // Con filtri attivi, fallback al count diretto (operera' su subset piu' piccolo).
-            const haFiltri = !!filtroAnno || !!filtroTipo || !!ricercaAttiva.trim()
-
-            if (!haFiltri) {
-                const totaleDaMV = fontiInScope.reduce(
-                    (acc, f) => acc + (conteggiSottoFonte[f] ?? 0),
-                    0
-                )
-                setTotaleSentenze(totaleDaMV)
-            } else {
-                let qc = supabase
-                    .from('giurisprudenza')
-                    .select('id', { count: 'exact', head: true })
-                    .in('fonte', fontiInScope)
-                    .eq('vigente', true)
-
-                if (filtroAnno) qc = qc.eq('anno', parseInt(filtroAnno))
-                if (filtroTipo) qc = qc.eq('tipo_provvedimento', filtroTipo)
-                if (ricercaAttiva.trim()) {
-                    qc = qc.or(`oggetto.ilike.%${ricercaAttiva}%,principio_diritto.ilike.%${ricercaAttiva}%`)
-                }
-
-                const { count } = await qc
-                setTotaleSentenze(count ?? 0)
-            }
-
-            // ── DATA ──
-            let q = supabase
-                .from('giurisprudenza')
-                .select('id, fonte, organo, sezione, numero, anno, data_deposito, data_pubblicazione, oggetto, tipo_provvedimento, categorie_lex, principio_diritto')
-                .in('fonte', fontiInScope)
-                .eq('vigente', true)
-
-            if (filtroAnno) q = q.eq('anno', parseInt(filtroAnno))
-            if (filtroTipo) q = q.eq('tipo_provvedimento', filtroTipo)
-            if (ricercaAttiva.trim()) {
-                q = q.or(`oggetto.ilike.%${ricercaAttiva}%,principio_diritto.ilike.%${ricercaAttiva}%`)
-            }
-
-            const { data } = await q
-                .order('data_pubblicazione', { ascending: false, nullsFirst: false })
-                .range(offsetStart, offsetEnd)
-
-            setRisultati((data ?? []).map(r => ({ ...r, sorgente: 'giurisprudenza' })))
-        } finally {
-            setLoadingRisultati(false)
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // NAVIGAZIONE
-    // ═══════════════════════════════════════════════════════════
-    function apriCategoria(cat) {
-        setCategoriaSelezionata(cat)
-        setVista('categoria')
-        setRicerca(''); setRicercaAttiva('')
-        setFiltroAnno(''); setFiltroOrgano(''); setFiltroTipo(''); setFiltroFonte('tutte')
-    }
-
-    function apriMacroFonte(macro) {
-        setMacroFonteSelezionata(macro)
-        setSottoFonteSelezionataObj(null)
-        setFiltroSottoFonte('')
-        setRicerca(''); setRicercaAttiva('')
-        setFiltroAnno(''); setFiltroTipo('')
-
-        if (macro.richiedeSottoSelezione) {
-            setVista('sotto_fonte_grid')
-        } else {
-            setVista('fonte')
-        }
-    }
-
-    function apriSottoFonte(sotto) {
-        setSottoFonteSelezionataObj(sotto)
-        setFiltroSottoFonte(sotto.v)
-        setVista('fonte')
-        setRicerca(''); setRicercaAttiva('')
-        setFiltroAnno(''); setFiltroTipo('')
-    }
-
-    function tornaAlCatalogo() {
-        if (vista === 'categoria') {
-            setVista('catalogo')
-            setCategoriaSelezionata(null)
-        } else if (vista === 'fonte') {
-            if (macroFonteSelezionata?.richiedeSottoSelezione) {
-                setVista('sotto_fonte_grid')
-                setSottoFonteSelezionataObj(null)
-                setFiltroSottoFonte('')
-            } else {
-                setVista('catalogo_fonte')
-                setMacroFonteSelezionata(null)
-                setFiltroSottoFonte('')
-            }
-        } else if (vista === 'sotto_fonte_grid') {
-            setVista('catalogo_fonte')
-            setMacroFonteSelezionata(null)
-        }
-        setRisultati([])
-    }
-
-    function cambiaSubTab(t) {
-        setSubTab(t)
-        setVista(t === 'fonte' ? 'catalogo_fonte' : 'catalogo')
-        setCategoriaSelezionata(null)
-        setMacroFonteSelezionata(null)
-        setFiltroSottoFonte('')
-        setRisultati([])
-    }
-
-    function avviaRicerca() { setRicercaAttiva(ricerca) }
-
-    function titoloSentenza(s) {
-        const parti = [s.organo ?? s.organo_macro, s.sezione, s.numero && `n. ${s.numero}`, s.anno].filter(Boolean)
-        return parti.join(' \u00b7 ') || 'Sentenza'
-    }
-
-    function labelTipoProvvedimento(t) {
-        const map = {
-            sentenza: 'Sentenza',
-            ordinanza: 'Ordinanza',
-            ordinanza_interlocutoria: 'Ord. interlocutoria',
-            decreto_presidenziale: 'Decreto',
-            rassegna: 'Rassegna',
-            relazione: 'Relazione',
-        }
-        return map[t] ?? t
-    }
-
-    const TIPI_FILTRO = [
-        { v: '', l: 'Tutti i tipi' },
-        { v: 'sentenza', l: 'Sentenza' },
-        { v: 'ordinanza', l: 'Ordinanza' },
-        { v: 'ordinanza_interlocutoria', l: 'Ord. interlocutoria' },
-        { v: 'decreto_presidenziale', l: 'Decreto presidenziale' },
-        { v: 'rassegna', l: 'Rassegna' },
-        { v: 'relazione', l: 'Relazione' },
-    ]
-
-    // ═══════════════════════════════════════════════════════════
-    // RENDER
-    // ═══════════════════════════════════════════════════════════
-    if (loading) return (
-        <div className="flex items-center justify-center py-20">
-            <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
-        </div>
-    )
-
-    const annoCorrente = new Date().getFullYear()
-    const anniOpzioni = Array.from({ length: 20 }, (_, i) => annoCorrente - i)
-
-    return (
-        <div className="space-y-5">
-
-            {/* ── SUB-TAB SWITCHER ────────────────────────────────────── */}
-            {(vista === 'catalogo' || vista === 'catalogo_fonte') && (
-                <div className="flex gap-1 bg-slate border border-white/5 p-1 w-fit">
-                    <button onClick={() => cambiaSubTab('categoria')}
-                        className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${subTab === 'categoria' ? 'bg-salvia/10 text-salvia border border-salvia/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                        <Scale size={12} /> Per categoria
-                    </button>
-                    <button onClick={() => cambiaSubTab('fonte')}
-                        className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${subTab === 'fonte' ? 'bg-salvia/10 text-salvia border border-salvia/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                        <Landmark size={12} /> Per fonte
-                    </button>
-                </div>
-            )}
-
-            {/* ── CATALOGO PER CATEGORIA ──────────────────────────────── */}
-            {vista === 'catalogo' && (
-                <div className="space-y-6">
-                    {categorieRaggruppate.map(gruppo => {
-                        const categorieConRisultati = gruppo.items.filter(c => (conteggiPerCategoria[c.codice] ?? 0) > 0)
-                        if (categorieConRisultati.length === 0) return null
-
-                        return (
-                            <div key={gruppo.macro} className="space-y-3">
-                                <div className="flex items-center gap-2 border-b border-white/5 pb-2">
-                                    <Scale size={13} className="text-oro/60" />
-                                    <h3 className="font-display text-base font-medium text-nebbia">{gruppo.macro}</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    {categorieConRisultati.map(c => (
-                                        <button key={c.codice} onClick={() => apriCategoria(c)}
-                                            className="bg-slate border border-white/5 p-4 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
-                                            <div className="flex items-center justify-between gap-3">
-                                                <div className="min-w-0">
-                                                    <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors truncate">{c.label}</p>
-                                                </div>
-                                                <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-            )}
-
-            {/* ── CATALOGO PER FONTE ──────────────────────────────────── */}
-            {vista === 'catalogo_fonte' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {FONTI_MACRO.map(macro => {
-                        const totale = conteggiMacroFonte[macro.key] ?? 0
-                        if (totale === 0) return null
-                        return (
-                            <button key={macro.key} onClick={() => apriMacroFonte(macro)}
-                                className="bg-slate border border-white/5 p-5 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
-                                <div className="flex items-start justify-between gap-3 mb-2">
-                                    <div className="flex items-center gap-2">
-                                        <Landmark size={14} className="text-oro/60 shrink-0" />
-                                        <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors">
-                                            {macro.label}
-                                        </p>
-                                    </div>
-                                    <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0 mt-1" />
-                                </div>
-                                <p className="font-body text-xs text-nebbia/40 leading-relaxed">{macro.descrizione}</p>
-                            </button>
-                        )
-                    })}
-                </div>
-            )}
-
-            {/* ── VISTA CATEGORIA (filtri + risultati) ────────────────── */}
-            {vista === 'categoria' && categoriaSelezionata && (
-                <>
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <button onClick={tornaAlCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                            <ChevronLeft size={13} /> Tutte le categorie
-                        </button>
-                        <p className="font-display text-xl text-nebbia">{categoriaSelezionata.label}</p>
-                    </div>
-
-                    <div className="bg-slate border border-white/5 p-4 space-y-3">
-                        <div className="flex gap-2">
-                            <div className="relative flex-1">
-                                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                                <input
-                                    placeholder="Cerca in oggetto e principio di diritto..."
-                                    value={ricerca}
-                                    onChange={e => setRicerca(e.target.value)}
-                                    onKeyDown={e => { if (e.key === 'Enter') avviaRicerca() }}
-                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
-                                />
-                            </div>
-                            <button onClick={avviaRicerca} className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                                <Search size={13} /> Cerca
-                            </button>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="flex items-center gap-1.5 text-nebbia/30">
-                                <Filter size={12} />
-                                <span className="font-body text-xs uppercase tracking-widest">Filtri</span>
-                            </div>
-
-                            <select value={filtroAnno} onChange={e => setFiltroAnno(e.target.value)}
-                                className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                                <option value="">Tutti gli anni</option>
-                                {anniOpzioni.map(a => <option key={a} value={a}>{a}</option>)}
-                            </select>
-
-                            <select value={filtroOrgano} onChange={e => setFiltroOrgano(e.target.value)}
-                                className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                                <option value="">Tutte le corti</option>
-                                {organiDisponibili.map(o => <option key={o} value={o}>{o}</option>)}
-                            </select>
-
-                            <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}
-                                className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                                {TIPI_FILTRO.map(t => <option key={t.v} value={t.v}>{t.l}</option>)}
-                            </select>
-
-                            <div className="flex gap-1 bg-petrolio border border-white/10 p-0.5">
-                                {[
-                                    { v: 'tutte', l: 'Tutte' },
-                                    { v: 'gratuite', l: 'Gratuite' },
-                                    { v: 'pagamento', l: 'A pagamento' },
-                                ].map(f => (
-                                    <button key={f.v} onClick={() => setFiltroFonte(f.v)}
-                                        className={`px-3 py-1 font-body text-xs transition-colors ${filtroFonte === f.v ? 'bg-oro/10 text-oro' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                                        {f.l}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {(filtroAnno || filtroOrgano || filtroTipo || filtroFonte !== 'tutte' || ricercaAttiva) && (
-                                <button onClick={() => {
-                                    setFiltroAnno(''); setFiltroOrgano(''); setFiltroTipo(''); setFiltroFonte('tutte')
-                                    setRicerca(''); setRicercaAttiva('')
-                                }}
-                                    className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1">
-                                    <X size={11} /> Reset
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    <BloccoRisultati
-                        loadingRisultati={loadingRisultati}
-                        risultati={risultati}
-                        totale={totaleSentenze}
-                        paginaSentenze={paginaSentenze}
-                        setPaginaSentenze={setPaginaSentenze}
-                        prezzoAccesso={prezzoAccesso}
-                        navigate={navigate}
-                        titoloSentenza={titoloSentenza}
-                        labelTipoProvvedimento={labelTipoProvvedimento}
-                        perPagina={PER_PAGINA_SENTENZE}
-                    />
-                </>
-            )}
-
-            {/* ── GRIGLIA SOTTO-FONTI (es. TAR per regione) ───────────── */}
-            {vista === 'sotto_fonte_grid' && macroFonteSelezionata && (
-                <>
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <button onClick={tornaAlCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                            <ChevronLeft size={13} /> Tutte le fonti
-                        </button>
-                        <p className="font-display text-xl text-nebbia">{macroFonteSelezionata.label}</p>
-                    </div>
-                    <p className="font-body text-sm text-nebbia/40 leading-relaxed">
-                        Seleziona un tribunale per consultarne le sentenze.
-                    </p>
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        {macroFonteSelezionata.sotto
-                            .filter(s => (conteggiSottoFonte[s.v] ?? 0) > 0)
-                            .sort((a, b) => a.l.localeCompare(b.l, 'it'))
-                            .map(s => (
-                                <button key={s.v} onClick={() => apriSottoFonte(s)}
-                                    className="bg-slate border border-white/5 p-4 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors truncate">
-                                            {s.l}
-                                        </p>
-                                        <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
-                                    </div>
-                                </button>
-                            ))}
-                    </div>
-                </>
-            )}
-
-            {/* ── VISTA FONTE (filtri + risultati) ────────────────────── */}
-            {vista === 'fonte' && macroFonteSelezionata && (
-                <>
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <button onClick={tornaAlCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                            <ChevronLeft size={13} /> {macroFonteSelezionata.richiedeSottoSelezione ? 'Tutti i tribunali' : 'Tutte le fonti'}
-                        </button>
-                        <p className="font-display text-xl text-nebbia">
-                            {sottoFonteSelezionataObj
-                                ? `${macroFonteSelezionata.label.split(' \u2014 ')[0]} \u2014 ${sottoFonteSelezionataObj.l}`
-                                : macroFonteSelezionata.label}
-                        </p>
-                    </div>
-
-                    <div className="bg-slate border border-white/5 p-4 space-y-3">
-                        <div className="flex gap-2">
-                            <div className="relative flex-1">
-                                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                                <input
-                                    placeholder="Cerca in oggetto e principio di diritto..."
-                                    value={ricerca}
-                                    onChange={e => setRicerca(e.target.value)}
-                                    onKeyDown={e => { if (e.key === 'Enter') avviaRicerca() }}
-                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
-                                />
-                            </div>
-                            <button onClick={avviaRicerca} className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                                <Search size={13} /> Cerca
-                            </button>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="flex items-center gap-1.5 text-nebbia/30">
-                                <Filter size={12} />
-                                <span className="font-body text-xs uppercase tracking-widest">Filtri</span>
-                            </div>
-
-                            {macroFonteSelezionata.sotto.length > 1 && !macroFonteSelezionata.richiedeSottoSelezione && (
-                                <select value={filtroSottoFonte} onChange={e => setFiltroSottoFonte(e.target.value)}
-                                    className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40 max-w-xs">
-                                    <option value="">Tutte le sezioni / sedi</option>
-                                    {macroFonteSelezionata.sotto
-                                        .map(s => ({ ...s, n: conteggiSottoFonte[s.v] ?? 0 }))
-                                        .filter(s => s.n > 0)
-                                        .sort((a, b) => a.l.localeCompare(b.l))
-                                        .map(s => (
-                                            <option key={s.v} value={s.v}>
-                                                {s.l} ({s.n.toLocaleString('it-IT')})
-                                            </option>
-                                        ))}
-                                </select>
-                            )}
-
-                            <select value={filtroAnno} onChange={e => setFiltroAnno(e.target.value)}
-                                className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                                <option value="">Tutti gli anni</option>
-                                {anniOpzioni.map(a => <option key={a} value={a}>{a}</option>)}
-                            </select>
-
-                            <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}
-                                className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                                {TIPI_FILTRO.map(t => <option key={t.v} value={t.v}>{t.l}</option>)}
-                            </select>
-
-                            {(filtroSottoFonte || filtroAnno || filtroTipo || ricercaAttiva) && (
-                                <button onClick={() => {
-                                    setFiltroSottoFonte(''); setFiltroAnno(''); setFiltroTipo('')
-                                    setRicerca(''); setRicercaAttiva('')
-                                }}
-                                    className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1">
-                                    <X size={11} /> Reset
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    <BloccoRisultati
-                        loadingRisultati={loadingRisultati}
-                        risultati={risultati}
-                        totale={totaleSentenze}
-                        paginaSentenze={paginaSentenze}
-                        setPaginaSentenze={setPaginaSentenze}
-                        prezzoAccesso={prezzoAccesso}
-                        navigate={navigate}
-                        titoloSentenza={titoloSentenza}
-                        labelTipoProvvedimento={labelTipoProvvedimento}
-                        perPagina={PER_PAGINA_SENTENZE}
-                    />
-                </>
-            )}
-        </div>
-    )
+const SET_FEDERALI = new Set(FONTI_FEDERALI.map(f => f.fonte))
+
+// Sigle camera (parte dopo CANT_XX_) → label. Fallback = codice grezzo.
+const CAMERA_LABEL = {
+    OG: 'Obergericht', VG: 'Verwaltungsgericht', SVG: 'Sozialversicherungsgericht',
+    BR: 'Baurekurs', SR: 'Steuerrekurs', FI: 'Cour fiscale', OM: 'Cour des assurances',
+    ZS: 'Zivil', BVD: 'Beschwerde VD', WT: 'Weitere', AA: 'Anwaltsaufsicht',
+    BG: 'Bezirksgericht', AK: 'Appellationskammer', BE: 'Beschwerde',
 }
 
+const LINGUE_FILTRO_GIUR = ['it', 'de', 'fr']
+const LINGUE_LABEL_GIUR = { it: 'IT', de: 'DE', fr: 'FR' }
 
-// ─── Componente helper riutilizzato dalle due viste ─────────────
-// (mettilo subito prima o dopo TabSentenze nel file)
-function BloccoRisultati({
-    loadingRisultati, risultati, totale, paginaSentenze, setPaginaSentenze,
-    prezzoAccesso, navigate, titoloSentenza, labelTipoProvvedimento, perPagina
-}) {
-    if (loadingRisultati) return (
-        <div className="flex items-center justify-center py-16">
-            <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
-        </div>
-    )
-    if (risultati.length === 0) return (
-        <div className="bg-slate border border-white/5 p-12 text-center">
-            <p className="font-body text-sm text-nebbia/40">Nessuna sentenza trovata con questi filtri</p>
-        </div>
-    )
-
-    return (
-        <>
-            <div className="space-y-3">
-                {risultati.map(s => {
-                    const isGratuita = s.sorgente === 'giurisprudenza'
-                    const dataVisibile = s.data_pubblicazione ?? s.data_deposito
-                    const titolo = titoloSentenza(s)
-                    const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'
-                    const targetPath = isGratuita ? `${prefix}/lexum/${s.id}` : `${prefix}/avvocato/${s.id}`
-
-                    return (
-                        <button
-                            key={`${s.sorgente}-${s.id}`}
-                            onClick={() => navigate(targetPath)}
-                            className={`w-full text-left bg-slate border p-5 transition-all ${isGratuita ? 'border-white/5 hover:border-salvia/20' : 'border-white/5 hover:border-oro/20'}`}
-                        >
-                            <div className="flex items-start justify-between gap-4">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                        <span className="font-body text-xs text-nebbia/60">{titolo}</span>
-                                        {s.tipo_provvedimento && (
-                                            <span className="font-body text-[10px] text-nebbia/50 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">
-                                                {labelTipoProvvedimento(s.tipo_provvedimento)}
-                                            </span>
-                                        )}
-                                        {dataVisibile && (
-                                            <span className="font-body text-[10px] text-nebbia/30 flex items-center gap-1">
-                                                <Calendar size={9} /> {new Date(dataVisibile).toLocaleDateString('it-IT')}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <h3 className="font-body text-sm font-medium text-nebbia mb-1.5 leading-snug">{s.oggetto ?? '\u2014'}</h3>
-                                    {s.principio_diritto && (
-                                        <p className="font-body text-xs text-nebbia/50 leading-relaxed line-clamp-2">{s.principio_diritto}</p>
-                                    )}
-                                    {!isGratuita && s.autore && (
-                                        <p className="font-body text-xs text-nebbia/35 mt-2">Caricata da Avv. {s.autore.nome} {s.autore.cognome}</p>
-                                    )}
-                                </div>
-
-                                <div className="shrink-0 flex flex-col items-end gap-2">
-                                    {isGratuita ? (
-                                        <span className="font-body text-xs text-salvia border border-salvia/30 px-2 py-1 bg-salvia/5">
-                                            Gratuita
-                                        </span>
-                                    ) : (
-                                        <>
-                                            <span className="font-display text-lg font-semibold text-oro">EUR {prezzoAccesso}</span>
-                                            <span className="font-body text-xs text-oro/60">accesso singolo</span>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        </button>
-                    )
-                })}
-            </div>
-
-            {totale > perPagina && (
-                <div className="flex items-center justify-between bg-slate border border-white/5 px-4 py-3">
-                    <p className="font-body text-xs text-nebbia/30">
-                        {paginaSentenze * perPagina + 1}-{Math.min((paginaSentenze + 1) * perPagina, totale)} di {totale.toLocaleString('it-IT')}
-                    </p>
-                    <div className="flex gap-2">
-                        <button onClick={() => setPaginaSentenze(p => Math.max(0, p - 1))} disabled={paginaSentenze === 0}
-                            className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{'\u2190'} Prev</button>
-                        <button onClick={() => setPaginaSentenze(p => p + 1)} disabled={(paginaSentenze + 1) * perPagina >= totale}
-                            className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Next {'\u2192'}</button>
-                    </div>
-                </div>
-            )}
-        </>
-    )
+// Da un codice CANT_XX o CANT_XX_YYY estrae { cantone, camera }
+function parseCantonale(fonte) {
+    const m = fonte.match(/^CANT_([A-Z]{2})(?:_(.+))?$/)
+    if (!m) return { cantone: null, camera: null }
+    return { cantone: m[1], camera: m[2] ?? null }
 }
 
-// ═══════════════════════════════════════════════════════════
-// TAB TRIBUTARIO — sentenze CGT (Banca Dati MEF)
-// Catalogo: Primo grado / Secondo grado
-// Licenza: CC BY-NC 3.0 IT (attribuzione obbligatoria)
-// ═══════════════════════════════════════════════════════════
-function TabTributario() {
+function TabGiurisprudenza() {
     const navigate = useNavigate()
 
-    const [vista, setVista] = useState('catalogo')
-    const [gradoSelezionato, setGradoSelezionato] = useState(null)
+    // vista: 'macro' | 'fed_lista' | 'cant_griglia' | 'sentenze'
+    const [vista, setVista] = useState('macro')
 
-    const [loadingCatalogo, setLoadingCatalogo] = useState(false)
+    // conteggi MV (per elenco fonti reali + cantoni presenti)
+    const [conteggi, setConteggi] = useState([])
+    const [loadingConteggi, setLoadingConteggi] = useState(true)
 
-    const [ricerca, setRicerca] = useState('')
-    const [ricercaAttiva, setRicercaAttiva] = useState('')
-    const [filtroAnno, setFiltroAnno] = useState('')
-    const [filtroAutorita, setFiltroAutorita] = useState('')
-    const [filtroEsito, setFiltroEsito] = useState('')
+    // selezione corrente per la lista sentenze
+    const [ramo, setRamo] = useState(null)          // 'federale' | 'cantonale'
+    const [fonteSel, setFonteSel] = useState(null)  // per federali: 'TF'; per cantonali: prefisso 'CANT_TI'
+    const [cantoneSel, setCantoneSel] = useState(null)
+    const [titoloSel, setTitoloSel] = useState('')  // label header lista sentenze
 
-    const [risultati, setRisultati] = useState([])
-    const [totaleSentenze, setTotaleSentenze] = useState(0)
-    const [paginaSentenze, setPaginaSentenze] = useState(0)
-    const [loadingRisultati, setLoadingRisultati] = useState(false)
-    const [autoritaDisponibili, setAutoritaDisponibili] = useState([])
+    // filtri lista sentenze
+    const [linguaFiltro, setLinguaFiltro] = useState(null)  // solo ramo federale
+    const [annoFiltro, setAnnoFiltro] = useState(null)
 
-    // Conteggi dalla MV (rinfrescati ogni notte dal cron alle 03:00 UTC)
-    const [conteggiPerGrado, setConteggiPerGrado] = useState({})
-    const [conteggiBreakdown, setConteggiBreakdown] = useState([])
+    // lista sentenze
+    const [sentenze, setSentenze] = useState([])
+    const [totaleSent, setTotaleSent] = useState(0)
+    const [loadingSent, setLoadingSent] = useState(false)
+    const [paginaSent, setPaginaSent] = useState(0)
+    const [inputSent, setInputSent] = useState('')
+    const [cercaSent, setCercaSent] = useState('')
+    const [sentAperta, setSentAperta] = useState(null)
 
-    const PER_PAGINA = 50
-
-    // Carica conteggi dalla MV al primo render
+    // ── conteggi MV ──
     useEffect(() => {
-        async function caricaConteggi() {
+        async function carica() {
+            setLoadingConteggi(true)
             const { data } = await supabase
-                .from('conteggi_bdgt_mef')
-                .select('grado_commissione, anno, autorita_emittente, totale')
-
-            if (!data) return
-
-            setConteggiBreakdown(data)
-
-            const perGrado = {}
-            for (const r of data) {
-                if (!r.grado_commissione) continue
-                perGrado[r.grado_commissione] = (perGrado[r.grado_commissione] ?? 0) + Number(r.totale)
-            }
-            setConteggiPerGrado(perGrado)
+                .from('conteggi_giurisprudenza_ch')
+                .select('fonte, anno, totale')
+            setConteggi(data ?? [])
+            setLoadingConteggi(false)
         }
-        caricaConteggi()
+        carica()
     }, [])
 
-    useEffect(() => {
-        setPaginaSentenze(0)
-    }, [gradoSelezionato, ricercaAttiva, filtroAnno, filtroAutorita, filtroEsito])
-
-    useEffect(() => {
-        if (vista !== 'grado' || !gradoSelezionato) return
-        caricaSentenze()
-    }, [vista, gradoSelezionato, ricercaAttiva, filtroAnno, filtroAutorita, filtroEsito, paginaSentenze])
-
-    async function caricaSentenze() {
-        setLoadingRisultati(true)
-
-        const offsetStart = paginaSentenze * PER_PAGINA
-        const offsetEnd = offsetStart + PER_PAGINA - 1
-
-        try {
-            // ── COUNT ──
-            // Con filtri "leggeri" (grado + anno + autorita) il count si calcola
-            // dalla MV. Con filtro esito o ricerca testuale fallback al count
-            // diretto (subset gia' filtrato per grado, scansiona poco).
-            const usaMV = !filtroEsito && !ricercaAttiva.trim()
-
-            if (usaMV) {
-                const totaleDaMV = conteggiBreakdown.reduce((acc, r) => {
-                    if (r.grado_commissione !== gradoSelezionato) return acc
-                    if (filtroAnno && r.anno !== parseInt(filtroAnno)) return acc
-                    if (filtroAutorita && r.autorita_emittente !== filtroAutorita) return acc
-                    return acc + Number(r.totale)
-                }, 0)
-                setTotaleSentenze(totaleDaMV)
+    // Cantoni presenti tra le fonti CANT_* (derivati dai conteggi)
+    const cantoniPresenti = (() => {
+        const set = new Set()
+        for (const c of conteggi) {
+            if (!SET_FEDERALI.has(c.fonte) && c.fonte.startsWith('CANT_')) {
+                const { cantone } = parseCantonale(c.fonte)
+                if (cantone) set.add(cantone)
             }
+        }
+        return Array.from(set).sort()
+    })()
 
-            // ── DATA ──
-            const baseSelect = 'id, organo, autorita_emittente, grado_commissione, numero, anno, data_emissione, data_deposito, oggetto, principio_diritto, esito, tipo_provvedimento'
-
-            let q = supabase
-                .from('giurisprudenza_bdgt_mef')
-                .select(baseSelect, usaMV ? undefined : { count: 'exact' })
-                .eq('grado_commissione', gradoSelezionato)
-
-            if (filtroAnno) q = q.eq('anno', parseInt(filtroAnno))
-            if (filtroAutorita) q = q.eq('autorita_emittente', filtroAutorita)
-            if (filtroEsito) q = q.eq('esito', filtroEsito)
-            if (ricercaAttiva.trim()) {
-                q = q.or(`oggetto.ilike.%${ricercaAttiva}%,principio_diritto.ilike.%${ricercaAttiva}%`)
+    // Anni disponibili per la selezione corrente (puliti dal range)
+    const anniDisponibili = (() => {
+        const set = new Set()
+        for (const c of conteggi) {
+            const appartiene = ramo === 'federale'
+                ? c.fonte === fonteSel
+                : (parseCantonale(c.fonte).cantone === cantoneSel)
+            if (appartiene && c.anno >= ANNO_MIN_GIUR && c.anno <= ANNO_MAX_GIUR) {
+                set.add(c.anno)
             }
+        }
+        return Array.from(set).sort((a, b) => b - a)
+    })()
 
-            q = q.order('data_deposito', { ascending: false, nullsFirst: false })
-                .range(offsetStart, offsetEnd)
+    // ── lista sentenze ──
+    useEffect(() => {
+        if (vista !== 'sentenze') return
+        async function carica() {
+            setLoadingSent(true)
+            const cols = 'id, fonte, signature, reference, anno_deposito, data_decisione, camera_codice, lingua, titolo_it, titolo_de, titolo_fr, oggetto, principio_diritto, is_dtf'
+            let q = supabase.from('giurisprudenza_ch').select(cols, { count: 'exact' })
+
+            if (ramo === 'federale') {
+                q = q.eq('fonte', fonteSel)
+                if (linguaFiltro) q = q.eq('lingua', linguaFiltro)
+            } else {
+                // cantonale: tutte le camere del cantone → fonte LIKE 'CANT_XX%'
+                q = q.like('fonte', `CANT_${cantoneSel}%`)
+            }
+            if (annoFiltro) q = q.eq('anno_deposito', annoFiltro)
+            if (cercaSent.trim()) {
+                q = q.or(`signature.ilike.%${cercaSent}%,reference.ilike.%${cercaSent}%,oggetto.ilike.%${cercaSent}%`)
+            }
+            q = q.order('anno_deposito', { ascending: false, nullsFirst: false })
+                .range(paginaSent * PER_PAGINA_SENT, (paginaSent + 1) * PER_PAGINA_SENT - 1)
 
             const { data, count } = await q
-            setRisultati(data ?? [])
-            if (!usaMV) setTotaleSentenze(count ?? 0)
-
-            const autSet = new Set()
-            for (const r of data ?? []) {
-                if (r.autorita_emittente) autSet.add(r.autorita_emittente)
-            }
-            setAutoritaDisponibili([...autSet].sort())
-        } finally {
-            setLoadingRisultati(false)
+            setSentenze(data ?? [])
+            setTotaleSent(count ?? 0)
+            setLoadingSent(false)
         }
+        carica()
+    }, [vista, ramo, fonteSel, cantoneSel, linguaFiltro, annoFiltro, cercaSent, paginaSent])
+
+    // ── navigazione ──
+    function apriFederali() { setRamo('federale'); setVista('fed_lista') }
+    function apriCantonali() { setRamo('cantonale'); setVista('cant_griglia') }
+
+    function apriFonteFederale(f) {
+        setFonteSel(f.fonte); setCantoneSel(null); setTitoloSel(f.label)
+        setLinguaFiltro(null); setAnnoFiltro(null)
+        setInputSent(''); setCercaSent(''); setPaginaSent(0); setSentAperta(null)
+        setVista('sentenze')
+    }
+    function apriCantone(cant) {
+        setCantoneSel(cant); setFonteSel(null); setTitoloSel(`Tribunali ${cant}`)
+        setLinguaFiltro(null); setAnnoFiltro(null)
+        setInputSent(''); setCercaSent(''); setPaginaSent(0); setSentAperta(null)
+        setVista('sentenze')
+    }
+    function tornaMacro() { setVista('macro'); setRamo(null); setFonteSel(null); setCantoneSel(null) }
+    function tornaLivello2() { setVista(ramo === 'federale' ? 'fed_lista' : 'cant_griglia'); setSentAperta(null) }
+
+    function titoloSent(s) {
+        return s.titolo_it || s.titolo_de || s.titolo_fr || s.signature || s.reference || '(senza titolo)'
+    }
+    function evidenzia(testo, cerca) {
+        if (!cerca?.trim() || !testo) return testo
+        const regex = new RegExp(`(${cerca.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+        return testo.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
+    }
+    function cameraBadge(s) {
+        if (!s.fonte) return null
+        const { camera } = parseCantonale(s.fonte)
+        if (!camera) return null
+        return CAMERA_LABEL[camera] ?? camera
     }
 
-    function apriGrado(grado) {
-        setGradoSelezionato(grado)
-        setVista('grado')
-        setRicerca(''); setRicercaAttiva('')
-        setFiltroAnno(''); setFiltroAutorita(''); setFiltroEsito('')
-    }
-
-    function tornaAlCatalogo() {
-        setVista('catalogo')
-        setGradoSelezionato(null)
-        setRisultati([])
-    }
-
-    function avviaRicerca() { setRicercaAttiva(ricerca) }
-
-    function titoloSentenza(s) {
-        const parti = [s.organo, s.numero && `n. ${s.numero}`, s.anno].filter(Boolean)
-        return parti.join(' · ') || 'Sentenza CGT'
-    }
-
-    function labelTipoProvvedimento(t) {
-        const map = {
-            sentenza: 'Sentenza',
-            ordinanza: 'Ordinanza',
-            ordinanza_interlocutoria: 'Ord. interlocutoria',
-            decreto_presidenziale: 'Decreto',
-        }
-        return map[t] ?? t
-    }
-
-    const ESITI_FILTRO = [
-        { v: '', l: 'Tutti gli esiti' },
-        { v: 'favorevole al contribuente', l: 'Favorevole al contribuente' },
-        { v: "favorevole all'ufficio", l: "Favorevole all'ufficio" },
-        { v: 'parzialmente accolto', l: 'Parzialmente accolto' },
-        { v: 'cessata materia del contendere', l: 'Cessata materia' },
-        { v: 'estinto', l: 'Estinto' },
-        { v: 'inammissibile', l: 'Inammissibile' },
-        { v: 'rinvio', l: 'Rinvio' },
-        { v: 'spese compensate', l: 'Spese compensate' },
-    ]
-
-    const annoCorrente = new Date().getFullYear()
-    const anniOpzioni = Array.from({ length: 10 }, (_, i) => annoCorrente - i)
+    const pagineSent = Math.ceil(totaleSent / PER_PAGINA_SENT)
 
     return (
         <div className="space-y-5">
 
-            <div className="bg-petrolio/60 border border-salvia/15 px-4 py-3 flex items-start gap-3">
-                <Scale size={14} className="text-salvia shrink-0 mt-0.5" />
-                <div className="flex-1">
-                    <p className="font-body text-xs text-nebbia/70 leading-relaxed">
-                        Sentenze delle <strong className="text-nebbia">Corti di Giustizia Tributaria</strong> (CGT 1° e 2° grado).
-                    </p>
-                    <p className="font-body text-[11px] text-nebbia/40 mt-1 leading-relaxed">
-                        Fonte: MEF — Banca Dati Giurisprudenza Tributaria · Licenza CC BY-NC 3.0 IT
-                    </p>
+            {/* ═════ L1 — MACRO ═════ */}
+            {vista === 'macro' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onClick={apriFederali}
+                        className="bg-slate border border-white/5 p-8 text-left hover:border-oro/40 hover:bg-petrolio/60 transition-all group">
+                        <div className="flex items-center justify-between gap-3 mb-2">
+                            <p className="font-display text-2xl text-nebbia group-hover:text-oro transition-colors">Tribunali federali</p>
+                            <ChevronRight size={18} className="text-nebbia/20 group-hover:text-oro/60 transition-colors" />
+                        </div>
+                        <p className="font-body text-sm text-nebbia/40">TF · TAF · TPF · DTF e autorità federali</p>
+                    </button>
+                    <button onClick={apriCantonali}
+                        className="bg-slate border border-white/5 p-8 text-left hover:border-oro/40 hover:bg-petrolio/60 transition-all group">
+                        <div className="flex items-center justify-between gap-3 mb-2">
+                            <p className="font-display text-2xl text-nebbia group-hover:text-oro transition-colors">Tribunali cantonali</p>
+                            <ChevronRight size={18} className="text-nebbia/20 group-hover:text-oro/60 transition-colors" />
+                        </div>
+                        <p className="font-body text-sm text-nebbia/40">Giurisprudenza dei tribunali dei singoli cantoni</p>
+                    </button>
                 </div>
-            </div>
+            )}
 
-            {vista === 'catalogo' && (
-                <>
-                    {loadingCatalogo ? (
+            {/* ═════ L2a — LISTA TRIBUNALI FEDERALI ═════ */}
+            {vista === 'fed_lista' && (
+                <div className="space-y-4">
+                    <button onClick={tornaMacro} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                        <ChevronLeft size={13} /> Federale / Cantonale
+                    </button>
+                    {loadingConteggi ? (
                         <div className="flex items-center justify-center py-20">
                             <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button onClick={() => apriGrado('primo_grado')}
-                                className="bg-slate border border-white/5 p-6 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
-                                <div className="flex items-start justify-between gap-3 mb-3">
-                                    <div className="flex items-center gap-2">
-                                        <Scale size={16} className="text-oro/60 shrink-0" />
-                                        <p className="font-display text-lg text-nebbia group-hover:text-oro transition-colors">
-                                            Primo grado
-                                        </p>
-                                    </div>
-                                    <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0 mt-1.5" />
-                                </div>
-                                <p className="font-body text-xs text-nebbia/40 leading-relaxed mb-2">
-                                    Commissioni Tributarie Provinciali e CGT di Primo Grado
-                                </p>
-                            </button>
-
-                            <button onClick={() => apriGrado('secondo_grado')}
-                                className="bg-slate border border-white/5 p-6 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
-                                <div className="flex items-start justify-between gap-3 mb-3">
-                                    <div className="flex items-center gap-2">
-                                        <Scale size={16} className="text-oro/60 shrink-0" />
-                                        <p className="font-display text-lg text-nebbia group-hover:text-oro transition-colors">
-                                            Secondo grado
-                                        </p>
-                                    </div>
-                                    <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0 mt-1.5" />
-                                </div>
-                                <p className="font-body text-xs text-nebbia/40 leading-relaxed mb-2">
-                                    Commissioni Tributarie Regionali e CGT di Secondo Grado (appello)
-                                </p>
-                            </button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {FONTI_FEDERALI.filter(f => conteggi.some(c => c.fonte === f.fonte)).map(f => (
+                                <button key={f.fonte} onClick={() => apriFonteFederale(f)}
+                                    className="bg-slate border border-white/5 p-4 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group flex items-center justify-between gap-3">
+                                    <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors">{f.label}</p>
+                                    <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
+                                </button>
+                            ))}
                         </div>
                     )}
-                </>
+                </div>
             )}
 
-            {vista === 'grado' && (
-                <>
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <button onClick={tornaAlCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                            <ChevronLeft size={13} /> Primo / Secondo grado
-                        </button>
-                        <p className="font-display text-xl text-nebbia">
-                            {gradoSelezionato === 'primo_grado' ? 'Primo grado' : 'Secondo grado'}
-                        </p>
-                    </div>
-
-                    <div className="bg-slate border border-white/5 p-4 space-y-3">
-                        <div className="flex gap-2">
-                            <div className="relative flex-1">
-                                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                                <input
-                                    placeholder="Cerca in oggetto e principio di diritto..."
-                                    value={ricerca}
-                                    onChange={e => setRicerca(e.target.value)}
-                                    onKeyDown={e => { if (e.key === 'Enter') avviaRicerca() }}
-                                    className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
-                                />
-                            </div>
-                            <button onClick={avviaRicerca} className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                                <Search size={13} /> Cerca
-                            </button>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="flex items-center gap-1.5 text-nebbia/30">
-                                <Filter size={12} />
-                                <span className="font-body text-xs uppercase tracking-widest">Filtri</span>
-                            </div>
-
-                            <select value={filtroAnno} onChange={e => setFiltroAnno(e.target.value)}
-                                className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                                <option value="">Tutti gli anni</option>
-                                {anniOpzioni.map(a => <option key={a} value={a}>{a}</option>)}
-                            </select>
-
-                            {autoritaDisponibili.length > 0 && (
-                                <select value={filtroAutorita} onChange={e => setFiltroAutorita(e.target.value)}
-                                    className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                                    <option value="">Tutte le sedi</option>
-                                    {autoritaDisponibili.map(a => <option key={a} value={a}>{a}</option>)}
-                                </select>
-                            )}
-
-                            <select value={filtroEsito} onChange={e => setFiltroEsito(e.target.value)}
-                                className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40 max-w-xs">
-                                {ESITI_FILTRO.map(e => <option key={e.v} value={e.v}>{e.l}</option>)}
-                            </select>
-
-                            {(filtroAnno || filtroAutorita || filtroEsito || ricercaAttiva) && (
-                                <button onClick={() => {
-                                    setFiltroAnno(''); setFiltroAutorita(''); setFiltroEsito('')
-                                    setRicerca(''); setRicercaAttiva('')
-                                }}
-                                    className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1">
-                                    <X size={11} /> Reset
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    {loadingRisultati ? (
-                        <div className="flex items-center justify-center py-16">
+            {/* ═════ L2b — GRIGLIA CANTONI ═════ */}
+            {vista === 'cant_griglia' && (
+                <div className="space-y-4">
+                    <button onClick={tornaMacro} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                        <ChevronLeft size={13} /> Federale / Cantonale
+                    </button>
+                    {loadingConteggi ? (
+                        <div className="flex items-center justify-center py-20">
                             <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
                         </div>
-                    ) : risultati.length === 0 ? (
-                        <div className="bg-slate border border-white/5 p-12 text-center">
-                            <p className="font-body text-sm text-nebbia/40">Nessuna sentenza trovata con questi filtri</p>
-                        </div>
                     ) : (
-                        <>
-                            <div className="space-y-3">
-                                {risultati.map(s => {
-                                    const dataVisibile = s.data_deposito ?? s.data_emissione
-                                    const titolo = titoloSentenza(s)
-                                    const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'
-                                    const targetPath = `${prefix}/tributario/${s.id}`
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                            {cantoniPresenti.map(cant => (
+                                <button key={cant} onClick={() => apriCantone(cant)}
+                                    className="aspect-square bg-slate border border-white/5 flex items-center justify-center hover:border-oro/40 hover:bg-petrolio/60 transition-all group">
+                                    <span className="font-display text-3xl font-semibold text-nebbia group-hover:text-oro transition-colors tracking-wide">{cant}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
-                                    return (
-                                        <button
-                                            key={s.id}
-                                            onClick={() => navigate(targetPath)}
-                                            className="w-full text-left bg-slate border border-white/5 hover:border-salvia/20 p-5 transition-all"
-                                        >
-                                            <div className="flex items-start justify-between gap-4">
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                                        <span className="font-body text-xs text-nebbia/60">{titolo}</span>
-                                                        {s.tipo_provvedimento && (
-                                                            <span className="font-body text-[10px] text-nebbia/50 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">
-                                                                {labelTipoProvvedimento(s.tipo_provvedimento)}
-                                                            </span>
-                                                        )}
-                                                        {dataVisibile && (
-                                                            <span className="font-body text-[10px] text-nebbia/30 flex items-center gap-1">
-                                                                <Calendar size={9} /> {new Date(dataVisibile).toLocaleDateString('it-IT')}
-                                                            </span>
-                                                        )}
-                                                        {s.esito && (
-                                                            <span className="font-body text-[10px] text-salvia border border-salvia/30 px-1.5 py-0.5 bg-salvia/5">
-                                                                {s.esito}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <h3 className="font-body text-sm font-medium text-nebbia mb-1.5 leading-snug">{s.oggetto ?? '—'}</h3>
-                                                    {s.principio_diritto && (
-                                                        <p className="font-body text-xs text-nebbia/50 leading-relaxed line-clamp-2">{s.principio_diritto}</p>
-                                                    )}
-                                                </div>
-                                                <div className="shrink-0">
-                                                    <span className="font-body text-xs text-salvia border border-salvia/30 px-2 py-1 bg-salvia/5">
-                                                        Gratuita
-                                                    </span>
-                                                </div>
-                                            </div>
+            {/* ═════ L3 — LISTA SENTENZE ═════ */}
+            {vista === 'sentenze' && (
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <button onClick={tornaMacro} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                <ChevronLeft size={13} /> Federale / Cantonale
+                            </button>
+                            <span className="text-nebbia/20">/</span>
+                            <button onClick={tornaLivello2} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                {ramo === 'federale' ? 'Tribunali federali' : 'Tribunali cantonali'}
+                            </button>
+                        </div>
+                        <p className="font-display text-lg text-nebbia text-right">{titoloSel}</p>
+                    </div>
+
+                    {/* Filtri */}
+                    <div className="flex flex-wrap items-center gap-4">
+                        {/* Filtro lingua: solo ramo federale (multilingue) */}
+                        {ramo === 'federale' && (
+                            <div className="flex items-center gap-2">
+                                <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+                                <div className="flex gap-1 bg-slate border border-white/5 p-1">
+                                    <button onClick={() => { setLinguaFiltro(null); setPaginaSent(0) }}
+                                        className={`px-2.5 py-1 font-body text-xs transition-colors ${linguaFiltro === null ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>Tutte</button>
+                                    {LINGUE_FILTRO_GIUR.map(l => (
+                                        <button key={l} onClick={() => { setLinguaFiltro(l); setPaginaSent(0) }}
+                                            className={`px-2.5 py-1 font-body text-xs transition-colors ${linguaFiltro === l ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
+                                            {LINGUE_LABEL_GIUR[l]}
                                         </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {/* Filtro anno */}
+                        {anniDisponibili.length > 0 && (
+                            <div className="flex items-center gap-2">
+                                <span className="font-body text-xs text-nebbia/30">Anno:</span>
+                                <select value={annoFiltro ?? ''}
+                                    onChange={e => { setAnnoFiltro(e.target.value ? Number(e.target.value) : null); setPaginaSent(0) }}
+                                    className="bg-slate border border-white/10 text-nebbia font-body text-xs px-3 py-1.5 outline-none focus:border-oro/50">
+                                    <option value="">Tutti</option>
+                                    {anniDisponibili.map(a => <option key={a} value={a}>{a}</option>)}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Ricerca */}
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
+                            <input
+                                placeholder="Cerca per signature, riferimento o oggetto…"
+                                value={inputSent}
+                                onChange={e => setInputSent(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') { setPaginaSent(0); setCercaSent(inputSent) } }}
+                                className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
+                            />
+                        </div>
+                        <button onClick={() => { setPaginaSent(0); setCercaSent(inputSent) }}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
+                            <Search size={13} /> Cerca
+                        </button>
+                        {cercaSent && (
+                            <button onClick={() => { setInputSent(''); setCercaSent(''); setPaginaSent(0) }}
+                                className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
+                                <X size={11} /> Pulisci
+                            </button>
+                        )}
+                    </div>
+
+                    {cercaSent && <p className="font-body text-xs text-nebbia/30">{totaleSent.toLocaleString('it-CH')} sentenze per "{cercaSent}"</p>}
+
+                    <div className="bg-slate border border-white/5">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-white/5">
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Riferimento</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Oggetto</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase whitespace-nowrap">Anno</th>
+                                    <th className="px-4 py-3 w-8" />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loadingSent ? (
+                                    <tr><td colSpan={4} className="px-4 py-20 text-center">
+                                        <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" />
+                                    </td></tr>
+                                ) : sentenze.length === 0 ? (
+                                    <tr><td colSpan={4} className="px-4 py-20 text-center">
+                                        <p className="font-body text-sm text-nebbia/30">Nessuna sentenza trovata</p>
+                                    </td></tr>
+                                ) : sentenze.map(s => {
+                                    const cam = cameraBadge(s)
+                                    return (
+                                        <Fragment key={s.id}>
+                                            <tr
+                                                className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
+                                                onClick={() => setSentAperta(sentAperta?.id === s.id ? null : s)}>
+                                                <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
+                                                    <div className="flex flex-col gap-1">
+                                                        <span>{s.signature || s.reference || '—'}</span>
+                                                        <span className="flex items-center gap-1.5">
+                                                            {s.is_dtf && <span className="font-body text-[10px] text-oro/70 border border-oro/20 px-1.5 py-0.5 uppercase">DTF</span>}
+                                                            {s.lingua && ['it', 'de', 'fr'].includes(s.lingua) && <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 uppercase">{s.lingua}</span>}
+                                                            {cam && <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-1.5 py-0.5">{cam}</span>}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 font-body text-sm text-nebbia/60 max-w-lg">
+                                                    <p className="line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenzia(s.oggetto || titoloSent(s), cercaSent) }} />
+                                                </td>
+                                                <td className="px-4 py-3 font-body text-sm text-nebbia/50 whitespace-nowrap align-top">
+                                                    {s.anno_deposito && s.anno_deposito >= ANNO_MIN_GIUR && s.anno_deposito <= ANNO_MAX_GIUR ? s.anno_deposito : '—'}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <ChevronRight size={13} className={`text-nebbia/20 transition-transform ${sentAperta?.id === s.id ? 'rotate-90' : ''}`} />
+                                                </td>
+                                            </tr>
+                                            {sentAperta?.id === s.id && (
+                                                <tr key={`${s.id}-d`} className="border-b border-white/5 bg-petrolio/20">
+                                                    <td colSpan={4} className="px-4 py-4 space-y-3">
+                                                        {s.principio_diritto && (
+                                                            <div>
+                                                                <p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">Principio di diritto</p>
+                                                                <p className="font-body text-sm text-nebbia/70 leading-relaxed">{s.principio_diritto}</p>
+                                                            </div>
+                                                        )}
+                                                        {s.oggetto && (
+                                                            <div>
+                                                                <p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">Oggetto</p>
+                                                                <p className="font-body text-sm text-nebbia/70 leading-relaxed">{s.oggetto}</p>
+                                                            </div>
+                                                        )}
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <BottoniSalvataggio
+                                                                tipo="giurisprudenza"
+                                                                id={s.id}
+                                                                titolo={[s.signature ?? s.reference, s.oggetto].filter(Boolean).join(' — ')}
+                                                                testo={s.principio_diritto || s.oggetto || s.testo}
+                                                            />
+                                                            <button type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation()
+                                                                    const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'
+                                                                    navigate(`${prefix}/sentenza-ch/${s.id}`)
+                                                                }}
+                                                                className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
+                                                                Apri pagina dedicata <ChevronRight size={11} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </Fragment>
                                     )
                                 })}
-                            </div>
-
-                            {totaleSentenze > PER_PAGINA && (
-                                <div className="flex items-center justify-between bg-slate border border-white/5 px-4 py-3">
-                                    <p className="font-body text-xs text-nebbia/30">
-                                        {paginaSentenze * PER_PAGINA + 1}-{Math.min((paginaSentenze + 1) * PER_PAGINA, totaleSentenze)} di {totaleSentenze.toLocaleString('it-IT')}
-                                    </p>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => setPaginaSentenze(p => Math.max(0, p - 1))} disabled={paginaSentenze === 0}
-                                            className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prev</button>
-                                        <button onClick={() => setPaginaSentenze(p => p + 1)} disabled={(paginaSentenze + 1) * PER_PAGINA >= totaleSentenze}
-                                            className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Next →</button>
-                                    </div>
+                            </tbody>
+                        </table>
+                        {pagineSent > 1 && (
+                            <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
+                                <p className="font-body text-xs text-nebbia/30">
+                                    {paginaSent * PER_PAGINA_SENT + 1}–{Math.min((paginaSent + 1) * PER_PAGINA_SENT, totaleSent)} di {totaleSent.toLocaleString('it-CH')}
+                                </p>
+                                <div className="flex gap-2">
+                                    <button onClick={() => setPaginaSent(p => Math.max(0, p - 1))} disabled={paginaSent === 0}
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                    <button onClick={() => setPaginaSent(p => Math.min(pagineSent - 1, p + 1))} disabled={paginaSent >= pagineSent - 1}
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
                                 </div>
-                            )}
-                        </>
-                    )}
-                </>
+                            </div>
+                        )}
+                    </div>
+                </div>
             )}
         </div>
     )
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TAB PRASSI — invariato (non aveva bottoni di salvataggio)
+// TAB UE  —  blocco 6/6 di BancaDati.jsx (CH)
+//
+// Due corpora distinti, due sezioni nel tab:
+//   NORME (norme_ue): REG/DIR/DEC, articoli inline per celex
+//     L1 tipo_atto → L2 atti (per celex, titolo_doc) → L3 articoli
+//     L3 ha sotto-filtro tipo_elemento: Articoli (default) / Considerando / Allegati
+//   SENTENZE (eur_lex): CGUE per organo
+//     L1 organo → L2 lista sentenze, riga espandibile (oggetto + parti)
+//
+// Lingua: per ora SOLO italiano (corpus UE fatto in IT; DE/FR/EN futuri).
+//   Il selettore lingua è PREDISPOSTO ma bloccato su IT (le altre lingue
+//   appaiono disabilitate finché non ci saranno le traduzioni).
+//
+// Sostituzione in BancaDati: {tabAttivo === 'ue' && <TabUE />}
+// Icone richieste (già in cima al file): Search, ChevronRight, ChevronLeft, X.
 // ═══════════════════════════════════════════════════════════════
-function TabPrassi() {
-    const navigate = useNavigate()
 
-    const [enti, setEnti] = useState([])
-    const [conteggiPerEnte, setConteggiPerEnte] = useState({})
-    const [loading, setLoading] = useState(true)
+const PER_PAGINA_UE = 50
 
-    const [vista, setVista] = useState('catalogo')
-    const [enteSelezionato, setEnteSelezionato] = useState(null)
+const TIPO_ATTO_UE_LABEL = {
+    REG: 'Regolamenti',
+    DIR: 'Direttive',
+    DEC: 'Decisioni',
+}
+const ORDINE_TIPO_UE = ['REG', 'DIR', 'DEC']
 
-    const [ricerca, setRicerca] = useState('')
-    const [ricercaAttiva, setRicercaAttiva] = useState('')
-    const [filtroAnno, setFiltroAnno] = useState('')
-    const [filtroCategoria, setFiltroCategoria] = useState('')
+const ELEMENTO_UE_LABEL = {
+    articolo: 'Articoli',
+    considerando: 'Considerando',
+    allegato: 'Allegati',
+}
+const ORDINE_ELEMENTO_UE = ['articolo', 'considerando', 'allegato']
 
-    const [risultati, setRisultati] = useState([])
-    const [totalePrassi, setTotalePrassi] = useState(0)
-    const [paginaPrassi, setPaginaPrassi] = useState(0)
-    const [loadingRisultati, setLoadingRisultati] = useState(false)
+// Selettore lingua predisposto: IT attiva, le altre disabilitate (traduzioni future).
+const LINGUE_UE = [
+    { code: 'it', label: 'IT', attiva: true },
+    { code: 'de', label: 'DE', attiva: false },
+    { code: 'fr', label: 'FR', attiva: false },
+    { code: 'en', label: 'EN', attiva: false },
+]
 
-    const PER_PAGINA_PRASSI = 50
-
-    const [mappaCategorie, setMappaCategorie] = useState({})
-
-    useEffect(() => {
-        async function caricaDatiBase() {
-            setLoading(true)
-
-            const { data: entiData } = await supabase
-                .from('enti')
-                .select('codice, label, descrizione, macro_area, ordine')
-                .order('ordine')
-            setEnti(entiData ?? [])
-
-            const { data: prassiCounts } = await supabase
-                .from('conteggi_fonti_prassi')
-                .select('fonte, totale')
-            const conteggi = {}
-            for (const r of prassiCounts ?? []) {
-                conteggi[r.fonte] = Number(r.totale)
-            }
-            setConteggiPerEnte(conteggi)
-
-            const { data: cat } = await supabase
-                .from('codici_lex')
-                .select('codice, label')
-            const m = {}
-            for (const c of cat ?? []) m[c.codice] = c.label
-            setMappaCategorie(m)
-
-            setLoading(false)
-        }
-        caricaDatiBase()
-    }, [])
-
-    useEffect(() => {
-        // Reset pagina quando cambiano filtri/ente
-        setPaginaPrassi(0)
-    }, [enteSelezionato?.codice, ricercaAttiva, filtroAnno, filtroCategoria])
-
-    useEffect(() => {
-        if (vista !== 'ente' || !enteSelezionato) return
-        caricaPrassi()
-    }, [vista, enteSelezionato, ricercaAttiva, filtroAnno, filtroCategoria, paginaPrassi])
-
-    async function caricaPrassi() {
-        setLoadingRisultati(true)
-
-        const offsetStart = paginaPrassi * PER_PAGINA_PRASSI
-        const offsetEnd = offsetStart + PER_PAGINA_PRASSI - 1
-
-        let q = supabase
-            .from('prassi')
-            .select('id, fonte, numero, anno, data_pubblicazione, data_emanazione, oggetto, sintesi, categorie_lex', { count: 'exact' })
-            .eq('fonte', enteSelezionato.codice)
-            .eq('vigente', true)
-
-        if (filtroAnno) q = q.eq('anno', parseInt(filtroAnno))
-        if (filtroCategoria) q = q.contains('categorie_lex', [filtroCategoria])
-        if (ricercaAttiva.trim()) {
-            q = q.or(`oggetto.ilike.%${ricercaAttiva}%,sintesi.ilike.%${ricercaAttiva}%`)
-        }
-
-        const { data, count } = await q
-            .order('data_pubblicazione', { ascending: false, nullsFirst: false })
-            .range(offsetStart, offsetEnd)
-
-        setRisultati(data ?? [])
-        setTotalePrassi(count ?? 0)
-        setLoadingRisultati(false)
-    }
-
-    function apriEnte(ente) {
-        setEnteSelezionato(ente)
-        setVista('ente')
-        setRicerca(''); setRicercaAttiva('')
-        setFiltroAnno(''); setFiltroCategoria('')
-    }
-
-    function tornaAlCatalogo() {
-        setVista('catalogo')
-        setEnteSelezionato(null)
-        setRisultati([])
-    }
-
-    function avviaRicerca() { setRicercaAttiva(ricerca) }
-
-    if (vista === 'catalogo') {
-        if (loading) return (
-            <div className="flex items-center justify-center py-20">
-                <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
-            </div>
-        )
-
-        const entiVisibili = enti.filter(e => (conteggiPerEnte[e.codice] ?? 0) > 0)
-
-        if (entiVisibili.length === 0) {
-            return (
-                <div className="bg-slate border border-white/5 p-12 text-center">
-                    <Building2 size={32} className="text-nebbia/15 mx-auto mb-3" />
-                    <p className="font-body text-sm text-nebbia/40">Nessuna prassi disponibile</p>
-                </div>
-            )
-        }
-
-        return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {entiVisibili.map(e => (
-                    <button key={e.codice} onClick={() => apriEnte(e)}
-                        className="bg-slate border border-white/5 px-4 py-3.5 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
-                        <div className="flex items-center justify-between gap-3">
-                            <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors truncate">
-                                {e.label}
-                            </p>
-                            <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
-                        </div>
+function SelettoreLinguaUE({ lingua }) {
+    return (
+        <div className="flex items-center gap-2">
+            <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+            <div className="flex gap-1 bg-slate border border-white/5 p-1">
+                {LINGUE_UE.map(l => (
+                    <button key={l.code}
+                        disabled={!l.attiva}
+                        title={l.attiva ? '' : 'Traduzione in arrivo'}
+                        className={`px-2.5 py-1 font-body text-xs transition-colors ${lingua === l.code ? 'bg-oro/10 text-oro border border-oro/30'
+                            : l.attiva ? 'text-nebbia/40 hover:text-nebbia border border-transparent'
+                                : 'text-nebbia/20 border border-transparent cursor-not-allowed'
+                            }`}>
+                        {l.label}
                     </button>
                 ))}
             </div>
-        )
+        </div>
+    )
+}
+
+function TabUE() {
+    const navigate = useNavigate()
+
+    // sezione attiva: 'norme' | 'sentenze'
+    const [sezione, setSezione] = useState('norme')
+    // lingua (per ora fissa IT, ma predisposta)
+    const [lingua] = useState('it')
+
+    const [conteggi, setConteggi] = useState([])
+    const [loadingConteggi, setLoadingConteggi] = useState(true)
+
+    // ─── NORME ───
+    // vista norme: 'catalogo' | 'tipo' | 'atto'
+    const [vistaN, setVistaN] = useState('catalogo')
+    const [tipoSel, setTipoSel] = useState(null)
+    const [attiUe, setAttiUe] = useState([])
+    const [totaleAttiUe, setTotaleAttiUe] = useState(0)
+    const [loadingAttiUe, setLoadingAttiUe] = useState(false)
+    const [paginaAttiUe, setPaginaAttiUe] = useState(0)
+    const [inputAttiUe, setInputAttiUe] = useState('')
+    const [cercaAttiUe, setCercaAttiUe] = useState('')
+
+    const [attoUeSel, setAttoUeSel] = useState(null)  // { celex, titolo_doc, tipo_atto }
+    const [elementoSel, setElementoSel] = useState('articolo')
+    const [articoliUe, setArticoliUe] = useState([])
+    const [totaleArtUe, setTotaleArtUe] = useState(0)
+    const [loadingArtUe, setLoadingArtUe] = useState(false)
+    const [paginaArtUe, setPaginaArtUe] = useState(0)
+    const [inputArtUe, setInputArtUe] = useState('')
+    const [cercaArtUe, setCercaArtUe] = useState('')
+    const [artUeAperto, setArtUeAperto] = useState(null)
+
+    // ─── SENTENZE ───
+    // vista sentenze: 'catalogo' | 'lista'
+    const [vistaS, setVistaS] = useState('catalogo')
+    const [organoSel, setOrganoSel] = useState(null)
+    const [sentUe, setSentUe] = useState([])
+    const [totaleSentUe, setTotaleSentUe] = useState(0)
+    const [loadingSentUe, setLoadingSentUe] = useState(false)
+    const [paginaSentUe, setPaginaSentUe] = useState(0)
+    const [inputSentUe, setInputSentUe] = useState('')
+    const [cercaSentUe, setCercaSentUe] = useState('')
+    const [sentUeAperta, setSentUeAperta] = useState(null)
+
+    // ── conteggi MV (sezione, chiave, totale) ──
+    useEffect(() => {
+        async function carica() {
+            setLoadingConteggi(true)
+            const { data } = await supabase
+                .from('conteggi_eu_ch')
+                .select('sezione, chiave, totale')
+            setConteggi(data ?? [])
+            setLoadingConteggi(false)
+        }
+        carica()
+    }, [])
+
+    const tipiNorme = ORDINE_TIPO_UE
+        .map(t => conteggi.find(c => c.sezione === 'norme' && c.chiave === t))
+        .filter(Boolean)
+    const organiSentenze = conteggi
+        .filter(c => c.sezione === 'sentenze')
+        .sort((a, b) => Number(b.totale) - Number(a.totale))
+
+    // ── NORME L2: atti per tipo (raggruppati per celex) ──
+    useEffect(() => {
+        if (sezione !== 'norme' || vistaN !== 'tipo' || !tipoSel) return
+        async function carica() {
+            setLoadingAttiUe(true)
+            // Un atto = un celex. Prendo le righe distinte per celex con titolo_doc.
+            // PostgREST non fa DISTINCT diretto: prendo articolo "1" come rappresentante,
+            // oppure raggruppo lato client. Qui filtro tipo_elemento='articolo' e
+            // deduplico per celex lato client su una finestra ampia.
+            let q = supabase
+                .from('norme_ue')
+                .select('celex, titolo_doc, titolo_breve, tipo_atto, anno_atto, numero_atto, vigente', { count: 'exact' })
+                .eq('tipo_atto', tipoSel)
+                .eq('tipo_elemento', 'articolo')
+            if (cercaAttiUe.trim()) {
+                q = q.or(`titolo_doc.ilike.%${cercaAttiUe}%,celex.ilike.%${cercaAttiUe}%,numero_atto.ilike.%${cercaAttiUe}%`)
+            }
+            q = q.order('anno_atto', { ascending: false, nullsFirst: false })
+                .range(0, 1499)  // finestra ampia, poi deduplico per celex
+            const { data } = await q
+
+            const visti = new Map()
+            for (const r of (data ?? [])) {
+                if (!visti.has(r.celex)) visti.set(r.celex, r)
+            }
+            const lista = Array.from(visti.values())
+            setTotaleAttiUe(lista.length)
+            const start = paginaAttiUe * PER_PAGINA_UE
+            setAttiUe(lista.slice(start, start + PER_PAGINA_UE))
+            setLoadingAttiUe(false)
+        }
+        carica()
+    }, [sezione, vistaN, tipoSel, cercaAttiUe, paginaAttiUe])
+
+    // ── NORME L3: articoli dell'atto (per celex) + sotto-filtro elemento ──
+    useEffect(() => {
+        if (sezione !== 'norme' || vistaN !== 'atto' || !attoUeSel) return
+        async function carica() {
+            setLoadingArtUe(true)
+            let q = supabase
+                .from('norme_ue')
+                .select('id, celex, articolo, rubrica, testo, tipo_elemento, vigente', { count: 'exact' })
+                .eq('celex', attoUeSel.celex)
+                .eq('tipo_elemento', elementoSel)
+            if (cercaArtUe.trim()) {
+                q = q.or(`articolo.ilike.%${cercaArtUe}%,rubrica.ilike.%${cercaArtUe}%,testo.ilike.%${cercaArtUe}%`)
+            }
+            q = q.order('id', { ascending: true })
+                .range(paginaArtUe * PER_PAGINA_UE, (paginaArtUe + 1) * PER_PAGINA_UE - 1)
+            const { data, count } = await q
+            setArticoliUe(data ?? [])
+            setTotaleArtUe(count ?? 0)
+            setLoadingArtUe(false)
+        }
+        carica()
+    }, [sezione, vistaN, attoUeSel, elementoSel, cercaArtUe, paginaArtUe])
+
+    // ── SENTENZE L2: lista per organo ──
+    useEffect(() => {
+        if (sezione !== 'sentenze' || vistaS !== 'lista' || !organoSel) return
+        async function carica() {
+            setLoadingSentUe(true)
+            let q = supabase
+                .from('eur_lex')
+                .select('id, celex_id, ecli, tipo, numero_caso, organo, data_decisione, oggetto, parti, relatore, materia, vigente', { count: 'exact' })
+                .eq('organo', organoSel)
+            if (cercaSentUe.trim()) {
+                q = q.or(`numero_caso.ilike.%${cercaSentUe}%,oggetto.ilike.%${cercaSentUe}%,parti.ilike.%${cercaSentUe}%,ecli.ilike.%${cercaSentUe}%`)
+            }
+            q = q.order('data_decisione', { ascending: false, nullsFirst: false })
+                .range(paginaSentUe * PER_PAGINA_UE, (paginaSentUe + 1) * PER_PAGINA_UE - 1)
+            const { data, count } = await q
+            setSentUe(data ?? [])
+            setTotaleSentUe(count ?? 0)
+            setLoadingSentUe(false)
+        }
+        carica()
+    }, [sezione, vistaS, organoSel, cercaSentUe, paginaSentUe])
+
+    // ── navigazione NORME ──
+    function apriTipoUe(tipo) {
+        setTipoSel(tipo); setVistaN('tipo'); setPaginaAttiUe(0)
+        setInputAttiUe(''); setCercaAttiUe('')
+    }
+    function apriAttoUe(a) {
+        setAttoUeSel(a); setVistaN('atto'); setElementoSel('articolo')
+        setInputArtUe(''); setCercaArtUe(''); setPaginaArtUe(0); setArtUeAperto(null)
+    }
+    function tornaCatalogoN() { setVistaN('catalogo'); setTipoSel(null); setAttoUeSel(null) }
+    function tornaTipoN() { setVistaN('tipo'); setAttoUeSel(null) }
+    function cambiaElemento(el) {
+        if (el === elementoSel) return
+        setElementoSel(el); setPaginaArtUe(0); setArtUeAperto(null); setCercaArtUe(''); setInputArtUe('')
     }
 
-    const annoCorrente = new Date().getFullYear()
-    const anniOpzioni = Array.from({ length: 25 }, (_, i) => annoCorrente - i)
-
-    const categorieUsate = new Set()
-    for (const r of risultati) {
-        for (const c of r.categorie_lex ?? []) categorieUsate.add(c)
+    // ── navigazione SENTENZE ──
+    function apriOrgano(org) {
+        setOrganoSel(org); setVistaS('lista'); setPaginaSentUe(0)
+        setInputSentUe(''); setCercaSentUe(''); setSentUeAperta(null)
     }
-    const categorieArr = [...categorieUsate].sort()
+    function tornaCatalogoS() { setVistaS('catalogo'); setOrganoSel(null) }
+
+    function evidenzia(testo, cerca) {
+        if (!cerca?.trim() || !testo) return testo
+        const regex = new RegExp(`(${cerca.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+        return testo.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
+    }
+    function attoUeLabel(a) {
+        return a.titolo_doc || a.titolo_breve || a.celex || '(senza titolo)'
+    }
+
+    const pagineAttiUe = Math.ceil(totaleAttiUe / PER_PAGINA_UE)
+    const pagineArtUe = Math.ceil(totaleArtUe / PER_PAGINA_UE)
+    const pagineSentUe = Math.ceil(totaleSentUe / PER_PAGINA_UE)
 
     return (
         <div className="space-y-5">
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-                <button onClick={tornaAlCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                    <ChevronLeft size={13} /> Tutti gli enti
-                </button>
-                <p className="font-body text-lg font-medium text-nebbia">{enteSelezionato.label}</p>
-            </div>
 
-            <div className="bg-slate border border-white/5 p-4 space-y-3">
-                <div className="flex gap-2">
-                    <div className="relative flex-1">
-                        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                        <input
-                            placeholder="Cerca in oggetto e sintesi..."
-                            value={ricerca}
-                            onChange={e => setRicerca(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') avviaRicerca() }}
-                            className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
-                        />
-                    </div>
-                    <button onClick={avviaRicerca} className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                        <Search size={13} /> Cerca
+            {/* Switch sezione + selettore lingua */}
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex gap-1 bg-slate border border-white/5 p-1">
+                    <button onClick={() => setSezione('norme')}
+                        className={`px-4 py-1.5 font-body text-xs transition-colors ${sezione === 'norme' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
+                        Norme UE
+                    </button>
+                    <button onClick={() => setSezione('sentenze')}
+                        className={`px-4 py-1.5 font-body text-xs transition-colors ${sezione === 'sentenze' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
+                        Sentenze CGUE
                     </button>
                 </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-1.5 text-nebbia/30">
-                        <Filter size={12} />
-                        <span className="font-body text-xs uppercase tracking-widest">Filtri</span>
-                    </div>
-
-                    <select value={filtroAnno} onChange={e => setFiltroAnno(e.target.value)}
-                        className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                        <option value="">Tutti gli anni</option>
-                        {anniOpzioni.map(a => <option key={a} value={a}>{a}</option>)}
-                    </select>
-
-                    {categorieArr.length > 0 && (
-                        <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)}
-                            className="bg-petrolio border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                            <option value="">Tutte le categorie</option>
-                            {categorieArr.map(c => (
-                                <option key={c} value={c}>{mappaCategorie[c] ?? c}</option>
-                            ))}
-                        </select>
-                    )}
-
-                    {(filtroAnno || filtroCategoria || ricercaAttiva) && (
-                        <button onClick={() => {
-                            setFiltroAnno(''); setFiltroCategoria('')
-                            setRicerca(''); setRicercaAttiva('')
-                        }}
-                            className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1">
-                            <X size={11} /> Reset
-                        </button>
-                    )}
-                </div>
+                <SelettoreLinguaUE lingua={lingua} />
             </div>
 
-            {loadingRisultati ? (
-                <div className="flex items-center justify-center py-16">
-                    <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
-                </div>
-            ) : risultati.length === 0 ? (
-                <div className="bg-slate border border-white/5 p-12 text-center">
-                    <p className="font-body text-sm text-nebbia/40">Nessuna prassi trovata con questi filtri</p>
-                </div>
-            ) : (
+            {/* ════════════ SEZIONE NORME ════════════ */}
+            {sezione === 'norme' && (
                 <>
-                    <div className="space-y-3">
-                        {risultati.map(p => {
-                            const dataVisibile = p.data_pubblicazione ?? p.data_emanazione
-                            const riferimento = [p.numero && `n. ${p.numero}`, p.anno].filter(Boolean).join(' · ')
-                            return (
-                                <button
-                                    key={p.id}
-                                    onClick={() => navigate(`${window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'}/prassi/${p.id}`)}
-                                    className="w-full text-left bg-slate border border-white/5 hover:border-salvia/20 p-5 transition-all"
-                                >
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                                {riferimento && (
-                                                    <span className="font-body text-xs text-nebbia/60">{riferimento}</span>
-                                                )}
-                                                {dataVisibile && (
-                                                    <span className="font-body text-[10px] text-nebbia/30 flex items-center gap-1">
-                                                        <Calendar size={9} /> {new Date(dataVisibile).toLocaleDateString('it-IT')}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <h3 className="font-body text-sm font-medium text-nebbia mb-1.5 leading-snug">{p.oggetto ?? '—'}</h3>
-                                            {p.sintesi && (
-                                                <p className="font-body text-xs text-nebbia/50 leading-relaxed line-clamp-2">{p.sintesi}</p>
-                                            )}
-                                            {(p.categorie_lex ?? []).length > 0 && (
-                                                <div className="flex flex-wrap gap-1 mt-2">
-                                                    {p.categorie_lex.slice(0, 4).map(c => (
-                                                        <span key={c} className="font-body text-[10px] text-nebbia/50 border border-white/10 px-1.5 py-0.5">
-                                                            {mappaCategorie[c] ?? c}
-                                                        </span>
-                                                    ))}
-                                                    {p.categorie_lex.length > 4 && (
-                                                        <span className="font-body text-[10px] text-nebbia/30">+{p.categorie_lex.length - 4}</span>
-                                                    )}
-                                                </div>
-                                            )}
+                    {/* L1 catalogo tipo_atto */}
+                    {vistaN === 'catalogo' && (
+                        loadingConteggi ? (
+                            <div className="flex items-center justify-center py-20">
+                                <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {tipiNorme.map(c => (
+                                    <button key={c.chiave} onClick={() => apriTipoUe(c.chiave)}
+                                        className="bg-slate border border-white/5 p-5 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="font-display text-lg text-nebbia group-hover:text-oro transition-colors">{TIPO_ATTO_UE_LABEL[c.chiave] ?? c.chiave}</p>
+                                            <ChevronRight size={16} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
                                         </div>
-                                        <div className="shrink-0 flex flex-col items-end gap-2">
-                                            <span className="font-body text-xs text-salvia border border-salvia/30 px-2 py-1 bg-salvia/5">
-                                                Gratuita
-                                            </span>
+                                    </button>
+                                ))}
+                            </div>
+                        )
+                    )}
+
+                    {/* L2 lista atti */}
+                    {vistaN === 'tipo' && (
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between gap-3 flex-wrap">
+                                <button onClick={tornaCatalogoN} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                    <ChevronLeft size={13} /> Tutti i tipi
+                                </button>
+                                <p className="font-display text-xl text-nebbia">{TIPO_ATTO_UE_LABEL[tipoSel] ?? tipoSel}</p>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
+                                    <input placeholder="Cerca per titolo, CELEX o numero…"
+                                        value={inputAttiUe}
+                                        onChange={e => setInputAttiUe(e.target.value)}
+                                        onKeyDown={e => { if (e.key === 'Enter') { setPaginaAttiUe(0); setCercaAttiUe(inputAttiUe) } }}
+                                        className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
+                                </div>
+                                <button onClick={() => { setPaginaAttiUe(0); setCercaAttiUe(inputAttiUe) }}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
+                                    <Search size={13} /> Cerca
+                                </button>
+                                {cercaAttiUe && (
+                                    <button onClick={() => { setInputAttiUe(''); setCercaAttiUe(''); setPaginaAttiUe(0) }}
+                                        className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
+                                        <X size={11} /> Pulisci
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="bg-slate border border-white/5">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b border-white/5">
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">CELEX</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Titolo</th>
+                                            <th className="px-4 py-3 w-8" />
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {loadingAttiUe ? (
+                                            <tr><td colSpan={3} className="px-4 py-20 text-center"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" /></td></tr>
+                                        ) : attiUe.length === 0 ? (
+                                            <tr><td colSpan={3} className="px-4 py-20 text-center"><p className="font-body text-sm text-nebbia/30">Nessun atto trovato</p></td></tr>
+                                        ) : attiUe.map(a => (
+                                            <tr key={a.celex} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer" onClick={() => apriAttoUe(a)}>
+                                                <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
+                                                    {a.celex ?? '—'}
+                                                    {a.vigente === false && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">abrogato</span>}
+                                                </td>
+                                                <td className="px-4 py-3 font-body text-sm text-nebbia/70 leading-snug">{attoUeLabel(a)}</td>
+                                                <td className="px-4 py-3"><ChevronRight size={13} className="text-nebbia/20" /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {pagineAttiUe > 1 && (
+                                    <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
+                                        <p className="font-body text-xs text-nebbia/30">{paginaAttiUe * PER_PAGINA_UE + 1}–{Math.min((paginaAttiUe + 1) * PER_PAGINA_UE, totaleAttiUe)} di {totaleAttiUe.toLocaleString('it-CH')}</p>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => setPaginaAttiUe(p => Math.max(0, p - 1))} disabled={paginaAttiUe === 0} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                            <button onClick={() => setPaginaAttiUe(p => Math.min(pagineAttiUe - 1, p + 1))} disabled={paginaAttiUe >= pagineAttiUe - 1} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
                                         </div>
                                     </div>
-                                </button>
-                            )
-                        })}
-                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
-                    {totalePrassi > PER_PAGINA_PRASSI && (
-                        <div className="flex items-center justify-between bg-slate border border-white/5 px-4 py-3">
-                            <p className="font-body text-xs text-nebbia/30">
-                                {paginaPrassi * PER_PAGINA_PRASSI + 1}–{Math.min((paginaPrassi + 1) * PER_PAGINA_PRASSI, totalePrassi)} di {totalePrassi.toLocaleString('it-IT')}
-                            </p>
+                    {/* L3 articoli */}
+                    {vistaN === 'atto' && attoUeSel && (
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between gap-3 flex-wrap">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    <button onClick={tornaCatalogoN} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                        <ChevronLeft size={13} /> Tutti i tipi
+                                    </button>
+                                    <span className="text-nebbia/20">/</span>
+                                    <button onClick={tornaTipoN} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">{TIPO_ATTO_UE_LABEL[tipoSel] ?? tipoSel}</button>
+                                </div>
+                                <p className="font-display text-base text-nebbia text-right">{attoUeSel.celex}</p>
+                            </div>
+                            <p className="font-body text-sm text-nebbia/50 leading-relaxed -mt-2">{attoUeLabel(attoUeSel)}</p>
+
+                            {/* Sotto-filtro tipo_elemento */}
+                            <div className="flex items-center gap-2">
+                                <div className="flex gap-1 bg-slate border border-white/5 p-1">
+                                    {ORDINE_ELEMENTO_UE.map(el => (
+                                        <button key={el} onClick={() => cambiaElemento(el)}
+                                            className={`px-3 py-1 font-body text-xs transition-colors ${elementoSel === el ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
+                                            {ELEMENTO_UE_LABEL[el]}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div className="flex gap-2">
-                                <button onClick={() => setPaginaPrassi(p => Math.max(0, p - 1))} disabled={paginaPrassi === 0}
-                                    className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prev</button>
-                                <button onClick={() => setPaginaPrassi(p => p + 1)} disabled={(paginaPrassi + 1) * PER_PAGINA_PRASSI >= totalePrassi}
-                                    className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Next →</button>
+                                <div className="relative flex-1">
+                                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
+                                    <input placeholder="Cerca nel testo…"
+                                        value={inputArtUe}
+                                        onChange={e => setInputArtUe(e.target.value)}
+                                        onKeyDown={e => { if (e.key === 'Enter') { setPaginaArtUe(0); setCercaArtUe(inputArtUe) } }}
+                                        className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
+                                </div>
+                                <button onClick={() => { setPaginaArtUe(0); setCercaArtUe(inputArtUe) }}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
+                                    <Search size={13} /> Cerca
+                                </button>
+                                {cercaArtUe && (
+                                    <button onClick={() => { setInputArtUe(''); setCercaArtUe(''); setPaginaArtUe(0) }}
+                                        className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
+                                        <X size={11} /> Pulisci
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="bg-slate border border-white/5">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b border-white/5">
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{elementoSel === 'articolo' ? 'Articolo' : elementoSel === 'considerando' ? 'Considerando' : 'Allegato'}</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Rubrica / Anteprima</th>
+                                            <th className="px-4 py-3 w-8" />
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {loadingArtUe ? (
+                                            <tr><td colSpan={3} className="px-4 py-20 text-center"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" /></td></tr>
+                                        ) : articoliUe.length === 0 ? (
+                                            <tr><td colSpan={3} className="px-4 py-20 text-center"><p className="font-body text-sm text-nebbia/30">Nessun elemento trovato</p></td></tr>
+                                        ) : articoliUe.map(n => (
+                                            <Fragment key={n.id}>
+                                                <tr className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer" onClick={() => setArtUeAperto(artUeAperto?.id === n.id ? null : n)}>
+                                                    <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">{n.articolo ?? '—'}</td>
+                                                    <td className="px-4 py-3 font-body text-sm text-nebbia/60 max-w-lg">
+                                                        {n.rubrica && <p className="font-medium text-nebbia/80 mb-0.5" dangerouslySetInnerHTML={{ __html: evidenzia(n.rubrica, cercaArtUe) }} />}
+                                                        {cercaArtUe && n.testo && <p className="text-xs text-nebbia/40 line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenzia(n.testo.slice(0, 200), cercaArtUe) }} />}
+                                                    </td>
+                                                    <td className="px-4 py-3"><ChevronRight size={13} className={`text-nebbia/20 transition-transform ${artUeAperto?.id === n.id ? 'rotate-90' : ''}`} /></td>
+                                                </tr>
+                                                {artUeAperto?.id === n.id && (
+                                                    <tr key={`${n.id}-t`} className="border-b border-white/5 bg-petrolio/20">
+                                                        <td colSpan={3} className="px-4 py-4">
+                                                            <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: evidenzia(n.testo ?? '(testo non disponibile)', cercaArtUe) }} />
+                                                            <div className="mt-3 flex items-center gap-2">
+                                                                <BottoniSalvataggio
+                                                                    tipo="norma_ue"
+                                                                    id={n.id}
+                                                                    titolo={[n.articolo, n.rubrica].filter(Boolean).join(' — ')}
+                                                                    testo={n.testo}
+                                                                />
+                                                                <button type="button" onClick={(e) => { e.stopPropagation(); const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'; navigate(`${prefix}/norma-ue/${n.id}`) }}
+                                                                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
+                                                                    Apri pagina dedicata <ChevronRight size={11} />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </Fragment>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {pagineArtUe > 1 && (
+                                    <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
+                                        <p className="font-body text-xs text-nebbia/30">{paginaArtUe * PER_PAGINA_UE + 1}–{Math.min((paginaArtUe + 1) * PER_PAGINA_UE, totaleArtUe)} di {totaleArtUe.toLocaleString('it-CH')}</p>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => setPaginaArtUe(p => Math.max(0, p - 1))} disabled={paginaArtUe === 0} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                            <button onClick={() => setPaginaArtUe(p => Math.min(pagineArtUe - 1, p + 1))} disabled={paginaArtUe >= pagineArtUe - 1} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
                 </>
             )}
-        </div>
-    )
-}
 
-// ═══════════════════════════════════════════════════════════════
-// WRAPPER tab "Italiana" con 2 sotto-tab: Codici / Leggi e decreti
-// ═══════════════════════════════════════════════════════════════
-function TabItalianaConSottoTab({ crediti, setCrediti, messaggiConversazione, setMessaggiConversazione }) {
-    const [sottoTab, setSottoTab] = useState('codici')
+            {/* ════════════ SEZIONE SENTENZE ════════════ */}
+            {sezione === 'sentenze' && (
+                <>
+                    {/* L1 organi */}
+                    {vistaS === 'catalogo' && (
+                        loadingConteggi ? (
+                            <div className="flex items-center justify-center py-20">
+                                <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {organiSentenze.map(c => (
+                                    <button key={c.chiave} onClick={() => apriOrgano(c.chiave)}
+                                        className="bg-slate border border-white/5 p-5 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors leading-snug">{c.chiave}</p>
+                                            <ChevronRight size={16} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        )
+                    )}
 
-    return (
-        <div className="space-y-5">
-            <div className="flex gap-1 bg-slate border border-white/5 p-1 w-fit">
-                <button onClick={() => setSottoTab('codici')}
-                    className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${sottoTab === 'codici' ? 'bg-salvia/10 text-salvia border border-salvia/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                    <BookOpen size={12} /> Principali Codici
-                </button>
-                <button onClick={() => setSottoTab('leggi_decreti')}
-                    className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${sottoTab === 'leggi_decreti' ? 'bg-salvia/10 text-salvia border border-salvia/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                    <FileText size={12} /> Leggi e decreti
-                </button>
-            </div>
+                    {/* L2 lista sentenze */}
+                    {vistaS === 'lista' && organoSel && (
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between gap-3 flex-wrap">
+                                <button onClick={tornaCatalogoS} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                    <ChevronLeft size={13} /> Tutti gli organi
+                                </button>
+                                <p className="font-display text-lg text-nebbia text-right">{organoSel}</p>
+                            </div>
 
-            {sottoTab === 'codici' && (
-                <TabNormativa
-                    datasetFonte="it"
-                    key="it"
-                    crediti={crediti}
-                    setCrediti={setCrediti}
-                    messaggiConversazione={messaggiConversazione}
-                    setMessaggiConversazione={setMessaggiConversazione}
-                />
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
+                                    <input placeholder="Cerca per caso, parti, oggetto o ECLI…"
+                                        value={inputSentUe}
+                                        onChange={e => setInputSentUe(e.target.value)}
+                                        onKeyDown={e => { if (e.key === 'Enter') { setPaginaSentUe(0); setCercaSentUe(inputSentUe) } }}
+                                        className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
+                                </div>
+                                <button onClick={() => { setPaginaSentUe(0); setCercaSentUe(inputSentUe) }}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
+                                    <Search size={13} /> Cerca
+                                </button>
+                                {cercaSentUe && (
+                                    <button onClick={() => { setInputSentUe(''); setCercaSentUe(''); setPaginaSentUe(0) }}
+                                        className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
+                                        <X size={11} /> Pulisci
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="bg-slate border border-white/5">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b border-white/5">
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Caso</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Oggetto / Parti</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase whitespace-nowrap">Data</th>
+                                            <th className="px-4 py-3 w-8" />
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {loadingSentUe ? (
+                                            <tr><td colSpan={4} className="px-4 py-20 text-center"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" /></td></tr>
+                                        ) : sentUe.length === 0 ? (
+                                            <tr><td colSpan={4} className="px-4 py-20 text-center"><p className="font-body text-sm text-nebbia/30">Nessuna sentenza trovata</p></td></tr>
+                                        ) : sentUe.map(s => (
+                                            <Fragment key={s.id}>
+                                                <tr className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer" onClick={() => setSentUeAperta(sentUeAperta?.id === s.id ? null : s)}>
+                                                    <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
+                                                        {s.numero_caso || s.celex_id || '—'}
+                                                        {s.vigente === false && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">non vig.</span>}
+                                                    </td>
+                                                    <td className="px-4 py-3 font-body text-sm text-nebbia/60 max-w-lg">
+                                                        <p className="line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenzia(s.oggetto || s.parti || '(senza oggetto)', cercaSentUe) }} />
+                                                    </td>
+                                                    <td className="px-4 py-3 font-body text-sm text-nebbia/50 whitespace-nowrap align-top">{s.data_decisione ?? '—'}</td>
+                                                    <td className="px-4 py-3"><ChevronRight size={13} className={`text-nebbia/20 transition-transform ${sentUeAperta?.id === s.id ? 'rotate-90' : ''}`} /></td>
+                                                </tr>
+                                                {sentUeAperta?.id === s.id && (
+                                                    <tr key={`${s.id}-d`} className="border-b border-white/5 bg-petrolio/20">
+                                                        <td colSpan={4} className="px-4 py-4 space-y-3">
+                                                            {s.parti && <div><p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">Parti</p><p className="font-body text-sm text-nebbia/70">{s.parti}</p></div>}
+                                                            {s.oggetto && <div><p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">Oggetto</p><p className="font-body text-sm text-nebbia/70 leading-relaxed">{s.oggetto}</p></div>}
+                                                            {s.relatore && <p className="font-body text-xs text-nebbia/40">Relatore: {s.relatore}</p>}
+                                                            {Array.isArray(s.materia) && s.materia.length > 0 && (
+                                                                <div className="flex flex-wrap gap-1.5">
+                                                                    {s.materia.map((m, i) => <span key={i} className="font-body text-[11px] text-salvia/70 bg-salvia/5 border border-salvia/20 px-2 py-0.5">{m}</span>)}
+                                                                </div>
+                                                            )}
+                                                            <div className="flex items-center gap-2">
+                                                                <BottoniSalvataggio
+                                                                    tipo="sentenza_ue"
+                                                                    id={s.id}
+                                                                    titolo={[s.numero_caso, s.oggetto].filter(Boolean).join(' — ')}
+                                                                    testo={s.oggetto || s.parti || ''}
+                                                                />
+                                                                <button type="button" onClick={(e) => { e.stopPropagation(); const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'; navigate(`${prefix}/sentenza-ue/${s.id}`) }}
+                                                                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
+                                                                    Apri pagina dedicata <ChevronRight size={11} />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </Fragment>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {pagineSentUe > 1 && (
+                                    <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
+                                        <p className="font-body text-xs text-nebbia/30">{paginaSentUe * PER_PAGINA_UE + 1}–{Math.min((paginaSentUe + 1) * PER_PAGINA_UE, totaleSentUe)} di {totaleSentUe.toLocaleString('it-CH')}</p>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => setPaginaSentUe(p => Math.max(0, p - 1))} disabled={paginaSentUe === 0} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                            <button onClick={() => setPaginaSentUe(p => Math.min(pagineSentUe - 1, p + 1))} disabled={paginaSentUe >= pagineSentUe - 1} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
-
-            {sottoTab === 'leggi_decreti' && (
-                <TabLeggiDecreti />
-            )}
-        </div>
-    )
-}
-
-// ═══════════════════════════════════════════════════════════════
-// COMPONENTE PRINCIPALE — "Banca dati"
-// ═══════════════════════════════════════════════════════════════
-export function BancaDati() {
-    const { profile } = useAuth()
-    const isAvvocato = profile?.role === 'avvocato'
-    const { crediti, setCrediti } = useCreditiAI()
-    const [messaggiConversazione, setMessaggiConversazione] = useState([])
-
-    const [tabAttivo, setTabAttivo] = useState('italiana')
-
-    return (
-        <div className="space-y-5 pb-24">
-
-            {/* Header */}
-            <PageHeader
-                label="Banca Dati"
-                title="Codici, leggi, sentenze e prassi"
-                subtitle="Ricerca con Lex AI o sfoglia normativa italiana, europea, giurisprudenza e prassi amministrativa"
-            />
-
-            {/* Lex — sempre attivo, cross-fonte */}
-            <RicercaAI
-                codice={null}
-                crediti={crediti}
-                setCrediti={setCrediti}
-                messaggi={messaggiConversazione}
-                onAggiornaMessaggi={setMessaggiConversazione}
-            />
-
-            {/* Tab primario Italiana | UE | Sentenze | Prassi */}
-            <div className="!mt-10 pt-6 border-t border-white/5 space-y-5">
-                <div className="flex items-center gap-3 flex-wrap">
-                    <p className="section-label !m-0">Sfoglia</p>
-                    <div className="flex gap-1 bg-slate border border-white/5 p-1">
-                        <button onClick={() => setTabAttivo('italiana')}
-                            className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${tabAttivo === 'italiana' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                            <Flag size={12} /> Italiana
-                        </button>
-                        <button onClick={() => setTabAttivo('ue')}
-                            className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${tabAttivo === 'ue' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                            <Globe size={12} /> UE
-                        </button>
-                        <button onClick={() => setTabAttivo('giurisprudenza')}
-                            className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${tabAttivo === 'giurisprudenza' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                            <Landmark size={12} /> Giurisprudenza
-                        </button>
-                        <button onClick={() => setTabAttivo('tributario')}
-                            className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${tabAttivo === 'tributario' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                            <Scale size={12} /> Tributario
-                        </button>
-                        <button onClick={() => setTabAttivo('prassi')}
-                            className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${tabAttivo === 'prassi' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                            <ScrollText size={12} /> Prassi
-                        </button>
-                    </div>
-                </div>
-
-                {tabAttivo === 'italiana' && (
-                    <TabItalianaConSottoTab
-                        crediti={crediti}
-                        setCrediti={setCrediti}
-                        messaggiConversazione={messaggiConversazione}
-                        setMessaggiConversazione={setMessaggiConversazione}
-                    />
-                )}
-                {tabAttivo === 'ue' && (
-                    <TabNormativa
-                        datasetFonte="ue"
-                        key="ue"
-                        crediti={crediti}
-                        setCrediti={setCrediti}
-                        messaggiConversazione={messaggiConversazione}
-                        setMessaggiConversazione={setMessaggiConversazione}
-                    />
-                )}
-                {tabAttivo === 'giurisprudenza' && <TabSentenze />}
-                {tabAttivo === 'tributario' && <TabTributario />}
-                {tabAttivo === 'prassi' && <TabPrassi />}
-            </div>
         </div>
     )
 }

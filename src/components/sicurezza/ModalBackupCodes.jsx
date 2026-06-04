@@ -23,7 +23,7 @@ export default function ModalBackupCodes({ codici, onClose }) {
     function handleScarica() {
         const intestazione = [
             'LEXUM — Codici di recupero 2FA',
-            `Generati il: ${new Date().toLocaleString('it-IT')}`,
+            `Generati il: ${new Date().toLocaleString('it-CH')}`,
             '',
             'IMPORTANTE: ogni codice puo essere usato una sola volta.',
             'Conservali in un luogo sicuro. Servono se perdi accesso all\'app autenticatore.',
@@ -57,7 +57,7 @@ export default function ModalBackupCodes({ codici, onClose }) {
                 </head>
                 <body>
                     <h1>Lexum - Codici di recupero 2FA</h1>
-                    <p>Generati il: ${new Date().toLocaleString('it-IT')}</p>
+                    <p>Generati il: ${new Date().toLocaleString('it-CH')}</p>
                     <pre class="codice">${testoCompleto}</pre>
                     <p class="nota">
                         IMPORTANTE: ogni codice puo essere usato una sola volta.<br>

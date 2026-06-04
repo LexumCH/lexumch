@@ -86,13 +86,16 @@ export default function Acquista() {
             if (errCred) throw new Error(`Errore caricamento crediti: ${errCred.message}`)
             setPacchettiCrediti(cred ?? [])
 
-            // Abbonamenti (solo se verificato)
+            // Abbonamenti (solo se verificato) — filtrati per direzione professionale
             if (isApproved) {
+                // La direzione dell'utente: fiduciario o avvocato (default avvocato se non impostata)
+                const direzione = profile?.tipo_richiesta ?? 'avvocato'
                 const { data: abb, error: errAbb } = await supabase
                     .from('prodotti')
                     .select('*')
                     .eq('tipo', 'abbonamento')
                     .eq('attivo', true)
+                    .eq('target_role', direzione)
                     .order('prezzo')
                 if (errAbb) throw new Error(`Errore caricamento abbonamenti: ${errAbb.message}`)
                 setAbbonamenti(abb ?? [])
@@ -196,7 +199,7 @@ export default function Acquista() {
                             <p className="font-display text-2xl font-light text-oro">{crediti.piano}</p>
                             {crediti.piano_scadenza && (
                                 <p className="font-body text-[10px] text-nebbia/30 mt-0.5">
-                                    Scad. {new Date(crediti.piano_scadenza).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
+                                    Scad. {new Date(crediti.piano_scadenza).toLocaleDateString('it-CH', { day: '2-digit', month: 'short' })}
                                 </p>
                             )}
                         </div>
@@ -384,9 +387,9 @@ function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista }) {
                             <Sparkles size={13} className="text-salvia" />
                             <p className="font-body text-sm font-medium text-nebbia">{p.nome}</p>
                         </div>
-                        <p className="font-display text-3xl font-light text-salvia mt-2">EUR {p.prezzo}</p>
+                        <p className="font-display text-3xl font-light text-salvia mt-2">CHF {p.prezzo}</p>
                         <p className="font-body text-xs text-nebbia/40 mt-1">
-                            {p.crediti_ai_mensili} crediti · EUR {prezzoPerCredito}/credito
+                            {p.crediti_ai_mensili} crediti · CHF {prezzoPerCredito}/credito
                         </p>
                         <p className="font-body text-[10px] text-nebbia/30 mt-3 italic flex-1">Non scadono mai</p>
                         <button
@@ -460,7 +463,7 @@ function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_att
                                 )}
                             </div>
 
-                            <p className="font-display text-4xl font-light text-oro mb-4">EUR {p.prezzo}</p>
+                            <p className="font-display text-4xl font-light text-oro mb-4">CHF {p.prezzo}</p>
 
                             <ul className="space-y-2 mb-5 flex-1">
                                 {[
@@ -536,7 +539,7 @@ function SezioneSeat({ seats, loading, acquistando, onAcquista, posti_acquistati
                                     <CreditCard size={13} className="text-oro" />
                                     <p className="font-body text-sm font-medium text-nebbia">{s.nome}</p>
                                 </div>
-                                <p className="font-display text-3xl font-light text-oro mt-2 flex-1">EUR {s.prezzo}</p>
+                                <p className="font-display text-3xl font-light text-oro mt-2 flex-1">CHF {s.prezzo}</p>
                                 <button
                                     onClick={() => onAcquista(s.id)}
                                     disabled={isLoading}

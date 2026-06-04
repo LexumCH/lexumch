@@ -76,7 +76,7 @@ export default function ClienteAppuntamenti() {
                                     <div className="bg-oro/10 border border-oro/20 p-3 text-center min-w-14 shrink-0">
                                         <p className="font-display text-2xl font-semibold text-oro leading-none">{inizio.getDate()}</p>
                                         <p className="font-body text-[10px] text-oro/60 uppercase">
-                                            {inizio.toLocaleString('it-IT', { month: 'short' })}
+                                            {inizio.toLocaleString('it-CH', { month: 'short' })}
                                         </p>
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -91,8 +91,8 @@ export default function ClienteAppuntamenti() {
                                             <div className="flex items-center gap-1.5">
                                                 <Clock size={11} className="text-nebbia/30" />
                                                 <span className="font-body text-xs text-nebbia/50">
-                                                    {inizio.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                                                    {fine ? ` - ${fine.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}` : ''}
+                                                    {inizio.toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })}
+                                                    {fine ? ` - ${fine.toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })}` : ''}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-1.5">

@@ -1,4 +1,10 @@
-// src/pages/avvocato/FatturazioneDettaglio.jsx
+// src/pages/avvocato/FatturazioneDettaglio.jsx — Lexum CH
+//
+// Clone dell'IT, modello fiscale svizzero:
+//   - Riepilogo: imponibile → IVA (o esente) → totale. Niente CPA/ritenuta/netto.
+//   - totale (NON totale_lordo); CHF; campi cliente CH (citta, no cf/partita_iva/comune/provincia/pec/sdi).
+//   - Metodi pagamento svizzeri. iban (NON iban_pagamento).
+//   - ModalEliminaFattura → edge elimina-fattura (già CH). Scollega/Collega pratica invariati.
 
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
@@ -19,15 +25,15 @@ const STATO_CONFIG = {
 
 const METODI_PAGAMENTO = [
     { value: 'bonifico', label: 'Bonifico bancario' },
+    { value: 'qr', label: 'QR-fattura' },
     { value: 'contanti', label: 'Contanti' },
-    { value: 'assegno', label: 'Assegno' },
-    { value: 'pos', label: 'POS / Carta' },
+    { value: 'carta', label: 'Carta / TWINT' },
     { value: 'altro', label: 'Altro' },
 ]
 
-function fmtEUR(n) {
+function fmtCHF(n) {
     const v = Number(n ?? 0)
-    return v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    return v.toLocaleString('it-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 function nomeCliente(c) {
@@ -96,7 +102,7 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
                             Fattura <span className="text-nebbia/70">{fattura.numero}</span>
                         </p>
                         <p className="font-body text-xs text-nebbia/40">
-                            Residuo da incassare: <span className="text-oro font-medium">EUR {fmtEUR(residuo)}</span>
+                            Residuo da incassare: <span className="text-oro font-medium">CHF {fmtCHF(residuo)}</span>
                         </p>
                     </div>
 
@@ -111,11 +117,9 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
                             />
                         </div>
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Importo (EUR) *</label>
+                            <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Importo (CHF) *</label>
                             <input
-                                type="number"
-                                step="0.01"
-                                min="0.01"
+                                type="number" step="0.01" min="0.01"
                                 value={form.importo}
                                 onChange={e => setForm(p => ({ ...p, importo: e.target.value }))}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
@@ -139,7 +143,7 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
                             Riferimento <span className="text-nebbia/25 normal-case tracking-normal">— opzionale</span>
                         </label>
                         <input
-                            placeholder="Es. CRO bonifico, N. assegno..."
+                            placeholder="Es. n. operazione, riferimento bonifico..."
                             value={form.riferimento}
                             onChange={e => setForm(p => ({ ...p, riferimento: e.target.value }))}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -184,7 +188,7 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// MODAL CONFERMA ELIMINAZIONE
+// MODAL CONFERMA ELIMINAZIONE (esportata, usata anche da Fatturazione.jsx)
 // ─────────────────────────────────────────────────────────────
 export function ModalEliminaFattura({ fattura, onClose, onEliminata }) {
     const [conferma, setConferma] = useState('')
@@ -231,7 +235,7 @@ export function ModalEliminaFattura({ fattura, onClose, onEliminata }) {
                             Saranno cancellati: la fattura, le righe, i pagamenti registrati,
                             il PDF generato e il record nell'archivio dello studio.
                             Il numero <strong>{fattura.numero}</strong> resta consumato nel
-                            registro fiscale (non puo' essere riutilizzato).
+                            registro (non può essere riutilizzato).
                         </p>
                     </div>
 
@@ -354,14 +358,12 @@ function ModalCollegaPratica({ fattura, onClose, onSuccess }) {
 
     useEffect(() => {
         async function carica() {
-            // Pratiche dello stesso cliente, ordinate per recenti
             let query = supabase
                 .from('pratiche')
                 .select('id, titolo, tipo, stato, cliente_id, cliente:cliente_id(nome, cognome, ragione_sociale, tipo_soggetto)')
                 .eq('avvocato_id', fattura.avvocato_id)
                 .order('updated_at', { ascending: false })
 
-            // Priorità: stesso cliente della fattura
             if (fattura.cliente_id) {
                 query = query.eq('cliente_id', fattura.cliente_id)
             }
@@ -371,7 +373,6 @@ function ModalCollegaPratica({ fattura, onClose, onSuccess }) {
             if (error) {
                 setErrore(error.message)
             } else if ((!data || data.length === 0) && fattura.cliente_id) {
-                // Fallback: tutte le pratiche se nessuna per quel cliente
                 const { data: tutte } = await supabase
                     .from('pratiche')
                     .select('id, titolo, tipo, stato, cliente_id, cliente:cliente_id(nome, cognome, ragione_sociale, tipo_soggetto)')
@@ -523,7 +524,7 @@ export default function AvvocatoFatturazioneDettaglio() {
             supabase.from('fatture')
                 .select(`
           *,
-          cliente:cliente_id(id, nome, cognome, ragione_sociale, tipo_soggetto, cf, partita_iva, email, telefono, indirizzo, comune, provincia, cap, pec),
+          cliente:cliente_id(id, nome, cognome, ragione_sociale, tipo_soggetto, email, telefono, indirizzo, citta, cap),
           pratica:pratica_id(id, titolo)
         `)
                 .eq('id', id).single(),
@@ -547,9 +548,7 @@ export default function AvvocatoFatturazioneDettaglio() {
             })
             if (error) throw new Error(error.message)
             if (!data?.ok) throw new Error(data?.error ?? 'Errore')
-            // Apri il PDF generato in nuova scheda
             if (data.url) window.open(data.url, '_blank')
-            // Ricarica fattura per avere pdf_generato_at aggiornato
             await carica()
         } catch (err) {
             setErrore(err.message)
@@ -575,7 +574,7 @@ export default function AvvocatoFatturazioneDettaglio() {
     }
 
     async function annullaFattura() {
-        if (!confirm('Annullare questa fattura? Lo stato passa a "annullata" ma la fattura non viene cancellata (per motivi fiscali).')) return
+        if (!confirm('Annullare questa fattura? Lo stato passa a "annullata" ma la fattura non viene cancellata.')) return
         await supabase.from('fatture').update({ stato: 'annullata' }).eq('id', id)
         await carica()
     }
@@ -595,9 +594,10 @@ export default function AvvocatoFatturazioneDettaglio() {
         </div>
     )
 
-    const totaleLordo = Number(fattura.totale_lordo ?? fattura.importo ?? 0)
+    // Modello CH: totale (non totale_lordo)
+    const totale = Number(fattura.totale ?? 0)
     const totalePagato = pagamenti.reduce((s, p) => s + Number(p.importo ?? 0), 0)
-    const residuo = totaleLordo - totalePagato
+    const residuo = totale - totalePagato
     const isScaduta = fattura.stato === 'in_attesa' && fattura.data_scadenza && new Date(fattura.data_scadenza) < new Date()
     const statoEff = isScaduta ? 'scaduta' : fattura.stato
     const sc = STATO_CONFIG[statoEff] ?? STATO_CONFIG.in_attesa
@@ -617,9 +617,9 @@ export default function AvvocatoFatturazioneDettaglio() {
                     </p>
                     <h1 className="font-display text-4xl font-light text-nebbia">{fattura.numero}</h1>
                     <p className="font-body text-sm text-nebbia/40 mt-1">
-                        Emessa il {new Date(fattura.data_emissione).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        Emessa il {new Date(fattura.data_emissione).toLocaleDateString('it-CH', { day: '2-digit', month: 'long', year: 'numeric' })}
                         {fattura.data_scadenza && (
-                            <> · Scadenza {new Date(fattura.data_scadenza).toLocaleDateString('it-IT')}</>
+                            <> · Scadenza {new Date(fattura.data_scadenza).toLocaleDateString('it-CH')}</>
                         )}
                     </p>
                 </div>
@@ -651,11 +651,8 @@ export default function AvvocatoFatturazioneDettaglio() {
                 )}
 
                 {!ha_pdf ? (
-                    <button
-                        onClick={generaPdf}
-                        disabled={generandoPdf}
-                        className="btn-primary text-sm flex items-center gap-2 disabled:opacity-40"
-                    >
+                    <button onClick={generaPdf} disabled={generandoPdf}
+                        className="btn-primary text-sm flex items-center gap-2 disabled:opacity-40">
                         {generandoPdf
                             ? <><Loader2 size={14} className="animate-spin" /> Generando...</>
                             : <><FileSignature size={14} /> Genera PDF e archivia</>
@@ -663,22 +660,16 @@ export default function AvvocatoFatturazioneDettaglio() {
                     </button>
                 ) : (
                     <>
-                        <button
-                            onClick={scaricaPdf}
-                            disabled={scaricandoPdf}
-                            className="flex items-center gap-2 px-4 py-2 border border-oro/30 text-oro font-body text-sm hover:bg-oro/10 transition-colors disabled:opacity-40"
-                        >
+                        <button onClick={scaricaPdf} disabled={scaricandoPdf}
+                            className="flex items-center gap-2 px-4 py-2 border border-oro/30 text-oro font-body text-sm hover:bg-oro/10 transition-colors disabled:opacity-40">
                             {scaricandoPdf
                                 ? <><Loader2 size={14} className="animate-spin" /> Apertura...</>
                                 : <><Download size={14} /> Scarica PDF</>
                             }
                         </button>
-                        <button
-                            onClick={generaPdf}
-                            disabled={generandoPdf}
+                        <button onClick={generaPdf} disabled={generandoPdf}
                             className="flex items-center gap-2 px-4 py-2 border border-white/10 text-nebbia/60 hover:border-oro/30 hover:text-oro font-body text-sm transition-colors disabled:opacity-40"
-                            title="Rigenera il PDF e aggiorna l'archivio"
-                        >
+                            title="Rigenera il PDF e aggiorna l'archivio">
                             {generandoPdf
                                 ? <Loader2 size={14} className="animate-spin" />
                                 : <><FileSignature size={14} /> Rigenera PDF</>
@@ -690,18 +681,14 @@ export default function AvvocatoFatturazioneDettaglio() {
                 <div className="flex-1" />
 
                 {fattura.stato !== 'annullata' && fattura.stato !== 'pagata' && (
-                    <button
-                        onClick={annullaFattura}
-                        className="flex items-center gap-2 px-4 py-2 border border-white/10 text-nebbia/40 hover:text-amber-400 hover:border-amber-400/30 transition-colors font-body text-sm"
-                    >
+                    <button onClick={annullaFattura}
+                        className="flex items-center gap-2 px-4 py-2 border border-white/10 text-nebbia/40 hover:text-amber-400 hover:border-amber-400/30 transition-colors font-body text-sm">
                         <X size={14} /> Annulla
                     </button>
                 )}
 
-                <button
-                    onClick={() => setModalElimina(true)}
-                    className="flex items-center gap-2 px-4 py-2 border border-white/10 text-nebbia/40 hover:text-red-400 hover:border-red-500/30 transition-colors font-body text-sm"
-                >
+                <button onClick={() => setModalElimina(true)}
+                    className="flex items-center gap-2 px-4 py-2 border border-white/10 text-nebbia/40 hover:text-red-400 hover:border-red-500/30 transition-colors font-body text-sm">
                     <Trash2 size={14} /> Elimina
                 </button>
             </div>
@@ -711,7 +698,7 @@ export default function AvvocatoFatturazioneDettaglio() {
                 {/* COLONNA SX */}
                 <div className="space-y-5">
 
-                    {/* Cliente */}
+                    {/* Cliente — campi CH (no cf/partita_iva/comune/provincia/pec/sdi) */}
                     <div className="bg-slate border border-white/5 p-5 space-y-3">
                         <p className="section-label">Destinatario</p>
                         <div className="flex items-start gap-3">
@@ -726,14 +713,13 @@ export default function AvvocatoFatturazioneDettaglio() {
                                     {nomeCliente(fattura.cliente)}
                                 </Link>
                                 <div className="font-body text-xs text-nebbia/40 mt-1 space-y-0.5">
-                                    {fattura.cliente?.cf && <p>C.F. {fattura.cliente.cf}</p>}
-                                    {fattura.cliente?.partita_iva && <p>P.IVA {fattura.cliente.partita_iva}</p>}
-                                    {(fattura.cliente?.indirizzo || fattura.cliente?.comune) && (
+                                    {(fattura.cliente?.indirizzo || fattura.cliente?.citta) && (
                                         <p>
-                                            {[fattura.cliente.indirizzo, fattura.cliente.cap, fattura.cliente.comune, fattura.cliente.provincia].filter(Boolean).join(' ')}
+                                            {[fattura.cliente.indirizzo, fattura.cliente.cap, fattura.cliente.citta].filter(Boolean).join(' ')}
                                         </p>
                                     )}
                                     {fattura.cliente?.email && <p>{fattura.cliente.email}</p>}
+                                    {fattura.cliente?.telefono && <p>{fattura.cliente.telefono}</p>}
                                 </div>
                             </div>
                         </div>
@@ -741,26 +727,20 @@ export default function AvvocatoFatturazioneDettaglio() {
                             <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">Pratica collegata</p>
                             {fattura.pratica ? (
                                 <div className="flex items-center justify-between gap-3">
-                                    <Link
-                                        to={`/pratiche/${fattura.pratica.id}`}
-                                        className="font-body text-sm text-oro/80 hover:text-oro transition-colors truncate"
-                                    >
+                                    <Link to={`/pratiche/${fattura.pratica.id}`}
+                                        className="font-body text-sm text-oro/80 hover:text-oro transition-colors truncate">
                                         {fattura.pratica.titolo}
                                     </Link>
-                                    <button
-                                        onClick={() => setModalScollega(true)}
-                                        className="font-body text-xs text-nebbia/40 hover:text-red-400 border border-white/10 hover:border-red-500/30 px-2.5 py-1 transition-colors shrink-0"
-                                    >
+                                    <button onClick={() => setModalScollega(true)}
+                                        className="font-body text-xs text-nebbia/40 hover:text-red-400 border border-white/10 hover:border-red-500/30 px-2.5 py-1 transition-colors shrink-0">
                                         Scollega
                                     </button>
                                 </div>
                             ) : (
                                 <div className="flex items-center justify-between gap-3">
                                     <p className="font-body text-sm text-nebbia/40 italic">Nessuna pratica collegata</p>
-                                    <button
-                                        onClick={() => setModalCollega(true)}
-                                        className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-2.5 py-1 hover:bg-oro/10 transition-colors shrink-0"
-                                    >
+                                    <button onClick={() => setModalCollega(true)}
+                                        className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-2.5 py-1 hover:bg-oro/10 transition-colors shrink-0">
                                         <Plus size={11} /> Collega
                                     </button>
                                 </div>
@@ -786,8 +766,8 @@ export default function AvvocatoFatturazioneDettaglio() {
                                     <tr key={r.id} className="border-b border-white/5">
                                         <td className="px-4 py-3 font-body text-sm text-nebbia">{r.descrizione}</td>
                                         <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">{Number(r.quantita).toFixed(2)}</td>
-                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">EUR {fmtEUR(r.prezzo_unitario)}</td>
-                                        <td className="px-4 py-3 font-body text-sm font-medium text-oro whitespace-nowrap">EUR {fmtEUR(r.totale)}</td>
+                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">CHF {fmtCHF(r.prezzo_unitario)}</td>
+                                        <td className="px-4 py-3 font-body text-sm font-medium text-oro whitespace-nowrap">CHF {fmtCHF(r.totale)}</td>
                                     </tr>
                                 ))}
                                 {righe.length === 0 && (
@@ -802,10 +782,8 @@ export default function AvvocatoFatturazioneDettaglio() {
                         <div className="flex items-center justify-between mb-4">
                             <p className="section-label !m-0">Pagamenti ricevuti</p>
                             {residuo > 0 && fattura.stato !== 'annullata' && (
-                                <button
-                                    onClick={() => setModalPagamento(true)}
-                                    className="flex items-center gap-1.5 font-body text-xs text-salvia border border-salvia/30 px-3 py-1.5 hover:bg-salvia/10 transition-colors"
-                                >
+                                <button onClick={() => setModalPagamento(true)}
+                                    className="flex items-center gap-1.5 font-body text-xs text-salvia border border-salvia/30 px-3 py-1.5 hover:bg-salvia/10 transition-colors">
                                     <Plus size={12} /> Aggiungi
                                 </button>
                             )}
@@ -821,7 +799,7 @@ export default function AvvocatoFatturazioneDettaglio() {
                                             <Check size={13} className="text-salvia shrink-0" />
                                             <div className="min-w-0">
                                                 <p className="font-body text-sm text-nebbia">
-                                                    {new Date(p.data_pagamento).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                                    {new Date(p.data_pagamento).toLocaleDateString('it-CH', { day: '2-digit', month: 'long', year: 'numeric' })}
                                                 </p>
                                                 <p className="font-body text-xs text-nebbia/40 mt-0.5">
                                                     {METODI_PAGAMENTO.find(m => m.value === p.metodo)?.label ?? p.metodo}
@@ -830,7 +808,7 @@ export default function AvvocatoFatturazioneDettaglio() {
                                                 {p.note && <p className="font-body text-xs text-nebbia/40 mt-0.5 italic">{p.note}</p>}
                                             </div>
                                         </div>
-                                        <p className="font-body text-sm font-semibold text-salvia whitespace-nowrap">EUR {fmtEUR(p.importo)}</p>
+                                        <p className="font-body text-sm font-semibold text-salvia whitespace-nowrap">CHF {fmtCHF(p.importo)}</p>
                                     </div>
                                 ))}
                             </div>
@@ -839,7 +817,7 @@ export default function AvvocatoFatturazioneDettaglio() {
                         {residuo > 0.01 && pagamenti.length > 0 && (
                             <div className="mt-3 flex items-center justify-between p-3 bg-amber-400/5 border border-amber-400/20">
                                 <p className="font-body text-sm text-amber-400">Residuo da incassare</p>
-                                <p className="font-body text-sm font-semibold text-amber-400">EUR {fmtEUR(residuo)}</p>
+                                <p className="font-body text-sm font-semibold text-amber-400">CHF {fmtCHF(residuo)}</p>
                             </div>
                         )}
                     </div>
@@ -864,7 +842,7 @@ export default function AvvocatoFatturazioneDettaglio() {
                     )}
                 </div>
 
-                {/* COLONNA DX: riepilogo */}
+                {/* COLONNA DX: riepilogo CH (imponibile → IVA/esente → totale) */}
                 <div>
                     <div className="bg-slate border border-white/5 p-5 space-y-3 sticky top-4">
                         <p className="section-label">Riepilogo</p>
@@ -872,59 +850,48 @@ export default function AvvocatoFatturazioneDettaglio() {
                         <div className="space-y-1.5">
                             <div className="flex justify-between text-xs font-body text-nebbia/60">
                                 <span>Imponibile</span>
-                                <span>EUR {fmtEUR(fattura.imponibile)}</span>
+                                <span>CHF {fmtCHF(fattura.imponibile)}</span>
                             </div>
-                            {Number(fattura.cpa_importo ?? 0) > 0 && (
+                            {fattura.esente_iva ? (
                                 <div className="flex justify-between text-xs font-body text-nebbia/60">
-                                    <span>CPA {fattura.cpa_percentuale}%</span>
-                                    <span>EUR {fmtEUR(fattura.cpa_importo)}</span>
+                                    <span>IVA — esente</span>
+                                    <span className="text-nebbia/40 italic truncate max-w-[160px]">{fattura.esente_iva_motivo || '—'}</span>
+                                </div>
+                            ) : (
+                                <div className="flex justify-between text-xs font-body text-nebbia/60">
+                                    <span>IVA {fattura.aliquota_iva}%</span>
+                                    <span>CHF {fmtCHF(fattura.iva_importo)}</span>
                                 </div>
                             )}
-                            <div className="flex justify-between text-xs font-body text-nebbia/60">
-                                <span>IVA {fattura.iva_percentuale}%</span>
-                                <span>EUR {fmtEUR(fattura.iva_importo)}</span>
-                            </div>
                             <div className="flex justify-between pt-2 border-t border-white/10">
                                 <span className="font-body text-sm font-medium text-nebbia">Totale fattura</span>
-                                <span className="font-body text-base font-semibold text-oro">EUR {fmtEUR(fattura.totale_lordo)}</span>
+                                <span className="font-body text-base font-semibold text-oro">CHF {fmtCHF(fattura.totale)}</span>
                             </div>
-                            {fattura.applica_ritenuta && Number(fattura.ritenuta_importo ?? 0) > 0 && (
-                                <>
-                                    <div className="flex justify-between text-xs font-body text-red-400/80 pt-1">
-                                        <span>Ritenuta {fattura.ritenuta_percentuale}%</span>
-                                        <span>- EUR {fmtEUR(fattura.ritenuta_importo)}</span>
-                                    </div>
-                                    <div className="flex justify-between pt-2 border-t border-white/10">
-                                        <span className="font-body text-sm font-medium text-nebbia">Netto a pagare</span>
-                                        <span className="font-body text-base font-semibold text-salvia">EUR {fmtEUR(fattura.totale_netto)}</span>
-                                    </div>
-                                </>
-                            )}
                         </div>
 
                         {totalePagato > 0 && (
                             <div className="pt-3 border-t border-white/10 space-y-1">
                                 <div className="flex justify-between text-xs font-body">
                                     <span className="text-nebbia/60">Incassato</span>
-                                    <span className="text-salvia">EUR {fmtEUR(totalePagato)}</span>
+                                    <span className="text-salvia">CHF {fmtCHF(totalePagato)}</span>
                                 </div>
                                 {residuo > 0.01 && (
                                     <div className="flex justify-between text-xs font-body">
                                         <span className="text-nebbia/60">Residuo</span>
-                                        <span className="text-amber-400">EUR {fmtEUR(residuo)}</span>
+                                        <span className="text-amber-400">CHF {fmtCHF(residuo)}</span>
                                     </div>
                                 )}
                             </div>
                         )}
 
-                        {(fattura.metodo_pagamento || fattura.iban_pagamento) && (
+                        {(fattura.metodo_pagamento || fattura.iban) && (
                             <div className="pt-3 border-t border-white/10 space-y-1">
                                 <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Pagamento</p>
                                 {fattura.metodo_pagamento && (
                                     <p className="font-body text-xs text-nebbia/60">{fattura.metodo_pagamento}</p>
                                 )}
-                                {fattura.iban_pagamento && (
-                                    <p className="font-body text-xs text-nebbia/60 break-all">IBAN: {fattura.iban_pagamento}</p>
+                                {fattura.iban && (
+                                    <p className="font-body text-xs text-nebbia/60 break-all">IBAN: {fattura.iban}</p>
                                 )}
                             </div>
                         )}
@@ -933,7 +900,7 @@ export default function AvvocatoFatturazioneDettaglio() {
                             <div className="pt-3 border-t border-white/10 flex items-start gap-2">
                                 <Archive size={12} className="text-salvia/70 shrink-0 mt-0.5" />
                                 <p className="font-body text-xs text-salvia/70">
-                                    Questa fattura e' visibile in archivio nella categoria "Fatture".
+                                    Questa fattura è visibile in archivio nella categoria "Fatture".
                                 </p>
                             </div>
                         )}
@@ -950,7 +917,6 @@ export default function AvvocatoFatturazioneDettaglio() {
                     onSuccess={() => { setModalPagamento(false); carica() }}
                 />
             )}
-
             {modalElimina && (
                 <ModalEliminaFattura
                     fattura={fattura}
@@ -958,7 +924,6 @@ export default function AvvocatoFatturazioneDettaglio() {
                     onEliminata={() => navigate('/fatturazione')}
                 />
             )}
-
             {modalScollega && (
                 <ModalScollegaPratica
                     fattura={fattura}
@@ -966,7 +931,6 @@ export default function AvvocatoFatturazioneDettaglio() {
                     onSuccess={() => { setModalScollega(false); carica() }}
                 />
             )}
-
             {modalCollega && (
                 <ModalCollegaPratica
                     fattura={fattura}

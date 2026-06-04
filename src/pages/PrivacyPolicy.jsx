@@ -40,7 +40,7 @@ export default function PrivacyPolicy() {
                     <p className="font-body text-xs text-salvia/60 tracking-[0.3em] uppercase">Informativa legale</p>
                     <h1 className="font-display text-5xl font-light text-nebbia">Privacy Policy</h1>
                     <p className="font-body text-sm text-nebbia/40">
-                        Ultimo aggiornamento: {new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        Ultimo aggiornamento: {new Date().toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                     <div className="bg-slate border border-salvia/15 p-4 flex items-start gap-3">
                         <Shield size={14} className="text-salvia shrink-0 mt-0.5" />

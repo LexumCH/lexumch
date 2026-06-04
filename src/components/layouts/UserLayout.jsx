@@ -40,7 +40,7 @@ export default function UserLayout({ children }) {
 
   // Voce sidebar verifica (nascosta se rejected)
   const verifyItem = isRejected ? null : isUnverified
-    ? { path: '/verifica', label: 'Diventa avvocato', icon: ShieldCheck }
+    ? { path: '/verifica', label: 'Verìficati', icon: ShieldCheck }
     : isPending
       ? { path: '/verifica/stato', label: 'Verifica identità', icon: ShieldCheck, badge: 'In corso', badgeColor: 'amber' }
       : { path: '/verifica/stato', label: 'Verifica identità', icon: ShieldCheck, badge: 'Approvata', badgeColor: 'salvia' }
@@ -49,8 +49,8 @@ export default function UserLayout({ children }) {
     { path: '/area', label: 'Banca Dati', icon: Home, end: true },
     { path: '/area/ricerche', label: 'Ricerche', icon: Search },
     ...(verifyItem ? [verifyItem] : []),
-    { path: '/area/acquista', label: 'Acquista', icon: CreditCard },
     { path: '/area/assistenza', label: 'Domande?', icon: Headphones },
+    { path: '/area/acquista', label: 'Acquista', icon: CreditCard },
     { path: '/area/profilo', label: 'Profilo', icon: User },
   ]
 

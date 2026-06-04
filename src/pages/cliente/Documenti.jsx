@@ -146,7 +146,7 @@ export default function ClienteDocumenti() {
                                             <Badge label={d.caricato_da === 'avvocato' ? 'Studio' : 'Tu'} variant={d.caricato_da === 'avvocato' ? 'oro' : 'salvia'} />
                                         </td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
-                                            {new Date(d.created_at).toLocaleDateString('it-IT')}
+                                            {new Date(d.created_at).toLocaleDateString('it-CH')}
                                         </td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/40">{formatSize(d.dimensione)}</td>
                                         <td className="px-4 py-3 text-right">

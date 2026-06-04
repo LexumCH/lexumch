@@ -447,10 +447,10 @@ export function AvvocatoAssistenza() {
                                                 </td>
                                             )}
                                             <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">
-                                                {new Date(t.created_at).toLocaleDateString('it-IT')}
+                                                {new Date(t.created_at).toLocaleDateString('it-CH')}
                                             </td>
                                             <td className="px-4 py-3 font-body text-xs text-nebbia/30 whitespace-nowrap">
-                                                {new Date(t.updated_at).toLocaleDateString('it-IT')}
+                                                {new Date(t.updated_at).toLocaleDateString('it-CH')}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <Badge label={t.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={t.stato === 'aperto' ? 'salvia' : 'gray'} />
@@ -641,7 +641,7 @@ export function AvvocatoAssistenzaDettaglio() {
                 <div>
                     <p className="section-label mb-2">{isLexum ? 'Supporto Lexum' : 'Ticket cliente'} · #{ticket.id.slice(0, 8)}</p>
                     <h1 className="font-display text-3xl font-light text-nebbia">{ticket.oggetto}</h1>
-                    <p className="font-body text-xs text-nebbia/30 mt-1">{mittente} · {new Date(ticket.created_at).toLocaleDateString('it-IT')}</p>
+                    <p className="font-body text-xs text-nebbia/30 mt-1">{mittente} · {new Date(ticket.created_at).toLocaleDateString('it-CH')}</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                     <Badge label={ticket.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={ticket.stato === 'aperto' ? 'salvia' : 'gray'} />
@@ -674,7 +674,7 @@ export function AvvocatoAssistenzaDettaglio() {
                                 <p className={`font-body text-[10px] font-medium ${isMio ? 'text-oro/60' : 'text-nebbia/40'}`}>{nomeAutore}</p>
                                 <p className="font-body text-sm text-nebbia leading-relaxed whitespace-pre-wrap">{m.testo}</p>
                                 <p className="font-body text-[10px] text-nebbia/25">
-                                    {new Date(m.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    {new Date(m.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                 </p>
                             </div>
                         </div>

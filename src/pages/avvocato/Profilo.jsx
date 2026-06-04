@@ -389,7 +389,7 @@ export default function AvvocatoProfilo() {
                             </p>
                             {pianoDati.scadenza && (
                                 <p className={`font-body text-xs mt-0.5 ${scaduto ? 'text-red-400' : 'text-nebbia/40'}`}>
-                                    {scaduto ? 'Scaduto' : `Scade il ${new Date(pianoDati.scadenza).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}`}
+                                    {scaduto ? 'Scaduto' : `Scade il ${new Date(pianoDati.scadenza).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}`}
                                 </p>
                             )}
                         </div>
@@ -466,7 +466,7 @@ export default function AvvocatoProfilo() {
                         </p>
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
                             {mfaAttivo
-                                ? `Attiva dal ${new Date(mfaAttivatoAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}. Al login ti verra chiesto un codice dall'app autenticatore.`
+                                ? `Attiva dal ${new Date(mfaAttivatoAt).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}. Al login ti verra chiesto un codice dall'app autenticatore.`
                                 : 'Proteggi il tuo account con un codice generato da app come Google Authenticator, Authy o 1Password.'
                             }
                         </p>

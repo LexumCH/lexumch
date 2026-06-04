@@ -318,7 +318,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                 <div className="space-y-3">
                     <p className="section-label">Aggiungi accessi</p>
                     <p className="font-body text-xs text-nebbia/40">
-                        La scadenza segue il piano attuale{scadenzaAttuale ? ` (${new Date(scadenzaAttuale).toLocaleDateString('it-IT')})` : ''}.
+                        La scadenza segue il piano attuale{scadenzaAttuale ? ` (${new Date(scadenzaAttuale).toLocaleDateString('it-CH')})` : ''}.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {addons.map(a => (
@@ -342,7 +342,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                 <div className="space-y-3">
                     <p className="section-label">Aggiungi capacità clienti</p>
                     <p className="font-body text-xs text-nebbia/40">
-                        Alza il limite di clienti registrabili nel tuo studio. La scadenza segue il piano attuale{scadenzaAttuale ? ` (${new Date(scadenzaAttuale).toLocaleDateString('it-IT')})` : ''} — pagamento pro-rata sui mesi residui.
+                        Alza il limite di clienti registrabili nel tuo studio. La scadenza segue il piano attuale{scadenzaAttuale ? ` (${new Date(scadenzaAttuale).toLocaleDateString('it-CH')})` : ''} — pagamento pro-rata sui mesi residui.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {clientiAddons.map(c => (
@@ -519,7 +519,7 @@ function StoricoTransazioni({ meId, includiSentenze = false }) {
                                     {parseFloat(s.importo ?? 0) === 0 ? '—' : `€ ${parseFloat(s.importo).toFixed(2)}`}
                                 </td>
                                 <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
-                                    {new Date(s.created_at).toLocaleDateString('it-IT')}
+                                    {new Date(s.created_at).toLocaleDateString('it-CH')}
                                 </td>
                                 <td className="px-4 py-3">
                                     {(() => {
@@ -807,7 +807,7 @@ export default function AvvocatoStudio() {
                             tone="warning"
                             icon={AlertTriangle}
                             titolo={`Abbonamento in scadenza tra ${giorni} giorni`}
-                            descrizione={profilo?.abbonamento_scadenza ? `Scadenza: ${new Date(profilo.abbonamento_scadenza).toLocaleDateString('it-IT')}` : null}
+                            descrizione={profilo?.abbonamento_scadenza ? `Scadenza: ${new Date(profilo.abbonamento_scadenza).toLocaleDateString('it-CH')}` : null}
                             ctaLabel="Rinnova"
                             onCta={() => setTab('acquista')}
                         />
@@ -862,7 +862,7 @@ export default function AvvocatoStudio() {
                             icon={Clock}
                             titolo={`${topupInScadenza.length === 1 ? 'Pacchetto storage in scadenza' : `${topupInScadenza.length} pacchetti storage in scadenza`}`}
                             descrizione={topupInScadenza.map(t =>
-                                `${t.gb} GB scade il ${new Date(t.periodo_fine).toLocaleDateString('it-IT')}`
+                                `${t.gb} GB scade il ${new Date(t.periodo_fine).toLocaleDateString('it-CH')}`
                             ).join(' · ')}
                             ctaLabel="Rinnova"
                             onCta={() => setTab('acquista')}
@@ -929,7 +929,7 @@ export default function AvvocatoStudio() {
                         )}
                         <StatCard
                             label="Scadenza"
-                            value={profilo?.abbonamento_scadenza ? new Date(profilo.abbonamento_scadenza).toLocaleDateString('it-IT') : '—'}
+                            value={profilo?.abbonamento_scadenza ? new Date(profilo.abbonamento_scadenza).toLocaleDateString('it-CH') : '—'}
                             colorClass={inScadenza || inGrazia || pianoScaduto ? 'text-amber-400' : 'text-nebbia/60'}
                         />
                     </div>
@@ -994,7 +994,7 @@ export default function AvvocatoStudio() {
                             <div className="space-y-0">
                                 {[
                                     ['Piano', profilo?.abbonamento_tipo ?? '—'],
-                                    ['Scadenza', profilo?.abbonamento_scadenza ? new Date(profilo.abbonamento_scadenza).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'],
+                                    ['Scadenza', profilo?.abbonamento_scadenza ? new Date(profilo.abbonamento_scadenza).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'],
                                     ['Accessi', `${postiUsati} / ${postiAcquistati}`],
                                     ['Clienti registrati', clienti.limite_totale > 0
                                         ? `${clienti.conteggio} su ${clienti.limite_totale} (${clienti.limite_piano} piano · ${clienti.limite_extra} extra)`

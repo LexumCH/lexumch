@@ -6,30 +6,111 @@ import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import {
     Tag, Search, Loader2, BookOpen, Sparkles, Landmark, ScrollText,
     Trash2, X, ExternalLink, MessageSquare, ArrowLeft, AlertCircle,
-    FolderOpen, Save, Check, Plus
+    FolderOpen, Save, Check, Plus, FileText, MapPin, Globe, Scale,
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
-
-import { FileText } from 'lucide-react'  // ← aggiungilo all'import generale lucide-react in alto
 
 const TIPI = [
     { id: 'tutti', label: 'Tutti', icon: Tag },
     { id: 'ricerca_ai', label: 'Ricerche', icon: Sparkles },
-    { id: 'norma', label: 'Norme', icon: BookOpen },
-    { id: 'sentenza', label: 'Sentenze', icon: Landmark },
+    { id: 'norma_federale', label: 'Norme fed.', icon: Landmark },
+    { id: 'norma_cantonale', label: 'Norme cant.', icon: MapPin },
+    { id: 'norma_ue', label: 'Norme UE', icon: Globe },
+    { id: 'giurisprudenza', label: 'Giurisprudenza', icon: Scale },
+    { id: 'sentenza_ue', label: 'Sentenze UE', icon: Globe },
     { id: 'prassi', label: 'Prassi', icon: ScrollText },
-    { id: 'archivio_documento', label: 'Archivio', icon: FileText },
 ]
 
 const TIPI_RICERCA = ['ricerca_ai', 'ricerca_manuale', 'chat_lex']
+
+// ── Risoluzione multilingua (replicata dalle pagine dettaglio CH) ──
+const ORDINE_LINGUE = ['it', 'de', 'fr', 'en', 'rm']
+
+function risolviJsonb(campo, linguaPref) {
+    if (campo && typeof campo === 'object') {
+        if (linguaPref && campo[linguaPref]) return campo[linguaPref]
+        for (const k of ORDINE_LINGUE) if (campo[k]) return campo[k]
+    }
+    return null
+}
+
+function risolviTitoloGiur(s, linguaPref) {
+    const ordine = [linguaPref, 'it', 'de', 'fr'].filter(Boolean)
+    for (const l of ordine) {
+        const v = s[`titolo_${l}`]
+        if (v && v.trim()) return v
+    }
+    return s.signature ?? s.reference ?? '—'
+}
+
+const FONTI_FEDERALI = {
+    TF: 'Tribunale federale',
+    CH_BGE: 'DTF — Raccolta ufficiale',
+    TAF: 'Tribunale amministrativo federale',
+    TPF: 'Tribunale penale federale',
+}
+const CAMERA_LABEL = {
+    OG: 'Obergericht',
+    VG: 'Verwaltungsgericht',
+    SVG: 'Sozialversicherungsgericht',
+    BR: 'Baurekursgericht',
+    SR: 'Steuerrekursgericht',
+    FI: 'Tribunal',
+}
+function labelFonteGiur(fonte) {
+    if (!fonte) return '—'
+    if (FONTI_FEDERALI[fonte]) return FONTI_FEDERALI[fonte]
+    const m = /^CANT_([A-Z]{2})_(.+)$/.exec(fonte)
+    if (m) {
+        const cam = CAMERA_LABEL[m[2]] ?? m[2]
+        return `${m[1]} · ${cam}`
+    }
+    return fonte
+}
+
+const EMITTENTI_FEDERALI = {
+    estv: 'AFC — Contribuzioni federali',
+    ufas: 'UFAS — Assicurazioni sociali',
+    seco: 'SECO — Economia',
+    finma: 'FINMA — Vigilanza finanziaria',
+    udsc: 'UDSC — Dogane',
+    sem: 'SEM — Migrazione',
+    ufg: 'UFG — Giustizia',
+    weko: 'COMCO — Concorrenza',
+    ifpdt: 'IFPDT — Protezione dati',
+    mros: 'MROS — Riciclaggio',
+}
+function troncaEmittente(nome) {
+    if (!nome) return ''
+    const primo = nome.split(/[\/|;]/)[0].trim()
+    return primo.length > 60 ? primo.slice(0, 60) + '…' : primo
+}
+function labelFontePrassi(p) {
+    if (p.fonte === 'fisco_cant') {
+        return p.cantone ? `Fisco cantonale · ${p.cantone}` : 'Fisco cantonale'
+    }
+    return EMITTENTI_FEDERALI[p.fonte] ?? (p.emittente_nome ? troncaEmittente(p.emittente_nome) : (p.fonte ?? '—'))
+}
+
+function linkCorpus(kind, id, basePathBancaDati) {
+    if (kind === 'norma_federale') return `${basePathBancaDati}/norma-federale/${id}`
+    if (kind === 'norma_cantonale') return `${basePathBancaDati}/norma-cantonale/${id}`
+    if (kind === 'norma_ue') return `${basePathBancaDati}/norma-ue/${id}`
+    if (kind === 'giurisprudenza') return `${basePathBancaDati}/sentenza-ch/${id}`
+    if (kind === 'sentenza_ue') return `${basePathBancaDati}/sentenza-ue/${id}`
+    if (kind === 'prassi') return `${basePathBancaDati}/prassi-ch/${id}`
+    return null
+}
 
 export default function EtichettaDettaglio() {
     const { id } = useParams()
     const navigate = useNavigate()
     const { profile } = useAuth()
 
-    const basePathRicerche = profile?.role === 'avvocato' ? '/ricerche' : '/area/ricerche'
-    const basePathBancaDati = profile?.role === 'avvocato' ? '/banca-dati' : '/area'
+    const isPro = profile?.role === 'avvocato' || profile?.role === 'fiduciario'
+    const basePathRicerche = isPro ? '/ricerche' : '/area/ricerche'
+    const basePathBancaDati = isPro ? '/banca-dati' : '/area'
+    const linguaPref = (profile?.lingua ?? 'it')
 
     const [etichetta, setEtichetta] = useState(null)
     const [contenuti, setContenuti] = useState([])
@@ -87,7 +168,7 @@ export default function EtichettaDettaglio() {
             setPratiche(prat ?? [])
             setEtichetteUtente(tutteEt ?? [])
 
-            const arricchiti = await Promise.all((rels ?? []).map(arricchisciContenuto))
+            const arricchiti = await Promise.all((rels ?? []).map(rel => arricchisciContenuto(rel, linguaPref)))
             setContenuti(arricchiti.filter(Boolean))
         } catch (e) {
             setErrore(e.message)
@@ -96,7 +177,7 @@ export default function EtichettaDettaglio() {
         }
     }
 
-    async function arricchisciContenuto(rel) {
+    async function arricchisciContenuto(rel, lingua) {
         try {
             if (TIPI_RICERCA.includes(rel.tipo)) {
                 const { data } = await supabase
@@ -107,41 +188,101 @@ export default function EtichettaDettaglio() {
                 return data ? { ...rel, dati: data, kindFiltro: 'ricerca_ai' } : null
             }
 
-            if (rel.tipo === 'norma') {
-                const { data } = await supabase
-                    .from('norme')
-                    .select('id, codice, articolo, rubrica, testo')
+            if (rel.tipo === 'norma_federale') {
+                const { data: art } = await supabase
+                    .from('norme_ch_articoli')
+                    .select('id, norma_id, articolo_label, rubrica_articolo, testo')
                     .eq('id', rel.elemento_id).maybeSingle()
-                return data ? { ...rel, dati: data, kindFiltro: 'norma' } : null
+                if (!art) return null
+                let attoTit = ''
+                if (art.norma_id) {
+                    const { data: atto } = await supabase
+                        .from('norme_ch')
+                        .select('titolo, titolo_short, rs_numero')
+                        .eq('id', art.norma_id).maybeSingle()
+                    if (atto) attoTit = risolviJsonb(atto.titolo_short, lingua) || risolviJsonb(atto.titolo, lingua) || atto.rs_numero || ''
+                }
+                return { ...rel, dati: { ...art, atto_titolo: attoTit }, kindFiltro: 'norma_federale' }
             }
 
-            if (rel.tipo === 'sentenza') {
-                const [{ data: g }, { data: s }] = await Promise.all([
-                    supabase.from('giurisprudenza')
-                        .select('id, oggetto, organo, sezione, numero, anno, data_pubblicazione, principio_diritto, tipo_provvedimento')
-                        .eq('id', rel.elemento_id).maybeSingle(),
-                    supabase.from('sentenze')
-                        .select('id, oggetto, organo, sezione, numero, anno, data_pubblicazione, principio_diritto, tipo_provvedimento')
-                        .eq('id', rel.elemento_id).maybeSingle(),
-                ])
-                const dati = g ?? s
-                return dati ? { ...rel, dati, fonte_sentenza: g ? 'lexum' : 'avvocato', kindFiltro: 'sentenza' } : null
+            if (rel.tipo === 'norma_cantonale') {
+                const { data: art } = await supabase
+                    .from('norme_cantonali_ch_articoli')
+                    .select('id, norma_id, article_num, article_suffix, rubrica, testo')
+                    .eq('id', rel.elemento_id).maybeSingle()
+                if (!art) return null
+                let attoTit = '', canton = null
+                if (art.norma_id) {
+                    const { data: atto } = await supabase
+                        .from('norme_cantonali_ch')
+                        .select('title, title_by_lang, abbreviation, canton')
+                        .eq('id', art.norma_id).maybeSingle()
+                    if (atto) {
+                        attoTit = risolviJsonb(atto.title_by_lang, lingua) || atto.title || atto.abbreviation || ''
+                        canton = atto.canton ?? null
+                    }
+                }
+                const artLabel = art.article_num ? `Art. ${art.article_num}${art.article_suffix ?? ''}` : null
+                return { ...rel, dati: { ...art, atto_titolo: attoTit, canton, articolo_label: artLabel }, kindFiltro: 'norma_cantonale' }
+            }
+
+            if (rel.tipo === 'norma_ue') {
+                const idNum = Number(rel.elemento_id)
+                const { data } = await supabase
+                    .from('norme_ue')
+                    .select('id, articolo, rubrica, testo, titolo_doc, titolo_breve, celex')
+                    .eq('id', Number.isNaN(idNum) ? rel.elemento_id : idNum).maybeSingle()
+                if (!data) return null
+                const attoTit = data.titolo_breve || data.titolo_doc || data.celex || ''
+                const artLabel = data.articolo ? `Art. ${data.articolo}` : null
+                return { ...rel, dati: { ...data, atto_titolo: attoTit, articolo_label: artLabel }, kindFiltro: 'norma_ue' }
+            }
+
+            if (rel.tipo === 'giurisprudenza') {
+                const { data } = await supabase
+                    .from('giurisprudenza_ch')
+                    .select('id, fonte, camera_codice, signature, reference, anno_deposito, data_decisione, oggetto, principio_diritto, titolo_it, titolo_de, titolo_fr')
+                    .eq('id', rel.elemento_id).maybeSingle()
+                if (!data) return null
+                return {
+                    ...rel,
+                    dati: {
+                        ...data,
+                        organo: labelFonteGiur(data.fonte),
+                        titolo_risolto: risolviTitoloGiur(data, lingua),
+                        numero: data.signature ?? data.reference,
+                        anno: data.anno_deposito,
+                    },
+                    kindFiltro: 'giurisprudenza',
+                }
+            }
+
+            if (rel.tipo === 'sentenza_ue') {
+                const { data } = await supabase
+                    .from('eur_lex')
+                    .select('id, organo, numero_caso, ecli, celex_id, oggetto, parti, data_decisione')
+                    .eq('id', rel.elemento_id).maybeSingle()
+                if (!data) return null
+                return {
+                    ...rel,
+                    dati: {
+                        ...data,
+                        organo: data.organo ?? 'CGUE',
+                        numero: data.numero_caso ?? data.ecli ?? data.celex_id,
+                    },
+                    kindFiltro: 'sentenza_ue',
+                }
             }
 
             if (rel.tipo === 'prassi') {
                 const { data } = await supabase
-                    .from('prassi')
-                    .select('id, fonte, numero, anno, oggetto, sintesi, data_pubblicazione')
+                    .from('prassi_ch')
+                    .select('id, fonte, cantone, emittente_nome, numero, anno, oggetto, titolo, data_emanazione')
                     .eq('id', rel.elemento_id).maybeSingle()
-                return data ? { ...rel, dati: data, kindFiltro: 'prassi' } : null
+                if (!data) return null
+                return { ...rel, dati: { ...data, fonte_label: labelFontePrassi(data) }, kindFiltro: 'prassi' }
             }
-            if (rel.tipo === 'archivio_documento') {
-                const { data } = await supabase
-                    .from('archivio_documenti')
-                    .select('id, titolo, tipo, dimensione, ocr_status, metadati, created_at')
-                    .eq('id', rel.elemento_id).maybeSingle()
-                return data ? { ...rel, dati: data, kindFiltro: 'archivio_documento' } : null
-            }
+
             return null
         } catch (e) {
             return null
@@ -149,7 +290,7 @@ export default function EtichettaDettaglio() {
     }
 
     async function rimuoviContenuto(rel) {
-        if (!confirm('Rimuovere questo elemento dall\'etichetta?\n\nL\'elemento originale (ricerca, sentenza, norma, prassi) non viene cancellato.')) return
+        if (!confirm('Rimuovere questo elemento dall\'etichetta?\n\nL\'elemento originale (ricerca, giurisprudenza, norma, prassi) non viene cancellato.')) return
         setEliminando(rel.id)
         try {
             const { error } = await supabase
@@ -172,18 +313,17 @@ export default function EtichettaDettaglio() {
         if (TIPI_RICERCA.includes(c.tipo)) {
             return ((c.dati.titolo ?? '') + ' ' + (c.dati.contenuto ?? '')).toLowerCase().includes(q)
         }
-        if (c.tipo === 'norma') {
-            return (`${c.dati.articolo} ${c.dati.rubrica ?? ''} ${c.dati.testo ?? ''}`).toLowerCase().includes(q)
+        if (c.tipo === 'norma_federale' || c.tipo === 'norma_cantonale' || c.tipo === 'norma_ue') {
+            return (`${c.dati.atto_titolo ?? ''} ${c.dati.articolo_label ?? ''} ${c.dati.rubrica ?? c.dati.rubrica_articolo ?? ''} ${c.dati.testo ?? ''}`).toLowerCase().includes(q)
         }
-        if (c.tipo === 'sentenza') {
-            return (`${c.dati.oggetto ?? ''} ${c.dati.principio_diritto ?? ''} ${c.dati.organo ?? ''}`).toLowerCase().includes(q)
+        if (c.tipo === 'giurisprudenza') {
+            return (`${c.dati.oggetto ?? ''} ${c.dati.principio_diritto ?? ''} ${c.dati.organo ?? ''} ${c.dati.titolo_risolto ?? ''}`).toLowerCase().includes(q)
+        }
+        if (c.tipo === 'sentenza_ue') {
+            return (`${c.dati.oggetto ?? ''} ${c.dati.parti ?? ''} ${c.dati.organo ?? ''}`).toLowerCase().includes(q)
         }
         if (c.tipo === 'prassi') {
-            return (`${c.dati.oggetto ?? ''} ${c.dati.sintesi ?? ''}`).toLowerCase().includes(q)
-        }
-        if (c.tipo === 'archivio_documento') {
-            const sugg = c.dati.metadati?.suggeriti ?? {}
-            return (`${c.dati.titolo ?? ''} ${sugg.riepilogo ?? ''} ${(sugg.tags ?? []).join(' ')}`).toLowerCase().includes(q)
+            return (`${c.dati.oggetto ?? ''} ${c.dati.titolo ?? ''} ${c.dati.fonte_label ?? ''}`).toLowerCase().includes(q)
         }
         return false
     })
@@ -191,10 +331,12 @@ export default function EtichettaDettaglio() {
     const conteggiPerTipo = {
         tutti: contenuti.length,
         ricerca_ai: contenuti.filter(c => c.kindFiltro === 'ricerca_ai').length,
-        norma: contenuti.filter(c => c.kindFiltro === 'norma').length,
-        sentenza: contenuti.filter(c => c.kindFiltro === 'sentenza').length,
+        norma_federale: contenuti.filter(c => c.kindFiltro === 'norma_federale').length,
+        norma_cantonale: contenuti.filter(c => c.kindFiltro === 'norma_cantonale').length,
+        norma_ue: contenuti.filter(c => c.kindFiltro === 'norma_ue').length,
+        giurisprudenza: contenuti.filter(c => c.kindFiltro === 'giurisprudenza').length,
+        sentenza_ue: contenuti.filter(c => c.kindFiltro === 'sentenza_ue').length,
         prassi: contenuti.filter(c => c.kindFiltro === 'prassi').length,
-        archivio_documento: contenuti.filter(c => c.kindFiltro === 'archivio_documento').length,
     }
 
     if (loading) return (
@@ -231,7 +373,7 @@ export default function EtichettaDettaglio() {
                 <p className="section-label !m-0">Etichetta</p>
                 <h1 className="font-display text-3xl font-light text-nebbia leading-none">{etichetta.nome}</h1>
                 <p className="font-body text-xs text-nebbia/30">
-                    · {contenuti.length} {contenuti.length === 1 ? 'elemento' : 'elementi'} · creata il {new Date(etichetta.created_at).toLocaleDateString('it-IT')}
+                    · {contenuti.length} {contenuti.length === 1 ? 'elemento' : 'elementi'} · creata il {new Date(etichetta.created_at).toLocaleDateString('it-CH')}
                 </p>
             </div>
 
@@ -289,7 +431,7 @@ export default function EtichettaDettaglio() {
                             </p>
                             {contenuti.length === 0 && (
                                 <p className="font-body text-xs text-nebbia/20 mt-2 max-w-sm mx-auto leading-relaxed">
-                                    Per aggiungere contenuti, vai nella banca dati e clicca "Aggiungi a etichetta" su sentenze, norme o prassi. Puoi anche taggare le tue ricerche dalla pagina Ricerche.
+                                    Per aggiungere contenuti, vai nella banca dati e clicca "Aggiungi a etichetta" su giurisprudenza, norme o prassi. Puoi anche taggare le tue ricerche dalla pagina Ricerche.
                                 </p>
                             )}
                         </div>
@@ -329,7 +471,7 @@ export default function EtichettaDettaglio() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// CARD CONTENUTO (invariata)
+// CARD CONTENUTO
 // ═══════════════════════════════════════════════════════════════
 function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleApri, basePathBancaDati, onAggiornata }) {
 
@@ -363,7 +505,7 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                             </p>
                         )}
                         <p className="font-body text-[10px] text-nebbia/25 mt-2">
-                            {new Date(c.dati.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            {new Date(c.dati.created_at).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
@@ -407,21 +549,25 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
         )
     }
 
-    if (c.tipo === 'norma') {
+    // ── Norme (federale / cantonale / UE) ──
+    if (c.tipo === 'norma_federale' || c.tipo === 'norma_cantonale' || c.tipo === 'norma_ue') {
+        const Icon = c.tipo === 'norma_cantonale' ? MapPin : c.tipo === 'norma_ue' ? Globe : Landmark
+        const rubrica = c.dati.rubrica ?? c.dati.rubrica_articolo ?? ''
+        const intestazione = [c.dati.atto_titolo, c.dati.articolo_label].filter(Boolean).join(' · ')
         return (
-            <Link to={`${basePathBancaDati}/norma/${c.dati.id}`}
+            <Link to={linkCorpus(c.tipo, c.dati.id, basePathBancaDati)}
                 className="block bg-slate border border-white/5 hover:border-oro/20 transition-colors p-4 group">
                 <div className="flex items-start gap-3">
-                    <BookOpen size={14} className="text-oro/70 shrink-0 mt-0.5" />
+                    <Icon size={14} className="text-oro/70 shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                             <span className="font-body text-xs text-oro font-medium">
-                                {c.dati.codice?.toUpperCase()} · {c.dati.articolo}
+                                {intestazione || 'Norma'}
                             </span>
                         </div>
-                        {c.dati.rubrica && (
+                        {rubrica && (
                             <p className="font-body text-sm text-nebbia/70 group-hover:text-oro transition-colors leading-snug">
-                                {c.dati.rubrica}
+                                {rubrica}
                             </p>
                         )}
                         {c.dati.testo && (
@@ -443,20 +589,18 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
         )
     }
 
-    if (c.tipo === 'sentenza') {
-        const link = c.fonte_sentenza === 'lexum'
-            ? `${basePathBancaDati}/lexum/${c.dati.id}`
-            : `${basePathBancaDati}/avvocato/${c.dati.id}`
-        const titolo = [c.dati.organo, c.dati.sezione, c.dati.numero && `n. ${c.dati.numero}`, c.dati.anno].filter(Boolean).join(' · ')
+    // ── Giurisprudenza CH ──
+    if (c.tipo === 'giurisprudenza') {
+        const titolo = [c.dati.organo, c.dati.numero && `${c.dati.numero}`, c.dati.anno].filter(Boolean).join(' · ')
         return (
-            <Link to={link}
+            <Link to={linkCorpus(c.tipo, c.dati.id, basePathBancaDati)}
                 className="block bg-slate border border-white/5 hover:border-oro/20 transition-colors p-4 group">
                 <div className="flex items-start gap-3">
-                    <Landmark size={14} className="text-oro/70 shrink-0 mt-0.5" />
+                    <Scale size={14} className="text-oro/70 shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
                         <p className="font-body text-xs text-nebbia/50 mb-1">{titolo}</p>
                         <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors leading-snug">
-                            {c.dati.oggetto ?? 'Sentenza'}
+                            {c.dati.titolo_risolto ?? c.dati.oggetto ?? 'Sentenza'}
                         </p>
                         {c.dati.principio_diritto && (
                             <p className="font-body text-xs text-nebbia/40 mt-1 line-clamp-2 leading-relaxed">
@@ -477,22 +621,54 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
         )
     }
 
-    if (c.tipo === 'prassi') {
+    // ── Sentenze UE (eur_lex) ──
+    if (c.tipo === 'sentenza_ue') {
+        const titolo = [c.dati.organo, c.dati.numero].filter(Boolean).join(' · ')
         return (
-            <Link to={`${basePathBancaDati}/prassi/${c.dati.id}`}
+            <Link to={linkCorpus(c.tipo, c.dati.id, basePathBancaDati)}
+                className="block bg-slate border border-white/5 hover:border-oro/20 transition-colors p-4 group">
+                <div className="flex items-start gap-3">
+                    <Globe size={14} className="text-oro/70 shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                        <p className="font-body text-xs text-nebbia/50 mb-1">{titolo}</p>
+                        <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors leading-snug">
+                            {c.dati.oggetto ?? 'Sentenza UE'}
+                        </p>
+                        {c.dati.parti && (
+                            <p className="font-body text-xs text-nebbia/40 mt-1 line-clamp-2 leading-relaxed">
+                                {c.dati.parti}
+                            </p>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                        <ExternalLink size={11} className="text-nebbia/20 group-hover:text-oro transition-colors" />
+                        <button onClick={(e) => { e.preventDefault(); onRimuovi() }} disabled={eliminando}
+                            className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
+                            title="Rimuovi tag">
+                            {eliminando ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                        </button>
+                    </div>
+                </div>
+            </Link>
+        )
+    }
+
+    // ── Prassi CH ──
+    if (c.tipo === 'prassi') {
+        const intestazione = [c.dati.fonte_label, c.dati.numero && `n. ${c.dati.numero}`, c.dati.anno].filter(Boolean).join(' · ')
+        return (
+            <Link to={linkCorpus(c.tipo, c.dati.id, basePathBancaDati)}
                 className="block bg-slate border border-white/5 hover:border-salvia/20 transition-colors p-4 group">
                 <div className="flex items-start gap-3">
                     <ScrollText size={14} className="text-salvia/70 shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
-                        <p className="font-body text-xs text-nebbia/50 mb-1">
-                            {c.dati.fonte} {c.dati.numero && `· n. ${c.dati.numero}`} {c.dati.anno && `· ${c.dati.anno}`}
-                        </p>
+                        <p className="font-body text-xs text-nebbia/50 mb-1">{intestazione}</p>
                         <p className="font-body text-sm font-medium text-nebbia group-hover:text-salvia transition-colors leading-snug">
-                            {c.dati.oggetto ?? 'Prassi'}
+                            {c.dati.titolo ?? c.dati.oggetto ?? 'Prassi'}
                         </p>
-                        {c.dati.sintesi && (
+                        {c.dati.oggetto && c.dati.titolo && (
                             <p className="font-body text-xs text-nebbia/40 mt-1 line-clamp-2 leading-relaxed">
-                                {c.dati.sintesi}
+                                {c.dati.oggetto}
                             </p>
                         )}
                     </div>
@@ -509,84 +685,60 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
         )
     }
 
-    if (c.tipo === 'archivio_documento') {
-        const sugg = c.dati.metadati?.suggeriti ?? {}
-        const verAuto = c.dati.metadati?.verificato_auto === true
-        return (
-            <Link to={`/archivio?focus=${c.dati.id}`}
-                className="block bg-slate border border-white/5 hover:border-oro/20 transition-colors p-4 group">
-                <div className="flex items-start gap-3">
-                    <FileText size={14} className="text-oro/70 shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors leading-snug truncate">
-                                {c.dati.titolo}
-                            </p>
-                            {sugg.tipo_documento && sugg.tipo_documento !== 'altro' && (
-                                <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/5 border border-salvia/20 text-salvia uppercase tracking-wider shrink-0">
-                                    {sugg.tipo_documento}
-                                </span>
-                            )}
-                            {verAuto && (
-                                <span className="font-body text-[10px] px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 shrink-0">
-                                    Auto
-                                </span>
-                            )}
-                        </div>
-                        {sugg.riepilogo && (
-                            <p className="font-body text-xs text-nebbia/55 leading-relaxed line-clamp-2 mb-1">
-                                {sugg.riepilogo}
-                            </p>
-                        )}
-                        <p className="font-body text-[10px] text-nebbia/30">
-                            Documento d'archivio · {new Date(c.dati.created_at).toLocaleDateString('it-IT')}
-                            {c.dati.dimensione && ` · ${(c.dati.dimensione / 1024).toFixed(0)} KB`}
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                        <ExternalLink size={11} className="text-nebbia/20 group-hover:text-oro transition-colors" />
-                        <button onClick={(e) => { e.preventDefault(); onRimuovi() }} disabled={eliminando}
-                            className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
-                            title="Rimuovi tag">
-                            {eliminando ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
-                        </button>
-                    </div>
-                </div>
-            </Link>
-        )
-    }
-
     return null
 }
 
 // ═══════════════════════════════════════════════════════════════
-// CHAT ETICHETTA — Azioni guidate + textarea libera + streaming
+// CHAT ETICHETTA — Suggerimenti rapidi + textarea libera + streaming
+// I "chip" non inviano un'azione: pre-compilano la textarea con una frase
+// pronta nella lingua dell'avvocato. L'invio è SEMPRE una domanda libera,
+// così il Lead riconosce la lingua dal testo digitato.
 // ═══════════════════════════════════════════════════════════════
 
 const AZIONI_ETICHETTA = [
     {
         id: 'mappa_concettuale',
         emoji: '📊',
-        label: 'Mappa concettuale',
-        descr: 'Riorganizza per temi',
+        label: { it: 'Mappa concettuale', de: 'Konzeptkarte', fr: 'Carte conceptuelle' },
+        descr: { it: 'Riorganizza per temi', de: 'Nach Themen ordnen', fr: 'Réorganiser par thèmes' },
+        prompt: {
+            it: 'Crea una mappa concettuale di questa etichetta, riorganizzando gli elementi per temi principali.',
+            de: 'Erstelle eine Konzeptkarte dieser Etikette und ordne die Elemente nach Hauptthemen.',
+            fr: 'Crée une carte conceptuelle de cette étiquette en réorganisant les éléments par thèmes principaux.',
+        },
     },
     {
         id: 'cosa_ho_ragionato',
         emoji: '🔍',
-        label: 'Cosa ho ragionato',
-        descr: 'Traiettoria del pensiero',
+        label: { it: 'Cosa ho ragionato', de: 'Mein Gedankengang', fr: 'Mon raisonnement' },
+        descr: { it: 'Traiettoria del pensiero', de: 'Verlauf der Überlegung', fr: 'Trajectoire de la réflexion' },
+        prompt: {
+            it: 'Ricostruisci la traiettoria del mio ragionamento attraverso gli elementi di questa etichetta.',
+            de: 'Rekonstruiere den Verlauf meiner Überlegungen anhand der Elemente dieser Etikette.',
+            fr: 'Reconstitue la trajectoire de mon raisonnement à travers les éléments de cette étiquette.',
+        },
     },
     {
         id: 'insight',
         emoji: '💡',
-        label: 'Insight',
-        descr: 'Pattern e connessioni',
+        label: { it: 'Insight', de: 'Erkenntnisse', fr: 'Observations' },
+        descr: { it: 'Pattern e connessioni', de: 'Muster und Verbindungen', fr: 'Motifs et liens' },
+        prompt: {
+            it: 'Trova insight, pattern ricorrenti e connessioni inaspettate tra gli elementi di questa etichetta.',
+            de: 'Finde Erkenntnisse, wiederkehrende Muster und unerwartete Verbindungen zwischen den Elementen dieser Etikette.',
+            fr: 'Trouve des observations, des motifs récurrents et des liens inattendus entre les éléments de cette étiquette.',
+        },
     },
     {
         id: 'stato_arte',
         emoji: '📝',
-        label: 'Stato dell\'arte',
-        descr: 'Memo strutturato',
+        label: { it: 'Stato dell\'arte', de: 'Sachstand', fr: 'État des lieux' },
+        descr: { it: 'Memo strutturato', de: 'Strukturiertes Memo', fr: 'Mémo structuré' },
+        prompt: {
+            it: 'Redigi un memo sullo stato della ricerca giuridica raccolta in questa etichetta: quadro, orientamenti, aree aperte, direzioni operative.',
+            de: 'Verfasse ein Memo zum Stand der in dieser Etikette gesammelten juristischen Recherche: Überblick, Tendenzen, offene Punkte, operative Hinweise.',
+            fr: 'Rédige un mémo sur l\'état de la recherche juridique réunie dans cette étiquette : tableau, orientations, points ouverts, pistes opérationnelles.',
+        },
     },
 ]
 
@@ -637,6 +789,32 @@ const FRASI_ETICHETTA = {
 }
 
 function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSintesiSalvata }) {
+    const { profile } = useAuth()
+    const lang = (profile?.lingua === 'de' || profile?.lingua === 'fr') ? profile.lingua : 'it'
+    const T = {
+        it: {
+            intro: (n) => `Scegli un suggerimento o scrivi una domanda. Lex ragionerà sui ${n} elementi di questa etichetta.`,
+            vuoto: 'Aggiungi elementi all\'etichetta per iniziare a chattare.',
+            placeholderNuova: 'Scrivi una domanda su questa etichetta…',
+            placeholderSegui: 'Approfondisci o nuova domanda…',
+            invia: 'Invia domanda',
+        },
+        de: {
+            intro: (n) => `Wähle einen Vorschlag oder stelle eine Frage. Lex denkt über die ${n} Elemente dieser Etikette nach.`,
+            vuoto: 'Füge der Etikette Elemente hinzu, um den Chat zu starten.',
+            placeholderNuova: 'Stelle eine Frage zu dieser Etikette…',
+            placeholderSegui: 'Vertiefe oder stelle eine neue Frage…',
+            invia: 'Frage senden',
+        },
+        fr: {
+            intro: (n) => `Choisis une suggestion ou pose une question. Lex raisonnera sur les ${n} éléments de cette étiquette.`,
+            vuoto: 'Ajoute des éléments à l\'étiquette pour commencer à discuter.',
+            placeholderNuova: 'Pose une question sur cette étiquette…',
+            placeholderSegui: 'Approfondis ou pose une nouvelle question…',
+            invia: 'Envoyer la question',
+        },
+    }
+    const tt = T[lang]
     const [conversazione, setConversazione] = useState([])
     const [input, setInput] = useState('')
     const [cercando, setCercando] = useState(false)
@@ -754,8 +932,12 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
         eseguiAzioneOLibera({ azione: 'libera', domandaTesto: input.trim() })
     }
 
-    function eseguiAzione(azioneId) {
-        eseguiAzioneOLibera({ azione: azioneId, domandaTesto: input.trim() })
+    // I chip non inviano: riempiono la textarea con la frase pronta nella
+    // lingua dell'avvocato. L'invio resta sempre una domanda libera.
+    function precompilaConSuggerimento(azione) {
+        const meta = AZIONI_ETICHETTA.find(a => a.id === azione)
+        const frase = meta?.prompt?.[lang] ?? meta?.prompt?.it ?? ''
+        if (frase) setInput(frase)
     }
 
     function nuovaSessione() {
@@ -867,13 +1049,13 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
                 <div className="px-4 py-3 space-y-2.5">
                     {conversazione.length === 0 && contenuti.length > 0 && (
                         <p className="font-body text-[11px] text-nebbia/30 leading-relaxed">
-                            Scegli un'azione o scrivi una domanda. Lex ragionerà sui {contenuti.length} elementi di questa etichetta.
+                            {tt.intro(contenuti.length)}
                         </p>
                     )}
 
                     {contenuti.length === 0 ? (
                         <p className="font-body text-[11px] text-nebbia/30 text-center py-4">
-                            Aggiungi elementi all'etichetta per iniziare a chattare.
+                            {tt.vuoto}
                         </p>
                     ) : (
                         <>
@@ -881,17 +1063,17 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
                                 {AZIONI_ETICHETTA.map(a => (
                                     <button
                                         key={a.id}
-                                        onClick={() => eseguiAzione(a.id)}
+                                        onClick={() => precompilaConSuggerimento(a.id)}
                                         disabled={cercando}
                                         className="group flex items-start gap-1.5 p-2 bg-petrolio border border-white/5 hover:border-salvia/30 transition-colors text-left disabled:opacity-40"
                                     >
                                         <span className="text-sm shrink-0 mt-0.5">{a.emoji}</span>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-body text-[11px] font-medium text-nebbia group-hover:text-salvia transition-colors leading-tight">
-                                                {a.label}
+                                                {a.label[lang] ?? a.label.it}
                                             </p>
                                             <p className="font-body text-[10px] text-nebbia/40 mt-0.5 leading-tight">
-                                                {a.descr}
+                                                {a.descr[lang] ?? a.descr.it}
                                             </p>
                                         </div>
                                     </button>
@@ -900,9 +1082,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
 
                             <textarea
                                 rows={2}
-                                placeholder={conversazione.length > 0
-                                    ? 'Approfondisci o nuova domanda...'
-                                    : 'Oppure scrivi una domanda libera...'}
+                                placeholder={conversazione.length > 0 ? tt.placeholderSegui : tt.placeholderNuova}
                                 value={input}
                                 onChange={e => setInput(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) inviaLibera() }}
@@ -921,7 +1101,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
                                 disabled={cercando || !input.trim()}
                                 className="flex items-center justify-center gap-1.5 w-full py-2 bg-salvia/10 border border-salvia/30 text-salvia font-body text-xs hover:bg-salvia/20 transition-colors disabled:opacity-40"
                             >
-                                <Sparkles size={11} /> Invia domanda libera
+                                <Sparkles size={11} /> {tt.invia}
                             </button>
                         </>
                     )}
@@ -1095,37 +1275,32 @@ function LexAnimazioneEtichetta({ azione }) {
 // ═══════════════════════════════════════════════════════════════
 function titoloElementoEt(c) {
     if (TIPI_RICERCA.includes(c.tipo)) return c.dati.titolo ?? '(senza titolo)'
-    if (c.tipo === 'norma') return `${c.dati.codice?.toUpperCase() ?? ''} Art. ${c.dati.articolo}${c.dati.rubrica ? ` — ${c.dati.rubrica}` : ''}`
-    if (c.tipo === 'sentenza') {
-        const parti = [c.dati.organo, c.dati.sezione, c.dati.numero && `n. ${c.dati.numero}`, c.dati.anno].filter(Boolean)
+    if (c.tipo === 'norma_federale' || c.tipo === 'norma_cantonale' || c.tipo === 'norma_ue') {
+        const rubrica = c.dati.rubrica ?? c.dati.rubrica_articolo ?? ''
+        const parti = [c.dati.atto_titolo, c.dati.articolo_label].filter(Boolean)
+        return parti.join(' · ') + (rubrica ? ` — ${rubrica}` : '')
+    }
+    if (c.tipo === 'giurisprudenza') {
+        const parti = [c.dati.organo, c.dati.numero, c.dati.anno].filter(Boolean)
+        return (c.dati.titolo_risolto ? c.dati.titolo_risolto + ' · ' : '') + parti.join(' · ')
+    }
+    if (c.tipo === 'sentenza_ue') {
+        const parti = [c.dati.organo, c.dati.numero].filter(Boolean)
         return parti.join(' · ')
     }
     if (c.tipo === 'prassi') {
-        const parti = [c.dati.fonte, c.dati.numero && `n. ${c.dati.numero}`, c.dati.anno].filter(Boolean)
+        const parti = [c.dati.fonte_label, c.dati.numero && `n. ${c.dati.numero}`, c.dati.anno].filter(Boolean)
         return parti.join(' · ')
-    }
-    if (c.tipo === 'archivio_documento') {
-        const sugg = c.dati.metadati?.suggeriti ?? {}
-        return c.dati.titolo + (sugg.tipo_documento && sugg.tipo_documento !== 'altro' ? ` (${sugg.tipo_documento})` : '')
     }
     return ''
 }
 
 function contenutoElementoEt(c) {
     if (TIPI_RICERCA.includes(c.tipo)) return c.dati.contenuto ?? ''
-    if (c.tipo === 'norma') return c.dati.testo ?? ''
-    if (c.tipo === 'sentenza') return [c.dati.oggetto, c.dati.principio_diritto].filter(Boolean).join('\n\n')
-    if (c.tipo === 'prassi') return [c.dati.oggetto, c.dati.sintesi].filter(Boolean).join('\n\n')
-    if (c.tipo === 'archivio_documento') {
-        const sugg = c.dati.metadati?.suggeriti ?? {}
-        const parti = []
-        if (sugg.riepilogo) parti.push(`Riepilogo: ${sugg.riepilogo}`)
-        if (sugg.tags?.length > 0) parti.push(`Tag: ${sugg.tags.join(', ')}`)
-        if (sugg.soggetti?.length > 0) {
-            parti.push(`Soggetti: ${sugg.soggetti.map(s => s.nome + (s.ruolo ? ` (${s.ruolo})` : '')).join('; ')}`)
-        }
-        return parti.join('\n\n') || '(documento senza riepilogo)'
-    }
+    if (c.tipo === 'norma_federale' || c.tipo === 'norma_cantonale' || c.tipo === 'norma_ue') return c.dati.testo ?? ''
+    if (c.tipo === 'giurisprudenza') return [c.dati.oggetto, c.dati.principio_diritto].filter(Boolean).join('\n\n')
+    if (c.tipo === 'sentenza_ue') return [c.dati.oggetto, c.dati.parti].filter(Boolean).join('\n\n')
+    if (c.tipo === 'prassi') return [c.dati.titolo, c.dati.oggetto].filter(Boolean).join('\n\n')
     return ''
 }
 

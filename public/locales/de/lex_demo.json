@@ -1,0 +1,79 @@
+{
+    "header_label": "Lex AI",
+    "domanda": "Gib mir eine Übersicht zum Mandanten Mario Rossi.",
+    "risposta_segments": [
+        {
+            "type": "strong",
+            "text": "Mario Rossi"
+        },
+        {
+            "type": "text",
+            "text": " ist Mandant seit dem "
+        },
+        {
+            "type": "strong",
+            "text": "14. März 2024"
+        },
+        {
+            "type": "text",
+            "text": ". Er hat 3 Dossiers: 2 geschlossene (Miete und Erbschaft) und ein offenes seit August 2025 zum Zivilprozess in Mietsache."
+        },
+        {
+            "type": "break",
+            "text": ""
+        },
+        {
+            "type": "text",
+            "text": "Sie haben "
+        },
+        {
+            "type": "strong",
+            "text": "CHF 8'450"
+        },
+        {
+            "type": "text",
+            "text": " in Rechnung gestellt und "
+        },
+        {
+            "type": "strong",
+            "text": "CHF 7'350"
+        },
+        {
+            "type": "text",
+            "text": " kassiert. Die Rechnung 2026/041 über "
+        },
+        {
+            "type": "alert",
+            "text": "CHF 1'100 ist seit 42 Tagen überfällig"
+        },
+        {
+            "type": "text",
+            "text": "."
+        },
+        {
+            "type": "break",
+            "text": ""
+        },
+        {
+            "type": "text",
+            "text": "Nächste Termine: Verhandlung am "
+        },
+        {
+            "type": "strong",
+            "text": "28.05.2026"
+        },
+        {
+            "type": "text",
+            "text": " am Zivilgericht Lugano und Termin am 22.05.2026 um 15:00 Uhr."
+        },
+        {
+            "type": "break",
+            "text": ""
+        },
+        {
+            "type": "italic",
+            "text": "Ich empfehle, die Rechnung vor der Verhandlung anzumahnen."
+        }
+    ],
+    "loader_text": "Lex analysiert..."
+}

@@ -29,7 +29,7 @@ function plural(n, sing, plur) {
 }
 
 function fmtEUR(n) {
-  return new Intl.NumberFormat('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n ?? 0)
+  return new Intl.NumberFormat('it-CH', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n ?? 0)
 }
 
 function giorniDa(data) {
@@ -60,14 +60,14 @@ function calcolaRange(preset, customStart, customEnd) {
     case 'mese-corrente': {
       inizio = new Date(oggi.getFullYear(), oggi.getMonth(), 1)
       fine = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0)
-      label = oggi.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
+      label = oggi.toLocaleDateString('it-CH', { month: 'long', year: 'numeric' })
       label = label.charAt(0).toUpperCase() + label.slice(1)
       break
     }
     case 'mese-scorso': {
       inizio = new Date(oggi.getFullYear(), oggi.getMonth() - 1, 1)
       fine = new Date(oggi.getFullYear(), oggi.getMonth(), 0)
-      label = inizio.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
+      label = inizio.toLocaleDateString('it-CH', { month: 'long', year: 'numeric' })
       label = label.charAt(0).toUpperCase() + label.slice(1)
       break
     }
@@ -80,7 +80,7 @@ function calcolaRange(preset, customStart, customEnd) {
     case 'personalizzato': {
       inizio = customStart ? new Date(customStart) : new Date(oggi.getFullYear(), oggi.getMonth(), 1)
       fine = customEnd ? new Date(customEnd) : new Date(oggi)
-      label = `${inizio.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })} - ${fine.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}`
+      label = `${inizio.toLocaleDateString('it-CH', { day: '2-digit', month: 'short' })} - ${fine.toLocaleDateString('it-CH', { day: '2-digit', month: 'short' })}`
       break
     }
     default: {
@@ -619,7 +619,7 @@ export default function AvvocatoDashboard() {
             {eventiOggi.length > 0 && (
               <div className="space-y-0.5">
                 {eventiOggi.map(e => {
-                  const ora = new Date(e.data_inizio).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                  const ora = new Date(e.data_inizio).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })
                   const tipoIcon = e.tipo === 'udienza' ? Scale : e.tipo === 'scadenza' ? AlertTriangle : Calendar
                   const accent = e.tipo === 'scadenza' ? 'red' : e.tipo === 'udienza' ? 'oro' : 'salvia'
                   return (
@@ -746,7 +746,7 @@ export default function AvvocatoDashboard() {
               <div className="space-y-0.5">
                 {messaggi.map(t => {
                   const data = t.ultimo_messaggio_at
-                    ? new Date(t.ultimo_messaggio_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })
+                    ? new Date(t.ultimo_messaggio_at).toLocaleDateString('it-CH', { day: '2-digit', month: 'short' })
                     : null
                   return (
                     <EventoItem

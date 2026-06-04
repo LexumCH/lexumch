@@ -13,7 +13,7 @@ import NuovoTerminePratica from './NuovoTerminePratica'
 
 function fmtData(iso) {
     if (!iso) return ''
-    return new Date(iso).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })
+    return new Date(iso).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function giorniMancanti(dataScadenza) {
@@ -109,8 +109,8 @@ export default function BoxTerminiPratica({ praticaId }) {
                     <button
                         onClick={() => setFiltroStato('in_corso')}
                         className={`pb-2 px-1 font-body text-xs transition-colors border-b-2 ${filtroStato === 'in_corso'
-                                ? 'text-oro border-oro'
-                                : 'text-nebbia/40 hover:text-nebbia/70 border-transparent'
+                            ? 'text-oro border-oro'
+                            : 'text-nebbia/40 hover:text-nebbia/70 border-transparent'
                             }`}
                     >
                         In corso ({terminiInCorso.length})
@@ -118,8 +118,8 @@ export default function BoxTerminiPratica({ praticaId }) {
                     <button
                         onClick={() => setFiltroStato('storico')}
                         className={`pb-2 px-1 font-body text-xs transition-colors border-b-2 ${filtroStato === 'storico'
-                                ? 'text-oro border-oro'
-                                : 'text-nebbia/40 hover:text-nebbia/70 border-transparent'
+                            ? 'text-oro border-oro'
+                            : 'text-nebbia/40 hover:text-nebbia/70 border-transparent'
                             }`}
                     >
                         Storico ({terminiStorico.length})
@@ -161,8 +161,8 @@ export default function BoxTerminiPratica({ praticaId }) {
                             <div
                                 key={t.id}
                                 className={`group p-3 border transition-colors ${isAttivo && badge.critico
-                                        ? 'bg-red-500/[0.03] border-red-500/20'
-                                        : 'bg-petrolio/40 border-white/5 hover:border-white/10'
+                                    ? 'bg-red-500/[0.03] border-red-500/20'
+                                    : 'bg-petrolio/40 border-white/5 hover:border-white/10'
                                     }`}
                             >
                                 <div className="flex items-start gap-3">

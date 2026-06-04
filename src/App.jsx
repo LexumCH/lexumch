@@ -7,9 +7,12 @@ import { Analytics } from '@vercel/analytics/react'
 import { useAuth } from './context/AuthContext'
 import { HelmetProvider } from 'react-helmet-async'
 import Verifica2FA from './pages/auth/Verifica2FA'
+import LanguageWrapper from './components/LanguageWrapper'
+import RootRedirect from './components/RootRedirect'
 
 import AdminLayout from './components/layouts/AdminLayout'
 import AvvocatoLayout from './components/layouts/AvvocatoLayout'
+import FiduciarioLayout from './components/layouts/FiduciarioLayout'
 import ClienteLayout from './components/layouts/ClienteLayout'
 import UserLayout from './components/layouts/UserLayout'
 import Navbar from './components/Navbar'
@@ -18,6 +21,7 @@ import Footer from './components/Footer'
 // ── Vetrina ──
 import Home from './pages/Home'
 import PerAvvocati from '@/pages/PerAvvocati'
+import PerFiduciari from './pages/PerFiduciari'
 import LexAI from '@/pages/LexAI'
 import Contatti from './pages/Contatti'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
@@ -51,7 +55,6 @@ import AvvocatoClientiNuovo from './pages/avvocato/clienti/Nuovo'
 import AvvocatoClientiDettaglio from './pages/avvocato/clienti/Dettaglio'
 import { AvvocatoPratiche, AvvocatoPraticheNuova } from './pages/avvocato/Pratiche'
 import PraticaDettaglio from './pages/avvocato/PraticaDettaglio'
-import { AvvocatoSentenze, AvvocatoSentenzeNuova, AvvocatoSentenzeDettaglio } from './pages/avvocato/Sentenze'
 import AvvocatoStudio from './pages/avvocato/Studio'
 import { AvvocatoAssistenza, AvvocatoAssistenzaNuovo, AvvocatoAssistenzaDettaglio } from './pages/avvocato/Assistenza'
 import AvvocatoProfilo from './pages/avvocato/Profilo'
@@ -60,12 +63,13 @@ import AvvocatoFatturazioneNuova from './pages/avvocato/FatturazioneNuova'
 import AvvocatoFatturazioneDettaglio from './pages/avvocato/FatturazioneDettaglio'
 import AvvocatoCalendar from './pages/avvocato/AvvocatoCalendar'
 import { BancaDati } from './pages/avvocato/BancaDati'
+import MandatoDettaglio from './pages/fiduciario/MandatoDettaglio'
 import Archivio from '@/pages/avvocato/Archivio'
 import ArchivioDettaglio from '@/pages/avvocato/ArchivioDettaglio'
 import SentenzaDettaglio from './pages/avvocato/SentenzaDettaglio'
 import PrassiDettaglio from './pages/avvocato/PrassiDettaglio'
-import SentenzaTributariaDettaglio from './pages/avvocato/SentenzaTributariaDettaglio'
 import { NormaDettaglio } from './pages/avvocato/NormaDettaglio'
+import BancoLavoro from '@/pages/fiduciario/BancoLavoro'
 
 // ── Cliente ──
 import ClientePanoramica from './pages/cliente/Panoramica'
@@ -85,6 +89,7 @@ import EtichettaDettaglio from './pages/user/EtichettaDettaglio'
 import Acquista from './pages/user/Acquista'
 
 import ChatWidget from '@/components/ChatWidget'
+import InCostruzione from './pages/InCostruzione'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30000 } } })
 
@@ -120,6 +125,17 @@ function Adm({ children }) { return <ProtectedRoute roles={['admin']}><AdminLayo
 function Cli({ children }) { return <ProtectedRoute roles={['cliente']}><ClienteLayout>{children}</ClienteLayout></ProtectedRoute> }
 function Usr({ children }) { return <ProtectedRoute roles={['user']}><UserLayout>{children}</UserLayout></ProtectedRoute> }
 
+// ─── Layout dinamico professionista: sceglie il guscio in base al ruolo ───
+function ProLayout({ children }) {
+  const { role } = useAuth()
+  const Layout = role === 'fiduciario' ? FiduciarioLayout : AvvocatoLayout
+  return <Layout>{children}</Layout>
+}
+// Rotte condivise avvocato + fiduciario (pagine adattate/condivise)
+function Pro({ children }) { return <ProtectedRoute roles={['avvocato', 'fiduciario']}><ProLayout>{children}</ProLayout></ProtectedRoute> }
+// Rotte solo fiduciario (banco di lavoro)
+function Fid({ children }) { return <ProtectedRoute roles={['fiduciario']}><FiduciarioLayout>{children}</FiduciarioLayout></ProtectedRoute> }
+
 // ─── Banca dati condivisa user + avvocato ───
 // Il componente BancaDati gestisce internamente la differenza di ruolo
 // (mostra/nasconde pannello pratiche, pulsanti "Aggiungi a pratica", ecc.)
@@ -127,7 +143,16 @@ function BancaDatiSharedUser({ children }) {
   return <ProtectedRoute roles={['user']}><UserLayout>{children}</UserLayout></ProtectedRoute>
 }
 function BancaDatiSharedAvv({ children }) {
-  return <ProtectedRoute roles={['avvocato']}><AvvocatoLayout>{children}</AvvocatoLayout></ProtectedRoute>
+  return <ProtectedRoute roles={['avvocato', 'fiduciario']}><ProLayout>{children}</ProLayout></ProtectedRoute>
+}
+
+// Wrapper vetrina con prefisso :lang
+function Vet({ children }) {
+  return (
+    <LanguageWrapper>
+      <VetrinaLayout>{children}</VetrinaLayout>
+    </LanguageWrapper>
+  )
 }
 
 export default function App() {
@@ -141,14 +166,31 @@ export default function App() {
             <Routes>
 
               {/* ═══════════════════════════════════════════════════════
-                VETRINA (pubblica, tracciata da Vercel Analytics)
-                ═══════════════════════════════════════════════════════ */}
-              <Route path="/" element={<VetrinaLayout><Home /></VetrinaLayout>} />
-              <Route path="/per-avvocati" element={<VetrinaLayout><PerAvvocati /></VetrinaLayout>} />
-              <Route path="/lex-ai" element={<VetrinaLayout><LexAI /></VetrinaLayout>} />
-              <Route path="/contatti" element={<VetrinaLayout><Contatti /></VetrinaLayout>} />
-              <Route path="/privacy" element={<VetrinaLayout><PrivacyPolicy /></VetrinaLayout>} />
-              <Route path="/termini" element={<VetrinaLayout><TerminiServizio /></VetrinaLayout>} />
+    VETRINA (pubblica multilingua, /:lang/*)
+    ═══════════════════════════════════════════════════════ */}
+              {/* Redirect root → lingua giusta */}
+              <Route path="/" element={<RootRedirect />} />
+
+              {/* Vetrina con prefisso lingua */}
+              <Route path="/:lang" element={<Vet><Home /></Vet>} />
+              <Route path="/:lang/avvocati" element={<Vet><PerAvvocati /></Vet>} />
+              <Route path="/:lang/fiduciari" element={<Vet><PerFiduciari /></Vet>} />
+              <Route path="/:lang/lex-ai" element={<Vet><LexAI /></Vet>} />
+              <Route path="/:lang/contatti" element={<Vet><Contatti /></Vet>} />
+              <Route path="/:lang/privacy" element={<Vet><PrivacyPolicy /></Vet>} />
+              <Route path="/:lang/termini" element={<Vet><TerminiServizio /></Vet>} />
+
+              {/* Retrocompat: vecchie rotte senza prefisso → redirect alla lingua giusta */}
+              <Route path="/avvocati" element={<RootRedirect to="/avvocati" />} />
+              <Route path="/fiduciari" element={<RootRedirect to="/fiduciari" />} />
+              <Route path="/lex-ai" element={<RootRedirect to="/lex-ai" />} />
+              <Route path="/contatti" element={<RootRedirect to="/contatti" />} />
+              <Route path="/privacy" element={<RootRedirect to="/privacy" />} />
+              <Route path="/termini" element={<RootRedirect to="/termini" />} />
+
+              {/* Retrocompat vecchie URL "per-avvocati" / "per-fiduciari" senza prefisso */}
+              <Route path="/per-avvocati" element={<RootRedirect to="/avvocati" />} />
+              <Route path="/per-fiduciari" element={<RootRedirect to="/fiduciari" />} />
 
               {/* ═══════════════════════════════════════════════════════
                 AUTH (tracciato da Vercel Analytics per misurare il funnel)
@@ -191,42 +233,44 @@ export default function App() {
               {/* ═══════════════════════════════════════════════════════
                 AVVOCATO
                 ═══════════════════════════════════════════════════════ */}
-              <Route path="/dashboard" element={<Avv><AvvocatoDashboard /></Avv>} />
-              <Route path="/clienti" element={<Avv><AvvocatoClienti /></Avv>} />
-              <Route path="/clienti/nuovo" element={<Avv><AvvocatoClientiNuovo /></Avv>} />
-              <Route path="/clienti/:id" element={<Avv><AvvocatoClientiDettaglio /></Avv>} />
+              <Route path="/dashboard" element={<Pro><AvvocatoDashboard /></Pro>} />
+              <Route path="/clienti" element={<Pro><AvvocatoClienti /></Pro>} />
+              <Route path="/clienti/nuovo" element={<Pro><AvvocatoClientiNuovo /></Pro>} />
+              <Route path="/clienti/:id" element={<Pro><AvvocatoClientiDettaglio /></Pro>} />
               <Route path="/pratiche" element={<Avv><AvvocatoPratiche /></Avv>} />
               <Route path="/pratiche/nuova" element={<Avv><AvvocatoPraticheNuova /></Avv>} />
               <Route path="/pratiche/:id" element={<Avv><PraticaDettaglio /></Avv>} />
-              <Route path="/calendario" element={<Avv><AvvocatoCalendar /></Avv>} />
-              <Route path="/sentenze" element={<Avv><AvvocatoSentenze /></Avv>} />
-              <Route path="/sentenze/nuova" element={<Avv><AvvocatoSentenzeNuova /></Avv>} />
-              <Route path="/sentenze/:id" element={<Avv><AvvocatoSentenzeDettaglio /></Avv>} />
-              <Route path="/fatturazione" element={<Avv><AvvocatoFatturazione /></Avv>} />
-              <Route path="/fatturazione/nuova" element={<Avv><AvvocatoFatturazioneNuova /></Avv>} />
-              <Route path="/fatturazione/:id" element={<Avv><AvvocatoFatturazioneDettaglio /></Avv>} />
-              <Route path="/assistenza" element={<Avv><AvvocatoAssistenza /></Avv>} />
-              <Route path="/assistenza/nuovo" element={<Avv><AvvocatoAssistenzaNuovo /></Avv>} />
-              <Route path="/assistenza/:id" element={<Avv><AvvocatoAssistenzaDettaglio /></Avv>} />
-              <Route path="/archivio" element={<Avv><Archivio /></Avv>} />
-              <Route path="/archivio/:id" element={<Avv><ArchivioDettaglio /></Avv>} />
-              <Route path="/profilo" element={<Avv><AvvocatoProfilo /></Avv>} />
+              <Route path="/calendario" element={<Pro><AvvocatoCalendar /></Pro>} />
+              <Route path="/fatturazione" element={<Pro><AvvocatoFatturazione /></Pro>} />
+              <Route path="/fatturazione/nuova" element={<Pro><AvvocatoFatturazioneNuova /></Pro>} />
+              <Route path="/fatturazione/:id" element={<Pro><AvvocatoFatturazioneDettaglio /></Pro>} />
+              <Route path="/assistenza" element={<Pro><AvvocatoAssistenza /></Pro>} />
+              <Route path="/assistenza/nuovo" element={<Pro><AvvocatoAssistenzaNuovo /></Pro>} />
+              <Route path="/assistenza/:id" element={<Pro><AvvocatoAssistenzaDettaglio /></Pro>} />
+              <Route path="/archivio" element={<Pro><Archivio /></Pro>} />
+              <Route path="/archivio/:id" element={<Pro><ArchivioDettaglio /></Pro>} />
+              <Route path="/profilo" element={<Pro><AvvocatoProfilo /></Pro>} />
 
-              {/* Ricerche avvocato */}
-              <Route path="/ricerche" element={<Avv><Ricerche /></Avv>} />
-              <Route path="/etichette/:id" element={<Avv><EtichettaDettaglio /></Avv>} />
+              {/* Ricerche (condivise avvocato + fiduciario) */}
+              <Route path="/ricerche" element={<Pro><Ricerche /></Pro>} />
+              <Route path="/etichette/:id" element={<Pro><EtichettaDettaglio /></Pro>} />
+
+              {/* Banco di lavoro (solo fiduciario) — placeholder finché non costruiamo i mandati */}
+              <Route path="/banco-lavoro/:id" element={<Fid><MandatoDettaglio /></Fid>} />
+              <Route path="/banco-lavoro" element={<Fid><BancoLavoro /></Fid>} />
 
               {/* Banca dati avvocato (con pannello pratiche attivo) */}
               <Route path="/banca-dati" element={<BancaDatiSharedAvv><BancaDati /></BancaDatiSharedAvv>} />
-              <Route path="/banca-dati/lexum/:id" element={<BancaDatiSharedAvv><SentenzaDettaglio fonte="lexum" /></BancaDatiSharedAvv>} />
-              <Route path="/banca-dati/avvocato/:id" element={<BancaDatiSharedAvv><SentenzaDettaglio fonte="avvocato" /></BancaDatiSharedAvv>} />
-              <Route path="/banca-dati/prassi/:id" element={<BancaDatiSharedAvv><PrassiDettaglio /></BancaDatiSharedAvv>} />
-              <Route path="/banca-dati/norma/:id" element={<BancaDatiSharedAvv><NormaDettaglio /></BancaDatiSharedAvv>} />
-              <Route path="/banca-dati/tributario/:id" element={<BancaDatiSharedAvv><SentenzaTributariaDettaglio /></BancaDatiSharedAvv>} />
+              <Route path="/banca-dati/norma-federale/:id" element={<BancaDatiSharedAvv><NormaDettaglio /></BancaDatiSharedAvv>} />
+              <Route path="/banca-dati/norma-cantonale/:id" element={<BancaDatiSharedAvv><NormaDettaglio /></BancaDatiSharedAvv>} />
+              <Route path="/banca-dati/norma-ue/:id" element={<BancaDatiSharedAvv><NormaDettaglio /></BancaDatiSharedAvv>} />
+              <Route path="/banca-dati/sentenza-ch/:id" element={<BancaDatiSharedAvv><SentenzaDettaglio fonte="ch" /></BancaDatiSharedAvv>} />
+              <Route path="/banca-dati/sentenza-ue/:id" element={<BancaDatiSharedAvv><SentenzaDettaglio fonte="ue" /></BancaDatiSharedAvv>} />
+              <Route path="/banca-dati/prassi-ch/:id" element={<BancaDatiSharedAvv><PrassiDettaglio /></BancaDatiSharedAvv>} />
 
-              {/* Studio condiviso avvocato + user */}
+              {/* Studio condiviso avvocato + fiduciario + user */}
               <Route path="/studio" element={
-                <ProtectedRoute roles={['avvocato', 'user']}>
+                <ProtectedRoute roles={['avvocato', 'fiduciario', 'user']}>
                   <AvvocatoLayoutOrUser><AvvocatoStudio /></AvvocatoLayoutOrUser>
                 </ProtectedRoute>
               } />
@@ -258,11 +302,12 @@ export default function App() {
               <Route path="/area/profilo" element={<Usr><UserProfilo /></Usr>} />
 
               {/* Banca dati dettagli per user */}
-              <Route path="/area/lexum/:id" element={<Usr><SentenzaDettaglio fonte="lexum" /></Usr>} />
-              <Route path="/area/avvocato/:id" element={<Usr><SentenzaDettaglio fonte="avvocato" /></Usr>} />
-              <Route path="/area/prassi/:id" element={<Usr><PrassiDettaglio /></Usr>} />
-              <Route path="/area/norma/:id" element={<Usr><NormaDettaglio /></Usr>} />
-              <Route path="/area/tributario/:id" element={<Usr><SentenzaTributariaDettaglio /></Usr>} />
+              <Route path="/area/norma-federale/:id" element={<Usr><NormaDettaglio /></Usr>} />
+              <Route path="/area/norma-cantonale/:id" element={<Usr><NormaDettaglio /></Usr>} />
+              <Route path="/area/norma-ue/:id" element={<Usr><NormaDettaglio /></Usr>} />
+              <Route path="/area/sentenza-ch/:id" element={<Usr><SentenzaDettaglio fonte="ch" /></Usr>} />
+              <Route path="/area/sentenza-ue/:id" element={<Usr><SentenzaDettaglio fonte="ue" /></Usr>} />
+              <Route path="/area/prassi-ch/:id" element={<Usr><PrassiDettaglio /></Usr>} />
 
               {/* Verifica identità (per diventare avvocato) */}
               <Route path="/verifica" element={<Usr><UserVerifica /></Usr>} />
@@ -303,7 +348,11 @@ export default function App() {
 // ─── Wrapper per /studio condiviso user/avvocato ───
 function AvvocatoLayoutOrUser({ children }) {
   const { profile } = useAuth()
-  const Layout = profile?.role === 'user' ? UserLayout : AvvocatoLayout
+  const Layout = profile?.role === 'user'
+    ? UserLayout
+    : profile?.role === 'fiduciario'
+      ? FiduciarioLayout
+      : AvvocatoLayout
   return <Layout>{children}</Layout>
 }
 

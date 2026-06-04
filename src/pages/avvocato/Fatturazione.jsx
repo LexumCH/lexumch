@@ -1,4 +1,9 @@
-// src/pages/avvocato/Fatturazione.jsx
+// src/pages/avvocato/Fatturazione.jsx — Lexum CH
+//
+// Clone dell'IT, modello svizzero:
+//   - totale (NON totale_lordo ?? importo); CHF ovunque (KPI, grafico, tabella, scadenzario).
+//   - it-CH per date e formattazione.
+//   - invoke lex-pagamenti (già CH); ModalEliminaFattura da FatturazioneDettaglio (già CH).
 
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
@@ -25,9 +30,9 @@ const STATO_CONFIG = {
 // ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
-function fmtEUR(n) {
+function fmtCHF(n) {
     const v = Number(n ?? 0)
-    return v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    return v.toLocaleString('it-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 function nomeCliente(c) {
@@ -75,51 +80,47 @@ function SortTh({ label, field, sortField, sortDir, onSort }) {
 function TabPanoramica({ fatture, clienti }) {
     const annoCorrente = new Date().getFullYear()
 
-    // KPI
     const fattureAnno = fatture.filter(f =>
         new Date(f.data_emissione).getFullYear() === annoCorrente &&
         f.stato !== 'annullata'
     )
 
-    const totFatturatoAnno = fattureAnno.reduce((s, f) => s + Number(f.totale_lordo ?? f.importo ?? 0), 0)
-    const totIncassatoAnno = fattureAnno.filter(f => f.stato === 'pagata').reduce((s, f) => s + Number(f.totale_lordo ?? f.importo ?? 0), 0)
-    const totDaIncassare = fatture.filter(f => f.stato === 'in_attesa' && !isScaduta(f)).reduce((s, f) => s + Number(f.totale_lordo ?? f.importo ?? 0), 0)
-    const totScaduto = fatture.filter(f => isScaduta(f) || f.stato === 'scaduta').reduce((s, f) => s + Number(f.totale_lordo ?? f.importo ?? 0), 0)
+    const totFatturatoAnno = fattureAnno.reduce((s, f) => s + Number(f.totale ?? 0), 0)
+    const totIncassatoAnno = fattureAnno.filter(f => f.stato === 'pagata').reduce((s, f) => s + Number(f.totale ?? 0), 0)
+    const totDaIncassare = fatture.filter(f => f.stato === 'in_attesa' && !isScaduta(f)).reduce((s, f) => s + Number(f.totale ?? 0), 0)
+    const totScaduto = fatture.filter(f => isScaduta(f) || f.stato === 'scaduta').reduce((s, f) => s + Number(f.totale ?? 0), 0)
 
-    // Top clienti anno
     const perCliente = {}
     for (const f of fattureAnno) {
         const cid = f.cliente?.id ?? 'altro'
         if (!perCliente[cid]) perCliente[cid] = { cliente: f.cliente, totale: 0, fatture: 0 }
-        perCliente[cid].totale += Number(f.totale_lordo ?? f.importo ?? 0)
+        perCliente[cid].totale += Number(f.totale ?? 0)
         perCliente[cid].fatture += 1
     }
     const topClienti = Object.values(perCliente)
         .sort((a, b) => b.totale - a.totale)
         .slice(0, 5)
 
-    // Grafico ultimi 12 mesi
     const meseLabels = []
     const meseDati = []
     for (let i = 11; i >= 0; i--) {
         const d = new Date()
         d.setMonth(d.getMonth() - i)
         const meseKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-        const label = d.toLocaleDateString('it-IT', { month: 'short' }).replace('.', '')
+        const label = d.toLocaleDateString('it-CH', { month: 'short' }).replace('.', '')
         meseLabels.push({ key: meseKey, label, anno: d.getFullYear() })
     }
     for (const m of meseLabels) {
         const emesso = fatture
             .filter(f => f.data_emissione?.startsWith(m.key) && f.stato !== 'annullata')
-            .reduce((s, f) => s + Number(f.totale_lordo ?? f.importo ?? 0), 0)
+            .reduce((s, f) => s + Number(f.totale ?? 0), 0)
         const incassato = fatture
             .filter(f => f.data_pagamento?.startsWith(m.key))
-            .reduce((s, f) => s + Number(f.totale_lordo ?? f.importo ?? 0), 0)
+            .reduce((s, f) => s + Number(f.totale ?? 0), 0)
         meseDati.push({ ...m, emesso, incassato })
     }
     const maxValore = Math.max(1, ...meseDati.map(m => Math.max(m.emesso, m.incassato)))
 
-    // Da incassare urgenti
     const urgenti = fatture
         .filter(f => f.stato === 'in_attesa')
         .map(f => ({ ...f, giorni: giorniScadenza(f) }))
@@ -136,7 +137,7 @@ function TabPanoramica({ fatture, clienti }) {
                         <TrendingUp size={13} className="text-oro/60" />
                         <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Fatturato {annoCorrente}</p>
                     </div>
-                    <p className="font-display text-2xl font-light text-oro">EUR {fmtEUR(totFatturatoAnno)}</p>
+                    <p className="font-display text-2xl font-light text-oro">CHF {fmtCHF(totFatturatoAnno)}</p>
                     <p className="font-body text-xs text-nebbia/30 mt-1">{fattureAnno.length} fatture</p>
                 </div>
 
@@ -145,7 +146,7 @@ function TabPanoramica({ fatture, clienti }) {
                         <Check size={13} className="text-salvia/70" />
                         <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Incassato {annoCorrente}</p>
                     </div>
-                    <p className="font-display text-2xl font-light text-salvia">EUR {fmtEUR(totIncassatoAnno)}</p>
+                    <p className="font-display text-2xl font-light text-salvia">CHF {fmtCHF(totIncassatoAnno)}</p>
                     <p className="font-body text-xs text-nebbia/30 mt-1">
                         {totFatturatoAnno > 0 ? `${Math.round((totIncassatoAnno / totFatturatoAnno) * 100)}% del fatturato` : '—'}
                     </p>
@@ -156,7 +157,7 @@ function TabPanoramica({ fatture, clienti }) {
                         <Clock size={13} className="text-amber-400/70" />
                         <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Da incassare</p>
                     </div>
-                    <p className="font-display text-2xl font-light text-amber-400">EUR {fmtEUR(totDaIncassare)}</p>
+                    <p className="font-display text-2xl font-light text-amber-400">CHF {fmtCHF(totDaIncassare)}</p>
                     <p className="font-body text-xs text-nebbia/30 mt-1">non scadute</p>
                 </div>
 
@@ -166,7 +167,7 @@ function TabPanoramica({ fatture, clienti }) {
                         <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Scaduto</p>
                     </div>
                     <p className={`font-display text-2xl font-light ${totScaduto > 0 ? 'text-red-400' : 'text-nebbia/40'}`}>
-                        EUR {fmtEUR(totScaduto)}
+                        CHF {fmtCHF(totScaduto)}
                     </p>
                     <p className="font-body text-xs text-nebbia/30 mt-1">richiede attenzione</p>
                 </div>
@@ -196,18 +197,14 @@ function TabPanoramica({ fatture, clienti }) {
                         <div key={m.key} className="flex-1 flex flex-col items-center gap-1.5">
                             <div className="w-full flex items-end gap-1 h-36">
                                 <div className="flex-1 flex items-end">
-                                    <div
-                                        className="w-full bg-oro/70 hover:bg-oro transition-colors min-h-[2px]"
+                                    <div className="w-full bg-oro/70 hover:bg-oro transition-colors min-h-[2px]"
                                         style={{ height: `${(m.emesso / maxValore) * 100}%` }}
-                                        title={`Emesso: EUR ${fmtEUR(m.emesso)}`}
-                                    />
+                                        title={`Emesso: CHF ${fmtCHF(m.emesso)}`} />
                                 </div>
                                 <div className="flex-1 flex items-end">
-                                    <div
-                                        className="w-full bg-salvia/70 hover:bg-salvia transition-colors min-h-[2px]"
+                                    <div className="w-full bg-salvia/70 hover:bg-salvia transition-colors min-h-[2px]"
                                         style={{ height: `${(m.incassato / maxValore) * 100}%` }}
-                                        title={`Incassato: EUR ${fmtEUR(m.incassato)}`}
-                                    />
+                                        title={`Incassato: CHF ${fmtCHF(m.incassato)}`} />
                                 </div>
                             </div>
                             <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-wider">{m.label}</p>
@@ -240,7 +237,7 @@ function TabPanoramica({ fatture, clienti }) {
                                                     }
                                                     <span className="font-body text-sm text-nebbia truncate">{nomeCliente(tc.cliente)}</span>
                                                 </div>
-                                                <span className="font-body text-sm font-semibold text-oro shrink-0">EUR {fmtEUR(tc.totale)}</span>
+                                                <span className="font-body text-sm font-semibold text-oro shrink-0">CHF {fmtCHF(tc.totale)}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <div className="flex-1 h-1 bg-petrolio">
@@ -274,18 +271,14 @@ function TabPanoramica({ fatture, clienti }) {
                     ) : (
                         <div className="space-y-2">
                             {urgenti.map(f => (
-                                <Link
-                                    key={f.id}
-                                    to={`/fatturazione/${f.id}`}
-                                    className={`flex items-center justify-between gap-3 p-3 border transition-colors hover:border-oro/30 ${f.giorni < 0 ? 'bg-red-900/10 border-red-500/20' : 'bg-petrolio/40 border-white/5'
-                                        }`}
-                                >
+                                <Link key={f.id} to={`/fatturazione/${f.id}`}
+                                    className={`flex items-center justify-between gap-3 p-3 border transition-colors hover:border-oro/30 ${f.giorni < 0 ? 'bg-red-900/10 border-red-500/20' : 'bg-petrolio/40 border-white/5'}`}>
                                     <div className="min-w-0 flex-1">
                                         <p className="font-body text-sm text-nebbia truncate">{nomeCliente(f.cliente)}</p>
                                         <p className="font-body text-xs text-nebbia/40 mt-0.5">{f.numero}</p>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <p className="font-body text-sm font-semibold text-oro">EUR {fmtEUR(f.totale_lordo ?? f.importo)}</p>
+                                        <p className="font-body text-sm font-semibold text-oro">CHF {fmtCHF(f.totale)}</p>
                                         <p className={`font-body text-xs mt-0.5 ${f.giorni < 0 ? 'text-red-400' : 'text-amber-400'}`}>
                                             {f.giorni < 0 ? `Scaduta ${Math.abs(f.giorni)}g fa` : f.giorni === 0 ? 'Oggi' : `Tra ${f.giorni}g`}
                                         </p>
@@ -304,16 +297,14 @@ function TabPanoramica({ fatture, clienti }) {
 // TAB FATTURE (lista con filtri + Lex search)
 // ─────────────────────────────────────────────────────────────
 function TabFatture({ fatture, clienti, onReload }) {
-    // Search box stile archivio
     const [cerca, setCerca] = useState('')
     const [cercaApplicata, setCercaApplicata] = useState('')
     const [cercando, setCercando] = useState(false)
     const [cercandoLex, setCercandoLex] = useState(false)
-    const [idsLex, setIdsLex] = useState(null) // null = no ricerca attiva
+    const [idsLex, setIdsLex] = useState(null)
     const [ragionamentoLex, setRagionamentoLex] = useState('')
     const [erroreLex, setErroreLex] = useState('')
 
-    // Filtri
     const [statoF, setStatoF] = useState('')
     const [clienteF, setClienteF] = useState('')
     const [annoF, setAnnoF] = useState('')
@@ -323,10 +314,8 @@ function TabFatture({ fatture, clienti, onReload }) {
     const [sortField, setSortField] = useState('data_emissione')
     const [sortDir, setSortDir] = useState('desc')
 
-    // Stato modale eliminazione (riusa ModalEliminaFattura dal Dettaglio)
-    const [eliminando, setEliminando] = useState(null) // fattura object | null
+    const [eliminando, setEliminando] = useState(null)
 
-    // Anni disponibili
     const anniDisp = [...new Set(fatture.map(f => new Date(f.data_emissione).getFullYear()))].sort((a, b) => b - a)
 
     function handleSort(f) {
@@ -335,27 +324,19 @@ function TabFatture({ fatture, clienti, onReload }) {
     }
 
     function azzeraRicerca() {
-        setIdsLex(null)
-        setRagionamentoLex('')
-        setErroreLex('')
-        setCercaApplicata('')
+        setIdsLex(null); setRagionamentoLex(''); setErroreLex(''); setCercaApplicata('')
     }
 
     async function cercaTradizionale() {
         if (!cerca.trim()) return
-        setCercando(true)
-        setIdsLex(null)
-        setRagionamentoLex('')
-        setErroreLex('')
+        setCercando(true); setIdsLex(null); setRagionamentoLex(''); setErroreLex('')
         setCercaApplicata(cerca.trim())
-        setTimeout(() => setCercando(false), 200) // ricerca lato client istantanea
+        setTimeout(() => setCercando(false), 200)
     }
 
     async function cercaConLex() {
         if (!cerca.trim()) return
-        setCercandoLex(true)
-        setErroreLex('')
-        setRagionamentoLex('')
+        setCercandoLex(true); setErroreLex(''); setRagionamentoLex('')
         setCercaApplicata(cerca.trim())
         try {
             const { data, error } = await supabase.functions.invoke('lex-pagamenti', {
@@ -366,8 +347,7 @@ function TabFatture({ fatture, clienti, onReload }) {
             setIdsLex(data.fatture_ids ?? [])
             setRagionamentoLex(data.ragionamento ?? '')
         } catch (err) {
-            setErroreLex(err.message)
-            setIdsLex(null)
+            setErroreLex(err.message); setIdsLex(null)
         } finally {
             setCercandoLex(false)
         }
@@ -375,21 +355,17 @@ function TabFatture({ fatture, clienti, onReload }) {
 
     const inRicerca = cercaApplicata !== ''
 
-    // Applica filtri + ordinamento
     const rows = useMemo(() => {
         let result = fatture
 
-        // Ricerca Lex (vince sui filtri tradizionali se attiva)
         if (idsLex !== null) {
             const set = new Set(idsLex)
             result = result.filter(f => set.has(f.id))
-            // Ordina secondo ranking Lex
             const ordineMap = new Map(idsLex.map((id, i) => [id, i]))
             result = [...result].sort((a, b) => (ordineMap.get(a.id) ?? 999) - (ordineMap.get(b.id) ?? 999))
             return result
         }
 
-        // Ricerca tradizionale per testo
         if (cercaApplicata && idsLex === null) {
             const s = cercaApplicata.toLowerCase()
             result = result.filter(f => {
@@ -401,7 +377,6 @@ function TabFatture({ fatture, clienti, onReload }) {
             })
         }
 
-        // Filtri
         if (statoF) {
             if (statoF === 'scaduta') {
                 result = result.filter(f => f.stato === 'scaduta' || isScaduta(f))
@@ -414,14 +389,13 @@ function TabFatture({ fatture, clienti, onReload }) {
         if (dateFrom) result = result.filter(f => f.data_emissione >= dateFrom)
         if (dateTo) result = result.filter(f => f.data_emissione <= dateTo)
 
-        // Ordinamento
         result = [...result].sort((a, b) => {
             let va = a[sortField], vb = b[sortField]
             if (sortField === 'cliente') {
                 va = nomeCliente(a.cliente); vb = nomeCliente(b.cliente)
             }
-            if (sortField === 'totale_lordo') {
-                va = Number(a.totale_lordo ?? a.importo ?? 0); vb = Number(b.totale_lordo ?? b.importo ?? 0)
+            if (sortField === 'totale') {
+                va = Number(a.totale ?? 0); vb = Number(b.totale ?? 0)
             }
             va = va ?? ''; vb = vb ?? ''
             if (typeof va === 'string') va = va.toLowerCase()
@@ -438,7 +412,7 @@ function TabFatture({ fatture, clienti, onReload }) {
 
     return (
         <div className="space-y-4">
-            {/* Box ricerca stile archivio */}
+            {/* Box ricerca */}
             <div className="bg-slate border border-white/5 p-4 space-y-3">
                 <p className="font-body text-xs text-nebbia/40 leading-relaxed">
                     Cerca tra le fatture per numero, cliente o descrizione. Usa Lex per domande in linguaggio naturale come "fatture scadute dei clienti aziendali" o "quanto ho incassato da Rossi quest'anno".
@@ -447,10 +421,7 @@ function TabFatture({ fatture, clienti, onReload }) {
                 <div className="flex items-stretch gap-2">
                     <div className="relative flex-1">
                         <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30 pointer-events-none" />
-                        <input
-                            type="text"
-                            placeholder="Cerca o chiedi a Lex..."
-                            value={cerca}
+                        <input type="text" placeholder="Cerca o chiedi a Lex..." value={cerca}
                             onChange={e => {
                                 setCerca(e.target.value)
                                 if (e.target.value.trim() === '' && inRicerca) azzeraRicerca()
@@ -459,34 +430,22 @@ function TabFatture({ fatture, clienti, onReload }) {
                                 if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) cercaConLex()
                                 else if (e.key === 'Enter') { e.preventDefault(); cercaTradizionale() }
                             }}
-                            className="w-full h-[38px] bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-9 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
-                        />
+                            className="w-full h-[38px] bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-9 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
                         {cerca && (
-                            <button
-                                onClick={() => { setCerca(''); azzeraRicerca() }}
-                                className="absolute top-1/2 -translate-y-1/2 right-2 text-nebbia/30 hover:text-nebbia p-1"
-                            >
+                            <button onClick={() => { setCerca(''); azzeraRicerca() }}
+                                className="absolute top-1/2 -translate-y-1/2 right-2 text-nebbia/30 hover:text-nebbia p-1">
                                 <X size={13} />
                             </button>
                         )}
                     </div>
 
-                    <button
-                        onClick={cercaTradizionale}
-                        disabled={cercando || cercandoLex || !cerca.trim()}
-                        className="flex items-center justify-center gap-2 px-4 h-[38px] bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
-                    >
-                        {cercando
-                            ? <Loader2 size={13} className="animate-spin" />
-                            : <><Search size={13} /> Cerca</>
-                        }
+                    <button onClick={cercaTradizionale} disabled={cercando || cercandoLex || !cerca.trim()}
+                        className="flex items-center justify-center gap-2 px-4 h-[38px] bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
+                        {cercando ? <Loader2 size={13} className="animate-spin" /> : <><Search size={13} /> Cerca</>}
                     </button>
 
-                    <button
-                        onClick={cercaConLex}
-                        disabled={cercando || cercandoLex || !cerca.trim()}
-                        className="flex items-center justify-center gap-2 px-4 h-[38px] bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
-                    >
+                    <button onClick={cercaConLex} disabled={cercando || cercandoLex || !cerca.trim()}
+                        className="flex items-center justify-center gap-2 px-4 h-[38px] bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
                         {cercandoLex
                             ? <><Loader2 size={13} className="animate-spin" /> <span className="hidden md:inline">Lex sta cercando...</span></>
                             : <><Sparkles size={13} /> <span className="hidden md:inline">Cerca con Lex</span><span className="md:hidden">Lex</span></>
@@ -515,10 +474,8 @@ function TabFatture({ fatture, clienti, onReload }) {
                         <p className="font-body text-xs text-salvia">
                             <strong>{rows.length}</strong> {rows.length === 1 ? 'risultato' : 'risultati'} per "{cercaApplicata}"
                         </p>
-                        <button
-                            onClick={azzeraRicerca}
-                            className="flex items-center gap-1 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors"
-                        >
+                        <button onClick={azzeraRicerca}
+                            className="flex items-center gap-1 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors">
                             <X size={11} /> Azzera
                         </button>
                     </div>
@@ -559,12 +516,10 @@ function TabFatture({ fatture, clienti, onReload }) {
 
                 <div className="flex items-center gap-1">
                     <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                        className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40"
-                        title="Da" />
+                        className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40" title="Da" />
                     <span className="font-body text-xs text-nebbia/30">→</span>
                     <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                        className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40"
-                        title="A" />
+                        className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40" title="A" />
                 </div>
 
                 {hasFilters && (
@@ -583,7 +538,7 @@ function TabFatture({ fatture, clienti, onReload }) {
                             <SortTh label="Numero" field="numero" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                             <SortTh label="Cliente" field="cliente" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                             <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Pratica</th>
-                            <SortTh label="Totale" field="totale_lordo" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                            <SortTh label="Totale" field="totale" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                             <SortTh label="Emessa il" field="data_emissione" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                             <SortTh label="Scadenza" field="data_scadenza" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                             <SortTh label="Stato" field="stato" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
@@ -616,27 +571,24 @@ function TabFatture({ fatture, clienti, onReload }) {
                                         </div>
                                     </td>
                                     <td className="px-4 py-3 font-body text-xs text-nebbia/50 max-w-xs truncate">{f.pratica?.titolo ?? '—'}</td>
-                                    <td className="px-4 py-3 font-body text-sm font-semibold text-oro whitespace-nowrap">EUR {fmtEUR(f.totale_lordo ?? f.importo)}</td>
-                                    <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">{f.data_emissione ? new Date(f.data_emissione).toLocaleDateString('it-IT') : '—'}</td>
-                                    <td className={`px-4 py-3 font-body text-xs whitespace-nowrap ${f.stato === 'pagata' ? 'text-salvia' : sc_scaduta ? 'text-red-400' : 'text-nebbia/50'
-                                        }`}>
+                                    <td className="px-4 py-3 font-body text-sm font-semibold text-oro whitespace-nowrap">CHF {fmtCHF(f.totale)}</td>
+                                    <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">{f.data_emissione ? new Date(f.data_emissione).toLocaleDateString('it-CH') : '—'}</td>
+                                    <td className={`px-4 py-3 font-body text-xs whitespace-nowrap ${f.stato === 'pagata' ? 'text-salvia' : sc_scaduta ? 'text-red-400' : 'text-nebbia/50'}`}>
                                         {f.stato === 'pagata' && f.data_pagamento
-                                            ? `Pagata ${new Date(f.data_pagamento).toLocaleDateString('it-IT')}`
+                                            ? `Pagata ${new Date(f.data_pagamento).toLocaleDateString('it-CH')}`
                                             : f.stato === 'pagata'
                                                 ? 'Pagata'
                                                 : f.data_scadenza
-                                                    ? new Date(f.data_scadenza).toLocaleDateString('it-IT')
+                                                    ? new Date(f.data_scadenza).toLocaleDateString('it-CH')
                                                     : '—'}
                                     </td>
                                     <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             {f.stato !== 'pagata' && (
-                                                <button
-                                                    onClick={(e) => { e.preventDefault(); setEliminando(f); }}
+                                                <button onClick={(e) => { e.preventDefault(); setEliminando(f); }}
                                                     title="Elimina fattura"
-                                                    className="inline-flex items-center justify-center w-7 h-7 text-nebbia/20 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                                >
+                                                    className="inline-flex items-center justify-center w-7 h-7 text-nebbia/20 hover:text-red-400 hover:bg-red-500/10 transition-colors">
                                                     <Trash2 size={12} />
                                                 </button>
                                             )}
@@ -652,15 +604,11 @@ function TabFatture({ fatture, clienti, onReload }) {
                 </table>
             </div>
 
-            {/* Modal eliminazione centralizzato (usa edge function elimina-fattura) */}
             {eliminando && (
                 <ModalEliminaFattura
                     fattura={eliminando}
                     onClose={() => setEliminando(null)}
-                    onEliminata={() => {
-                        setEliminando(null)
-                        onReload()
-                    }}
+                    onEliminata={() => { setEliminando(null); onReload() }}
                 />
             )}
         </div>
@@ -686,7 +634,7 @@ function TabScadenzario({ fatture }) {
 
     function Sezione({ titolo, lista, variant }) {
         if (lista.length === 0) return null
-        const totale = lista.reduce((s, f) => s + Number(f.totale_lordo ?? f.importo ?? 0), 0)
+        const totale = lista.reduce((s, f) => s + Number(f.totale ?? 0), 0)
         const colorVariant = {
             red: 'border-red-500/30 bg-red-900/10',
             amber: 'border-amber-400/30 bg-amber-400/5',
@@ -704,23 +652,20 @@ function TabScadenzario({ fatture }) {
                     <p className={`section-label !m-0 ${textColor[variant]} !text-current`}>{titolo}</p>
                     <div className="flex items-center gap-3">
                         <span className="font-body text-xs text-nebbia/40">{lista.length} {lista.length === 1 ? 'fattura' : 'fatture'}</span>
-                        <span className={`font-body text-sm font-semibold ${textColor[variant]}`}>EUR {fmtEUR(totale)}</span>
+                        <span className={`font-body text-sm font-semibold ${textColor[variant]}`}>CHF {fmtCHF(totale)}</span>
                     </div>
                 </div>
 
                 <div className="space-y-2">
                     {lista.map(f => (
-                        <Link
-                            key={f.id}
-                            to={`/fatturazione/${f.id}`}
-                            className="flex items-center justify-between gap-3 p-3 bg-petrolio/40 border border-white/5 hover:border-oro/30 transition-colors"
-                        >
+                        <Link key={f.id} to={`/fatturazione/${f.id}`}
+                            className="flex items-center justify-between gap-3 p-3 bg-petrolio/40 border border-white/5 hover:border-oro/30 transition-colors">
                             <div className="flex items-center gap-3 min-w-0 flex-1">
                                 <Calendar size={13} className={`shrink-0 ${textColor[variant]}`} />
                                 <div className="min-w-0 flex-1">
                                     <p className="font-body text-sm text-nebbia truncate">{nomeCliente(f.cliente)}</p>
                                     <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                        {f.numero} · {new Date(f.data_scadenza).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                        {f.numero} · {new Date(f.data_scadenza).toLocaleDateString('it-CH', { day: '2-digit', month: 'long', year: 'numeric' })}
                                     </p>
                                 </div>
                             </div>
@@ -728,7 +673,7 @@ function TabScadenzario({ fatture }) {
                                 <span className={`font-body text-xs ${textColor[variant]}`}>
                                     {f.giorni < 0 ? `${Math.abs(f.giorni)}g fa` : f.giorni === 0 ? 'Oggi' : `tra ${f.giorni}g`}
                                 </span>
-                                <p className="font-body text-sm font-semibold text-oro whitespace-nowrap">EUR {fmtEUR(f.totale_lordo ?? f.importo)}</p>
+                                <p className="font-body text-sm font-semibold text-oro whitespace-nowrap">CHF {fmtCHF(f.totale)}</p>
                                 <ArrowRight size={13} className="text-nebbia/20" />
                             </div>
                         </Link>
@@ -787,8 +732,7 @@ export default function AvvocatoFatturazione() {
                 .from('fatture')
                 .select(`
           id, numero, stato, data_emissione, data_scadenza, data_pagamento,
-          importo, totale_lordo, totale_netto, applica_ritenuta,
-          descrizione, pdf_storage_path,
+          totale, valuta, descrizione, pdf_storage_path, cliente_id,
           cliente:cliente_id(id, nome, cognome, ragione_sociale, tipo_soggetto),
           pratica:pratica_id(id, titolo)
         `)
@@ -836,12 +780,8 @@ export default function AvvocatoFatturazione() {
 
             <div className="flex gap-0 border-b border-white/8 overflow-x-auto">
                 {TABS.map(({ id: tid, label, icon: Icon }) => (
-                    <button
-                        key={tid}
-                        onClick={() => setTab(tid)}
-                        className={`flex items-center gap-2 px-5 py-3 font-body text-sm border-b-2 transition-colors whitespace-nowrap ${tab === tid ? 'border-oro text-oro' : 'border-transparent text-nebbia/40 hover:text-nebbia'
-                            }`}
-                    >
+                    <button key={tid} onClick={() => setTab(tid)}
+                        className={`flex items-center gap-2 px-5 py-3 font-body text-sm border-b-2 transition-colors whitespace-nowrap ${tab === tid ? 'border-oro text-oro' : 'border-transparent text-nebbia/40 hover:text-nebbia'}`}>
                         <Icon size={14} strokeWidth={1.5} /> {label}
                     </button>
                 ))}

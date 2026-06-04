@@ -1,0 +1,28 @@
+{
+    "loading_label": "Téléchargement en cours",
+    "uploaded_to_prefix": "Téléchargé dans : Dossier 2026/047 - Mario Rossi",
+    "status_completed": "Terminé",
+    "files": {
+        "curriculum": "CV_Bianchi_Mario.pdf",
+        "contratto_locazione": "Contrat_de_bail.pdf",
+        "contratto": "Contrat.pdf",
+        "perizia": "Expertise_technique_Rossi.pdf",
+        "diffida": "Mise_en_demeure_ACME_SA.docx",
+        "statuto": "Statuts_sarl.pdf"
+    },
+    "search_label": "Recherche dans l'archive",
+    "search_query": "Rossi 2024",
+    "search_button": "Chercher",
+    "result1": {
+        "filename": "Expertise_technique_Rossi.pdf",
+        "snippet": "\"...l'expertise met en évidence des défauts structurels du local, avec responsabilité imputable au bailleur selon l'art. 259a CO...\"",
+        "tag1": "Dossier 2026/047",
+        "tag2": "Bail"
+    },
+    "result2": {
+        "filename": "Email_Rossi_2024-11-08.pdf",
+        "snippet": "\"...comme convenu, je joins l'expertise technique relative à l'immeuble de la via Roma 12...\"",
+        "tag1": "Dossier 2026/047",
+        "tag2": "Correspondance"
+    }
+}

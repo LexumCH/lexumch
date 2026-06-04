@@ -30,7 +30,7 @@ const AVATAR_COLORS = [
 function dateKey(d) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
-function oraDa(iso) { if (!iso) return ''; return new Date(iso).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) }
+function oraDa(iso) { if (!iso) return ''; return new Date(iso).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' }) }
 function dataDa(iso) { if (!iso) return ''; return new Date(iso).toISOString().slice(0, 10) }
 
 function formatBytes(bytes) {
@@ -283,7 +283,7 @@ function ModalAllegatiDefault({ open, onClose }) {
                                                 {a.nome_file}
                                             </button>
                                             <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                                {formatBytes(a.dimensione)} · caricato il {new Date(a.created_at).toLocaleDateString('it-IT')}
+                                                {formatBytes(a.dimensione)} · caricato il {new Date(a.created_at).toLocaleDateString('it-CH')}
                                             </p>
                                         </div>
                                         <button onClick={() => handleElimina(a)}
@@ -1265,7 +1265,7 @@ export default function AdminCalendario() {
                                     const cfg = TIPO_CONFIG[r.tipo] ?? TIPO_CONFIG.altro
                                     const Icon = cfg.icon
                                     const adminCreatore = admins.find(a => a.id === r.creato_da)
-                                    const dataOra = `${new Date(r.inizio).toLocaleDateString('it-IT')} ${oraDa(r.inizio)}`
+                                    const dataOra = `${new Date(r.inizio).toLocaleDateString('it-CH')} ${oraDa(r.inizio)}`
                                     const partNome = r.partecipante
                                         ? `${r.partecipante.nome} ${r.partecipante.cognome}`
                                         : (r.partecipante_nome ?? '')

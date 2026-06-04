@@ -1,4 +1,10 @@
-// src/pages/avvocato/clienti/Nuovo.jsx
+// src/pages/avvocato/clienti/Nuovo.jsx — Lexum CH
+//
+// Anagrafica svizzera completa:
+//   PF: cf→numero_avs, comune→citta, provincia→cantone (campo libero), no pec
+//   PG: partita_iva→uid, rappr_cf→rappr_avs, + forma_giuridica + iva_attiva
+// Payload verso edge create-cliente usa i nomi campo CH (l'edge va allineata dopo).
+// "note" → note_iniziali (campo reale su profiles CH).
 
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
@@ -126,14 +132,14 @@ export default function AvvocatoClientiNuovo() {
     const [tipo, setTipo] = useState('persona_fisica')
     const [form, setForm] = useState({
         // PF
-        nome: '', cognome: '', cf: '',
+        nome: '', cognome: '', numero_avs: '',
         data_nascita: '', luogo_nascita: '',
         // PG
-        ragione_sociale: '', partita_iva: '', sede_legale: '',
-        rappr_nome: '', rappr_cognome: '', rappr_cf: '', rappr_carica: '',
+        ragione_sociale: '', uid: '', forma_giuridica: '', iva_attiva: false, sede_legale: '',
+        rappr_nome: '', rappr_cognome: '', rappr_avs: '', rappr_carica: '',
         // Comuni
-        email: '', telefono: '', pec: '',
-        indirizzo: '', comune: '', provincia: '', cap: '',
+        email: '', telefono: '',
+        indirizzo: '', citta: '', cantone: '', cap: '',
         note: '',
         avvocato_id: '',
         // Portale
@@ -190,12 +196,12 @@ export default function AvvocatoClientiNuovo() {
         e.preventDefault(); setErrore('')
 
         if (tipo === 'persona_fisica') {
-            if (!form.nome.trim()) return setErrore('Il nome e obbligatorio')
-            if (!form.cognome.trim()) return setErrore('Il cognome e obbligatorio')
+            if (!form.nome.trim()) return setErrore('Il nome è obbligatorio')
+            if (!form.cognome.trim()) return setErrore('Il cognome è obbligatorio')
         } else {
-            if (!form.ragione_sociale.trim()) return setErrore('La ragione sociale e obbligatoria')
+            if (!form.ragione_sociale.trim()) return setErrore('La ragione sociale è obbligatoria')
         }
-        if (!form.email.trim()) return setErrore("L'email e obbligatoria")
+        if (!form.email.trim()) return setErrore("L'email è obbligatoria")
         if (!/\S+@\S+\.\S+/.test(form.email)) return setErrore('Email non valida')
 
         if (form.attiva_portale) {
@@ -211,11 +217,9 @@ export default function AvvocatoClientiNuovo() {
                 tipo_soggetto: tipo,
                 email: form.email,
                 telefono: form.telefono,
-                pec: form.pec,
-                cf: form.cf,
                 indirizzo: form.indirizzo,
-                comune: form.comune,
-                provincia: form.provincia,
+                citta: form.citta,
+                cantone: form.cantone,
                 cap: form.cap,
                 note: form.note,
                 avvocato_id: form.avvocato_id || null,
@@ -226,15 +230,18 @@ export default function AvvocatoClientiNuovo() {
             if (tipo === 'persona_fisica') {
                 payload.nome = form.nome
                 payload.cognome = form.cognome
+                payload.numero_avs = form.numero_avs
                 payload.data_nascita = form.data_nascita || null
                 payload.luogo_nascita = form.luogo_nascita
             } else {
                 payload.ragione_sociale = form.ragione_sociale
-                payload.partita_iva = form.partita_iva
+                payload.uid = form.uid
+                payload.forma_giuridica = form.forma_giuridica
+                payload.iva_attiva = form.iva_attiva
                 payload.sede_legale = form.sede_legale
                 payload.rappr_nome = form.rappr_nome
                 payload.rappr_cognome = form.rappr_cognome
-                payload.rappr_cf = form.rappr_cf
+                payload.rappr_avs = form.rappr_avs
                 payload.rappr_carica = form.rappr_carica
             }
 
@@ -290,7 +297,7 @@ export default function AvvocatoClientiNuovo() {
                     </p>
                 ) : (
                     <p className="font-body text-sm text-nebbia/50">
-                        Anagrafica salvata. L accesso al portale e disattivato.
+                        Anagrafica salvata. L'accesso al portale è disattivato.
                     </p>
                 )}
             </div>
@@ -322,21 +329,33 @@ export default function AvvocatoClientiNuovo() {
                                 <InputField label="Nome *" placeholder="Anna" {...f('nome')} />
                                 <InputField label="Cognome *" placeholder="Rossi" {...f('cognome')} />
                             </div>
-                            <InputField label="Codice fiscale" placeholder="RSSMRA80A01H501Z" {...f('cf')} />
+                            <InputField label="Numero AVS" placeholder="756.1234.5678.97" {...f('numero_avs')} />
                             <div className="grid grid-cols-2 gap-4">
                                 <InputField label="Data di nascita" type="date" {...f('data_nascita')} />
-                                <InputField label="Luogo di nascita" placeholder="Milano" {...f('luogo_nascita')} />
+                                <InputField label="Luogo di nascita" placeholder="Lugano" {...f('luogo_nascita')} />
                             </div>
                         </>
                     ) : (
                         <>
-                            <p className="section-label">Dati societa</p>
-                            <InputField label="Ragione sociale *" placeholder="Alfa Srl" {...f('ragione_sociale')} />
+                            <p className="section-label">Dati società</p>
+                            <InputField label="Ragione sociale *" placeholder="Alfa SA" {...f('ragione_sociale')} />
                             <div className="grid grid-cols-2 gap-4">
-                                <InputField label="Partita IVA" placeholder="12345678901" {...f('partita_iva')} />
-                                <InputField label="Codice fiscale" placeholder="se diverso da P.IVA" {...f('cf')} />
+                                <InputField label="Numero UID" placeholder="CHE-123.456.789" {...f('uid')} />
+                                <InputField label="Forma giuridica" placeholder="Es. SA, Sàrl, ditta individuale" {...f('forma_giuridica')} />
                             </div>
-                            <InputField label="Sede legale" placeholder="Via Roma 1, Milano" {...f('sede_legale')} />
+                            <InputField label="Sede legale" placeholder="Via Nassa 5, Lugano" {...f('sede_legale')} />
+
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                                <input
+                                    type="checkbox"
+                                    checked={form.iva_attiva}
+                                    onChange={e => setForm(p => ({ ...p, iva_attiva: e.target.checked }))}
+                                    className="w-4 h-4 accent-oro shrink-0"
+                                />
+                                <span className="font-body text-sm text-nebbia/85 group-hover:text-nebbia transition-colors">
+                                    Soggetto assoggettato all'IVA
+                                </span>
+                            </label>
 
                             <div className="border-t border-white/8 pt-5 space-y-4">
                                 <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">
@@ -348,8 +367,8 @@ export default function AvvocatoClientiNuovo() {
                                     <InputField label="Cognome" placeholder="Bianchi" {...f('rappr_cognome')} />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="Codice fiscale" placeholder="CF rappresentante" {...f('rappr_cf')} />
-                                    <InputField label="Carica" placeholder="Es. Amministratore Unico" {...f('rappr_carica')} />
+                                    <InputField label="Numero AVS" placeholder="AVS rappresentante" {...f('rappr_avs')} />
+                                    <InputField label="Carica" placeholder="Es. Amministratore" {...f('rappr_carica')} />
                                 </div>
                             </div>
                         </>
@@ -358,25 +377,22 @@ export default function AvvocatoClientiNuovo() {
                     {/* Contatti */}
                     <div className="border-t border-white/8 pt-5 space-y-4">
                         <p className="section-label">Contatti</p>
-                        <InputField label="Email *" type="email" placeholder="email@esempio.it" {...f('email')} />
-                        <div className="grid grid-cols-2 gap-4">
-                            <InputField label="Telefono" placeholder="+39 333 000 1111" {...f('telefono')} />
-                            <InputField label="PEC" placeholder="cliente@pec.it" {...f('pec')} />
-                        </div>
+                        <InputField label="Email *" type="email" placeholder="email@esempio.ch" {...f('email')} />
+                        <InputField label="Telefono" placeholder="+41 91 000 11 22" {...f('telefono')} />
                     </div>
 
                     {/* Indirizzo */}
                     <div className="border-t border-white/8 pt-5 space-y-4">
                         <p className="section-label">Indirizzo</p>
                         <InputField
-                            label={tipo === 'persona_fisica' ? 'Indirizzo di residenza' : 'Sede operativa (se diversa dalla sede legale)'}
+                            label={tipo === 'persona_fisica' ? 'Indirizzo di domicilio' : 'Sede operativa (se diversa dalla sede legale)'}
                             placeholder="Via, numero civico"
                             {...f('indirizzo')}
                         />
                         <div className="grid grid-cols-3 gap-4">
-                            <InputField label="Comune" placeholder="Milano" {...f('comune')} />
-                            <InputField label="Provincia" placeholder="MI" {...f('provincia')} />
-                            <InputField label="CAP" placeholder="20100" {...f('cap')} />
+                            <InputField label="Località" placeholder="Lugano" {...f('citta')} />
+                            <InputField label="Cantone" placeholder="TI" {...f('cantone')} />
+                            <InputField label="NPA" placeholder="6900" {...f('cap')} />
                         </div>
                     </div>
 
@@ -423,7 +439,7 @@ export default function AvvocatoClientiNuovo() {
                                     Attiva accesso al portale clienti
                                 </p>
                                 <p className="font-body text-xs text-nebbia/40 leading-relaxed mt-0.5">
-                                    Il cliente potra accedere al suo portale con email e password. Potrai resettare la password in qualsiasi momento dalla scheda cliente.
+                                    Il cliente potrà accedere al suo portale con email e password. Potrai resettare la password in qualsiasi momento dalla scheda cliente.
                                 </p>
                             </div>
                         </label>

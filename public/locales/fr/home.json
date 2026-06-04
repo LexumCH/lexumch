@@ -1,0 +1,287 @@
+{
+    "meta": {
+        "title": "Lexum — La plateforme pour cabinets d'avocats et fiduciaires suisses",
+        "description": "La première plateforme tout-en-un pour cabinets d'avocats et fiduciaires suisses avec IA intégrée. Base de données gratuite : droit fédéral, cantonal, arrêts TF, pratique des autorités. Lex AI pour la consultation.",
+        "og_title": "Lexum — Pour cabinets d'avocats et fiduciaires suisses",
+        "og_description": "Base de données suisse gratuite, Lex AI, logiciel de gestion pour cabinets d'avocats et fiduciaires. Droit fédéral, cantonal et UE.",
+        "twitter_description": "Première plateforme tout-en-un CH avec IA intégrée. Avocats, fiduciaires, base de données gratuite."
+    },
+    "hero": {
+        "badge": "Pour fiduciaires et cabinets d'avocats suisses",
+        "title_part1": "Plateforme pour avocats et fiduciaires",
+        "title_highlight": "avec IA intégrée",
+        "subtitle": "Base de données juridique suisse, gestion de cabinet, archive intelligente et Lex AI dans un seul environnement. Pensé pour les avocats et fiduciaires qui veulent mieux travailler.",
+        "cta_primary": "Commencer gratuitement avec la base de données",
+        "cta_secondary": "Découvrir les fonctionnalités",
+        "no_card": "La base de données suisse est toujours gratuite."
+    },
+    "database_hero": {
+        "label": "Base de données suisse",
+        "count": "1'632'000",
+        "count_plus": "+",
+        "headline": "documents juridiques suisses et européens.",
+        "description": "Droit fédéral, cantonal, arrêts du Tribunal fédéral et des organes administratifs, pratique des autorités.",
+        "open_access": "Ouverte à tous, gratuitement. Sans abonnements par domaine, sans limites de consultation.",
+        "items": [
+            {
+                "t": "Droit fédéral (Fedlex)",
+                "s": "Codes, lois et ordonnances"
+            },
+            {
+                "t": "Droit et pratique cantonale",
+                "s": "Normes et pratique des 26 cantons"
+            },
+            {
+                "t": "Jurisprudence fédérale",
+                "s": "TF, ATF, TAF et TPF"
+            },
+            {
+                "t": "Jurisprudence cantonale",
+                "s": "Arrêts des tribunaux des 26 cantons"
+            },
+            {
+                "t": "Pratique des autorités",
+                "s": "AFC, SECO, OFAS, FINMA, OFJ, MROS"
+            },
+            {
+                "t": "Droit de l'Union européenne",
+                "s": "Règlements, directives, CJUE"
+            }
+        ]
+    },
+    "corpus_it_card": {
+        "title": "Corpus italien disponible en consultation",
+        "badge": "En italien",
+        "description": "Avez-vous des clients basés en Italie ou des causes transfrontalières ? Accédez aussi au corpus juridique italien : <span>plus de 4 millions de documents</span> entre Cassation, législation, pratique et droit UE. Disponible en italien pour consultation et droit comparé."
+    },
+    "mini_cards": [
+        {
+            "title": "Recherche juridique",
+            "text": "Trouvez articles, arrêts et pratique. Lex AI comprend le langage naturel : demandez en italien, allemand ou français."
+        },
+        {
+            "title": "Sauvegardez vos recherches",
+            "text": "Organisez-les avec des étiquettes personnelles, comparez-les, reliez-les à un dossier ou à un mandat fiduciaire."
+        },
+        {
+            "title": "Archive intelligente",
+            "text": "Téléchargez vos documents. Lex AI vous aide à trouver ce qu'il vous faut quand il vous le faut."
+        },
+        {
+            "title": "Analyse du cas",
+            "text": "Lex lit les recherches du dossier, vérifie ce qui manque, suggère des stratégies procédurales et des normes applicables."
+        },
+        {
+            "title": "Génération d'actes",
+            "text": "Actes, mémoires, contrats et déclarations générés par Lex AI à partir des données du dossier."
+        },
+        {
+            "title": "Portail clients",
+            "text": "Le client accède aux documents, audiences, échéances fiscales. Vous travaillez, lui reste informé."
+        }
+    ],
+    "problema": {
+        "label": "Le problème",
+        "title_part1": "Le problème n'est pas seulement la charge de travail.",
+        "title_highlight": "C'est la fragmentation.",
+        "oggi_label": "Aujourd'hui",
+        "oggi_text": "Avocats et fiduciaires travaillent entre logiciel de gestion, archives, documents, e-mails, notes, bases de données et outils IA séparés. Chaque activité demande des étapes supplémentaires, des recherches répétées et du temps perdu à changer de contexte.",
+        "oggi_tags": [
+            "Logiciel de gestion",
+            "Archive",
+            "E-mail",
+            "Notes",
+            "Bases de données",
+            "IA externe"
+        ],
+        "lexum_label": "Avec Lexum",
+        "lexum_text": "Tout reste connecté et lié au cas ou au mandat. Les recherches entrent dans les dossiers, les documents se trouvent où ils servent, l'IA travaille sur vos matériaux et sur des sources vérifiées.",
+        "lexum_tags": [
+            "Logiciel de gestion",
+            "Archive",
+            "Espace client",
+            "Base de données",
+            "Lex AI"
+        ],
+        "lexum_footer": "Un environnement cohérent, pas une somme d'outils."
+    },
+    "gestionale": {
+        "title_part1": "Le cabinet géré,",
+        "title_highlight": "avec Lex toujours à côté.",
+        "subtitle": "Dossiers, mandats, clients, rendez-vous, audiences, factures et échéances au même endroit. Et quand il vous faut un compte rendu, Lex lit tout et vous répond dans votre langue.",
+        "pratica_label": "Dossier civil - Mario Rossi",
+        "pratica_rows": [
+            {
+                "l": "Client",
+                "v": "Mario Rossi"
+            },
+            {
+                "l": "Type",
+                "v": "Civil - Bail"
+            },
+            {
+                "l": "État",
+                "v": "Ouvert depuis 08/2025"
+            },
+            {
+                "l": "Proch. audience",
+                "v": "28.05.2026"
+            }
+        ],
+        "fatturazione_label": "Facturation",
+        "fattura_numero": "Facture 2026/041",
+        "fattura_stato": "CHF 1'100 - échue",
+        "ricerche_label": "Recherches (3)",
+        "ricerche_items": [
+            "Analyse Lex - art. 259d CO",
+            "Défauts de la chose louée",
+            "ATF 142 III 557"
+        ]
+    },
+    "ricerche": {
+        "title": "Vos recherches, étiquetées et reliées",
+        "text": "Vous sauvegardez chaque recherche juridique que vous faites, la catégorisez avec vos étiquettes, la reliez à un dossier ou à un mandat fiduciaire. Lex AI trouve les corrélées, suggère des articles que vous n'aviez pas considérés, raisonne avec vous.",
+        "points": [
+            "Étiquettes personnelles",
+            "Comparaison entre recherches",
+            "Lien à dossier ou mandat",
+            "Corrélées suggérées par Lex AI"
+        ],
+        "visual_label": "Recherches - Bail et défauts",
+        "search_query": "défauts de la chose louée responsabilité",
+        "results_count": "14 résultats",
+        "tags": [
+            "Bail",
+            "Rossi - défauts",
+            "À approfondir"
+        ],
+        "saved_items": [
+            {
+                "t": "Art. 259d CO - défauts pendant le bail",
+                "sub": "Sauvegardée il y a 2 jours"
+            },
+            {
+                "t": "ATF 142 III 557 - réduction du loyer",
+                "sub": "Sauvegardée il y a 5 jours"
+            },
+            {
+                "t": "Art. 259e CO - dommages-intérêts",
+                "sub": "Sauvegardée il y a 1 semaine"
+            }
+        ],
+        "ai_suggestion_prefix": "Lex suggère : ",
+        "ai_suggestion_highlight": "art. 259a CO",
+        "ai_suggestion_suffix": " sur les droits du locataire en cas de défauts - corrélé."
+    },
+    "archivio": {
+        "title_part1": "Les documents du cabinet,",
+        "title_highlight": "toujours à portée.",
+        "subtitle": "Vous téléchargez, retrouvez, partagez. La gestion et la recherche de l'archive dans un flux unique, sans jamais sortir du contexte du dossier."
+    },
+    "lexai": {
+        "label": "Intelligence artificielle",
+        "title_part1": "Un assistant personnel",
+        "title_highlight": "pour le travail juridique suisse.",
+        "subtitle": "Ce n'est pas un chat générique ouvert dans une fenêtre à part. C'est un outil pensé pour le contexte du droit suisse.",
+        "features": [
+            {
+                "t": "Analyse normative",
+                "d": "Cherche dans le droit fédéral et cantonal en vigueur, explique quels articles s'appliquent au cas, avec raisonnement complet."
+            },
+            {
+                "t": "Stratégies procédurales",
+                "d": "Suggère des stratégies concrètes, des exceptions à soulever et des arguments à développer en audience selon le CPC suisse."
+            },
+            {
+                "t": "Conversation continue",
+                "d": "Approfondissez, changez d'angle, demandez des suivis. La conversation se développe dans le temps."
+            },
+            {
+                "t": "Stratégie sur mesure",
+                "d": "Lit toutes les recherches du dossier et génère une stratégie procédurale personnalisée."
+            },
+            {
+                "t": "Jurisprudence corrélée",
+                "d": "Suggère quels arrêts du Tribunal fédéral ou cantonaux consulter, en se basant sur le cas."
+            },
+            {
+                "t": "Actes déjà rédigés",
+                "d": "Lit les données du dossier et produit recours, mémoires, requêtes et autres actes prêts pour l'exportation."
+            }
+        ],
+        "quote": "\"L'objectif n'est pas de remplacer le professionnel. C'est de lui faire gagner du vrai temps.\"",
+        "chat1": {
+            "label": "Lex AI - Bail",
+            "domanda": "Mon client subit des infiltrations dans l'appartement et le bailleur n'intervient pas. Que puis-je faire ?",
+            "risposta": "Sur la base des art. 259a-259d CO et de l'ATF 142 III 557, le locataire a le droit de demander la réparation, la réduction du loyer ou, dans les cas graves, des dommages-intérêts selon l'art. 259e CO. Je vous conseille de mettre formellement en demeure la réparation...",
+            "tag1": "ATF 142 III 557",
+            "tag2": "Art. 259d CO"
+        },
+        "chat2": {
+            "label": "Lex AI - Travail",
+            "domanda": "L'employé a été licencié pendant la maladie. Le délai de congé est-il valable ?",
+            "risposta": "L'art. 336c CO prévoit la protection contre le congé pendant l'empêchement de travailler pour maladie : le délai est nul s'il est notifié pendant la période de protection. La durée de protection varie selon les années de service (30/90/180 jours)...",
+            "tag1": "Art. 336c CO",
+            "tag2": "ATF 128 III 271"
+        }
+    },
+    "corpus_italiano_section": {
+        "label": "Pour qui travaille au-delà des frontières",
+        "title_part1": "Aussi le droit italien,",
+        "title_highlight": "à portée de main.",
+        "subtitle": "Si vous avez des clients basés en Italie, des causes transfrontalières ou des entreprises qui opèrent sur les deux marchés, Lexum CH vous donne accès aussi au corpus juridique italien.",
+        "feature_title": "Corpus juridique italien en consultation",
+        "feature_text": "Plus de 4 millions de documents entre Cassation, législation, pratique et droit UE. Disponible en italien pour consultation et droit comparé. Utile pour cabinets avec clientèle internationale ou fiduciaires qui assistent des sociétés opérant en Italie.",
+        "feature_points": [
+            "Jurisprudence italienne (Cassation, Cours d'appel)",
+            "Législation italienne consolidée",
+            "Pratique des autorités italiennes",
+            "Droit UE en langue italienne"
+        ],
+        "visual_label": "Corpus italien - Consultation",
+        "search_query": "société italienne - imposition bénéfices distribués",
+        "search_lang_badge": "en italien",
+        "results": [
+            {
+                "t": "TUIR - Art. 89 - Dividendes et intérêts",
+                "sub": "Législation italienne"
+            },
+            {
+                "t": "Cass. Civ. V 12345/2024 - bénéfices distribués",
+                "sub": "Jurisprudence italienne"
+            },
+            {
+                "t": "Circulaire AdE 26/E - dividendes intra-groupe",
+                "sub": "Pratique Agence des recettes italienne"
+            }
+        ],
+        "unique_message": "Différentiel unique : aucune autre plateforme CH n'offre l'accès au corpus italien."
+    },
+    "cliente": {
+        "label": "Espace client",
+        "title_part1": "Aussi le client",
+        "title_highlight": "a son espace.",
+        "subtitle": "Documents, rendez-vous, audiences, échéances fiscales et communications dans un espace réservé. Le cabinet travaille, le client reste informé.",
+        "feature_title": "Un accès dédié aussi pour le client",
+        "feature_text": "Le client accède à son espace réservé et trouve documents, rendez-vous, audiences et matériaux partagés par le cabinet. Il peut télécharger des fichiers directement sur la plateforme. Moins d'e-mails dispersés, moins de fichiers perdus.",
+        "feature_points": [
+            "Accès réservé",
+            "Documents partagés",
+            "Échéances et communications ordonnées"
+        ],
+        "visual_label": "Espace client - Paolo Rossi",
+        "doc_condiviso": "Expertise technique.pdf",
+        "doc_condiviso_badge": "Partagé",
+        "doc_caricato": "Contrat_signé.pdf",
+        "doc_caricato_badge": "Téléchargé par vous",
+        "prossima_udienza": "Prochaine audience : 25.04.2026"
+    },
+    "cta_finale": {
+        "label": "Commencer maintenant",
+        "title_part1": "La base de données suisse est gratuite.",
+        "title_highlight": "Faites votre première recherche.",
+        "subtitle": "Inscrivez-vous et commencez immédiatement. Plus de 1,6 million de documents suisses, droit UE et accès au corpus italien. Lex AI avec crédits de bienvenue. Logiciel de gestion et portail clients prêts.",
+        "cta_primary": "Commencer gratuitement",
+        "login_link": "Avez-vous déjà un compte ? Connectez-vous"
+    }
+}

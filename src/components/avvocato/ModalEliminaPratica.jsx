@@ -14,7 +14,7 @@ import { supabase } from '@/lib/supabase'
 
 function fmtEUR(n) {
     const v = Number(n ?? 0)
-    return v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    return v.toLocaleString('it-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 const STATO_LABEL = {

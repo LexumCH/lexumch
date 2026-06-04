@@ -102,10 +102,10 @@ export function UserAssistenza() {
                                         </td>
                                         <td className="px-4 py-3 font-body text-sm font-medium text-nebbia">{t.oggetto}</td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">
-                                            {new Date(t.created_at).toLocaleDateString('it-IT')}
+                                            {new Date(t.created_at).toLocaleDateString('it-CH')}
                                         </td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/30 whitespace-nowrap">
-                                            {new Date(t.updated_at).toLocaleDateString('it-IT')}
+                                            {new Date(t.updated_at).toLocaleDateString('it-CH')}
                                         </td>
                                         <td className="px-4 py-3">
                                             <Badge label={t.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={t.stato === 'aperto' ? 'salvia' : 'gray'} />
@@ -322,7 +322,7 @@ export function UserAssistenzaDettaglio() {
                     <p className="section-label mb-2">Supporto Lexum · #{ticket.id.slice(0, 8)}</p>
                     <h1 className="font-display text-3xl font-light text-nebbia">{ticket.oggetto}</h1>
                     <p className="font-body text-xs text-nebbia/30 mt-1">
-                        {new Date(ticket.created_at).toLocaleDateString('it-IT')}
+                        {new Date(ticket.created_at).toLocaleDateString('it-CH')}
                     </p>
                 </div>
                 <Badge label={ticket.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={ticket.stato === 'aperto' ? 'salvia' : 'gray'} />
@@ -340,7 +340,7 @@ export function UserAssistenzaDettaglio() {
                                 : 'bg-petrolio/60 border border-white/10'
                                 }`}>
                                 <p className={`font-body text-[10px] font-medium mb-1 ${isMio ? 'text-oro/60 text-right' : 'text-nebbia/40'}`}>
-                                    {isMio ? 'Tu' : 'Admin Lexum'} · {new Date(m.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                    {isMio ? 'Tu' : 'Admin Lexum'} · {new Date(m.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                 </p>
                                 <p className="font-body text-sm text-nebbia leading-relaxed whitespace-pre-wrap">{m.testo}</p>
                             </div>

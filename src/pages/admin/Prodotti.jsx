@@ -72,7 +72,7 @@ export function AdminProdotti() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/5">
-                {['Prodotto', 'Tipo', 'Posti', 'Clienti', 'Crediti AI', 'Storage', 'Banca dati', 'Monetizzazione', 'Prezzo', 'Durata', '% Revenue', 'Stato', ''].map(h => (
+                {['Prodotto', 'Tipo', 'Posti', 'Clienti', 'Crediti AI', 'Storage', 'Prezzo', 'Durata', 'Stato', ''].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                 ))}
               </tr>
@@ -80,7 +80,7 @@ export function AdminProdotti() {
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="px-4 py-12 text-center font-body text-sm text-nebbia/30">
+                  <td colSpan={10} className="px-4 py-12 text-center font-body text-sm text-nebbia/30">
                     Nessun prodotto trovato
                   </td>
                 </tr>
@@ -106,17 +106,7 @@ export function AdminProdotti() {
                     <td className="px-4 py-3 font-body text-sm text-nebbia/60">
                       {p.spazio_gb > 0 ? `${p.spazio_gb} GB` : <Dash />}
                     </td>
-                    <td className="px-4 py-3">
-                      {isAbb
-                        ? <Badge label={p.include_banca_dati ? 'Sì' : 'No'} variant={p.include_banca_dati ? 'salvia' : 'gray'} />
-                        : <Dash />}
-                    </td>
-                    <td className="px-4 py-3">
-                      {isAbb
-                        ? <Badge label={p.include_monetizzazione ? 'Sì' : 'No'} variant={p.include_monetizzazione ? 'salvia' : 'gray'} />
-                        : <Dash />}
-                    </td>
-                    <td className="px-4 py-3 font-body text-sm text-oro font-medium">EUR {p.prezzo}</td>
+                    <td className="px-4 py-3 font-body text-sm text-oro font-medium">CHF {p.prezzo}</td>
                     <td className="px-4 py-3 font-body text-sm text-nebbia/60">
                       {p.durata_mesi ? `${p.durata_mesi} ${p.durata_mesi === 1 ? 'mese' : 'mesi'}` : <Dash />}
                     </td>
@@ -156,6 +146,7 @@ export function AdminProdottiForm() {
     include_banca_dati: false, include_monetizzazione: false,
     revenue_pct: '', crediti_ai_mensili: '0', spazio_gb: '0',
     limite_clienti: '0',
+    target_role: 'avvocato',
     attivo: true,
   })
   const [loading, setLoading] = useState(isEdit)
@@ -200,6 +191,7 @@ export function AdminProdottiForm() {
         crediti_ai_mensili: data.crediti_ai_mensili ?? '0',
         spazio_gb: data.spazio_gb ?? '0',
         limite_clienti: data.limite_clienti ?? '0',
+        target_role: data.target_role ?? 'avvocato',
         attivo: data.attivo,
       })
       setLoading(false)
@@ -235,6 +227,7 @@ export function AdminProdottiForm() {
         crediti_ai_mensili: (isAbb || isCreditiAI || isGratuito) ? parseInt(form.crediti_ai_mensili) || 0 : 0,
         spazio_gb: (isAbb || isStorage || isGratuito) ? parseInt(form.spazio_gb) || 0 : 0,
         limite_clienti: (isAbb || isClientiAddon || isGratuito) ? parseInt(form.limite_clienti) || 0 : null,
+        target_role: (isAbb || isGratuito) ? form.target_role : 'entrambi',
         attivo: form.attivo,
       }
 
@@ -320,6 +313,29 @@ export function AdminProdottiForm() {
           </div>
         </div>
 
+        {/* Direzione professionale — solo abbonamento e gratuito (i tipi che assegnano ruolo) */}
+        {(isAbb || isGratuito) && (
+          <div>
+            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-3">Professione di destinazione *</label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { v: 'avvocato', l: 'Avvocato', desc: 'Assegna il ruolo avvocato e abilita il layout legale' },
+                { v: 'fiduciario', l: 'Fiduciario', desc: 'Assegna il ruolo fiduciario e abilita il layout fiduciario' },
+              ].map(({ v, l, desc }) => (
+                <button key={v} type="button" onClick={() => setForm(p => ({ ...p, target_role: v }))}
+                  className={`p-3 text-left border transition-all ${form.target_role === v
+                    ? (v === 'fiduciario' ? 'bg-salvia/10 border-salvia/40 text-salvia' : 'bg-oro/10 border-oro/40 text-oro')
+                    : 'text-nebbia/50 border-white/10 hover:border-oro/20'}`}>
+                  <p className="font-body text-sm font-medium">{l}</p>
+                  <p className={`font-body text-xs mt-0.5 ${form.target_role === v
+                    ? (v === 'fiduciario' ? 'text-salvia/60' : 'text-oro/60')
+                    : 'text-nebbia/25'}`}>{desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Posti — per abbonamento e seat addon */}
         {(isAbb || isAddon || isGratuito) && (
           <div>
@@ -347,7 +363,7 @@ export function AdminProdottiForm() {
         {/* Prezzo */}
         {!isGratuito && (
           <div>
-            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Prezzo (EUR) *</label>
+            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Prezzo (CHF) *</label>
             <input type="number" step="0.01" min="0" {...f('prezzo')} placeholder="499"
               className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
             {isStorage && (

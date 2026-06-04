@@ -30,13 +30,13 @@ async function fetchProssimoAppuntamento(clienteId) {
 
 // ── HELPERS ──────────────────────────────────────────────────
 function fmtDataCompleta(iso) {
-  return new Date(iso).toLocaleDateString('it-IT', {
+  return new Date(iso).toLocaleDateString('it-CH', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
 }
 
 function fmtOra(iso) {
-  return new Date(iso).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })
 }
 
 function giorniMancanti(iso) {
@@ -130,7 +130,7 @@ export default function ProssimoAppuntamento({ clienteId, variante = 'scheda' })
             {new Date(app.data_ora_inizio).getDate()}
           </span>
           <span className="font-body text-[9px] text-nebbia/30 uppercase tracking-widest">
-            {new Date(app.data_ora_inizio).toLocaleString('it-IT', { month: 'short' })}
+            {new Date(app.data_ora_inizio).toLocaleString('it-CH', { month: 'short' })}
           </span>
         </div>
 

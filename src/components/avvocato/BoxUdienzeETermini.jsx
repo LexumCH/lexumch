@@ -18,12 +18,12 @@ import NuovoTerminePratica from '@/components/avvocato/NuovoTerminePratica'
 // ─── Helpers ────────────────────────────────────────────────
 function fmtData(iso) {
     if (!iso) return ''
-    return new Date(iso).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })
+    return new Date(iso).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function fmtOra(iso) {
     if (!iso) return ''
-    return new Date(iso).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+    return new Date(iso).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })
 }
 
 function giorniMancanti(dataScadenza) {

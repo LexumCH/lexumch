@@ -80,7 +80,7 @@ function SezioneAvvocato({ utente }) {
             <p className="font-body text-sm font-medium text-nebbia">{utente.abbonamento_tipo ?? '—'}</p>
             {scadenza && (
               <p className={`font-body text-xs mt-0.5 ${isScad ? 'text-red-400' : 'text-nebbia/40'}`}>
-                {isScad ? 'Scaduto' : `Scade il ${new Date(scadenza).toLocaleDateString('it-IT')}`}
+                {isScad ? 'Scaduto' : `Scade il ${new Date(scadenza).toLocaleDateString('it-CH')}`}
               </p>
             )}
           </div>
@@ -106,7 +106,7 @@ function SezioneAvvocato({ utente }) {
             ['Accessi', `${postiUsati} / ${postiTot}`],
             ['Banca dati', utente.include_banca_dati ? 'Inclusa' : 'Non inclusa'],
             ['Monetizzazione', utente.include_monetizzazione ? 'Inclusa' : 'Non inclusa'],
-            ['Registrato il', new Date(utente.created_at).toLocaleDateString('it-IT')],
+            ['Registrato il', new Date(utente.created_at).toLocaleDateString('it-CH')],
             ['Verifica', utente.verification_status === 'approved' ? 'Verificato' : utente.verification_status ?? '—'],
           ].map(([l, v]) => (
             <div key={l} className="flex justify-between border-b border-white/5 pb-2">
@@ -152,7 +152,7 @@ function SezioneAvvocato({ utente }) {
                       <td className="px-4 py-3 font-body text-sm font-medium text-nebbia truncate max-w-xs">{p.titolo}</td>
                       <td className="px-4 py-3 font-body text-xs text-nebbia/40">{p.tipo ?? '—'}</td>
                       <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
-                      <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(p.created_at).toLocaleDateString('it-IT')}</td>
+                      <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(p.created_at).toLocaleDateString('it-CH')}</td>
                     </tr>
                   )
                 })
@@ -215,7 +215,7 @@ function SezioneCliente({ utente }) {
                   ['Telefono', utente.telefono ?? '—'],
                   ['Codice fiscale', utente.cf ?? '—'],
                   ['Indirizzo', utente.indirizzo ?? '—'],
-                  ['Registrato il', new Date(utente.created_at).toLocaleDateString('it-IT')],
+                  ['Registrato il', new Date(utente.created_at).toLocaleDateString('it-CH')],
                 ].map(([l, v]) => (
                   <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                     <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -253,8 +253,8 @@ function SezioneCliente({ utente }) {
                           <td className="px-4 py-3 font-body text-sm font-medium text-nebbia truncate max-w-xs">{p.titolo}</td>
                           <td className="px-4 py-3 font-body text-xs text-nebbia/40">{p.tipo ?? '—'}</td>
                           <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
-                          <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{p.prossima_udienza ? new Date(p.prossima_udienza).toLocaleDateString('it-IT') : '—'}</td>
-                          <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(p.created_at).toLocaleDateString('it-IT')}</td>
+                          <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{p.prossima_udienza ? new Date(p.prossima_udienza).toLocaleDateString('it-CH') : '—'}</td>
+                          <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(p.created_at).toLocaleDateString('it-CH')}</td>
                         </tr>
                       )
                     })
@@ -292,7 +292,7 @@ function SezioneCliente({ utente }) {
                               {doc.visibile_cliente ? 'Sì' : 'No'}
                             </span>
                           </td>
-                          <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(doc.created_at).toLocaleDateString('it-IT')}</td>
+                          <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(doc.created_at).toLocaleDateString('it-CH')}</td>
                           <td className="px-4 py-3 text-right">
                             <button onClick={() => scaricaDoc(doc)} className="inline-flex items-center justify-center w-7 h-7 text-nebbia/20 hover:text-oro hover:bg-oro/10 transition-colors">
                               <Download size={13} />
@@ -333,7 +333,7 @@ function SezioneCliente({ utente }) {
                               </p>
                               <p className="font-body text-sm text-nebbia leading-relaxed">{msg.testo}</p>
                               <p className={`font-body text-[10px] text-nebbia/25 mt-1 ${isMio ? 'text-right' : ''}`}>
-                                {new Date(msg.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                {new Date(msg.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                               </p>
                             </div>
                           </div>
@@ -354,7 +354,7 @@ function SezioneCliente({ utente }) {
                             <div className="min-w-0">
                               <p className="font-body text-sm font-medium text-nebbia truncate">{t.oggetto}</p>
                               <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                {`${t.mittente?.nome ?? ''} ${t.mittente?.cognome ?? ''}`.trim()} · {new Date(t.created_at).toLocaleDateString('it-IT')}
+                                {`${t.mittente?.nome ?? ''} ${t.mittente?.cognome ?? ''}`.trim()} · {new Date(t.created_at).toLocaleDateString('it-CH')}
                               </p>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
@@ -383,7 +383,7 @@ function SezioneCliente({ utente }) {
                     <p className="font-body text-sm text-nebbia/70 leading-relaxed">{n.testo}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <Clock size={10} className="text-nebbia/25" />
-                      <span className="font-body text-xs text-nebbia/30">{n.autore?.nome} {n.autore?.cognome} · {new Date(n.created_at).toLocaleString('it-IT')}</span>
+                      <span className="font-body text-xs text-nebbia/30">{n.autore?.nome} {n.autore?.cognome} · {new Date(n.created_at).toLocaleString('it-CH')}</span>
                     </div>
                   </div>
                 ))
@@ -425,7 +425,7 @@ function SezioneCliente({ utente }) {
                               <td className="px-4 py-3 font-body text-xs text-nebbia/60 font-medium">{fatt.numero}</td>
                               <td className="px-4 py-3 font-body text-sm font-semibold text-oro">€ {parseFloat(fatt.importo).toFixed(2)}</td>
                               <td className="px-4 py-3 font-body text-xs text-nebbia/50 max-w-xs truncate">{fatt.descrizione ?? '—'}</td>
-                              <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(fatt.data_emissione).toLocaleDateString('it-IT')}</td>
+                              <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(fatt.data_emissione).toLocaleDateString('it-CH')}</td>
                               <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
                             </tr>
                           )
@@ -567,7 +567,7 @@ function SezioneUser({ utente, onDecision }) {
         </div>
         <CampoRiga label="Telefono" value={utente.telefono} />
         <CampoRiga label="Codice fiscale" value={utente.cf} />
-        <CampoRiga label="Data di nascita" value={utente.data_nascita ? new Date(utente.data_nascita).toLocaleDateString('it-IT') : null} />
+        <CampoRiga label="Data di nascita" value={utente.data_nascita ? new Date(utente.data_nascita).toLocaleDateString('it-CH') : null} />
         <CampoRiga label="Luogo di nascita" value={utente.luogo_nascita} />
       </div>
 
@@ -589,7 +589,7 @@ function SezioneUser({ utente, onDecision }) {
           <CampoRiga label="Studio" value={utente.studio} />
           <CampoRiga label="Foro" value={utente.foro} />
           <CampoRiga label="Numero Albo" value={utente.numero_albo} />
-          <CampoRiga label="Iscritto dal" value={utente.data_iscrizione_albo ? new Date(utente.data_iscrizione_albo).toLocaleDateString('it-IT') : null} />
+          <CampoRiga label="Iscritto dal" value={utente.data_iscrizione_albo ? new Date(utente.data_iscrizione_albo).toLocaleDateString('it-CH') : null} />
           <CampoRiga label="PEC" value={utente.pec} />
           <CampoRiga label="Partita IVA" value={utente.partita_iva} />
           {utente.specializzazioni?.length > 0 && (
@@ -625,10 +625,10 @@ function SezioneUser({ utente, onDecision }) {
         <CampoRiga label="Tipo soggetto" value={utente.tipo_soggetto} />
         <CampoRiga label="Visibile pubblicamente" value={utente.visibile_pubblicamente ? 'Sì' : 'No'} />
         <CampoRiga label="Stripe customer ID" value={utente.stripe_customer_id} />
-        <CampoRiga label="Registrato il" value={new Date(utente.created_at).toLocaleString('it-IT')} />
-        <CampoRiga label="Ultimo aggiornamento" value={utente.updated_at ? new Date(utente.updated_at).toLocaleString('it-IT') : null} />
-        <CampoRiga label="Email verificata il" value={emailStatus?.email_confirmed_at ? new Date(emailStatus.email_confirmed_at).toLocaleString('it-IT') : null} />
-        <CampoRiga label="Ultimo accesso" value={emailStatus?.last_sign_in_at ? new Date(emailStatus.last_sign_in_at).toLocaleString('it-IT') : null} />
+        <CampoRiga label="Registrato il" value={new Date(utente.created_at).toLocaleString('it-CH')} />
+        <CampoRiga label="Ultimo aggiornamento" value={utente.updated_at ? new Date(utente.updated_at).toLocaleString('it-CH') : null} />
+        <CampoRiga label="Email verificata il" value={emailStatus?.email_confirmed_at ? new Date(emailStatus.email_confirmed_at).toLocaleString('it-CH') : null} />
+        <CampoRiga label="Ultimo accesso" value={emailStatus?.last_sign_in_at ? new Date(emailStatus.last_sign_in_at).toLocaleString('it-CH') : null} />
       </div>
 
       {/* Note admin (se presenti) */}
@@ -762,7 +762,7 @@ export default function AdminUtentiDettaglio() {
           {utente.studio && <p className="font-body text-sm text-nebbia/40 mt-0.5">{utente.studio}</p>}
           <p className="font-body text-sm text-nebbia/40 mt-1">{utente.email}</p>
           {utente.telefono && <p className="font-body text-xs text-nebbia/30 mt-0.5">{utente.telefono}</p>}
-          <p className="font-body text-xs text-nebbia/25 mt-2">Registrato il {new Date(utente.created_at).toLocaleDateString('it-IT')}</p>
+          <p className="font-body text-xs text-nebbia/25 mt-2">Registrato il {new Date(utente.created_at).toLocaleDateString('it-CH')}</p>
         </div>
         <div className="flex flex-col gap-2 items-end">
           <Badge label={rb.label} variant={rb.variant} />

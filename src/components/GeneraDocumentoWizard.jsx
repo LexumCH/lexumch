@@ -412,7 +412,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                     setSlotCorrente(null)
                     // Preimposta nome file modificabile: "Nome template - DD/MM/YYYY"
                     if (!nomeFile) {
-                        const oggiStr = new Date().toLocaleDateString('it-IT')
+                        const oggiStr = new Date().toLocaleDateString('it-CH')
                         setNomeFile(`${template.nome} - ${oggiStr}`)
                     }
                 }
@@ -858,7 +858,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                                 value={nomeFile}
                                                 onChange={e => setNomeFile(e.target.value)}
                                                 disabled={salvandoPdf}
-                                                placeholder={`${template.nome} - ${new Date().toLocaleDateString('it-IT')}`}
+                                                placeholder={`${template.nome} - ${new Date().toLocaleDateString('it-CH')}`}
                                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25 disabled:opacity-40"
                                             />
                                             <p className="font-body text-xs text-nebbia/30 mt-1.5">

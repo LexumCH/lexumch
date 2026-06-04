@@ -37,7 +37,7 @@ const AVATAR_COLORS = [
 function dateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
-function oraDa(iso) { if (!iso) return ''; return new Date(iso).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) }
+function oraDa(iso) { if (!iso) return ''; return new Date(iso).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' }) }
 function dataDa(iso) { if (!iso) return ''; return new Date(iso).toISOString().slice(0, 10) }
 
 function StatBox({ label, value, colorClass = 'text-oro' }) {
@@ -591,7 +591,7 @@ export default function AvvocatoCalendar() {
                   const membre = membri.find(m => m.id === r.avvocato_id)
                   const isUd = r.tipo === 'udienza'
                   const isScad = r.tipo === 'scadenza'
-                  const dataOra = r.data_ora_inizio ? `${new Date(r.data_ora_inizio).toLocaleDateString('it-IT')} ${oraDa(r.data_ora_inizio)}` : '—'
+                  const dataOra = r.data_ora_inizio ? `${new Date(r.data_ora_inizio).toLocaleDateString('it-CH')} ${oraDa(r.data_ora_inizio)}` : '—'
 
                   const tipoColor = isUd
                     ? 'border-red-500/30 text-red-400'

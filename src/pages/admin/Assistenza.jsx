@@ -397,7 +397,7 @@ function ListaTicketSupporto({ adminId, onNuovoTicket }) {
                     <td className="px-4 py-3 font-body text-sm text-nebbia/60">{controparteNome}</td>
                     <td className="px-4 py-3"><Badge label={rb.label} variant={rb.variant} /></td>
                     <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
-                      {new Date(t.created_at).toLocaleDateString('it-IT')}
+                      {new Date(t.created_at).toLocaleDateString('it-CH')}
                     </td>
                     <td className="px-4 py-3">
                       <Badge label={t.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={t.stato === 'aperto' ? 'red' : 'gray'} />
@@ -589,7 +589,7 @@ export function AdminAssistenzaDettaglio() {
             </p>
             <Badge label={rb.label} variant={rb.variant} />
             <span className="font-body text-xs text-nebbia/30">·</span>
-            <p className="font-body text-xs text-nebbia/40">{new Date(ticket.created_at).toLocaleDateString('it-IT')}</p>
+            <p className="font-body text-xs text-nebbia/40">{new Date(ticket.created_at).toLocaleDateString('it-CH')}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
@@ -636,7 +636,7 @@ export function AdminAssistenzaDettaglio() {
                   </p>
                   <p className="font-body text-sm text-nebbia leading-relaxed whitespace-pre-wrap">{msg.testo}</p>
                   <p className={`font-body text-[10px] text-nebbia/25 mt-1 ${isMio ? 'text-right' : ''}`}>
-                    {new Date(msg.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                    {new Date(msg.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>

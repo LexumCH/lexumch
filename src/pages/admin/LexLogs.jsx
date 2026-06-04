@@ -24,6 +24,13 @@ const ENDPOINT_LABELS = {
     search_pensiero: { label: 'Lex Search', color: 'text-salvia', icon: Search },
 }
 
+// Endpoint che possono comparire come top-level (parent_log_id IS NULL).
+// Usato per decidere se applicare il filtro endpoint direttamente
+// alla query top-level o se servire una pre-query sui request_id.
+const TL_ENDPOINTS = new Set([
+    'lead', 'confronta', 'etichetta', 'search_pensiero', 'etichetta_riassunto'
+])
+
 const ESITO_BADGES = {
     ok: { label: 'OK', class: 'text-green-400 border-green-500/30 bg-green-500/10' },
     error: { label: 'Errore', class: 'text-red-400 border-red-500/30 bg-red-500/10' },
@@ -40,6 +47,10 @@ const PERIODI = [
     { id: 'all', label: 'Sempre', ore: null },
 ]
 
+const PAGE_SIZE = 50          // richieste per pagina
+const KPI_FETCH_LIMIT = 10000 // log analizzati per i KPI (full period)
+const PREFETCH_REQID_LIMIT = 10000 // pre-query request_id per filtri non-base
+
 function formatCosto(usd) {
     if (usd === null || usd === undefined) return '$0.000'
     if (usd < 0.001) return `$${usd.toFixed(6)}`
@@ -55,13 +66,13 @@ function formatDurata(ms) {
 
 function formatNumero(n) {
     if (n === null || n === undefined) return '—'
-    return new Intl.NumberFormat('it-IT').format(n)
+    return new Intl.NumberFormat('it-CH').format(n)
 }
 
 function formatData(iso) {
     if (!iso) return '—'
     const d = new Date(iso)
-    return d.toLocaleString('it-IT', {
+    return d.toLocaleString('it-CH', {
         day: '2-digit', month: 'short', year: 'numeric',
         hour: '2-digit', minute: '2-digit'
     })
@@ -71,6 +82,7 @@ export default function LexLogs() {
     const { profile } = useAuth()
 
     const [loading, setLoading] = useState(true)
+    const [loadingPagina, setLoadingPagina] = useState(false)
     const [errore, setErrore] = useState('')
     const [logs, setLogs] = useState([])
     const [kpi, setKpi] = useState(null)
@@ -84,7 +96,7 @@ export default function LexLogs() {
     const [logsCatena, setLogsCatena] = useState([])
 
     const [paginaCorrente, setPaginaCorrente] = useState(0)
-    const RIGHE_PER_PAGINA = 50
+    const [totaleRichieste, setTotaleRichieste] = useState(0)
 
     // Aggrega tutti i log per request_id in un'unica "richiesta utente"
     // - usa il top-level (parent_log_id IS NULL) come riga rappresentativa
@@ -135,20 +147,111 @@ export default function LexLogs() {
         return richieste.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     }, [logs])
 
-    useEffect(() => { caricaLogs() }, [periodoAttivo, endpointFiltro, esitoFiltro, userFiltro])
+    // Quando cambiano i filtri, resetta pagina e ricarica
+    useEffect(() => {
+        setPaginaCorrente(0)
+        caricaTutto(0)
+    }, [periodoAttivo, endpointFiltro, esitoFiltro, userFiltro])
 
-    async function caricaLogs() {
+    // Cambio pagina: solo refetch della lista, non dei KPI
+    async function vaiAPagina(p) {
+        if (p < 0 || p >= totalePagine) return
+        setPaginaCorrente(p)
+        await caricaLista(p)
+    }
+
+    function calcolaDataLimite() {
+        const periodo = PERIODI.find(p => p.id === periodoAttivo)
+        return periodo?.ore
+            ? new Date(Date.now() - periodo.ore * 60 * 60 * 1000).toISOString()
+            : null
+    }
+
+    // ─── Caricamento completo (KPI + lista) ────────────────────────
+    async function caricaTutto(pagina = 0) {
         setLoading(true)
         setErrore('')
         try {
-            // Calcola filtro temporale
-            const periodo = PERIODI.find(p => p.id === periodoAttivo)
-            const dataLimite = periodo?.ore
-                ? new Date(Date.now() - periodo.ore * 60 * 60 * 1000).toISOString()
-                : null
+            await Promise.all([
+                caricaKpi(),
+                caricaLista(pagina),
+            ])
+        } catch (e) {
+            setErrore(e.message)
+        } finally {
+            setLoading(false)
+        }
+    }
 
-            // Query logs
-            let query = supabase
+    // ─── KPI: query separata, full period ──────────────────────────
+    // Non filtra per endpoint/esito (mostra overview del periodo).
+    // Rispetta filtro user e periodo.
+    async function caricaKpi() {
+        const dataLimite = calcolaDataLimite()
+
+        let q = supabase
+            .from('lex_logs')
+            .select(`
+                costo_totale_usd, durata_ms, esito, endpoint, user_id, created_at,
+                token_input, token_output,
+                profiles:user_id(nome, cognome, email)
+            `)
+            .order('created_at', { ascending: false })
+            .limit(KPI_FETCH_LIMIT)
+
+        if (dataLimite) q = q.gte('created_at', dataLimite)
+        if (userFiltro) q = q.eq('user_id', userFiltro)
+
+        const { data, error } = await q
+        if (error) throw new Error(`KPI: ${error.message}`)
+
+        calcolaKpiDa(data ?? [])
+    }
+
+    // ─── Pre-query request_id per filtri non-base ──────────────────
+    // Quando l'utente filtra per un subagent specifico o per un esito,
+    // troviamo prima i request_id che soddisfano il filtro, poi mostriamo
+    // le richieste con catena completa.
+    async function trovaRequestIdsFiltrati(dataLimite) {
+        const haFiltroEndpointNonTL = endpointFiltro !== 'tutti' && !TL_ENDPOINTS.has(endpointFiltro)
+        const haFiltroEsito = esitoFiltro !== 'tutti'
+
+        if (!haFiltroEndpointNonTL && !haFiltroEsito) return null // nessun pre-filter necessario
+
+        let q = supabase
+            .from('lex_logs')
+            .select('request_id')
+            .limit(PREFETCH_REQID_LIMIT)
+
+        if (dataLimite) q = q.gte('created_at', dataLimite)
+        if (userFiltro) q = q.eq('user_id', userFiltro)
+        if (haFiltroEndpointNonTL) q = q.eq('endpoint', endpointFiltro)
+        if (haFiltroEsito) q = q.eq('esito', esitoFiltro)
+
+        const { data, error } = await q
+        if (error) throw new Error(`Pre-filter: ${error.message}`)
+
+        return [...new Set((data ?? []).map(l => l.request_id).filter(Boolean))]
+    }
+
+    // ─── Lista richieste paginata ──────────────────────────────────
+    async function caricaLista(pagina) {
+        setLoadingPagina(true)
+        try {
+            const dataLimite = calcolaDataLimite()
+
+            // Pre-query request_id se serve
+            const reqIdsFiltrati = await trovaRequestIdsFiltrati(dataLimite)
+
+            // Se pre-filter applicato e non ha trovato nulla, lista vuota
+            if (reqIdsFiltrati !== null && reqIdsFiltrati.length === 0) {
+                setLogs([])
+                setTotaleRichieste(0)
+                return
+            }
+
+            // Query top-level paginata, con count totale
+            let queryTL = supabase
                 .from('lex_logs')
                 .select(`
                     id, user_id, studio_id, request_id, parent_log_id,
@@ -158,29 +261,58 @@ export default function LexLogs() {
                     esito, errore, qualita_retrieval, principali_count,
                     credito_scalato, metadati, created_at,
                     profiles:user_id(nome, cognome, email)
-                `)
+                `, { count: 'exact' })
+                .is('parent_log_id', null)
                 .order('created_at', { ascending: false })
-                .limit(2000)
 
-            if (dataLimite) query = query.gte('created_at', dataLimite)
-            if (endpointFiltro !== 'tutti') query = query.eq('endpoint', endpointFiltro)
-            if (esitoFiltro !== 'tutti') query = query.eq('esito', esitoFiltro)
-            if (userFiltro) query = query.eq('user_id', userFiltro)
+            if (dataLimite) queryTL = queryTL.gte('created_at', dataLimite)
+            if (userFiltro) queryTL = queryTL.eq('user_id', userFiltro)
 
-            const { data, error } = await query
-            if (error) throw new Error(error.message)
+            // Filtro endpoint sui top-level (se filtro su endpoint top-level)
+            if (endpointFiltro !== 'tutti' && TL_ENDPOINTS.has(endpointFiltro)) {
+                queryTL = queryTL.eq('endpoint', endpointFiltro)
+            }
 
-            setLogs(data ?? [])
-            calcolaKpi(data ?? [])
-            setPaginaCorrente(0)
+            // Filtro per request_id pre-calcolati (subagent / esito)
+            if (reqIdsFiltrati !== null) {
+                queryTL = queryTL.in('request_id', reqIdsFiltrati)
+            }
+
+            const from = pagina * PAGE_SIZE
+            const to = from + PAGE_SIZE - 1
+            const { data: tlData, count, error: tlErr } = await queryTL.range(from, to)
+            if (tlErr) throw new Error(`Lista: ${tlErr.message}`)
+
+            setTotaleRichieste(count ?? 0)
+
+            // Carica i child per i request_id della pagina corrente
+            const reqIds = (tlData ?? []).map(t => t.request_id).filter(Boolean)
+            let childLogs = []
+            if (reqIds.length > 0) {
+                const { data: cd, error: chErr } = await supabase
+                    .from('lex_logs')
+                    .select(`
+                        id, user_id, request_id, parent_log_id, endpoint, azione,
+                        modello, token_input, token_output, costo_totale_usd,
+                        durata_ms, esito, created_at
+                    `)
+                    .in('request_id', reqIds)
+                    .not('parent_log_id', 'is', null)
+                if (chErr) throw new Error(`Catena: ${chErr.message}`)
+                childLogs = cd ?? []
+            }
+
+            setLogs([...(tlData ?? []), ...childLogs])
         } catch (e) {
             setErrore(e.message)
+            setLogs([])
+            setTotaleRichieste(0)
         } finally {
-            setLoading(false)
+            setLoadingPagina(false)
         }
     }
 
-    function calcolaKpi(data) {
+    function calcolaKpiDa(data) {
         const totali = data.length
         const errori = data.filter(l => l.esito !== 'ok').length
         const costoTotale = data.reduce((sum, l) => sum + parseFloat(l.costo_totale_usd ?? 0), 0)
@@ -218,7 +350,7 @@ export default function LexLogs() {
             .sort((a, b) => b.costo - a.costo)
             .slice(0, 10)
 
-        // Spesa per giorno (ultimi 30 giorni max)
+        // Spesa per giorno
         const spesaPerGiorno = {}
         for (const l of data) {
             const giorno = l.created_at.slice(0, 10)
@@ -267,12 +399,7 @@ export default function LexLogs() {
         }
     }
 
-    const logsPaginati = useMemo(() => {
-        const start = paginaCorrente * RIGHE_PER_PAGINA
-        return richiesteUtente.slice(start, start + RIGHE_PER_PAGINA)
-    }, [richiesteUtente, paginaCorrente])
-
-    const totalePagine = Math.ceil(richiesteUtente.length / RIGHE_PER_PAGINA)
+    const totalePagine = Math.max(1, Math.ceil(totaleRichieste / PAGE_SIZE))
 
     if (profile?.role !== 'admin') {
         return (
@@ -297,7 +424,7 @@ export default function LexLogs() {
                     </p>
                 </div>
                 <button
-                    onClick={caricaLogs}
+                    onClick={() => caricaTutto(paginaCorrente)}
                     disabled={loading}
                     className="flex items-center gap-2 px-4 py-2 border border-white/10 text-nebbia/70 hover:border-oro/40 hover:text-oro font-body text-sm transition-colors disabled:opacity-40"
                 >
@@ -359,6 +486,9 @@ export default function LexLogs() {
                             sub={`${kpi.errori} errori`}
                         />
                     </div>
+                    <p className="font-body text-[10px] text-nebbia/30 -mt-2">
+                        I KPI sono calcolati sull'intero periodo selezionato (max {KPI_FETCH_LIMIT.toLocaleString('it-CH')} chiamate), indipendentemente dai filtri endpoint/esito applicati alla tabella sotto.
+                    </p>
 
                     {/* Spesa per endpoint */}
                     <div className="bg-slate border border-white/5 p-5">
@@ -482,7 +612,12 @@ export default function LexLogs() {
             </div>
 
             {/* Tabella logs */}
-            <div className="bg-slate border border-white/5 overflow-hidden">
+            <div className="bg-slate border border-white/5 overflow-hidden relative">
+                {loadingPagina && (
+                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-oro/30 overflow-hidden">
+                        <div className="h-full w-1/3 bg-oro animate-pulse" />
+                    </div>
+                )}
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead className="bg-petrolio/40 border-b border-white/5">
@@ -499,13 +634,13 @@ export default function LexLogs() {
                             </tr>
                         </thead>
                         <tbody>
-                            {logsPaginati.length === 0 ? (
+                            {richiesteUtente.length === 0 ? (
                                 <tr>
                                     <td colSpan={9} className="px-3 py-8 text-center font-body text-sm text-nebbia/30">
-                                        Nessun log per questi filtri
+                                        {loadingPagina ? 'Caricamento...' : 'Nessuna richiesta per questi filtri'}
                                     </td>
                                 </tr>
-                            ) : logsPaginati.map(log => (
+                            ) : richiesteUtente.map(log => (
                                 <RigaLog
                                     key={log.id}
                                     log={log}
@@ -519,28 +654,44 @@ export default function LexLogs() {
                 </div>
 
                 {/* Paginazione */}
-                {totalePagine > 1 && (
+                {totaleRichieste > 0 && (
                     <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
                         <p className="font-body text-xs text-nebbia/40">
-                            {paginaCorrente * RIGHE_PER_PAGINA + 1}-{Math.min((paginaCorrente + 1) * RIGHE_PER_PAGINA, richiesteUtente.length)} di {richiesteUtente.length} richieste
+                            {paginaCorrente * PAGE_SIZE + 1}-{Math.min((paginaCorrente + 1) * PAGE_SIZE, totaleRichieste)} di {formatNumero(totaleRichieste)} richieste
                         </p>
                         <div className="flex items-center gap-2">
                             <button
-                                onClick={() => setPaginaCorrente(p => Math.max(0, p - 1))}
-                                disabled={paginaCorrente === 0}
+                                onClick={() => vaiAPagina(0)}
+                                disabled={paginaCorrente === 0 || loadingPagina}
+                                className="px-2 py-1 border border-white/10 text-nebbia/60 font-body text-xs hover:text-nebbia disabled:opacity-30 disabled:cursor-not-allowed"
+                                title="Prima pagina"
+                            >
+                                ‹‹
+                            </button>
+                            <button
+                                onClick={() => vaiAPagina(paginaCorrente - 1)}
+                                disabled={paginaCorrente === 0 || loadingPagina}
                                 className="px-3 py-1 border border-white/10 text-nebbia/60 font-body text-xs hover:text-nebbia disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                                 ← Precedente
                             </button>
-                            <span className="font-body text-xs text-nebbia/40 px-2">
+                            <span className="font-body text-xs text-nebbia/40 px-2 tabular-nums">
                                 {paginaCorrente + 1} / {totalePagine}
                             </span>
                             <button
-                                onClick={() => setPaginaCorrente(p => Math.min(totalePagine - 1, p + 1))}
-                                disabled={paginaCorrente >= totalePagine - 1}
+                                onClick={() => vaiAPagina(paginaCorrente + 1)}
+                                disabled={paginaCorrente >= totalePagine - 1 || loadingPagina}
                                 className="px-3 py-1 border border-white/10 text-nebbia/60 font-body text-xs hover:text-nebbia disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                                 Successiva →
+                            </button>
+                            <button
+                                onClick={() => vaiAPagina(totalePagine - 1)}
+                                disabled={paginaCorrente >= totalePagine - 1 || loadingPagina}
+                                className="px-2 py-1 border border-white/10 text-nebbia/60 font-body text-xs hover:text-nebbia disabled:opacity-30 disabled:cursor-not-allowed"
+                                title="Ultima pagina"
+                            >
+                                ››
                             </button>
                         </div>
                     </div>
@@ -650,7 +801,7 @@ function RigaLog({ log, aperto, onTogliApri, logsCatena }) {
                 <td className="px-3 py-2 font-body text-xs text-nebbia/60 max-w-[160px] truncate">
                     {utente}
                 </td>
-                <td className="px-3 py-2 font-body text-xs text-nebbia/50 max-w-[280px] truncate">
+                <td className="px-3 py-2 font-body text-xs text-nebbia/50 max-w-[280px] truncate" title={log.domanda ?? ''}>
                     {log.domanda ?? '—'}
                 </td>
                 <td className="px-3 py-2 font-body text-xs text-nebbia/40 text-right tabular-nums whitespace-nowrap">
@@ -707,6 +858,14 @@ function DettaglioCatena({ log, catena }) {
                 </div>
             </div>
 
+            {/* Domanda completa dell'utente (se presente) */}
+            {log.domanda && (
+                <div className="bg-petrolio/40 border border-white/5 p-3 space-y-1">
+                    <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest">Domanda</p>
+                    <p className="font-body text-xs text-nebbia/80 leading-relaxed whitespace-pre-wrap">{log.domanda}</p>
+                </div>
+            )}
+
             <div className="space-y-1">
                 {catena.map((c) => {
                     const meta = ENDPOINT_LABELS[c.endpoint] ?? { label: c.endpoint, color: 'text-nebbia', icon: Activity }
@@ -758,10 +917,10 @@ function DettaglioCatena({ log, catena }) {
                 })}
             </div>
 
-            {/* ── Risposta del Synthesizer (se presente) ── */}
-            {catena.some(c => c.endpoint === 'synthesizer' && c.risposta_text) && (
-                <RispostaSynthesizer catena={catena} />
-            )}
+            {/* ── Testi generati (synthesizer / documento) ── */}
+            {catena.filter(c => c.risposta_text).map(c => (
+                <RispostaTesto key={`rt-${c.id}`} row={c} />
+            ))}
 
             {log.errore && (
                 <div className="flex items-start gap-2 p-3 bg-red-900/10 border border-red-500/20">
@@ -787,17 +946,18 @@ function DettaglioCatena({ log, catena }) {
     )
 }
 
-// ─── RISPOSTA SYNTHESIZER (collapsable) ─────────────────────────
-function RispostaSynthesizer({ catena }) {
+// ─── RISPOSTA TESTUALE (synthesizer o documento generato) ───────
+function RispostaTesto({ row }) {
     const [aperto, setAperto] = useState(false)
-    // Una catena può avere più chiamate synthesizer (raro ma possibile per follow-up).
-    // Mostriamo la prima con risposta_text non-null.
-    const synth = catena.find(c => c.endpoint === 'synthesizer' && c.risposta_text)
-    if (!synth) return null
+    const risposta = row.risposta_text ?? ''
+    if (!risposta) return null
 
-    const risposta = synth.risposta_text ?? ''
+    const isDoc = row.endpoint === 'lex_genera_documento'
+    const titolo = isDoc ? 'Documento generato' : 'Risposta synthesizer al cliente'
+    const Icona = isDoc ? FileText : Sparkles
+
     const lunghezza = risposta.length
-    const ipotesiParole = risposta.split(/\s+/).filter(Boolean).length
+    const parole = risposta.split(/\s+/).filter(Boolean).length
 
     return (
         <div className="bg-petrolio/40 border border-oro/20">
@@ -806,12 +966,10 @@ function RispostaSynthesizer({ catena }) {
                 className="w-full flex items-center justify-between gap-2 px-3 py-2 hover:bg-petrolio/60 transition-colors text-left"
             >
                 <div className="flex items-center gap-2">
-                    <Sparkles size={12} className="text-oro/70" />
-                    <span className="font-body text-xs text-oro/90">
-                        Risposta synthesizer al cliente
-                    </span>
+                    <Icona size={12} className="text-oro/70" />
+                    <span className="font-body text-xs text-oro/90">{titolo}</span>
                     <span className="font-body text-[10px] text-nebbia/40">
-                        · {ipotesiParole} parole · {lunghezza.toLocaleString('it-IT')} caratteri
+                        · {parole} parole · {lunghezza.toLocaleString('it-CH')} caratteri
                     </span>
                 </div>
                 {aperto ? <ChevronDown size={12} className="text-nebbia/50" /> : <ChevronRight size={12} className="text-nebbia/50" />}

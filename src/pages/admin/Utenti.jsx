@@ -45,10 +45,8 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
     async function caricaAvvocati() {
       const { data } = await supabase
         .from('profiles')
-        .select('id, nome, cognome, studio')
-        .eq('role', 'avvocato')
-        .eq('verification_status', 'approved')
-        .order('cognome')
+        .select('id, nome, cognome, email, role, studio, verification_status, tipo_richiesta, created_at')
+        .order('created_at', { ascending: false })
       setAvvocati(data ?? [])
     }
     caricaAvvocati()
@@ -473,7 +471,7 @@ function TabellaUtenti({ data, loading }) {
                       {!u.verification_status && <span className="font-body text-xs text-nebbia/20">—</span>}
                     </td>
                     <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">
-                      {new Date(u.created_at).toLocaleDateString('it-IT')}
+                      {new Date(u.created_at).toLocaleDateString('it-CH')}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link to={`/admin/utenti/${u.id}`}
@@ -517,7 +515,13 @@ function DocumentiVerifica({ userId }) {
     if (data?.signedUrl) window.open(data.signedUrl, '_blank')
   }
 
-  const LABEL = { identita: 'Documento identità', albo: 'Iscrizione Albo', laurea: 'Laurea' }
+  const LABEL = {
+    identita: 'Documento identità',
+    albo: 'Iscrizione Albo',
+    laurea: 'Laurea',
+    registro: 'Registro di commercio',
+    affiliazione: 'Affiliazione professionale',
+  }
 
   if (loading) return (
     <div className="flex items-center justify-center py-4">
@@ -607,10 +611,17 @@ function TabVerifiche({ data, loading, onDecision }) {
                 <span className="font-display text-sm font-semibold text-amber-400">{(u.nome ?? '?')[0]}</span>
               </div>
               <div className="min-w-0">
-                <p className="font-body text-sm font-medium text-nebbia">{u.nome} {u.cognome}</p>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="font-body text-sm font-medium text-nebbia">{u.nome} {u.cognome}</p>
+                  {u.tipo_richiesta === 'fiduciario'
+                    ? <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">Fiduciario</span>
+                    : u.tipo_richiesta === 'avvocato'
+                      ? <span className="font-body text-[10px] px-1.5 py-0.5 border border-oro/30 text-oro">Avvocato</span>
+                      : null}
+                </div>
                 {u.studio && <p className="font-body text-xs text-nebbia/30">{u.studio}</p>}
                 <p className="font-body text-xs text-nebbia/40 truncate">{u.email}</p>
-                <p className="font-body text-[10px] text-nebbia/25 mt-0.5">Registrato il {new Date(u.created_at).toLocaleDateString('it-IT')}</p>
+                <p className="font-body text-[10px] text-nebbia/25 mt-0.5">Registrato il {new Date(u.created_at).toLocaleDateString('it-CH')}</p>
               </div>
               <ArrowRight size={14} className={`ml-auto shrink-0 ${selected?.id === u.id ? 'text-oro' : 'text-nebbia/20'}`} />
             </div>
@@ -622,7 +633,14 @@ function TabVerifiche({ data, loading, onDecision }) {
         <div className="bg-slate border border-white/5 p-5 space-y-4">
           <div>
             <p className="section-label mb-2">Verifica identità</p>
-            <p className="font-body text-lg font-medium text-nebbia">{selected.nome} {selected.cognome}</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="font-body text-lg font-medium text-nebbia">{selected.nome} {selected.cognome}</p>
+              {selected.tipo_richiesta === 'fiduciario'
+                ? <span className="font-body text-[10px] px-2 py-0.5 border border-salvia/30 text-salvia uppercase tracking-wider">Fiduciario</span>
+                : selected.tipo_richiesta === 'avvocato'
+                  ? <span className="font-body text-[10px] px-2 py-0.5 border border-oro/30 text-oro uppercase tracking-wider">Avvocato</span>
+                  : null}
+            </div>
             {selected.studio && <p className="font-body text-sm text-nebbia/40">{selected.studio}</p>}
             <p className="font-body text-sm text-nebbia/40">{selected.email}</p>
           </div>
@@ -667,7 +685,7 @@ export default function AdminUtenti() {
     setLoading(true)
     const { data } = await supabase
       .from('profiles')
-      .select('id, nome, cognome, email, role, studio, verification_status, created_at')
+      .select('id, nome, cognome, email, role, studio, verification_status, tipo_richiesta, created_at')
       .order('created_at', { ascending: false })
     setUtenti(data ?? [])
     setLoading(false)
@@ -675,7 +693,7 @@ export default function AdminUtenti() {
 
   function handleDecision(userId, tipo) {
     setUtenti(prev => prev.map(u =>
-      u.id === userId ? { ...u, verification_status: tipo, role: tipo === 'approved' ? 'avvocato' : u.role } : u
+      u.id === userId ? { ...u, verification_status: tipo } : u
     ))
   }
 

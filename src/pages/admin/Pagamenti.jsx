@@ -194,7 +194,7 @@ function TabPagamenti() {
                                 const nome = `${p.utente?.nome ?? ''} ${p.utente?.cognome ?? ''}`.trim() || '—'
                                 return (
                                     <tr key={p.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
-                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">{new Date(p.created_at).toLocaleDateString('it-IT')}</td>
+                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">{new Date(p.created_at).toLocaleDateString('it-CH')}</td>
                                         <td className="px-4 py-3">
                                             <p className="font-body text-sm font-medium text-nebbia">{nome}</p>
                                             {p.utente?.studio && <p className="font-body text-xs text-nebbia/30 mt-0.5">{p.utente.studio}</p>}
@@ -328,7 +328,7 @@ function TabCompensi() {
                                 const acq = `${c.acquirente?.nome ?? ''} ${c.acquirente?.cognome ?? ''}`.trim() || '—'
                                 return (
                                     <tr key={c.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
-                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">{new Date(c.created_at).toLocaleDateString('it-IT')}</td>
+                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">{new Date(c.created_at).toLocaleDateString('it-CH')}</td>
                                         <td className="px-4 py-3 font-body text-sm text-nebbia max-w-xs truncate">{c.sentenza?.titolo ?? '—'}</td>
                                         <td className="px-4 py-3 font-body text-sm text-nebbia/60">{acq}</td>
                                         <td className="px-4 py-3">
@@ -410,7 +410,7 @@ function TabRichieste() {
                     {[
                         ['Avvocato', `Avv. ${selected.avvocato?.nome ?? ''} ${selected.avvocato?.cognome ?? ''}`],
                         ['Studio', selected.avvocato?.studio ?? '—'],
-                        ['Data richiesta', new Date(selected.created_at).toLocaleDateString('it-IT')],
+                        ['Data richiesta', new Date(selected.created_at).toLocaleDateString('it-CH')],
                         ['Importo richiesto', `€ ${parseFloat(selected.importo).toFixed(2)}`],
                     ].map(([l, v]) => (
                         <div key={l} className="flex justify-between border-b border-white/5 pb-2">
@@ -490,7 +490,7 @@ function TabRichieste() {
                                 const nome = `Avv. ${r.avvocato?.nome ?? ''} ${r.avvocato?.cognome ?? ''}`.trim()
                                 return (
                                     <tr key={r.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
-                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">{new Date(r.created_at).toLocaleDateString('it-IT')}</td>
+                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">{new Date(r.created_at).toLocaleDateString('it-CH')}</td>
                                         <td className="px-4 py-3">
                                             <p className="font-body text-sm font-medium text-nebbia">{nome}</p>
                                             {r.avvocato?.studio && <p className="font-body text-xs text-nebbia/30 mt-0.5">{r.avvocato.studio}</p>}

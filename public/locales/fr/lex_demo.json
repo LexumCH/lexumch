@@ -1,0 +1,79 @@
+{
+    "header_label": "Lex AI",
+    "domanda": "Donne-moi un résumé sur le client Mario Rossi.",
+    "risposta_segments": [
+        {
+            "type": "strong",
+            "text": "Mario Rossi"
+        },
+        {
+            "type": "text",
+            "text": " est client depuis le "
+        },
+        {
+            "type": "strong",
+            "text": "14 mars 2024"
+        },
+        {
+            "type": "text",
+            "text": ". Il a 3 dossiers : 2 fermés (bail et succession) et un ouvert depuis août 2025 sur la cause civile en matière de bail."
+        },
+        {
+            "type": "break",
+            "text": ""
+        },
+        {
+            "type": "text",
+            "text": "Vous avez facturé "
+        },
+        {
+            "type": "strong",
+            "text": "CHF 8'450"
+        },
+        {
+            "type": "text",
+            "text": " et encaissé "
+        },
+        {
+            "type": "strong",
+            "text": "CHF 7'350"
+        },
+        {
+            "type": "text",
+            "text": ". La facture 2026/041 de "
+        },
+        {
+            "type": "alert",
+            "text": "CHF 1'100 est échue depuis 42 jours"
+        },
+        {
+            "type": "text",
+            "text": "."
+        },
+        {
+            "type": "break",
+            "text": ""
+        },
+        {
+            "type": "text",
+            "text": "Prochains engagements : audience le "
+        },
+        {
+            "type": "strong",
+            "text": "28/05/2026"
+        },
+        {
+            "type": "text",
+            "text": " au Tribunal civil de Lugano et rendez-vous le 22/05/2026 à 15h00."
+        },
+        {
+            "type": "break",
+            "text": ""
+        },
+        {
+            "type": "italic",
+            "text": "Je suggère de relancer la facture avant l'audience."
+        }
+    ],
+    "loader_text": "Lex analyse..."
+}

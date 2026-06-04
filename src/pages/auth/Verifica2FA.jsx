@@ -57,6 +57,7 @@ export default function Verifica2FA() {
         const role = profile?.role
         if (role === 'admin') navigate('/admin/dashboard', { replace: true })
         else if (role === 'avvocato') navigate('/dashboard', { replace: true })
+        else if (role === 'fiduciario') navigate('/dashboard', { replace: true })
         else if (role === 'cliente') navigate('/portale', { replace: true })
         else if (role === 'user') navigate('/area', { replace: true })
         else navigate('/', { replace: true })
