@@ -52,6 +52,10 @@ export default function MandatoDettaglio() {
     const [cambiandoStato, setCambiandoStato] = useState(false)
     const [menuStato, setMenuStato] = useState(false)
 
+    // Contatore di refresh: quando la chat salva un PDF, incrementa →
+    // BoxDocumentiMandato ricarica la lista senza refresh manuale della pagina.
+    const [refreshDocumenti, setRefreshDocumenti] = useState(0)
+
     useEffect(() => {
         caricaMandato()
     }, [id])
@@ -295,12 +299,16 @@ export default function MandatoDettaglio() {
 
             {/* ═══════════ RIGA 3 — Documenti + Ricerche (h fissa) ═══════════ */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <BoxDocumentiMandato mandatoId={mandato.id} clienteId={mandato.cliente_id} />
+                <BoxDocumentiMandato mandatoId={mandato.id} clienteId={mandato.cliente_id} refreshTrigger={refreshDocumenti} />
                 <BoxRicercheMandato mandatoId={mandato.id} />
             </div>
 
             {/* ═══════════ RIGA 4 — Chat AI (full width) ═══════════ */}
-            <ChatMandato mandatoId={mandato.id} clienteId={mandato.cliente_id} />
+            <ChatMandato
+                mandatoId={mandato.id}
+                clienteId={mandato.cliente_id}
+                onDocumentoSalvato={() => setRefreshDocumenti(k => k + 1)}
+            />
         </div>
     )
 }

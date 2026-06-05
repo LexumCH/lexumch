@@ -14,11 +14,11 @@ import { Link } from 'react-router-dom'
 import { Plus, FileText, Download, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-export default function BoxDocumentiMandato({ mandatoId, clienteId }) {
+export default function BoxDocumentiMandato({ mandatoId, clienteId, refreshTrigger }) {
     const [documenti, setDocumenti] = useState([])
     const [loading, setLoading] = useState(true)
 
-    useEffect(() => { caricaDocumenti() }, [mandatoId])
+    useEffect(() => { caricaDocumenti() }, [mandatoId, refreshTrigger])
 
     async function caricaDocumenti() {
         setLoading(true)

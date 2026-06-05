@@ -417,11 +417,11 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
         setGenerandoPdf(true)
         setErrorePdf('')
         try {
-            const { data, error } = await supabase.functions.invoke('salva-documento-pdf', {
+            const { data, error } = await supabase.functions.invoke('salva-documento-pdf-fiduciario', {
                 body: {
                     mandato_id: mandatoId,
-                    template_codice: messaggio.tipo_documento ?? 'documento',
-                    template_nome: messaggio.tipo_nome ?? 'Documento',
+                    tipo_codice: messaggio.tipo_documento ?? 'documento',
+                    tipo_nome: messaggio.tipo_nome ?? 'Documento',
                     markdown_finale: markdownDaRendere,
                     solo_anteprima: true,
                 }
@@ -463,11 +463,11 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
         setSalvando(true)
         setErrore('')
         try {
-            const { data, error } = await supabase.functions.invoke('salva-documento-pdf', {
+            const { data, error } = await supabase.functions.invoke('salva-documento-pdf-fiduciario', {
                 body: {
                     mandato_id: mandatoId,
-                    template_codice: messaggio.tipo_documento ?? 'documento',
-                    template_nome: messaggio.tipo_nome ?? 'Documento',
+                    tipo_codice: messaggio.tipo_documento ?? 'documento',
+                    tipo_nome: messaggio.tipo_nome ?? 'Documento',
                     markdown_finale: markdown,
                     nome_file_personalizzato: nomeFile.trim(),
                 }
