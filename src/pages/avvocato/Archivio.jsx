@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import AssegnaDocumento from '@/components/AssegnaDocumento'
+import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
 import { supabase } from '@/lib/supabase'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 
@@ -1204,6 +1205,9 @@ function CardDocumento({
                         <div className="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-white/5">
                             {/* Assegnazione documento: cliente / dipendente / pratica-mandato */}
                             <AssegnaDocumento doc={doc} onAggiornato={onAggiornata} />
+
+                            {/* Tag entrata/uscita (fiduciario): crea il movimento via OCR. Gated sul mandato. */}
+                            <AssegnaMovimento doc={doc} onAggiornato={onAggiornata} />
 
                             {/* Etichette assegnate (display) */}
                             {etichetteAssegnate.map(e => (

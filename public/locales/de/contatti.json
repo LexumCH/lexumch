@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "title": "Lexum — Kontakt, Demo und Support",
+    "description": "Haben Sie eine Frage zu Lexum? Wünschen Sie eine personalisierte Demo? Schreiben Sie uns, registrieren Sie sich, um direkt mit dem Team zu sprechen, oder lesen Sie die Antworten auf die häufigsten Fragen.",
+    "og_title": "Lexum — Kontakt",
+    "og_description": "Sprechen Sie mit dem Team, fragen Sie eine Demo an oder lesen Sie die häufigsten Antworten.",
+    "twitter_description": "Sprechen Sie mit dem Team, fragen Sie eine Demo an oder lesen Sie die häufigsten Antworten."
+  },
+  "hero": {
+    "label": "Kontakt",
+    "title_part1": "Sprechen wir über",
+    "title_highlight": "Ihre Kanzlei.",
+    "subtitle": "Drei Wege, um mit uns in Kontakt zu treten, je nachdem, was Sie brauchen. Das Team besteht aus echten Menschen, nicht aus automatischen Anrufbeantwortern."
+  },
+  "chat": {
+    "label": "Chat mit dem Team",
+    "title": "Schnelle Fragen, Antworten von einer Person.",
+    "text": "Registrieren Sie sich kostenlos: In Ihrem Bereich finden Sie einen Support-Bereich, in dem Sie uns direkt schreiben können. Es antwortet ein Mitarbeiter des Teams, kein Bot. In der Regel innerhalb weniger Stunden an Werktagen.",
+    "cta": "Registrieren und schreiben"
+  },
+  "demo": {
+    "label": "Dedizierte Demo",
+    "title": "30 Minuten mit dem Team, ausgehend von Ihrer Kanzlei.",
+    "text": "Registrieren Sie sich und wir kontaktieren Sie innerhalb von 48 Arbeitsstunden, um einen Demo-Call zu vereinbaren. Wir zeigen Ihnen Lexum ausgehend von den konkreten Bedürfnissen Ihrer Kanzlei, nicht von einer generischen Demo.",
+    "cta": "Demo anfragen"
+  },
+  "email": {
+    "label": "Direkte E-Mail",
+    "title": "Für alle, die lieber ohne Registrierung schreiben.",
+    "text": "Schreiben Sie uns an info@lexum.ch. Wir antworten an Werktagen, von Montag bis Freitag, 9:00–18:00 Uhr. Wer nur eine schnelle Frage hat, für den ist dies der direkteste Weg."
+  },
+  "orari": "Mo–Fr, 9:00–18:00 Uhr (MEZ). Antworten innerhalb weniger Stunden an Werktagen.",
+  "faq": {
+    "label": "Häufige Fragen",
+    "title": "Die am häufigsten gestellten Fragen.",
+    "subtitle": "Oft wurde die Frage bereits von jemand anderem gestellt. Hier die Antworten auf das, was uns am häufigsten gefragt wird.",
+    "items": [
+      {
+        "q": "Kann ich Lexum kostenlos testen?",
+        "a": "Ja. Sie haben eine Woche kostenlose Testphase, ohne erforderliche Kreditkarte, mit Zugriff auf alle Hauptfunktionen des Abonnements. Am Ende wählen Sie, wenn Sie fortfahren möchten, das Abonnement, das zu Ihrer Kanzlei passt. Wenn Sie nicht fortfahren, wird Ihnen nichts berechnet."
+      },
+      {
+        "q": "Ersetzt Lexum die Datenbanken, die ich heute nutze?",
+        "a": "Für viele Kanzleien ja. Lex AI durchsucht über 4 Millionen Dokumente aus Schweizer Rechtsprechung, Bundes- und kantonalem Recht, Praxis und EU-Recht und ist darauf ausgelegt, die überwiegende Mehrheit der täglichen Rechtsrecherchen abzudecken. Wer sehr spezialisierte Funktionen historischer oder branchenspezifischer Datenbanken benötigt, kann Lexum problemlos integrieren. Sie können Inhalte, die Sie in anderen Quellen gefunden haben, kopieren, Ihren Recherchen hinzufügen und mit Lex im bestehenden Arbeitsablauf darüber nachdenken."
+      },
+      {
+        "q": "Gibt es Zugriffsbeschränkungen für die Datenbank?",
+        "a": "Nein, bei Lexum gibt es keine Beschränkungen für die Datenbank: Sie können in allen Bereichen recherchieren, zum Beispiel Zivilrecht, Strafrecht, EU-Recht. Die einzige aktuelle Grenze ist, ob die Norm, die Sie suchen, in den über 4 Millionen juristischen Dokumenten der Lexum-Datenbank enthalten ist."
+      },
+      {
+        "q": "Wie viel kostet Lexum?",
+        "a": "Die Details zu den Abonnementen finden Sie nach der Registrierung, wo Sie das Abonnement wählen können, das am besten zu Ihrer Kanzlei passt (Einzelanwalt, kleine Kanzlei, mittlere bis grosse Kanzlei). Die geteilte Datenbank mit über 4 Millionen Dokumenten ist hingegen für alle kostenlos zugänglich."
+      },
+      {
+        "q": "Bleiben meine Daten meine?",
+        "a": "Ja. Lexum ist mit Vertraulichkeit im Zentrum konzipiert: Die Daten jeder Kanzlei sind abgeschottet und isoliert, auf Servern in der Schweiz gehostet, die dem Schweizer DSG und der DSGVO entsprechen, und werden niemals an Dritte verkauft oder weitergegeben. Die Urteile in Ihrem Archiv bleiben privat. Nur wenn Sie sich entscheiden, sie in der geteilten Datenbank zu veröffentlichen, werden sie zuvor anonymisiert, und Sie behalten stets die endgültige Kontrolle."
+      },
+      {
+        "q": "Wie funktioniert die Verifizierung als Anwalt?",
+        "a": "Sie registrieren sich als Fachperson, laden Ihren Eintragungsnachweis im kantonalen Anwaltsregister (oder ein gleichwertiges Dokument) hoch, und das Team verifiziert innerhalb von 48 Arbeitsstunden. Sie erhalten eine Bestätigungs-E-Mail und erhalten Zugriff auf die Funktionen für verifizierte Fachpersonen: Veröffentlichung von Urteilen, Monetarisierung des Archivs, erweiterter Zugriff auf die Datenbank."
+      },
+      {
+        "q": "Kann ich Lexum nutzen, wenn ich Einzelanwalt bin?",
+        "a": "Absolut ja. Lexum ist sowohl für mittlere bis grosse Kanzleien als auch für den Einzelanwalt gedacht. Dieselben Funktionen stehen in beiden Fällen zur Verfügung, dimensioniert auf die Bedürfnisse der Nutzenden: Verwaltung, Kalender, intelligentes Archiv, Lex AI und geteilte Datenbank."
+      },
+      {
+        "q": "Was passiert mit meinen Daten, wenn ich Lexum nicht mehr nutze?",
+        "a": "Ihre Daten bleiben Ihre. Sie können jederzeit das gesamte Kanzleiarchiv (Klienten, Dossiers, Dokumente, Korrespondenz) in einem Standardformat exportieren. Wenn Sie das Konto löschen, werden die Daten innerhalb der vom Datenschutzgesetz vorgesehenen Fristen endgültig gelöscht."
+      }
+    ],
+    "not_found_prefix": "Keine Antwort gefunden?",
+    "not_found_link": "Registrieren und schreiben",
+    "not_found_suffix": ", wir antworten Ihnen direkt."
+  },
+  "trust": {
+    "items": [
+      "Daten in der Schweiz gehostet",
+      "Konform mit DSG und DSGVO",
+      "Abschottung der Kanzlei",
+      "Anonymisierung der Inhalte"
+    ]
+  }
+}

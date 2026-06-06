@@ -19,6 +19,10 @@ import BoxDocumentiMandato from '@/components/fiduciario/BoxDocumentiMandato'
 import BoxRicercheMandato from '@/components/fiduciario/BoxRicercheMandato'
 import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
 import ChatMandato from '@/components/fiduciario/ChatMandato'
+import EntrateUscite from '@/components/fiduciario/EntrateUscite'
+import PianificazioneLiquidita from '@/components/fiduciario/PianificazioneLiquidita'
+import BudgetScostamenti from '@/components/fiduciario/BudgetScostamenti'
+import ReportConto from '@/components/fiduciario/ReportConto'
 
 // ─── HELPERS ────────────────────────────────────────────────
 
@@ -55,6 +59,10 @@ export default function MandatoDettaglio() {
     // Contatore di refresh: quando la chat salva un PDF, incrementa →
     // BoxDocumentiMandato ricarica la lista senza refresh manuale della pagina.
     const [refreshDocumenti, setRefreshDocumenti] = useState(0)
+
+    // Contatore di refresh dei movimenti: quando Entrate/Uscite ne salva/elimina uno,
+    // incrementa → Report, Liquidità e Budget si ricaricano senza refresh pagina.
+    const [refreshMovimenti, setRefreshMovimenti] = useState(0)
 
     useEffect(() => {
         caricaMandato()
@@ -273,6 +281,38 @@ export default function MandatoDettaglio() {
                     mandatoId={mandato.id}
                     clienteId={mandato.cliente_id}
                     studioId={mandato.studio_id}
+                    refreshTrigger={refreshMovimenti}
+                />
+            </div>
+
+            {/* ═══════════ Entrate e uscite (full width) ═══════════ */}
+            <EntrateUscite
+                clienteId={mandato.cliente_id}
+                mandatoId={mandato.id}
+                anno={mandato.anno_riferimento}
+                onMovimentiChange={() => setRefreshMovimenti(k => k + 1)}
+            />
+
+            {/* ═══════════ Report conto economico (full width) ═══════════ */}
+            <ReportConto
+                clienteId={mandato.cliente_id}
+                mandatoId={mandato.id}
+                anno={mandato.anno_riferimento}
+                refreshTrigger={refreshMovimenti}
+            />
+
+            {/* ═══════════ Liquidità + Budget (2 colonne su schermi larghi) ═══════════ */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                <PianificazioneLiquidita
+                    clienteId={mandato.cliente_id}
+                    mandatoId={mandato.id}
+                    refreshTrigger={refreshMovimenti}
+                />
+                <BudgetScostamenti
+                    clienteId={mandato.cliente_id}
+                    mandatoId={mandato.id}
+                    anno={mandato.anno_riferimento}
+                    refreshTrigger={refreshMovimenti}
                 />
             </div>
 

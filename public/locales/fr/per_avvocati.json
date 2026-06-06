@@ -1,0 +1,274 @@
+{
+  "meta": {
+    "title": "Lexum pour les études d'avocats — Gestion, IA et collaboration d'équipe",
+    "description": "Accès multiple avec permissions granulaires, agenda partagé, archives intelligentes, Lex AI et monétisation des jugements. Tout le travail de l'étude dans un environnement cohérent.",
+    "og_title": "Lexum pour les études d'avocats — Gestion, IA et équipe",
+    "og_description": "Gestion, accès multiple, agenda, archives intelligentes, Lex AI et monétisation des archives. Le tout dans un environnement cohérent.",
+    "twitter_description": "Gestion, IA et collaboration d'équipe pour les études d'avocats suisses."
+  },
+  "hero": {
+    "badge": "Pour les études d'avocats et les avocats",
+    "title_part1": "Tout le travail de l'étude,",
+    "title_highlight": "dans un seul environnement.",
+    "subtitle": "Gestion, agenda, archives intelligentes, Lex AI, base de données partagée et collaboration d'équipe. Tout est connecté, tout est à sa place, toujours.",
+    "cta_primary": "Essayer Lexum une semaine",
+    "cta_secondary": "Demander une démonstration",
+    "no_card": "Aucune carte requise. Résiliation libre."
+  },
+  "multi": {
+    "label": "Accès multiple",
+    "title_part1": "Gérez l'étude,",
+    "title_highlight": "vous choisissez qui voit quoi.",
+    "subtitle": "Cloisonnement des informations, rôles granulaires, accès contrôlé. Les archives de l'étude ne restent visibles que par les personnes que vous décidez.",
+    "feature_title": "C'est vous qui décidez qui voit quoi.",
+    "feature_text": "Chaque membre de l'étude a son propre profil. Vous choisissez qui accède aux archives complètes et qui ne voit que les dossiers attribués. Les informations sensibles restent protégées, même au sein de l'équipe.",
+    "points": [
+      "Rôles et permissions configurables",
+      "Visibilité des dossiers par membre",
+      "Cloisonnement des archives de l'étude",
+      "Audit interne : qui a vu quoi, qui a modifié quoi"
+    ],
+    "visual_label": "Étude — Membres et permissions",
+    "team_label": "Équipe de l'étude",
+    "members": [
+      { "nome": "Marc Rey", "ruolo": "Associé fondateur", "avatar": "MR", "accesso": "Tout" },
+      { "nome": "Laure Blanc", "ruolo": "Associée senior", "avatar": "LB", "accesso": "Tout" },
+      { "nome": "André Favre", "ruolo": "Avocat", "avatar": "AF", "accesso": "Dossiers attribués uniquement" },
+      { "nome": "Julie Roux", "ruolo": "Secrétariat", "avatar": "JR", "accesso": "Données et agenda" }
+    ],
+    "compartimentazione": "Cloisonnement actif : 4 membres, 2 niveaux d'accès, 12 dossiers segmentés."
+  },
+  "collab": {
+    "label": "Collaboration",
+    "title_part1": "Chacun peut contribuer",
+    "title_highlight": "à la réussite du dossier.",
+    "subtitle": "Sur le même dossier travaillent plusieurs avocats. Chacun a ses recherches, chacun apporte sa contribution. Le dossier grandit collectivement, sans confondre qui a fait quoi.",
+    "feature_title": "Un dossier, plusieurs avocats, des recherches séparées mais reliées",
+    "feature_text": "Chaque membre attribué au dossier voit le tableau d'ensemble, mais ses recherches restent les siennes. Lorsqu'il en enregistre une, il peut la relier au dossier et la rendre disponible à toute l'équipe. Lex AI lit toutes les recherches du dossier et suggère des directions que personne n'avait encore envisagées.",
+    "points": [
+      "Avocats attribués au dossier",
+      "Recherches personnelles, contributions collectives",
+      "Lex AI lit tout le dossier et suggère",
+      "Visibilité complète pour le titulaire"
+    ],
+    "visual_label": "Dossier 2026/047 — Pierre Martin",
+    "assegnati_label": "Avocats attribués",
+    "membri_count": "3 membres",
+    "avatars": ["MR", "LB", "AF"],
+    "membri_names": "Marc (titulaire), Laure, André",
+    "ricerche_label": "Recherches du dossier (4)",
+    "ricerche_items": [
+      { "t": "Art. 256 CO — défauts de la chose louée", "autore": "MR" },
+      { "t": "TF 4A_211/2023 — responsabilité du bailleur", "autore": "LB" },
+      { "t": "Exception de réduction du loyer", "autore": "LB" },
+      { "t": "Art. 259a CO — droits du locataire", "autore": "AF" }
+    ],
+    "lex_prefix": "Lex a analysé toutes les recherches. Il suggère d'approfondir ",
+    "lex_highlight": "l'art. 259d CO",
+    "lex_suffix": " sur la réduction du loyer en cas de défauts de la chose louée."
+  },
+  "calendario": {
+    "feature_title": "Agenda intégré pour les rendez-vous, audiences et délais",
+    "feature_text": "Un seul agenda pour l'étude. Vous voyez vos audiences, les rendez-vous avec les clients, les délais de procédure, les engagements de l'équipe. Chaque événement est relié au dossier concerné, le contexte toujours à portée de main.",
+    "points": [
+      "Vue personnelle, d'équipe et de l'étude",
+      "Événements reliés aux dossiers",
+      "Délais de procédure et rappels",
+      "Synchronisation avec des agendas externes"
+    ],
+    "visual_label": "Agenda — Semaine en cours",
+    "giorni": ["L", "M", "M", "J", "V", "S", "D"],
+    "eventi": [
+      { "ora": "09:00", "t": "Audience — Tribunal de première instance", "sub": "Pierre Martin — Bail" },
+      { "ora": "11:30", "t": "Rendez-vous — L. Roux", "sub": "Dossier 2026/051" },
+      { "ora": "14:30", "t": "Délai réponse à la demande", "sub": "Martin c. ACME" },
+      { "ora": "16:00", "t": "Call interne — Équipe civil", "sub": "Revue des dossiers" }
+    ]
+  },
+  "clienti": {
+    "feature_title": "Données du client et historique des paiements, toujours à jour",
+    "feature_text": "Pour chaque client, vous voyez les dossiers ouverts et clôturés, les factures émises, les paiements reçus et ceux en suspens. Fini les tableaux Excel parallèles ou les e-mails à courir après : tout en un seul endroit, relié au travail que vous avez accompli.",
+    "points": [
+      "Données clients complètes",
+      "Dossiers associés au client",
+      "Historique des paiements et factures",
+      "Notes et correspondance archivées"
+    ],
+    "visual_label": "Client — Pierre Martin",
+    "rows": [
+      { "l": "Type", "v": "Particulier" },
+      { "l": "Dossiers ouverts", "v": "2" },
+      { "l": "Chiffre d'affaires 2026", "v": "CHF 4'200.00" },
+      { "l": "À encaisser", "v": "CHF 1'100.00" }
+    ],
+    "pagamenti_label": "Paiements récents",
+    "pagamenti": [
+      { "d": "12.03.2026", "t": "Acompte dossier 2026/047", "i": "1'500.00", "stato": "pagato" },
+      { "d": "28.02.2026", "t": "Honoraires de conseil", "i": "600.00", "stato": "pagato" },
+      { "d": "15.02.2026", "t": "Solde dossier 2025/118", "i": "1'100.00", "stato": "in_sospeso" }
+    ],
+    "stato_pagato": "Payé",
+    "stato_sospeso": "En attente"
+  },
+  "archivio": {
+    "feature_title": "Les archives de l'étude deviennent intelligentes",
+    "feature_text": "Vous chargez les documents, Lex AI les classe et les retrouve quand il le faut. Vous cherchez en langage naturel et trouvez non seulement le bon fichier, mais aussi le passage précis du document qui vous intéresse. Le papier reste dans le classeur, le vrai travail reste numérique.",
+    "points": [
+      "Documents reliés aux dossiers",
+      "Recherche sémantique dans le texte",
+      "Classification automatique",
+      "Versionnage et suivi des modifications"
+    ],
+    "visual_label": "Recherche dans les archives"
+  },
+  "lexai": {
+    "label": "Intelligence artificielle",
+    "title_part1": "Un assistant qui travaille",
+    "title_highlight": "sur vos documents.",
+    "subtitle": "Lex n'est pas un chat générique. C'est un assistant qui connaît vos dossiers, vos recherches et tout le contexte du travail juridique suisse.",
+    "features": [
+      { "t": "Recherche juridique intelligente", "d": "Cherchez dans les normes, jugements et pratiques suisses en langage naturel. Lex comprend le contexte et suggère les résultats les plus pertinents." },
+      { "t": "Stratégies de procédure", "d": "Analyse le dossier et propose des stratégies concrètes, des exceptions à soulever et des arguments à développer à l'audience." },
+      { "t": "Conversation continue", "d": "Approfondissez, changez d'angle, posez des questions de suivi. Lex se souvient du contexte de la conversation." },
+      { "t": "Stratégie sur mesure pour le dossier", "d": "Lit toutes les recherches et documents du dossier et génère une stratégie personnalisée." },
+      { "t": "Jugements connexes", "d": "Suggère quels jugements de la base de données il vaut la peine de consulter selon votre cas spécifique." },
+      { "t": "Actes déjà rédigés", "d": "Mises en demeure, écritures, requêtes, réquisitions de poursuite. Lex remplit les modèles avec les données du dossier et produit des actes prêts à être relus." }
+    ],
+    "chat_label": "Lex AI — Conversation",
+    "chat_domanda": "Nous travaillons sur le dossier Martin en droit du bail, quelle est la meilleure stratégie pour la prochaine audience ?",
+    "chat_risposta": "J'ai lu toutes les recherches du dossier : chacune aborde le problème sous un angle différent, très utiles. La voie la plus solide est l'exception de défauts de la chose louée (art. 256 CO), déjà approfondie par Laure. Je suggère de la renforcer avec l'art. 259d CO sur la réduction du loyer. J'ai préparé un projet de mémoire prêt pour votre relecture.",
+    "chat_tag1": "Art. 256 CO",
+    "chat_tag2": "Art. 259d CO",
+    "chat_tag3": "Mémoire.docx"
+  },
+  "contabilita": {
+    "label": "Comptabilité intégrée",
+    "title_part1": "Facturation professionnelle,",
+    "title_highlight": "intégrée.",
+    "subtitle": "Les factures s'émettent en quelques clics. La comptabilité de l'étude vit dans le même environnement que les clients, les dossiers et les documents.",
+    "feature_title": "Des factures professionnelles, déjà prêtes.",
+    "feature_text": "Chaque facture naît reliée à un dossier et à un client. Lexum calcule automatiquement la TVA à 8.1 %. La numérotation est progressive par année. Le PDF est généré en facture QR, prêt pour votre fiduciaire ou pour la banque.",
+    "points": [
+      "Calcul automatique de la TVA 8.1 %",
+      "Numérotation progressive annuelle",
+      "PDF au format facture QR",
+      "Archivage automatique dans les archives de l'étude"
+    ],
+    "fattura_label": "Facture 2026/048 — Pierre Martin",
+    "numero_label": "Numéro",
+    "numero_v": "2026/048",
+    "data_label": "Date",
+    "data_v": "15.05.2026",
+    "prestazioni_label": "Prestations",
+    "prestazioni": [
+      { "d": "Conseil procès civil", "i": "1'200.00" },
+      { "d": "Représentation — réponse", "i": "800.00" },
+      { "d": "Audience de débats", "i": "500.00" }
+    ],
+    "totali": [
+      { "l": "Montant imposable", "v": "2'500.00" },
+      { "l": "TVA 8.1 %", "v": "202.50" }
+    ],
+    "totale_label": "Montant à payer",
+    "totale_v": "2'702.50",
+    "sdi_prefix": "PDF généré en facture QR — archivé dans",
+    "sdi_path": "Archives > Factures > 2026",
+    "scadenzario_title": "Échéancier sous contrôle",
+    "scadenzario_text": "Vous voyez d'un coup d'œil qui doit payer, ce qui est échu, ce qui arrive. Statuts colorés par facture : en attente, payée, échue.",
+    "scadenzario_stati": [
+      { "l": "Payée", "v": "4'200" },
+      { "l": "En attente", "v": "2'702" },
+      { "l": "Échue", "v": "1'100" }
+    ],
+    "parziali_title": "Paiements partiels suivis",
+    "parziali_text": "Acomptes, soldes, virements, espèces. Chaque mode de paiement est suivi par facture. Le statut se met à jour de lui-même lorsque le solde est réglé.",
+    "parziali_items": [
+      { "l": "Virement", "d": "12.03", "i": "1'500.00" },
+      { "l": "Espèces", "d": "20.03", "i": "700.00" },
+      { "l": "Solde à encaisser", "d": "—", "i": "502.50", "open": true }
+    ],
+    "promemoria_title": "Rappels automatiques",
+    "promemoria_text": "Lexum vous avertit trois jours avant l'échéance et le jour où une facture prend du retard. Fini les relances oubliées, fini les e-mails oubliés au client.",
+    "promemoria_items": [
+      { "tempo": "Dans 3 jours", "fattura": "Facture 2026/048 — Martin", "urgent": false },
+      { "tempo": "Échue aujourd'hui", "fattura": "Facture 2026/041 — Roux", "urgent": true }
+    ],
+    "lex_title_part1": "Demandez à Lex",
+    "lex_title_highlight": "qui n'a pas encore payé.",
+    "lex_text": "La seule gestion juridique où vous pouvez demander en français « quelles factures sont échues depuis plus de trente jours ? » ou « combien le client Martin me doit-il encore ? » et recevoir la réponse en quelques secondes.",
+    "lex_points": [
+      "Questions en langage naturel",
+      "Réponses immédiates avec les chiffres",
+      "Liens directs vers les factures concernées",
+      "Aucun rapport à générer, aucun filtre"
+    ],
+    "lex_visual_label": "Lex sur les paiements",
+    "lex_domanda": "Quels clients ont des factures échues depuis plus de 30 jours ?",
+    "lex_risposta": "J'ai trouvé 3 factures échues depuis plus de 30 jours, pour un total de CHF 4'150.00.",
+    "lex_fatture": [
+      { "cliente": "Pierre Martin — 2026/041", "scaduta": "Échue depuis 42 jours", "importo": "1'100.00" },
+      { "cliente": "L. Roux Sàrl — 2026/035", "scaduta": "Échue depuis 35 jours", "importo": "1'800.00" },
+      { "cliente": "A. Blanc — 2026/028", "scaduta": "Échue depuis 31 jours", "importo": "1'250.00" }
+    ]
+  },
+  "banca": {
+    "feature_title": "Une base de données gratuite, toujours disponible",
+    "feature_text": "Plus de 4 millions de documents juridiques entre la jurisprudence suisse, le droit fédéral et cantonal, le droit UE, la pratique et un corpus partagé par les avocats. Ouverte à tous, sans abonnements par domaine, sans limite de consultation. Vous la consultez dès le premier jour, et Lex AI vous aide à trouver ce que vous cherchez.",
+    "points": [
+      "Plus de 4 millions de documents",
+      "Mise à jour en continu",
+      "Recherche en langage naturel"
+    ],
+    "visual_label": "Base de données Lexum",
+    "categorie": [
+      "Jurisprudence suisse",
+      "Droit fédéral et cantonal",
+      "Droit UE",
+      "Pratique et corpus"
+    ],
+    "msg": "Ouverte à tous, gratuitement. Nous travaillons en continu pour élargir et mettre à jour les sources."
+  },
+  "monet": {
+    "label": "Monétisation",
+    "title_part1": "Vos archives deviennent",
+    "title_highlight": "une ressource active.",
+    "subtitle": "Les jugements que vous avez déjà traités, anonymisés et publiés, font croître le savoir collectif de la profession. Et ils vous restituent une valeur économique chaque fois qu'ils sont consultés.",
+    "feature_title": "Vous anonymisez, publiez, monétisez",
+    "feature_text": "Vous sélectionnez les jugements qui peuvent avoir de la valeur pour d'autres professionnels. Lexum vous aide à l'anonymisation. Vous les publiez dans la base de données. Lorsqu'un autre avocat les consulte, une part revient à votre étude. Le travail déjà accompli continue de produire de la valeur dans le temps.",
+    "points": [
+      "Sélection libre des contenus à publier",
+      "Soutien à l'anonymisation",
+      "Part sur les consultations",
+      "Visibilité professionnelle accrue"
+    ],
+    "visual_label": "Vos jugements publiés",
+    "sentenze": [
+      { "t": "Responsabilité médicale — erreur de diagnostic", "n": "12 consultations", "q": "CHF 80.00" },
+      { "t": "Bail — défauts de la chose louée", "n": "8 consultations", "q": "CHF 110.00" },
+      { "t": "Circulation routière — retrait du permis", "n": "5 consultations", "q": "CHF 45.00" }
+    ],
+    "totale_label": "Total des revenus 2026",
+    "totale_v": "CHF 235.00"
+  },
+  "sicurezza": {
+    "label": "Sécurité",
+    "title_part1": "Confidentialité",
+    "title_highlight": "par défaut, non en option.",
+    "subtitle": "Le travail juridique exige des protections réelles, non des promesses marketing. Lexum est conçu avec la confidentialité au cœur de chaque décision technique.",
+    "cards": [
+      { "t": "Cloisonnement des données", "d": "Chaque étude est isolée. Vos données ne sont jamais accessibles à d'autres études, ni aux autres membres de votre équipe sans votre permission explicite." },
+      { "t": "Anonymisation avant la publication", "d": "Avant qu'un jugement ne devienne public dans la base de données, les données sensibles sont retirées. Lexum accompagne le processus, mais le contrôle final reste le vôtre." },
+      { "t": "Journal d'audit complet", "d": "Chaque accès, chaque modification, chaque opération est enregistré. Vous savez toujours qui a fait quoi, quand et où. Transparence interne comme instrument de gouvernance." },
+      { "t": "PDF en lecture seule", "d": "Les documents de la base de données partagée sont accessibles au format numérique via des liens signés. Non téléchargeables, non redistribuables sans autorisation." }
+    ]
+  },
+  "cta": {
+    "label": "Commencez maintenant",
+    "title_part1": "Voyez Lexum",
+    "title_highlight": "au travail dans votre étude.",
+    "subtitle": "Essayez Lexum, sans engagement. Ou réservez une démonstration et nous vous montrons comment cela fonctionne en partant du travail réel de votre étude.",
+    "cta_primary": "Essayer Lexum une semaine",
+    "cta_secondary": "Demander une démonstration",
+    "no_card": "Aucune carte requise. Résiliation libre à tout moment."
+  }
+}

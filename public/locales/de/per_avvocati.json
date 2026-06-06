@@ -1,0 +1,274 @@
+{
+  "meta": {
+    "title": "Lexum für Anwaltskanzleien — Verwaltung, KI und Teamarbeit",
+    "description": "Mehrfachzugriff mit granularen Berechtigungen, geteilter Kalender, intelligentes Archiv, Lex AI und Monetarisierung von Urteilen. Die gesamte Kanzleiarbeit in einer kohärenten Umgebung.",
+    "og_title": "Lexum für Anwaltskanzleien — Verwaltung, KI und Team",
+    "og_description": "Verwaltung, Mehrfachzugriff, Kalender, intelligentes Archiv, Lex AI und Monetarisierung des Archivs. Alles in einer kohärenten Umgebung.",
+    "twitter_description": "Verwaltung, KI und Teamarbeit für Schweizer Anwaltskanzleien."
+  },
+  "hero": {
+    "badge": "Für Anwaltskanzleien und Anwälte",
+    "title_part1": "Die gesamte Kanzleiarbeit,",
+    "title_highlight": "in einer einzigen Umgebung.",
+    "subtitle": "Verwaltung, Kalender, intelligentes Archiv, Lex AI, geteilte Datenbank und Teamarbeit. Alles verbunden, alles am richtigen Ort, jederzeit.",
+    "cta_primary": "Lexum eine Woche testen",
+    "cta_secondary": "Demo-Call anfragen",
+    "no_card": "Keine Karte erforderlich. Jederzeit kündbar."
+  },
+  "multi": {
+    "label": "Mehrfachzugriff",
+    "title_part1": "Führen Sie die Kanzlei,",
+    "title_highlight": "Sie bestimmen, wer was sieht.",
+    "subtitle": "Abschottung der Informationen, granulare Rollen, kontrollierter Zugriff. Das Kanzleiarchiv bleibt nur für die von Ihnen bestimmten Personen sichtbar.",
+    "feature_title": "Sie bestimmen, wer was sieht.",
+    "feature_text": "Jedes Kanzleimitglied hat sein eigenes Profil. Sie entscheiden, wer auf das vollständige Archiv zugreift und wer nur die zugewiesenen Dossiers sieht. Sensible Informationen bleiben geschützt, auch innerhalb des Teams.",
+    "points": [
+      "Konfigurierbare Rollen und Berechtigungen",
+      "Dossier-Sichtbarkeit pro Mitglied",
+      "Abschottung des Kanzleiarchivs",
+      "Internes Audit: wer hat was gesehen, wer hat was geändert"
+    ],
+    "visual_label": "Kanzlei — Mitglieder und Berechtigungen",
+    "team_label": "Kanzleiteam",
+    "members": [
+      { "nome": "Markus Roth", "ruolo": "Inhaber", "avatar": "MR", "accesso": "Alles" },
+      { "nome": "Laura Weber", "ruolo": "Senior-Partnerin", "avatar": "LW", "accesso": "Alles" },
+      { "nome": "Andreas Brunner", "ruolo": "Anwalt", "avatar": "AB", "accesso": "Nur zugewiesene Dossiers" },
+      { "nome": "Julia Schneider", "ruolo": "Sekretariat", "avatar": "JS", "accesso": "Stammdaten und Kalender" }
+    ],
+    "compartimentazione": "Abschottung aktiv: 4 Mitglieder, 2 Zugriffsstufen, 12 segmentierte Dossiers."
+  },
+  "collab": {
+    "label": "Zusammenarbeit",
+    "title_part1": "Alle können zum Erfolg",
+    "title_highlight": "des Falls beitragen.",
+    "subtitle": "Am selben Dossier arbeiten mehrere Anwälte. Jeder hat seine eigenen Recherchen, jeder bringt seinen Beitrag. Das Dossier wächst gemeinschaftlich, ohne zu verwischen, wer was getan hat.",
+    "feature_title": "Ein Dossier, mehrere Anwälte, getrennte aber verbundene Recherchen",
+    "feature_text": "Jedes dem Dossier zugewiesene Mitglied sieht das Gesamtbild, doch seine Recherchen bleiben seine eigenen. Wird eine gespeichert, kann sie mit dem Dossier verknüpft und dem ganzen Team zugänglich gemacht werden. Lex AI liest alle Recherchen des Falls und schlägt Richtungen vor, an die noch niemand gedacht hatte.",
+    "points": [
+      "Dem Dossier zugewiesene Anwälte",
+      "Persönliche Recherchen, gemeinschaftliche Beiträge",
+      "Lex AI liest den ganzen Fall und schlägt vor",
+      "Vollständige Sichtbarkeit für den Inhaber"
+    ],
+    "visual_label": "Dossier 2026/047 — Thomas Müller",
+    "assegnati_label": "Zugewiesene Anwälte",
+    "membri_count": "3 Mitglieder",
+    "avatars": ["MR", "LW", "AB"],
+    "membri_names": "Markus (Inhaber), Laura, Andreas",
+    "ricerche_label": "Recherchen des Falls (4)",
+    "ricerche_items": [
+      { "t": "Art. 256 OR — Mängel der Mietsache", "autore": "MR" },
+      { "t": "BGer 4A_211/2023 — Haftung des Vermieters", "autore": "LW" },
+      { "t": "Einrede der Mietzinsherabsetzung", "autore": "LW" },
+      { "t": "Art. 259a OR — Rechte des Mieters", "autore": "AB" }
+    ],
+    "lex_prefix": "Lex hat alle Recherchen analysiert. Es empfiehlt, ",
+    "lex_highlight": "Art. 259d OR",
+    "lex_suffix": " zur Mietzinsherabsetzung bei Mängeln der Mietsache zu vertiefen."
+  },
+  "calendario": {
+    "feature_title": "Integrierter Kalender für Termine, Verhandlungen und Fristen",
+    "feature_text": "Ein einziger Kalender für die Kanzlei. Sie sehen Ihre Verhandlungen, die Termine mit Klienten, die Prozessfristen, die Verpflichtungen des Teams. Jedes Ereignis ist mit dem zugehörigen Dossier verknüpft, der Kontext stets griffbereit.",
+    "points": [
+      "Persönliche, Team- und Kanzleiansicht",
+      "Mit Dossiers verknüpfte Ereignisse",
+      "Prozessfristen und Erinnerungen",
+      "Synchronisation mit externen Kalendern"
+    ],
+    "visual_label": "Kalender — Laufende Woche",
+    "giorni": ["M", "D", "M", "D", "F", "S", "S"],
+    "eventi": [
+      { "ora": "09:00", "t": "Verhandlung — Bezirksgericht Zürich", "sub": "Thomas Müller — Mietrecht" },
+      { "ora": "11:30", "t": "Termin — L. Weber", "sub": "Dossier 2026/051" },
+      { "ora": "14:30", "t": "Frist Klageantwort", "sub": "Müller gg. ACME" },
+      { "ora": "16:00", "t": "Interner Call — Team Zivilrecht", "sub": "Fallbesprechung" }
+    ]
+  },
+  "clienti": {
+    "feature_title": "Klientenstammdaten und Zahlungshistorie, stets aktuell",
+    "feature_text": "Für jeden Klienten sehen Sie die offenen und abgeschlossenen Dossiers, die ausgestellten Rechnungen, die erhaltenen und die offenen Zahlungen. Keine parallelen Excel-Tabellen oder E-Mails mehr, denen man hinterherjagt: alles an einem Ort, verknüpft mit Ihrer geleisteten Arbeit.",
+    "points": [
+      "Vollständige Klientenstammdaten",
+      "Dem Klienten zugeordnete Dossiers",
+      "Zahlungs- und Rechnungshistorie",
+      "Archivierte Notizen und Korrespondenz"
+    ],
+    "visual_label": "Klient — Thomas Müller",
+    "rows": [
+      { "l": "Typ", "v": "Privatperson" },
+      { "l": "Offene Dossiers", "v": "2" },
+      { "l": "Honorarumsatz 2026", "v": "CHF 4'200.00" },
+      { "l": "Ausstehend", "v": "CHF 1'100.00" }
+    ],
+    "pagamenti_label": "Letzte Zahlungen",
+    "pagamenti": [
+      { "d": "12.03.2026", "t": "Akonto Dossier 2026/047", "i": "1'500.00", "stato": "pagato" },
+      { "d": "28.02.2026", "t": "Beratungshonorar", "i": "600.00", "stato": "pagato" },
+      { "d": "15.02.2026", "t": "Restbetrag Dossier 2025/118", "i": "1'100.00", "stato": "in_sospeso" }
+    ],
+    "stato_pagato": "Bezahlt",
+    "stato_sospeso": "Offen"
+  },
+  "archivio": {
+    "feature_title": "Das Kanzleiarchiv wird intelligent",
+    "feature_text": "Sie laden die Dokumente hoch, Lex AI klassifiziert sie und findet sie wieder, wenn sie gebraucht werden. Sie suchen in natürlicher Sprache und finden nicht nur die richtige Datei, sondern auch die genaue Stelle im Dokument, die Sie interessiert. Das Papier bleibt im Schrank, die eigentliche Arbeit bleibt digital.",
+    "points": [
+      "Mit Dossiers verknüpfte Dokumente",
+      "Semantische Suche im Text",
+      "Automatische Klassifizierung",
+      "Versionierung und Änderungsverfolgung"
+    ],
+    "visual_label": "Suche im Archiv"
+  },
+  "lexai": {
+    "label": "Künstliche Intelligenz",
+    "title_part1": "Ein Assistent, der mit",
+    "title_highlight": "Ihren Unterlagen arbeitet.",
+    "subtitle": "Lex ist kein generischer Chat. Es ist ein Assistent, der Ihre Dossiers, Ihre Recherchen und den gesamten Kontext der Schweizer Rechtsarbeit kennt.",
+    "features": [
+      { "t": "Intelligente Rechtsrecherche", "d": "Durchsuchen Sie Schweizer Erlasse, Urteile und Praxis in natürlicher Sprache. Lex versteht den Kontext und schlägt die relevantesten Ergebnisse vor." },
+      { "t": "Prozessstrategien", "d": "Analysiert den Fall und schlägt konkrete Strategien vor, Einreden, die zu erheben sind, und Argumente, die in der Verhandlung zu entwickeln sind." },
+      { "t": "Fortlaufendes Gespräch", "d": "Vertiefen Sie, wechseln Sie die Perspektive, stellen Sie Folgefragen. Lex behält den Kontext des Gesprächs." },
+      { "t": "Massgeschneiderte Strategie für das Dossier", "d": "Liest alle Recherchen und Unterlagen des Dossiers und erstellt eine personalisierte Strategie." },
+      { "t": "Verwandte Urteile", "d": "Schlägt vor, welche Urteile der Datenbank sich für Ihren konkreten Fall zu konsultieren lohnen." },
+      { "t": "Bereits ausgefüllte Schriftstücke", "d": "Mahnungen, Eingaben, Gesuche, Betreibungsbegehren. Lex füllt die Vorlagen mit den Dossierdaten und erstellt prüfbereite Schriftstücke." }
+    ],
+    "chat_label": "Lex AI — Gespräch",
+    "chat_domanda": "Wir bearbeiten den Fall Müller im Mietrecht — was ist die beste Strategie für die nächste Verhandlung?",
+    "chat_risposta": "Ich habe alle Recherchen des Falls gelesen: jede beleuchtet das Problem aus einer anderen Perspektive, sehr nützlich. Der solideste Weg ist die Einrede der Mängel der Mietsache (Art. 256 OR), bereits von Laura vertieft. Ich empfehle, sie mit Art. 259d OR zur Mietzinsherabsetzung zu stärken. Ich habe einen Entwurf der Rechtsschrift zur Prüfung vorbereitet.",
+    "chat_tag1": "Art. 256 OR",
+    "chat_tag2": "Art. 259d OR",
+    "chat_tag3": "Rechtsschrift.docx"
+  },
+  "contabilita": {
+    "label": "Integrierte Buchhaltung",
+    "title_part1": "Professionelle Rechnungsstellung,",
+    "title_highlight": "integriert.",
+    "subtitle": "Rechnungen werden mit wenigen Klicks erstellt. Die Buchhaltung der Kanzlei lebt in derselben Umgebung wie Klienten, Dossiers und Dokumente.",
+    "feature_title": "Professionelle Rechnungen, bereits fertig.",
+    "feature_text": "Jede Rechnung entsteht verknüpft mit einem Dossier und einem Klienten. Lexum berechnet automatisch die MWST von 8.1 %. Die Nummerierung läuft fortlaufend pro Jahr. Das PDF wird als QR-Rechnung erstellt, bereit für Ihren Treuhänder oder die Bank.",
+    "points": [
+      "Automatische Berechnung der MWST 8.1 %",
+      "Jährlich fortlaufende Nummerierung",
+      "PDF im QR-Rechnungsformat",
+      "Automatische Ablage im Kanzleiarchiv"
+    ],
+    "fattura_label": "Rechnung 2026/048 — Thomas Müller",
+    "numero_label": "Nummer",
+    "numero_v": "2026/048",
+    "data_label": "Datum",
+    "data_v": "15.05.2026",
+    "prestazioni_label": "Leistungen",
+    "prestazioni": [
+      { "d": "Beratung Zivilprozess", "i": "1'200.00" },
+      { "d": "Rechtsvertretung — Klageantwort", "i": "800.00" },
+      { "d": "Hauptverhandlung", "i": "500.00" }
+    ],
+    "totali": [
+      { "l": "Steuerbarer Betrag", "v": "2'500.00" },
+      { "l": "MWST 8.1 %", "v": "202.50" }
+    ],
+    "totale_label": "Zu zahlender Betrag",
+    "totale_v": "2'702.50",
+    "sdi_prefix": "PDF als QR-Rechnung erstellt — abgelegt in",
+    "sdi_path": "Archiv > Rechnungen > 2026",
+    "scadenzario_title": "Fälligkeiten im Griff",
+    "scadenzario_text": "Sie sehen auf einen Blick, wer zahlen muss, was überfällig ist, was bevorsteht. Farbige Status pro Rechnung: offen, bezahlt, überfällig.",
+    "scadenzario_stati": [
+      { "l": "Bezahlt", "v": "4'200" },
+      { "l": "Offen", "v": "2'702" },
+      { "l": "Überfällig", "v": "1'100" }
+    ],
+    "parziali_title": "Teilzahlungen erfasst",
+    "parziali_text": "Akontozahlungen, Restbeträge, Überweisungen, Bargeld. Jede Zahlungsart wird pro Rechnung erfasst. Der Status aktualisiert sich von selbst, sobald der Saldo beglichen ist.",
+    "parziali_items": [
+      { "l": "Überweisung", "d": "12.03", "i": "1'500.00" },
+      { "l": "Bargeld", "d": "20.03", "i": "700.00" },
+      { "l": "Ausstehender Restbetrag", "d": "—", "i": "502.50", "open": true }
+    ],
+    "promemoria_title": "Automatische Erinnerungen",
+    "promemoria_text": "Lexum benachrichtigt Sie drei Tage vor Fälligkeit und am Tag, an dem eine Rechnung in Verzug gerät. Keine vergessenen Mahnungen mehr, keine vergessenen E-Mails an den Klienten.",
+    "promemoria_items": [
+      { "tempo": "In 3 Tagen", "fattura": "Rechnung 2026/048 — Müller", "urgent": false },
+      { "tempo": "Heute fällig", "fattura": "Rechnung 2026/041 — Weber", "urgent": true }
+    ],
+    "lex_title_part1": "Fragen Sie Lex,",
+    "lex_title_highlight": "wer noch nicht bezahlt hat.",
+    "lex_text": "Die einzige juristische Verwaltung, in der Sie auf Deutsch fragen können «welche Rechnungen sind seit mehr als dreissig Tagen überfällig?» oder «wie viel schuldet mir Klient Müller noch?» und in wenigen Sekunden die Antwort erhalten.",
+    "lex_points": [
+      "Fragen in natürlicher Sprache",
+      "Sofortige Antworten mit den Zahlen",
+      "Direkte Links zu den relevanten Rechnungen",
+      "Kein Bericht zu erstellen, kein Filter"
+    ],
+    "lex_visual_label": "Lex zu Zahlungen",
+    "lex_domanda": "Welche Klienten haben Rechnungen, die seit mehr als 30 Tagen überfällig sind?",
+    "lex_risposta": "Ich habe 3 Rechnungen gefunden, die seit über 30 Tagen überfällig sind, für insgesamt CHF 4'150.00.",
+    "lex_fatture": [
+      { "cliente": "Thomas Müller — 2026/041", "scaduta": "Überfällig seit 42 Tagen", "importo": "1'100.00" },
+      { "cliente": "L. Brunner GmbH — 2026/035", "scaduta": "Überfällig seit 35 Tagen", "importo": "1'800.00" },
+      { "cliente": "A. Keller — 2026/028", "scaduta": "Überfällig seit 31 Tagen", "importo": "1'250.00" }
+    ]
+  },
+  "banca": {
+    "feature_title": "Eine kostenlose Datenbank, jederzeit verfügbar",
+    "feature_text": "Über 4 Millionen juristische Dokumente aus Schweizer Rechtsprechung, Bundes- und kantonalem Recht, EU-Recht, Praxis und einem von Anwälten geteilten Korpus. Offen für alle, ohne Abonnemente pro Bereich, ohne Konsultationslimit. Sie nutzen sie ab dem ersten Tag, und Lex AI hilft Ihnen zu finden, was Sie suchen.",
+    "points": [
+      "Über 4 Millionen Dokumente",
+      "Laufend aktualisiert",
+      "Suche in natürlicher Sprache"
+    ],
+    "visual_label": "Lexum-Datenbank",
+    "categorie": [
+      "Schweizer Rechtsprechung",
+      "Bundes- und kantonales Recht",
+      "EU-Recht",
+      "Praxis und Korpus"
+    ],
+    "msg": "Offen für alle, kostenlos. Wir arbeiten laufend daran, die Quellen zu erweitern und zu aktualisieren."
+  },
+  "monet": {
+    "label": "Monetarisierung",
+    "title_part1": "Ihr Archiv wird",
+    "title_highlight": "zu einer aktiven Ressource.",
+    "subtitle": "Die Urteile, die Sie bereits bearbeitet haben, anonymisiert und veröffentlicht, lassen das kollektive Wissen des Berufsstands wachsen. Und sie bringen Ihnen wirtschaftlichen Wert zurück, jedes Mal, wenn sie konsultiert werden.",
+    "feature_title": "Anonymisieren, veröffentlichen, monetarisieren",
+    "feature_text": "Sie wählen die Urteile aus, die für andere Fachpersonen von Wert sein können. Lexum unterstützt Sie bei der Anonymisierung. Sie veröffentlichen sie in der Datenbank. Wenn ein anderer Anwalt sie konsultiert, geht ein Anteil an Ihre Kanzlei. Die bereits geleistete Arbeit erzeugt weiter Wert über die Zeit.",
+    "points": [
+      "Freie Auswahl der zu veröffentlichenden Inhalte",
+      "Unterstützung bei der Anonymisierung",
+      "Anteil an den Konsultationen",
+      "Erhöhte berufliche Sichtbarkeit"
+    ],
+    "visual_label": "Ihre veröffentlichten Urteile",
+    "sentenze": [
+      { "t": "Arzthaftung — Diagnosefehler", "n": "12 Abrufe", "q": "CHF 80.00" },
+      { "t": "Mietrecht — Mängel der Mietsache", "n": "8 Abrufe", "q": "CHF 110.00" },
+      { "t": "Strassenverkehr — Führerausweisentzug", "n": "5 Abrufe", "q": "CHF 45.00" }
+    ],
+    "totale_label": "Gesamteinnahmen 2026",
+    "totale_v": "CHF 235.00"
+  },
+  "sicurezza": {
+    "label": "Sicherheit",
+    "title_part1": "Vertraulichkeit",
+    "title_highlight": "als Standard, nicht als Option.",
+    "subtitle": "Juristische Arbeit erfordert echten Schutz, keine Marketingversprechen. Lexum ist mit Vertraulichkeit im Zentrum jeder technischen Entscheidung konzipiert.",
+    "cards": [
+      { "t": "Abschottung der Daten", "d": "Jede Kanzlei ist isoliert. Ihre Daten sind niemals für andere Kanzleien zugänglich, noch für die übrigen Mitglieder Ihres Teams ohne Ihre ausdrückliche Erlaubnis." },
+      { "t": "Anonymisierung vor der Veröffentlichung", "d": "Bevor ein Urteil in der Datenbank öffentlich wird, werden sensible Daten entfernt. Lexum unterstützt den Prozess, doch die endgültige Kontrolle bleibt bei Ihnen." },
+      { "t": "Vollständiges Audit-Log", "d": "Jeder Zugriff, jede Änderung, jeder Vorgang wird protokolliert. Sie wissen stets, wer was wann und wo getan hat. Interne Transparenz als Governance-Instrument." },
+      { "t": "PDF nur zur Ansicht", "d": "Die Dokumente der geteilten Datenbank sind digital über signierte Links zugänglich. Nicht herunterladbar, nicht weiterverteilbar ohne Genehmigung." }
+    ]
+  },
+  "cta": {
+    "label": "Jetzt starten",
+    "title_part1": "Sehen Sie Lexum",
+    "title_highlight": "in Ihrer Kanzlei bei der Arbeit.",
+    "subtitle": "Testen Sie Lexum, ohne Verpflichtung. Oder buchen Sie einen Demo-Call und wir zeigen Ihnen, wie es funktioniert, ausgehend von der echten Arbeit Ihrer Kanzlei.",
+    "cta_primary": "Lexum eine Woche testen",
+    "cta_secondary": "Demo-Call anfragen",
+    "no_card": "Keine Karte erforderlich. Jederzeit frei kündbar."
+  }
+}

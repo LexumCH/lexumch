@@ -20,12 +20,17 @@ import {
     CreditCard, StickyNote, User, FolderOpen, ArrowRight, Sparkles,
     Edit2, Check, X, Calendar, Clock, AlertCircle, Trash2, Building2,
     ExternalLink, Eye, Upload, KeyRound, Mail, Eye as EyeIcon, EyeOff,
-    Copy, RefreshCw, CheckCircle, ShieldOff, Wallet, Users
+    Copy, RefreshCw, CheckCircle, ShieldOff, Wallet, Users, BookOpen
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
 import GestioneMandati from '@/components/fiduciario/GestioneMandati'
+import EntrateUscite from '@/components/fiduciario/EntrateUscite'
+import PianificazioneLiquidita from '@/components/fiduciario/PianificazioneLiquidita'
+import BudgetScostamenti from '@/components/fiduciario/BudgetScostamenti'
+import ReportConto from '@/components/fiduciario/ReportConto'
+import Contabilita from '@/components/fiduciario/Contabilita'
 
 // ─────────────────────────────────────────────────────────────
 // COSTANTI
@@ -1371,6 +1376,7 @@ export default function AvvocatoClientiDettaglio() {
             { id: 'panoramica', label: 'Panoramica', icon: User },
             { id: 'mandati', label: 'Mandati', icon: FolderOpen },
             { id: 'dipendenti', label: 'Dipendenti', icon: Users },
+            { id: 'contabilita', label: 'Contabilità', icon: BookOpen },
             { id: 'documenti', label: 'Documenti', icon: FileText },
             { id: 'comunicazioni', label: 'Comunicazioni', icon: MessageSquare },
             { id: 'note_interne', label: 'Note interne', icon: Lock },
@@ -1386,6 +1392,7 @@ export default function AvvocatoClientiDettaglio() {
         ]
     const [cliente, setCliente] = useState(null)
     const [tab, setTab] = useState('panoramica')
+    const [refreshMovimenti, setRefreshMovimenti] = useState(0)
     const [pratiche, setPratiche] = useState([])
     const [collaboratori, setCollaboratori] = useState([])
     const [isStudio, setIsStudio] = useState(false)
@@ -1751,7 +1758,18 @@ export default function AvvocatoClientiDettaglio() {
             )}
 
             {tab === 'mandati' && <GestioneMandati clienteId={id} />}
-            {tab === 'dipendenti' && <GestioneDipendenti clienteId={id} />}
+            {tab === 'dipendenti' && (
+                <div className="space-y-6">
+                    <EntrateUscite clienteId={id} onMovimentiChange={() => setRefreshMovimenti(k => k + 1)} />
+                    <ReportConto clienteId={id} refreshTrigger={refreshMovimenti} />
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                        <PianificazioneLiquidita clienteId={id} refreshTrigger={refreshMovimenti} />
+                        <BudgetScostamenti clienteId={id} refreshTrigger={refreshMovimenti} />
+                    </div>
+                    <GestioneDipendenti clienteId={id} />
+                </div>
+            )}
+            {tab === 'contabilita' && <Contabilita clienteId={id} />}
             {tab === 'documenti' && <TabDocumenti clienteId={id} />}
             {tab === 'comunicazioni' && <TabComunicazioni clienteId={id} />}
             {tab === 'note_interne' && <TabNoteInterne clienteId={id} />}

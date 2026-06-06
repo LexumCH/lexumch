@@ -34,7 +34,7 @@ const STATO_CONFIG = {
     completata: { label: 'Completata', classe: 'bg-oro/10 border-oro/30 text-oro' },
 }
 
-export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studioId = null }) {
+export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studioId = null, refreshTrigger = 0 }) {
     const [scadenze, setScadenze] = useState([])
     const [loading, setLoading] = useState(true)
     const [mostraModal, setMostraModal] = useState(false)
@@ -42,7 +42,7 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
 
     useEffect(() => {
         if (mandatoId) carica()
-    }, [mandatoId])
+    }, [mandatoId, refreshTrigger])
 
     async function carica() {
         setLoading(true)

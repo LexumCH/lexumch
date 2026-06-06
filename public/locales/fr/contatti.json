@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "title": "Lexum — Contact, démo et support",
+    "description": "Vous avez une question sur Lexum ? Vous souhaitez une démo personnalisée ? Écrivez-nous, inscrivez-vous pour parler directement avec l'équipe, ou consultez les réponses aux questions les plus fréquentes.",
+    "og_title": "Lexum — Contact",
+    "og_description": "Parlez avec l'équipe, demandez une démo ou lisez les réponses les plus fréquentes.",
+    "twitter_description": "Parlez avec l'équipe, demandez une démo ou lisez les réponses les plus fréquentes."
+  },
+  "hero": {
+    "label": "Contact",
+    "title_part1": "Parlons de",
+    "title_highlight": "votre étude.",
+    "subtitle": "Trois façons de nous contacter, selon ce dont vous avez besoin. L'équipe est composée de personnes réelles, non de répondeurs automatiques."
+  },
+  "chat": {
+    "label": "Chat avec l'équipe",
+    "title": "Questions rapides, réponses d'une personne.",
+    "text": "Inscrivez-vous gratuitement : dans votre espace, vous trouvez une section assistance où vous pouvez nous écrire directement. C'est un membre de l'équipe qui répond, pas un bot. Généralement en quelques heures les jours ouvrables.",
+    "cta": "S'inscrire et nous écrire"
+  },
+  "demo": {
+    "label": "Démo dédiée",
+    "title": "30 minutes avec l'équipe, en partant de votre étude.",
+    "text": "Inscrivez-vous et nous vous contactons sous 48 heures ouvrables pour fixer une démonstration. Nous vous montrons Lexum en partant des besoins concrets de votre étude, non d'une démo générique.",
+    "cta": "Demander une démo"
+  },
+  "email": {
+    "label": "E-mail direct",
+    "title": "Pour celles et ceux qui préfèrent écrire sans s'inscrire.",
+    "text": "Écrivez-nous à info@lexum.ch. Nous répondons les jours ouvrables, du lundi au vendredi, 9h00–18h00. Pour une simple question rapide, c'est la voie la plus directe."
+  },
+  "orari": "Lun–Ven, 9h00–18h00 (CET). Réponses en quelques heures les jours ouvrables.",
+  "faq": {
+    "label": "Questions fréquentes",
+    "title": "Les questions les plus posées.",
+    "subtitle": "Souvent, la question a déjà été posée par quelqu'un d'autre. Voici les réponses aux choses qu'on nous demande le plus souvent.",
+    "items": [
+      {
+        "q": "Puis-je essayer Lexum gratuitement ?",
+        "a": "Oui. Vous bénéficiez d'une semaine d'essai gratuit, sans carte de crédit requise, avec accès à toutes les fonctions principales de l'abonnement. À la fin, si vous souhaitez continuer, vous choisissez l'abonnement adapté à votre étude. Si vous ne continuez pas, rien ne vous est facturé."
+      },
+      {
+        "q": "Lexum remplace-t-il les bases de données que j'utilise aujourd'hui ?",
+        "a": "Pour de nombreuses études, oui. Lex AI consulte plus de 4 millions de documents entre jurisprudence suisse, droit fédéral et cantonal, pratique et droit UE, et est conçu pour couvrir la grande majorité des recherches juridiques quotidiennes. Pour qui a besoin de fonctions très spécialisées de bases de données historiques ou sectorielles, Lexum s'intègre sans problème. Vous pouvez copier le contenu trouvé dans d'autres sources, l'ajouter à vos recherches et y réfléchir avec Lex dans le flux de travail existant."
+      },
+      {
+        "q": "Y a-t-il des limites d'accès à la base de données ?",
+        "a": "Non, sur Lexum il n'y a aucune limite à la base de données : vous pouvez effectuer des recherches dans tous les domaines, par exemple civil, pénal, droit européen. La seule limite actuelle est de savoir si la norme que vous cherchez figure parmi les plus de 4 millions de documents juridiques présents dans la base de données Lexum."
+      },
+      {
+        "q": "Combien coûte Lexum ?",
+        "a": "Les détails sur les abonnements se trouvent après l'inscription, où vous pouvez choisir celui qui convient le mieux à votre étude (professionnel individuel, petite étude, étude moyenne à grande). La base de données partagée avec plus de 4 millions de documents est en revanche accessible gratuitement à tous."
+      },
+      {
+        "q": "Mes données restent-elles les miennes ?",
+        "a": "Oui. Lexum est conçu avec la confidentialité au cœur : les données de chaque étude sont cloisonnées et isolées, hébergées sur des serveurs en Suisse conformes à la LPD suisse et au RGPD, et ne sont jamais vendues ni partagées avec des tiers. Les jugements de vos archives restent privés. Ce n'est que si vous décidez de les publier dans la base de données partagée qu'ils sont d'abord anonymisés, et vous gardez toujours le contrôle final."
+      },
+      {
+        "q": "Comment fonctionne la vérification en tant qu'avocat ?",
+        "a": "Vous vous inscrivez en tant que professionnel, téléchargez votre attestation d'inscription au registre cantonal des avocats (ou un document équivalent), et l'équipe vérifie sous 48 heures ouvrables. Vous recevez un e-mail de confirmation et accédez aux fonctions réservées aux professionnels vérifiés : publication de jugements, monétisation des archives, accès étendu à la base de données."
+      },
+      {
+        "q": "Puis-je utiliser Lexum si je suis avocat individuel ?",
+        "a": "Absolument. Lexum est pensé aussi bien pour les études moyennes à grandes que pour le professionnel individuel. Les mêmes fonctionnalités sont disponibles dans les deux cas, dimensionnées sur les besoins de qui les utilise : gestion, agenda, archives intelligentes, Lex AI et base de données partagée."
+      },
+      {
+        "q": "Qu'advient-il de mes données si j'arrête d'utiliser Lexum ?",
+        "a": "Vos données restent les vôtres. À tout moment, vous pouvez exporter l'intégralité des archives de l'étude (clients, dossiers, documents, correspondance) dans un format standard. Si vous supprimez le compte, les données sont définitivement effacées dans les délais prévus par la loi sur la protection des données."
+      }
+    ],
+    "not_found_prefix": "Vous n'avez pas trouvé la réponse ?",
+    "not_found_link": "Inscrivez-vous et écrivez-nous",
+    "not_found_suffix": ", nous vous répondons directement."
+  },
+  "trust": {
+    "items": [
+      "Données hébergées en Suisse",
+      "Conforme à la LPD et au RGPD",
+      "Cloisonnement de l'étude",
+      "Anonymisation des contenus"
+    ]
+  }
+}

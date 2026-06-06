@@ -15,7 +15,7 @@ i18n
         supportedLngs: LINGUE_SUPPORTATE,
 
         // Precarica TUTTI i namespace all'init
-        ns: ['common', 'home', 'archivio_demo', 'lex_demo'],
+        ns: ['common', 'home', 'archivio_demo', 'lex_demo', 'per_avvocati', 'contatti'],
         defaultNS: 'common',
 
         // Precarica le risorse anche per le lingue non attive (cache)

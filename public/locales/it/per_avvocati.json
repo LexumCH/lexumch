@@ -1,0 +1,460 @@
+{
+    "meta": {
+        "title": "Lexum per Studi Legali — Gestionale, AI e collaborazione di team",
+        "description": "Multi-accesso con permessi granulari, calendario condiviso, archivio intelligente, Lex AI e monetizzazione delle sentenze. Tutto il lavoro dello studio in un ambiente coerente.",
+        "og_title": "Lexum per Studi Legali — Gestionale, AI e team",
+        "og_description": "Gestionale, multi-accesso, calendario, archivio intelligente, Lex AI e monetizzazione dell'archivio. Tutto in un ambiente coerente.",
+        "twitter_description": "Gestionale, AI e collaborazione di team per studi legali svizzeri."
+    },
+    "hero": {
+        "badge": "Per studi legali e avvocati",
+        "title_part1": "Tutto il lavoro dello studio,",
+        "title_highlight": "in un unico ambiente.",
+        "subtitle": "Gestionale, calendario, archivio intelligente, Lex AI, banca dati condivisa e collaborazione di team. Tutto connesso, tutto al posto giusto, sempre.",
+        "cta_primary": "Prova Lexum una settimana",
+        "cta_secondary": "Richiedi una call dimostrativa",
+        "no_card": "Nessuna carta richiesta. Cancellazione libera."
+    },
+    "multi": {
+        "label": "Multi-accesso",
+        "title_part1": "Gestisci lo studio,",
+        "title_highlight": "scegli chi vede cosa.",
+        "subtitle": "Compartimentazione delle informazioni, ruoli granulari, accesso controllato. L'archivio dello studio resta visibile solo a chi decidi tu.",
+        "feature_title": "Tu decidi chi vede cosa.",
+        "feature_text": "Ogni membro dello studio ha il suo profilo. Tu scegli chi accede all'archivio completo e chi vede solo le pratiche assegnate. Le informazioni sensibili restano protette, anche all'interno del team.",
+        "points": [
+            "Ruoli e permessi configurabili",
+            "Visibilità pratiche per singolo membro",
+            "Compartimentazione archivio dello studio",
+            "Audit interno: chi ha visto cosa, chi ha modificato cosa"
+        ],
+        "visual_label": "Studio — Membri e permessi",
+        "team_label": "Team studio",
+        "members": [
+            {
+                "nome": "Marco Rossi",
+                "ruolo": "Titolare",
+                "avatar": "MR",
+                "accesso": "Tutto"
+            },
+            {
+                "nome": "Laura Bianchi",
+                "ruolo": "Socia senior",
+                "avatar": "LB",
+                "accesso": "Tutto"
+            },
+            {
+                "nome": "Andrea Verdi",
+                "ruolo": "Avvocato",
+                "avatar": "AV",
+                "accesso": "Solo pratiche assegnate"
+            },
+            {
+                "nome": "Giulia Neri",
+                "ruolo": "Segreteria",
+                "avatar": "GN",
+                "accesso": "Anagrafiche e calendario"
+            }
+        ],
+        "compartimentazione": "Compartimentazione attiva: 4 membri, 2 livelli di accesso, 12 pratiche segmentate."
+    },
+    "collab": {
+        "label": "Collaborazione",
+        "title_part1": "Tutti possono contribuire",
+        "title_highlight": "alla riuscita del caso.",
+        "subtitle": "Sulla stessa pratica lavorano più avvocati. Ognuno ha le sue ricerche, ognuno porta il suo contributo. La pratica cresce in modo collettivo, senza confondere chi ha fatto cosa.",
+        "feature_title": "Una pratica, più avvocati, ricerche separate ma collegate",
+        "feature_text": "Ogni membro assegnato alla pratica vede il quadro complessivo, ma le sue ricerche restano sue. Quando ne salva una, può collegarla alla pratica e renderla disponibile a tutto il team. Lex AI legge tutte le ricerche del caso e suggerisce direzioni che nessuno aveva ancora considerato.",
+        "points": [
+            "Avvocati assegnati alla pratica",
+            "Ricerche personali, contributi collettivi",
+            "Lex AI legge tutto il caso e suggerisce",
+            "Visibilità completa per il titolare"
+        ],
+        "visual_label": "Pratica 2026/047 — Mario Rossi",
+        "assegnati_label": "Avvocati assegnati",
+        "membri_count": "3 membri",
+        "avatars": [
+            "MR",
+            "LB",
+            "AV"
+        ],
+        "membri_names": "Marco (titolare), Laura, Andrea",
+        "ricerche_label": "Ricerche del caso (4)",
+        "ricerche_items": [
+            {
+                "t": "Art. 256 CO — difetti della cosa locata",
+                "autore": "MR"
+            },
+            {
+                "t": "TF 4A_211/2023 — responsabilità del locatore",
+                "autore": "LB"
+            },
+            {
+                "t": "Eccezione di riduzione della pigione",
+                "autore": "LB"
+            },
+            {
+                "t": "Art. 259a CO — diritti del conduttore",
+                "autore": "AV"
+            }
+        ],
+        "lex_prefix": "Lex ha analizzato tutte le ricerche. Suggerisce di approfondire ",
+        "lex_highlight": "art. 259d CO",
+        "lex_suffix": " sulla riduzione della pigione per i difetti della cosa locata."
+    },
+    "calendario": {
+        "feature_title": "Calendario integrato per appuntamenti, udienze e scadenze",
+        "feature_text": "Un unico calendario per lo studio. Vedi le tue udienze, gli appuntamenti con i clienti, i termini processuali, gli impegni del team. Ogni evento è collegato alla pratica di riferimento, con il contesto sempre a portata di mano.",
+        "points": [
+            "Vista personale, di team e di studio",
+            "Eventi collegati alle pratiche",
+            "Termini processuali e promemoria",
+            "Sincronizzazione con calendari esterni"
+        ],
+        "visual_label": "Calendario — Settimana corrente",
+        "giorni": [
+            "L",
+            "M",
+            "M",
+            "G",
+            "V",
+            "S",
+            "D"
+        ],
+        "eventi": [
+            {
+                "ora": "09:00",
+                "t": "Udienza — Pretura di Lugano",
+                "sub": "Mario Rossi — Locazione"
+            },
+            {
+                "ora": "11:30",
+                "t": "Appuntamento — L. Verdi",
+                "sub": "Pratica 2026/051"
+            },
+            {
+                "ora": "14:30",
+                "t": "Termine memoria di risposta",
+                "sub": "Rossi c. ACME"
+            },
+            {
+                "ora": "16:00",
+                "t": "Call interna — Team civile",
+                "sub": "Revisione casi"
+            }
+        ]
+    },
+    "clienti": {
+        "feature_title": "Anagrafica cliente e storico pagamenti, sempre aggiornati",
+        "feature_text": "Per ogni cliente vedi le pratiche aperte e chiuse, le fatture emesse, i pagamenti ricevuti e quelli in sospeso. Niente più fogli Excel paralleli o mail da rincorrere: tutto in un unico posto, collegato al lavoro che hai fatto.",
+        "points": [
+            "Anagrafica clienti completa",
+            "Pratiche associate al cliente",
+            "Storico pagamenti e fatture",
+            "Note e comunicazioni archiviate"
+        ],
+        "visual_label": "Cliente — Mario Rossi",
+        "rows": [
+            {
+                "l": "Tipo",
+                "v": "Privato"
+            },
+            {
+                "l": "Pratiche aperte",
+                "v": "2"
+            },
+            {
+                "l": "Fatturato 2026",
+                "v": "CHF 4'200.00"
+            },
+            {
+                "l": "Da incassare",
+                "v": "CHF 1'100.00"
+            }
+        ],
+        "pagamenti_label": "Pagamenti recenti",
+        "pagamenti": [
+            {
+                "d": "12.03.2026",
+                "t": "Acconto pratica 2026/047",
+                "i": "1'500.00",
+                "stato": "pagato"
+            },
+            {
+                "d": "28.02.2026",
+                "t": "Onorario consulenza",
+                "i": "600.00",
+                "stato": "pagato"
+            },
+            {
+                "d": "15.02.2026",
+                "t": "Saldo pratica 2025/118",
+                "i": "1'100.00",
+                "stato": "in_sospeso"
+            }
+        ],
+        "stato_pagato": "Pagato",
+        "stato_sospeso": "In sospeso"
+    },
+    "archivio": {
+        "feature_title": "L'archivio dello studio diventa intelligente",
+        "feature_text": "Carichi i documenti, Lex AI li classifica e li ritrova quando servono. Cerchi con linguaggio naturale e trovi non solo il file giusto, ma anche il punto preciso del documento che ti interessa. La carta resta in cassettiera, il lavoro vero resta digitale.",
+        "points": [
+            "Documenti collegati alle pratiche",
+            "Ricerca semantica nel testo",
+            "Classificazione automatica",
+            "Versionamento e tracciamento modifiche"
+        ],
+        "visual_label": "Ricerca nell'archivio"
+    },
+    "lexai": {
+        "label": "Intelligenza artificiale",
+        "title_part1": "Un assistente che lavora",
+        "title_highlight": "sui tuoi materiali.",
+        "subtitle": "Lex non è una chat generica. È un assistente che conosce le tue pratiche, le tue ricerche e l'intero contesto del lavoro legale svizzero.",
+        "features": [
+            {
+                "t": "Ricerca legale intelligente",
+                "d": "Cerca su norme, sentenze e prassi svizzere con linguaggio naturale. Lex capisce il contesto e suggerisce i risultati più rilevanti."
+            },
+            {
+                "t": "Strategie processuali",
+                "d": "Analizza il caso e propone strategie concrete, eccezioni da sollevare e argomenti da sviluppare in udienza."
+            },
+            {
+                "t": "Conversazione continua",
+                "d": "Approfondisci, cambia angolazione, chiedi follow-up. Lex ricorda il contesto della conversazione."
+            },
+            {
+                "t": "Strategia su misura per la pratica",
+                "d": "Legge tutte le ricerche e i materiali della pratica e genera una strategia personalizzata."
+            },
+            {
+                "t": "Sentenze correlate",
+                "d": "Suggerisce quali sentenze della banca dati vale la pena consultare in base al tuo caso specifico."
+            },
+            {
+                "t": "Atti già compilati",
+                "d": "Diffide, allegati, istanze, precetti esecutivi. Lex compila i template con i dati della pratica e produce atti pronti per la revisione."
+            }
+        ],
+        "chat_label": "Lex AI — Conversazione",
+        "chat_domanda": "Stiamo lavorando alla pratica Rossi sulla locazione, qual è la strategia migliore per la prossima udienza?",
+        "chat_risposta": "Ho letto tutte le ricerche del caso: ognuna affronta il problema da una prospettiva diversa, molto utili. La strada più solida è l'eccezione di difetti della cosa locata (art. 256 CO), già approfondita da Laura. Suggerisco di rafforzarla con l'art. 259d CO sulla riduzione della pigione. Ho preparato una bozza di memoria pronta per la tua revisione.",
+        "chat_tag1": "Art. 256 CO",
+        "chat_tag2": "Art. 259d CO",
+        "chat_tag3": "Memoria.docx"
+    },
+    "contabilita": {
+        "label": "Contabilità integrata",
+        "title_part1": "Fatturazione professionale,",
+        "title_highlight": "integrata.",
+        "subtitle": "Le fatture si emettono in pochi clic. La contabilità dello studio vive nello stesso ambiente di clienti, pratiche e documenti.",
+        "feature_title": "Fatture professionali, già pronte.",
+        "feature_text": "Ogni fattura nasce collegata a una pratica e a un cliente. Lexum calcola automaticamente l'IVA all'8.1%. La numerazione è progressiva per anno. Il PDF è generato come QR-fattura, pronto per il tuo fiduciario o per la banca.",
+        "points": [
+            "Calcolo automatico dell'IVA 8.1%",
+            "Numerazione progressiva annuale",
+            "PDF in formato QR-fattura",
+            "Archiviazione automatica nell'archivio dello studio"
+        ],
+        "fattura_label": "Fattura 2026/048 — Mario Rossi",
+        "numero_label": "Numero",
+        "numero_v": "2026/048",
+        "data_label": "Data",
+        "data_v": "15.05.2026",
+        "prestazioni_label": "Prestazioni",
+        "prestazioni": [
+            {
+                "d": "Consulenza causa civile",
+                "i": "1'200.00"
+            },
+            {
+                "d": "Patrocinio — memoria di risposta",
+                "i": "800.00"
+            },
+            {
+                "d": "Udienza di dibattimento",
+                "i": "500.00"
+            }
+        ],
+        "totali": [
+            {
+                "l": "Imponibile",
+                "v": "2'500.00"
+            },
+            {
+                "l": "IVA 8.1%",
+                "v": "202.50"
+            }
+        ],
+        "totale_label": "Totale da pagare",
+        "totale_v": "2'702.50",
+        "sdi_prefix": "PDF generato come QR-fattura — archiviato in",
+        "sdi_path": "Archivio > Fatture > 2026",
+        "scadenzario_title": "Scadenzario sotto controllo",
+        "scadenzario_text": "Vedi a colpo d'occhio chi deve pagare, cosa è scaduto, cosa è in arrivo. Stati colorati per fattura: in attesa, pagata, scaduta.",
+        "scadenzario_stati": [
+            {
+                "l": "Pagata",
+                "v": "4'200"
+            },
+            {
+                "l": "In attesa",
+                "v": "2'702"
+            },
+            {
+                "l": "Scaduta",
+                "v": "1'100"
+            }
+        ],
+        "parziali_title": "Pagamenti parziali tracciati",
+        "parziali_text": "Acconti, saldi, bonifici, contanti. Ogni metodo di pagamento è tracciato per fattura. Lo stato si aggiorna da solo quando il saldo è completato.",
+        "parziali_items": [
+            {
+                "l": "Bonifico",
+                "d": "12.03",
+                "i": "1'500.00"
+            },
+            {
+                "l": "Contanti",
+                "d": "20.03",
+                "i": "700.00"
+            },
+            {
+                "l": "Saldo da incassare",
+                "d": "—",
+                "i": "502.50",
+                "open": true
+            }
+        ],
+        "promemoria_title": "Promemoria automatici",
+        "promemoria_text": "Lexum ti avvisa tre giorni prima della scadenza e il giorno in cui una fattura va in ritardo. Niente più solleciti scordati, niente più mail dimenticate al cliente.",
+        "promemoria_items": [
+            {
+                "tempo": "Tra 3 giorni",
+                "fattura": "Fattura 2026/048 — Rossi",
+                "urgent": false
+            },
+            {
+                "tempo": "Scaduta oggi",
+                "fattura": "Fattura 2026/041 — Verdi",
+                "urgent": true
+            }
+        ],
+        "lex_title_part1": "Chiedi a Lex",
+        "lex_title_highlight": "chi non ha ancora pagato.",
+        "lex_text": "L'unico gestionale legale dove puoi chiedere in italiano «quali fatture sono scadute da più di trenta giorni?» o «quanto mi deve ancora pagare il cliente Rossi?» e ricevere la risposta in pochi secondi.",
+        "lex_points": [
+            "Domande in linguaggio naturale",
+            "Risposte immediate con i numeri",
+            "Link diretti alle fatture rilevanti",
+            "Nessun report da generare, nessun filtro"
+        ],
+        "lex_visual_label": "Lex sui pagamenti",
+        "lex_domanda": "Quali clienti hanno fatture scadute da più di 30 giorni?",
+        "lex_risposta": "Ho trovato 3 fatture scadute da oltre 30 giorni, per un totale di CHF 4'150.00.",
+        "lex_fatture": [
+            {
+                "cliente": "Mario Rossi — 2026/041",
+                "scaduta": "Scaduta da 42 giorni",
+                "importo": "1'100.00"
+            },
+            {
+                "cliente": "L. Verdi Sagl — 2026/035",
+                "scaduta": "Scaduta da 35 giorni",
+                "importo": "1'800.00"
+            },
+            {
+                "cliente": "A. Bianchi — 2026/028",
+                "scaduta": "Scaduta da 31 giorni",
+                "importo": "1'250.00"
+            }
+        ]
+    },
+    "banca": {
+        "feature_title": "Una banca dati gratis, sempre disponibile",
+        "feature_text": "Oltre 4 milioni di documenti giuridici tra giurisprudenza svizzera, normativa federale e cantonale, diritto UE, prassi e corpus condiviso dagli avvocati. Aperta a chiunque, senza abbonamenti per area, senza limiti di consultazione. La consulti dal primo giorno, e Lex AI ti aiuta a trovare quello che cerchi.",
+        "points": [
+            "Oltre 4 milioni di documenti",
+            "Aggiornata in modo continuo",
+            "Ricerca con linguaggio naturale"
+        ],
+        "visual_label": "Banca dati Lexum",
+        "categorie": [
+            "Giurisprudenza svizzera",
+            "Normativa federale e cantonale",
+            "Diritto UE",
+            "Prassi e corpus"
+        ],
+        "msg": "Aperta a chiunque, gratis. Lavoriamo in modo continuo per ampliare e aggiornare le fonti."
+    },
+    "monet": {
+        "label": "Monetizzazione",
+        "title_part1": "Il tuo archivio diventa",
+        "title_highlight": "una risorsa attiva.",
+        "subtitle": "Le sentenze che hai già lavorato, anonimizzate e pubblicate, fanno crescere il sapere collettivo della professione. E ti restituiscono valore economico ogni volta che vengono consultate.",
+        "feature_title": "Anonimizzi, pubblichi, monetizzi",
+        "feature_text": "Selezioni le sentenze che possono avere valore per altri professionisti. Lexum ti aiuta nell'anonimizzazione. Le pubblichi nella banca dati. Quando un altro avvocato le consulta, una quota va al tuo studio. Il lavoro già fatto continua a produrre valore nel tempo.",
+        "points": [
+            "Selezione libera dei contenuti da pubblicare",
+            "Supporto all'anonimizzazione",
+            "Quota sulle consultazioni",
+            "Visibilità professionale aumentata"
+        ],
+        "visual_label": "Le tue sentenze pubblicate",
+        "sentenze": [
+            {
+                "t": "Responsabilità medica — errore diagnostico",
+                "n": "12 consultazioni",
+                "q": "CHF 80.00"
+            },
+            {
+                "t": "Locazione — difetti della cosa locata",
+                "n": "8 consultazioni",
+                "q": "CHF 110.00"
+            },
+            {
+                "t": "Circolazione stradale — revoca della licenza",
+                "n": "5 consultazioni",
+                "q": "CHF 45.00"
+            }
+        ],
+        "totale_label": "Totale ricavi 2026",
+        "totale_v": "CHF 235.00"
+    },
+    "sicurezza": {
+        "label": "Sicurezza",
+        "title_part1": "Riservatezza",
+        "title_highlight": "come standard, non come opzione.",
+        "subtitle": "Il lavoro legale richiede protezioni reali, non promesse di marketing. Lexum è progettato con la riservatezza al centro di ogni decisione tecnica.",
+        "cards": [
+            {
+                "t": "Compartimentazione dati",
+                "d": "Ogni studio è isolato. I tuoi dati non sono mai accessibili ad altri studi, né agli altri membri del tuo team senza il tuo permesso esplicito."
+            },
+            {
+                "t": "Anonimizzazione prima della pubblicazione",
+                "d": "Prima che una sentenza diventi pubblica nella banca dati, i dati sensibili vengono rimossi. Lexum supporta il processo, ma il controllo finale resta tuo."
+            },
+            {
+                "t": "Audit log completo",
+                "d": "Ogni accesso, ogni modifica, ogni operazione viene registrata. Sai sempre chi ha fatto cosa, quando e dove. Trasparenza interna come strumento di governance."
+            },
+            {
+                "t": "PDF in sola visualizzazione",
+                "d": "I documenti della banca dati condivisa sono accessibili in formato digitale tramite link firmati. Non scaricabili, non ridistribuibili senza autorizzazione."
+            }
+        ]
+    },
+    "cta": {
+        "label": "Inizia ora",
+        "title_part1": "Vedi Lexum",
+        "title_highlight": "al lavoro nel tuo studio.",
+        "subtitle": "Prova Lexum, senza vincoli. Oppure prenota una call dimostrativa e ti mostriamo come funziona partendo dal lavoro reale del tuo studio.",
+        "cta_primary": "Prova Lexum una settimana",
+        "cta_secondary": "Richiedi una call dimostrativa",
+        "no_card": "Nessuna carta richiesta. Cancellazione libera in qualsiasi momento."
+    }
+}

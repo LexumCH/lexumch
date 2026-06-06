@@ -7,6 +7,7 @@ import {
     EyeOff, Download, Tag, User, FolderOpen, Edit2, X
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
 
 const STATUS_CONFIG = {
     pending: { label: 'In coda', variant: 'gray' },
@@ -184,6 +185,8 @@ export default function ArchivioDettaglio() {
                 <div className="flex items-center gap-2 flex-wrap">
                     <Badge label={sc.label} variant={sc.variant} />
                     {doc.verificato && <Badge label="Verificato" variant="salvia" />}
+                    {/* Tag entrata/uscita (fiduciario): crea il movimento via OCR. Gated sul mandato. */}
+                    <AssegnaMovimento doc={doc} />
                 </div>
             </div>
 
