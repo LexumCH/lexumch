@@ -50,6 +50,7 @@ import AdminProfilo from './pages/admin/Profilo'
 
 // ── Avvocato ──
 import AvvocatoDashboard from './pages/avvocato/Dashboard'
+import FiduciarioDashboard from './pages/fiduciario/Dashboard'
 import { AvvocatoClienti } from './pages/avvocato/clienti/Lista'
 import AvvocatoClientiNuovo from './pages/avvocato/clienti/Nuovo'
 import AvvocatoClientiDettaglio from './pages/avvocato/clienti/Dettaglio'
@@ -130,6 +131,11 @@ function ProLayout({ children }) {
   const { role } = useAuth()
   const Layout = role === 'fiduciario' ? FiduciarioLayout : AvvocatoLayout
   return <Layout>{children}</Layout>
+}
+// Dashboard giusta per ruolo: il fiduciario ha il suo quadro generale
+function DashboardRuolo() {
+  const { role } = useAuth()
+  return role === 'fiduciario' ? <FiduciarioDashboard /> : <AvvocatoDashboard />
 }
 // Rotte condivise avvocato + fiduciario (pagine adattate/condivise)
 function Pro({ children }) { return <ProtectedRoute roles={['avvocato', 'fiduciario']}><ProLayout>{children}</ProLayout></ProtectedRoute> }
@@ -233,7 +239,7 @@ export default function App() {
               {/* ═══════════════════════════════════════════════════════
                 AVVOCATO
                 ═══════════════════════════════════════════════════════ */}
-              <Route path="/dashboard" element={<Pro><AvvocatoDashboard /></Pro>} />
+              <Route path="/dashboard" element={<Pro><DashboardRuolo /></Pro>} />
               <Route path="/clienti" element={<Pro><AvvocatoClienti /></Pro>} />
               <Route path="/clienti/nuovo" element={<Pro><AvvocatoClientiNuovo /></Pro>} />
               <Route path="/clienti/:id" element={<Pro><AvvocatoClientiDettaglio /></Pro>} />
