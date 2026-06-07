@@ -1,15 +1,18 @@
 // src/pages/fiduciario/Dashboard.jsx
 //
-// Dashboard del fiduciario: quadro generale dello studio (tutti i clienti).
-// Aggrega: clienti, mandati attivi, monte salari, conto economico (movimenti
-// effettivi dell'anno), scadenze imminenti/scadute, e una vista per cliente.
-// Solo dati esistenti, nessun nuovo SQL.
+// Dashboard del fiduciario: quadro generale dello STUDIO (non di un cliente).
+// Centro = lo studio e ciò che il fiduciario deve fare:
+//   - portfolio: clienti, mandati attivi
+//   - agenda: scadenze (di tutti i clienti) scadute + prossime, prossimi appuntamenti
+//   - soldi DELLO studio: fatturazione ai clienti (fatturato/incassato/da incassare/scaduto)
+//   - conto economico PER CLIENTE (per-cliente, MAI sommato): salute di ogni cliente
+// Nessuna somma dei libri dei clienti (ogni cliente è a sé). Nessun nuovo SQL.
 
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
-    Users, FolderOpen, Wallet, Scale, CalendarClock, AlertTriangle,
-    TrendingUp, TrendingDown, ChevronRight,
+    Users, FolderOpen, Receipt, CalendarClock, CalendarDays, AlertTriangle,
+    TrendingUp, TrendingDown, Wallet, ChevronRight, Scale,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { fmtCHF } from '@/lib/calcoloSalari'
@@ -53,11 +56,18 @@ export default function FiduciarioDashboard() {
             .select('id, nome, cognome, ragione_sociale, tipo_soggetto')
             .eq('role', 'cliente').in('avvocato_id', profIds)
         const ids = (clienti ?? []).map(c => c.id)
-        if (ids.length === 0) { setDati({ clienti: [], mandati: [], scadenze: [], movimenti: [], dip: [] }); setLoading(false); return }
+        const vuoto = { clienti: clienti ?? [], mandati: [], scadenze: [], appuntamenti: [], fatture: [], movimenti: [], dip: [] }
+        if (ids.length === 0) { setDati(vuoto); setLoading(false); return }
 
-        const [{ data: mandati }, { data: scadenze }, { data: movimenti }, { data: dip }] = await Promise.all([
+        const nowIso = new Date().toISOString()
+        const [
+            { data: mandati }, { data: scadenze }, { data: appuntamenti },
+            { data: fatture }, { data: movimenti }, { data: dip },
+        ] = await Promise.all([
             supabase.from('mandati').select('id, cliente_id, stato').in('cliente_id', ids),
             supabase.from('scadenze_fiduciarie').select('id, cliente_id, mandato_id, titolo, tipo, data_scadenza, stato').in('cliente_id', ids).eq('stato', 'in_corso').order('data_scadenza', { ascending: true }),
+            supabase.from('appuntamenti').select('id, titolo, tipo, stato, data_ora_inizio, cliente_id').in('avvocato_id', profIds).gte('data_ora_inizio', nowIso).order('data_ora_inizio', { ascending: true }).limit(12),
+            supabase.from('fatture').select('cliente_id, totale, stato, data_emissione, data_scadenza, data_pagamento').in('cliente_id', ids).neq('stato', 'annullata'),
             supabase.from('movimenti').select('cliente_id, tipo, importo, data, stato').in('cliente_id', ids).gte('data', `${anno}-01-01`).lte('data', `${anno}-12-31`),
             supabase.from('clienti_dipendenti').select('cliente_id, salario, salario_periodicita, is_socio, is_dipendente, data_fine').in('cliente_id', ids),
         ])
@@ -65,6 +75,8 @@ export default function FiduciarioDashboard() {
             clienti: clienti ?? [],
             mandati: mandati ?? [],
             scadenze: scadenze ?? [],
+            appuntamenti: (appuntamenti ?? []).filter(a => a.tipo !== 'scadenza' && a.stato !== 'annullato'),
+            fatture: fatture ?? [],
             movimenti: (movimenti ?? []).filter(m => (m.stato ?? 'effettivo') === 'effettivo'),
             dip: dip ?? [],
         })
@@ -75,33 +87,36 @@ export default function FiduciarioDashboard() {
         <div className="flex items-center justify-center py-40"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" /></div>
     )
 
-    const D = dati ?? { clienti: [], mandati: [], scadenze: [], movimenti: [], dip: [] }
+    const D = dati ?? { clienti: [], mandati: [], scadenze: [], appuntamenti: [], fatture: [], movimenti: [], dip: [] }
     const oggi = oggiISO()
     const nomeById = Object.fromEntries(D.clienti.map(c => [c.id, nomeCliente(c)]))
 
     const mandatiAttivi = D.mandati.filter(m => m.stato === 'attivo').length
 
-    const attivi = D.dip.filter(d => (d.is_dipendente || d.is_socio) && (!d.data_fine || d.data_fine >= oggi))
-    const monteSalari = attivi.reduce((t, d) => t + annualizza(d.salario, d.salario_periodicita), 0)
-    const salariByCliente = {}
-    attivi.forEach(d => { salariByCliente[d.cliente_id] = (salariByCliente[d.cliente_id] || 0) + annualizza(d.salario, d.salario_periodicita) })
+    // ── Fatturazione DELLO studio (i suoi soldi) ──
+    const inAnnoEm = (f) => f.data_emissione && f.data_emissione >= `${anno}-01-01` && f.data_emissione <= `${anno}-12-31`
+    const fatturato = D.fatture.filter(inAnnoEm).reduce((t, f) => t + Number(f.totale || 0), 0)
+    const incassato = D.fatture.filter(f => f.stato === 'pagata' && inAnnoEm(f)).reduce((t, f) => t + Number(f.totale || 0), 0)
+    const daIncassare = D.fatture.filter(f => f.stato === 'in_attesa' && (!f.data_scadenza || f.data_scadenza >= oggi)).reduce((t, f) => t + Number(f.totale || 0), 0)
+    const scaduto = D.fatture.filter(f => f.stato === 'scaduta' || (f.stato === 'in_attesa' && f.data_scadenza && f.data_scadenza < oggi)).reduce((t, f) => t + Number(f.totale || 0), 0)
 
-    const entrate = D.movimenti.filter(m => m.tipo === 'entrata').reduce((t, m) => t + Number(m.importo || 0), 0)
-    const costi = D.movimenti.filter(m => m.tipo === 'uscita').reduce((t, m) => t + Number(m.importo || 0), 0)
-    const saldo = entrate - costi - monteSalari
-
+    // ── Agenda ──
     const scadute = D.scadenze.filter(s => s.data_scadenza && s.data_scadenza < oggi)
-    const prossime = D.scadenze.filter(s => s.data_scadenza && s.data_scadenza >= oggi).slice(0, 8)
+    const prossimeScad = D.scadenze.filter(s => s.data_scadenza && s.data_scadenza >= oggi).slice(0, 6)
+    const prossimiApp = D.appuntamenti.slice(0, 6)
+    const linkScad = (s) => s.mandato_id ? `/banco-lavoro/${s.mandato_id}` : `/clienti/${s.cliente_id}`
 
+    // ── Conto economico PER CLIENTE (per-cliente, mai sommato) ──
+    const attivi = D.dip.filter(d => (d.is_dipendente || d.is_socio) && (!d.data_fine || d.data_fine >= oggi))
+    const salByCli = {}
+    attivi.forEach(d => { salByCli[d.cliente_id] = (salByCli[d.cliente_id] || 0) + annualizza(d.salario, d.salario_periodicita) })
     const perCliente = D.clienti.map(c => {
         const me = D.movimenti.filter(m => m.cliente_id === c.id)
         const e = me.filter(m => m.tipo === 'entrata').reduce((t, m) => t + Number(m.importo || 0), 0)
         const u = me.filter(m => m.tipo === 'uscita').reduce((t, m) => t + Number(m.importo || 0), 0)
-        const sal = salariByCliente[c.id] || 0
+        const sal = salByCli[c.id] || 0
         return { id: c.id, nome: nomeById[c.id], entrate: e, costi: u, stipendi: sal, saldo: e - u - sal }
     }).filter(r => r.entrate || r.costi || r.stipendi).sort((a, b) => a.saldo - b.saldo).slice(0, 15)
-
-    const linkScad = (s) => s.mandato_id ? `/banco-lavoro/${s.mandato_id}` : `/clienti/${s.cliente_id}`
 
     return (
         <div className="space-y-6 pb-20">
@@ -111,12 +126,12 @@ export default function FiduciarioDashboard() {
                 <p className="font-body text-sm text-nebbia/40 mt-1">Anno {anno} · {D.clienti.length} {D.clienti.length === 1 ? 'cliente' : 'clienti'}</p>
             </div>
 
-            {/* KPI */}
+            {/* KPI studio: portfolio + soldi dello studio */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 <Kpi icon={Users} label="Clienti" value={D.clienti.length} />
                 <Kpi icon={FolderOpen} label="Mandati attivi" value={mandatiAttivi} />
-                <Kpi icon={Wallet} label={`Monte salari ${anno}`} value={fmtCHF(monteSalari)} small />
-                <Kpi icon={Scale} label={`Saldo ${anno}`} value={fmtCHF(saldo)} small accent={saldo >= 0 ? 'salvia' : 'red'} />
+                <Kpi icon={Receipt} label={`Fatturato ${anno}`} value={fmtCHF(fatturato)} small />
+                <Kpi icon={Wallet} label="Da incassare" value={fmtCHF(daIncassare)} small accent={scaduto > 0 ? 'red' : 'nebbia'} />
             </div>
 
             {/* Scadute */}
@@ -128,7 +143,7 @@ export default function FiduciarioDashboard() {
                     </div>
                     <div className="space-y-1.5">
                         {scadute.slice(0, 6).map(s => (
-                            <Link key={s.id} to={linkScad(s)} className="flex items-center justify-between gap-3 group">
+                            <Link key={s.id} to={linkScad(s)} className="flex items-center justify-between gap-3">
                                 <span className="font-body text-xs text-nebbia/70 truncate">{s.titolo} · <span className="text-nebbia/40">{nomeById[s.cliente_id] ?? '—'}</span></span>
                                 <span className="font-body text-xs text-red-400/80 shrink-0">{new Date(s.data_scadenza).toLocaleDateString('it-CH')}</span>
                             </Link>
@@ -137,21 +152,21 @@ export default function FiduciarioDashboard() {
                 </div>
             )}
 
+            {/* Agenda: scadenze + appuntamenti */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                {/* Prossime scadenze */}
                 <div className="bg-slate border border-white/5 p-5">
                     <div className="flex items-center gap-2 mb-4">
                         <CalendarClock size={15} className="text-oro/60" />
                         <p className="section-label !m-0">Prossime scadenze</p>
                     </div>
-                    {prossime.length === 0 ? (
+                    {prossimeScad.length === 0 ? (
                         <p className="font-body text-xs text-nebbia/30 italic">Nessuna scadenza in arrivo.</p>
                     ) : (
                         <div className="space-y-2">
-                            {prossime.map(s => {
+                            {prossimeScad.map(s => {
                                 const gg = giorniA(s.data_scadenza)
                                 return (
-                                    <Link key={s.id} to={linkScad(s)} className="flex items-center justify-between gap-3 p-2.5 bg-petrolio border border-white/5 hover:border-oro/30 transition-colors group">
+                                    <Link key={s.id} to={linkScad(s)} className="flex items-center justify-between gap-3 p-2.5 bg-petrolio border border-white/5 hover:border-oro/30 transition-colors">
                                         <div className="min-w-0">
                                             <p className="font-body text-sm text-nebbia truncate">{s.titolo}</p>
                                             <p className="font-body text-[11px] text-nebbia/35 truncate">{nomeById[s.cliente_id] ?? '—'}{s.tipo ? ` · ${s.tipo}` : ''}</p>
@@ -167,31 +182,57 @@ export default function FiduciarioDashboard() {
                     )}
                 </div>
 
-                {/* Conto economico studio */}
                 <div className="bg-slate border border-white/5 p-5">
                     <div className="flex items-center gap-2 mb-4">
-                        <TrendingUp size={15} className="text-oro/60" />
-                        <p className="section-label !m-0">Conto economico studio {anno}</p>
+                        <CalendarDays size={15} className="text-oro/60" />
+                        <p className="section-label !m-0">Prossimi appuntamenti</p>
                     </div>
-                    <div className="space-y-2.5">
-                        <Riga label="Entrate" value={fmtCHF(entrate)} accent="salvia" icon={TrendingUp} />
-                        <Riga label="Costi registrati" value={fmtCHF(costi)} accent="oro" icon={TrendingDown} />
-                        <Riga label="Stipendi (annuo)" value={fmtCHF(monteSalari)} accent="oro" icon={Wallet} />
-                        <div className="flex items-center justify-between pt-2.5 border-t border-white/10">
-                            <span className="font-body text-sm text-nebbia/60 uppercase tracking-widest text-[11px]">Saldo</span>
-                            <span className={`font-display text-xl ${saldo >= 0 ? 'text-salvia' : 'text-red-400'}`}>{fmtCHF(saldo)}</span>
+                    {prossimiApp.length === 0 ? (
+                        <p className="font-body text-xs text-nebbia/30 italic">Nessun appuntamento in programma.</p>
+                    ) : (
+                        <div className="space-y-2">
+                            {prossimiApp.map(a => {
+                                const d = new Date(a.data_ora_inizio)
+                                return (
+                                    <Link key={a.id} to="/calendario" className="flex items-center justify-between gap-3 p-2.5 bg-petrolio border border-white/5 hover:border-oro/30 transition-colors">
+                                        <div className="min-w-0">
+                                            <p className="font-body text-sm text-nebbia truncate">{a.titolo ?? '(senza titolo)'}</p>
+                                            <p className="font-body text-[11px] text-nebbia/35 truncate">{a.cliente_id ? (nomeById[a.cliente_id] ?? '—') : 'studio'}{a.tipo ? ` · ${a.tipo}` : ''}</p>
+                                        </div>
+                                        <div className="text-right shrink-0">
+                                            <p className="font-body text-xs text-nebbia/60">{d.toLocaleDateString('it-CH')}</p>
+                                            <p className="font-body text-[10px] text-nebbia/30">{d.toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })}</p>
+                                        </div>
+                                    </Link>
+                                )
+                            })}
                         </div>
-                    </div>
-                    <p className="font-body text-[11px] text-nebbia/25 mt-3">Solo movimenti effettivi dell'anno; stipendi annualizzati dai dipendenti attivi.</p>
+                    )}
                 </div>
             </div>
 
-            {/* Per cliente */}
+            {/* Fatturazione DELLO studio (i suoi soldi) */}
+            <div className="bg-slate border border-white/5 p-5">
+                <div className="flex items-center gap-2 mb-4">
+                    <Receipt size={15} className="text-oro/60" />
+                    <p className="section-label !m-0">Studio — fatturazione {anno}</p>
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <MiniStat label="Fatturato" value={fmtCHF(fatturato)} />
+                    <MiniStat label="Incassato" value={fmtCHF(incassato)} accent="salvia" />
+                    <MiniStat label="Da incassare" value={fmtCHF(daIncassare)} />
+                    <MiniStat label="Scaduto" value={fmtCHF(scaduto)} accent={scaduto > 0 ? 'red' : 'nebbia'} />
+                </div>
+                <p className="font-body text-[11px] text-nebbia/25 mt-3">Fatture emesse dallo studio ai clienti (i ricavi dello studio). Niente a che vedere con i conti economici dei singoli clienti.</p>
+            </div>
+
+            {/* Conto economico PER CLIENTE (ogni cliente a sé) */}
             {perCliente.length > 0 && (
                 <div className="bg-slate border border-white/5">
                     <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
                         <Users size={14} className="text-oro/60" />
                         <p className="section-label !m-0">Conto economico per cliente {anno}</p>
+                        <span className="font-body text-[10px] text-nebbia/30 ml-1">— ogni cliente è a sé, non sommato</span>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full">
@@ -233,12 +274,12 @@ function Kpi({ icon: Icon, label, value, small = false, accent = 'nebbia' }) {
     )
 }
 
-function Riga({ label, value, accent, icon: Icon }) {
-    const col = accent === 'salvia' ? 'text-salvia' : 'text-oro'
+function MiniStat({ label, value, accent = 'nebbia' }) {
+    const col = accent === 'salvia' ? 'text-salvia' : accent === 'red' ? 'text-red-400' : 'text-nebbia'
     return (
-        <div className="flex items-center justify-between">
-            <span className={`font-body text-xs flex items-center gap-1.5 ${col}/80`}><Icon size={12} /> {label}</span>
-            <span className="font-display text-base text-nebbia">{value}</span>
+        <div className="bg-petrolio border border-white/5 p-3">
+            <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1">{label}</p>
+            <p className={`font-display text-lg ${col}`}>{value}</p>
         </div>
     )
 }
