@@ -1,0 +1,29 @@
+{
+  "navbar": {
+    "home": "Home",
+    "avvocati": "Avvocati",
+    "fiduciari": "Fiduciari",
+    "lex_ai": "Lex AI",
+    "contatti": "Contatti",
+    "accedi": "Accedi",
+    "registrati": "Registrati",
+    "inizia_ora": "Inizia ora",
+    "la_mia_area": "La mia area"
+  },
+  "footer": {
+    "tagline": "La prima piattaforma all-in-one per studi legali e fiduciari svizzeri con AI integrata.",
+    "diritti": "Tutti i diritti riservati",
+    "privacy": "Privacy",
+    "termini": "Termini di servizio"
+  },
+  "azioni": {
+    "salva": "Salva",
+    "annulla": "Annulla",
+    "elimina": "Elimina",
+    "modifica": "Modifica",
+    "conferma": "Conferma",
+    "indietro": "Indietro",
+    "avanti": "Avanti",
+    "chiudi": "Chiudi"
+  }
+}

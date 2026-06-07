@@ -4,7 +4,14 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+// L'URL di Supabase deve essere "nudo": https://<progetto>.supabase.co
+// Normalizziamo per difenderci da env mal configurate (es. con /rest/v1 o slash
+// finale): senza, l'auth finirebbe su /rest/v1/auth/v1/token → PGRST125.
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL ?? '')
+  .trim()
+  .replace(/\/+$/, '')          // slash finali
+  .replace(/\/rest\/v1$/i, '')  // eventuale /rest/v1 di troppo
+  .replace(/\/+$/, '')
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseKey) {

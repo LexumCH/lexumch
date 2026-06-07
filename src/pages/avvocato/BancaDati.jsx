@@ -31,8 +31,6 @@ import ReactMarkdown from 'react-markdown'
 // CONFIG
 // ═══════════════════════════════════════════════════════════════
 
-// ⚠️ VERIFICA: nome esatto dell'edge function del Lead su CH.
-// Sull'IT è 'lex-lead'. Se su CH è diverso (es. 'lex-lead-ch'), cambia QUI.
 const LEAD_ENDPOINT = 'lex-lead'
 
 // Le "fasi" emesse dal Lead CH via SSE → etichette leggibili.
@@ -543,18 +541,6 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
     )
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PLACEHOLDER tab — sostituito uno alla volta nei prossimi step
-// ═══════════════════════════════════════════════════════════════
-function TabPlaceholder({ nome }) {
-    return (
-        <div className="bg-slate border border-white/5 p-12 text-center">
-            <p className="font-body text-sm text-nebbia/40">
-                Tab “{nome}” — in costruzione. La aggiungiamo nel prossimo step.
-            </p>
-        </div>
-    )
-}
 
 // ═══════════════════════════════════════════════════════════════
 // DEFINIZIONE TAB CORPUS
