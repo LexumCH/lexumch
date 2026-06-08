@@ -12,7 +12,7 @@ import {
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import AssegnaDocumento from '@/components/AssegnaDocumento'
 import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 
 const MAX_FILES = 100
@@ -1733,7 +1733,7 @@ export default function Archivio() {
                 try {
                     const { data: { session } } = await supabase.auth.getSession()
                     await fetch(
-                        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-archivio`,
+                        `${supabaseUrl}/functions/v1/process-archivio`,
                         {
                             method: 'POST',
                             headers: {
@@ -1771,7 +1771,7 @@ export default function Archivio() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/search-archivio`,
+                `${supabaseUrl}/functions/v1/search-archivio`,
                 {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
@@ -1799,7 +1799,7 @@ export default function Archivio() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/search-archivio`,
+                `${supabaseUrl}/functions/v1/search-archivio`,
                 {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },

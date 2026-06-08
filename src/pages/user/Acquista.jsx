@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 import {
     Sparkles, ShoppingBag, CreditCard, ArrowRight, CheckCircle,
     AlertCircle, Loader2, Info, Shield, Zap, X, Tag
@@ -126,7 +126,7 @@ export default function Acquista() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`,
+                `${supabaseUrl}/functions/v1/stripe-checkout`,
                 {
                     method: 'POST',
                     headers: {

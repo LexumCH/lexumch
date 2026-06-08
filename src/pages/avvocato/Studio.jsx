@@ -9,7 +9,7 @@ import {
     Send, CreditCard, Edit2, Check, X, AlertCircle, ChevronRight,
     Sparkles, HardDrive, Clock
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
 // ─────────────────────────────────────────────────────────────
@@ -38,7 +38,7 @@ function bytesToGB(bytes) {
 async function chiamaStripe(prodottoId, isUpgrade = false) {
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`,
+        `${supabaseUrl}/functions/v1/stripe-checkout`,
         {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
@@ -140,7 +140,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/activate-trial`,
+                `${supabaseUrl}/functions/v1/activate-trial`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
@@ -695,7 +695,7 @@ export default function AvvocatoStudio() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invite-membro`,
+                `${supabaseUrl}/functions/v1/invite-membro`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },

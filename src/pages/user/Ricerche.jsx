@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import ReactMarkdown from 'react-markdown'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
@@ -531,7 +531,7 @@ export default function Ricerche() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lex-search-pensiero`,
+                `${supabaseUrl}/functions/v1/lex-search-pensiero`,
                 {
                     method: 'POST',
                     headers: {
@@ -1588,7 +1588,7 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lex-confronta`,
+                `${supabaseUrl}/functions/v1/lex-confronta`,
                 {
                     method: 'POST',
                     headers: {

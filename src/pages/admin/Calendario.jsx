@@ -6,7 +6,7 @@ import {
     MapPin, Video, Users, AlertCircle, Lock, Globe, Mail, Check,
     Paperclip, Upload, Trash2, FileText, Send
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 
 const MESI = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
 const GIORNI = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
@@ -477,7 +477,7 @@ export default function AdminCalendario() {
 
             // STEP 1 — crea/aggiorna appuntamento SENZA email
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/crea-appuntamento-admin`,
+                `${supabaseUrl}/functions/v1/crea-appuntamento-admin`,
                 {
                     method: 'POST',
                     headers: {
@@ -547,7 +547,7 @@ export default function AdminCalendario() {
             let messaggioFeedback = 'Appuntamento salvato.'
             if (inviaEmail) {
                 const resMail = await fetch(
-                    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/crea-appuntamento-admin`,
+                    `${supabaseUrl}/functions/v1/crea-appuntamento-admin`,
                     {
                         method: 'POST',
                         headers: {
@@ -694,7 +694,7 @@ export default function AdminCalendario() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/crea-appuntamento-admin`,
+                `${supabaseUrl}/functions/v1/crea-appuntamento-admin`,
                 {
                     method: 'POST',
                     headers: {

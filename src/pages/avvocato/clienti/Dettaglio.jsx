@@ -22,7 +22,7 @@ import {
     ExternalLink, Eye, Upload, KeyRound, Mail, Eye as EyeIcon, EyeOff,
     Copy, RefreshCw, CheckCircle, ShieldOff, Wallet, Users, BookOpen
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
 import GestioneMandati from '@/components/fiduciario/GestioneMandati'
@@ -1441,7 +1441,7 @@ export default function AvvocatoClientiDettaglio() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-cliente`,
+                `${supabaseUrl}/functions/v1/update-cliente`,
                 {
                     method: 'POST',
                     headers: {

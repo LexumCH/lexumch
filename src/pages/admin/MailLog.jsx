@@ -14,7 +14,7 @@ import {
     Calendar, ArrowRight, Inbox, MailPlus, Users, FileText,
     Check,
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 
 const PAGE_SIZE = 30
 
@@ -478,7 +478,7 @@ function TabInvia() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-postmark-templates`,
+                `${supabaseUrl}/functions/v1/list-postmark-templates`,
                 {
                     method: 'POST',
                     headers: {
@@ -510,7 +510,7 @@ function TabInvia() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-utenti-filtrati`,
+                `${supabaseUrl}/functions/v1/list-utenti-filtrati`,
                 {
                     method: 'POST',
                     headers: {
@@ -573,7 +573,7 @@ function TabInvia() {
                 await Promise.all(batch.map(async u => {
                     try {
                         const res = await fetch(
-                            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-mail`,
+                            `${supabaseUrl}/functions/v1/send-mail`,
                             {
                                 method: 'POST',
                                 headers: {

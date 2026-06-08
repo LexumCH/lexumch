@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import {
@@ -865,7 +865,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lex-etichetta`,
+                `${supabaseUrl}/functions/v1/lex-etichetta`,
                 {
                     method: 'POST',
                     headers: {

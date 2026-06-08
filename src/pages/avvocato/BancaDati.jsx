@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useRef, Fragment } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { PageHeader } from '@/components/shared'
 import BottoniSalvataggio from '@/components/BottoniSalvataggio'
@@ -259,7 +259,7 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${LEAD_ENDPOINT}`,
+                `${supabaseUrl}/functions/v1/${LEAD_ENDPOINT}`,
                 {
                     method: 'POST',
                     headers: {

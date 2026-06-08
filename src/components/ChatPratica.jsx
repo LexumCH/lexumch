@@ -14,7 +14,7 @@
 //   event: error  -> { error }
 
 import { useState, useEffect, useRef, cloneElement, isValidElement, Fragment } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import ReactMarkdown from 'react-markdown'
 import {
     Sparkles, Send, Save, Plus, AlertCircle, X, CheckCircle,
@@ -726,7 +726,7 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
             const { data: { session } } = await supabase.auth.getSession()
             if (!session) throw new Error('Sessione scaduta. Ricarica la pagina.')
 
-            const url = `${import.meta.env.VITE_SUPABASE_URL}${ENDPOINT_PRATICA}`
+            const url = `${supabaseUrl}${ENDPOINT_PRATICA}`
 
             const storia = conversazione
                 .filter(m => m.tipo !== 'documento')
@@ -737,6 +737,7 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'text/event-stream',
+                    'apikey': supabaseKey,
                     'Authorization': `Bearer ${session.access_token}`,
                 },
                 body: JSON.stringify({

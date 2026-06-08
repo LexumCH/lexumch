@@ -8,7 +8,7 @@ import {
     Zap, AlertCircle, Scale, MessageSquare,
     Library, Gavel, Globe, FolderOpen
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 import ReactMarkdown from 'react-markdown'
 import LexAnimatedDemo from '@/components/LexAnimatedDemo'
 
@@ -92,7 +92,7 @@ function LexBoxPublic() {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lex-public`,
+                `${supabaseUrl}/functions/v1/lex-public`,
                 {
                     method: 'POST',
                     headers: { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },

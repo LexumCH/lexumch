@@ -12,7 +12,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import ReactMarkdown from 'react-markdown'
 import {
     X, ChevronLeft, ChevronRight, AlertCircle, CheckCircle, Loader2,
@@ -367,12 +367,13 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
             const { data: { session } } = await supabase.auth.getSession()
             if (!session) throw new Error('Sessione scaduta. Ricarica la pagina.')
 
-            const url = `${import.meta.env.VITE_SUPABASE_URL}${ENDPOINT_GENERA}`
+            const url = `${supabaseUrl}${ENDPOINT_GENERA}`
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'text/event-stream',
+                    'apikey': supabaseKey,
                     'Authorization': `Bearer ${session.access_token}`,
                 },
                 body: JSON.stringify({

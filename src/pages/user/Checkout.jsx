@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { AlertCircle, Lock } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl } from '@/lib/supabase'
 
 export default function UserCheckout() {
     const { profile } = useAuth()
@@ -34,7 +34,7 @@ export default function UserCheckout() {
             const { data: { session } } = await supabase.auth.getSession()
 
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`,
+                `${supabaseUrl}/functions/v1/stripe-checkout`,
                 {
                     method: 'POST',
                     headers: {
