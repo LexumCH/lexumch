@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "title": "Lexum für Treuhänder — Die KI, die Schreiben, Berichte und Gutachten aus den Daten Ihrer Kunden erstellt",
+    "description": "Mandatsverwaltung, Kalender der Steuerfristen, intelligentes Archiv, Rechnungsstellung in CHF und Lex AI, die Briefe, Berichte und Gutachten aus den realen Daten der von Ihnen betreuten Unternehmen erstellt. Plus die Schweizer Rechtsdatenbank.",
+    "og_title": "Lexum für Treuhänder — Der Assistent, der aus Ihren Daten erstellt",
+    "og_description": "Mandate, Steuerfristen, intelligentes Archiv, Rechnungsstellung und eine KI, die Dokumente aus den realen Daten Ihrer Kunden erstellt. Plus die Schweizer Rechtsdatenbank.",
+    "twitter_description": "Die KI, die Schreiben, Berichte und Gutachten aus den Daten der von Ihnen betreuten Unternehmen erstellt. Für Schweizer Treuhänder."
+  },
+  "hero": {
+    "badge": "Für Treuhandbüros und unabhängige Treuhänder",
+    "title_part1": "Sie liefern die Daten,",
+    "title_highlight": "Lexum erstellt den Rest.",
+    "subtitle": "Mandate, Steuerfristen, intelligentes Archiv, Rechnungsstellung und eine KI, die Briefe, Berichte und Gutachten aus den realen Daten der von Ihnen betreuten Unternehmen erstellt. Plus die Schweizer Rechtsdatenbank. Alles in einer einzigen Umgebung.",
+    "cta_primary": "Lexum eine Woche testen",
+    "cta_secondary": "Demo-Call anfragen",
+    "no_card": "Keine Karte erforderlich. Jederzeit kündbar."
+  },
+  "lexai": {
+    "label": "Künstliche Intelligenz",
+    "title_part1": "Sie geben ihr die Daten,",
+    "title_highlight": "sie schreibt das Dokument.",
+    "subtitle": "Lex erfindet keine Zahlen und improvisiert nicht. Sie nimmt die realen Daten des von Ihnen betreuten Unternehmens — Zahlen, Bilanzen, Mandatsdaten — und erstellt das fertige Dokument: Briefe, Berichte, Gutachten, Mitteilungen. Sie prüfen und unterzeichnen. Die schwere Schreibarbeit übernimmt sie.",
+    "features": [
+      { "t": "Schriftstücke und Briefe aus Ihren Daten", "d": "Begleitschreiben, Mitteilungen an Kunden, Mahnungen. Geben Sie die Mandatsdaten ein, und Lex erstellt den prüfbereiten Text." },
+      { "t": "Periodische Berichte für den Kunden", "d": "Geben Sie Lex die Zahlen des Unternehmens und sie erstellt den Monats- oder Quartalsbericht: Entwicklung, Kommentare, Zusammenfassung. Die Zahlen sind Ihre, die Worte schreibt sie." },
+      { "t": "Schriftliche Steuergutachten", "d": "Sie geben die Fragestellung und die Falldaten vor, Lex verfasst ein begründetes Gutachten mit Verweisen auf einschlägige Schweizer Normen und Praxis." },
+      { "t": "Recherche zu Normen, Praxis und Rechtsprechung", "d": "Durchsuchen Sie Fedlex, die Praxis der ESTV und der Kantone sowie die Steuerrechtsprechung in natürlicher Sprache. Lex versteht den Kontext und zitiert die Quellen." },
+      { "t": "Fortlaufendes Gespräch", "d": "Vertiefen Sie, korrigieren Sie eine Zahl, fragen Sie eine kürzere Version an. Lex behält den Kontext des Mandats und des Gesprächs." },
+      { "t": "Unternehmenskontext stets präsent", "d": "Lex arbeitet am Mandat: sie kennt das Unternehmen, die hochgeladenen Dokumente und die bereits gemachten Recherchen. Nichts muss jedes Mal neu erklärt werden." }
+    ],
+    "visual_label": "Lex AI — Dokument erstellen",
+    "demo_user": "Erstelle für das Mandat Müller AG das Begleitschreiben zur MWST-Abrechnung des 2. Quartals. Geschuldete Steuer CHF 4'820.",
+    "demo_risposta": "Ich habe das Schreiben mit den Daten des Mandats Müller AG und dem von dir angegebenen Betrag (CHF 4'820) verfasst. Ich habe die Zahlungsfrist erwähnt und den Verweis auf die Abrechnung beigefügt. Die Zahl ist die, die du mir geliefert hast: ich habe nur den Text darum herum geschrieben. Bereit für deine Prüfung und Unterschrift.",
+    "demo_tags": ["Müller AG", "MWST Q2", "Brief.docx"],
+    "demo_note": "Die Zahlen bleiben Ihre. Lex berechnet sie nicht neu und erfindet sie nicht: sie schreibt das Dokument um die Daten herum, die Sie liefern."
+  },
+  "mandati": {
+    "label": "Mandate",
+    "title_part1": "Jedes Unternehmen, das Sie betreuen,",
+    "title_highlight": "ein geordnetes Mandat.",
+    "subtitle": "Stammdaten des Unternehmens, Dokumente, Fristen, Recherchen und erstellte Dokumente: alles im Mandat gesammelt. Sie öffnen den Kunden und haben das Gesamtbild, ohne Ordnern und E-Mails hinterherzujagen.",
+    "feature_title": "Das Mandat hält die gesamte Arbeit am Kunden zusammen",
+    "feature_text": "Für jedes betreute Unternehmen sammeln Sie Stammdaten, Buchhaltungs- und Steuerunterlagen, Fristen und alles, was Lex für diesen Kunden erstellt hat. Die Recherchen, die Sie machen, und die Dokumente, die Sie erstellen, bleiben mit dem Mandat verknüpft, stets auffindbar.",
+    "points": [
+      "Unternehmensstammdaten und Mandatsdaten",
+      "Verknüpfte Kundendokumente",
+      "Recherchen und erstellte Dokumente am Mandat",
+      "Geordnete Historie, stets einsehbar"
+    ],
+    "visual_label": "Mandat — Müller AG",
+    "rows": [
+      { "l": "Typ", "v": "Juristische Person (AG)" },
+      { "l": "Mandat", "v": "Buchhaltung + Steuern" },
+      { "l": "Kanton", "v": "Zürich" },
+      { "l": "Status", "v": "Aktiv" }
+    ],
+    "docs_label": "Dokumente des Mandats",
+    "docs": [
+      { "t": "Bilanz 2025", "tag": "Buchhaltung" },
+      { "t": "MWST-Abrechnung Q1 2026", "tag": "Steuern" },
+      { "t": "Sozialabgaben-Abrechnung", "tag": "Löhne" }
+    ]
+  },
+  "calendario": {
+    "feature_title": "Die Steuerfristen im Griff, Mandat für Mandat",
+    "feature_text": "Ein einziger Kalender für alle Ihre Kunden. Fristen der Steuererklärungen, MWST-Abrechnungen, Zahlungen der Sozialabgaben, Buchabschlüsse: jede Frist ist mit dem zugehörigen Mandat verknüpft, mit der Erinnerung zum richtigen Zeitpunkt.",
+    "points": [
+      "Fristen Steuererklärungen und MWST-Abrechnungen",
+      "Fristen Sozialabgaben und Abschlüsse",
+      "Mit dem Mandat verknüpfte Ereignisse",
+      "Automatische Erinnerungen vor der Frist"
+    ],
+    "visual_label": "Kalender — Anstehende Fristen",
+    "eventi": [
+      { "d": "30. Jun", "t": "MWST-Abrechnung Q2", "sub": "Müller AG", "col": "oro" },
+      { "d": "15. Jul", "t": "Zahlung Sozialabgaben", "sub": "Rossi Sagl", "col": "salvia" },
+      { "d": "31. Jul", "t": "Halbjahres-Buchabschluss", "sub": "Bianchi SA", "col": "salvia" },
+      { "d": "30. Sep", "t": "Frist Steuererklärung", "sub": "Müller AG", "col": "oro" }
+    ],
+    "promemoria": "Erinnerung aktiv: wir benachrichtigen Sie vor jeder Frist, Mandat für Mandat."
+  },
+  "archivio": {
+    "feature_title": "Das Archiv Ihrer Mandate wird intelligent",
+    "feature_text": "Sie laden die Kundendokumente hoch, Lex klassifiziert sie und findet sie wieder, wenn sie gebraucht werden. Sie suchen in natürlicher Sprache und finden nicht nur die richtige Datei, sondern die genaue Stelle im Dokument, die Sie interessiert. Der Papierordner bleibt im Schrank, die eigentliche Arbeit bleibt digital.",
+    "points": [
+      "Mit dem Mandat verknüpfte Dokumente",
+      "Semantische Suche im Text",
+      "Automatische Klassifizierung",
+      "Alles in Sekunden auffindbar"
+    ],
+    "visual_label": "Suche im Archiv",
+    "search_query": "MWST-Abrechnung zweites Quartal Müller",
+    "results": [
+      { "t": "MWST-Abrechnung Q2 2026 — Müller AG", "m": "Übereinstimmung im Text · S. 1", "s": "98%" },
+      { "t": "ESTV-Schreiben MWST-Rückerstattung 2025", "m": "Verknüpftes Dokument", "s": "74%" },
+      { "t": "Bilanz 2025 — Müller AG", "m": "Verweis MWST-Guthaben", "s": "61%" }
+    ]
+  },
+  "fatturazione": {
+    "label": "Rechnungsstellung",
+    "title_part1": "Sie stellen Ihre Leistungen in Rechnung,",
+    "title_highlight": "ohne Lexum zu verlassen.",
+    "subtitle": "Die Rechnungen für Ihre Honorare entstehen verknüpft mit dem Mandat und dem Kunden. Automatische Berechnung der Schweizer MWST, fortlaufende Nummerierung, fertiges PDF. Der Fälligkeitenplan sagt Ihnen, wer bezahlt hat und wer nicht.",
+    "feature_title": "Professionelle Rechnungen in CHF, bereits fertig",
+    "feature_text": "Jede Rechnung ist mit einem Mandat und einem Kunden verknüpft. Lexum berechnet automatisch die Schweizer MWST von 8.1 % (oder verwaltet die ausgenommenen Leistungen) und führt die Nummerierung fortlaufend pro Jahr. Das PDF wird im Schweizer Format erstellt, bereit für den Kunden und Ihre Buchhaltung.",
+    "points": [
+      "Beträge in CHF, Schweizer MWST 8.1 %",
+      "Verwaltung ausgenommener Leistungen / reduzierter Sätze",
+      "Jährlich fortlaufende Nummerierung",
+      "PDF im Schweizer Format, im Mandat abgelegt"
+    ],
+    "fattura_label": "Rechnung 2026/048 — Müller AG",
+    "numero_label": "Nummer",
+    "numero_v": "2026/048",
+    "data_label": "Datum",
+    "data_v": "15.05.2026",
+    "prestazioni_label": "Leistungen",
+    "prestazioni": [
+      { "d": "Buchführung Q1 2026", "i": "1'800.00" },
+      { "d": "Quartals-MWST-Abrechnung", "i": "450.00" },
+      { "d": "Steuerberatung", "i": "600.00" }
+    ],
+    "totali": [
+      { "l": "Steuerbarer Betrag", "v": "2'850.00" },
+      { "l": "MWST 8.1%", "v": "230.85" }
+    ],
+    "totale_label": "Rechnungstotal",
+    "totale_v": "3'080.85",
+    "archiviato_prefix": "PDF erstellt und abgelegt in",
+    "archiviato_path": "Mandat > Müller AG > Rechnungen",
+    "scadenzario_title": "Fälligkeiten im Griff",
+    "scadenzario_text": "Sie sehen auf einen Blick, wer zahlen muss, was überfällig ist, was bevorsteht. Farbige Status pro Rechnung: offen, bezahlt, überfällig.",
+    "scadenzario_stati": [
+      { "l": "Bezahlt", "v": "6'400" },
+      { "l": "Offen", "v": "3'080" },
+      { "l": "Überfällig", "v": "1'250" }
+    ],
+    "pagamenti_title": "Zahlungen erfasst",
+    "pagamenti_text": "Akontozahlungen und Restbeträge, Überweisungen und Einzahlungen. Jeder Eingang wird auf der richtigen Rechnung erfasst und der Status aktualisiert sich von selbst, sobald der Saldo beglichen ist.",
+    "pagamenti_items": [
+      { "l": "Überweisung", "d": "12.03", "i": "1'800.00" },
+      { "l": "Überweisung", "d": "20.04", "i": "800.00" },
+      { "l": "Ausstehender Saldo", "d": "—", "i": "480.85", "open": true }
+    ],
+    "promemoria_title": "Automatische Erinnerungen",
+    "promemoria_text": "Lexum benachrichtigt Sie vor der Frist und am Tag, an dem eine Rechnung in Verzug gerät. Keine vergessenen Mahnungen mehr.",
+    "promemoria_items": [
+      { "tempo": "In 3 Tagen", "fattura": "Rechnung 2026/048 — Müller AG", "urgent": false },
+      { "tempo": "Heute fällig", "fattura": "Rechnung 2026/041 — Rossi Sagl", "urgent": true }
+    ],
+    "lex_title_part1": "Fragen Sie Lex,",
+    "lex_title_highlight": "wer noch nicht bezahlt hat.",
+    "lex_text": "Fragen Sie auf Deutsch «welche Rechnungen sind seit mehr als dreissig Tagen überfällig?» oder «wie viel schuldet mir der Kunde Müller noch?» und erhalten Sie die Antwort in wenigen Sekunden, mit dem direkten Link zu den Rechnungen.",
+    "lex_points": [
+      "Fragen in natürlicher Sprache",
+      "Sofortige Antworten mit den Zahlen",
+      "Direkte Links zu den relevanten Rechnungen",
+      "Kein Bericht zu erstellen, kein Filter"
+    ],
+    "lex_visual_label": "Lex zu Zahlungen",
+    "lex_domanda": "Welche Kunden haben Rechnungen, die seit mehr als 30 Tagen überfällig sind?",
+    "lex_risposta": "Ich habe 2 Rechnungen gefunden, die seit über 30 Tagen überfällig sind, für insgesamt CHF 3'050.00.",
+    "lex_fatture": [
+      { "cliente": "Rossi Sagl — 2026/041", "scaduta": "Überfällig seit 42 Tagen", "importo": "1'250.00" },
+      { "cliente": "Bianchi SA — 2026/035", "scaduta": "Überfällig seit 35 Tagen", "importo": "1'800.00" }
+    ]
+  },
+  "team": {
+    "label": "Wenn das Büro wächst",
+    "title_part1": "Heute allein,",
+    "title_highlight": "morgen im Team.",
+    "subtitle": "Lexum funktioniert perfekt für den unabhängigen Treuhänder. Und wenn Sie Mitarbeitende hinzufügen, haben Sie Rollen, Berechtigungen und Abschottung der Mandate: jeder sieht nur, was ihn betrifft.",
+    "feature_title": "Sie bestimmen, wer welche Mandate sieht",
+    "feature_text": "Jeder Mitarbeitende hat sein eigenes Profil. Sie entscheiden, wer auf alle Mandate zugreift und wer nur die zugewiesenen sieht. Die Kundendaten bleiben geschützt, auch innerhalb des Teams. Arbeiten Sie allein? Alles bleibt Ihres, ohne unnötige Konfigurationen.",
+    "points": [
+      "Konfigurierbare Rollen und Berechtigungen",
+      "Mandats-Sichtbarkeit pro Mitarbeitendem",
+      "Abschottung der Kundendaten",
+      "Internes Audit: wer hat was gesehen und geändert"
+    ],
+    "visual_label": "Büro — Mitarbeitende und Berechtigungen",
+    "team_label": "Büroteam",
+    "members": [
+      { "nome": "Anna Keller", "ruolo": "Inhaberin", "avatar": "AK", "accesso": "Alles" },
+      { "nome": "Lukas Frei", "ruolo": "Treuhänder", "avatar": "LF", "accesso": "Zugewiesene Mandate" },
+      { "nome": "Sarah Meier", "ruolo": "Buchhalterin", "avatar": "SM", "accesso": "Buchhaltung und Dokumente" }
+    ],
+    "compartimentazione": "Abschottung aktiv: 3 Mitarbeitende, 2 Zugriffsstufen, segmentierte Mandate."
+  },
+  "banca": {
+    "feature_title": "Die Schweizer Rechtsdatenbank, stets griffbereit",
+    "feature_text": "Bundesrecht, eidgenössische und kantonale Steuerpraxis, Steuernormen und Rechtsprechung des Bundesgerichts. Sie suchen in natürlicher Sprache und Lex führt Sie zur richtigen Quelle, mit dem korrekten Verweis. Sie nutzen sie ab dem ersten Tag, ohne Limit.",
+    "points": [
+      "Bundesrecht (Fedlex) und kantonales Recht",
+      "Steuerpraxis ESTV und kantonal",
+      "Rechtsprechung des Bundesgerichts",
+      "Suche in natürlicher Sprache"
+    ],
+    "visual_label": "Lexum-Datenbank CH",
+    "categorie": [
+      { "v": "Bundesrecht", "l": "Fedlex" },
+      { "v": "Kantonale Normen", "l": "26 Kantone" },
+      { "v": "Steuerpraxis", "l": "ESTV und kantonal" },
+      { "v": "Rechtsprechung", "l": "Bundesgericht" }
+    ],
+    "msg": "Quellen auf Italienisch, Deutsch und Französisch. Wir arbeiten laufend daran, sie zu erweitern und zu aktualisieren."
+  },
+  "sicurezza": {
+    "label": "Sicherheit",
+    "title_part1": "Vertraulichkeit",
+    "title_highlight": "als Standard, nicht als Option.",
+    "subtitle": "Die Treuhandarbeit verarbeitet sensible Daten der von Ihnen betreuten Unternehmen. Lexum ist mit Vertraulichkeit im Zentrum jeder technischen Entscheidung konzipiert.",
+    "cards": [
+      { "t": "Abschottung der Daten", "d": "Jedes Büro ist isoliert. Die Daten Ihrer Kunden sind niemals für andere Büros zugänglich, noch für die Mitarbeitenden Ihres Teams ohne Ihre ausdrückliche Erlaubnis." },
+      { "t": "Ihre Zahlen bleiben Ihre", "d": "Lex schreibt die Dokumente ausgehend von den Daten, die Sie liefern, berechnet sie aber nicht neu und verändert sie nicht. Die Kontrolle über die Zahlen bleibt stets in Ihren Händen." },
+      { "t": "Vollständiges Audit-Log", "d": "Jeder Zugriff, jede Änderung, jeder Vorgang wird protokolliert. Sie wissen stets, wer was wann und auf welchem Mandat getan hat." },
+      { "t": "Sicher gehostete Daten", "d": "Geschützte Infrastruktur und Zugriffe, mit granularer Steuerung der Berechtigungen. Das Berufsgeheimnis des Treuhänders wird als solches behandelt." }
+    ]
+  },
+  "cta": {
+    "label": "Jetzt starten",
+    "title_part1": "Sehen Sie Lexum",
+    "title_highlight": "in Ihrem Büro bei der Arbeit.",
+    "subtitle": "Testen Sie Lexum ohne Verpflichtung. Oder buchen Sie einen Demo-Call und wir zeigen Ihnen, wie es funktioniert, ausgehend von der echten Arbeit Ihres Treuhandbüros.",
+    "cta_primary": "Lexum eine Woche testen",
+    "cta_secondary": "Demo-Call anfragen",
+    "no_card": "Keine Karte erforderlich. Jederzeit frei kündbar."
+  }
+}

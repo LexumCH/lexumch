@@ -110,7 +110,7 @@ function RicercaEspandibile({ contenuto, id, tipo, onSalva }) {
 // ─────────────────────────────────────────────────────────────
 // BOX RICERCHE MANDATO
 // ─────────────────────────────────────────────────────────────
-export default function BoxRicercheMandato({ mandatoId }) {
+export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
     const navigate = useNavigate()
 
     const [ricerche, setRicerche] = useState([])
@@ -120,7 +120,7 @@ export default function BoxRicercheMandato({ mandatoId }) {
     const [salvando, setSalvando] = useState(false)
     const [errore, setErrore] = useState(null)
 
-    useEffect(() => { carica() }, [mandatoId])
+    useEffect(() => { carica() }, [mandatoId, refreshTrigger])
 
     async function carica() {
         setLoading(true)

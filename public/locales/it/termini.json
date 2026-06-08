@@ -1,0 +1,171 @@
+{
+  "meta": {
+    "title": "Termini di Servizio — Lexum",
+    "description": "Termini di Servizio di Lexum: condizioni d'uso della piattaforma per avvocati, fiduciari e professionisti. Contratto regolato dal diritto svizzero."
+  },
+  "header": {
+    "label": "Informativa legale",
+    "h1": "Termini di Servizio",
+    "updated_prefix": "Ultimo aggiornamento:",
+    "intro": "Leggere attentamente i presenti Termini prima di utilizzare la piattaforma Lexum. La registrazione e l'utilizzo del servizio costituiscono accettazione integrale dei presenti Termini. Il contratto è regolato dal diritto svizzero."
+  },
+  "parti": {
+    "title": "1. Parti del contratto",
+    "p1": "I presenti Termini di Servizio regolano il rapporto contrattuale tra:",
+    "company_suffix": "(di seguito \"Lexum\", \"noi\" o \"il Fornitore\")",
+    "p2": "e l'utente registrato alla piattaforma (di seguito \"Utente\" o \"Cliente\"), che può essere un avvocato, un fiduciario, uno studio legale o fiduciario o un professionista del settore legale e fiscale."
+  },
+  "descrizione": {
+    "title": "2. Descrizione del servizio",
+    "p1": "Lexum è una piattaforma SaaS (Software as a Service) dedicata ad avvocati, fiduciari e relativi studi che fornisce, tra gli altri, i seguenti servizi:",
+    "items": [
+      "Gestione di pratiche, mandati, clienti e documenti",
+      "Archivio digitale con estrazione testo automatica tramite OCR",
+      "Banca dati di sentenze e giurisprudenza condivisa tra professionisti",
+      "Ricerca semantica su normativa svizzera e diritto UE tramite intelligenza artificiale (Lex)",
+      "Strumenti di analisi legale e fiscale assistiti dall'AI",
+      "Calendario e gestione di udienze e scadenze fiscali",
+      "Portale clienti per la condivisione di documenti e comunicazioni"
+    ],
+    "p2": "Lexum è uno strumento di supporto professionale. Le analisi e i suggerimenti generati dall'AI hanno natura puramente informativa e non costituiscono pareri legali o fiscali. La responsabilità professionale rimane in capo all'avvocato o al fiduciario in ogni circostanza."
+  },
+  "registrazione": {
+    "title": "3. Registrazione e account",
+    "sub31_title": "3.1 Requisiti",
+    "sub31_text": "La registrazione a Lexum è riservata a professionisti del settore legale e fiscale (avvocati, praticanti, fiduciari, collaboratori di studio) e a chiunque necessiti di strumenti di ricerca legale e fiscale (accesso Lex AI). L'Utente dichiara di avere l'esercizio dei diritti civili e, se professionista, di essere iscritto al registro o all'albo competente.",
+    "sub32_title": "3.2 Obblighi dell'Utente",
+    "sub32_items": [
+      "Fornire informazioni veritiere, accurate e aggiornate in fase di registrazione",
+      "Mantenere riservate le proprie credenziali di accesso",
+      "Notificare immediatamente qualsiasi accesso non autorizzato al proprio account",
+      "Non condividere le credenziali con terzi non autorizzati",
+      "Aggiornare i propri dati in caso di variazioni"
+    ],
+    "sub33_title": "3.3 Account studio",
+    "sub33_text": "Il titolare dell'account studio è responsabile degli accessi dei collaboratori da lui invitati. Ogni azione compiuta da un collaboratore è imputabile allo studio e al suo titolare."
+  },
+  "piani": {
+    "title": "4. Piani di abbonamento e pagamenti",
+    "sub41_title": "4.1 Piani disponibili",
+    "sub41_text": "Lexum è disponibile in diversi piani di abbonamento con caratteristiche e prezzi differenti, consultabili sulla piattaforma. I prezzi sono espressi in franchi svizzeri (CHF) e si intendono IVA esclusa ove applicabile.",
+    "sub42_title": "4.2 Fatturazione",
+    "sub42_text": "Gli abbonamenti sono fatturati anticipatamente per il periodo selezionato (mensile o annuale). I pagamenti sono elaborati tramite Stripe. La fattura viene emessa automaticamente al momento del pagamento.",
+    "sub43_title": "4.3 Rinnovo automatico",
+    "sub43_text": "Gli abbonamenti si rinnovano automaticamente alla scadenza salvo disdetta comunicata almeno 7 giorni prima della data di rinnovo. La disdetta può essere effettuata dalla sezione Studio della piattaforma o inviando comunicazione a info@lexum.ch.",
+    "sub44_title": "4.4 Mancato pagamento",
+    "sub44_text": "In caso di mancato pagamento alla scadenza, l'account entra in un periodo di grazia di 3 giorni durante i quali il servizio rimane accessibile. Trascorso tale periodo senza regolarizzazione, l'accesso viene sospeso. I dati vengono conservati per 30 giorni dalla sospensione, trascorsi i quali possono essere eliminati definitivamente.",
+    "sub45_title": "4.5 Rimborsi",
+    "sub45_text": "Non sono previsti rimborsi per periodi di abbonamento già fatturati, salvo vizi del servizio imputabili a Lexum. In caso di upgrade di piano, viene calcolata la differenza pro-rata per il periodo residuo.",
+    "sub46_title": "4.6 Crediti AI",
+    "sub46_text": "I crediti AI acquistati hanno validità indicata al momento dell'acquisto e non sono rimborsabili né trasferibili. I crediti inclusi nell'abbonamento mensile non si accumulano di mese in mese.",
+    "sub47_title": "4.7 Prova gratuita",
+    "sub47_intro": "Lexum offre una prova gratuita della durata di 7 giorni (o periodo diverso indicato al momento dell'attivazione) per i nuovi utenti registrati come avvocati o fiduciari. La prova gratuita:",
+    "sub47_items": [
+      "È attivabile una sola volta per account e non è trasferibile",
+      "Non richiede l'inserimento di dati di pagamento",
+      "Include le funzionalità indicate al momento dell'attivazione",
+      "Si conclude automaticamente alla scadenza senza addebiti",
+      "Alla scadenza, l'accesso alle funzionalità a pagamento viene sospeso",
+      "I dati inseriti durante la prova rimangono accessibili dopo l'acquisto di un piano",
+      "I dati vengono conservati per 30 giorni dalla scadenza della prova, trascorsi i quali possono essere eliminati definitivamente"
+    ],
+    "sub47_outro": "Lexum si riserva il diritto di modificare le condizioni della prova gratuita o di sospenderla in qualsiasi momento per i nuovi utenti, senza effetto sulle prove già attivate."
+  },
+  "contenuti": {
+    "title": "5. Contenuti caricati dall'Utente",
+    "sub51_title": "5.1 Proprietà",
+    "sub51_text": "L'Utente rimane il solo proprietario dei contenuti caricati sulla piattaforma (documenti, sentenze, pratiche, mandati, note). Lexum non rivendica alcun diritto di proprietà su tali contenuti.",
+    "sub52_title": "5.2 Licenza d'uso",
+    "sub52_text": "Caricando contenuti sulla piattaforma, l'Utente concede a Lexum una licenza limitata, non esclusiva e non trasferibile per elaborare tali contenuti al solo scopo di erogare il servizio (archiviazione, OCR, indicizzazione, ricerca semantica, analisi AI).",
+    "sub53_title": "5.3 Banca dati condivisa",
+    "sub53_text": "Caricando sentenze nella banca dati condivisa, l'Utente dichiara di avere il diritto di condividere tali documenti e accetta che altri professionisti registrati possano acquistare l'accesso al documento. Il compenso per ogni accesso viene ripartito secondo le percentuali indicate al momento del caricamento.",
+    "sub54_title": "5.4 Contenuti vietati",
+    "sub54_intro": "È vietato caricare sulla piattaforma:",
+    "sub54_items": [
+      "Contenuti che violano diritti di terzi (copyright, privacy, segreti aziendali)",
+      "Materiale illegale o che incita ad attività illecite",
+      "Dati personali di terzi non pertinenti alle pratiche o ai mandati gestiti",
+      "Malware, virus o codice dannoso",
+      "Contenuti falsi o fuorvianti"
+    ],
+    "sub55_title": "5.5 Responsabilità sui contenuti",
+    "sub55_text": "L'Utente è il titolare del trattamento dei dati personali dei propri clienti ai sensi della LPD svizzera e, ove applicabile, del GDPR. Lexum agisce quale responsabile del trattamento (data processor) per i dati caricati dall'Utente. Le parti sottoscrivono implicitamente un accordo di trattamento dei dati (DPA) conforme all'art. 9 LPD e all'art. 28 GDPR con l'accettazione dei presenti Termini."
+  },
+  "uso": {
+    "title": "6. Uso accettabile della piattaforma",
+    "intro": "L'Utente si impegna a non utilizzare Lexum per:",
+    "items": [
+      "Attività illegali o contrarie all'etica professionale",
+      "Tentare di accedere ad aree della piattaforma non autorizzate",
+      "Effettuare reverse engineering, decompilare o tentare di estrarre il codice sorgente",
+      "Sovraccaricare intenzionalmente i sistemi (DDoS, scraping massivo)",
+      "Condividere l'accesso alla piattaforma con terzi non autorizzati",
+      "Raccogliere dati di altri utenti senza autorizzazione",
+      "Creare account multipli per aggirare limitazioni del piano",
+      "Utilizzare le funzionalità AI per generare contenuti fuorvianti o falsi pareri legali o fiscali"
+    ]
+  },
+  "ai": {
+    "title": "7. Funzionalità di intelligenza artificiale",
+    "sub71_title": "7.1 Natura del servizio AI",
+    "sub71_text": "Le funzionalità basate su intelligenza artificiale (Lex AI) forniscono informazioni e analisi a carattere puramente informativo. I risultati generati dall'AI non costituiscono pareri legali o fiscali, consulenza professionale o sostituzione del giudizio dell'avvocato o del fiduciario.",
+    "sub72_title": "7.2 Limitazioni",
+    "sub72_text": "L'AI lavora sulla base delle fonti presenti nel database Lexum (normativa svizzera e UE, giurisprudenza caricata, prassi e documenti dell'archivio verificati). Lexum non garantisce la completezza, l'accuratezza o l'aggiornamento delle informazioni generate. L'Utente è responsabile della verifica indipendente di qualsiasi informazione prima di utilizzarla nell'esercizio della professione.",
+    "sub73_title": "7.3 Utilizzo dei contenuti",
+    "sub73_text": "I contenuti caricati dall'Utente non vengono utilizzati per addestrare modelli AI di terze parti. Le query inviate all'AI vengono elaborate dai fornitori indicati nella Privacy Policy nel rispetto degli accordi DPA."
+  },
+  "disponibilita": {
+    "title": "8. Disponibilità del servizio e manutenzione",
+    "p1": "Lexum si impegna a garantire la disponibilità della piattaforma con un obiettivo di uptime del 99,5% su base mensile, escluse le finestre di manutenzione programmate.",
+    "p2": "Le manutenzioni programmate vengono comunicate con almeno 48 ore di anticipo. In caso di interruzioni non programmate, Lexum si impegna a ripristinare il servizio nel minor tempo possibile e a comunicare l'evento agli utenti interessati.",
+    "p3": "Lexum non è responsabile per interruzioni causate da eventi fuori dal proprio controllo (forza maggiore, guasti di infrastruttura di terzi, attacchi informatici esterni)."
+  },
+  "responsabilita": {
+    "title": "9. Limitazione di responsabilità",
+    "intro": "Nei limiti consentiti dal diritto svizzero applicabile:",
+    "items": [
+      "Lexum non è responsabile per danni indiretti, consequenziali, perdita di profitto o perdita di dati derivanti dall'uso della piattaforma",
+      "La responsabilità complessiva di Lexum per qualsiasi richiesta è limitata all'importo pagato dall'Utente nei 3 mesi precedenti l'evento generatore del danno",
+      "Lexum non è responsabile per decisioni professionali adottate dall'avvocato o dal fiduciario sulla base di informazioni generate dall'AI",
+      "Lexum non è responsabile per contenuti caricati da terzi nella banca dati condivisa"
+    ]
+  },
+  "proprieta": {
+    "title": "10. Proprietà intellettuale",
+    "p1": "La piattaforma Lexum, il suo codice sorgente, il design, i loghi, i marchi e tutti i contenuti originali prodotti da Lexum sono di proprietà esclusiva di Alpi Consulenti Associati SA e sono protetti dalla normativa svizzera e internazionale sul diritto d'autore e sulla proprietà intellettuale.",
+    "p2": "L'Utente non è autorizzato a riprodurre, distribuire, modificare o creare opere derivate dalla piattaforma senza espressa autorizzazione scritta di Lexum."
+  },
+  "risoluzione": {
+    "title": "11. Sospensione e risoluzione del contratto",
+    "sub111_title": "11.1 Risoluzione da parte dell'Utente",
+    "sub111_text": "L'Utente può recedere dal contratto in qualsiasi momento disattivando l'abbonamento dalla sezione Studio della piattaforma. Il recesso ha effetto alla fine del periodo di abbonamento già pagato.",
+    "sub112_title": "11.2 Sospensione da parte di Lexum",
+    "sub112_intro": "Lexum si riserva il diritto di sospendere o terminare l'account dell'Utente in caso di:",
+    "sub112_items": [
+      "Violazione dei presenti Termini",
+      "Mancato pagamento oltre il periodo di grazia",
+      "Uso fraudolento o abusivo della piattaforma",
+      "Richiesta dell'autorità giudiziaria competente"
+    ],
+    "sub112_outro": "In caso di violazioni gravi, la sospensione può essere immediata. Per violazioni minori, Lexum si impegna a fornire un preavviso di 14 giorni.",
+    "sub113_title": "11.3 Effetti della risoluzione",
+    "sub113_text": "Alla risoluzione del contratto, l'Utente ha 30 giorni per esportare i propri dati. Trascorso tale periodo, i dati vengono eliminati definitivamente, salvo obblighi di conservazione previsti dalla legge."
+  },
+  "legge": {
+    "title": "12. Legge applicabile e foro competente",
+    "p1": "I presenti Termini sono regolati dal diritto svizzero, con esclusione delle norme di conflitto di leggi. Per le controversie con consumatori residenti nell'Unione Europea si applicano le norme imperative di protezione dei consumatori del paese di residenza dell'Utente.",
+    "p2": "Il foro competente per qualsiasi controversia relativa ai presenti Termini è quello di Lugano (Svizzera), fatta salva la competenza esclusiva di altri fori prevista da norme imperative (in particolare, per i consumatori UE, il foro del paese di residenza del consumatore).",
+    "p3": "Prima di ricorrere alle vie legali, le parti si impegnano a tentare una risoluzione amichevole della controversia entro 30 giorni dalla notifica scritta del problema."
+  },
+  "modifiche": {
+    "title": "13. Modifiche ai Termini",
+    "p1": "Lexum si riserva il diritto di modificare i presenti Termini. Le modifiche sostanziali vengono comunicate via email con almeno 30 giorni di anticipo rispetto alla data di entrata in vigore. Le modifiche di natura tecnica o redazionale possono essere apportate senza preavviso.",
+    "p2": "L'uso continuato della piattaforma dopo l'entrata in vigore delle modifiche costituisce accettazione dei nuovi Termini. In caso di disaccordo, l'Utente può recedere dal contratto prima della data di entrata in vigore."
+  },
+  "finali": {
+    "title": "14. Disposizioni finali",
+    "p1": "Se una o più disposizioni dei presenti Termini risultassero invalide o inapplicabili, le restanti disposizioni rimarranno in vigore a pieno titolo. La disposizione invalida sarà sostituita da una valida che si avvicini il più possibile all'intento originale.",
+    "p2": "La mancata applicazione di una disposizione dei presenti Termini da parte di Lexum non costituisce rinuncia al diritto di applicarla in futuro.",
+    "p3_prefix": "Per qualsiasi comunicazione relativa ai presenti Termini scrivere a:"
+  }
+}

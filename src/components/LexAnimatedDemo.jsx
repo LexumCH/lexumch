@@ -1,37 +1,13 @@
 // LexAnimatedDemo.jsx
 // Animazione one-shot (no loop): scrittura domanda -> ricerca Lex -> risposta che si scrive -> azioni
 // Transizioni morbide via CSS transition + fade incrociato
+// Contenuti testuali via i18n (namespace 'lex_ai', chiave 'anim')
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sparkles, Bookmark, FolderOpen, Check } from 'lucide-react'
 
-const DOMANDA = "un ladro entra in casa, il proprietario reagisce, quando può configurarsi la legittima difesa?"
-
-const FRASI_LEX = [
-    'Sto ricercando nell\'archivio Lex',
-    'Identifico le fonti rilevanti',
-    'Confronto sentenze e giurisprudenza',
-    'Consulto codici e normative',
-    'Compongo una risposta strutturata',
-]
-
-const RISPOSTA = [
-    { type: 'h2', text: 'Normativa' },
-    { type: 'p', text: 'La legittima difesa è disciplinata dall\'art. 52 c.p., che esclude la punibilità di chi ha commesso un fatto essendovi stato costretto dalla necessità di difendere un diritto proprio o altrui contro il pericolo attuale di un\'offesa ingiusta, purché la difesa sia proporzionata all\'offesa.' },
-    { type: 'p', text: 'Nel caso del ladro che entra in casa, la L. 36/2019 ha introdotto una presunzione legale di proporzionalità quando il fatto avvenga nei luoghi di cui all\'art. 614 c.p. (abitazione, privata dimora, pertinenze), il soggetto sia legittimamente presente e utilizzi un\'arma legittimamente detenuta per difendere incolumità o beni propri o altrui.' },
-    { type: 'h2', text: 'Presupposti che restano necessari' },
-    { type: 'p', text: 'La presunzione non elimina la verifica degli altri requisiti. La Cassazione (rassegna 1/2021) ha chiarito che occorre sempre accertare:' },
-    {
-        type: 'list', items: [
-            'Attualità del pericolo: deve esistere al momento della reazione. Se il ladro è in fuga, la difesa perde il suo presupposto.',
-            'Necessità della reazione: deve essere l\'unica opzione praticabile.',
-            'Gerarchia dei valori: vita e incolumità prevalgono sull\'interesse patrimoniale.',
-        ]
-    },
-    { type: 'h2', text: 'Eccesso colposo e turbamento' },
-    { type: 'p', text: 'L\'art. 55 comma 2 c.p. esclude la punibilità per eccesso quando chi reagisce si trovi in minorata difesa o grave turbamento derivante dalla situazione di pericolo in atto. Clausola pensata per chi, sorpreso da un\'intrusione notturna, reagisce in modo sproporzionato per il panico... CONTINUA...' },
-    { type: 'chips', items: ['Art. 52 c.p.', 'L. 36/2019', 'Art. 614 c.p.', 'Cass. 1/2021', 'Art. 55 c.p.', 'Art. 59 c.p.'] },
-]
+const toArray = (val) => Array.isArray(val) ? val : []
 
 const CHAR_SPEED_DOMANDA = 50
 const CHAR_SPEED_RISPOSTA = 8
@@ -41,14 +17,17 @@ const FADE_DURATION = 400  // durata delle transizioni di stato (ms)
 
 // ─── Animazione libreria Lex ───
 function LexLibraryAnimation() {
+    const { t } = useTranslation('lex_ai')
+    const frasi = toArray(t('anim.frasi', { returnObjects: true }))
     const [indiceFrase, setIndiceFrase] = useState(0)
 
     useEffect(() => {
+        if (frasi.length === 0) return
         const interval = setInterval(() => {
-            setIndiceFrase((i) => (i + 1) % FRASI_LEX.length)
+            setIndiceFrase((i) => (i + 1) % frasi.length)
         }, 1600)
         return () => clearInterval(interval)
-    }, [])
+    }, [frasi.length])
 
     return (
         <div className="px-3 py-6">
@@ -147,7 +126,7 @@ function LexLibraryAnimation() {
                     key={indiceFrase}
                     className="lex-mini-fade font-body text-sm text-nebbia/70 tracking-wide inline-flex items-center"
                 >
-                    {FRASI_LEX[indiceFrase]}
+                    {frasi[indiceFrase]}
                     <span className="inline-flex gap-[3px] ml-1.5 items-center">
                         <span className="lex-mini-dot" />
                         <span className="lex-mini-dot" />
@@ -182,6 +161,10 @@ const DUR = {
 
 // ─── Componente principale ───
 export default function LexAnimatedDemo() {
+    const { t, ready } = useTranslation('lex_ai')
+    const DOMANDA = t('anim.domanda')
+    const RISPOSTA = toArray(t('anim.risposta', { returnObjects: true }))
+
     const [phase, setPhase] = useState(PHASE.IDLE)
     const [domandaText, setDomandaText] = useState('')
     const [rispostaBlocks, setRispostaBlocks] = useState([])
@@ -196,6 +179,9 @@ export default function LexAnimatedDemo() {
     const wait = (ms) => new Promise(resolve => addTimeout(resolve, ms))
 
     useEffect(() => {
+        // Avvia l'animazione solo quando le traduzioni sono pronte
+        if (!ready || !DOMANDA || RISPOSTA.length === 0) return
+
         let isMounted = true
 
         const run = async () => {
@@ -275,7 +261,7 @@ export default function LexAnimatedDemo() {
             timeoutsRef.current.forEach(clearTimeout)
             timeoutsRef.current = []
         }
-    }, [])
+    }, [ready])
 
     const isInputPhase = phase === PHASE.IDLE || phase === PHASE.TYPING_DOMANDA || phase === PHASE.PRESS_SEND || phase === PHASE.TRANSITION_TO_SEARCH
     const isPressing = phase === PHASE.PRESS_SEND
@@ -305,12 +291,12 @@ export default function LexAnimatedDemo() {
                 }}
             >
                 <p className="font-body text-xs text-nebbia/25">
-                    Fai una domanda su una questione legale o carica un documento da analizzare.
+                    {t('anim.input_hint')}
                 </p>
                 <div className={`bg-petrolio border ${isPressing ? 'border-salvia/60' : 'border-white/10'} text-nebbia font-body text-sm px-4 py-3.5 transition-colors min-h-[78px]`}>
                     <span className="text-nebbia/85">{domandaText}</span>
                     {showCursor && <span className="inline-block w-[2px] h-4 bg-salvia/80 align-middle ml-0.5" />}
-                    {!domandaText && !showCursor && <span className="text-nebbia/20">Es. Responsabilità del datore di lavoro in caso di infortunio...</span>}
+                    {!domandaText && !showCursor && <span className="text-nebbia/20">{t('anim.input_placeholder')}</span>}
                 </div>
                 <button
                     className={`flex items-center justify-center gap-2 w-full py-3 border font-body text-sm transition-all ${isPressing
@@ -318,7 +304,7 @@ export default function LexAnimatedDemo() {
                         : 'bg-salvia/10 border-salvia/30 text-salvia'
                         }`}
                 >
-                    <Sparkles size={13} /> Cerca con Lex AI
+                    <Sparkles size={13} /> {t('anim.cta')}
                 </button>
             </div>
 
@@ -333,7 +319,7 @@ export default function LexAnimatedDemo() {
             >
                 {/* Bubble utente */}
                 <div>
-                    <p className="font-body text-xs text-nebbia/30 mb-1.5">Tu</p>
+                    <p className="font-body text-xs text-nebbia/30 mb-1.5">{t('anim.user_label')}</p>
                     <div className="bg-petrolio border border-white/8 px-4 py-3">
                         <p className="font-body text-sm text-nebbia/65">{DOMANDA}</p>
                     </div>
@@ -377,7 +363,7 @@ export default function LexAnimatedDemo() {
                     >
                         {responseOpacity > 0 && (
                             <>
-                                <p className="font-body text-xs text-salvia/50 mb-1.5">Lex AI</p>
+                                <p className="font-body text-xs text-salvia/50 mb-1.5">{t('anim.lex_label')}</p>
                                 <div className="bg-salvia/5 border border-salvia/15 p-5 space-y-3">
                                     {rispostaBlocks.map((block, i) => {
                                         if (!block) return null
@@ -434,10 +420,10 @@ export default function LexAnimatedDemo() {
                     }}
                 >
                     <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-petrolio border border-oro/25 text-oro/80 font-body text-xs hover:bg-oro/5 transition-colors">
-                        <FolderOpen size={12} /> Aggiungi a pratica
+                        <FolderOpen size={12} /> {t('anim.action_pratica')}
                     </button>
                     <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-petrolio border border-salvia/25 text-salvia/80 font-body text-xs hover:bg-salvia/5 transition-colors">
-                        <Bookmark size={12} /> Aggiungi a etichetta
+                        <Bookmark size={12} /> {t('anim.action_etichetta')}
                     </button>
                 </div>
             </div>

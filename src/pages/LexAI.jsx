@@ -1,16 +1,21 @@
 // src/pages/LexAI.jsx
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Helmet } from 'react-helmet-async'
 import {
     ArrowRight, Sparkles, Search, FileText, Brain,
     Shield, Check, ChevronDown, Lock, X, BookOpen,
     Zap, AlertCircle, Scale, MessageSquare,
-    Library, Gavel, Globe, FolderOpen
+    Library, Gavel, Globe, FolderOpen, Briefcase
 } from 'lucide-react'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import ReactMarkdown from 'react-markdown'
 import LexAnimatedDemo from '@/components/LexAnimatedDemo'
+
+// Mapping icone (l'ordine corrisponde agli array nel JSON)
+const FEATURE_ICONS = [Search, FileText, MessageSquare, Brain]
+const FONTI_ICONS = [Gavel, Scale, Globe, Library]
 
 // ─── Scroll animation hook ───────────────────────────────────
 function useInView(threshold = 0.12) {
@@ -285,38 +290,42 @@ function LexBoxPublic() {
 
 // ─────────────────────────────────────────────────────────────
 export default function LexAI() {
+    const { t } = useTranslation('lex_ai')
+    const toArray = (val) => Array.isArray(val) ? val : []
+
+    const featureItems = toArray(t('features.items', { returnObjects: true }))
+    const featureDemoRefs = toArray(t('features.demo_refs', { returnObjects: true }))
+    const fontiCards = toArray(t('fonti.cards', { returnObjects: true }))
+    const ragionaSteps = toArray(t('ragiona.steps', { returnObjects: true }))
+    const ragionaBlocks = toArray(t('ragiona.blocks', { returnObjects: true }))
+    const ragionaChips = toArray(t('ragiona.chips', { returnObjects: true }))
+    const genericaItems = toArray(t('diversa.generica_items', { returnObjects: true }))
+    const lexItems = toArray(t('diversa.lex_items', { returnObjects: true }))
+    const puoFaItems = toArray(t('puo.fa_items', { returnObjects: true }))
+    const puoNonFaItems = toArray(t('puo.nonfa_items', { returnObjects: true }))
+    const upsellAvvItems = toArray(t('upsell.avvocati_items', { returnObjects: true }))
+    const upsellFidItems = toArray(t('upsell.fiduciari_items', { returnObjects: true }))
+
     return (
         <div className="min-h-screen bg-petrolio text-nebbia overflow-x-hidden pt-20">
             <Helmet>
-                <title>Lex AI — La ricerca legale su fonti verificate</title>
-                <meta
-                    name="description"
-                    content="Lex AI: ricerca legale, analisi documenti e ragionamento giuridico strutturato su giurisprudenza italiana, normativa, diritto UE e prassi. Fonti verificate, perimetro controllato."
-                />
-                <link rel="canonical" href="https://www.lexum.it/lex-ai" />
+                <title>{t('meta.title')}</title>
+                <meta name="description" content={t('meta.description')} />
+                <link rel="canonical" href="https://www.lexum.ch/lex-ai" />
 
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://www.lexum.it/lex-ai" />
-                <meta property="og:title" content="Lex AI — Ricerca legale su fonti verificate" />
-                <meta
-                    property="og:description"
-                    content="Ricerca legale, analisi documenti e ragionamento strutturato su fonti verificate."
-                />
-                <meta property="og:image" content="https://www.lexum.it/logo.png" />
-                <meta property="og:locale" content="it_IT" />
+                <meta property="og:url" content="https://www.lexum.ch/lex-ai" />
+                <meta property="og:title" content={t('meta.og_title')} />
+                <meta property="og:description" content={t('meta.og_description')} />
+                <meta property="og:image" content="https://www.lexum.ch/logo.png" />
 
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="Lex AI — Ricerca legale su fonti verificate" />
-                <meta
-                    name="twitter:description"
-                    content="Ricerca legale, analisi documenti e ragionamento strutturato su fonti verificate."
-                />
-                <meta name="twitter:image" content="https://www.lexum.it/logo.png" />
+                <meta name="twitter:title" content={t('meta.og_title')} />
+                <meta name="twitter:description" content={t('meta.twitter_description')} />
+                <meta name="twitter:image" content="https://www.lexum.ch/logo.png" />
             </Helmet>
 
-            {/* ══════════════════════════════════════════
-                1. HERO + BOX ANIMATO
-            ══════════════════════════════════════════ */}
+            {/* 1. HERO + BOX ANIMATO */}
             <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-10">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-1/3 left-1/3 w-[600px] h-[600px] bg-salvia/[0.05] rounded-full blur-3xl" />
@@ -332,24 +341,23 @@ export default function LexAI() {
                     <div className="flex justify-center mb-8">
                         <div className="inline-flex items-center gap-2 px-4 py-2 border border-salvia/25 bg-salvia/5">
                             <Sparkles size={11} className="text-salvia" />
-                            <span className="font-body text-xs text-nebbia/50 tracking-widest uppercase">Intelligenza artificiale legale V. 1.3</span>
+                            <span className="font-body text-xs text-nebbia/50 tracking-widest uppercase">{t('hero.badge')}</span>
                         </div>
                     </div>
 
-                    {/* Titolo (resta stretto al centro) */}
+                    {/* Titolo */}
                     <div className="max-w-3xl mx-auto text-center mb-10">
                         <h1 className="font-display text-5xl md:text-6xl font-light text-nebbia leading-[1.1] mb-5">
-                            Lex AI, la ricerca legale
+                            {t('hero.title_part1')}
                             <br />
-                            <span className="text-salvia">su fonti verificate.</span>
+                            <span className="text-salvia">{t('hero.title_highlight')}</span>
                         </h1>
                         <p className="font-body text-base text-nebbia/45 leading-relaxed max-w-xl mx-auto">
-                            Accedi a uno strumento pensato per chi ha bisogno di ricerca legale seria, rapida e affidabile.
-                            Lavora su fonti verificate, senza rumore inutile.
+                            {t('hero.subtitle')}
                         </p>
                     </div>
 
-                    {/* Box animato (largo) */}
+                    {/* Box animato */}
                     <div className="bg-slate border border-oro/20 overflow-hidden shadow-2xl shadow-oro/5">
                         <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/5 bg-petrolio/60">
                             <div className="flex items-center gap-2">
@@ -357,10 +365,10 @@ export default function LexAI() {
                                 <span className="font-body text-xs text-salvia">Lex AI</span>
                                 <div className="flex items-center gap-1.5 ml-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-salvia animate-pulse" />
-                                    <span className="font-body text-xs text-nebbia/25">Attivo</span>
+                                    <span className="font-body text-xs text-nebbia/25">{t('hero.box_status')}</span>
                                 </div>
                             </div>
-                            <span className="font-body text-xs text-nebbia/25">Esempio di sessione</span>
+                            <span className="font-body text-xs text-nebbia/25">{t('hero.box_session')}</span>
                         </div>
                         <div className="p-6">
                             <LexAnimatedDemo />
@@ -376,41 +384,36 @@ export default function LexAI() {
                 </a>
             </section>
 
-            {/* ══════════════════════════════════════════
-                2. COSA FA
-            ══════════════════════════════════════════ */}
+            {/* 2. COSA FA */}
             <section id="cosa-fa" className="py-24 px-6 border-t border-white/5">
                 <div className="max-w-5xl mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <FadeIn>
-                            <SectionLabel color="salvia">Funzionalità</SectionLabel>
+                            <SectionLabel color="salvia">{t('features.label')}</SectionLabel>
                             <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia mb-6">
-                                Cosa puoi fare con{' '}
-                                <span className="text-salvia">Lex AI.</span>
+                                {t('features.title_part1')}{' '}
+                                <span className="text-salvia">{t('features.title_highlight')}</span>
                             </h2>
                             <p className="font-body text-sm text-nebbia/50 leading-relaxed mb-8">
-                                Una versione accessibile pensata per la ricerca legale. Quattro modi concreti
-                                in cui Lex ti aiuta a lavorare meglio sui contenuti giuridici.
+                                {t('features.intro')}
                             </p>
                             <div className="space-y-4">
-                                {[
-                                    { icon: Search, t: 'Cerca riferimenti legali', d: 'Trova norme, sentenze e prassi rilevanti su un tema, con il ragionamento giuridico già strutturato.' },
-                                    { icon: FileText, t: 'Analizza documenti', d: 'Carica un atto, una sentenza, un contratto. Lex evidenzia i punti rilevanti e i nodi da approfondire.' },
-                                    { icon: MessageSquare, t: 'Conversazione continua', d: 'Approfondisci, cambia angolazione, chiedi follow-up. La conversazione si sviluppa nel tempo, non si resetta a ogni domanda.' },
-                                    { icon: Brain, t: 'Chiarisce dubbi interpretativi', d: 'Quando una norma o una pronuncia non è chiara, Lex spiega in modo strutturato e cita le fonti.' },
-                                ].map(({ icon: I, t, d }, i) => (
-                                    <FadeIn key={i} delay={i * 0.08}>
-                                        <div className="flex gap-4">
-                                            <div className="w-9 h-9 flex items-center justify-center border border-salvia/25 bg-salvia/5 shrink-0">
-                                                <I size={15} className="text-salvia" />
+                                {featureItems.map((item, i) => {
+                                    const I = FEATURE_ICONS[i]
+                                    return (
+                                        <FadeIn key={i} delay={i * 0.08}>
+                                            <div className="flex gap-4">
+                                                <div className="w-9 h-9 flex items-center justify-center border border-salvia/25 bg-salvia/5 shrink-0">
+                                                    {I && <I size={15} className="text-salvia" />}
+                                                </div>
+                                                <div>
+                                                    <p className="font-body text-sm font-medium text-nebbia mb-1">{item.t}</p>
+                                                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">{item.d}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-body text-sm font-medium text-nebbia mb-1">{t}</p>
-                                                <p className="font-body text-xs text-nebbia/40 leading-relaxed">{d}</p>
-                                            </div>
-                                        </div>
-                                    </FadeIn>
-                                ))}
+                                        </FadeIn>
+                                    )
+                                })}
                             </div>
                         </FadeIn>
 
@@ -421,34 +424,30 @@ export default function LexAI() {
                                     <span className="font-body text-xs text-salvia">Lex AI</span>
                                     <div className="ml-auto flex items-center gap-1.5">
                                         <div className="w-1.5 h-1.5 rounded-full bg-salvia animate-pulse" />
-                                        <span className="font-body text-xs text-nebbia/25">Attivo</span>
+                                        <span className="font-body text-xs text-nebbia/25">{t('hero.box_status')}</span>
                                     </div>
                                 </div>
                                 <div className="p-5 space-y-4">
                                     <div className="bg-petrolio border border-white/8 px-4 py-3">
-                                        <p className="font-body text-xs text-nebbia/40 mb-1">Tu</p>
+                                        <p className="font-body text-xs text-nebbia/40 mb-1">{t('features.demo_user')}</p>
                                         <p className="font-body text-sm text-nebbia/65">
-                                            "Cerco riferimenti sulla responsabilità del datore di lavoro in caso di infortunio."
+                                            {t('features.demo_question')}
                                         </p>
                                     </div>
                                     <div className="bg-salvia/5 border border-salvia/15 px-4 py-4 space-y-3">
                                         <p className="font-body text-xs text-salvia/60">Lex AI</p>
                                         <p className="font-body text-xs text-nebbia/60 leading-relaxed">
-                                            I riferimenti principali in tema di responsabilità datoriale per infortuni sono:
+                                            {t('features.demo_intro')}
                                         </p>
                                         <div className="space-y-1.5">
-                                            {[
-                                                'Art. 2087 c.c. — obbligo generale di sicurezza',
-                                                'D.Lgs. 81/2008 — testo unico sicurezza',
-                                                'Art. 2049 c.c. — responsabilità per fatto dei dipendenti',
-                                            ].map(t => (
-                                                <div key={t} className="flex items-start gap-2 font-body text-xs text-nebbia/50">
-                                                    <div className="w-1 h-1 bg-salvia rounded-full shrink-0 mt-1.5" />{t}
+                                            {featureDemoRefs.map(ref => (
+                                                <div key={ref} className="flex items-start gap-2 font-body text-xs text-nebbia/50">
+                                                    <div className="w-1 h-1 bg-salvia rounded-full shrink-0 mt-1.5" />{ref}
                                                 </div>
                                             ))}
                                         </div>
                                         <p className="font-body text-xs text-nebbia/40 leading-relaxed pt-1 border-t border-white/5">
-                                            Vuoi che approfondisca uno di questi punti o carichi un documento da analizzare?
+                                            {t('features.demo_followup')}
                                         </p>
                                     </div>
                                 </div>
@@ -458,106 +457,76 @@ export default function LexAI() {
                 </div>
             </section>
 
-            {/* ══════════════════════════════════════════
-                3. SU QUALI FONTI LAVORA
-            ══════════════════════════════════════════ */}
+            {/* 3. SU QUALI FONTI LAVORA */}
             <section className="py-24 px-6 bg-slate/20 border-t border-white/5">
                 <div className="max-w-5xl mx-auto">
                     <FadeIn className="text-center mb-14 max-w-2xl mx-auto">
-                        <SectionLabel>Fonti</SectionLabel>
+                        <SectionLabel>{t('fonti.label')}</SectionLabel>
                         <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia mb-4">
-                            Lavora su un patrimonio giuridico{' '}
-                            <span className="text-oro">in continua espansione.</span>
+                            {t('fonti.title_part1')}{' '}
+                            <span className="text-oro">{t('fonti.title_highlight')}</span>
                         </h2>
                         <p className="font-body text-sm text-nebbia/40 leading-relaxed">
-                            Lex AI consulta milioni di documenti giuridici verificati, suddivisi tra giurisprudenza,
-                            normativa, prassi e contributi professionali. Niente ricerca web casuale, niente fonti generaliste.
+                            {t('fonti.subtitle')}
                         </p>
                     </FadeIn>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {[
-                            {
-                                icon: Gavel,
-                                t: 'Giurisprudenza italiana',
-                                d: 'Cassazione, Corti d\'appello, Tribunali. Sentenze di merito e di legittimità in continua acquisizione.',
-                            },
-                            {
-                                icon: Scale,
-                                t: 'Normativa italiana',
-                                d: 'Codici, leggi, decreti legislativi e regolamenti, sempre aggiornati con le ultime modifiche.',
-                            },
-                            {
-                                icon: Globe,
-                                t: 'Diritto UE',
-                                d: 'Trattati, regolamenti, direttive e giurisprudenza della Corte di Giustizia dell\'Unione Europea.',
-                            },
-                            {
-                                icon: Library,
-                                t: 'Prassi e corpus condiviso',
-                                d: 'Circolari ministeriali, prassi amministrativa e materiali caricati dagli avvocati verificati.',
-                            },
-                        ].map(({ icon: Icon, t, d }, i) => (
-                            <FadeIn key={i} delay={i * 0.08}>
-                                <div className="h-full bg-slate border border-white/5 p-6 hover:border-oro/15 transition-colors group">
-                                    <div className="w-10 h-10 flex items-center justify-center border border-oro/20 bg-oro/5 text-oro mb-4 group-hover:bg-oro/10 transition-colors">
-                                        <Icon size={17} />
+                        {fontiCards.map((card, i) => {
+                            const Icon = FONTI_ICONS[i]
+                            return (
+                                <FadeIn key={i} delay={i * 0.08}>
+                                    <div className="h-full bg-slate border border-white/5 p-6 hover:border-oro/15 transition-colors group">
+                                        <div className="w-10 h-10 flex items-center justify-center border border-oro/20 bg-oro/5 text-oro mb-4 group-hover:bg-oro/10 transition-colors">
+                                            {Icon && <Icon size={17} />}
+                                        </div>
+                                        <p className="font-body text-sm font-medium text-nebbia mb-2">{card.t}</p>
+                                        <p className="font-body text-xs text-nebbia/40 leading-relaxed">{card.d}</p>
                                     </div>
-                                    <p className="font-body text-sm font-medium text-nebbia mb-2">{t}</p>
-                                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">{d}</p>
-                                </div>
-                            </FadeIn>
-                        ))}
+                                </FadeIn>
+                            )
+                        })}
                     </div>
 
                     <FadeIn delay={0.4}>
                         <div className="mt-8 bg-oro/5 border border-oro/15 p-5 flex items-center gap-3 max-w-3xl mx-auto">
                             <Library size={14} className="text-oro shrink-0" />
                             <p className="font-body text-sm text-nebbia/55 leading-relaxed">
-                                <span className="text-oro/80 font-medium">Oltre 4 milioni di documenti legali</span>, Lavoriamo in modo continuo per ampliare la banca dati e tenerla aggiornata.
+                                <span className="text-oro/80 font-medium">{t('fonti.highlight_strong')}</span>{t('fonti.highlight_text')}
                             </p>
                         </div>
                     </FadeIn>
                 </div>
             </section>
 
-            {/* ══════════════════════════════════════════
-                4. COME RAGIONA
-            ══════════════════════════════════════════ */}
+            {/* 4. COME RAGIONA */}
             <section className="py-24 px-6 border-t border-white/5">
                 <div className="max-w-5xl mx-auto">
                     <FadeIn className="text-center mb-14 max-w-2xl mx-auto">
-                        <SectionLabel color="salvia">Ragionamento</SectionLabel>
+                        <SectionLabel color="salvia">{t('ragiona.label')}</SectionLabel>
                         <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia mb-4">
-                            Non ti dà solo norme.{' '}
-                            <span className="text-salvia">Struttura il ragionamento giuridico.</span>
+                            {t('ragiona.title_part1')}{' '}
+                            <span className="text-salvia">{t('ragiona.title_highlight')}</span>
                         </h2>
                         <p className="font-body text-sm text-nebbia/40 leading-relaxed">
-                            Una buona risposta legale non è una lista di articoli. È un ragionamento che identifica le fonti,
-                            chiarisce i presupposti, segnala le eccezioni e suggerisce cosa verificare.
-                            Lex AI è costruita per fare proprio questo.
+                            {t('ragiona.subtitle')}
                         </p>
                     </FadeIn>
 
                     <FadeIn delay={0.2}>
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                            {/* Etichette laterali (mobile: nasconde su sotto) */}
+                            {/* Etichette laterali */}
                             <div className="lg:col-span-3 space-y-3">
-                                {[
-                                    { n: '01', t: 'Identifica le norme', d: 'Cita gli articoli applicabili al caso concreto.' },
-                                    { n: '02', t: 'Chiarisce i presupposti', d: 'Spiega cosa serve perché la norma operi.' },
-                                    { n: '03', t: 'Segnala le eccezioni', d: 'Indica i limiti e le ipotesi di esclusione.' },
-                                    { n: '04', t: 'Suggerisce verifiche', d: 'Pone le domande giuste per andare più a fondo.' },
-                                ].map(({ n, t, d }, i) => (
-                                    <FadeIn key={n} delay={0.1 + i * 0.08}>
+                                {ragionaSteps.map((step, i) => (
+                                    <FadeIn key={i} delay={0.1 + i * 0.08}>
                                         <div className="flex gap-3 p-3 bg-slate border border-white/5">
                                             <div className="w-8 h-8 flex items-center justify-center border border-salvia/25 bg-salvia/5 text-salvia font-body text-[10px] shrink-0">
-                                                {n}
+                                                {step.n}
                                             </div>
                                             <div>
-                                                <p className="font-body text-xs font-medium text-nebbia/80 mb-0.5">{t}</p>
-                                                <p className="font-body text-[11px] text-nebbia/40 leading-relaxed">{d}</p>
+                                                <p className="font-body text-xs font-medium text-nebbia/80 mb-0.5">{step.t}</p>
+                                                <p className="font-body text-[11px] text-nebbia/40 leading-relaxed">{step.d}</p>
                                             </div>
                                         </div>
                                     </FadeIn>
@@ -569,76 +538,37 @@ export default function LexAI() {
                                 <div className="bg-slate border border-salvia/15 overflow-hidden">
                                     <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-petrolio/60">
                                         <Sparkles size={12} className="text-salvia" />
-                                        <span className="font-body text-xs text-salvia">Lex AI — anatomia di una risposta</span>
+                                        <span className="font-body text-xs text-salvia">{t('ragiona.demo_label')}</span>
                                     </div>
                                     <div className="p-5 space-y-4">
 
                                         {/* Domanda */}
                                         <div className="bg-petrolio border border-white/8 px-4 py-3">
-                                            <p className="font-body text-xs text-nebbia/40 mb-1">Tu</p>
+                                            <p className="font-body text-xs text-nebbia/40 mb-1">{t('ragiona.demo_user')}</p>
                                             <p className="font-body text-sm text-nebbia/65">
-                                                "Quando opera la legittima difesa nel caso di intrusione in abitazione?"
+                                                {t('ragiona.demo_question')}
                                             </p>
                                         </div>
 
                                         {/* Risposta strutturata con annotazioni */}
                                         <div className="bg-salvia/5 border border-salvia/15 p-5 space-y-4">
-
-                                            {/* Blocco 1 — Norme */}
-                                            <div className="relative">
-                                                <span className="absolute -left-2 top-0 w-1 h-full bg-salvia/30" />
-                                                <div className="pl-4">
-                                                    <div className="flex items-center gap-2 mb-1.5">
-                                                        <span className="font-body text-[10px] uppercase tracking-widest text-salvia/70 font-medium">01 · Identifica le norme</span>
+                                            {ragionaBlocks.map((block, i) => (
+                                                <div key={i} className="relative">
+                                                    <span className="absolute -left-2 top-0 w-1 h-full bg-salvia/30" />
+                                                    <div className="pl-4">
+                                                        <div className="flex items-center gap-2 mb-1.5">
+                                                            <span className="font-body text-[10px] uppercase tracking-widest text-salvia/70 font-medium">{block.tag}</span>
+                                                        </div>
+                                                        <p className="font-body text-xs text-nebbia/60 leading-relaxed">
+                                                            {block.text}
+                                                        </p>
                                                     </div>
-                                                    <p className="font-body text-xs text-nebbia/60 leading-relaxed">
-                                                        La materia è disciplinata dall'art. 52 c.p. La L. 36/2019 ha introdotto una presunzione di proporzionalità nei luoghi indicati dall'art. 614 c.p.
-                                                    </p>
                                                 </div>
-                                            </div>
-
-                                            {/* Blocco 2 — Presupposti */}
-                                            <div className="relative">
-                                                <span className="absolute -left-2 top-0 w-1 h-full bg-salvia/30" />
-                                                <div className="pl-4">
-                                                    <div className="flex items-center gap-2 mb-1.5">
-                                                        <span className="font-body text-[10px] uppercase tracking-widest text-salvia/70 font-medium">02 · Chiarisce i presupposti</span>
-                                                    </div>
-                                                    <p className="font-body text-xs text-nebbia/60 leading-relaxed">
-                                                        La presunzione opera solo se: il fatto avviene nei luoghi indicati, il soggetto è legittimamente presente, l'arma è legittimamente detenuta, la difesa riguarda incolumità o beni propri o altrui.
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Blocco 3 — Eccezioni */}
-                                            <div className="relative">
-                                                <span className="absolute -left-2 top-0 w-1 h-full bg-salvia/30" />
-                                                <div className="pl-4">
-                                                    <div className="flex items-center gap-2 mb-1.5">
-                                                        <span className="font-body text-[10px] uppercase tracking-widest text-salvia/70 font-medium">03 · Segnala le eccezioni</span>
-                                                    </div>
-                                                    <p className="font-body text-xs text-nebbia/60 leading-relaxed">
-                                                        La presunzione non elimina la verifica di attualità del pericolo e necessità della reazione. Cassazione 1/2021: vita e incolumità prevalgono sull'interesse patrimoniale.
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Blocco 4 — Verifiche */}
-                                            <div className="relative">
-                                                <span className="absolute -left-2 top-0 w-1 h-full bg-salvia/30" />
-                                                <div className="pl-4">
-                                                    <div className="flex items-center gap-2 mb-1.5">
-                                                        <span className="font-body text-[10px] uppercase tracking-widest text-salvia/70 font-medium">04 · Suggerisce verifiche</span>
-                                                    </div>
-                                                    <p className="font-body text-xs text-nebbia/60 leading-relaxed">
-                                                        Vuoi che approfondisca l'eccesso colposo (art. 55 comma 2 c.p.), il caso del ladro in fuga, o la legittima difesa putativa (art. 59 c.p.)?
-                                                    </p>
-                                                </div>
-                                            </div>
+                                            ))}
 
                                             {/* Chip fonti citate */}
                                             <div className="flex gap-1 flex-wrap pt-3 border-t border-white/5">
-                                                {['Art. 52 c.p.', 'L. 36/2019', 'Art. 614 c.p.', 'Cass. 1/2021', 'Art. 55 c.p.', 'Art. 59 c.p.'].map(c => (
+                                                {ragionaChips.map(c => (
                                                     <span key={c} className="font-body text-[10px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/40">{c}</span>
                                                 ))}
                                             </div>
@@ -652,25 +582,18 @@ export default function LexAI() {
                 </div>
             </section>
 
-            {/* ══════════════════════════════════════════
-                5. DIVERSA DA UNA AI GENERICA
-            ══════════════════════════════════════════ */}
+            {/* 5. DIVERSA DA UNA AI GENERICA */}
             <section className="py-24 px-6 bg-slate/20 border-t border-white/5">
                 <div className="max-w-5xl mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <FadeIn delay={0.1}>
                             <div className="space-y-4">
                                 <div className="bg-slate border border-white/5 p-5 opacity-50">
-                                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-3">AI generica</p>
+                                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-3">{t('diversa.generica_label')}</p>
                                     <ul className="space-y-2">
-                                        {[
-                                            'Cerca ovunque senza controllo',
-                                            'Fonti non verificate',
-                                            'Rumore e imprecisioni',
-                                            'Nessun contesto legale specifico',
-                                        ].map(t => (
-                                            <li key={t} className="flex items-center gap-2 font-body text-xs text-nebbia/30">
-                                                <X size={10} className="text-red-400/50 shrink-0" />{t}
+                                        {genericaItems.map(item => (
+                                            <li key={item} className="flex items-center gap-2 font-body text-xs text-nebbia/30">
+                                                <X size={10} className="text-red-400/50 shrink-0" />{item}
                                             </li>
                                         ))}
                                     </ul>
@@ -678,58 +601,46 @@ export default function LexAI() {
                                 <div className="bg-slate border border-salvia/20 p-5">
                                     <p className="font-body text-xs text-salvia/60 uppercase tracking-widest mb-3">Lex AI</p>
                                     <ul className="space-y-2">
-                                        {[
-                                            'Perimetro controllato e verificato',
-                                            'Focus su contenuti affidabili',
-                                            'Lavora su documenti caricati',
-                                            'Ragionamento giuridico strutturato',
-                                            'Contesto legale specifico italiano',
-                                        ].map(t => (
-                                            <li key={t} className="flex items-center gap-2 font-body text-xs text-nebbia/60">
-                                                <Check size={10} className="text-salvia shrink-0" />{t}
+                                        {lexItems.map(item => (
+                                            <li key={item} className="flex items-center gap-2 font-body text-xs text-nebbia/60">
+                                                <Check size={10} className="text-salvia shrink-0" />{item}
                                             </li>
                                         ))}
                                     </ul>
                                 </div>
                                 <div className="bg-salvia/5 border border-salvia/15 p-4 text-center">
-                                    <p className="font-body text-sm text-salvia/80">Lex AI punta a essere utile davvero.</p>
+                                    <p className="font-body text-sm text-salvia/80">{t('diversa.tagline')}</p>
                                 </div>
                             </div>
                         </FadeIn>
 
                         <FadeIn>
-                            <SectionLabel color="salvia">Differenza</SectionLabel>
+                            <SectionLabel color="salvia">{t('diversa.label')}</SectionLabel>
                             <h2 className="font-display text-3xl font-light text-nebbia mb-6">
-                                Perché è diversa da una{' '}
-                                <span className="text-salvia">AI generica.</span>
+                                {t('diversa.title_part1')}{' '}
+                                <span className="text-salvia">{t('diversa.title_highlight')}</span>
                             </h2>
                             <p className="font-body text-sm text-nebbia/50 leading-relaxed mb-4">
-                                Lex AI non cerca ovunque e non prova a fare tutto.
-                                È stata progettata per lavorare meglio in un perimetro più controllato:
-                                fonti verificate, contesto legale italiano e materiali concreti.
+                                {t('diversa.text1')}
                             </p>
                             <p className="font-body text-sm text-nebbia/50 leading-relaxed">
-                                Maggiore controllo sul contesto significa risposte più affidabili,
-                                meno rumore e più utilità reale nel lavoro quotidiano.
+                                {t('diversa.text2')}
                             </p>
                         </FadeIn>
                     </div>
                 </div>
             </section>
 
-            {/* ══════════════════════════════════════════
-                6. COSA PUÒ E COSA NON PUÒ
-            ══════════════════════════════════════════ */}
+            {/* 6. COSA PUÒ E COSA NON PUÒ */}
             <section className="py-24 px-6 border-t border-white/5">
                 <div className="max-w-5xl mx-auto">
                     <FadeIn className="text-center mb-14 max-w-2xl mx-auto">
-                        <SectionLabel>Trasparenza</SectionLabel>
+                        <SectionLabel>{t('puo.label')}</SectionLabel>
                         <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia mb-4">
-                            Cosa può e cosa non può.
+                            {t('puo.title')}
                         </h2>
                         <p className="font-body text-sm text-nebbia/40 leading-relaxed">
-                            Onestà su entrambi i fronti. Quello che Lex fa bene, e quello che non fa di proposito.
-                            Senza promesse esagerate.
+                            {t('puo.subtitle')}
                         </p>
                     </FadeIn>
 
@@ -740,17 +651,12 @@ export default function LexAI() {
                                     <div className="w-7 h-7 flex items-center justify-center border border-salvia/25 bg-salvia/10">
                                         <Check size={13} className="text-salvia" />
                                     </div>
-                                    <p className="font-body text-sm font-medium text-nebbia">Quello che Lex AI fa</p>
+                                    <p className="font-body text-sm font-medium text-nebbia">{t('puo.fa_label')}</p>
                                 </div>
                                 <ul className="space-y-3">
-                                    {[
-                                        'Ricerca su fonti legali verificate',
-                                        'Analizza documenti caricati',
-                                        'Struttura il ragionamento giuridico',
-                                        'Cita le fonti e segnala le eccezioni',
-                                    ].map(t => (
-                                        <li key={t} className="flex items-center gap-2.5 font-body text-sm text-nebbia/60">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-salvia shrink-0" />{t}
+                                    {puoFaItems.map(item => (
+                                        <li key={item} className="flex items-center gap-2.5 font-body text-sm text-nebbia/60">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-salvia shrink-0" />{item}
                                         </li>
                                     ))}
                                 </ul>
@@ -763,17 +669,12 @@ export default function LexAI() {
                                     <div className="w-7 h-7 flex items-center justify-center border border-nebbia/15 bg-nebbia/[0.02]">
                                         <X size={13} className="text-nebbia/40" />
                                     </div>
-                                    <p className="font-body text-sm font-medium text-nebbia">Quello che Lex AI non fa</p>
+                                    <p className="font-body text-sm font-medium text-nebbia">{t('puo.nonfa_label')}</p>
                                 </div>
                                 <ul className="space-y-3">
-                                    {[
-                                        'Non sostituisce il parere dell\'avvocato',
-                                        'Non genera atti pronti per il deposito (questo è dentro Lexum)',
-                                        'Non accede alle sentenze riservate degli avvocati',
-                                        'Non cerca su fonti web generaliste o non verificate',
-                                    ].map(t => (
-                                        <li key={t} className="flex items-center gap-2.5 font-body text-sm text-nebbia/45">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-nebbia/20 shrink-0" />{t}
+                                    {puoNonFaItems.map(item => (
+                                        <li key={item} className="flex items-center gap-2.5 font-body text-sm text-nebbia/45">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-nebbia/20 shrink-0" />{item}
                                         </li>
                                     ))}
                                 </ul>
@@ -783,55 +684,75 @@ export default function LexAI() {
 
                     <FadeIn delay={0.3}>
                         <p className="text-center font-body text-sm text-salvia/70 italic mt-8">
-                            La ricerca legale è accessibile. Il livello professionale completo resta dentro Lexum.
+                            {t('puo.footer')}
                         </p>
                     </FadeIn>
                 </div>
             </section>
 
-            {/* ══════════════════════════════════════════
-                7. UPSELL LEXUM
-            ══════════════════════════════════════════ */}
+            {/* 7. UPSELL LEXUM — avvocati + fiduciari */}
             <section className="py-24 px-6 bg-slate/20 border-t border-white/5">
                 <div className="max-w-5xl mx-auto">
                     <FadeIn>
                         <div className="bg-slate border border-oro/20 p-8 md:p-10 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-oro/[0.04] rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none" />
-                            <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                                <div>
-                                    <p className="font-body text-xs text-oro/60 tracking-[0.3em] uppercase mb-3">Per avvocati</p>
+                            <div className="relative">
+                                <div className="max-w-2xl mb-8">
+                                    <p className="font-body text-xs text-oro/60 tracking-[0.3em] uppercase mb-3">{t('upsell.label')}</p>
                                     <h2 className="font-display text-3xl font-light text-nebbia mb-4">
-                                        Vuoi un livello più avanzato?{' '}
-                                        <span className="text-oro">Dentro Lexum c'è di più.</span>
+                                        {t('upsell.title_part1')}{' '}
+                                        <span className="text-oro">{t('upsell.title_highlight')}</span>
                                     </h2>
-                                    <p className="font-body text-sm text-nebbia/50 leading-relaxed mb-4">
-                                        La versione accessibile di Lex AI è focalizzata sulla ricerca legale.
-                                        Dentro Lexum, per gli avvocati verificati, Lex AI lavora in un ambiente più ampio:
-                                        collegato a pratiche, documenti, clienti, archivio e strumenti professionali.
+                                    <p className="font-body text-sm text-nebbia/50 leading-relaxed mb-3">
+                                        {t('upsell.text')}
                                     </p>
-                                    <p className="font-body text-xs text-nebbia/30 italic mb-6">
-                                        Puoi iniziare da qui. Il livello successivo è dentro Lexum.
+                                    <p className="font-body text-xs text-nebbia/30 italic">
+                                        {t('upsell.note')}
                                     </p>
-                                    <Link to="/per-avvocati" className="flex items-center gap-2 w-fit px-6 py-3 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors">
-                                        Scopri Lexum per avvocati <ArrowRight size={14} />
-                                    </Link>
                                 </div>
-                                <div className="space-y-2">
-                                    {[
-                                        'Strategie processuali su misura',
-                                        'Banca dati sentenze acquistabili',
-                                        'Integrazione con pratiche e clienti',
-                                        'Generazione strategia da ricerche',
-                                        'Atti pronti compilati con i dati della pratica',
-                                        'Gestionale completo per lo studio',
-                                    ].map((t, i) => (
-                                        <div key={i} className="flex items-center gap-3 p-3 bg-petrolio/40 border border-oro/10">
-                                            <div className="w-5 h-5 flex items-center justify-center border border-oro/25 bg-oro/10 shrink-0">
-                                                <Check size={10} className="text-oro" />
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Colonna Avvocati */}
+                                    <div className="bg-petrolio/40 border border-oro/15 p-6 flex flex-col">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="w-8 h-8 flex items-center justify-center border border-oro/25 bg-oro/10 text-oro shrink-0">
+                                                <Scale size={15} />
                                             </div>
-                                            <span className="font-body text-sm text-nebbia/60">{t}</span>
+                                            <p className="font-body text-sm font-medium text-nebbia">{t('upsell.avvocati_label')}</p>
                                         </div>
-                                    ))}
+                                        <div className="space-y-2 mb-6 flex-1">
+                                            {upsellAvvItems.map((item, i) => (
+                                                <div key={i} className="flex items-start gap-2.5">
+                                                    <Check size={12} className="text-oro shrink-0 mt-0.5" />
+                                                    <span className="font-body text-sm text-nebbia/60 leading-snug">{item}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <Link to="/per-avvocati" className="flex items-center justify-center gap-2 w-full py-3 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors">
+                                            {t('upsell.avvocati_cta')} <ArrowRight size={14} />
+                                        </Link>
+                                    </div>
+
+                                    {/* Colonna Fiduciari */}
+                                    <div className="bg-petrolio/40 border border-salvia/15 p-6 flex flex-col">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="w-8 h-8 flex items-center justify-center border border-salvia/25 bg-salvia/10 text-salvia shrink-0">
+                                                <Briefcase size={15} />
+                                            </div>
+                                            <p className="font-body text-sm font-medium text-nebbia">{t('upsell.fiduciari_label')}</p>
+                                        </div>
+                                        <div className="space-y-2 mb-6 flex-1">
+                                            {upsellFidItems.map((item, i) => (
+                                                <div key={i} className="flex items-start gap-2.5">
+                                                    <Check size={12} className="text-salvia shrink-0 mt-0.5" />
+                                                    <span className="font-body text-sm text-nebbia/60 leading-snug">{item}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <Link to="/per-fiduciari" className="flex items-center justify-center gap-2 w-full py-3 bg-salvia text-petrolio font-body text-sm font-medium hover:bg-salvia/90 transition-colors">
+                                            {t('upsell.fiduciari_cta')} <ArrowRight size={14} />
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -839,9 +760,7 @@ export default function LexAI() {
                 </div>
             </section>
 
-            {/* ══════════════════════════════════════════
-                8. CTA FINALE
-            ══════════════════════════════════════════ */}
+            {/* 8. CTA FINALE */}
             <section className="py-24 px-6 border-t border-white/5 relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-salvia/25 to-transparent" />
@@ -856,24 +775,22 @@ export default function LexAI() {
                             <Sparkles size={20} className="text-salvia" />
                         </div>
                         <h2 className="font-display text-4xl md:text-5xl font-light text-nebbia mb-4">
-                            Attiva Lex AI (V. 1.3)
+                            {t('cta.title')}
                         </h2>
                         <div className="w-12 h-px bg-gradient-to-r from-transparent via-salvia/50 to-transparent mx-auto my-6" />
                         <p className="font-body text-sm text-nebbia/40 leading-relaxed mb-10 max-w-lg mx-auto">
-                            Usa Lex AI per fare ricerca legale su fonti verificate, analizzare documenti
-                            e lavorare con una base più affidabile.
+                            {t('cta.subtitle')}
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
                             <Link to="/registrati" className="flex items-center gap-2.5 px-10 py-4 bg-salvia text-petrolio font-body text-sm font-medium hover:bg-salvia/90 transition-all hover:scale-[1.02] shadow-xl shadow-salvia/20">
-                                Prova gratis — 3 ricerche <ArrowRight size={15} />
+                                {t('cta.cta_primary')} <ArrowRight size={15} />
                             </Link>
-                            <Link to="/per-avvocati" className="font-body text-sm text-nebbia/35 hover:text-nebbia/60 transition-colors">
-                                Avvocato? Prova Lexum gratis per una settimana →
+                            <Link to="/registrati" className="font-body text-sm text-nebbia/35 hover:text-nebbia/60 transition-colors">
+                                {t('cta.secondary_link')}
                             </Link>
                         </div>
                         <p className="font-body text-xs text-nebbia/20 max-w-sm mx-auto">
-                            Per funzionalità avanzate, strategie e accesso professionale completo,
-                            entra in Lexum come avvocato verificato.
+                            {t('cta.footnote')}
                         </p>
                     </FadeIn>
                 </div>

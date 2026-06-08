@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "title": "Datenschutzerklärung — Lexum",
+    "description": "Datenschutzerklärung von Lexum: wie wir die Personendaten von Anwälten, Treuhändern, Klienten und Nutzern der Plattform im Einklang mit dem Schweizer DSG und der DSGVO bearbeiten."
+  },
+  "header": {
+    "label": "Rechtliche Information",
+    "h1": "Datenschutzerklärung",
+    "updated_prefix": "Letzte Aktualisierung:",
+    "intro_legal": "Diese Erklärung wird gemäss dem Schweizer Bundesgesetz über den Datenschutz (revDSG, in Kraft seit 1. September 2023) und, für Nutzer mit Wohnsitz in der Europäischen Union, gemäss der Verordnung (EU) 2016/679 (DSGVO) erstellt."
+  },
+  "titolare": {
+    "title": "1. Verantwortlicher der Bearbeitung",
+    "p1": "Verantwortlicher der Bearbeitung der Personendaten ist:",
+    "email_label": "E-Mail",
+    "p2": "Für Nutzer mit Wohnsitz in der Europäischen Union bleibt der Verantwortliche, mangels eines förmlich bezeichneten EU-Vertreters, für die Einhaltung der DSGVO bei den im Rahmen der Plattform Lexum durchgeführten Bearbeitungen verantwortlich."
+  },
+  "dati": {
+    "title": "2. Erhobene Personendaten",
+    "sub21_title": "2.1 Vom Nutzer direkt bereitgestellte Daten",
+    "sub21_intro": "Bei der Registrierung und der Nutzung der Plattform erheben wir:",
+    "sub21_items": [
+      "Vor- und Nachname sowie persönliche Angaben",
+      "E-Mail-Adresse und Telefonnummer",
+      "Daten der Anwaltskanzlei oder des Treuhandbüros",
+      "Rechnungsdaten (Firma, UID/MWST-Nummer, Adresse)",
+      "Auf die Plattform hochgeladene Inhalte (Dokumente, Dossiers, Mandate)",
+      "Über die Plattform versandte Mitteilungen"
+    ],
+    "sub22_title": "2.2 Automatisch erhobene Daten",
+    "sub22_items": [
+      "IP-Adresse und Navigationsdaten",
+      "Browsertyp und Betriebssystem",
+      "Datum und Uhrzeit der Zugriffe",
+      "Besuchte Seiten und genutzte Funktionen",
+      "Systemprotokolle und für die Sicherheit erforderliche technische Daten"
+    ],
+    "sub23_title": "2.3 Besonders schützenswerte Daten",
+    "sub23_text": "Aufgrund der Natur der Plattform können die von den Fachpersonen hochgeladenen Dokumente und Dossiers besonders schützenswerte Personendaten im Sinne von Art. 5 Bst. c DSG (und Art. 9 DSGVO) enthalten, etwa Daten über die Gesundheit, die sexuelle Orientierung oder die religiösen Überzeugungen der Endklienten. Die Bearbeitung dieser Daten erfolgt ausschliesslich auf Weisung der Fachperson, die dafür gegenüber ihren Klienten verantwortlich bleibt."
+  },
+  "finalita": {
+    "title": "3. Zwecke und Rechtsgrundlagen der Bearbeitung",
+    "items": [
+      { "finalita": "Erbringung der Dienstleistung", "base": "Vertragserfüllung (Art. 31 Abs. 2 DSG / Art. 6.1.b DSGVO)", "desc": "Kontoverwaltung, Zugang zur Plattform, Bearbeitung von Dossiers und Mandaten, KI-Recherchen und damit verbundene Funktionen." },
+      { "finalita": "Rechnungsstellung und steuerliche Pflichten", "base": "Gesetzliche Pflicht (Art. 31 Abs. 1 DSG / Art. 6.1.c DSGVO)", "desc": "Ausstellung von Rechnungen, Zahlungsabwicklung über Stripe, Aufbewahrung der Buchungsbelege nach Schweizer Recht." },
+      { "finalita": "Sicherheit der Plattform", "base": "Berechtigtes Interesse (Art. 31 Abs. 1 DSG / Art. 6.1.f DSGVO)", "desc": "Verhinderung unbefugter Zugriffe, Erkennung von Anomalien, Schutz der Nutzerdaten." },
+      { "finalita": "Künstliche Intelligenz und Recherche", "base": "Vertragserfüllung (Art. 31 Abs. 2 DSG / Art. 6.1.b DSGVO)", "desc": "Verarbeitung der hochgeladenen Inhalte zur Bereitstellung der semantischen Suche und KI-Analyse (Lex). Die Inhalte werden nicht zum Training von KI-Modellen Dritter verwendet." },
+      { "finalita": "Dienstbezogene Mitteilungen", "base": "Vertragserfüllung (Art. 31 Abs. 2 DSG / Art. 6.1.b DSGVO)", "desc": "Benachrichtigungen zum Konto, Aktualisierungen des Dienstes, Support-Mitteilungen." },
+      { "finalita": "Marketing (nur mit Einwilligung)", "base": "Einwilligung (Art. 6.1.a DSGVO)", "desc": "Versand von Newslettern und Werbemitteilungen, nur nach ausdrücklicher, jederzeit widerrufbarer Einwilligung." }
+    ]
+  },
+  "destinatari": {
+    "title": "4. Empfänger der Daten",
+    "intro": "Die Personendaten können den folgenden Kategorien von Empfängern ausschliesslich zu den angegebenen Zwecken bekanntgegeben werden:",
+    "items": [
+      { "name": "Supabase Inc.", "desc": "Cloud-Infrastruktur, Datenbank und Authentifizierung (USA, mit angemessenen Garantien)" },
+      { "name": "Stripe Inc.", "desc": "Zahlungsabwicklung (USA, mit angemessenen Garantien)" },
+      { "name": "Anthropic PBC", "desc": "KI-Verarbeitung für die Lex-Funktionen (USA, mit angemessenen Garantien)" },
+      { "name": "OpenAI LLC", "desc": "Erzeugung von Embeddings für die semantische Suche (USA, mit angemessenen Garantien)" },
+      { "name": "Postmark/Wildbit", "desc": "Versand transaktionaler E-Mails (USA, mit angemessenen Garantien)" },
+      { "name": "Zuständige Behörden", "desc": "auf rechtmässiges Ersuchen von Justiz- oder Verwaltungsbehörden" }
+    ],
+    "footer": "Alle Dienstleister sind durch Auftragsbearbeitungsverträge (AVV/DPA) gebunden. Für Übermittlungen in Drittstaaten (insbesondere die USA) werden angemessene Garantien angewendet, wie die von der Europäischen Kommission genehmigten und vom EDÖB anerkannten Standardvertragsklauseln."
+  },
+  "conservazione": {
+    "title": "5. Aufbewahrungsdauer",
+    "items": [
+      { "tipo": "Kontodaten", "periodo": "Während der gesamten Vertragsdauer und bis zu 2 Jahre nach Löschung des Kontos" },
+      { "tipo": "Hochgeladene Dokumente, Dossiers und Mandate", "periodo": "Während der gesamten Vertragsdauer; gelöscht auf Anfrage oder innerhalb von 90 Tagen nach Beendigung" },
+      { "tipo": "Rechnungsdaten", "periodo": "10 Jahre ab dem Rechnungsdatum (gesetzliche Pflicht in der Schweiz)" },
+      { "tipo": "Systemprotokolle", "periodo": "Höchstens 12 Monate ab der Erfassung" },
+      { "tipo": "Support-Mitteilungen", "periodo": "3 Jahre ab Schliessung des Tickets" }
+    ]
+  },
+  "diritti": {
+    "title": "6. Rechte der betroffenen Personen",
+    "intro": "Als betroffene Person haben Sie das Recht auf:",
+    "items": [
+      { "diritto": "Auskunft", "desc": "Bestätigung der Bearbeitung und Kopie Ihrer Daten erhalten" },
+      { "diritto": "Berichtigung", "desc": "Unrichtige oder unvollständige Daten berichtigen" },
+      { "diritto": "Löschung", "desc": "Die Löschung Ihrer Daten verlangen" },
+      { "diritto": "Einschränkung", "desc": "Die Bearbeitung unter bestimmten Umständen einschränken" },
+      { "diritto": "Datenübertragbarkeit", "desc": "Ihre Daten in einem strukturierten, lesbaren Format erhalten" },
+      { "diritto": "Widerspruch", "desc": "Der auf berechtigtem Interesse beruhenden Bearbeitung widersprechen" },
+      { "diritto": "Widerruf der Einwilligung", "desc": "Die erteilte Einwilligung jederzeit widerrufen" },
+      { "diritto": "Beschwerde", "desc": "Bei der zuständigen Aufsichtsbehörde Beschwerde einreichen" }
+    ],
+    "footer_a": "Zur Ausübung Ihrer Rechte schreiben Sie an",
+    "footer_b": ". Wir antworten innerhalb von 30 Tagen. Für Beschwerden können Sie sich an die zuständige Aufsichtsbehörde wenden; in der Schweiz an den",
+    "ifpdt_link": "EDÖB",
+    "footer_c": " (Eidgenössischer Datenschutz- und Öffentlichkeitsbeauftragter) oder, falls Sie in der EU wohnhaft sind, an die Aufsichtsbehörde Ihres Staates."
+  },
+  "sicurezza": {
+    "title": "7. Datensicherheit",
+    "p1": "Wir treffen angemessene technische und organisatorische Massnahmen, um die Personendaten vor unbefugtem Zugriff, Verlust, Zerstörung oder Offenlegung zu schützen. Insbesondere:",
+    "items": [
+      "Verschlüsselung der Daten bei der Übertragung (TLS 1.2+) und im Ruhezustand",
+      "Sichere Authentifizierung und rollenbasierte Zugriffsverwaltung",
+      "Cloud-Infrastruktur mit SOC-2- und ISO-27001-Zertifizierungen",
+      "Regelmässige Backups und Disaster-Recovery-Verfahren",
+      "Laufende Überwachung zur Erkennung von Anomalien",
+      "Auf das autorisierte und unbedingt erforderliche Personal beschränkter Datenzugriff"
+    ],
+    "p2": "Bei einer Verletzung der Sicherheit von Personendaten, die ein hohes Risiko für die Persönlichkeit oder die Grundrechte der betroffenen Personen mit sich bringt, melden wir diese so rasch als möglich dem EDÖB und, soweit die DSGVO anwendbar ist, innerhalb von 72 Stunden der zuständigen Aufsichtsbehörde und informieren bei Bedarf die betroffenen Personen."
+  },
+  "cookie": {
+    "title": "8. Cookies und Tracking-Technologien",
+    "p1": "Die Plattform Lexum verwendet ausschliesslich technische Cookies, die für den Betrieb des Dienstes unbedingt erforderlich sind (z. B. Sitzungscookies für die Authentifizierung). Wir verwenden keine Profiling- oder Drittanbieter-Cookies zu Werbezwecken."
+  },
+  "modifiche": {
+    "title": "9. Änderungen dieser Erklärung",
+    "p1": "Wir behalten uns das Recht vor, diese Erklärung bei rechtlichen oder dienstbezogenen Änderungen zu aktualisieren. Wesentliche Änderungen werden mindestens 30 Tage vor Inkrafttreten per E-Mail mitgeteilt. Die fortgesetzte Nutzung der Plattform nach diesem Zeitraum gilt als Annahme der Änderungen."
+  },
+  "footer_box": {
+    "text_a": "Für jede Frage zur Bearbeitung Ihrer Personendaten kontaktieren Sie unseren Datenschutzverantwortlichen unter",
+    "text_b": "oder schreiben Sie an"
+  }
+}

@@ -654,7 +654,7 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
 // ─────────────────────────────────────────────────────────────
 // COMPONENTE PRINCIPALE
 // ─────────────────────────────────────────────────────────────
-export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSalvato }) {
+export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSalvato, onRicercaSalvata }) {
     const [conversazione, setConversazione] = useState([])
     const [domandaLibera, setDomandaLibera] = useState('')
     const [inviando, setInviando] = useState(false)
@@ -894,6 +894,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
             })
             if (error) throw new Error(error.message)
             setSalvataConferma(true)
+            if (onRicercaSalvata) onRicercaSalvata()   // aggiorna il box ricerche del mandato
             setMostraSalva(false)
             setTitoloSalva('')
             setTimeout(() => setSalvataConferma(false), 4000)

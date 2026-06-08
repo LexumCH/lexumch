@@ -1,0 +1,176 @@
+{
+  "anim": {
+    "domanda": "Ein Einbrecher dringt ins Haus ein, der Eigentümer reagiert: Wann liegt Notwehr nach Schweizer Recht vor?",
+    "frasi": [
+      "Ich suche im Lex-Archiv",
+      "Ich identifiziere die relevanten Quellen",
+      "Ich vergleiche Urteile des Bundesgerichts",
+      "Ich konsultiere Gesetze und Bundesrecht",
+      "Ich verfasse eine strukturierte Antwort"
+    ],
+    "risposta": [
+      { "type": "h2", "text": "Gesetzliche Grundlage" },
+      { "type": "p", "text": "Die Notwehr ist in Art. 15 StGB geregelt: Wer ohne Recht angegriffen oder unmittelbar mit einem Angriff bedroht wird, ist berechtigt, den Angriff in einer den Umständen angemessenen Weise abzuwehren." },
+      { "type": "p", "text": "Beim Einbrecher, der ins Haus eindringt, braucht es einen gegenwärtigen oder unmittelbar drohenden und rechtswidrigen Angriff; die Abwehr muss verhältnismässig und gegen den Angreifer gerichtet sein. Das Schweizer Recht kennt keine automatische Vermutung der Verhältnismässigkeit: jeder Fall wird konkret beurteilt." },
+      { "type": "h2", "text": "Weiterhin notwendige Voraussetzungen" },
+      { "type": "p", "text": "Das Bundesgericht verlangt stets die Prüfung von:" },
+      { "type": "list", "items": [
+        "Gegenwärtigkeit der Gefahr: Der Angriff muss laufend oder unmittelbar bevorstehend sein. Ist der Einbrecher auf der Flucht, entfällt die Voraussetzung.",
+        "Notwendigkeit und Verhältnismässigkeit der Reaktion im Verhältnis zum Angriff.",
+        "Wertehierarchie: Leben und körperliche Unversehrtheit gehen dem Vermögensinteresse vor."
+      ] },
+      { "type": "h2", "text": "Notwehrexzess" },
+      { "type": "p", "text": "Art. 16 StGB mildert die Strafe beim Exzess; geht der Exzess auf eine entschuldbare Aufregung oder Bestürzung über den Angriff zurück, handelt der Täter nicht schuldhaft. Eine Klausel für jene, die — von einem nächtlichen Einbruch überrascht — aus Panik unverhältnismässig reagieren... WEITER..." },
+      { "type": "chips", "items": ["Art. 15 StGB", "Art. 16 StGB", "Art. 17 StGB", "Art. 13 StGB", "BGer 6B_810/2021"] }
+    ],
+    "input_hint": "Stellen Sie eine rechtliche oder steuerliche Frage oder laden Sie ein Dokument zur Analyse hoch.",
+    "input_placeholder": "Z. B. Abzugsfähigkeit von Repräsentationsspesen für eine AG...",
+    "cta": "Mit Lex AI suchen",
+    "user_label": "Sie",
+    "lex_label": "Lex AI",
+    "action_pratica": "Zu Dossier hinzufügen",
+    "action_etichetta": "Zu Etikett hinzufügen"
+  },
+  "meta": {
+    "title": "Lex AI — Rechts- und Steuerrecherche auf geprüften Quellen",
+    "description": "Lex AI: Rechts- und Steuerrecherche, Dokumentenanalyse und strukturierte Argumentation auf Schweizer Rechtsprechung, Bundes- und kantonalem Recht, Praxis der ESTV/EZV und EU-Recht. Für Anwälte und Treuhänder. Geprüfte Quellen, kontrollierter Rahmen.",
+    "og_title": "Lex AI — Rechts- und Steuerrecherche auf geprüften Quellen",
+    "og_description": "Rechts- und Steuerrecherche, Dokumentenanalyse und strukturierte Argumentation auf geprüften Quellen. Für Anwälte und Treuhänder.",
+    "twitter_description": "Rechts- und Steuerrecherche, Dokumentenanalyse und strukturierte Argumentation auf geprüften Quellen."
+  },
+  "hero": {
+    "badge": "Künstliche Intelligenz für Recht und Steuern V. 1.3",
+    "title_part1": "Lex AI, die Rechts- und Steuerrecherche",
+    "title_highlight": "auf geprüften Quellen.",
+    "subtitle": "Ein Werkzeug für alle, die seriöse, schnelle und zuverlässige Rechts- und Steuerrecherche betreiben. Für Anwälte und Treuhänder. Arbeitet auf geprüften Quellen, ohne unnötiges Rauschen.",
+    "box_status": "Aktiv",
+    "box_session": "Beispielsitzung"
+  },
+  "features": {
+    "label": "Funktionen",
+    "title_part1": "Was Sie mit",
+    "title_highlight": "Lex AI tun können.",
+    "intro": "Eine zugängliche Version für Rechts- und Steuerrecherche. Vier konkrete Wege, wie Lex Ihnen hilft, besser zu arbeiten — ob Sie Anwalt oder Treuhänder sind.",
+    "items": [
+      { "t": "Rechts- und Steuerverweise suchen", "d": "Finden Sie relevante Normen, Urteile und Praxis zu einem Thema — rechtlich oder steuerlich — mit bereits strukturierter Argumentation." },
+      { "t": "Dokumente analysieren", "d": "Laden Sie eine Eingabe, einen Vertrag, eine Bilanz oder eine Abrechnung hoch. Lex hebt die relevanten Punkte und die zu vertiefenden Knoten hervor." },
+      { "t": "Fortlaufendes Gespräch", "d": "Vertiefen Sie, wechseln Sie die Perspektive, stellen Sie Folgefragen. Das Gespräch entwickelt sich über die Zeit, es setzt sich nicht bei jeder Frage zurück." },
+      { "t": "Klärt Auslegungsfragen", "d": "Wenn eine Norm, ein Kreisschreiben oder ein Entscheid unklar ist, erklärt Lex strukturiert und zitiert die Quellen." }
+    ],
+    "demo_user": "Sie",
+    "demo_question": "\"Ich suche Verweise zur Abzugsfähigkeit von Repräsentationsspesen für eine AG.\"",
+    "demo_intro": "Die wichtigsten Verweise zur Abzugsfähigkeit bei juristischen Personen sind:",
+    "demo_refs": [
+      "Art. 58 DBG — Ermittlung des steuerbaren Reingewinns",
+      "Art. 59 DBG — geschäftsmässig begründeter Aufwand",
+      "Praxis der ESTV — Repräsentationsspesen und kantonale Pauschalen"
+    ],
+    "demo_followup": "Soll ich einen dieser Punkte vertiefen oder möchten Sie eine Bilanz zur Analyse hochladen?"
+  },
+  "fonti": {
+    "label": "Quellen",
+    "title_part1": "Arbeitet auf einem rechtlichen und steuerlichen Bestand",
+    "title_highlight": "in stetiger Erweiterung.",
+    "subtitle": "Lex AI durchsucht Millionen geprüfter Dokumente, aufgeteilt in Rechtsprechung, Gesetzgebung, Praxis der Behörden und fachliche Beiträge. Keine zufällige Websuche, keine generischen Quellen.",
+    "cards": [
+      { "t": "Schweizer Rechtsprechung", "d": "Bundesgericht, BVGer, BStGer und kantonale Gerichte. Entscheide in Zivil-, Straf-, Verwaltungs- und Steuersachen, laufend erfasst." },
+      { "t": "Bundes- und kantonales Recht", "d": "OR, ZGB, StGB, DBG, MWSTG und kantonale Steuergesetze, Verordnungen und Reglemente, stets mit den letzten Änderungen aktualisiert." },
+      { "t": "EU-Recht", "d": "Verträge, Verordnungen, Richtlinien und Rechtsprechung des EuGH, relevant für die Beziehungen zwischen der Schweiz und der Europäischen Union." },
+      { "t": "Praxis und geteiltes Korpus", "d": "Kreisschreiben und Praxis von ESTV und EZV, kantonale Praxis und von verifizierten Fachpersonen — Anwälten und Treuhändern — hochgeladene Materialien." }
+    ],
+    "highlight_strong": "Über 4 Millionen rechtliche und steuerliche Dokumente",
+    "highlight_text": ". Wir arbeiten laufend daran, die Datenbank zu erweitern und aktuell zu halten."
+  },
+  "ragiona": {
+    "label": "Argumentation",
+    "title_part1": "Es liefert nicht nur Normen.",
+    "title_highlight": "Es strukturiert die Argumentation.",
+    "subtitle": "Eine gute Antwort ist keine Liste von Artikeln. Es ist eine Argumentation, die die Quellen identifiziert, die Voraussetzungen klärt, die Ausnahmen aufzeigt und vorschlägt, was zu prüfen ist. Lex AI ist genau dafür gebaut, bei einer Rechtsfrage wie bei einer Steuerfrage.",
+    "steps": [
+      { "n": "01", "t": "Identifiziert die Normen", "d": "Zitiert die auf den konkreten Fall anwendbaren Artikel." },
+      { "n": "02", "t": "Klärt die Voraussetzungen", "d": "Erklärt, was nötig ist, damit die Norm greift." },
+      { "n": "03", "t": "Zeigt die Ausnahmen auf", "d": "Nennt die Grenzen und die Ausschlussfälle." },
+      { "n": "04", "t": "Schlägt Prüfungen vor", "d": "Stellt die richtigen Fragen, um tiefer zu gehen." }
+    ],
+    "demo_label": "Lex AI — Anatomie einer Antwort",
+    "demo_user": "Sie",
+    "demo_question": "\"Wann greift die Notwehr nach Schweizer Recht?\"",
+    "blocks": [
+      { "tag": "01 · Identifiziert die Normen", "text": "Die Materie ist in Art. 15 StGB (Notwehr) geregelt. Art. 16 StGB regelt den Notwehrexzess." },
+      { "tag": "02 · Klärt die Voraussetzungen", "text": "Der Rechtfertigungsgrund greift, wenn: ein gegenwärtiger oder unmittelbar drohender Angriff vorliegt, der Angriff rechtswidrig ist und die Abwehr verhältnismässig und gegen den Angreifer gerichtet ist." },
+      { "tag": "03 · Zeigt die Ausnahmen auf", "text": "Beim Exzess (Art. 16 StGB) wird die Strafe gemildert; geht der Exzess auf eine entschuldbare Aufregung oder Bestürzung über den Angriff zurück, handelt der Täter nicht schuldhaft. Das Bundesgericht prüft stets die Gegenwärtigkeit der Gefahr und die Notwendigkeit der Reaktion." },
+      { "tag": "04 · Schlägt Prüfungen vor", "text": "Soll ich den fahrlässigen Exzess (Art. 16 Abs. 2 StGB), den Notstand (Art. 17 StGB) oder die Putativnotwehr aufgrund Sachverhaltsirrtums (Art. 13 StGB) vertiefen?" }
+    ],
+    "chips": ["Art. 15 StGB", "Art. 16 StGB", "Art. 17 StGB", "Art. 13 StGB", "BGer 6B_810/2021"]
+  },
+  "diversa": {
+    "generica_label": "Generische KI",
+    "generica_items": [
+      "Sucht überall ohne Kontrolle",
+      "Ungeprüfte Quellen",
+      "Rauschen und Ungenauigkeiten",
+      "Kein spezifischer rechtlicher oder steuerlicher Kontext"
+    ],
+    "lex_items": [
+      "Kontrollierter und geprüfter Rahmen",
+      "Fokus auf zuverlässige Inhalte",
+      "Arbeitet auf hochgeladenen Dokumenten",
+      "Strukturierte rechtliche und steuerliche Argumentation",
+      "Spezifischer Schweizer Kontext, rechtlich und steuerlich"
+    ],
+    "tagline": "Lex AI will wirklich nützlich sein.",
+    "label": "Unterschied",
+    "title_part1": "Warum sie sich von einer",
+    "title_highlight": "generischen KI unterscheidet.",
+    "text1": "Lex AI sucht nicht überall und versucht nicht, alles zu tun. Sie wurde entwickelt, um in einem kontrollierteren Rahmen besser zu arbeiten: geprüfte Quellen, Schweizer rechtlicher und steuerlicher Kontext und konkrete Materialien.",
+    "text2": "Mehr Kontrolle über den Kontext bedeutet zuverlässigere Antworten, weniger Rauschen und mehr echten Nutzen in der täglichen Arbeit der Anwaltskanzlei oder des Treuhandbüros."
+  },
+  "puo": {
+    "label": "Transparenz",
+    "title": "Was sie kann und was nicht.",
+    "subtitle": "Ehrlichkeit auf beiden Seiten. Was Lex gut macht, und was sie bewusst nicht macht. Ohne übertriebene Versprechen.",
+    "fa_label": "Was Lex AI tut",
+    "fa_items": [
+      "Recherche auf geprüften rechtlichen und steuerlichen Quellen",
+      "Analysiert hochgeladene Dokumente (Eingaben, Verträge, Bilanzen)",
+      "Strukturiert die rechtliche und steuerliche Argumentation",
+      "Zitiert die Quellen und zeigt die Ausnahmen auf"
+    ],
+    "nonfa_label": "Was Lex AI nicht tut",
+    "nonfa_items": [
+      "Ersetzt nicht das Urteil des Anwalts oder Treuhänders",
+      "Erstellt keine eingabefertigen Schriftstücke oder Erklärungen (das ist in Lexum)",
+      "Greift nicht auf die vertraulichen Archive der Kanzleien zu",
+      "Sucht nicht auf generischen oder ungeprüften Webquellen"
+    ],
+    "footer": "Die Rechts- und Steuerrecherche ist zugänglich. Die vollständige professionelle Ebene bleibt in Lexum."
+  },
+  "upsell": {
+    "label": "Für Anwälte und Treuhänder",
+    "title_part1": "Möchten Sie eine fortgeschrittenere Ebene?",
+    "title_highlight": "In Lexum gibt es mehr.",
+    "text": "Die zugängliche Version von Lex AI ist auf die Recherche fokussiert. In Lexum arbeitet Lex AI für verifizierte Fachpersonen in einer breiteren Umgebung: verbunden mit Dossiers und Mandaten, Dokumenten, Klienten, Archiv, Buchhaltung und professionellen Werkzeugen.",
+    "note": "Sie können hier beginnen. Die nächste Ebene ist in Lexum.",
+    "avvocati_label": "Für Anwälte",
+    "avvocati_items": [
+      "Massgeschneiderte Prozessstrategien für das Dossier",
+      "Eingabefertige Schriftstücke mit den Dossierdaten",
+      "Urteilsdatenbank und vollständige Kanzleiverwaltung"
+    ],
+    "avvocati_cta": "Lexum für Anwälte entdecken",
+    "fiduciari_label": "Für Treuhänder",
+    "fiduciari_items": [
+      "Steuerliche und buchhalterische Analyse der Mandate",
+      "Entwürfe von Erklärungen und vorausgefüllte Dokumente",
+      "Buchhaltung, Steuerkalender und Klientenverwaltung"
+    ],
+    "fiduciari_cta": "Lexum für Treuhänder entdecken"
+  },
+  "cta": {
+    "title": "Lex AI aktivieren (V. 1.3)",
+    "subtitle": "Nutzen Sie Lex AI für Rechts- und Steuerrecherche auf geprüften Quellen, zur Analyse von Dokumenten und für eine zuverlässigere Arbeitsgrundlage.",
+    "cta_primary": "Kostenlos testen — 3 Recherchen",
+    "secondary_link": "Anwalt oder Treuhänder? Lexum eine Woche kostenlos testen →",
+    "footnote": "Für erweiterte Funktionen, Strategien und vollständigen professionellen Zugang treten Sie Lexum als verifizierter Anwalt oder Treuhänder bei."
+  }
+}

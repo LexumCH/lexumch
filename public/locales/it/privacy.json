@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "title": "Privacy Policy — Lexum",
+    "description": "Informativa privacy di Lexum: come trattiamo i dati personali di avvocati, fiduciari, clienti e utenti della piattaforma in conformità alla LPD svizzera e al GDPR."
+  },
+  "header": {
+    "label": "Informativa legale",
+    "h1": "Privacy Policy",
+    "updated_prefix": "Ultimo aggiornamento:",
+    "intro_legal": "La presente informativa è redatta ai sensi della Legge federale svizzera sulla protezione dei dati (nLPD/revDSG, in vigore dal 1° settembre 2023) e, per gli utenti residenti nell'Unione Europea, del Regolamento (UE) 2016/679 (GDPR)."
+  },
+  "titolare": {
+    "title": "1. Titolare del trattamento",
+    "p1": "Il titolare del trattamento dei dati personali è:",
+    "email_label": "Email",
+    "p2": "Per gli utenti residenti nell'Unione Europea, in assenza di un rappresentante UE formalmente designato, il titolare rimane responsabile del rispetto del GDPR in relazione ai trattamenti effettuati nell'ambito della piattaforma Lexum."
+  },
+  "dati": {
+    "title": "2. Dati personali raccolti",
+    "sub21_title": "2.1 Dati forniti direttamente dall'utente",
+    "sub21_intro": "Al momento della registrazione e nell'utilizzo della piattaforma raccogliamo:",
+    "sub21_items": [
+      "Nome, cognome e dati anagrafici",
+      "Indirizzo email e numero di telefono",
+      "Dati dello studio legale o fiduciario",
+      "Dati di fatturazione (ragione sociale, numero IDI/IVA, indirizzo)",
+      "Contenuti caricati sulla piattaforma (documenti, pratiche, mandati)",
+      "Comunicazioni inviate tramite la piattaforma"
+    ],
+    "sub22_title": "2.2 Dati raccolti automaticamente",
+    "sub22_items": [
+      "Indirizzo IP e dati di navigazione",
+      "Tipo di browser e sistema operativo",
+      "Date e orari di accesso",
+      "Pagine visitate e funzionalità utilizzate",
+      "Log di sistema e dati tecnici necessari alla sicurezza"
+    ],
+    "sub23_title": "2.3 Dati particolari",
+    "sub23_text": "In ragione della natura della piattaforma, i documenti e le pratiche caricate dai professionisti possono contenere dati personali degni di particolare protezione ai sensi dell'art. 5 lett. c LPD (e dell'art. 9 GDPR), come dati relativi alla salute, all'orientamento sessuale o alle convinzioni religiose dei clienti finali. Il trattamento di tali dati avviene esclusivamente su istruzione del professionista, che ne rimane responsabile nei confronti dei propri clienti."
+  },
+  "finalita": {
+    "title": "3. Finalità e basi giuridiche del trattamento",
+    "items": [
+      { "finalita": "Erogazione del servizio", "base": "Esecuzione del contratto (art. 31 cpv. 2 LPD / art. 6.1.b GDPR)", "desc": "Gestione dell'account, accesso alla piattaforma, elaborazione di pratiche e mandati, ricerche AI e funzionalità collegate." },
+      { "finalita": "Fatturazione e adempimenti fiscali", "base": "Obbligo legale (art. 31 cpv. 1 LPD / art. 6.1.c GDPR)", "desc": "Emissione di fatture, gestione dei pagamenti tramite Stripe, conservazione della documentazione contabile secondo la legge svizzera." },
+      { "finalita": "Sicurezza della piattaforma", "base": "Interesse legittimo (art. 31 cpv. 1 LPD / art. 6.1.f GDPR)", "desc": "Prevenzione di accessi non autorizzati, rilevamento di anomalie, protezione dei dati degli utenti." },
+      { "finalita": "Intelligenza artificiale e ricerca", "base": "Esecuzione del contratto (art. 31 cpv. 2 LPD / art. 6.1.b GDPR)", "desc": "Elaborazione dei contenuti caricati per fornire le funzionalità di ricerca semantica e analisi AI (Lex). I contenuti non vengono usati per addestrare modelli AI di terze parti." },
+      { "finalita": "Comunicazioni di servizio", "base": "Esecuzione del contratto (art. 31 cpv. 2 LPD / art. 6.1.b GDPR)", "desc": "Notifiche relative all'account, aggiornamenti del servizio, comunicazioni di assistenza." },
+      { "finalita": "Marketing (solo con consenso)", "base": "Consenso (art. 6.1.a GDPR)", "desc": "Invio di newsletter e comunicazioni promozionali, solo previo consenso esplicito revocabile in qualsiasi momento." }
+    ]
+  },
+  "destinatari": {
+    "title": "4. Destinatari dei dati",
+    "intro": "I dati personali possono essere comunicati alle seguenti categorie di destinatari, esclusivamente per le finalità indicate:",
+    "items": [
+      { "name": "Supabase Inc.", "desc": "infrastruttura cloud, database e autenticazione (USA, con garanzie adeguate)" },
+      { "name": "Stripe Inc.", "desc": "elaborazione pagamenti (USA, con garanzie adeguate)" },
+      { "name": "Anthropic PBC", "desc": "elaborazione AI per le funzionalità Lex (USA, con garanzie adeguate)" },
+      { "name": "OpenAI LLC", "desc": "generazione di embeddings per la ricerca semantica (USA, con garanzie adeguate)" },
+      { "name": "Postmark/Wildbit", "desc": "invio email transazionali (USA, con garanzie adeguate)" },
+      { "name": "Autorità competenti", "desc": "su richiesta legittima di autorità giudiziarie o amministrative" }
+    ],
+    "footer": "Tutti i fornitori di servizi sono vincolati da accordi di trattamento dei dati (DPA). Per i trasferimenti verso paesi terzi (in particolare USA) vengono adottate garanzie adeguate, come le Clausole Contrattuali Standard approvate dalla Commissione Europea e riconosciute dall'IFPDT."
+  },
+  "conservazione": {
+    "title": "5. Periodo di conservazione",
+    "items": [
+      { "tipo": "Dati dell'account", "periodo": "Per tutta la durata del contratto e fino a 2 anni dalla cancellazione dell'account" },
+      { "tipo": "Documenti, pratiche e mandati caricati", "periodo": "Per tutta la durata del contratto; cancellati su richiesta o entro 90 giorni dalla cessazione" },
+      { "tipo": "Dati di fatturazione", "periodo": "10 anni dalla data della fattura (obbligo legale svizzero)" },
+      { "tipo": "Log di sistema", "periodo": "Massimo 12 mesi dalla registrazione" },
+      { "tipo": "Comunicazioni di assistenza", "periodo": "3 anni dalla chiusura del ticket" }
+    ]
+  },
+  "diritti": {
+    "title": "6. Diritti degli interessati",
+    "intro": "In qualità di interessato, hai il diritto di:",
+    "items": [
+      { "diritto": "Accesso", "desc": "Ottenere conferma del trattamento e copia dei tuoi dati" },
+      { "diritto": "Rettifica", "desc": "Correggere dati inesatti o incompleti" },
+      { "diritto": "Cancellazione", "desc": "Richiedere la cancellazione dei tuoi dati" },
+      { "diritto": "Limitazione", "desc": "Limitare il trattamento in determinate circostanze" },
+      { "diritto": "Portabilità", "desc": "Ricevere i tuoi dati in formato strutturato e leggibile" },
+      { "diritto": "Opposizione", "desc": "Opporti al trattamento basato su interesse legittimo" },
+      { "diritto": "Revoca del consenso", "desc": "Revocare in qualsiasi momento il consenso prestato" },
+      { "diritto": "Reclamo", "desc": "Presentare reclamo all'autorità di controllo competente" }
+    ],
+    "footer_a": "Per esercitare i tuoi diritti scrivi a",
+    "footer_b": ". Risponderemo entro 30 giorni. Per reclami puoi rivolgerti all'autorità di controllo competente; in Svizzera l'",
+    "ifpdt_link": "IFPDT",
+    "footer_c": " (Incaricato federale della protezione dei dati e della trasparenza), oppure, se risiedi nell'UE, all'autorità di controllo del tuo Stato."
+  },
+  "sicurezza": {
+    "title": "7. Sicurezza dei dati",
+    "p1": "Adottiamo misure tecniche e organizzative adeguate per proteggere i dati personali da accessi non autorizzati, perdita, distruzione o divulgazione. In particolare:",
+    "items": [
+      "Crittografia dei dati in transito (TLS 1.2+) e a riposo",
+      "Autenticazione sicura e gestione degli accessi basata sui ruoli",
+      "Infrastruttura cloud con certificazioni SOC 2 e ISO 27001",
+      "Backup regolari e procedure di disaster recovery",
+      "Monitoraggio continuo per il rilevamento di anomalie",
+      "Accesso ai dati limitato al personale autorizzato e strettamente necessario"
+    ],
+    "p2": "In caso di violazione della sicurezza dei dati personali che comporti un rischio elevato per la personalità o i diritti fondamentali degli interessati, provvederemo a notificarla nel più breve tempo possibile all'IFPDT e, ove applicabile il GDPR, entro 72 ore all'autorità di controllo competente, informando se necessario gli interessati coinvolti."
+  },
+  "cookie": {
+    "title": "8. Cookie e tecnologie di tracciamento",
+    "p1": "La piattaforma Lexum utilizza esclusivamente cookie tecnici strettamente necessari al funzionamento del servizio (es. cookie di sessione per l'autenticazione). Non utilizziamo cookie di profilazione o di terze parti a fini pubblicitari."
+  },
+  "modifiche": {
+    "title": "9. Modifiche alla presente informativa",
+    "p1": "Ci riserviamo il diritto di aggiornare la presente informativa in caso di modifiche normative o del servizio. Le modifiche sostanziali saranno comunicate via email almeno 30 giorni prima dell'entrata in vigore. L'uso continuato della piattaforma dopo tale periodo costituisce accettazione delle modifiche."
+  },
+  "footer_box": {
+    "text_a": "Per qualsiasi domanda relativa al trattamento dei tuoi dati personali contatta il nostro responsabile privacy all'indirizzo",
+    "text_b": "oppure scrivi a"
+  }
+}

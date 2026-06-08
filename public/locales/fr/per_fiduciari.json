@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "title": "Lexum pour fiduciaires — L'IA qui rédige actes, rapports et avis à partir des données de vos clients",
+    "description": "Gestion des mandats, calendrier des échéances fiscales, archives intelligentes, facturation en CHF et Lex AI qui rédige lettres, rapports et avis à partir des données réelles des entreprises que vous suivez. Plus la base de données juridique suisse.",
+    "og_title": "Lexum pour fiduciaires — L'assistant qui rédige à partir de vos données",
+    "og_description": "Mandats, échéances fiscales, archives intelligentes, facturation et une IA qui génère des documents à partir des données réelles de vos clients. Plus la base de données juridique suisse.",
+    "twitter_description": "L'IA qui rédige actes, rapports et avis à partir des données des entreprises que vous suivez. Pour fiduciaires suisses."
+  },
+  "hero": {
+    "badge": "Pour fiduciaires et fiduciaires indépendants",
+    "title_part1": "Vous fournissez les données,",
+    "title_highlight": "Lexum rédige le reste.",
+    "subtitle": "Mandats, échéances fiscales, archives intelligentes, facturation et une IA qui génère lettres, rapports et avis à partir des données réelles des entreprises que vous suivez. Plus la base de données juridique suisse. Le tout dans un seul environnement.",
+    "cta_primary": "Essayer Lexum une semaine",
+    "cta_secondary": "Demander une démonstration",
+    "no_card": "Aucune carte requise. Résiliation libre."
+  },
+  "lexai": {
+    "label": "Intelligence artificielle",
+    "title_part1": "Vous lui donnez les données,",
+    "title_highlight": "elle rédige le document.",
+    "subtitle": "Lex n'invente pas de chiffres et n'improvise pas. Elle prend les données réelles de l'entreprise que vous suivez — chiffres, bilans, données du mandat — et rédige le document fini : lettres, rapports, avis, communications. Vous vérifiez et signez. Le gros du travail d'écriture, c'est elle qui le fait.",
+    "features": [
+      { "t": "Actes et lettres rédigés à partir de vos données", "d": "Lettres d'accompagnement, communications aux clients, rappels. Saisissez les données du mandat et Lex produit le texte prêt à relire." },
+      { "t": "Rapports périodiques pour le client", "d": "Donnez à Lex les chiffres de l'entreprise et elle génère le rapport mensuel ou trimestriel : évolution, commentaires, synthèse. Les chiffres sont les vôtres, les mots, c'est elle qui les écrit." },
+      { "t": "Avis fiscaux rédigés", "d": "Vous posez la question et les données du cas, Lex rédige un avis argumenté avec des références aux normes et à la pratique suisses pertinentes." },
+      { "t": "Recherche dans les normes, la pratique et la jurisprudence", "d": "Cherchez dans Fedlex, la pratique de l'AFC et cantonale et la jurisprudence fiscale en langage naturel. Lex comprend le contexte et cite les sources." },
+      { "t": "Conversation continue", "d": "Approfondissez, corrigez une donnée, demandez une version plus synthétique. Lex se souvient du contexte du mandat et de la conversation." },
+      { "t": "Contexte de l'entreprise toujours présent", "d": "Lex travaille sur le mandat : elle connaît l'entreprise, les documents chargés et les recherches déjà faites. Rien à réexpliquer à chaque fois." }
+    ],
+    "visual_label": "Lex AI — Générer un document",
+    "demo_user": "Pour le mandat Müller AG, prépare la lettre d'accompagnement au décompte TVA du 2e trimestre. Impôt dû CHF 4'820.",
+    "demo_risposta": "J'ai rédigé la lettre en utilisant les données du mandat Müller AG et le montant que tu m'as indiqué (CHF 4'820). J'ai rappelé le délai de versement et joint la référence au décompte. Le chiffre est celui que tu m'as fourni : j'ai seulement écrit le texte autour. Prête pour ta relecture et ta signature.",
+    "demo_tags": ["Müller AG", "TVA T2", "Lettre.docx"],
+    "demo_note": "Les chiffres restent les vôtres. Lex ne les recalcule pas et ne les invente pas : elle rédige le document autour des données que vous fournissez."
+  },
+  "mandati": {
+    "label": "Mandats",
+    "title_part1": "Chaque entreprise que vous suivez,",
+    "title_highlight": "un mandat ordonné.",
+    "subtitle": "Données de l'entreprise, documents, échéances, recherches et documents générés : tout est réuni dans le mandat. Vous ouvrez le client et vous avez le tableau complet, sans courir après les dossiers et les e-mails.",
+    "feature_title": "Le mandat réunit tout le travail sur le client",
+    "feature_text": "Pour chaque entreprise suivie, vous réunissez les données, les documents comptables et fiscaux, les échéances et tout ce que Lex a généré pour ce client. Les recherches que vous faites et les documents que vous produisez restent reliés au mandat, toujours retrouvables.",
+    "points": [
+      "Données de l'entreprise et du mandat",
+      "Documents du client reliés",
+      "Recherches et documents générés rattachés au mandat",
+      "Historique ordonné, toujours consultable"
+    ],
+    "visual_label": "Mandat — Müller AG",
+    "rows": [
+      { "l": "Type", "v": "Personne morale (SA)" },
+      { "l": "Mandat", "v": "Comptabilité + fiscal" },
+      { "l": "Canton", "v": "Genève" },
+      { "l": "Statut", "v": "Actif" }
+    ],
+    "docs_label": "Documents du mandat",
+    "docs": [
+      { "t": "Bilan 2025", "tag": "Comptabilité" },
+      { "t": "Décompte TVA T1 2026", "tag": "Fiscal" },
+      { "t": "Décompte charges sociales", "tag": "Salaires" }
+    ]
+  },
+  "calendario": {
+    "feature_title": "Les échéances fiscales sous contrôle, mandat par mandat",
+    "feature_text": "Un seul calendrier pour tous vos clients. Délais des déclarations, décomptes TVA, versements des charges sociales, bouclements comptables : chaque échéance est reliée au mandat concerné, avec le rappel au bon moment.",
+    "points": [
+      "Délais déclarations et décomptes TVA",
+      "Échéances charges sociales et bouclements",
+      "Événements reliés au mandat",
+      "Rappels automatiques avant l'échéance"
+    ],
+    "visual_label": "Calendrier — Échéances à venir",
+    "eventi": [
+      { "d": "30 juin", "t": "Décompte TVA T2", "sub": "Müller AG", "col": "oro" },
+      { "d": "15 juil", "t": "Versement charges sociales", "sub": "Rossi Sagl", "col": "salvia" },
+      { "d": "31 juil", "t": "Bouclement comptable semestriel", "sub": "Bianchi SA", "col": "salvia" },
+      { "d": "30 sept", "t": "Délai déclaration d'impôts", "sub": "Müller AG", "col": "oro" }
+    ],
+    "promemoria": "Rappel actif : nous vous avertissons avant chaque échéance, mandat par mandat."
+  },
+  "archivio": {
+    "feature_title": "Les archives de vos mandats deviennent intelligentes",
+    "feature_text": "Vous chargez les documents des clients, Lex les classe et les retrouve quand il le faut. Vous cherchez en langage naturel et trouvez non seulement le bon fichier, mais le passage précis du document qui vous intéresse. Le classeur papier reste dans l'armoire, le vrai travail reste numérique.",
+    "points": [
+      "Documents reliés au mandat",
+      "Recherche sémantique dans le texte",
+      "Classification automatique",
+      "Tout retrouvable en quelques secondes"
+    ],
+    "visual_label": "Recherche dans les archives",
+    "search_query": "décompte TVA deuxième trimestre Müller",
+    "results": [
+      { "t": "Décompte TVA T2 2026 — Müller AG", "m": "Correspondance dans le texte · p. 1", "s": "98%" },
+      { "t": "Lettre AFC remboursement TVA 2025", "m": "Document relié", "s": "74%" },
+      { "t": "Bilan 2025 — Müller AG", "m": "Référence TVA en faveur", "s": "61%" }
+    ]
+  },
+  "fatturazione": {
+    "label": "Facturation",
+    "title_part1": "Vous facturez vos prestations,",
+    "title_highlight": "sans quitter Lexum.",
+    "subtitle": "Les factures de vos honoraires naissent reliées au mandat et au client. Calcul automatique de la TVA suisse, numérotation progressive, PDF prêt. L'échéancier vous dit qui a payé et qui non.",
+    "feature_title": "Des factures professionnelles en CHF, déjà prêtes",
+    "feature_text": "Chaque facture est reliée à un mandat et à un client. Lexum calcule automatiquement la TVA suisse à 8.1 % (ou gère les prestations exonérées) et tient la numérotation progressive par année. Le PDF est généré au format suisse, prêt pour le client et pour votre comptabilité.",
+    "points": [
+      "Montants en CHF, TVA suisse 8.1 %",
+      "Gestion des prestations exonérées / taux réduits",
+      "Numérotation progressive annuelle",
+      "PDF au format suisse, archivé dans le mandat"
+    ],
+    "fattura_label": "Facture 2026/048 — Müller AG",
+    "numero_label": "Numéro",
+    "numero_v": "2026/048",
+    "data_label": "Date",
+    "data_v": "15.05.2026",
+    "prestazioni_label": "Prestations",
+    "prestazioni": [
+      { "d": "Tenue de comptabilité T1 2026", "i": "1'800.00" },
+      { "d": "Décompte TVA trimestriel", "i": "450.00" },
+      { "d": "Conseil fiscal", "i": "600.00" }
+    ],
+    "totali": [
+      { "l": "Montant imposable", "v": "2'850.00" },
+      { "l": "TVA 8.1%", "v": "230.85" }
+    ],
+    "totale_label": "Total de la facture",
+    "totale_v": "3'080.85",
+    "archiviato_prefix": "PDF généré et archivé dans",
+    "archiviato_path": "Mandat > Müller AG > Factures",
+    "scadenzario_title": "Échéancier sous contrôle",
+    "scadenzario_text": "Vous voyez d'un coup d'œil qui doit payer, ce qui est échu, ce qui arrive. Statuts colorés pour chaque facture : en attente, payée, échue.",
+    "scadenzario_stati": [
+      { "l": "Payée", "v": "6'400" },
+      { "l": "En attente", "v": "3'080" },
+      { "l": "Échue", "v": "1'250" }
+    ],
+    "pagamenti_title": "Paiements suivis",
+    "pagamenti_text": "Acomptes et soldes, virements et versements. Chaque encaissement est enregistré sur la bonne facture et le statut se met à jour de lui-même lorsque le solde est complet.",
+    "pagamenti_items": [
+      { "l": "Virement", "d": "12.03", "i": "1'800.00" },
+      { "l": "Virement", "d": "20.04", "i": "800.00" },
+      { "l": "Solde à encaisser", "d": "—", "i": "480.85", "open": true }
+    ],
+    "promemoria_title": "Rappels automatiques",
+    "promemoria_text": "Lexum vous avertit avant l'échéance et le jour où une facture prend du retard. Fini les relances oubliées.",
+    "promemoria_items": [
+      { "tempo": "Dans 3 jours", "fattura": "Facture 2026/048 — Müller AG", "urgent": false },
+      { "tempo": "Échue aujourd'hui", "fattura": "Facture 2026/041 — Rossi Sagl", "urgent": true }
+    ],
+    "lex_title_part1": "Demandez à Lex",
+    "lex_title_highlight": "qui n'a pas encore payé.",
+    "lex_text": "Demandez en français « quelles factures sont échues depuis plus de trente jours ? » ou « combien le client Müller me doit-il encore ? » et recevez la réponse en quelques secondes, avec le lien direct vers les factures.",
+    "lex_points": [
+      "Questions en langage naturel",
+      "Réponses immédiates avec les chiffres",
+      "Liens directs vers les factures concernées",
+      "Aucun rapport à générer, aucun filtre"
+    ],
+    "lex_visual_label": "Lex sur les paiements",
+    "lex_domanda": "Quels clients ont des factures échues depuis plus de 30 jours ?",
+    "lex_risposta": "J'ai trouvé 2 factures échues depuis plus de 30 jours, pour un total de CHF 3'050.00.",
+    "lex_fatture": [
+      { "cliente": "Rossi Sagl — 2026/041", "scaduta": "Échue depuis 42 jours", "importo": "1'250.00" },
+      { "cliente": "Bianchi SA — 2026/035", "scaduta": "Échue depuis 35 jours", "importo": "1'800.00" }
+    ]
+  },
+  "team": {
+    "label": "Quand l'étude grandit",
+    "title_part1": "Seul aujourd'hui,",
+    "title_highlight": "en équipe demain.",
+    "subtitle": "Lexum fonctionne parfaitement pour le fiduciaire indépendant. Et quand vous ajoutez des collaborateurs, vous avez des rôles, des permissions et le cloisonnement des mandats : chacun ne voit que ce qui le concerne.",
+    "feature_title": "Vous décidez qui voit quels mandats",
+    "feature_text": "Chaque collaborateur a son propre profil. Vous choisissez qui accède à tous les mandats et qui ne voit que ceux qui lui sont attribués. Les données des clients restent protégées, même au sein de l'équipe. Vous travaillez seul ? Tout reste à vous, sans configurations inutiles.",
+    "points": [
+      "Rôles et permissions configurables",
+      "Visibilité des mandats par collaborateur",
+      "Cloisonnement des données clients",
+      "Audit interne : qui a vu et modifié quoi"
+    ],
+    "visual_label": "Étude — Collaborateurs et permissions",
+    "team_label": "Équipe de l'étude",
+    "members": [
+      { "nome": "Anne Favre", "ruolo": "Associée fondatrice", "avatar": "AF", "accesso": "Tout" },
+      { "nome": "Luc Roulin", "ruolo": "Fiduciaire", "avatar": "LR", "accesso": "Mandats attribués" },
+      { "nome": "Sarah Morand", "ruolo": "Comptable", "avatar": "SM", "accesso": "Comptabilité et documents" }
+    ],
+    "compartimentazione": "Cloisonnement actif : 3 collaborateurs, 2 niveaux d'accès, mandats segmentés."
+  },
+  "banca": {
+    "feature_title": "La base de données juridique suisse, toujours à portée",
+    "feature_text": "Droit fédéral, pratique fiscale fédérale et cantonale, normes fiscales et jurisprudence du Tribunal fédéral. Vous cherchez en langage naturel et Lex vous amène à la bonne source, avec la référence correcte. Vous la consultez dès le premier jour, sans limites.",
+    "points": [
+      "Droit fédéral (Fedlex) et cantonal",
+      "Pratique fiscale AFC et cantonale",
+      "Jurisprudence du Tribunal fédéral",
+      "Recherche en langage naturel"
+    ],
+    "visual_label": "Base de données Lexum CH",
+    "categorie": [
+      { "v": "Droit fédéral", "l": "Fedlex" },
+      { "v": "Normes cantonales", "l": "26 cantons" },
+      { "v": "Pratique fiscale", "l": "AFC et cantonale" },
+      { "v": "Jurisprudence", "l": "Tribunal fédéral" }
+    ],
+    "msg": "Sources en italien, allemand et français. Nous travaillons en continu pour les élargir et les mettre à jour."
+  },
+  "sicurezza": {
+    "label": "Sécurité",
+    "title_part1": "Confidentialité",
+    "title_highlight": "par défaut, non en option.",
+    "subtitle": "Le travail fiduciaire traite des données sensibles des entreprises que vous suivez. Lexum est conçu avec la confidentialité au cœur de chaque décision technique.",
+    "cards": [
+      { "t": "Cloisonnement des données", "d": "Chaque étude est isolée. Les données de vos clients ne sont jamais accessibles à d'autres études, ni aux collaborateurs de votre équipe sans votre permission explicite." },
+      { "t": "Vos chiffres restent les vôtres", "d": "Lex rédige les documents à partir des données que vous fournissez, mais ne les recalcule pas et ne les altère pas. Le contrôle sur les chiffres reste toujours entre vos mains." },
+      { "t": "Journal d'audit complet", "d": "Chaque accès, chaque modification, chaque opération est enregistré. Vous savez toujours qui a fait quoi, quand et sur quel mandat." },
+      { "t": "Données hébergées en sécurité", "d": "Infrastructure et accès protégés, avec contrôle granulaire des permissions. Le secret professionnel du fiduciaire est traité comme tel." }
+    ]
+  },
+  "cta": {
+    "label": "Commencez maintenant",
+    "title_part1": "Voyez Lexum",
+    "title_highlight": "au travail dans votre étude.",
+    "subtitle": "Essayez Lexum sans engagement. Ou réservez une démonstration et nous vous montrons comment cela fonctionne en partant du travail réel de votre fiduciaire.",
+    "cta_primary": "Essayer Lexum une semaine",
+    "cta_secondary": "Demander une démonstration",
+    "no_card": "Aucune carte requise. Résiliation libre à tout moment."
+  }
+}
