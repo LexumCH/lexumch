@@ -9,33 +9,6 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-const QUICK = [
-  {
-    to: '/admin/utenti',
-    label: 'Coda verifiche',
-    desc: 'Approva o rifiuta richieste avvocati',
-    border: 'border-amber-500/30 hover:border-amber-500/50',
-  },
-  {
-    to: '/admin/assistenza',
-    label: 'Assistenza',
-    desc: 'Gestisci i ticket aperti',
-    border: 'border-red-500/30 hover:border-red-500/50',
-  },
-  {
-    to: '/admin/prodotti',
-    label: 'Prodotti',
-    desc: 'Abbonamenti e accessi singoli',
-    border: 'border-oro/30 hover:border-oro/50',
-  },
-  {
-    to: '/admin/pagamenti',
-    label: 'Compensi',
-    desc: 'Revenue sharing avvocati',
-    border: 'border-salvia/30 hover:border-salvia/50',
-  },
-]
-
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -48,7 +21,6 @@ export default function AdminDashboard() {
         { count: nAvvocati },
         { count: nVerifiche },
         { count: nTicket },
-        { count: nSentenze },
         { count: nClienti },
         revenuRes,
       ] = await Promise.all([
@@ -68,11 +40,6 @@ export default function AdminDashboard() {
           .is('destinatario_id', null)
           .eq('stato', 'aperto'),
 
-        // Sentenze pubbliche in banca dati
-        supabase.from('sentenze')
-          .select('id', { count: 'exact', head: true })
-          .eq('stato', 'pubblica'),
-
         // Clienti registrati
         supabase.from('profiles')
           .select('id', { count: 'exact', head: true })
@@ -90,7 +57,6 @@ export default function AdminDashboard() {
         nAvvocati: nAvvocati ?? 0,
         nVerifiche: nVerifiche ?? 0,
         nTicket: nTicket ?? 0,
-        nSentenze: nSentenze ?? 0,
         nClienti: nClienti ?? 0,
         revenue,
       })
@@ -123,12 +89,6 @@ export default function AdminDashboard() {
       value: loading ? '—' : `€ ${(stats?.revenue ?? 0).toFixed(0)}`,
       colorClass: 'text-salvia',
       icon: CreditCard,
-    },
-    {
-      label: 'Sentenze in banca dati',
-      value: loading ? '—' : stats?.nSentenze ?? 0,
-      colorClass: 'text-oro',
-      icon: BookOpen,
     },
     {
       label: 'Clienti registrati',

@@ -19,8 +19,6 @@ export default function AdminLayout({ children }) {
     { path: '/admin/calendario', label: 'Calendario', icon: Calendar },
     { path: '/admin/utenti', label: 'Utenti', icon: Users },
     { path: '/admin/prodotti', label: 'Prodotti', icon: Package },
-    { path: '/admin/sentenze', label: 'Sentenze', icon: Gavel },
-    { path: '/admin/normativa', label: 'Normativa', icon: BookOpen },
     { path: '/admin/pagamenti', label: 'Pagamenti', icon: CreditCard },
     { path: '/admin/mail-log', label: 'Mail Log', icon: Mail },
     { path: '/admin/lex-logs', label: 'Lex Logs', icon: Activity },

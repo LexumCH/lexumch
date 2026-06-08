@@ -123,7 +123,7 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
                                             <div className="min-w-0">
                                                 <p className="font-body text-sm text-nebbia">{f.numero}</p>
                                                 <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                                    {STATO_LABEL[f.stato] ?? f.stato} · EUR {fmtEUR(f.totale_lordo)}
+                                                    {STATO_LABEL[f.stato] ?? f.stato} · EUR {fmtEUR(f.totale)}
                                                 </p>
                                             </div>
                                         </div>

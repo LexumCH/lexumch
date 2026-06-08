@@ -464,18 +464,13 @@ function SezioneUser({ utente, onDecision }) {
   const [decisione, setDecisione] = useState(utente.verification_status)
   const [docs, setDocs] = useState([])
   const [loadingDocs, setLoadingDocs] = useState(true)
-  const [emailStatus, setEmailStatus] = useState(null)
 
   // Carica documenti di verifica + stato email
   useEffect(() => {
     async function caricaDati() {
       setLoadingDocs(true)
-      const [{ data: docsData }, { data: emailData }] = await Promise.all([
-        supabase.storage.from('verification-docs').list(utente.id),
-        supabase.rpc('admin_get_email_status', { p_user_id: utente.id }),
-      ])
+      const { data: docsData } = await supabase.storage.from('verification-docs').list(utente.id)
       setDocs(docsData ?? [])
-      setEmailStatus(Array.isArray(emailData) ? emailData[0] : emailData)
       setLoadingDocs(false)
     }
     caricaDati()
@@ -552,17 +547,6 @@ function SezioneUser({ utente, onDecision }) {
           <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest shrink-0">Email</span>
           <div className="flex items-center gap-2 text-right">
             <span className="font-body text-sm text-nebbia break-all">{utente.email ?? '—'}</span>
-            {emailStatus && (
-              emailStatus.email_confirmed ? (
-                <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/10 border border-salvia/30 text-salvia uppercase tracking-wider whitespace-nowrap shrink-0">
-                  ✓ Verificata
-                </span>
-              ) : (
-                <span className="font-body text-[10px] px-1.5 py-0.5 bg-amber-400/10 border border-amber-400/30 text-amber-400 uppercase tracking-wider whitespace-nowrap shrink-0">
-                  Non verificata
-                </span>
-              )
-            )}
           </div>
         </div>
         <CampoRiga label="Telefono" value={utente.telefono} />

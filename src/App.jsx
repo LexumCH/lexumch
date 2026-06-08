@@ -38,11 +38,8 @@ import AdminDashboard from './pages/admin/Dashboard'
 import AdminUtenti from './pages/admin/Utenti'
 import AdminUtentiDettaglio from './pages/admin/UtentiDettaglio'
 import { AdminProdotti, AdminProdottiForm } from './pages/admin/Prodotti'
-import { AdminSentenze, AdminSentenzeDettaglio } from './pages/admin/Sentenze'
-import { AdminPagamenti, AdminCompensi } from './pages/admin/Pagamenti'
+import { AdminPagamenti } from './pages/admin/Pagamenti'
 import { AdminAssistenza, AdminAssistenzaDettaglio } from './pages/admin/Assistenza'
-import AdminNormativa from './pages/admin/Normativa'
-import AdminNormativaDettaglio from './pages/admin/NormativaDettaglio'
 import LexLogs from './pages/admin/LexLogs'
 import MailLog from '@/pages/admin/MailLog'
 import AdminCalendario from './pages/admin/Calendario'
@@ -221,17 +218,10 @@ export default function App() {
               <Route path="/admin/prodotti" element={<Adm><AdminProdotti /></Adm>} />
               <Route path="/admin/prodotti/nuovo" element={<Adm><AdminProdottiForm /></Adm>} />
               <Route path="/admin/prodotti/:id" element={<Adm><AdminProdottiForm /></Adm>} />
-              <Route path="/admin/sentenze" element={<Adm><AdminSentenze /></Adm>} />
-              <Route path="/admin/sentenze/:id" element={<Adm><AdminSentenzeDettaglio /></Adm>} />
               <Route path="/admin/pagamenti" element={<Adm><AdminPagamenti /></Adm>} />
-              <Route path="/admin/compensi" element={<Adm><AdminCompensi /></Adm>} />
               <Route path="/admin/assistenza" element={<Adm><AdminAssistenza /></Adm>} />
               <Route path="/admin/assistenza/:id" element={<Adm><AdminAssistenzaDettaglio /></Adm>} />
-              <Route path="/admin/normativa" element={<Adm><AdminNormativa /></Adm>} />
-              <Route path="/admin/normativa/:tipo/:slug" element={<Adm><AdminNormativaDettaglio /></Adm>} />
               <Route path="/admin/mail-log" element={<Adm><MailLog /></Adm>} />
-              {/* Retrocompat: vecchia rotta /admin/normativa/:codice → /admin/normativa/it/:codice */}
-              <Route path="/admin/normativa/:codice" element={<Adm><AdminNormativaDettaglio /></Adm>} />
               <Route path="/admin/lex-logs" element={<Adm><LexLogs /></Adm>} />
               <Route path="/admin/calendario" element={<Adm><AdminCalendario /></Adm>} />
               <Route path="/admin/profilo" element={<Adm><AdminProfilo /></Adm>} />

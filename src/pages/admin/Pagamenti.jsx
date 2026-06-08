@@ -215,141 +215,6 @@ function TabPagamenti() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// TAB 2 — COMPENSI
-// ─────────────────────────────────────────────────────────────
-function TabCompensi() {
-    const { sortField, sortDir, handleSort, sortFn } = useSort('created_at', 'desc')
-    const [dati, setDati] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [search, setSearch] = useState('')
-    const [statoF, setStatoF] = useState('')
-    const [avvF, setAvvF] = useState('')
-    const [dateFrom, setDateFrom] = useState('')
-    const [dateTo, setDateTo] = useState('')
-
-    useEffect(() => {
-        async function carica() {
-            setLoading(true)
-            const { data } = await supabase
-                .from('accessi_sentenze')
-                .select('id, prezzo, quota_autore, stato, created_at, sentenza:sentenza_id(titolo, autore:autore_id(id, nome, cognome, studio)), acquirente:acquirente_id(nome, cognome)')
-                .order('created_at', { ascending: false })
-            setDati(data ?? [])
-            setLoading(false)
-        }
-        carica()
-    }, [])
-
-    const daLiquidare = dati.filter(c => c.stato === 'da_liquidare').reduce((a, c) => a + parseFloat(c.quota_autore ?? 0), 0)
-    const liquidato = dati.filter(c => c.stato === 'liquidato').reduce((a, c) => a + parseFloat(c.quota_autore ?? 0), 0)
-
-    const avvocati = [...new Map(dati.map(c => {
-        const a = c.sentenza?.autore; return a ? [a.id, `${a.nome} ${a.cognome}`] : null
-    }).filter(Boolean)).entries()].map(([id, nome]) => ({ id, nome }))
-
-    const rows = dati.filter(c => {
-        if (statoF && c.stato !== statoF) return false
-        if (avvF && c.sentenza?.autore?.id !== avvF) return false
-        if (dateFrom && c.created_at < dateFrom) return false
-        if (dateTo && c.created_at > dateTo + 'T23:59:59') return false
-        if (search) {
-            const avv = `${c.sentenza?.autore?.nome ?? ''} ${c.sentenza?.autore?.cognome ?? ''}`
-            const acq = `${c.acquirente?.nome ?? ''} ${c.acquirente?.cognome ?? ''}`
-            if (!`${avv} ${acq} ${c.sentenza?.titolo ?? ''}`.toLowerCase().includes(search.toLowerCase())) return false
-        }
-        return true
-    }).sort(sortFn)
-
-    const hasFilters = search || statoF || avvF || dateFrom || dateTo
-
-    return (
-        <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-3">
-                <StatCard label="Da liquidare" value={`€ ${daLiquidare.toFixed(2)}`} colorClass="text-amber-400" />
-                <StatCard label="Già liquidato" value={`€ ${liquidato.toFixed(2)}`} colorClass="text-salvia" />
-                <StatCard label="Righe totali" value={dati.length} colorClass="text-nebbia/60" />
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-                <div className="relative flex-1 min-w-44">
-                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                    <input placeholder="Cerca avvocato, acquirente, sentenza..." value={search} onChange={e => setSearch(e.target.value)}
-                        className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
-                </div>
-                <select value={avvF} onChange={e => setAvvF(e.target.value)}
-                    className="bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50">
-                    <option value="">Tutti gli avvocati</option>
-                    {avvocati.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
-                </select>
-                <select value={statoF} onChange={e => setStatoF(e.target.value)}
-                    className="bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50">
-                    <option value="">Tutti gli stati</option>
-                    <option value="da_liquidare">Da liquidare</option>
-                    <option value="liquidato">Liquidato</option>
-                </select>
-                <div className="flex items-center gap-2">
-                    <label className="font-body text-xs text-nebbia/30 whitespace-nowrap">Dal</label>
-                    <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50" />
-                </div>
-                <div className="flex items-center gap-2">
-                    <label className="font-body text-xs text-nebbia/30 whitespace-nowrap">Al</label>
-                    <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50" />
-                </div>
-                {hasFilters && (
-                    <button onClick={() => { setSearch(''); setStatoF(''); setAvvF(''); setDateFrom(''); setDateTo('') }}
-                        className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors px-3 py-2.5 border border-white/5 hover:border-red-500/30">
-                        Reset
-                    </button>
-                )}
-            </div>
-
-            {loading ? (
-                <div className="flex items-center justify-center py-20"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" /></div>
-            ) : (
-                <div className="bg-slate border border-white/5 overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-white/5">
-                                <SortTh label="Data" field="created_at"  {...{ sortField, sortDir, onSort: handleSort }} />
-                                <SortTh label="Sentenza" field="created_at"  {...{ sortField, sortDir, onSort: handleSort }} />
-                                <SortTh label="Acquirente" field="created_at"  {...{ sortField, sortDir, onSort: handleSort }} />
-                                <SortTh label="Avvocato" field="created_at"  {...{ sortField, sortDir, onSort: handleSort }} />
-                                <SortTh label="Prezzo" field="prezzo"      {...{ sortField, sortDir, onSort: handleSort }} />
-                                <SortTh label="Quota" field="quota_autore" {...{ sortField, sortDir, onSort: handleSort }} />
-                                <SortTh label="Stato" field="stato"       {...{ sortField, sortDir, onSort: handleSort }} />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rows.length === 0 ? (
-                                <tr><td colSpan={7} className="px-4 py-12 text-center font-body text-sm text-nebbia/30">Nessun compenso trovato</td></tr>
-                            ) : rows.map(c => {
-                                const sb = STATO_COMP_BADGE[c.stato] ?? STATO_COMP_BADGE.da_liquidare
-                                const avv = `${c.sentenza?.autore?.nome ?? ''} ${c.sentenza?.autore?.cognome ?? ''}`.trim() || '—'
-                                const acq = `${c.acquirente?.nome ?? ''} ${c.acquirente?.cognome ?? ''}`.trim() || '—'
-                                return (
-                                    <tr key={c.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
-                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60 whitespace-nowrap">{new Date(c.created_at).toLocaleDateString('it-CH')}</td>
-                                        <td className="px-4 py-3 font-body text-sm text-nebbia max-w-xs truncate">{c.sentenza?.titolo ?? '—'}</td>
-                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60">{acq}</td>
-                                        <td className="px-4 py-3">
-                                            <p className="font-body text-sm font-medium text-nebbia">Avv. {avv}</p>
-                                            {c.sentenza?.autore?.studio && <p className="font-body text-xs text-nebbia/30 mt-0.5">{c.sentenza.autore.studio}</p>}
-                                        </td>
-                                        <td className="px-4 py-3 font-body text-sm text-nebbia/60">€ {parseFloat(c.prezzo ?? 0).toFixed(2)}</td>
-                                        <td className="px-4 py-3 font-body text-sm text-salvia font-medium">€ {parseFloat(c.quota_autore ?? 0).toFixed(2)}</td>
-                                        <td className="px-4 py-3"><Badge label={sb.label} variant={sb.variant} /></td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-        </div>
-    )
-}
-
-// ─────────────────────────────────────────────────────────────
 // TAB 3 — RICHIESTE PAGAMENTO
 // ─────────────────────────────────────────────────────────────
 function TabRichieste() {
@@ -531,7 +396,6 @@ export function AdminPagamenti() {
 
     const TABS = [
         { id: 'pagamenti', label: 'Pagamenti', badge: 0 },
-        { id: 'compensi', label: 'Compensi', badge: 0 },
         { id: 'richieste', label: 'Richieste pagamento', badge: nRichieste },
     ]
 
@@ -539,7 +403,7 @@ export function AdminPagamenti() {
         <div className="space-y-5">
             {/* HEADER con bottone "Genera acquisto manuale" allineato a destra */}
             <div className="flex items-start justify-between gap-4">
-                <PageHeader label="Admin" title="Pagamenti & Compensi" />
+                <PageHeader label="Admin" title="Pagamenti" />
                 <button
                     onClick={() => setMostraModal(true)}
                     className="btn-primary text-sm flex items-center gap-2 whitespace-nowrap shrink-0"
@@ -563,7 +427,6 @@ export function AdminPagamenti() {
             </div>
 
             {tab === 'pagamenti' && <TabPagamenti />}
-            {tab === 'compensi' && <TabCompensi />}
             {tab === 'richieste' && <TabRichieste />}
 
             {/* MODAL GENERA ACQUISTO */}
@@ -576,5 +439,3 @@ export function AdminPagamenti() {
         </div>
     )
 }
-
-export function AdminCompensi() { return <AdminPagamenti /> }

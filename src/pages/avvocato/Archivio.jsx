@@ -393,8 +393,8 @@ function PickerCategoria({ doc, categorie, sottocategorie, onAggiornata, onChiud
     const [salvando, setSalvando] = useState(false)
     const [errore, setErrore] = useState(null)
 
-    const tabella = doc._kind === 'sentenza' ? 'sentenze' : 'archivio_documenti'
-    const idRecord = doc._kind === 'sentenza' ? doc._sentenza?.id : doc.id
+    const tabella = 'archivio_documenti'
+    const idRecord = doc.id
 
     async function assegna(catId, subId) {
         setSalvando(true); setErrore(null)

@@ -360,7 +360,7 @@ export default function AvvocatoDashboard() {
     // ─── Fatture emesse nel periodo (per: fatturato totale e incassato del periodo) ───
     const { data: fattPeriodo } = await supabase
       .from('fatture')
-      .select('totale_lordo, stato')
+      .select('totale, stato')
       .eq('avvocato_id', profile.id)
       .gte('data_emissione', inizioDate)
       .lte('data_emissione', fineDate)
@@ -368,7 +368,7 @@ export default function AvvocatoDashboard() {
     let fatturatoTot = 0
     let incassato = 0
     for (const f of fattPeriodo ?? []) {
-      const imp = Number(f.totale_lordo) || 0
+      const imp = Number(f.totale) || 0
       if (f.stato !== 'bozza' && f.stato !== 'annullata') fatturatoTot += imp
       if (f.stato === 'pagata') incassato += imp
     }
@@ -377,12 +377,12 @@ export default function AvvocatoDashboard() {
     // Tutte le fatture in attesa (anche scadute) escluso bozza/pagata/annullata
     const { data: fattAttive } = await supabase
       .from('fatture')
-      .select('totale_lordo, stato, data_scadenza')
+      .select('totale, stato, data_scadenza')
       .eq('avvocato_id', profile.id)
       .in('stato', ['in_attesa', 'scaduta'])
 
     const daIncassare = (fattAttive ?? []).reduce(
-      (sum, f) => sum + (Number(f.totale_lordo) || 0),
+      (sum, f) => sum + (Number(f.totale) || 0),
       0
     )
 
@@ -441,7 +441,7 @@ export default function AvvocatoDashboard() {
     const { data: tutteFatture } = await supabase
       .from('fatture')
       .select(`
-                id, numero, anno_numerazione, data_scadenza, data_pagamento, totale_lordo, stato,
+                id, numero, anno_numerazione, data_scadenza, data_pagamento, totale, stato,
                 cliente:cliente_id(nome, cognome, ragione_sociale, tipo_soggetto)
             `)
       .eq('avvocato_id', profile.id)
@@ -670,7 +670,7 @@ export default function AvvocatoDashboard() {
                       key={f.id}
                       icon={FileText}
                       titolo={`Fattura ${f.anno_numerazione}/${f.numero}`}
-                      sottotitolo={`${nomeCliente(f.cliente)} - EUR ${fmtEUR(f.totale_lordo)}`}
+                      sottotitolo={`${nomeCliente(f.cliente)} - EUR ${fmtEUR(f.totale)}`}
                       badge={badgeUrgenza(gg)}
                       link="/pagamenti"
                       accent="red"
@@ -689,7 +689,7 @@ export default function AvvocatoDashboard() {
                       key={f.id}
                       icon={FileText}
                       titolo={`Fattura ${f.anno}/${f.numero}`}
-                      sottotitolo={`${nomeCliente(f.cliente)} - EUR ${fmtEUR(f.totale_lordo)}`}
+                      sottotitolo={`${nomeCliente(f.cliente)} - EUR ${fmtEUR(f.totale)}`}
                       badge={badgeUrgenza(gg)}
                       link="/pagamenti"
                       accent="oro"
