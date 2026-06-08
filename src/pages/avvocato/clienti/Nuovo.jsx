@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { PageHeader, BackButton, InputField, TextareaField } from '@/components/shared'
 import { AlertCircle, CheckCircle, User, Building2, Eye, EyeOff, Lock, Users, ShoppingBag } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 
 // ─────────────────────────────────────────────────────────────
 // SWITCHER PF / PG
@@ -246,11 +246,12 @@ export default function AvvocatoClientiNuovo() {
             }
 
             const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-cliente`,
+                `${supabaseUrl}/functions/v1/create-cliente`,
                 {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'apikey': supabaseKey,
                         'Authorization': `Bearer ${session.access_token}`,
                     },
                     body: JSON.stringify(payload),

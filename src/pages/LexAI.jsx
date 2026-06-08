@@ -95,7 +95,7 @@ function LexBoxPublic() {
                 `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lex-public`,
                 {
                     method: 'POST',
-                    headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+                    headers: { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ domanda: domandaCorrente, messaggi }),
                 }
             )

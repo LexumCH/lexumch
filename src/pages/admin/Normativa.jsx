@@ -1,7 +1,7 @@
 // src/pages/admin/Normativa.jsx
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import { PageHeader, StatCard } from '@/components/shared'
 import {
     Upload, Cpu, RefreshCw, ChevronRight, Trash2,
@@ -117,8 +117,8 @@ function VistaCodici({ config, titolo }) {
         try {
             const { data: { session } } = await supabase.auth.getSession()
             const listRes = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-norme`,
-                { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list' }) }
+                `${supabaseUrl}/functions/v1/import-norme`,
+                { method: 'POST', headers: { apikey: supabaseKey, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list' }) }
             )
             const listJson = await listRes.json()
             if (!listJson.ok || !listJson.files?.length) {
@@ -128,8 +128,8 @@ function VistaCodici({ config, titolo }) {
             for (const fileName of listJson.files) {
                 setMsgImport({ tipo: 'ok', testo: `Importando ${fileName}...` })
                 const res = await fetch(
-                    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-norme`,
-                    { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ file: fileName }) }
+                    `${supabaseUrl}/functions/v1/import-norme`,
+                    { method: 'POST', headers: { apikey: supabaseKey, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ file: fileName }) }
                 )
                 const json = await res.json()
                 if (json.ok) { totOk += json.totale_articoli; totErrori += json.errori }
@@ -152,8 +152,8 @@ function VistaCodici({ config, titolo }) {
             while (rimanenti > 0) {
                 const chiamate = Array(5).fill(null).map(() =>
                     fetch(
-                        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-embeddings`,
-                        { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}` } }
+                        `${supabaseUrl}/functions/v1/generate-embeddings`,
+                        { method: 'POST', headers: { apikey: supabaseKey, Authorization: `Bearer ${session.access_token}` } }
                     ).then(r => r.json()).catch(() => ({ ok: false, processate: 0, errori: 0, rimanenti: rimanenti }))
                 )
 

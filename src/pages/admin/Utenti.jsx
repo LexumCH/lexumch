@@ -7,7 +7,7 @@ import {
   Search, ArrowRight, CheckCircle, XCircle, AlertCircle, FileText,
   UserPlus, X, Copy, Check, ShieldAlert
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 
 const ROLE_BADGE = {
   admin: { label: 'Admin', variant: 'red' },
@@ -81,11 +81,12 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-create-user`,
+        `${supabaseUrl}/functions/v1/admin-create-user`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'apikey': supabaseKey,
             'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
@@ -576,10 +577,10 @@ function TabVerifiche({ data, loading, onDecision }) {
       const { data: { session } } = await supabase.auth.getSession()
       const fnName = tipo === 'approved' ? 'approve-verifica' : 'reject-verifica'
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${fnName}`,
+        `${supabaseUrl}/functions/v1/${fnName}`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          headers: { 'Content-Type': 'application/json', 'apikey': supabaseKey, 'Authorization': `Bearer ${session.access_token}` },
           body: JSON.stringify({ user_id: userId, motivazione }),
         }
       )

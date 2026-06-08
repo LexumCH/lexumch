@@ -9,7 +9,7 @@ import {
   CheckCircle, XCircle, AlertCircle, ArrowRight, RefreshCw
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 
 // ─────────────────────────────────────────────────────────────
 // COSTANTI
@@ -495,10 +495,10 @@ function SezioneUser({ utente, onDecision }) {
       const { data: { session } } = await supabase.auth.getSession()
       const fnName = tipo === 'approved' ? 'approve-verifica' : 'reject-verifica'
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${fnName}`,
+        `${supabaseUrl}/functions/v1/${fnName}`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          headers: { 'Content-Type': 'application/json', 'apikey': supabaseKey, 'Authorization': `Bearer ${session.access_token}` },
           body: JSON.stringify({ user_id: utente.id, motivazione }),
         }
       )
