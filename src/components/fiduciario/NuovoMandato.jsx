@@ -18,6 +18,12 @@ export default function NuovoMandato({ clienteId, onClose, onSaved }) {
     const [annoRiferimento, setAnnoRiferimento] = useState('') // '' = nessuno
     const [note, setNote] = useState('')
 
+    // Selettore cliente interno: serve quando il modal è aperto SENZA un cliente
+    // predeterminato (es. dal Banco Lavoro generale).
+    const serveSelettore = !clienteId
+    const [clienteSel, setClienteSel] = useState('')
+    const [clienti, setClienti] = useState([])
+
     // Range anni: da 2 anni fa a 1 avanti
     const annoCorr = new Date().getFullYear()
     const anniDisponibili = [annoCorr + 1, annoCorr, annoCorr - 1, annoCorr - 2]
@@ -32,13 +38,27 @@ export default function NuovoMandato({ clienteId, onClose, onSaved }) {
         return () => window.removeEventListener('keydown', onKey)
     }, [onClose, salvando])
 
-    const puoSalvare = titolo.trim().length > 0
+    // Carica i clienti se non c'è un cliente predeterminato
+    useEffect(() => {
+        if (!serveSelettore) return
+        let attivo = true
+        ;(async () => {
+            const { data } = await supabase
+                .from('profiles')
+                .select('id, nome, cognome, ragione_sociale, tipo_soggetto')
+                .eq('role', 'cliente')
+                .order('cognome')
+            if (attivo) setClienti(data ?? [])
+        })()
+        return () => { attivo = false }
+    }, [serveSelettore])
+
+    const clienteIdEffettivo = clienteId ?? (clienteSel || null)
+    const puoSalvare = titolo.trim().length > 0 && !!clienteIdEffettivo
 
     async function salva() {
-        if (!puoSalvare) {
-            setErrore('Il titolo è obbligatorio.')
-            return
-        }
+        if (!titolo.trim()) { setErrore('Il titolo è obbligatorio.'); return }
+        if (!clienteIdEffettivo) { setErrore('Seleziona un cliente.'); return }
         setSalvando(true)
         setErrore(null)
 
@@ -61,7 +81,7 @@ export default function NuovoMandato({ clienteId, onClose, onSaved }) {
         const { data, error } = await supabase
             .from('mandati')
             .insert({
-                cliente_id: clienteId,
+                cliente_id: clienteIdEffettivo,
                 avvocato_id: user.id,
                 studio_id: profilo?.studio_id ?? null,
                 titolo: titolo.trim(),
@@ -114,6 +134,19 @@ export default function NuovoMandato({ clienteId, onClose, onSaved }) {
 
                 {/* Body */}
                 <div className="p-6 space-y-4 overflow-y-auto flex-1">
+                    {serveSelettore && (
+                        <div>
+                            <label className={labelCls}>Cliente *</label>
+                            <select value={clienteSel} onChange={e => setClienteSel(e.target.value)} className={inputCls}>
+                                <option value="">— Seleziona cliente —</option>
+                                {clienti.map(c => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.tipo_soggetto === 'persona_giuridica' ? (c.ragione_sociale ?? '—') : `${c.nome ?? ''} ${c.cognome ?? ''}`.trim()}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                     <div>
                         <label className={labelCls}>Titolo *</label>
                         <input
