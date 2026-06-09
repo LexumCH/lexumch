@@ -308,7 +308,7 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
 
                   <div>
                     <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
-                      Codice fiscale
+                      N. AVS
                     </label>
                     <input value={cf} onChange={e => setCf(e.target.value.toUpperCase())} disabled={loading} maxLength={16}
                       className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 uppercase" />

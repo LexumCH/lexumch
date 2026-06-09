@@ -46,7 +46,7 @@ export default function AvvocatoProfilo() {
     const [errDati, setErrDati] = useState('')
 
     // Dati professionali per atti
-    const [atti, setAtti] = useState({ foro: '', numero_albo: '', pec: '', data_iscrizione_albo: '' })
+    const [atti, setAtti] = useState({ cantone_albo: '', numero_albo: '', data_iscrizione_albo: '' })
     const [attiOriginali, setAttiOriginali] = useState({})
     const [editingAtti, setEditingAtti] = useState(false)
     const [salvandoAtti, setSalvandoAtti] = useState(false)
@@ -78,7 +78,7 @@ export default function AvvocatoProfilo() {
 
                 const { data: profilo } = await supabase
                     .from('profiles')
-                    .select('nome, cognome, email, telefono, specializzazioni, studio, tipo_account, verification_status, piano_id, abbonamento_tipo, abbonamento_scadenza, posti_acquistati, include_banca_dati, include_monetizzazione, foro, numero_albo, pec, data_iscrizione_albo, mfa_attivo, mfa_attivato_at')
+                    .select('nome, cognome, email, telefono, specializzazioni, studio, tipo_account, verification_status, piano_id, abbonamento_tipo, abbonamento_scadenza, posti_acquistati, include_banca_dati, include_monetizzazione, cantone_albo, numero_albo, data_iscrizione_albo, mfa_attivo, mfa_attivato_at')
                     .eq('id', user.id)
                     .single()
 
@@ -97,9 +97,8 @@ export default function AvvocatoProfilo() {
                     setDatiOriginali(d)
 
                     const a = {
-                        foro: profilo.foro ?? '',
+                        cantone_albo: profilo.cantone_albo ?? '',
                         numero_albo: profilo.numero_albo ?? '',
-                        pec: profilo.pec ?? '',
                         data_iscrizione_albo: profilo.data_iscrizione_albo ?? '',
                     }
                     setAtti(a)
@@ -169,9 +168,8 @@ export default function AvvocatoProfilo() {
         try {
             const { data: { user } } = await supabase.auth.getUser()
             const { error } = await supabase.from('profiles').update({
-                foro: atti.foro.trim() || null,
+                cantone_albo: atti.cantone_albo.trim() || null,
                 numero_albo: atti.numero_albo.trim() || null,
-                pec: atti.pec.trim() || null,
                 data_iscrizione_albo: atti.data_iscrizione_albo || null,
             }).eq('id', user.id)
             if (error) throw new Error(error.message)
@@ -246,9 +244,8 @@ export default function AvvocatoProfilo() {
 
     // Verifica completezza dati per generazione atti
     const campiAttiMancanti = []
-    if (!atti.foro) campiAttiMancanti.push('Foro')
+    if (!atti.cantone_albo) campiAttiMancanti.push('Cantone albo')
     if (!atti.numero_albo) campiAttiMancanti.push('Numero albo')
-    if (!atti.pec) campiAttiMancanti.push('PEC')
     const profiloCompleto = campiAttiMancanti.length === 0
 
     if (loading) return (
@@ -357,13 +354,11 @@ export default function AvvocatoProfilo() {
                 </p>
 
                 <div className="grid grid-cols-2 gap-5">
-                    <Campo label="Foro di iscrizione" value={atti.foro} placeholder="Es. Foro di Milano"
-                        editing={editingAtti} onChange={v => setAtti(a => ({ ...a, foro: v }))} />
+                    <Campo label="Cantone d'iscrizione all'albo" value={atti.cantone_albo} placeholder="Es. TI"
+                        editing={editingAtti} onChange={v => setAtti(a => ({ ...a, cantone_albo: v }))} />
                     <Campo label="Numero albo" value={atti.numero_albo} placeholder="Es. A23456"
                         editing={editingAtti} onChange={v => setAtti(a => ({ ...a, numero_albo: v }))} />
                 </div>
-                <Campo label="PEC" value={atti.pec} placeholder="nome.cognome@pec.ordineavvocati.it" type="email"
-                    editing={editingAtti} onChange={v => setAtti(a => ({ ...a, pec: v }))} />
                 <Campo label="Data iscrizione albo" value={atti.data_iscrizione_albo} placeholder="—" type="date"
                     editing={editingAtti} onChange={v => setAtti(a => ({ ...a, data_iscrizione_albo: v }))} />
 

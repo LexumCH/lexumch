@@ -101,31 +101,29 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
         // PF
         nome: controparte?.nome ?? '',
         cognome: controparte?.cognome ?? '',
-        cf: controparte?.cf ?? '',
+        numero_avs: controparte?.numero_avs ?? '',
         data_nascita: controparte?.data_nascita ?? '',
         luogo_nascita: controparte?.luogo_nascita ?? '',
         // PG
         ragione_sociale: controparte?.ragione_sociale ?? '',
-        partita_iva: controparte?.partita_iva ?? '',
+        uid: controparte?.uid ?? '',
         sede_legale: controparte?.sede_legale ?? '',
         rappr_nome: controparte?.rappr_nome ?? '',
         rappr_cognome: controparte?.rappr_cognome ?? '',
-        rappr_cf: controparte?.rappr_cf ?? '',
+        rappr_avs: controparte?.rappr_avs ?? '',
         rappr_carica: controparte?.rappr_carica ?? '',
         // Contatti
         email: controparte?.email ?? '',
         telefono: controparte?.telefono ?? '',
-        pec: controparte?.pec ?? '',
         // Indirizzo
         indirizzo: controparte?.indirizzo ?? '',
-        comune: controparte?.comune ?? '',
-        provincia: controparte?.provincia ?? '',
+        citta: controparte?.citta ?? '',
+        cantone: controparte?.cantone ?? '',
         cap: controparte?.cap ?? '',
         // Legale avversario
         legale_nome: controparte?.legale_nome ?? '',
         legale_cognome: controparte?.legale_cognome ?? '',
-        legale_foro: controparte?.legale_foro ?? '',
-        legale_pec: controparte?.legale_pec ?? '',
+        legale_cantone_albo: controparte?.legale_cantone_albo ?? '',
         legale_albo: controparte?.legale_albo ?? '',
         // Note
         note: controparte?.note ?? '',
@@ -133,7 +131,7 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
     const [salvando, setSalvando] = useState(false)
     const [errore, setErrore] = useState('')
     const [mostraLegale, setMostraLegale] = useState(
-        !!(controparte?.legale_nome || controparte?.legale_cognome || controparte?.legale_foro)
+        !!(controparte?.legale_nome || controparte?.legale_cognome || controparte?.legale_cantone_albo)
     )
 
     const f = k => ({
@@ -156,18 +154,16 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
                 pratica_id: praticaId,
                 tipo_soggetto: tipo,
                 ruolo: form.ruolo || null,
-                cf: form.cf?.trim() || null,
+                numero_avs: form.numero_avs?.trim() || null,
                 indirizzo: form.indirizzo?.trim() || null,
-                comune: form.comune?.trim() || null,
-                provincia: form.provincia?.trim().toUpperCase() || null,
+                citta: form.citta?.trim() || null,
+                cantone: form.cantone?.trim().toUpperCase() || null,
                 cap: form.cap?.trim() || null,
                 email: form.email?.trim() || null,
                 telefono: form.telefono?.trim() || null,
-                pec: form.pec?.trim() || null,
                 legale_nome: form.legale_nome?.trim() || null,
                 legale_cognome: form.legale_cognome?.trim() || null,
-                legale_foro: form.legale_foro?.trim() || null,
-                legale_pec: form.legale_pec?.trim() || null,
+                legale_cantone_albo: form.legale_cantone_albo?.trim().toUpperCase() || null,
                 legale_albo: form.legale_albo?.trim() || null,
                 note: form.note?.trim() || null,
             }
@@ -179,19 +175,19 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
                 payload.luogo_nascita = form.luogo_nascita?.trim() || null
                 // Pulisci campi PG
                 payload.ragione_sociale = null
-                payload.partita_iva = null
+                payload.uid = null
                 payload.sede_legale = null
                 payload.rappr_nome = null
                 payload.rappr_cognome = null
-                payload.rappr_cf = null
+                payload.rappr_avs = null
                 payload.rappr_carica = null
             } else {
                 payload.ragione_sociale = form.ragione_sociale.trim()
-                payload.partita_iva = form.partita_iva?.trim() || null
+                payload.uid = form.uid?.trim() || null
                 payload.sede_legale = form.sede_legale?.trim() || null
                 payload.rappr_nome = form.rappr_nome?.trim() || null
                 payload.rappr_cognome = form.rappr_cognome?.trim() || null
-                payload.rappr_cf = form.rappr_cf?.trim() || null
+                payload.rappr_avs = form.rappr_avs?.trim() || null
                 payload.rappr_carica = form.rappr_carica?.trim() || null
                 // Pulisci campi PF
                 payload.nome = null
@@ -246,7 +242,7 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
                         <Field label="Nome *" placeholder="Tizio" {...f('nome')} />
                         <Field label="Cognome *" placeholder="Caio" {...f('cognome')} />
                     </div>
-                    <Field label="Codice fiscale" placeholder="TZICAI70A01H501Z" {...f('cf')} />
+                    <Field label="N. AVS" placeholder="756.1234.5678.97" {...f('numero_avs')} />
                     <div className="grid grid-cols-2 gap-3">
                         <Field label="Data nascita" type="date" {...f('data_nascita')} />
                         <Field label="Luogo nascita" placeholder="Roma" {...f('luogo_nascita')} />
@@ -254,12 +250,9 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
                 </div>
             ) : (
                 <div className="space-y-3">
-                    <Field label="Ragione sociale *" placeholder="Alfa Srl" {...f('ragione_sociale')} />
-                    <div className="grid grid-cols-2 gap-3">
-                        <Field label="Partita IVA" placeholder="12345678901" {...f('partita_iva')} />
-                        <Field label="Codice fiscale" placeholder="se diverso da P.IVA" {...f('cf')} />
-                    </div>
-                    <Field label="Sede legale" placeholder="Via Roma 1, Milano" {...f('sede_legale')} />
+                    <Field label="Ragione sociale *" placeholder="Alfa SA" {...f('ragione_sociale')} />
+                    <Field label="IDI / UID" placeholder="CHE-123.456.789" {...f('uid')} />
+                    <Field label="Sede legale" placeholder="Via Nassa 5, Lugano" {...f('sede_legale')} />
                     <div className="border-t border-white/8 pt-3 space-y-3">
                         <p className="font-body text-[10px] text-nebbia/40 tracking-widest uppercase">Rappresentante legale</p>
                         <div className="grid grid-cols-2 gap-3">
@@ -267,7 +260,7 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
                             <Field label="Cognome" {...f('rappr_cognome')} />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <Field label="CF rappresentante" {...f('rappr_cf')} />
+                            <Field label="N. AVS rappresentante" {...f('rappr_avs')} />
                             <Field label="Carica" placeholder="Es. Amministratore Unico" {...f('rappr_carica')} />
                         </div>
                     </div>
@@ -279,8 +272,8 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
                 <p className="font-body text-[10px] text-nebbia/40 tracking-widest uppercase">Indirizzo</p>
                 <Field label="Indirizzo" placeholder="Via Garibaldi 5" {...f('indirizzo')} />
                 <div className="grid grid-cols-3 gap-3">
-                    <Field label="Comune" placeholder="Milano" colSpan={2} {...f('comune')} />
-                    <Field label="Prov." placeholder="MI" maxLength={2} uppercase {...f('provincia')} />
+                    <Field label="Città" placeholder="Lugano" colSpan={2} {...f('citta')} />
+                    <Field label="Cantone" placeholder="TI" maxLength={2} uppercase {...f('cantone')} />
                 </div>
                 <Field label="CAP" placeholder="20100" {...f('cap')} />
             </div>
@@ -292,7 +285,6 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
                     <Field label="Email" type="email" {...f('email')} />
                     <Field label="Telefono" {...f('telefono')} />
                 </div>
-                <Field label="PEC" type="email" placeholder="esempio@pec.it" {...f('pec')} />
             </div>
 
             {/* Legale avversario (collassabile) */}
@@ -311,10 +303,9 @@ function FormControparte({ controparte, praticaId, onSalvato, onAnnulla }) {
                             <Field label="Cognome" {...f('legale_cognome')} />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <Field label="Foro" placeholder="Foro di Milano" {...f('legale_foro')} />
+                            <Field label="Cantone albo" placeholder="TI" maxLength={2} uppercase {...f('legale_cantone_albo')} />
                             <Field label="N. albo" {...f('legale_albo')} />
                         </div>
-                        <Field label="PEC legale" type="email" {...f('legale_pec')} />
                     </div>
                 )}
             </div>
@@ -360,8 +351,8 @@ function CardControparte({ c, onModifica, onElimina }) {
 
     const indirizzoMostrato = [
         c.indirizzo,
-        [c.cap, c.comune].filter(Boolean).join(' '),
-        c.provincia ? `(${c.provincia})` : null
+        [c.cap, c.citta].filter(Boolean).join(' '),
+        c.cantone ? `(${c.cantone})` : null
     ].filter(Boolean).join(', ')
 
     return (
@@ -381,11 +372,11 @@ function CardControparte({ c, onModifica, onElimina }) {
                         )}
                     </div>
 
-                    {(c.cf || c.partita_iva) && (
+                    {(c.numero_avs || c.uid) && (
                         <p className="font-mono text-[11px] text-nebbia/40 mt-1">
-                            {c.partita_iva && <>P.IVA {c.partita_iva}</>}
-                            {c.partita_iva && c.cf && ' · '}
-                            {c.cf && <>CF {c.cf}</>}
+                            {c.uid && <>UID {c.uid}</>}
+                            {c.uid && c.numero_avs && ' · '}
+                            {c.numero_avs && <>AVS {c.numero_avs}</>}
                         </p>
                     )}
 
@@ -405,7 +396,7 @@ function CardControparte({ c, onModifica, onElimina }) {
                         <p className="font-body text-xs text-nebbia/40 mt-1.5 flex items-center gap-1">
                             <Scale size={9} className="text-nebbia/30" />
                             avv. {`${c.legale_nome ?? ''} ${c.legale_cognome ?? ''}`.trim()}
-                            {c.legale_foro && <span className="text-nebbia/30"> · {c.legale_foro}</span>}
+                            {c.legale_cantone_albo && <span className="text-nebbia/30"> · {c.legale_cantone_albo}</span>}
                         </p>
                     )}
                 </div>
