@@ -91,6 +91,8 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                     setErrore('Impossibile caricare i tipi di termine')
                 } else {
                     setTipi(data ?? [])
+                    // Tipi standard assenti (tipi_termini vuota) → mostra solo il personalizzato
+                    if (!data || data.length === 0) setModalita('personalizzato')
                 }
             })
     }, [])
@@ -189,7 +191,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
             }
             : {
                 pratica_id: praticaId,
-                tipo_codice: 'personalizzato',
+                tipo_codice: null,
                 tipo_label: nomePersonalizzato.trim(),
                 data_evento: dataScadenzaPers,
                 evento_descrizione: null,
@@ -245,6 +247,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                 </div>
 
                 {/* Tabs modalita' */}
+                {tipi.length > 0 && (
                 <div className="flex border-b border-white/5">
                     <button
                         onClick={() => cambiaModalita('standard')}
@@ -267,6 +270,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                         Personalizzato
                     </button>
                 </div>
+                )}
 
                 <div className="p-6 space-y-5">
 
