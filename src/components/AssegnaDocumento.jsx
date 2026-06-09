@@ -253,7 +253,8 @@ export default function AssegnaDocumento({ doc, onAggiornato }) {
                 </div>
             </Picker>
 
-            {/* ── DIPENDENTE (gated sul cliente) ── */}
+            {/* ── DIPENDENTE (solo fiduciario, gated sul cliente) ── */}
+            {profile?.role === 'fiduciario' && (
             <Picker
                 label="Dipendente"
                 icona={Users}
@@ -285,6 +286,7 @@ export default function AssegnaDocumento({ doc, onAggiornato }) {
                     ))}
                 </div>
             </Picker>
+            )}
 
             {/* ── PRATICA / MANDATO (bifronte) ── */}
             <Picker
