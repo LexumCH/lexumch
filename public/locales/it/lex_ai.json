@@ -71,14 +71,14 @@
     "label": "Fonti",
     "title_part1": "Lavora su un patrimonio giuridico e fiscale",
     "title_highlight": "in continua espansione.",
-    "subtitle": "Lex AI consulta milioni di documenti verificati, suddivisi tra giurisprudenza, normativa, prassi delle autorità e contributi professionali. Niente ricerca web casuale, niente fonti generaliste.",
+    "subtitle": "Lex AI consulta oltre 1,6 milioni di documenti verificati, suddivisi tra giurisprudenza, normativa, prassi delle autorità e contributi professionali. Niente ricerca web casuale, niente fonti generaliste.",
     "cards": [
       { "t": "Giurisprudenza svizzera", "d": "Tribunale federale, TAF, TPF e tribunali cantonali. Decisioni in materia civile, penale, amministrativa e tributaria, in continua acquisizione." },
       { "t": "Normativa federale e cantonale", "d": "CO, CC, CP, LIFD, LIVA e leggi tributarie cantonali, ordinanze e regolamenti, sempre aggiornati con le ultime modifiche." },
       { "t": "Diritto UE", "d": "Trattati, regolamenti, direttive e giurisprudenza della Corte di Giustizia UE, rilevanti per i rapporti tra Svizzera e Unione Europea." },
       { "t": "Prassi e corpus condiviso", "d": "Circolari e prassi di AFC e AFD, prassi cantonali e materiali caricati dai professionisti verificati, avvocati e fiduciari." }
     ],
-    "highlight_strong": "Oltre 4 milioni di documenti legali e fiscali",
+    "highlight_strong": "Oltre 1,6 milioni di documenti legali e fiscali",
     "highlight_text": ". Lavoriamo in modo continuo per ampliare la banca dati e tenerla aggiornata."
   },
   "ragiona": {

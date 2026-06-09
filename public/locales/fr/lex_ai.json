@@ -71,14 +71,14 @@
     "label": "Sources",
     "title_part1": "Il travaille sur un patrimoine juridique et fiscal",
     "title_highlight": "en expansion continue.",
-    "subtitle": "Lex AI consulte des millions de documents vérifiés, répartis entre jurisprudence, législation, pratique des autorités et contributions professionnelles. Aucune recherche web aléatoire, aucune source généraliste.",
+    "subtitle": "Lex AI consulte plus de 1,6 million de documents vérifiés, répartis entre jurisprudence, législation, pratique des autorités et contributions professionnelles. Aucune recherche web aléatoire, aucune source généraliste.",
     "cards": [
       { "t": "Jurisprudence suisse", "d": "Tribunal fédéral, TAF, TPF et tribunaux cantonaux. Décisions en matière civile, pénale, administrative et fiscale, en acquisition continue." },
       { "t": "Droit fédéral et cantonal", "d": "CO, CC, CP, LIFD, LTVA et lois fiscales cantonales, ordonnances et règlements, toujours à jour avec les dernières modifications." },
       { "t": "Droit UE", "d": "Traités, règlements, directives et jurisprudence de la Cour de justice de l'UE, pertinents pour les relations entre la Suisse et l'Union européenne." },
       { "t": "Pratique et corpus partagé", "d": "Circulaires et pratique de l'AFC et de l'AFD, pratique cantonale et matériaux chargés par les professionnels vérifiés, avocats et fiduciaires." }
     ],
-    "highlight_strong": "Plus de 4 millions de documents juridiques et fiscaux",
+    "highlight_strong": "Plus de 1,6 million de documents juridiques et fiscaux",
     "highlight_text": ". Nous travaillons en continu pour élargir la base de données et la maintenir à jour."
   },
   "ragiona": {

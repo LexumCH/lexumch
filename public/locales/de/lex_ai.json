@@ -71,14 +71,14 @@
     "label": "Quellen",
     "title_part1": "Arbeitet auf einem rechtlichen und steuerlichen Bestand",
     "title_highlight": "in stetiger Erweiterung.",
-    "subtitle": "Lex AI durchsucht Millionen geprüfter Dokumente, aufgeteilt in Rechtsprechung, Gesetzgebung, Praxis der Behörden und fachliche Beiträge. Keine zufällige Websuche, keine generischen Quellen.",
+    "subtitle": "Lex AI durchsucht über 1,6 Millionen geprüfte Dokumente, aufgeteilt in Rechtsprechung, Gesetzgebung, Praxis der Behörden und fachliche Beiträge. Keine zufällige Websuche, keine generischen Quellen.",
     "cards": [
       { "t": "Schweizer Rechtsprechung", "d": "Bundesgericht, BVGer, BStGer und kantonale Gerichte. Entscheide in Zivil-, Straf-, Verwaltungs- und Steuersachen, laufend erfasst." },
       { "t": "Bundes- und kantonales Recht", "d": "OR, ZGB, StGB, DBG, MWSTG und kantonale Steuergesetze, Verordnungen und Reglemente, stets mit den letzten Änderungen aktualisiert." },
       { "t": "EU-Recht", "d": "Verträge, Verordnungen, Richtlinien und Rechtsprechung des EuGH, relevant für die Beziehungen zwischen der Schweiz und der Europäischen Union." },
       { "t": "Praxis und geteiltes Korpus", "d": "Kreisschreiben und Praxis von ESTV und EZV, kantonale Praxis und von verifizierten Fachpersonen — Anwälten und Treuhändern — hochgeladene Materialien." }
     ],
-    "highlight_strong": "Über 4 Millionen rechtliche und steuerliche Dokumente",
+    "highlight_strong": "Über 1,6 Millionen rechtliche und steuerliche Dokumente",
     "highlight_text": ". Wir arbeiten laufend daran, die Datenbank zu erweitern und aktuell zu halten."
   },
   "ragiona": {
