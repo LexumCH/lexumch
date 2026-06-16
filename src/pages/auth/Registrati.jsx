@@ -6,10 +6,19 @@ import logo from '@/assets/logo.png'
 import { ArrowRight, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
 import SelectLingua from '@/components/SelectLingua'
 
+// La colonna profiles.lingua ha un CHECK rigido IN ('it','de','fr') senza guardia NULL/''.
+// Normalizziamo qui per non mandare mai un valore fuori-set al signup (es. 'en' da browser
+// non latino, o un segmento di path letto dal LanguageDetector) → eviterebbe l'INSERT del profilo.
+const LINGUE_OK = ['it', 'de', 'fr']
+const normLingua = (l) => {
+  const c = String(l || '').slice(0, 2).toLowerCase()
+  return LINGUE_OK.includes(c) ? c : 'it'
+}
+
 export default function Registrati() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation('auth')
-  const [form, setForm] = useState(() => ({ nome: '', cognome: '', email: '', lingua: (i18n.language || 'it').slice(0, 2), studio: '', password: '', conferma: '' }))
+  const [form, setForm] = useState(() => ({ nome: '', cognome: '', email: '', lingua: normLingua(i18n.language), studio: '', password: '', conferma: '' }))
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -41,14 +50,14 @@ export default function Registrati() {
             nome: form.nome.trim(),
             cognome: form.cognome.trim(),
             studio: form.studio.trim() || null,
-            lingua: form.lingua || 'it',
+            lingua: normLingua(form.lingua),
           },
         },
       })
       if (authErr) throw authErr
 
-      // Il trigger DB handle_new_user crea automaticamente il profilo
-      // leggendo nome/cognome/studio dai metadata.
+      // Il trigger DB trg_crea_profilo_signup (SECURITY DEFINER) crea automaticamente
+      // il profilo leggendo nome/cognome/studio/lingua dai metadata (role iniziale 'user').
 
       setSuccess(true)
     } catch (err) {
