@@ -1,0 +1,23 @@
+{
+    "pulsante": {
+        "aggiungi": "Aggiungi a etichetta",
+        "assegnate_one": "{{count}} etichetta",
+        "assegnate_other": "{{count}} etichette"
+    },
+    "ricerca": {
+        "placeholder": "Cerca o crea etichetta...",
+        "chiudi": "Chiudi"
+    },
+    "stato": {
+        "caricamento": "Caricamento...",
+        "nessuna_etichetta": "Nessuna etichetta. Digita un nome per crearne una."
+    },
+    "azioni": {
+        "crea": "Crea \"{{nome}}\""
+    },
+    "errori": {
+        "etichetta_piena": "Etichetta piena (max {{limite}} elementi). Rimuovi qualcosa o usa un'altra etichetta.",
+        "gia_assegnato": "Questo elemento è già in questa etichetta.",
+        "non_autenticato": "Sessione scaduta. Effettua di nuovo l'accesso."
+    }
+}

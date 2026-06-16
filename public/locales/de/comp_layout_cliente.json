@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "panoramica": "Übersicht",
+    "pratiche": "Dossiers",
+    "appuntamenti": "Termine",
+    "documenti": "Dokumente",
+    "comunicazioni": "Mitteilungen",
+    "fatture": "Rechnungen",
+    "profilo": "Profil"
+  },
+  "azioni": {
+    "esci": "Abmelden"
+  }
+}

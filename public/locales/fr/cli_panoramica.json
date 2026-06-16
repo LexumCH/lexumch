@@ -1,0 +1,43 @@
+{
+  "header": {
+    "label": "Portail client",
+    "bentornato": "Bon retour",
+    "bentornato_nome": "Bon retour, {{nome}}"
+  },
+  "alert": {
+    "fatture_attesa_one": "Vous avez {{count}} facture en attente de paiement",
+    "fatture_attesa_other": "Vous avez {{count}} factures en attente de paiement",
+    "visualizza": "Consulter"
+  },
+  "contatori": {
+    "pratiche_attive": "Dossiers actifs",
+    "appuntamenti": "Rendez-vous",
+    "messaggi_nuovi": "Nouveaux messages",
+    "fatture_aperte": "Factures ouvertes"
+  },
+  "prossimo": {
+    "titolo": "Prochain rendez-vous",
+    "tutti": "Tous →",
+    "vuoto": "Aucun rendez-vous planifié"
+  },
+  "pratiche": {
+    "titolo": "Dossiers actifs",
+    "tutte": "Tous →",
+    "vuoto": "Aucun dossier actif"
+  },
+  "stati": {
+    "in_corso": "En cours",
+    "in_udienza": "En audience",
+    "in_attesa": "En attente",
+    "chiusa": "Clôturé"
+  },
+  "comunicazioni": {
+    "titolo": "Dernières communications",
+    "tutte": "Tous →",
+    "vuoto": "Aucune communication",
+    "nuovo": "nouveau"
+  },
+  "comune": {
+    "avvocato_prefisso": "Me"
+  }
+}

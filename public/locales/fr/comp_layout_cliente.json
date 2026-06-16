@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "panoramica": "Aperçu",
+    "pratiche": "Dossiers",
+    "appuntamenti": "Rendez-vous",
+    "documenti": "Documents",
+    "comunicazioni": "Communications",
+    "fatture": "Factures",
+    "profilo": "Profil"
+  },
+  "azioni": {
+    "esci": "Déconnexion"
+  }
+}

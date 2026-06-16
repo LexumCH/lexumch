@@ -1,0 +1,33 @@
+{
+  "header": {
+    "titolo": "Elimina pratica"
+  },
+  "blocco": {
+    "titolo": "Impossibile eliminare la pratica",
+    "descrizione": "C'è {{count}} fattura collegata. Per eliminare la pratica devi prima scollegare o eliminare queste fatture da Fatturazione.",
+    "descrizione_other": "Ci sono {{count}} fatture collegate. Per eliminare la pratica devi prima scollegare o eliminare queste fatture da Fatturazione.",
+    "listaTitolo": "Fatture collegate",
+    "suggerimento": "<etichetta>Suggerimento:</etichetta> apri ciascuna fattura, usa il pulsante <azione>Scollega</azione> nel box destinatario, poi torna qui e riprova."
+  },
+  "conferma": {
+    "irreversibile": "Operazione irreversibile.",
+    "cosaVieneCancellato": "Saranno cancellati definitivamente: la pratica, le udienze e i termini processuali, le controparti, le ricerche salvate, i documenti caricati nella pratica e gli appuntamenti collegati.",
+    "archivioResta": "I documenti dell'<grassetto>Archivio dello studio</grassetto> resteranno al loro posto: verrà rimosso solo il collegamento a questa pratica.",
+    "istruzione": "Per confermare digita il titolo esatto della pratica:"
+  },
+  "statoFattura": {
+    "bozza": "Bozza",
+    "in_attesa": "In attesa",
+    "scaduta": "Scaduta",
+    "pagata": "Pagata",
+    "annullata": "Annullata"
+  },
+  "azioni": {
+    "chiudi": "Chiudi",
+    "annulla": "Annulla",
+    "eliminaDefinitivamente": "Elimina definitivamente"
+  },
+  "errori": {
+    "eliminazione": "Errore eliminazione"
+  }
+}

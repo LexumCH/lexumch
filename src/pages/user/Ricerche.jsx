@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
+import { labelFonteGiur, labelFontePrassi } from '@/lib/istituzioni'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
@@ -22,18 +24,15 @@ const TIPI_RICERCA = ['ricerca_ai', 'ricerca_manuale', 'chat_lex']
 // Tipi corpus CH (granulari, 1:1 con la tabella di provenienza)
 const TIPI_CORPUS = ['norma_federale', 'norma_cantonale', 'norma_ue', 'giurisprudenza', 'sentenza_ue', 'prassi']
 
-const FILTRO_TIPI = [
-    { id: 'tutti', label: 'Tutti' },
-    { id: 'ricerca_ai', label: 'Ricerche AI' },
-    { id: 'ricerca_manuale', label: 'Ricerche manuali' },
-    { id: 'chat_lex', label: 'Chat con Lex' },
-    { id: 'norma_federale', label: 'Norme federali' },
-    { id: 'norma_cantonale', label: 'Norme cantonali' },
-    { id: 'norma_ue', label: 'Norme UE' },
-    { id: 'giurisprudenza', label: 'Giurisprudenza' },
-    { id: 'sentenza_ue', label: 'Sentenze UE' },
-    { id: 'prassi', label: 'Prassi' },
+// id 1:1 con le chiavi i18n in filtro_tipi.* (label risolta via t)
+const FILTRO_TIPI_IDS = [
+    'tutti', 'ricerca_ai', 'ricerca_manuale', 'chat_lex',
+    'norma_federale', 'norma_cantonale', 'norma_ue',
+    'giurisprudenza', 'sentenza_ue', 'prassi',
 ]
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+const toArray = (v) => Array.isArray(v) ? v : []
 
 const LIMITE_ORFANE = 20
 const SOGLIA_AVVISO = 15
@@ -59,56 +58,7 @@ function risolviTitoloGiur(s, linguaPref) {
     return s.signature ?? s.reference ?? '—'
 }
 
-// Label fonti giurisprudenza (allineate a SentenzaDettaglio CH)
-const FONTI_FEDERALI = {
-    TF: 'Tribunale federale',
-    CH_BGE: 'DTF — Raccolta ufficiale',
-    TAF: 'Tribunale amministrativo federale',
-    TPF: 'Tribunale penale federale',
-}
-const CAMERA_LABEL = {
-    OG: 'Obergericht',
-    VG: 'Verwaltungsgericht',
-    SVG: 'Sozialversicherungsgericht',
-    BR: 'Baurekursgericht',
-    SR: 'Steuerrekursgericht',
-    FI: 'Tribunal',
-}
-function labelFonteGiur(fonte) {
-    if (!fonte) return '—'
-    if (FONTI_FEDERALI[fonte]) return FONTI_FEDERALI[fonte]
-    const m = /^CANT_([A-Z]{2})_(.+)$/.exec(fonte)
-    if (m) {
-        const cam = CAMERA_LABEL[m[2]] ?? m[2]
-        return `${m[1]} · ${cam}`
-    }
-    return fonte
-}
-
-// Label emittenti prassi (allineate a PrassiDettaglio CH)
-const EMITTENTI_FEDERALI = {
-    estv: 'AFC — Contribuzioni federali',
-    ufas: 'UFAS — Assicurazioni sociali',
-    seco: 'SECO — Economia',
-    finma: 'FINMA — Vigilanza finanziaria',
-    udsc: 'UDSC — Dogane',
-    sem: 'SEM — Migrazione',
-    ufg: 'UFG — Giustizia',
-    weko: 'COMCO — Concorrenza',
-    ifpdt: 'IFPDT — Protezione dati',
-    mros: 'MROS — Riciclaggio',
-}
-function troncaEmittente(nome) {
-    if (!nome) return ''
-    const primo = nome.split(/[\/|;]/)[0].trim()
-    return primo.length > 60 ? primo.slice(0, 60) + '…' : primo
-}
-function labelFontePrassi(p) {
-    if (p.fonte === 'fisco_cant') {
-        return p.cantone ? `Fisco cantonale · ${p.cantone}` : 'Fisco cantonale'
-    }
-    return EMITTENTI_FEDERALI[p.fonte] ?? (p.emittente_nome ? troncaEmittente(p.emittente_nome) : (p.fonte ?? '—'))
-}
+// Etichette fonti giurisprudenza / emittenti prassi centralizzate in src/lib/istituzioni.js (namespace i18n 'istituzioni')
 
 function coloreCasuale() {
     return PALETTE[Math.floor(Math.random() * PALETTE.length)]
@@ -158,6 +108,9 @@ function corpusElemento(el) {
 }
 
 export default function Ricerche() {
+    const { t, i18n } = useTranslation('user_ricerche')
+    const { t: tIst } = useTranslation('istituzioni')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { profile } = useAuth()
     const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
@@ -396,7 +349,7 @@ export default function Ricerche() {
                 elementiUnificati.push({
                     kind: 'giurisprudenza',
                     id: s.id,
-                    organo: labelFonteGiur(s.fonte),
+                    organo: labelFonteGiur(s.fonte, tIst),
                     titolo: risolviTitoloGiur(s, linguaPref),
                     numero: s.signature ?? s.reference,
                     anno: s.anno_deposito,
@@ -424,7 +377,7 @@ export default function Ricerche() {
                 elementiUnificati.push({
                     kind: 'prassi',
                     id: pr.id,
-                    fonte_label: labelFontePrassi(pr),
+                    fonte_label: labelFontePrassi(pr, tIst),
                     numero: pr.numero,
                     anno: pr.anno,
                     oggetto: pr.oggetto,
@@ -552,7 +505,7 @@ export default function Ricerche() {
             const json = await res.json()
 
             if (res.status === 429) {
-                setErroreLex(json.error ?? 'Limite giornaliero raggiunto')
+                setErroreLex(json.error ?? t('ricerca.lex_limite_title'))
                 if (json.limite) {
                     setRateLimitInfo({ rimasti: 0, limite: json.limite })
                 }
@@ -564,7 +517,7 @@ export default function Ricerche() {
                 return
             }
 
-            if (!res.ok) throw new Error(json.error ?? `Errore ${res.status}`)
+            if (!res.ok) throw new Error(json.error ?? t('confronto.errore_generico', { status: res.status }))
 
             setRisultatiLexChiavi(json.keys ?? [])
             setParoleChiaveLex(json.parole_chiave ?? [])
@@ -576,7 +529,7 @@ export default function Ricerche() {
             }
         } catch (e) {
             console.error('Errore ricerca Lex:', e)
-            setErroreLex(e.message ?? 'Errore durante la ricerca')
+            setErroreLex(e.message ?? t('ricerca.lex_errore'))
             setRisultatiLexChiavi([])
         } finally {
             setCercandoLex(false)
@@ -627,10 +580,10 @@ export default function Ricerche() {
 
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
-                    <p className="section-label mb-2">Le mie ricerche legali</p>
-                    <h1 className="font-display text-4xl font-light text-nebbia">Ricerche</h1>
+                    <p className="section-label mb-2">{t('header.label')}</p>
+                    <h1 className="font-display text-4xl font-light text-nebbia">{t('header.titolo')}</h1>
                     <p className="font-body text-sm text-nebbia/40 mt-1">
-                        Tutto quello che hai pensato, ricercato e taggato — ricerche, norme, giurisprudenza e prassi.
+                        {t('header.sottotitolo')}
                     </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -639,15 +592,15 @@ export default function Ricerche() {
                             <div className="flex items-center gap-2 px-3 py-2 border border-salvia/20 bg-salvia/5">
                                 <GitCompare size={13} className="text-salvia" />
                                 <p className="font-body text-sm">
-                                    <span className="font-medium text-salvia">Confronto</span>
-                                    <span className="text-nebbia/50"> · {elementiSelezionati.length} elementi</span>
+                                    <span className="font-medium text-salvia">{t('barra_azioni.confronto_attivo')}</span>
+                                    <span className="text-nebbia/50">{t('barra_azioni.confronto_elementi', { count: elementiSelezionati.length })}</span>
                                 </p>
                             </div>
                             <button
                                 onClick={annullaSelezione}
                                 className="flex items-center gap-1.5 px-3 py-2 border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 transition-colors font-body text-sm"
                             >
-                                <X size={13} /> Chiudi confronto
+                                <X size={13} /> {t('barra_azioni.chiudi_confronto')}
                             </button>
                         </>
                     )}
@@ -658,21 +611,21 @@ export default function Ricerche() {
                                 <GitCompare size={13} className="text-salvia" />
                                 <p className="font-body text-sm">
                                     <span className="font-medium text-salvia">{selezionate.length}</span>
-                                    <span className="text-nebbia/50"> / {MAX_CONFRONTO} selezionati</span>
+                                    <span className="text-nebbia/50">{t('barra_azioni.selezionati', { max: MAX_CONFRONTO })}</span>
                                 </p>
                             </div>
                             <button
                                 onClick={annullaSelezione}
                                 className="px-4 py-2 border border-white/10 text-nebbia/50 font-body text-sm hover:text-nebbia transition-colors"
                             >
-                                Annulla
+                                {t('barra_azioni.annulla')}
                             </button>
                             <button
                                 onClick={avviaConfronto}
                                 disabled={selezionate.length < 2}
                                 className="flex items-center gap-2 px-4 py-2 bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                             >
-                                <GitCompare size={13} /> Confronta affiancati
+                                <GitCompare size={13} /> {t('barra_azioni.confronta_affiancati')}
                             </button>
                         </>
                     )}
@@ -684,14 +637,14 @@ export default function Ricerche() {
                                     onClick={avviaSelezione}
                                     className="flex items-center gap-2 px-4 py-2 border border-white/10 text-nebbia/70 hover:border-salvia/40 hover:text-salvia font-body text-sm transition-colors"
                                 >
-                                    <GitCompare size={13} /> Confronta
+                                    <GitCompare size={13} /> {t('barra_azioni.confronta')}
                                 </button>
                             )}
                             <button
                                 onClick={() => setMostraNuovaRicerca(true)}
                                 className="btn-primary text-sm"
                             >
-                                <Plus size={14} /> Nuova ricerca
+                                <Plus size={14} /> {t('barra_azioni.nuova_ricerca')}
                             </button>
                         </>
                     )}
@@ -706,11 +659,10 @@ export default function Ricerche() {
                     <AlertTriangle size={16} className={conteggioOrfane >= LIMITE_ORFANE ? 'text-red-400 shrink-0 mt-0.5' : 'text-amber-400 shrink-0 mt-0.5'} />
                     <div className="flex-1 min-w-0">
                         <p className={`font-body text-sm font-medium ${conteggioOrfane >= LIMITE_ORFANE ? 'text-red-400' : 'text-amber-400'}`}>
-                            {conteggioOrfane}/{LIMITE_ORFANE} ricerche fuori da pratiche e senza etichette
+                            {t('orfane.conteggio', { conteggio: conteggioOrfane, limite: LIMITE_ORFANE })}
                         </p>
                         <p className="font-body text-xs text-nebbia/60 mt-1 leading-relaxed">
-                            Quando superi il limite, le orfane più vecchie vengono <strong>eliminate automaticamente</strong>.
-                            Salva una ricerca dentro una pratica o assegnale almeno un'etichetta per proteggerla.
+                            {t('orfane.spiegazione_prefix')}<strong>{t('orfane.spiegazione_bold')}</strong>{t('orfane.spiegazione_suffix')}
                         </p>
                     </div>
                 </div>
@@ -732,7 +684,7 @@ export default function Ricerche() {
                 <>
                     <div className="bg-slate border border-white/5 p-4 space-y-3">
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            Cerca tra le tue ricerche, norme, giurisprudenza e prassi. Usa la ricerca tradizionale per parole chiave letterali, o Lex per query in linguaggio naturale.
+                            {t('ricerca.intro')}
                         </p>
 
                         <div className="flex items-stretch gap-2">
@@ -740,7 +692,7 @@ export default function Ricerche() {
                                 <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30 pointer-events-none" />
                                 <input
                                     type="text"
-                                    placeholder="Cerca tra le tue ricerche, norme, giurisprudenza, prassi..."
+                                    placeholder={t('ricerca.placeholder')}
                                     value={cerca}
                                     onChange={e => {
                                         const v = e.target.value
@@ -766,7 +718,7 @@ export default function Ricerche() {
                                     <button
                                         onClick={() => { setCerca(''); setCercaApplicata(''); azzeraRicercaLex() }}
                                         className="absolute top-1/2 -translate-y-1/2 right-2 text-nebbia/30 hover:text-nebbia p-1"
-                                        title="Svuota"
+                                        title={t('ricerca.svuota')}
                                     >
                                         <X size={13} />
                                     </button>
@@ -777,9 +729,9 @@ export default function Ricerche() {
                                 onClick={applicaCercaTradizionale}
                                 disabled={!cerca.trim() || cerca === cercaApplicata}
                                 className="flex items-center justify-center gap-2 px-4 h-[38px] bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
-                                title="Cerca per parole chiave letterali (Invio)"
+                                title={t('ricerca.cerca_title')}
                             >
-                                <Search size={13} /> Cerca
+                                <Search size={13} /> {t('ricerca.cerca')}
                             </button>
 
                             <button
@@ -787,17 +739,17 @@ export default function Ricerche() {
                                 disabled={cercandoLex || !cerca.trim() || rateLimitInfo.rimasti <= 0 || elementi.length > 100}
                                 className="flex items-center justify-center gap-2 px-4 h-[38px] bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                                 title={rateLimitInfo.rimasti <= 0
-                                    ? 'Limite giornaliero raggiunto'
+                                    ? t('ricerca.lex_limite_title')
                                     : elementi.length > 100
-                                        ? 'Troppi elementi: filtra prima per tipo o pratica (max 100)'
-                                        : 'Ricerca semantica (Cmd/Ctrl+Invio)'}
+                                        ? t('ricerca.lex_troppi_title')
+                                        : t('ricerca.lex_semantica_title')}
                             >
                                 {cercandoLex
-                                    ? <><Loader2 size={13} className="animate-spin" /> <span className="hidden md:inline">Lex sta cercando...</span></>
+                                    ? <><Loader2 size={13} className="animate-spin" /> <span className="hidden md:inline">{t('ricerca.lex_sta_cercando')}</span></>
                                     : <>
                                         <Sparkles size={13} />
-                                        <span className="hidden md:inline">Cerca con Lex</span>
-                                        <span className="md:hidden">Lex</span>
+                                        <span className="hidden md:inline">{t('ricerca.cerca_con_lex')}</span>
+                                        <span className="md:hidden">{t('ricerca.lex_breve')}</span>
                                         <span className="hidden lg:inline text-[10px] text-salvia/60 font-normal ml-1">
                                             ({rateLimitInfo.rimasti}/{rateLimitInfo.limite})
                                         </span>
@@ -809,7 +761,7 @@ export default function Ricerche() {
                         {elementi.length > 100 && (
                             <p className="font-body text-xs text-amber-400/80 flex items-center gap-1.5">
                                 <AlertCircle size={11} />
-                                Hai {elementi.length} elementi. Per usare Lex, restringi prima per tipo o pratica (max 100).
+                                {t('ricerca.troppi_elementi', { count: elementi.length })}
                             </p>
                         )}
 
@@ -824,14 +776,19 @@ export default function Ricerche() {
                                 <div className="flex items-center gap-2 min-w-0">
                                     <Sparkles size={12} className="text-salvia shrink-0" />
                                     <p className="font-body text-xs text-salvia">
-                                        Lex ha trovato <strong>{risultatiLexChiavi.length}</strong> {risultatiLexChiavi.length === 1 ? 'elemento' : 'elementi'}
+                                        <Trans
+                                            t={t}
+                                            i18nKey={risultatiLexChiavi.length === 1 ? 'ricerca.lex_trovato_uno' : 'ricerca.lex_trovati_molti'}
+                                            values={{ count: risultatiLexChiavi.length }}
+                                            components={[<strong key="0" />]}
+                                        />
                                     </p>
                                 </div>
                                 <button
                                     onClick={azzeraRicercaLex}
                                     className="flex items-center gap-1 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors shrink-0"
                                 >
-                                    <X size={11} /> Azzera Lex
+                                    <X size={11} /> {t('ricerca.azzera_lex')}
                                 </button>
                             </div>
                         )}
@@ -845,13 +802,13 @@ export default function Ricerche() {
                                 onChange={e => setTipoAttivo(e.target.value)}
                                 className="bg-slate border border-white/10 text-nebbia font-body text-xs px-3 py-1.5 outline-none focus:border-oro/50"
                             >
-                                {FILTRO_TIPI.map(t => {
-                                    const count = t.id === 'tutti'
+                                {FILTRO_TIPI_IDS.map(id => {
+                                    const count = id === 'tutti'
                                         ? elementi.length
-                                        : elementi.filter(el => el.kind === t.id).length
+                                        : elementi.filter(el => el.kind === id).length
                                     return (
-                                        <option key={t.id} value={t.id}>
-                                            {t.label} ({count})
+                                        <option key={id} value={id}>
+                                            {t(`filtro_tipi.${id}`)} ({count})
                                         </option>
                                     )
                                 })}
@@ -865,7 +822,7 @@ export default function Ricerche() {
                                 onChange={e => setPraticaSelezionata(e.target.value)}
                                 className="bg-slate border border-white/10 text-nebbia font-body text-xs px-3 py-1.5 outline-none focus:border-oro/50 max-w-[200px]"
                             >
-                                <option value="">Tutte le pratiche</option>
+                                <option value="">{t('filtri.tutte_le_pratiche')}</option>
                                 {pratiche.map(p => (
                                     <option key={p.id} value={p.id}>{p.titolo}</option>
                                 ))}
@@ -885,7 +842,7 @@ export default function Ricerche() {
                                         color: e.colore,
                                         backgroundColor: `${e.colore}22`,
                                     }}
-                                    title={`Apri etichetta "${e.nome}"`}
+                                    title={t('filtri.apri_etichetta', { nome: e.nome })}
                                 >
                                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: e.colore || '#7FA39A' }} />
                                     {e.nome}
@@ -895,14 +852,14 @@ export default function Ricerche() {
                                 onClick={() => setMostraNuovaEtichetta(true)}
                                 className="flex items-center gap-1.5 px-3 py-1.5 font-body text-sm text-oro border border-oro/30 hover:bg-oro/10 transition-colors"
                             >
-                                <Plus size={12} /> Etichetta
+                                <Plus size={12} /> {t('filtri.etichetta')}
                             </button>
                             {etichette.length > 0 && (
                                 <button
                                     onClick={() => setMostraGestioneEtichette(true)}
                                     className="font-body text-xs text-nebbia/30 hover:text-nebbia transition-colors px-1.5 py-1"
                                 >
-                                    Gestisci…
+                                    {t('filtri.gestisci')}
                                 </button>
                             )}
                         </div>
@@ -912,7 +869,7 @@ export default function Ricerche() {
                                 onClick={azzeraFiltri}
                                 className="flex items-center gap-1 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors"
                             >
-                                <X size={10} /> Azzera
+                                <X size={10} /> {t('filtri.azzera')}
                             </button>
                         )}
                     </div>
@@ -921,12 +878,12 @@ export default function Ricerche() {
                         <div className="bg-slate border border-white/5 py-16 text-center">
                             <Sparkles size={32} className="text-nebbia/15 mx-auto mb-3" />
                             <p className="font-body text-sm text-nebbia/30 mb-2">
-                                {elementi.length === 0 ? 'Nessun elemento ancora' : 'Nessun risultato'}
+                                {elementi.length === 0 ? t('vuoto.nessun_elemento') : t('vuoto.nessun_risultato')}
                             </p>
                             <p className="font-body text-xs text-nebbia/20 max-w-md mx-auto leading-relaxed">
                                 {elementi.length === 0
-                                    ? 'Le ricerche AI, manuali, chat e gli elementi (norme, giurisprudenza, prassi) che taggherai compariranno qui.'
-                                    : 'Prova a cambiare i filtri o a cercare con parole diverse.'}
+                                    ? t('vuoto.nessun_elemento_descr')
+                                    : t('vuoto.nessun_risultato_descr')}
                             </p>
                         </div>
                     ) : (
@@ -996,38 +953,43 @@ export default function Ricerche() {
 // ═══════════════════════════════════════════════════════════════
 // META / TITOLO / LINK per tipo (CH) — usato da Card e Colonna
 // ═══════════════════════════════════════════════════════════════
-function metaTipo(kind) {
-    if (kind === 'ricerca_ai') return { Icon: Sparkles, color: 'text-salvia', label: 'Ricerca AI' }
-    if (kind === 'chat_lex') return { Icon: MessageSquare, color: 'text-salvia', label: 'Chat con Lex' }
-    if (kind === 'ricerca_manuale') return { Icon: Search, color: 'text-oro', label: 'Ricerca manuale' }
-    if (kind === 'norma_federale') return { Icon: Landmark, color: 'text-oro', label: 'Norma federale' }
-    if (kind === 'norma_cantonale') return { Icon: MapPin, color: 'text-oro', label: 'Norma cantonale' }
-    if (kind === 'norma_ue') return { Icon: Globe, color: 'text-oro', label: 'Norma UE' }
-    if (kind === 'giurisprudenza') return { Icon: Scale, color: 'text-oro', label: 'Giurisprudenza' }
-    if (kind === 'sentenza_ue') return { Icon: Globe, color: 'text-oro', label: 'Sentenza UE' }
-    if (kind === 'prassi') return { Icon: ScrollText, color: 'text-salvia', label: 'Prassi' }
+// ICONE/colori restano in JS; le label vengono da t('tipo_label.*')
+const META_ICON = {
+    ricerca_ai: { Icon: Sparkles, color: 'text-salvia' },
+    chat_lex: { Icon: MessageSquare, color: 'text-salvia' },
+    ricerca_manuale: { Icon: Search, color: 'text-oro' },
+    norma_federale: { Icon: Landmark, color: 'text-oro' },
+    norma_cantonale: { Icon: MapPin, color: 'text-oro' },
+    norma_ue: { Icon: Globe, color: 'text-oro' },
+    giurisprudenza: { Icon: Scale, color: 'text-oro' },
+    sentenza_ue: { Icon: Globe, color: 'text-oro' },
+    prassi: { Icon: ScrollText, color: 'text-salvia' },
+}
+function metaTipo(kind, t) {
+    const m = META_ICON[kind]
+    if (m) return { ...m, label: t(`tipo_label.${kind}`) }
     return { Icon: Search, color: 'text-nebbia', label: kind }
 }
 
-function titoloCorpus(el) {
-    if (TIPI_RICERCA.includes(el.kind)) return el.titolo ?? metaTipo(el.kind).label
+function titoloCorpus(el, t) {
+    if (TIPI_RICERCA.includes(el.kind)) return el.titolo ?? metaTipo(el.kind, t).label
     if (el.kind === 'norma_federale' || el.kind === 'norma_cantonale' || el.kind === 'norma_ue') {
         const parti = [el.atto_titolo, el.articolo_label].filter(Boolean)
-        return parti.join(' · ') || 'Norma'
+        return parti.join(' · ') || t('titolo_fallback.norma')
     }
     if (el.kind === 'giurisprudenza') {
         const parti = [el.organo, el.numero, el.anno].filter(Boolean)
-        return parti.join(' · ') || 'Giurisprudenza'
+        return parti.join(' · ') || t('titolo_fallback.giurisprudenza')
     }
     if (el.kind === 'sentenza_ue') {
         const parti = [el.organo, el.numero].filter(Boolean)
-        return parti.join(' · ') || 'Sentenza UE'
+        return parti.join(' · ') || t('titolo_fallback.sentenza_ue')
     }
     if (el.kind === 'prassi') {
         const parti = [el.fonte_label, el.numero && `n. ${el.numero}`, el.anno].filter(Boolean)
-        return parti.join(' · ') || 'Prassi'
+        return parti.join(' · ') || t('titolo_fallback.prassi')
     }
-    return metaTipo(el.kind).label
+    return metaTipo(el.kind, t).label
 }
 
 function linkCorpus(el, basePathBancaDati) {
@@ -1048,6 +1010,8 @@ function CardElemento({
     modalitaSelezione, isSelezionata, canSelezionare, onToggleSelezione,
     cerca, paroleChiaveLex = [], attivoLex = false, basePathEtichette, basePathBancaDati, navigate,
 }) {
+    const { t, i18n } = useTranslation('user_ricerche')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [mostraTagPicker, setMostraTagPicker] = useState(false)
     const [eliminando, setEliminando] = useState(false)
 
@@ -1058,8 +1022,8 @@ function CardElemento({
         return evidenziaParola(testo, cerca)
     }
 
-    const { Icon, color, label } = metaTipo(el.kind)
-    const titolo = titoloCorpus(el)
+    const { Icon, color, label } = metaTipo(el.kind, t)
+    const titolo = titoloCorpus(el, t)
 
     const sottotitolo = (() => {
         if (el.kind === 'norma_federale' || el.kind === 'norma_cantonale' || el.kind === 'norma_ue') return el.rubrica ?? ''
@@ -1084,12 +1048,12 @@ function CardElemento({
 
     async function elimina() {
         if (TIPI_RICERCA.includes(el.kind)) {
-            if (!confirm('Eliminare questa ricerca? L\'azione è irreversibile.')) return
+            if (!confirm(t('card.conferma_elimina_ricerca'))) return
             setEliminando(true)
             await supabase.from('ricerche').delete().eq('id', el.id)
             if (onAggiornata) await onAggiornata()
         } else {
-            if (!confirm(`Rimuovere tutti i tag da questo elemento?\nL'elemento originale (${label.toLowerCase()}) non verrà cancellato.`)) return
+            if (!confirm(t('card.conferma_rimuovi_tag', { tipo: label.toLowerCase() }))) return
             setEliminando(true)
             await supabase.from('elementi_etichette')
                 .delete()
@@ -1159,7 +1123,7 @@ function CardElemento({
                         <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-wider">
                             {label}
                             {el.created_at && (
-                                <> · {new Date(el.created_at).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })}</>
+                                <> · {new Date(el.created_at).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' })}</>
                             )}
                         </p>
                     </div>
@@ -1169,7 +1133,7 @@ function CardElemento({
                                 <Link
                                     to={linkDettaglio}
                                     className="text-nebbia/30 hover:text-oro p-1 transition-colors"
-                                    title="Apri nella banca dati"
+                                    title={t('card.apri_banca_dati')}
                                 >
                                     <ExternalLink size={12} />
                                 </Link>
@@ -1178,12 +1142,12 @@ function CardElemento({
                                 <button
                                     onClick={onToggleApri}
                                     className="font-body text-xs text-nebbia/30 hover:text-oro px-2 py-1 transition-colors">
-                                    {aperto ? 'Chiudi' : 'Apri'}
+                                    {aperto ? t('card.chiudi') : t('card.apri')}
                                 </button>
                             )}
                             <button onClick={elimina} disabled={eliminando}
                                 className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
-                                title={TIPI_RICERCA.includes(el.kind) ? 'Elimina ricerca' : 'Rimuovi tag'}>
+                                title={TIPI_RICERCA.includes(el.kind) ? t('card.elimina_ricerca') : t('card.rimuovi_tag')}>
                                 {eliminando ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                             </button>
                         </div>
@@ -1198,7 +1162,7 @@ function CardElemento({
                                 <FolderOpen size={11} className="shrink-0" />
                                 <span className="truncate">{el.pratica.titolo}</span>
                             </Link>
-                            : <span className="font-body text-nebbia/30 italic">Senza pratica</span>
+                            : <span className="font-body text-nebbia/30 italic">{t('card.senza_pratica')}</span>
                         }
                         {el.autore && (
                             <span className="font-body text-nebbia/30 truncate">
@@ -1230,7 +1194,7 @@ function CardElemento({
                                 color: e.colore,
                                 backgroundColor: `${e.colore}22`
                             }}
-                            title={`Apri etichetta "${e.nome}"`}
+                            title={t('card.apri_etichetta', { nome: e.nome })}
                         >
                             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: e.colore }} />
                             {e.nome}
@@ -1242,7 +1206,7 @@ function CardElemento({
                     <div className="p-2 bg-petrolio/40 border border-white/5">
                         {etichetteDisponibili.length === 0 ? (
                             <p className="font-body text-xs text-nebbia/40 text-center py-2">
-                                Nessuna etichetta disponibile
+                                {t('card.nessuna_etichetta')}
                             </p>
                         ) : (
                             <div className="flex flex-wrap gap-1.5">
@@ -1322,89 +1286,21 @@ function CardElemento({
 // AZIONI GUIDATE — CONFRONTO
 // ═══════════════════════════════════════════════════════════════
 
+// id + emoji restano in JS; label/descr da t('azioni_confronto.*')
 const AZIONI_CONFRONTO = [
-    {
-        id: 'sintesi_unificata',
-        emoji: '📊',
-        label: 'Sintesi unificata',
-        descr: 'Fonde gli elementi in un quadro unitario',
-    },
-    {
-        id: 'conflitti',
-        emoji: '⚖️',
-        label: 'Conflitti & tensioni',
-        descr: 'Evidenzia divergenze e contraddizioni',
-    },
-    {
-        id: 'comuni',
-        emoji: '🎯',
-        label: 'Punti in comune',
-        descr: 'Estrae il fil rouge condiviso',
-    },
-    {
-        id: 'parere',
-        emoji: '📝',
-        label: 'Parere completo',
-        descr: 'Documento strutturato pronto da copiare',
-    },
+    { id: 'sintesi_unificata', emoji: '📊' },
+    { id: 'conflitti', emoji: '⚖️' },
+    { id: 'comuni', emoji: '🎯' },
+    { id: 'parere', emoji: '📝' },
 ]
-
-const FRASI_CONFRONTO = {
-    sintesi_unificata: [
-        'Sto leggendo gli elementi che mi hai dato',
-        'Identifico i punti di tangenza',
-        'Cerco il filo conduttore',
-        'Compongo il quadro unitario',
-        'Sto cucendo i tasselli',
-        'Verifico la coerenza interna',
-        'Rileggo per assicurarmi',
-        'Affino la sintesi finale',
-    ],
-    conflitti: [
-        'Sto leggendo gli elementi',
-        'Cerco le tensioni nascoste',
-        'Identifico le divergenze',
-        'Confronto le posizioni',
-        'Valuto quale prevale',
-        'Verifico le contraddizioni',
-        'Soppeso le argomentazioni',
-        'Compongo l\'analisi critica',
-    ],
-    comuni: [
-        'Sto leggendo gli elementi',
-        'Cerco il fil rouge',
-        'Estraggo i principi condivisi',
-        'Identifico le convergenze',
-        'Verifico gli orientamenti comuni',
-        'Compongo il costrutto unitario',
-        'Mostro come si rinforzano',
-        'Affino la lettura d\'insieme',
-    ],
-    parere: [
-        'Sto leggendo gli elementi',
-        'Inquadrolo le premesse',
-        'Ricostruisco il quadro',
-        'Articolo le considerazioni',
-        'Cerco le tensioni interpretative',
-        'Compongo le conclusioni',
-        'Strutturo il parere',
-        'Rifinisco il documento',
-    ],
-    libera: [
-        'Sto leggendo gli elementi',
-        'Analizzo la tua domanda',
-        'Cerco i punti rilevanti',
-        'Compongo la risposta',
-        'Verifico l\'aderenza agli elementi',
-        'Affino il ragionamento',
-    ],
-}
 
 // ═══════════════════════════════════════════════════════════════
 // LEX ANIMAZIONE — Confronto (frasi personalizzate per azione)
 // ═══════════════════════════════════════════════════════════════
 function LexAnimazioneConfronto({ azione }) {
-    const frasiRotative = FRASI_CONFRONTO[azione] ?? FRASI_CONFRONTO.libera
+    const { t } = useTranslation('user_ricerche')
+    const chiaveFrasi = ['sintesi_unificata', 'conflitti', 'comuni', 'parere'].includes(azione) ? azione : 'libera'
+    const frasiRotative = toArray(t(`frasi_confronto.${chiaveFrasi}`, { returnObjects: true }))
     const [indiceFrase, setIndiceFrase] = useState(0)
 
     useEffect(() => {
@@ -1493,7 +1389,7 @@ function LexAnimazioneConfronto({ azione }) {
 
             <div className="lex-stage-c">
                 <svg viewBox="62 27 416 185" xmlns="http://www.w3.org/2000/svg" role="img">
-                    <title>Lex sta ragionando</title>
+                    <title>{t('animazione.lex_ragionando')}</title>
                     <line x1="60" y1="172" x2="480" y2="172" stroke="rgba(127, 163, 154, 0.4)" strokeWidth="0.8" />
 
                     <rect x="80" y="100" width="22" height="72" rx="1" fill="#243447" stroke="rgba(127, 163, 154, 0.2)" strokeWidth="1" />
@@ -1549,6 +1445,7 @@ function LexAnimazioneConfronto({ azione }) {
 // PANNELLO CONFRONTO (CON CHAT LEX + AZIONI GUIDATE + STREAMING)
 // ═══════════════════════════════════════════════════════════════
 function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, onChiudi, onSintesiSalvata }) {
+    const { t } = useTranslation('user_ricerche')
     const [tabMobile, setTabMobile] = useState(0)
 
     const [conversazione, setConversazione] = useState([])
@@ -1574,7 +1471,8 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
             etichettaInput = domandaTesto
         } else {
             const meta = AZIONI_CONFRONTO.find(a => a.id === azione)
-            etichettaInput = `${meta?.emoji ?? ''} ${meta?.label ?? azione}${domandaTesto ? `\n\nFocus: ${domandaTesto}` : ''}`
+            const metaLabel = meta ? t(`azioni_confronto.${meta.id}_label`) : azione
+            etichettaInput = `${meta?.emoji ?? ''} ${metaLabel}${domandaTesto ? `\n\n${t('confronto.focus')}: ${domandaTesto}` : ''}`
         }
 
         const nuovaConv = [...conversazione, { role: 'user', content: etichettaInput }]
@@ -1601,7 +1499,7 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                         messaggi: conversazione,
                         elementi: elementi.map(el => ({
                             kind: el.kind,
-                            titolo: titoloElemento(el),
+                            titolo: titoloElemento(el, t),
                             contenuto: contenutoElemento(el),
                         })),
                     }),
@@ -1611,7 +1509,7 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
 
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}))
-                throw new Error(err.error ?? `Errore ${res.status}`)
+                throw new Error(err.error ?? t('confronto.errore_generico', { status: res.status }))
             }
 
             const reader = res.body.getReader()
@@ -1710,10 +1608,10 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                 <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
                     <div className="flex items-center gap-2">
                         <Sparkles size={14} className="text-salvia" />
-                        <p className="font-body text-sm font-medium text-nebbia">Lex — Chat sul confronto</p>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('confronto.chat_titolo')}</p>
                         {conversazione.length > 0 && (
                             <span className="font-body text-xs text-salvia/60 border border-salvia/20 px-2 py-0.5">
-                                {Math.floor(conversazione.length / 2) + (cercando || streamingTesto ? 1 : 0)} scambi
+                                {t('confronto.scambi', { count: Math.floor(conversazione.length / 2) + (cercando || streamingTesto ? 1 : 0) })}
                             </span>
                         )}
                     </div>
@@ -1722,7 +1620,7 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                             onClick={nuovaSessione}
                             className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors"
                         >
-                            Nuova sessione
+                            {t('confronto.nuova_sessione')}
                         </button>
                     )}
                 </div>
@@ -1733,14 +1631,14 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                             <div key={i} className="space-y-2">
                                 <div className="flex items-center justify-between gap-2">
                                     <span className={`font-body text-xs font-medium ${m.role === 'user' ? 'text-oro/70' : 'text-salvia/70'}`}>
-                                        {m.role === 'user' ? 'Tu' : 'Lex'}
+                                        {m.role === 'user' ? t('confronto.tu') : t('confronto.lex')}
                                     </span>
                                     {m.role === 'assistant' && (
                                         <button
                                             onClick={() => salvaMessaggio(m.content)}
                                             className="flex items-center gap-1 font-body text-xs text-nebbia/30 hover:text-oro transition-colors"
                                         >
-                                            <Save size={10} /> Salva come ricerca
+                                            <Save size={10} /> {t('confronto.salva_come_ricerca')}
                                         </button>
                                     )}
                                 </div>
@@ -1770,7 +1668,7 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                         {streamingTesto && (
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2">
-                                    <span className="font-body text-xs font-medium text-salvia/70">Lex</span>
+                                    <span className="font-body text-xs font-medium text-salvia/70">{t('confronto.lex')}</span>
                                 </div>
                                 <div className="font-body text-sm text-nebbia/80 leading-relaxed">
                                     <ReactMarkdown
@@ -1799,7 +1697,7 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                     <div className="px-5 py-4 space-y-3">
                         {conversazione.length === 0 && (
                             <p className="font-body text-xs text-nebbia/30">
-                                Scegli un'azione guidata o scrivi una domanda libera. Lex ragionerà sui {numCol} elementi confrontati.
+                                {t('confronto.intro_chat', { count: numCol })}
                             </p>
                         )}
 
@@ -1814,10 +1712,10 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                                     <span className="text-base shrink-0 mt-0.5">{a.emoji}</span>
                                     <div className="flex-1 min-w-0">
                                         <p className="font-body text-xs font-medium text-nebbia group-hover:text-salvia transition-colors leading-snug">
-                                            {a.label}
+                                            {t(`azioni_confronto.${a.id}_label`)}
                                         </p>
                                         <p className="font-body text-[10px] text-nebbia/40 mt-0.5 leading-snug">
-                                            {a.descr}
+                                            {t(`azioni_confronto.${a.id}_descr`)}
                                         </p>
                                     </div>
                                 </button>
@@ -1827,8 +1725,8 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                         <textarea
                             rows={2}
                             placeholder={conversazione.length > 0
-                                ? 'Approfondisci o fai una nuova domanda...'
-                                : 'Oppure scrivi una domanda libera...'}
+                                ? t('confronto.placeholder_approfondisci')
+                                : t('confronto.placeholder_libera')}
                             value={input}
                             onChange={e => setInput(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) inviaLibera() }}
@@ -1847,7 +1745,7 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                             disabled={cercando || !input.trim()}
                             className="flex items-center justify-center gap-2 w-full py-2.5 bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40"
                         >
-                            <Sparkles size={13} /> Invia domanda libera
+                            <Sparkles size={13} /> {t('confronto.invia_domanda_libera')}
                         </button>
                     </div>
                 )}
@@ -1873,9 +1771,9 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
 // ═══════════════════════════════════════════════════════════════
 // HELPER COMUNI
 // ═══════════════════════════════════════════════════════════════
-function titoloElemento(el) {
-    if (TIPI_RICERCA.includes(el.kind)) return el.titolo ?? '(senza titolo)'
-    return titoloCorpus(el)
+function titoloElemento(el, t) {
+    if (TIPI_RICERCA.includes(el.kind)) return el.titolo ?? t('confronto.senza_titolo')
+    return titoloCorpus(el, t)
 }
 
 function contenutoElemento(el) {
@@ -1888,8 +1786,10 @@ function contenutoElemento(el) {
 }
 
 function ColonnaConfronto({ elemento: el, basePathBancaDati }) {
-    const meta = metaTipo(el.kind)
-    const titolo = titoloElemento(el)
+    const { t, i18n } = useTranslation('user_ricerche')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    const meta = metaTipo(el.kind, t)
+    const titolo = titoloElemento(el, t)
     const contenuto = contenutoElemento(el)
     const linkDettaglio = linkCorpus(el, basePathBancaDati)
 
@@ -1904,7 +1804,7 @@ function ColonnaConfronto({ elemento: el, basePathBancaDati }) {
                     <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-wider mt-0.5">
                         {meta.label}
                         {el.created_at && (
-                            <> · {new Date(el.created_at).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })}</>
+                            <> · {new Date(el.created_at).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' })}</>
                         )}
                     </p>
                 </div>
@@ -1912,10 +1812,10 @@ function ColonnaConfronto({ elemento: el, basePathBancaDati }) {
                     <Link
                         to={linkDettaglio}
                         className="flex items-center gap-1 text-oro/70 hover:text-oro hover:bg-oro/10 px-2 py-1 border border-oro/20 hover:border-oro/40 transition-colors"
-                        title="Apri nella banca dati"
+                        title={t('colonna.apri_banca_dati')}
                     >
                         <ExternalLink size={11} />
-                        <span className="font-body text-[10px] uppercase tracking-wider">Apri</span>
+                        <span className="font-body text-[10px] uppercase tracking-wider">{t('colonna.apri')}</span>
                     </Link>
                 )}
             </div>
@@ -1954,7 +1854,10 @@ function ColonnaConfronto({ elemento: el, basePathBancaDati }) {
 // MODALE SALVA SINTESI
 // ═══════════════════════════════════════════════════════════════
 function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette, onClose, onSalvata }) {
-    const titoloAuto = `Confronto: ${elementiConfrontati.map(el => titoloElemento(el)).join(' · ').slice(0, 100)}`
+    const { t } = useTranslation('user_ricerche')
+    const titoloAuto = t('modale_salva.titolo_auto', {
+        elementi: elementiConfrontati.map(el => titoloElemento(el, t)).join(' · ').slice(0, 100),
+    })
     const [titolo, setTitolo] = useState(titoloAuto)
     const [praticaId, setPraticaId] = useState('')
     const [etichetteSelezionate, setEtichetteSelezionate] = useState([])
@@ -1973,8 +1876,7 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
         try {
             const { data: { user } } = await supabase.auth.getUser()
 
-            const contenutoCompleto = sintesi + '\n\n---\n\n*Sintesi generata da Lex confrontando ' +
-                elementiConfrontati.length + ' elementi.*'
+            const contenutoCompleto = sintesi + t('modale_salva.sintesi_footer', { count: elementiConfrontati.length })
 
             const { data: ric, error } = await supabase
                 .from('ricerche')
@@ -2020,7 +1922,7 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
                     <div className="flex items-center gap-2">
                         <Save size={14} className="text-oro" />
-                        <p className="font-body text-sm font-medium text-nebbia">Salva sintesi come ricerca</p>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('modale_salva.titolo_modale')}</p>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia transition-colors">
                         <X size={16} />
@@ -2029,7 +1931,7 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
 
                 <div className="flex-1 overflow-y-auto p-5 space-y-4">
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Titolo</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale_salva.label_titolo')}</label>
                         <input
                             value={titolo}
                             onChange={e => setTitolo(e.target.value)}
@@ -2038,13 +1940,13 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
                     </div>
 
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Pratica (opzionale)</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale_salva.label_pratica')}</label>
                         <select
                             value={praticaId}
                             onChange={e => setPraticaId(e.target.value)}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                         >
-                            <option value="">Nessuna pratica</option>
+                            <option value="">{t('modale_salva.nessuna_pratica')}</option>
                             {pratiche.map(p => (
                                 <option key={p.id} value={p.id}>{p.titolo}</option>
                             ))}
@@ -2053,7 +1955,7 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
 
                     {etichette.length > 0 && (
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Etichette (opzionali)</label>
+                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale_salva.label_etichette')}</label>
                             <div className="flex flex-wrap gap-1.5">
                                 {etichette.map(e => {
                                     const isAttiva = etichetteSelezionate.includes(e.id)
@@ -2081,8 +1983,7 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
 
                     <div className="bg-petrolio/30 border border-white/5 p-3">
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            La sintesi verrà salvata come <strong className="text-nebbia/70">ricerca AI</strong> e potrai
-                            ritrovarla in questa pagina o nella pratica selezionata.
+                            {t('modale_salva.footer_prefix')}<strong className="text-nebbia/70">{t('modale_salva.footer_bold')}</strong>{t('modale_salva.footer_suffix')}
                         </p>
                     </div>
 
@@ -2098,7 +1999,7 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
                         onClick={onClose}
                         className="px-4 py-2 border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors"
                     >
-                        Annulla
+                        {t('modale_salva.annulla')}
                     </button>
                     <button
                         onClick={salva}
@@ -2107,7 +2008,7 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
                     >
                         {salvando
                             ? <Loader2 size={12} className="animate-spin" />
-                            : <><Save size={11} /> Salva ricerca</>
+                            : <><Save size={11} /> {t('modale_salva.salva_ricerca')}</>
                         }
                     </button>
                 </div>
@@ -2120,6 +2021,7 @@ function ModaleSalvaSintesi({ sintesi, elementiConfrontati, pratiche, etichette,
 // MODALE NUOVA RICERCA
 // ═══════════════════════════════════════════════════════════════
 function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
+    const { t } = useTranslation('user_ricerche')
     const [titolo, setTitolo] = useState('')
     const [contenuto, setContenuto] = useState('')
     const [praticaId, setPraticaId] = useState('')
@@ -2135,7 +2037,7 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
 
     async function salva() {
         setErrore('')
-        if (!contenuto.trim()) return setErrore('Il contenuto è obbligatorio')
+        if (!contenuto.trim()) return setErrore(t('modale_nuova_ricerca.contenuto_obbligatorio'))
         setSalvando(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
@@ -2147,7 +2049,7 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
                     autore_id: user.id,
                     pratica_id: praticaId || null,
                     tipo: 'ricerca_manuale',
-                    titolo: titolo.trim() || 'Ricerca manuale',
+                    titolo: titolo.trim() || t('modale_nuova_ricerca.default_titolo'),
                     contenuto: contenuto.trim(),
                     metadati: { ts: new Date().toISOString() }
                 })
@@ -2180,7 +2082,7 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
                     <div className="flex items-center gap-2">
                         <Plus size={14} className="text-oro" />
-                        <p className="font-body text-sm font-medium text-nebbia">Nuova ricerca</p>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('modale_nuova_ricerca.titolo_modale')}</p>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia transition-colors">
                         <X size={16} />
@@ -2189,34 +2091,34 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
 
                 <div className="flex-1 overflow-y-auto p-5 space-y-4">
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Titolo (opzionale)</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale_nuova_ricerca.label_titolo')}</label>
                         <input
                             value={titolo}
                             onChange={e => setTitolo(e.target.value)}
-                            placeholder="Es. Riflessioni su responsabilità contrattuale"
+                            placeholder={t('modale_nuova_ricerca.placeholder_titolo')}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                         />
                     </div>
 
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Contenuto</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale_nuova_ricerca.label_contenuto')}</label>
                         <textarea
                             rows={10}
                             value={contenuto}
                             onChange={e => setContenuto(e.target.value)}
-                            placeholder="Scrivi il tuo ragionamento, appunti, citazioni..."
+                            placeholder={t('modale_nuova_ricerca.placeholder_contenuto')}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 placeholder:text-nebbia/25 resize-none"
                         />
                     </div>
 
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Pratica (opzionale)</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale_nuova_ricerca.label_pratica')}</label>
                         <select
                             value={praticaId}
                             onChange={e => setPraticaId(e.target.value)}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                         >
-                            <option value="">Nessuna pratica (ricerca libera)</option>
+                            <option value="">{t('modale_nuova_ricerca.nessuna_pratica')}</option>
                             {pratiche.map(p => (
                                 <option key={p.id} value={p.id}>{p.titolo}</option>
                             ))}
@@ -2225,7 +2127,7 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
 
                     {etichette.length > 0 && (
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Etichette (opzionali)</label>
+                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale_nuova_ricerca.label_etichette')}</label>
                             <div className="flex flex-wrap gap-1.5">
                                 {etichette.map(e => {
                                     const isAttiva = etichetteSelezionate.includes(e.id)
@@ -2255,7 +2157,7 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
                         <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/25">
                             <AlertCircle size={12} className="text-amber-400 shrink-0 mt-0.5" />
                             <p className="font-body text-xs text-nebbia/60 leading-relaxed">
-                                Senza pratica e senza etichetta, questa sarà una <strong>ricerca orfana</strong>. Puoi averne al massimo {LIMITE_ORFANE}; le più vecchie verranno rimosse automaticamente.
+                                {t('modale_nuova_ricerca.avviso_orfana_prefix')}<strong>{t('modale_nuova_ricerca.avviso_orfana_bold')}</strong>{t('modale_nuova_ricerca.avviso_orfana_suffix', { limite: LIMITE_ORFANE })}
                             </p>
                         </div>
                     )}
@@ -2272,7 +2174,7 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
                         onClick={onClose}
                         className="px-4 py-2 border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors"
                     >
-                        Annulla
+                        {t('modale_nuova_ricerca.annulla')}
                     </button>
                     <button
                         onClick={salva}
@@ -2281,7 +2183,7 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
                     >
                         {salvando
                             ? <Loader2 size={12} className="animate-spin" />
-                            : <><Save size={11} /> Salva ricerca</>
+                            : <><Save size={11} /> {t('modale_nuova_ricerca.salva_ricerca')}</>
                         }
                     </button>
                 </div>
@@ -2294,6 +2196,7 @@ function ModaleNuovaRicerca({ pratiche, etichette, onClose, onSalvata }) {
 // MODALE NUOVA ETICHETTA
 // ═══════════════════════════════════════════════════════════════
 function ModaleNuovaEtichetta({ onClose, onSalvata }) {
+    const { t } = useTranslation('user_ricerche')
     const [nome, setNome] = useState('')
     const [colore, setColore] = useState(coloreCasuale())
     const [salvando, setSalvando] = useState(false)
@@ -2316,7 +2219,7 @@ function ModaleNuovaEtichetta({ onClose, onSalvata }) {
                 .insert({ user_id: user.id, nome: nome.trim(), colore })
             if (error) throw new Error(
                 error.code === '23505'
-                    ? 'Esiste già un\'etichetta con questo nome'
+                    ? t('modale_nuova_etichetta.errore_duplicato')
                     : error.message
             )
             onSalvata()
@@ -2332,26 +2235,26 @@ function ModaleNuovaEtichetta({ onClose, onSalvata }) {
             <div className="bg-slate border border-white/10 w-full max-w-md p-5 space-y-4 shadow-2xl" onClick={e => e.stopPropagation()}>
 
                 <div className="flex items-center justify-between">
-                    <p className="section-label">Nuova etichetta</p>
+                    <p className="section-label">{t('modale_nuova_etichetta.titolo_modale')}</p>
                     <button onClick={onClose} className="text-nebbia/30 hover:text-nebbia">
                         <X size={14} />
                     </button>
                 </div>
 
                 <div>
-                    <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Nome</label>
+                    <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale_nuova_etichetta.label_nome')}</label>
                     <input
                         autoFocus
                         value={nome}
                         onChange={e => setNome(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && salva()}
-                        placeholder="Es. Diritto del lavoro, Responsabilità civile..."
+                        placeholder={t('modale_nuova_etichetta.placeholder_nome')}
                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                     />
                 </div>
 
                 <div>
-                    <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Colore</label>
+                    <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale_nuova_etichetta.label_colore')}</label>
                     <div className="flex gap-2 flex-wrap">
                         {PALETTE.map(c => (
                             <button
@@ -2378,7 +2281,7 @@ function ModaleNuovaEtichetta({ onClose, onSalvata }) {
                 >
                     {salvando
                         ? <Loader2 size={14} className="animate-spin" />
-                        : <><Check size={14} /> Crea etichetta</>
+                        : <><Check size={14} /> {t('modale_nuova_etichetta.crea_etichetta')}</>
                     }
                 </button>
             </div>
@@ -2390,6 +2293,7 @@ function ModaleNuovaEtichetta({ onClose, onSalvata }) {
 // MODALE GESTIONE ETICHETTE
 // ═══════════════════════════════════════════════════════════════
 function ModaleGestioneEtichette({ etichette, basePathEtichette, onClose, onAggiornate }) {
+    const { t } = useTranslation('user_ricerche')
     const [modificando, setModificando] = useState(null)
     const [nomeMod, setNomeMod] = useState('')
     const [coloreMod, setColoreMod] = useState('')
@@ -2417,7 +2321,7 @@ function ModaleGestioneEtichette({ etichette, basePathEtichette, onClose, onAggi
                 .eq('id', modificando)
             if (error) throw new Error(
                 error.code === '23505'
-                    ? 'Esiste già un\'etichetta con questo nome'
+                    ? t('modale_gestione_etichette.errore_duplicato')
                     : error.message
             )
             setModificando(null)
@@ -2427,13 +2331,13 @@ function ModaleGestioneEtichette({ etichette, basePathEtichette, onClose, onAggi
         }
     }
 
-    async function elimina(t) {
-        if (!confirm(`Eliminare l'etichetta "${t.nome}"?\n\nLe ricerche taggate non verranno cancellate, perderanno solo questo tag.`)) return
+    async function elimina(et) {
+        if (!confirm(t('modale_gestione_etichette.conferma_elimina', { nome: et.nome }))) return
         try {
             const { error } = await supabase
                 .from('etichette')
                 .delete()
-                .eq('id', t.id)
+                .eq('id', et.id)
             if (error) throw new Error(error.message)
             await onAggiornate()
         } catch (e) {
@@ -2448,7 +2352,7 @@ function ModaleGestioneEtichette({ etichette, basePathEtichette, onClose, onAggi
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
                     <div className="flex items-center gap-2">
                         <Tag size={14} className="text-oro" />
-                        <p className="font-body text-sm font-medium text-nebbia">Gestisci etichette</p>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('modale_gestione_etichette.titolo_modale')}</p>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia transition-colors">
                         <X size={16} />
@@ -2458,10 +2362,10 @@ function ModaleGestioneEtichette({ etichette, basePathEtichette, onClose, onAggi
                 <div className="flex-1 overflow-y-auto p-5 space-y-2">
                     {etichette.length === 0 ? (
                         <p className="font-body text-sm text-nebbia/30 text-center py-6">
-                            Nessuna etichetta da gestire
+                            {t('modale_gestione_etichette.nessuna')}
                         </p>
-                    ) : etichette.map(t => modificando === t.id ? (
-                        <div key={t.id} className="bg-petrolio border border-oro/30 p-3 space-y-3">
+                    ) : etichette.map(et => modificando === et.id ? (
+                        <div key={et.id} className="bg-petrolio border border-oro/30 p-3 space-y-3">
                             <input
                                 value={nomeMod}
                                 onChange={e => setNomeMod(e.target.value)}
@@ -2479,33 +2383,33 @@ function ModaleGestioneEtichette({ etichette, basePathEtichette, onClose, onAggi
                             <div className="flex gap-2">
                                 <button onClick={() => setModificando(null)}
                                     className="flex-1 px-3 py-1.5 border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors">
-                                    Annulla
+                                    {t('modale_gestione_etichette.annulla')}
                                 </button>
                                 <button onClick={salvaModifica}
                                     className="flex-1 btn-primary text-xs justify-center">
-                                    Salva
+                                    {t('modale_gestione_etichette.salva')}
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <div key={t.id} className="flex items-center justify-between gap-3 p-3 bg-petrolio border border-white/5 hover:border-white/10 transition-colors">
+                        <div key={et.id} className="flex items-center justify-between gap-3 p-3 bg-petrolio border border-white/5 hover:border-white/10 transition-colors">
                             <Link
-                                to={`${basePathEtichette}/${t.id}`}
+                                to={`${basePathEtichette}/${et.id}`}
                                 className="flex items-center gap-2 flex-1 min-w-0 group"
                                 onClick={onClose}
                             >
-                                <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: t.colore || '#7FA39A' }} />
+                                <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: et.colore || '#7FA39A' }} />
                                 <span className="font-body text-sm text-nebbia truncate group-hover:text-oro transition-colors">
-                                    {t.nome}
+                                    {et.nome}
                                 </span>
                                 <ChevronRight size={11} className="text-nebbia/30 group-hover:text-oro transition-colors shrink-0" />
                             </Link>
                             <div className="flex items-center gap-1 shrink-0">
-                                <button onClick={() => avviaModifica(t)}
+                                <button onClick={() => avviaModifica(et)}
                                     className="text-nebbia/30 hover:text-oro p-1 transition-colors">
                                     <Edit2 size={11} />
                                 </button>
-                                <button onClick={() => elimina(t)}
+                                <button onClick={() => elimina(et)}
                                     className="text-nebbia/30 hover:text-red-400 p-1 transition-colors">
                                     <Trash2 size={11} />
                                 </button>

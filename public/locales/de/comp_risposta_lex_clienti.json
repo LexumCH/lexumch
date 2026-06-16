@@ -1,0 +1,11 @@
+{
+    "header": {
+        "titolo": "Antwort von Lex"
+    },
+    "cliente": {
+        "non_disponibile": "Mandant nicht verfügbar"
+    },
+    "clienti_citati": {
+        "titolo": "Erwähnte Mandanten ({{count}})"
+    }
+}

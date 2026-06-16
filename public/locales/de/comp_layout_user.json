@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "banca_dati": "Datenbank",
+    "ricerche": "Recherchen",
+    "verificati": "Verifizieren Sie sich",
+    "verifica_identita": "Identitätsprüfung",
+    "assistenza": "Fragen?",
+    "acquista": "Kaufen",
+    "profilo": "Profil"
+  },
+  "badge": {
+    "in_corso": "In Bearbeitung",
+    "approvata": "Genehmigt"
+  },
+  "banner": {
+    "pending": "Ihre Dokumente werden überprüft. Sie erhalten innerhalb von 24-48 Stunden eine Rückmeldung.",
+    "approved": "Prüfung abgeschlossen! Erwerben Sie ein Abonnement, um Zugriff auf Dossiers, Mandanten und alle Funktionen von Lexum zu erhalten.",
+    "approved_link": "Abonnemente ansehen →",
+    "rejected": "Ihre Prüfung wurde nicht genehmigt. Besuchen Sie Ihr Profil, um die Details einzusehen.",
+    "rejected_link": "Profil →"
+  },
+  "account": {
+    "verificato": "Verifiziert",
+    "in_verifica": "In Prüfung",
+    "non_verificato": "Nicht verifiziert",
+    "base": "Basiskonto",
+    "esci": "Abmelden"
+  },
+  "header": {
+    "acquista_crediti": "KI-Guthaben kaufen"
+  }
+}

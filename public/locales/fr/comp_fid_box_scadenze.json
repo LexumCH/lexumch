@@ -1,0 +1,27 @@
+{
+  "header": {
+    "titolo": "Échéances",
+    "nuova": "Nouvelle échéance"
+  },
+  "vuoto": {
+    "titolo": "Aucune échéance pour ce mandat."
+  },
+  "stato": {
+    "in_corso": "En cours",
+    "completata": "Terminée"
+  },
+  "giorni": {
+    "scaduta": "échue depuis {{count}} j",
+    "oggi": "aujourd'hui",
+    "tra": "dans {{count}} j"
+  },
+  "completata_il": "terminée le {{data}}",
+  "azioni": {
+    "riapri": "Rouvrir",
+    "completa": "Marquer comme terminée",
+    "elimina": "Supprimer"
+  },
+  "conferma": {
+    "elimina": "Supprimer l'échéance \"{{titolo}}\" ?"
+  }
+}

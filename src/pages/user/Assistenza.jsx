@@ -1,13 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { PageHeader, BackButton, Badge } from '@/components/shared'
 import { Plus, Send, Search, Loader2, AlertCircle } from 'lucide-react'
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 // ─────────────────────────────────────────────────────────────
 // LISTA TICKET
 // ─────────────────────────────────────────────────────────────
 export function UserAssistenza() {
+    const { t, i18n } = useTranslation('user_assistenza')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [search, setSearch] = useState('')
     const [statoF, setStatoF] = useState('')
     const [tickets, setTickets] = useState([])
@@ -41,11 +46,11 @@ export function UserAssistenza() {
     return (
         <div className="space-y-5">
             <PageHeader
-                label="Supporto"
-                title="Assistenza"
+                label={t('lista.header_label')}
+                title={t('lista.header_titolo')}
                 action={
                     <Link to="/user/assistenza/nuovo" className="btn-primary text-sm">
-                        <Plus size={15} /> Nuovo ticket
+                        <Plus size={15} /> {t('lista.nuovo_ticket')}
                     </Link>
                 }
             />
@@ -54,7 +59,7 @@ export function UserAssistenza() {
                 <div className="relative flex-1 min-w-44">
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                     <input
-                        placeholder="Cerca ticket…"
+                        placeholder={t('lista.cerca_placeholder')}
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -65,9 +70,9 @@ export function UserAssistenza() {
                     onChange={e => setStatoF(e.target.value)}
                     className="bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                 >
-                    <option value="">Tutti gli stati</option>
-                    <option value="aperto">Aperto</option>
-                    <option value="chiuso">Chiuso</option>
+                    <option value="">{t('lista.filtro_tutti_stati')}</option>
+                    <option value="aperto">{t('stati.aperto')}</option>
+                    <option value="chiuso">{t('stati.chiuso')}</option>
                 </select>
             </div>
 
@@ -75,43 +80,43 @@ export function UserAssistenza() {
                 {loading ? (
                     <div className="py-12 flex items-center justify-center gap-2 text-nebbia/30">
                         <Loader2 size={16} className="animate-spin" />
-                        <span className="font-body text-sm">Caricamento…</span>
+                        <span className="font-body text-sm">{t('lista.caricamento')}</span>
                     </div>
                 ) : rows.length === 0 ? (
                     <div className="py-12 text-center font-body text-sm text-nebbia/30">
-                        {tickets.length === 0 ? 'Nessun ticket ancora. Apri il tuo primo ticket.' : 'Nessun ticket trovato.'}
+                        {tickets.length === 0 ? t('lista.nessun_ticket_ancora') : t('lista.nessun_ticket_trovato')}
                     </div>
                 ) : (
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/5">
                                 <th className="px-4 py-3 w-6" />
-                                {['Oggetto', 'Aperto il', 'Ultimo aggiornamento', 'Stato', ''].map(h => (
-                                    <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
+                                {[t('lista.col_oggetto'), t('lista.col_aperto_il'), t('lista.col_ultimo_aggiornamento'), t('lista.col_stato'), ''].map((h, i) => (
+                                    <th key={i} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
-                            {rows.map(t => {
-                                const msgs = [...(t.messaggi ?? [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                                const hasNew = t.stato === 'aperto' && msgs.length > 0 && msgs[0]?.autore_tipo !== 'user'
+                            {rows.map(tk => {
+                                const msgs = [...(tk.messaggi ?? [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                                const hasNew = tk.stato === 'aperto' && msgs.length > 0 && msgs[0]?.autore_tipo !== 'user'
                                 return (
-                                    <tr key={t.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
+                                    <tr key={tk.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
                                         <td className="px-4 py-3">
                                             {hasNew && <span className="inline-block w-1.5 h-1.5 rounded-full bg-oro" />}
                                         </td>
-                                        <td className="px-4 py-3 font-body text-sm font-medium text-nebbia">{t.oggetto}</td>
+                                        <td className="px-4 py-3 font-body text-sm font-medium text-nebbia">{tk.oggetto}</td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">
-                                            {new Date(t.created_at).toLocaleDateString('it-CH')}
+                                            {new Date(tk.created_at).toLocaleDateString(dateLocale)}
                                         </td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/30 whitespace-nowrap">
-                                            {new Date(t.updated_at).toLocaleDateString('it-CH')}
+                                            {new Date(tk.updated_at).toLocaleDateString(dateLocale)}
                                         </td>
                                         <td className="px-4 py-3">
-                                            <Badge label={t.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={t.stato === 'aperto' ? 'salvia' : 'gray'} />
+                                            <Badge label={tk.stato === 'aperto' ? t('stati.aperto') : t('stati.chiuso')} variant={tk.stato === 'aperto' ? 'salvia' : 'gray'} />
                                         </td>
                                         <td className="px-4 py-3 text-right">
-                                            <Link to={`/user/assistenza/${t.id}`} className="font-body text-xs text-oro hover:text-oro/70">Apri →</Link>
+                                            <Link to={`/user/assistenza/${tk.id}`} className="font-body text-xs text-oro hover:text-oro/70">{t('lista.apri')}</Link>
                                         </td>
                                     </tr>
                                 )
@@ -129,6 +134,7 @@ export function UserAssistenza() {
 // (solo titolo: la chat con l'admin si apre subito dopo)
 // ─────────────────────────────────────────────────────────────
 export function UserAssistenzaNuovo() {
+    const { t } = useTranslation('user_assistenza')
     const navigate = useNavigate()
     const [titolo, setTitolo] = useState('')
     const [salvando, setSalvando] = useState(false)
@@ -136,11 +142,11 @@ export function UserAssistenzaNuovo() {
 
     async function handleCrea() {
         setErrore('')
-        if (!titolo.trim()) return setErrore('Il titolo è obbligatorio')
+        if (!titolo.trim()) return setErrore(t('nuovo.err_titolo_obbligatorio'))
         setSalvando(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) throw new Error('Utente non autenticato')
+            if (!user) throw new Error(t('nuovo.err_non_autenticato'))
 
             const { data: admins } = await supabase
                 .from('profiles').select('id').eq('role', 'admin').limit(1)
@@ -170,21 +176,21 @@ export function UserAssistenzaNuovo() {
 
     return (
         <div className="space-y-5 max-w-2xl">
-            <BackButton to="/user/assistenza" label="Assistenza" />
-            <PageHeader label="Supporto Lexum" title="Nuovo ticket" />
+            <BackButton to="/user/assistenza" label={t('comune.assistenza')} />
+            <PageHeader label={t('nuovo.header_label')} title={t('nuovo.header_titolo')} />
             <div className="bg-slate border border-white/5 p-6 space-y-5">
                 <div>
-                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Titolo *</label>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('nuovo.label_titolo')}</label>
                     <input
                         value={titolo}
                         onChange={e => setTitolo(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && titolo.trim() && !salvando) handleCrea() }}
-                        placeholder="Es. Verifica iscrizione, Domanda sui piani..."
+                        placeholder={t('nuovo.titolo_placeholder')}
                         autoFocus
                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                     />
                     <p className="font-body text-xs text-nebbia/25 mt-2">
-                        Dopo aver creato il ticket potrai scrivere il messaggio nella chat con il supporto.
+                        {t('nuovo.hint_messaggio')}
                     </p>
                 </div>
 
@@ -196,7 +202,7 @@ export function UserAssistenzaNuovo() {
 
                 <div className="flex gap-3">
                     <button onClick={() => navigate('/user/assistenza')} className="btn-secondary text-sm flex-1">
-                        Annulla
+                        {t('nuovo.annulla')}
                     </button>
                     <button
                         onClick={handleCrea}
@@ -205,7 +211,7 @@ export function UserAssistenzaNuovo() {
                     >
                         {salvando
                             ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                            : 'Apri ticket'
+                            : t('nuovo.apri_ticket')
                         }
                     </button>
                 </div>
@@ -218,6 +224,8 @@ export function UserAssistenzaNuovo() {
 // DETTAGLIO TICKET
 // ─────────────────────────────────────────────────────────────
 export function UserAssistenzaDettaglio() {
+    const { t, i18n } = useTranslation('user_assistenza')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const bottomRef = useRef(null)
     const [meId, setMeId] = useState(null)
@@ -302,35 +310,35 @@ export function UserAssistenzaDettaglio() {
     if (loading) return (
         <div className="py-20 flex items-center justify-center gap-2 text-nebbia/30">
             <Loader2 size={18} className="animate-spin" />
-            <span className="font-body text-sm">Caricamento…</span>
+            <span className="font-body text-sm">{t('lista.caricamento')}</span>
         </div>
     )
 
     if (!ticket) return (
         <div className="py-20 text-center space-y-4">
-            <p className="font-body text-sm text-nebbia/30">Ticket non trovato.</p>
-            <Link to="/user/assistenza" className="btn-secondary text-sm inline-flex">← Torna all'assistenza</Link>
+            <p className="font-body text-sm text-nebbia/30">{t('dettaglio.non_trovato')}</p>
+            <Link to="/user/assistenza" className="btn-secondary text-sm inline-flex">{t('dettaglio.torna')}</Link>
         </div>
     )
 
     return (
         <div className="space-y-5 max-w-3xl">
-            <BackButton to="/user/assistenza" label="Assistenza" />
+            <BackButton to="/user/assistenza" label={t('comune.assistenza')} />
 
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="section-label mb-2">Supporto Lexum · #{ticket.id.slice(0, 8)}</p>
+                    <p className="section-label mb-2">{t('dettaglio.label_lexum')} · #{ticket.id.slice(0, 8)}</p>
                     <h1 className="font-display text-3xl font-light text-nebbia">{ticket.oggetto}</h1>
                     <p className="font-body text-xs text-nebbia/30 mt-1">
-                        {new Date(ticket.created_at).toLocaleDateString('it-CH')}
+                        {new Date(ticket.created_at).toLocaleDateString(dateLocale)}
                     </p>
                 </div>
-                <Badge label={ticket.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={ticket.stato === 'aperto' ? 'salvia' : 'gray'} />
+                <Badge label={ticket.stato === 'aperto' ? t('stati.aperto') : t('stati.chiuso')} variant={ticket.stato === 'aperto' ? 'salvia' : 'gray'} />
             </div>
 
             {/* Messaggi */}
             <div className="bg-slate border border-white/5 p-5 space-y-4 min-h-48 max-h-[60vh] overflow-y-auto">
-                <p className="section-label mb-2">Conversazione</p>
+                <p className="section-label mb-2">{t('dettaglio.conversazione')}</p>
                 {messaggi.map(m => {
                     const isMio = m.autore_tipo === 'user'
                     return (
@@ -340,7 +348,7 @@ export function UserAssistenzaDettaglio() {
                                 : 'bg-petrolio/60 border border-white/10'
                                 }`}>
                                 <p className={`font-body text-[10px] font-medium mb-1 ${isMio ? 'text-oro/60 text-right' : 'text-nebbia/40'}`}>
-                                    {isMio ? 'Tu' : 'Admin Lexum'} · {new Date(m.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                    {isMio ? t('dettaglio.autore_tu') : t('dettaglio.autore_admin')} · {new Date(m.created_at).toLocaleString(dateLocale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                 </p>
                                 <p className="font-body text-sm text-nebbia leading-relaxed whitespace-pre-wrap">{m.testo}</p>
                             </div>
@@ -364,7 +372,7 @@ export function UserAssistenzaDettaglio() {
                             value={msg}
                             onChange={e => setMsg(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleInvia() } }}
-                            placeholder="Scrivi un messaggio… (Invio per inviare)"
+                            placeholder={t('dettaglio.scrivi_placeholder')}
                             className="flex-1 bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
                         />
                         <button
@@ -378,7 +386,7 @@ export function UserAssistenzaDettaglio() {
                 </div>
             ) : (
                 <div className="bg-petrolio/40 border border-white/5 p-4 text-center">
-                    <p className="font-body text-sm text-nebbia/30">Ticket chiuso — non è possibile inviare altri messaggi</p>
+                    <p className="font-body text-sm text-nebbia/30">{t('dettaglio.ticket_chiuso')}</p>
                 </div>
             )}
         </div>

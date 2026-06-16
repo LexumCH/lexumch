@@ -1,0 +1,30 @@
+{
+  "header": {
+    "titolo": "Activer la 2FA"
+  },
+  "step1": {
+    "label": "Étape 1 sur 2",
+    "istruzione": "Scannez le code QR avec votre application d'authentification",
+    "qrAlt": "Code QR 2FA",
+    "manualeLabel": "Ou saisissez manuellement",
+    "appConsigliate": "Applications recommandées : Google Authenticator, Authy, 1Password, Microsoft Authenticator, Bitwarden.",
+    "procedi": "J'ai scanné, continuer"
+  },
+  "step2": {
+    "label": "Étape 2 sur 2",
+    "istruzione": "Saisissez le code à 6 chiffres de l'application",
+    "codiceLabel": "Code de vérification"
+  },
+  "azioni": {
+    "riprova": "Réessayer",
+    "indietro": "Retour",
+    "verificaAttiva": "Vérifier et activer"
+  },
+  "errori": {
+    "attivazione": "Erreur lors de l'activation",
+    "rispostaIncompleta": "Réponse du serveur incomplète",
+    "codiceInvalido": "Saisissez le code à 6 chiffres de votre application",
+    "sessioneScaduta": "La session d'activation a expiré. Fermez et réessayez.",
+    "generazioneCodici": "Erreur lors de la génération des codes"
+  }
+}

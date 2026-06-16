@@ -1,0 +1,109 @@
+{
+  "header": {
+    "titolo_nuova": "Nuova udienza",
+    "titolo_modifica": "Modifica udienza",
+    "badge_non_salvate": "Modifiche non salvate"
+  },
+  "stati": {
+    "label": "Stato",
+    "programmata": "Programmata",
+    "svolta": "Svolta",
+    "rinviata": "Rinviata",
+    "annullata": "Annullata"
+  },
+  "campi": {
+    "data": "Data *",
+    "ora": "Ora",
+    "durata": "Durata (min)",
+    "tipo": "Tipo udienza *",
+    "oggetto": "Oggetto",
+    "sede": "Sede",
+    "note_preparazione": "Note preparazione",
+    "esito": "Esito",
+    "data_rinvio": "Data di rinvio *"
+  },
+  "tipo": {
+    "seleziona": "— Seleziona tipo —",
+    "altro": "+ Altro (specifica)",
+    "placeholder_libero": "Specifica tipo udienza...",
+    "btn_lista": "Lista",
+    "gruppi": {
+      "civile": "Civile (CPC)",
+      "penale": "Penale (CPP)",
+      "amministrativo": "Amministrativo / Esecuzioni",
+      "famiglia": "Famiglia / Protezione",
+      "arbitrato": "Arbitrato / ADR"
+    },
+    "valori": {
+      "Udienza di conciliazione": "Udienza di conciliazione",
+      "Dibattimento principale": "Dibattimento principale",
+      "Udienza istruttoria": "Udienza istruttoria",
+      "Interrogatorio delle parti": "Interrogatorio delle parti",
+      "Audizione testimoni": "Audizione testimoni",
+      "Discussione finale": "Discussione finale",
+      "Procedura sommaria": "Procedura sommaria",
+      "Dibattimento di primo grado": "Dibattimento di primo grado",
+      "Udienza dibattimentale d'appello": "Udienza dibattimentale d'appello",
+      "Interrogatorio dell'imputato": "Interrogatorio dell'imputato",
+      "Audizione testimoni / periti": "Audizione testimoni / periti",
+      "Convalida della carcerazione": "Convalida della carcerazione",
+      "Procedura del decreto d'accusa": "Procedura del decreto d'accusa",
+      "Comunicazione della sentenza": "Comunicazione della sentenza",
+      "Udienza pubblica": "Udienza pubblica",
+      "Deliberazione (camera di consiglio)": "Deliberazione (camera di consiglio)",
+      "Udienza cautelare (misure provvisionali)": "Udienza cautelare (misure provvisionali)",
+      "Pignoramento / esecuzione (LEF)": "Pignoramento / esecuzione (LEF)",
+      "Udienza fallimentare (LEF)": "Udienza fallimentare (LEF)",
+      "Audizione delle parti": "Audizione delle parti",
+      "Audizione del minore": "Audizione del minore",
+      "Misure a protezione dell'unione coniugale": "Misure a protezione dell'unione coniugale",
+      "Mediazione": "Mediazione",
+      "Arbitrato": "Arbitrato",
+      "Conciliazione": "Conciliazione"
+    }
+  },
+  "placeholder": {
+    "oggetto": "Es. Audizione testimoni, interrogatorio delle parti...",
+    "tribunale": "Tribunale / Pretura (es. Lugano)",
+    "sezione": "Sezione / Camera",
+    "aula": "Aula",
+    "giudice": "Giudice / Pretore",
+    "note_preparazione": "Cosa dire, documenti da portare, punti da affrontare...",
+    "esito": "Note sull'esito, decisioni assunte, prossimi passi..."
+  },
+  "rinvio": {
+    "suggerimento": "Suggerimento: dopo aver salvato, crea una nuova udienza per la data di rinvio."
+  },
+  "errori": {
+    "data_obbligatoria": "La data è obbligatoria",
+    "tipo_obbligatorio": "Seleziona o specifica un tipo di udienza",
+    "data_rinvio_obbligatoria": "Per le udienze rinviate, indica la data di rinvio",
+    "sync_fallita": "Udienza salvata ma sync calendario fallita: {{messaggio}}"
+  },
+  "sync": {
+    "titolo_appuntamento": "Udienza — {{tipo}}",
+    "titolo_appuntamento_pratica": "Udienza — {{tipo}} ({{pratica}})",
+    "label_sede": "Sede: {{valore}}",
+    "label_giudice": "Giudice: {{valore}}",
+    "label_oggetto": "Oggetto: {{valore}}",
+    "label_note": "Note: {{valore}}"
+  },
+  "footer": {
+    "elimina": "Elimina udienza",
+    "annulla": "Annulla",
+    "salva": "Salva udienza",
+    "salvataggio": "Salvataggio..."
+  },
+  "conferma_uscita": {
+    "titolo": "Modifiche non salvate",
+    "testo": "Hai apportato modifiche a questa udienza. Se esci ora le perderai.",
+    "btn_continua": "Continua a modificare",
+    "btn_esci": "Esci senza salvare"
+  },
+  "conferma_elimina": {
+    "titolo": "Eliminare l'udienza?",
+    "testo": "L'udienza e l'eventuale appuntamento collegato nel calendario verranno eliminati. Questa azione non può essere annullata.",
+    "btn_annulla": "Annulla",
+    "btn_elimina": "Elimina"
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "header": {
+    "titolo_nuova": "Nouvelle audience",
+    "titolo_modifica": "Modifier l'audience",
+    "badge_non_salvate": "Modifications non enregistrées"
+  },
+  "stati": {
+    "label": "Statut",
+    "programmata": "Planifiée",
+    "svolta": "Tenue",
+    "rinviata": "Renvoyée",
+    "annullata": "Annulée"
+  },
+  "campi": {
+    "data": "Date *",
+    "ora": "Heure",
+    "durata": "Durée (min)",
+    "tipo": "Type d'audience *",
+    "oggetto": "Objet",
+    "sede": "Lieu",
+    "note_preparazione": "Notes de préparation",
+    "esito": "Issue",
+    "data_rinvio": "Date de renvoi *"
+  },
+  "tipo": {
+    "seleziona": "— Sélectionner le type —",
+    "altro": "+ Autre (préciser)",
+    "placeholder_libero": "Préciser le type d'audience...",
+    "btn_lista": "Liste",
+    "gruppi": {
+      "civile": "Civil (CPC)",
+      "penale": "Pénal (CPP)",
+      "amministrativo": "Administratif / Poursuites",
+      "famiglia": "Famille / Protection",
+      "arbitrato": "Arbitrage / ADR"
+    },
+    "valori": {
+      "Udienza di conciliazione": "Audience de conciliation",
+      "Dibattimento principale": "Débats principaux",
+      "Udienza istruttoria": "Audience d'instruction",
+      "Interrogatorio delle parti": "Interrogatoire des parties",
+      "Audizione testimoni": "Audition de témoins",
+      "Discussione finale": "Plaidoiries finales",
+      "Procedura sommaria": "Procédure sommaire",
+      "Dibattimento di primo grado": "Débats de première instance",
+      "Udienza dibattimentale d'appello": "Débats d'appel",
+      "Interrogatorio dell'imputato": "Interrogatoire du prévenu",
+      "Audizione testimoni / periti": "Audition de témoins / d'experts",
+      "Convalida della carcerazione": "Contrôle de la détention",
+      "Procedura del decreto d'accusa": "Procédure de l'ordonnance pénale",
+      "Comunicazione della sentenza": "Notification du jugement",
+      "Udienza pubblica": "Audience publique",
+      "Deliberazione (camera di consiglio)": "Délibération (chambre du conseil)",
+      "Udienza cautelare (misure provvisionali)": "Audience sur mesures provisionnelles",
+      "Pignoramento / esecuzione (LEF)": "Saisie / poursuite (LP)",
+      "Udienza fallimentare (LEF)": "Audience de faillite (LP)",
+      "Audizione delle parti": "Audition des parties",
+      "Audizione del minore": "Audition de l'enfant",
+      "Misure a protezione dell'unione coniugale": "Mesures protectrices de l'union conjugale",
+      "Mediazione": "Médiation",
+      "Arbitrato": "Arbitrage",
+      "Conciliazione": "Conciliation"
+    }
+  },
+  "placeholder": {
+    "oggetto": "Ex. audition de témoins, interrogatoire des parties...",
+    "tribunale": "Tribunal / Tribunal de district (ex. Lugano)",
+    "sezione": "Section / Chambre",
+    "aula": "Salle",
+    "giudice": "Juge / Juge unique",
+    "note_preparazione": "Ce qu'il faut dire, documents à apporter, points à aborder...",
+    "esito": "Notes sur l'issue, décisions prises, prochaines étapes..."
+  },
+  "rinvio": {
+    "suggerimento": "Conseil : après l'enregistrement, créez une nouvelle audience pour la date de renvoi."
+  },
+  "errori": {
+    "data_obbligatoria": "La date est obligatoire",
+    "tipo_obbligatorio": "Sélectionnez ou précisez un type d'audience",
+    "data_rinvio_obbligatoria": "Pour les audiences renvoyées, indiquez la date de renvoi",
+    "sync_fallita": "Audience enregistrée mais la synchronisation du calendrier a échoué : {{messaggio}}"
+  },
+  "sync": {
+    "titolo_appuntamento": "Audience — {{tipo}}",
+    "titolo_appuntamento_pratica": "Audience — {{tipo}} ({{pratica}})",
+    "label_sede": "Lieu : {{valore}}",
+    "label_giudice": "Juge : {{valore}}",
+    "label_oggetto": "Objet : {{valore}}",
+    "label_note": "Notes : {{valore}}"
+  },
+  "footer": {
+    "elimina": "Supprimer l'audience",
+    "annulla": "Annuler",
+    "salva": "Enregistrer l'audience",
+    "salvataggio": "Enregistrement..."
+  },
+  "conferma_uscita": {
+    "titolo": "Modifications non enregistrées",
+    "testo": "Vous avez apporté des modifications à cette audience. Si vous quittez maintenant, elles seront perdues.",
+    "btn_continua": "Continuer la modification",
+    "btn_esci": "Quitter sans enregistrer"
+  },
+  "conferma_elimina": {
+    "titolo": "Supprimer l'audience ?",
+    "testo": "L'audience et l'éventuel rendez-vous lié dans le calendrier seront supprimés. Cette action est irréversible.",
+    "btn_annulla": "Annuler",
+    "btn_elimina": "Supprimer"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "aria": {
+    "campanella": "Notifications",
+    "elimina": "Supprimer la notification"
+  },
+  "header": {
+    "titolo": "Notifications",
+    "non_lette_one": "{{count}} non lue",
+    "non_lette_other": "{{count}} non lues",
+    "segna_tutte": "Tout marquer comme lu"
+  },
+  "vuoto": {
+    "titolo": "Aucune notification",
+    "sottotitolo": "Lorsqu'elles arriveront, vous les verrez ici"
+  },
+  "tempo": {
+    "ora": "maintenant",
+    "min_fa": "il y a {{count}} min",
+    "ore_fa": "il y a {{count}} h",
+    "giorni_fa": "il y a {{count}} j"
+  }
+}

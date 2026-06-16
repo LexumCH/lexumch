@@ -6,6 +6,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Sparkles, Building2, User } from 'lucide-react'
 
 function nomeCliente(c) {
@@ -18,6 +19,8 @@ const REGEX_CLIENTE = /\{\{cliente:([a-f0-9-]+)\}\}/gi
 const TYPE_SPEED_MS = 12 // velocita streaming: 12ms per "unita"
 
 export default function RispostaLexClienti({ risposta, clientiMenzionati, clientiMap }) {
+    const { t } = useTranslation('comp_risposta_lex_clienti')
+
     // Spezza la stringa in segmenti (testo / cliente). Ogni segmento ha un
     // "weight": il testo pesa quanto i suoi caratteri, il cliente pesa
     // come il numero di caratteri del nome che andra a visualizzare.
@@ -104,7 +107,7 @@ export default function RispostaLexClienti({ risposta, clientiMenzionati, client
         <div className="bg-petrolio/40 border border-salvia/20 p-4 space-y-3">
             <div className="flex items-center gap-2">
                 <Sparkles size={12} className="text-salvia" />
-                <p className="font-body text-[10px] font-medium text-salvia uppercase tracking-widest">Risposta di Lex</p>
+                <p className="font-body text-[10px] font-medium text-salvia uppercase tracking-widest">{t('header.titolo')}</p>
             </div>
 
             <p className="font-body text-sm text-nebbia/80 leading-relaxed">
@@ -115,7 +118,7 @@ export default function RispostaLexClienti({ risposta, clientiMenzionati, client
                     // seg.tipo === 'cliente'
                     const cli = clientiMap?.[seg.id]
                     if (!cli) {
-                        return <span key={i} className="text-nebbia/40 italic">cliente non disponibile</span>
+                        return <span key={i} className="text-nebbia/40 italic">{t('cliente.non_disponibile')}</span>
                     }
                     return (
                         <Link
@@ -140,7 +143,7 @@ export default function RispostaLexClienti({ risposta, clientiMenzionati, client
             {typingDone && clientiMenzionati && clientiMenzionati.length > 3 && (
                 <div className="pt-3 border-t border-salvia/10 animate-[fadeIn_0.4s_ease-out]">
                     <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-2">
-                        Clienti citati ({clientiMenzionati.length})
+                        {t('clienti_citati.titolo', { count: clientiMenzionati.length })}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                         {clientiMenzionati.map(id => {

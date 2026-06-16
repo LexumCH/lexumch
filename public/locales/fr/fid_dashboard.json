@@ -1,0 +1,49 @@
+{
+  "hero": {
+    "etichetta": "Fiduciaire",
+    "titolo": "Vue d'ensemble",
+    "titolo_nome": "Vue d'ensemble, {{nome}}",
+    "sottotitolo_one": "Année {{anno}} · {{count}} client",
+    "sottotitolo_other": "Année {{anno}} · {{count}} clients"
+  },
+  "kpi": {
+    "clienti": "Clients",
+    "mandati_attivi": "Mandats actifs",
+    "fatturato": "Chiffre d'affaires {{anno}}",
+    "da_incassare": "À encaisser"
+  },
+  "scadute": {
+    "titolo_one": "{{count}} échéance dépassée",
+    "titolo_other": "{{count}} échéances dépassées"
+  },
+  "scadenze": {
+    "titolo": "Prochaines échéances",
+    "vuoto": "Aucune échéance à venir.",
+    "oggi": "aujourd'hui",
+    "tra_giorni_one": "dans {{count}} j",
+    "tra_giorni_other": "dans {{count}} j"
+  },
+  "appuntamenti": {
+    "titolo": "Prochains rendez-vous",
+    "vuoto": "Aucun rendez-vous prévu.",
+    "senza_titolo": "(sans titre)",
+    "studio": "fiduciaire"
+  },
+  "fatturazione": {
+    "titolo": "Fiduciaire — facturation {{anno}}",
+    "fatturato": "Chiffre d'affaires",
+    "incassato": "Encaissé",
+    "da_incassare": "À encaisser",
+    "scaduto": "Échu",
+    "nota": "Factures émises par la fiduciaire à ses clients (les produits de la fiduciaire). Sans rapport avec les comptes de résultat des différents clients."
+  },
+  "ce": {
+    "titolo": "Compte de résultat par client {{anno}}",
+    "nota": "— chaque client est traité séparément, sans addition",
+    "col_cliente": "Client",
+    "col_entrate": "Recettes",
+    "col_costi": "Charges",
+    "col_stipendi": "Salaires",
+    "col_saldo": "Solde"
+  }
+}

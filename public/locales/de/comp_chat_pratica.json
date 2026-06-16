@@ -1,0 +1,139 @@
+{
+    "header": {
+        "titolo": "Lex für dieses Dossier",
+        "crediti": "{{count}} Credits",
+        "salvaConversazione": "Konversation speichern",
+        "nuovaChat": "Neuer Chat"
+    },
+    "confermaNuova": {
+        "messaggio": "Die aktuelle Konversation geht verloren. Fortfahren?",
+        "conferma": "Ja, neuer Chat"
+    },
+    "confermaSalvataggio": "Konversation in den Recherchen des Dossiers gespeichert.",
+    "formSalva": {
+        "titolo": "In den Recherchen speichern",
+        "placeholder": "Z. B. Strategie für die Verhandlung vom 15. März",
+        "conferma": "Speichern bestätigen"
+    },
+    "vuoto": {
+        "titolo": "Lex kennt dieses Dossier",
+        "descrizione": "Mandant, Gegenparteien, Verhandlungen, Dokumente aus dem Archiv und bereits durchgeführte Recherchen. Verlangen Sie eine Analyse, eine Strategie oder die Erstellung einer Rechtsschrift (Mahnung, Zahlungsbefehl SchKG, Klage...).",
+        "cta": "Was kann ich Sie fragen?"
+    },
+    "ruolo": {
+        "tu": "Sie",
+        "lex": "Lex"
+    },
+    "badge": {
+        "documento": "Dokument"
+    },
+    "creditiEsauriti": {
+        "messaggio": "Lex-Credits aufgebraucht.",
+        "acquista": "Credits kaufen →"
+    },
+    "input": {
+        "placeholder": "Bitten Sie Lex um eine Analyse oder die Erstellung einer Rechtsschrift... (Ctrl+Enter zum Senden)",
+        "placeholderEsauriti": "Credits aufgebraucht — kaufen Sie Credits, um fortzufahren",
+        "titleInvia": "Senden (Ctrl+Enter)",
+        "titleEsauriti": "Credits aufgebraucht",
+        "suggerimento": "Ich kann das Dossier analysieren oder 6 Arten von Schweizer Rechtsschriften erstellen. Jede Rechtsschrift verbraucht 1 Credit."
+    },
+    "comune": {
+        "annulla": "Abbrechen"
+    },
+    "errori": {
+        "scriviDomanda": "Schreiben Sie eine Frage an Lex",
+        "sessioneScaduta": "Sitzung abgelaufen. Bitte laden Sie die Seite neu.",
+        "sconosciuto": "Unbekannter Fehler",
+        "conCodice": "Fehler {{codice}}",
+        "streaming": "Fehler beim Streaming",
+        "inserisciTitolo": "Geben Sie einen Titel für die Konversation ein"
+    },
+    "animazione": {
+        "titolo": "Lex arbeitet am Dossier",
+        "frasi": [
+            "Ich analysiere das Dossier",
+            "Ich prüfe den Verlauf der Verhandlungen",
+            "Ich kontrolliere die Dokumente des Dossiers",
+            "Ich rekonstruiere die Standpunkte der Parteien",
+            "Ich ziehe das anwendbare Recht heran",
+            "Ich verfasse eine strukturierte Antwort"
+        ]
+    },
+    "trascrizione": {
+        "documentoGenerato": "Erstelltes Dokument",
+        "atto": "Rechtsschrift",
+        "avvocato": "Anwalt",
+        "lex": "Lex"
+    },
+    "popover": {
+        "titolo": "Was Sie Lex fragen können",
+        "analisi": {
+            "titolo": "Analyse und Argumentation",
+            "descrizione": "Bitten Sie Lex, das Dossier zu analysieren, Stärken und Schwächen zu erkennen, eine Strategie vorzuschlagen, Sie auf die Verhandlung vorzubereiten oder den Verlauf zu rekonstruieren. Beispiele: \"analysiere die Schwachstellen\", \"welche Strategie empfiehlst du\", \"was bereite ich für die Verhandlung vor\"."
+        },
+        "generazione": {
+            "titolo": "Erstellung von Rechtsschriften",
+            "descrizione": "Lex kann 6 Arten von Schweizer Rechtsschriften anhand der Daten des Dossiers verfassen. Schreiben Sie einfach, was Sie benötigen. Jede erstellte Rechtsschrift verbraucht 1 Credit."
+        },
+        "footer": "Tippen Sie auf eine Rechtsschrift, um ein Beispiel in das Textfeld einzufügen, und passen Sie es dann an."
+    },
+    "tipiDocumento": {
+        "categorie": {
+            "stragiudiziali": "Aussergerichtliche Schriften",
+            "esecuzione": "Betreibung (SchKG)",
+            "procedura_civile": "Zivilprozess (ZPO)"
+        },
+        "tipi": {
+            "diffida": {
+                "nome": "Mahnung und Inverzugsetzung",
+                "esempio": "schreib mir eine Mahnung wegen Nichtbezahlung der Rechnung..."
+            },
+            "parere": {
+                "nome": "Begründetes Rechtsgutachten",
+                "esempio": "bereite ein Gutachten zur Auflösung des Mietvertrags vor..."
+            },
+            "esecuzione_lef": {
+                "nome": "Betreibung SchKG (Begehren / Zahlungsbefehl)",
+                "esempio": "leite die Betreibung für die Forderung von CHF... ein"
+            },
+            "rigetto": {
+                "nome": "Rechtsöffnungsgesuch",
+                "esempio": "bereite das Rechtsöffnungsgesuch zum Zahlungsbefehl vor..."
+            },
+            "conciliazione": {
+                "nome": "Schlichtungsgesuch",
+                "esempio": "verfasse ein Schlichtungsgesuch für die Streitigkeit..."
+            },
+            "petizione": {
+                "nome": "Klage / einleitende Rechtsschrift",
+                "esempio": "schreib mir die Klage für den Rechtsstreit über..."
+            }
+        }
+    },
+    "bolla": {
+        "documento": "Dokument",
+        "documentoGenerato": "Erstelltes Dokument",
+        "anteprima": "Vorschau",
+        "modifica": "Bearbeiten",
+        "modificaTesto": "Text der Rechtsschrift bearbeiten",
+        "avvisoNonConservato": "Dieses Dokument wird nicht aufbewahrt. Speichern Sie es jetzt als PDF, um es im Dossier zu archivieren.",
+        "generoAnteprima": "Ich erstelle die formatierte Vorschau...",
+        "anteprimaAtto": "Vorschau der Rechtsschrift",
+        "riprova": "Erneut versuchen",
+        "modificheNonInAnteprima": "Sie haben Änderungen, die noch nicht in der Vorschau sind.",
+        "markdownGrezzo": "Roh-Markdown der Rechtsschrift.",
+        "rigenero": "Wird neu erstellt...",
+        "rigeneraAnteprima": "Vorschau neu erstellen",
+        "salvatoInDocumenti": "In den Dokumenten des Dossiers gespeichert:",
+        "scaricaPdf": "PDF herunterladen",
+        "salvataggioInCorso": "Wird gespeichert...",
+        "salvaDiNuovo": "Erneut speichern (neue Version)",
+        "nomeFile": "Dateiname",
+        "salvaPdfNellaPratica": "PDF im Dossier speichern",
+        "inserisciNomeFile": "Geben Sie einen Namen für die Datei ein",
+        "erroreAnteprima": "Fehler bei der Vorschau-Erstellung",
+        "anteprimaNonDisponibile": "Vorschau nicht verfügbar",
+        "erroreSalvataggio": "Fehler beim Speichern des PDF"
+    }
+}

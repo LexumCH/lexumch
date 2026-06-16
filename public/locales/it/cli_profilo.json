@@ -1,0 +1,38 @@
+{
+  "header": {
+    "label": "Account",
+    "title": "Il mio profilo"
+  },
+  "info_account": {
+    "titolo": "Informazioni account",
+    "ruolo": "Ruolo",
+    "cliente": "Cliente",
+    "studio": "Studio",
+    "avvocato": "Avvocato",
+    "assegnato": "Assegnato"
+  },
+  "dati_personali": {
+    "titolo": "Dati personali",
+    "nome": "Nome",
+    "cognome": "Cognome",
+    "telefono": "Telefono",
+    "telefono_placeholder": "+41 79 123 45 67",
+    "email": "Email",
+    "indirizzo": "Indirizzo",
+    "indirizzo_placeholder": "Via Nassa 5, 6900 Lugano",
+    "salva": "Salva modifiche",
+    "lingua": "Lingua",
+    "ok": "Dati aggiornati",
+    "email_hint": "L'email non è modificabile da qui"
+  },
+  "password": {
+    "titolo": "Cambia password",
+    "nuova": "Nuova password",
+    "conferma": "Conferma password",
+    "aggiorna": "Aggiorna password",
+    "placeholder": "••••••••",
+    "min": "Minimo 8 caratteri",
+    "mismatch": "Le password non coincidono",
+    "ok": "Password aggiornata"
+  }
+}

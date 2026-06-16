@@ -1,0 +1,30 @@
+{
+  "header": {
+    "titolo": "Nuovo mandato",
+    "sottotitolo": "Organizza il lavoro e le scadenze per questo cliente"
+  },
+  "campi": {
+    "cliente": "Cliente",
+    "seleziona_cliente_opzione": "— Seleziona cliente —",
+    "titolo": "Titolo",
+    "titolo_placeholder": "es. Contabilità 2026, Dichiarazione fiscale...",
+    "tipo": "Tipo",
+    "tipo_placeholder": "es. Contabilità annuale, Consulenza IVA...",
+    "opzionale": "(opzionale)",
+    "anno_riferimento": "Anno di riferimento",
+    "anno_nessuno": "Nessuno — mandato continuativo",
+    "anno_hint": "Se impostato, i contatori del mandato (uscite, scadenze) si riferiscono a quest'anno.",
+    "note": "Note",
+    "note_placeholder": "Annotazioni sul mandato..."
+  },
+  "errori": {
+    "titolo_obbligatorio": "Il titolo è obbligatorio.",
+    "seleziona_cliente": "Seleziona un cliente.",
+    "sessione_scaduta": "Sessione scaduta. Effettua nuovamente il login."
+  },
+  "azioni": {
+    "annulla": "Annulla",
+    "creazione": "Creazione...",
+    "crea": "Crea mandato"
+  }
+}

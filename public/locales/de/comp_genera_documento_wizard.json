@@ -1,0 +1,94 @@
+{
+  "header": {
+    "titolo": "Dokument erstellen"
+  },
+  "caricamento": "Daten werden geladen...",
+  "errore": "Fehler",
+  "chiudi": "Schliessen",
+  "step": {
+    "verifica": "Prüfung",
+    "controparti": "Gegenparteien",
+    "dati_atto": "Angaben zur Rechtsschrift",
+    "genera": "Erstellen"
+  },
+  "errori": {
+    "non_autenticato": "Benutzer nicht authentifiziert",
+    "sessione_scaduta": "Sitzung abgelaufen. Bitte laden Sie die Seite neu."
+  },
+  "prerequisiti": {
+    "titolo": "Voraussetzungen prüfen",
+    "descrizione": "Um das Dokument zu erstellen, müssen alle wesentlichen Daten verfügbar sein.",
+    "tutti_presenti": "Alle wesentlichen Daten sind vorhanden",
+    "mancano_dati": "Einige wesentliche Daten fehlen",
+    "foro_mancante": "Gerichtsstand fehlt im Anwaltsprofil",
+    "albo_mancante": "Anwaltsregister-Nummer fehlt im Anwaltsprofil",
+    "pec_mancante": "Zertifizierte E-Mail-Adresse fehlt im Anwaltsprofil",
+    "cliente_non_associato": "Dem Dossier ist kein Mandant zugeordnet",
+    "nome_cognome_mancante": "Vorname oder Nachname des Mandanten fehlt",
+    "ragione_sociale_mancante": "Firmenbezeichnung des Mandanten fehlt",
+    "nessuna_controparte": "Dem Dossier wurde keine Gegenpartei hinzugefügt",
+    "vai_profilo": "Zum Profil",
+    "apri_scheda_cliente": "Mandantendatei öffnen",
+    "checklist_titolo": "Empfohlene Checkliste für diese Rechtsschrift",
+    "nota_placeholder": "Lex erstellt das Dokument dennoch; für fehlende Daten wird ein expliziter Platzhalter verwendet."
+  },
+  "controparti": {
+    "titolo_una": "Gegenpartei auswählen",
+    "titolo_multipla": "Gegenparteien auswählen",
+    "descrizione_una": "Diese Rechtsschrift richtet sich gegen eine einzige Gegenpartei.",
+    "descrizione_multipla": "Sie können eine oder mehrere Gegenparteien auswählen.",
+    "vuoto": "Keine Gegenpartei vorhanden. Fügen Sie diese im Dossier hinzu, bevor Sie fortfahren.",
+    "errore_una": "Wählen Sie genau 1 Gegenpartei aus",
+    "errore_multipla": "Wählen Sie mindestens 1 Gegenpartei aus",
+    "partita_iva": "MWST-Nr.",
+    "codice_fiscale": "Steuer-Nr."
+  },
+  "campo": {
+    "seleziona": "— Auswählen —",
+    "obbligatorio": "Pflichtfeld",
+    "numero_non_valido": "Geben Sie eine gültige Zahl ein",
+    "minimo": "Minimum: {{min}}",
+    "massimo": "Maximum: {{max}}"
+  },
+  "campi": {
+    "titolo": "Spezifische Angaben zur Rechtsschrift",
+    "descrizione": "Füllen Sie die von der Vorlage geforderten Felder aus. Mit * gekennzeichnete Felder sind obligatorisch."
+  },
+  "genera": {
+    "pronto": "Bereit zur Erstellung",
+    "descrizione": "Lex erstellt das Dokument anhand der Daten des Dossiers, der ausgewählten Gegenpartei und Ihrer Eingaben. Der Vorgang verbraucht 1 KI-Guthaben.",
+    "btn_genera": "Dokument erstellen",
+    "riprova": "Erneut versuchen",
+    "in_corso": "Lex erstellt das Dokument...",
+    "sezione_corrente": "Aktueller Abschnitt:",
+    "sezioni_completate": "Abgeschlossene Abschnitte: {{count}}"
+  },
+  "anteprima": {
+    "tab_anteprima": "Vorschau",
+    "tab_modifica": "Bearbeiten",
+    "tooltip_salvato": "Dokument gespeichert, nicht mehr bearbeitbar",
+    "suggerimento": "Bearbeiten Sie den Text bei Bedarf im Reiter \"Bearbeiten\" und speichern Sie anschliessend das PDF im Dossier."
+  },
+  "salva": {
+    "btn_salva": "PDF im Dossier speichern",
+    "salvataggio": "Wird gespeichert...",
+    "btn_scarica": "PDF herunterladen",
+    "errore_nome_mancante": "Geben Sie einen Dateinamen ein",
+    "errore_salvataggio": "Fehler beim Speichern des PDF",
+    "successo": "PDF gespeichert unter <strong>Dossier-Dokumente</strong>: <file>{{nomeFile}}</file>",
+    "nome_file_label": "Dateiname",
+    "nota_estensione": "Die Erweiterung <ext>.pdf</ext> wird automatisch hinzugefügt"
+  },
+  "chiusura": {
+    "in_corso": "Die Erstellung läuft. Trotzdem schliessen?",
+    "non_salvato": "Das Dokument wurde erstellt, aber nicht gespeichert. Trotzdem schliessen?\n\nDas Guthaben wurde bereits verbraucht."
+  },
+  "footer": {
+    "indietro": "Zurück",
+    "avanti": "Weiter",
+    "fine": "Fertig",
+    "stato_generando": "Erstellung läuft...",
+    "stato_completo": "Bearbeiten und PDF im Dossier speichern",
+    "stato_iniziale": "Drücken Sie \"Dokument erstellen\", um zu beginnen"
+  }
+}

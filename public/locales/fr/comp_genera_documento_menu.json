@@ -1,0 +1,41 @@
+{
+  "header": {
+    "titolo": "Générer un document",
+    "badge_template_one": "{{count}} modèle",
+    "badge_template_other": "{{count}} modèles"
+  },
+  "sottotitolo": "Lex génère l'acte à partir des données du dossier, du client et des parties adverses.",
+  "vuoto": {
+    "titolo": "Aucun modèle disponible",
+    "sottotitolo": "Les modèles seront disponibles prochainement"
+  },
+  "errori": {
+    "caricamento": "Erreur lors du chargement des modèles"
+  },
+  "categorie": {
+    "stragiudiziale": {
+      "label": "Actes extrajudiciaires",
+      "desc": "Mises en demeure, sommations, avis de droit, accords, transactions"
+    },
+    "introduttivo": {
+      "label": "Actes introductifs",
+      "desc": "Demande, requête, mainlevée, opposition"
+    },
+    "difensivo": {
+      "label": "Actes de défense",
+      "desc": "Réponse, mémoire, notes de défense, réplique, plaidoirie finale"
+    },
+    "istruttorio": {
+      "label": "Actes d'instruction et incidents",
+      "desc": "Requêtes, offres de preuve, liste des témoins, observations sur l'expertise"
+    },
+    "esecutivo": {
+      "label": "Actes d'exécution",
+      "desc": "Commandement de payer, saisie, réquisition de vente ou d'attribution"
+    },
+    "impugnazione": {
+      "label": "Voies de recours",
+      "desc": "Appel, recours, recours en matière civile, révision"
+    }
+  }
+}

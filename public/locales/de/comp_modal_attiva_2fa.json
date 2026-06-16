@@ -1,0 +1,30 @@
+{
+  "header": {
+    "titolo": "2FA aktivieren"
+  },
+  "step1": {
+    "label": "Schritt 1 von 2",
+    "istruzione": "Scannen Sie den QR-Code mit Ihrer Authenticator-App",
+    "qrAlt": "2FA QR-Code",
+    "manualeLabel": "Oder manuell eingeben",
+    "appConsigliate": "Empfohlene Apps: Google Authenticator, Authy, 1Password, Microsoft Authenticator, Bitwarden.",
+    "procedi": "Gescannt, weiter"
+  },
+  "step2": {
+    "label": "Schritt 2 von 2",
+    "istruzione": "Geben Sie den 6-stelligen Code aus der App ein",
+    "codiceLabel": "Bestätigungscode"
+  },
+  "azioni": {
+    "riprova": "Erneut versuchen",
+    "indietro": "Zurück",
+    "verificaAttiva": "Prüfen und aktivieren"
+  },
+  "errori": {
+    "attivazione": "Fehler bei der Aktivierung",
+    "rispostaIncompleta": "Unvollständige Serverantwort",
+    "codiceInvalido": "Geben Sie den 6-stelligen Code aus Ihrer App ein",
+    "sessioneScaduta": "Die Aktivierungssitzung ist abgelaufen. Schliessen Sie und versuchen Sie es erneut.",
+    "generazioneCodici": "Fehler beim Generieren der Codes"
+  }
+}

@@ -14,6 +14,9 @@ import AssegnaDocumento from '@/components/AssegnaDocumento'
 import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { useTranslation, Trans } from 'react-i18next'
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 const MAX_FILES = 100
 const PARALLEL = 5
@@ -48,62 +51,36 @@ function evidenziaParole(testo, parole, classe = 'bg-salvia/30') {
     return risultato
 }
 
-function titoloSentenza(s) {
-    const parti = [s.organo, s.sezione, s.numero && `n. ${s.numero}`, s.anno].filter(Boolean)
-    return parti.join(' · ') || 'Sentenza'
+// Tipi provvedimento — chiavi tecniche (valori DB); label via t()
+const TIPI_PROVVEDIMENTO = ['sentenza', 'ordinanza', 'ordinanza_interlocutoria', 'decreto_presidenziale', 'rassegna', 'relazione']
+
+// Tipi documento — chiavi tecniche (valori DB); label via t()
+const TIPI_DOCUMENTO = [
+    'contratto', 'preliminare', 'procura', 'perizia', 'consulenza_tecnica',
+    'citazione', 'comparsa', 'ricorso', 'memoria', 'appello', 'decreto_ingiuntivo',
+    'atto_amministrativo', 'verbale', 'delibera', 'raccomandata', 'diffida',
+    'lettera', 'email', 'fattura', 'ricevuta', 'preventivo', 'estratto_conto',
+    'documento_identita', 'documento_societario', 'denuncia', 'querela',
+    'sentenza', 'ordinanza', 'decreto', 'altro',
+]
+
+function tipoDocumentoLabel(t, tipo) {
+    if (!tipo) return tipo
+    return TIPI_DOCUMENTO.includes(tipo) ? t(`tipi_documento.${tipo}`) : tipo
 }
 
-function labelTipoProvvedimento(t) {
-    const map = {
-        sentenza: 'Sentenza',
-        ordinanza: 'Ordinanza',
-        ordinanza_interlocutoria: 'Ord. interlocutoria',
-        decreto_presidenziale: 'Decreto',
-        rassegna: 'Rassegna',
-        relazione: 'Relazione',
-    }
-    return map[t] ?? t
+// Variante badge per stato OCR — solo lo stile resta qui, la label via t()
+const STATUS_VARIANT = {
+    pending: 'gray',
+    processing: 'warning',
+    completed: 'salvia',
+    failed: 'red',
+    skipped: 'gray',
 }
 
-const TIPI_DOCUMENTO_LABEL = {
-    contratto: 'Contratto',
-    preliminare: 'Preliminare',
-    procura: 'Procura',
-    perizia: 'Perizia',
-    consulenza_tecnica: 'CT',
-    citazione: 'Citazione',
-    comparsa: 'Comparsa',
-    ricorso: 'Ricorso',
-    memoria: 'Memoria',
-    appello: 'Appello',
-    decreto_ingiuntivo: 'D. Ingiuntivo',
-    atto_amministrativo: 'Atto amm.',
-    verbale: 'Verbale',
-    delibera: 'Delibera',
-    raccomandata: 'Raccomandata',
-    diffida: 'Diffida',
-    lettera: 'Lettera',
-    email: 'Email',
-    fattura: 'Fattura',
-    ricevuta: 'Ricevuta',
-    preventivo: 'Preventivo',
-    estratto_conto: 'E/C',
-    documento_identita: 'ID',
-    documento_societario: 'Doc. soc.',
-    denuncia: 'Denuncia',
-    querela: 'Querela',
-    sentenza: 'Sentenza',
-    ordinanza: 'Ordinanza',
-    decreto: 'Decreto',
-    altro: 'Altro',
-}
-
-const STATUS_CONFIG = {
-    pending: { label: 'In coda', variant: 'gray' },
-    processing: { label: 'Elaborazione', variant: 'warning' },
-    completed: { label: 'Indicizzato', variant: 'salvia' },
-    failed: { label: 'Errore', variant: 'red' },
-    skipped: { label: 'Manuale', variant: 'gray' },
+function statusConfig(t, stato) {
+    const key = STATUS_VARIANT[stato] ? stato : 'pending'
+    return { label: t(`status.${key}`), variant: STATUS_VARIANT[key] }
 }
 
 const COLORE_DEFAULT_CATEGORIA = '#C9A45C'
@@ -139,6 +116,7 @@ function passaFiltroData(doc, filtroData, dataDa, dataA) {
 // ─── BARRA PROGRESSO UPLOAD ────────────────────────────────
 
 function BarraProgresso({ items }) {
+    const { t } = useTranslation('avv_archivio')
     if (!items || items.length === 0) return null
     const completati = items.filter(i => ['completed', 'failed', 'skipped'].includes(i.status)).length
     const totale = items.length
@@ -149,9 +127,9 @@ function BarraProgresso({ items }) {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Loader2 size={16} className="animate-spin text-oro" />
-                    <p className="font-body text-sm font-medium text-nebbia">Elaborazione archivio</p>
+                    <p className="font-body text-sm font-medium text-nebbia">{t('progresso.titolo')}</p>
                 </div>
-                <span className="font-body text-sm text-oro">{completati} di {totale}</span>
+                <span className="font-body text-sm text-oro">{t('progresso.di', { completati, totale })}</span>
             </div>
 
             <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
@@ -174,7 +152,7 @@ function BarraProgresso({ items }) {
                             {item.nome}
                         </p>
                         {item.status === 'processing' && (
-                            <span className="font-body text-xs text-oro/50 ml-auto shrink-0">analisi...</span>
+                            <span className="font-body text-xs text-oro/50 ml-auto shrink-0">{t('progresso.analisi')}</span>
                         )}
                     </div>
                 ))}
@@ -194,6 +172,7 @@ function FormMetadatiMulti({
     categorie = [],
     sottocategorie = [],
 }) {
+    const { t } = useTranslation('avv_archivio')
     // Stato: array di titoli, uno per file, indicizzato per posizione
     const [titoli, setTitoli] = useState(
         () => files.map(f => f.name.replace(/\.[^/.]+$/, ''))
@@ -230,13 +209,13 @@ function FormMetadatiMulti({
             <div className="flex items-center justify-between gap-3 flex-wrap">
                 <p className="font-body text-sm text-nebbia">
                     {files.length === 1
-                        ? 'Inserisci il titolo del documento'
-                        : `Inserisci i titoli per ${files.length} documenti`
+                        ? t('form_upload.inserisci_titolo')
+                        : t('form_upload.inserisci_titoli', { count: files.length })
                     }
-                    <span className="ml-2 text-nebbia/40 text-xs">({dimensioneTotaleMB} MB totali)</span>
+                    <span className="ml-2 text-nebbia/40 text-xs">{t('form_upload.mb_totali', { mb: dimensioneTotaleMB })}</span>
                 </p>
                 <label className="flex items-center gap-1.5 px-3 py-1.5 border border-white/10 text-nebbia/60 hover:border-oro/30 hover:text-oro font-body text-xs cursor-pointer transition-colors">
-                    <Plus size={11} /> Aggiungi altri
+                    <Plus size={11} /> {t('form_upload.aggiungi_altri')}
                     <input
                         type="file"
                         multiple
@@ -250,7 +229,7 @@ function FormMetadatiMulti({
             {categorie.length > 0 && (
                 <div className="bg-petrolio/40 border border-white/5 p-3 space-y-2">
                     <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest">
-                        Categoria per tutti (opzionale)
+                        {t('form_upload.categoria_per_tutti')}
                     </p>
                     <div className="flex gap-2 flex-wrap">
                         <select
@@ -258,7 +237,7 @@ function FormMetadatiMulti({
                             onChange={e => setCategoriaBatch(e.target.value)}
                             className="bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
                         >
-                            <option value="">Nessuna categoria</option>
+                            <option value="">{t('form_upload.nessuna_categoria')}</option>
                             {categorie.map(c => (
                                 <option key={c.id} value={c.id}>{c.nome}</option>
                             ))}
@@ -270,7 +249,7 @@ function FormMetadatiMulti({
                                 onChange={e => setSottocatBatch(e.target.value)}
                                 className="bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
                             >
-                                <option value="">Nessuna sottocategoria</option>
+                                <option value="">{t('form_upload.nessuna_sottocategoria')}</option>
                                 {sottocatPerCat.map(s => (
                                     <option key={s.id} value={s.id}>{s.nome}</option>
                                 ))}
@@ -278,7 +257,7 @@ function FormMetadatiMulti({
                         )}
                     </div>
                     <p className="font-body text-xs text-nebbia/30 italic">
-                        Potrai modificare la categoria per ogni documento singolarmente dopo il caricamento.
+                        {t('form_upload.modifica_dopo')}
                     </p>
                 </div>
             )}
@@ -302,15 +281,15 @@ function FormMetadatiMulti({
                                     </span>
                                 )}
                                 {!isPdf(f) && !f.name.toLowerCase().endsWith('.txt') && (
-                                    <span className="font-body text-[10px] px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 shrink-0" title="Verrà caricato ma non digitalizzato automaticamente">
-                                        Manuale
+                                    <span className="font-body text-[10px] px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 shrink-0" title={t('form_upload.tooltip_manuale')}>
+                                        {t('form_upload.badge_manuale')}
                                     </span>
                                 )}
                             </div>
                             <button
                                 onClick={() => onRimuoviFile(idx)}
                                 className="text-nebbia/30 hover:text-red-400 transition-colors p-1 shrink-0"
-                                title="Rimuovi dalla coda"
+                                title={t('form_upload.rimuovi_dalla_coda')}
                             >
                                 <X size={11} />
                             </button>
@@ -319,15 +298,15 @@ function FormMetadatiMulti({
                             <input
                                 value={titoli[idx] ?? ''}
                                 onChange={e => aggiornaTitolo(idx, e.target.value)}
-                                placeholder="Titolo del documento"
+                                placeholder={t('form_upload.placeholder_titolo')}
                                 className="flex-1 bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
                             />
                             <button
                                 onClick={() => applicaTitoloDaNome(idx)}
                                 className="font-body text-[10px] text-nebbia/30 hover:text-oro px-2 py-1 transition-colors shrink-0"
-                                title="Usa il nome del file come titolo"
+                                title={t('form_upload.usa_nome_file')}
                             >
-                                ↺ Nome file
+                                {t('form_upload.nome_file')}
                             </button>
                         </div>
                     </div>
@@ -335,7 +314,7 @@ function FormMetadatiMulti({
             </div>
 
             <p className="font-body text-xs text-nebbia/25 italic">
-                Categoria, soggetti, riepilogo e tag verranno suggeriti automaticamente da Lex dopo l'upload (solo per PDF e TXT).
+                {t('form_upload.suggeriti_da_lex')}
             </p>
 
             <div className="flex gap-2">
@@ -345,13 +324,13 @@ function FormMetadatiMulti({
                     className="flex items-center gap-2 px-4 py-2 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                     <Check size={13} />
-                    {files.length === 1 ? 'Carica documento' : `Carica ${files.length} documenti`}
+                    {files.length === 1 ? t('form_upload.carica_documento') : t('form_upload.carica_documenti', { count: files.length })}
                 </button>
                 <button
                     onClick={onAnnulla}
                     className="px-4 py-2 border border-white/10 text-nebbia/40 font-body text-sm hover:text-nebbia transition-colors"
                 >
-                    Annulla
+                    {t('common.annulla')}
                 </button>
             </div>
         </div>
@@ -361,6 +340,7 @@ function FormMetadatiMulti({
 // ─── CARD CARTELLA (categoria) ─────────────────────────────
 
 function CardCartella({ categoria, count, onClick, vuota = false }) {
+    const { t } = useTranslation('avv_archivio')
     return (
         <button
             onClick={onClick}
@@ -378,10 +358,10 @@ function CardCartella({ categoria, count, onClick, vuota = false }) {
             </div>
             <p className={`font-display text-base mb-1 line-clamp-2 leading-snug ${vuota ? 'text-nebbia/60' : 'text-nebbia'
                 }`}>
-                {categoria?.nome ?? 'Senza categoria'}
+                {categoria?.nome ?? t('cartella.senza_categoria')}
             </p>
             <p className="font-body text-xs text-nebbia/40">
-                {vuota ? 'vuota' : `${count} ${count === 1 ? 'documento' : 'documenti'}`}
+                {vuota ? t('cartella.vuota') : t('cartella.documenti', { count })}
             </p>
         </button>
     )
@@ -390,6 +370,7 @@ function CardCartella({ categoria, count, onClick, vuota = false }) {
 // ─── PICKER CATEGORIA INLINE ───────────────────────────────
 
 function PickerCategoria({ doc, categorie, sottocategorie, onAggiornata, onChiudi }) {
+    const { t } = useTranslation('avv_archivio')
     const [salvando, setSalvando] = useState(false)
     const [errore, setErrore] = useState(null)
 
@@ -423,7 +404,7 @@ function PickerCategoria({ doc, categorie, sottocategorie, onAggiornata, onChiud
     return (
         <div className="absolute z-30 top-full left-0 mt-1 w-72 bg-slate border border-white/10 shadow-2xl">
             <div className="flex items-center justify-between p-2 border-b border-white/5">
-                <p className="font-body text-xs text-nebbia/40">Assegna categoria</p>
+                <p className="font-body text-xs text-nebbia/40">{t('picker_categoria.titolo')}</p>
                 <button onClick={onChiudi} className="text-nebbia/30 hover:text-nebbia">
                     <X size={12} />
                 </button>
@@ -439,12 +420,12 @@ function PickerCategoria({ doc, categorie, sottocategorie, onAggiornata, onChiud
                     disabled={salvando}
                     className="w-full text-left px-3 py-2 hover:bg-petrolio/50 transition-colors border-b border-white/5 disabled:opacity-50"
                 >
-                    <p className="font-body text-xs text-nebbia/40 italic">Nessuna categoria</p>
+                    <p className="font-body text-xs text-nebbia/40 italic">{t('picker_categoria.nessuna_categoria')}</p>
                 </button>
 
                 {categorie.length === 0 ? (
                     <p className="p-3 text-center font-body text-xs text-nebbia/25">
-                        Nessuna categoria — usa "Gestisci categorie" per crearne
+                        {t('picker_categoria.nessuna_disponibile')}
                     </p>
                 ) : categorie.map(cat => {
                     const subs = sottocategorie.filter(s => s.categoria_id === cat.id)
@@ -492,6 +473,7 @@ function ModalGestioneCategorie({
     onAggiornata,
     onClose,
 }) {
+    const { t } = useTranslation('avv_archivio')
     const [editing, setEditing] = useState(null) // {tipo: 'cat'|'sub', id, valore}
     const [creandoCat, setCreandoCat] = useState(false)
     const [nuovaCatNome, setNuovaCatNome] = useState('')
@@ -556,9 +538,13 @@ function ModalGestioneCategorie({
     async function eliminaCategoria(cat) {
         const docCount = countDocPerCategoria(cat.id)
         const subCount = sottocategorie.filter(s => s.categoria_id === cat.id).length
-        const msg = docCount > 0
-            ? `Eliminare la categoria "${cat.nome}"?\n\n${docCount} ${docCount === 1 ? 'documento perderà' : 'documenti perderanno'} la categoria.${subCount > 0 ? `\n${subCount} ${subCount === 1 ? 'sottocategoria sarà eliminata' : 'sottocategorie saranno eliminate'}.` : ''}`
-            : `Eliminare la categoria "${cat.nome}"?${subCount > 0 ? `\n\n${subCount} ${subCount === 1 ? 'sottocategoria sarà eliminata' : 'sottocategorie saranno eliminate'}.` : ''}`
+        let msg = t('conferma.elimina_categoria', { nome: cat.nome })
+        if (docCount > 0) {
+            msg += '\n\n' + t('conferma.doc_perdono_categoria', { count: docCount })
+        }
+        if (subCount > 0) {
+            msg += '\n' + t('conferma.sottocategorie_eliminate', { count: subCount })
+        }
         if (!confirm(msg)) return
         setSalvando(true); setErrore(null)
         try {
@@ -615,9 +601,10 @@ function ModalGestioneCategorie({
 
     async function eliminaSottocategoria(sub) {
         const docCount = countDocPerSottocat(sub.id)
-        const msg = docCount > 0
-            ? `Eliminare "${sub.nome}"?\n\n${docCount} ${docCount === 1 ? 'documento perderà' : 'documenti perderanno'} la sottocategoria (la categoria principale resta).`
-            : `Eliminare "${sub.nome}"?`
+        let msg = t('conferma.elimina_sottocategoria', { nome: sub.nome })
+        if (docCount > 0) {
+            msg += '\n\n' + t('conferma.doc_perdono_sottocategoria', { count: docCount })
+        }
         if (!confirm(msg)) return
         setSalvando(true); setErrore(null)
         try {
@@ -646,7 +633,7 @@ function ModalGestioneCategorie({
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
                     <div className="flex items-center gap-2">
                         <Tags size={14} className="text-oro" />
-                        <p className="font-body text-sm font-medium text-nebbia">Gestisci categorie</p>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('modal_categorie.titolo')}</p>
                     </div>
                     <button
                         onClick={onClose}
@@ -666,9 +653,9 @@ function ModalGestioneCategorie({
                     {categorie.length === 0 && !creandoCat && (
                         <div className="text-center py-8">
                             <Folder size={28} className="text-nebbia/20 mx-auto mb-2" />
-                            <p className="font-body text-sm text-nebbia/40">Nessuna categoria ancora</p>
+                            <p className="font-body text-sm text-nebbia/40">{t('modal_categorie.nessuna_ancora')}</p>
                             <p className="font-body text-xs text-nebbia/25 mt-1">
-                                Crea la prima categoria per organizzare il tuo archivio
+                                {t('modal_categorie.crea_prima')}
                             </p>
                         </div>
                     )}
@@ -696,7 +683,7 @@ function ModalGestioneCategorie({
                                             <p className="font-body text-sm font-medium text-nebbia truncate">{cat.nome}</p>
                                         )}
                                         <span className="font-body text-xs text-nebbia/30 shrink-0">
-                                            {countDocPerCategoria(cat.id)} doc
+                                            {t('modal_categorie.n_doc', { count: countDocPerCategoria(cat.id) })}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-1 shrink-0">
@@ -706,14 +693,14 @@ function ModalGestioneCategorie({
                                                     onClick={() => rinominaCategoria(cat.id, editing.valore)}
                                                     disabled={salvando}
                                                     className="p-1.5 text-salvia hover:bg-salvia/10 transition-colors"
-                                                    title="Salva"
+                                                    title={t('common.salva')}
                                                 >
                                                     <Save size={12} />
                                                 </button>
                                                 <button
                                                     onClick={() => setEditing(null)}
                                                     className="p-1.5 text-nebbia/40 hover:text-nebbia transition-colors"
-                                                    title="Annulla"
+                                                    title={t('common.annulla')}
                                                 >
                                                     <X size={12} />
                                                 </button>
@@ -723,7 +710,7 @@ function ModalGestioneCategorie({
                                                 <button
                                                     onClick={() => setEditing({ tipo: 'cat', id: cat.id, valore: cat.nome })}
                                                     className="p-1.5 text-nebbia/40 hover:text-oro transition-colors"
-                                                    title="Rinomina"
+                                                    title={t('common.rinomina')}
                                                 >
                                                     <Edit2 size={12} />
                                                 </button>
@@ -731,7 +718,7 @@ function ModalGestioneCategorie({
                                                     onClick={() => eliminaCategoria(cat)}
                                                     disabled={salvando}
                                                     className="p-1.5 text-nebbia/40 hover:text-red-400 transition-colors"
-                                                    title="Elimina"
+                                                    title={t('common.elimina')}
                                                 >
                                                     <Trash2 size={12} />
                                                 </button>
@@ -815,7 +802,7 @@ function ModalGestioneCategorie({
                                                     if (e.key === 'Enter') creaSottocategoria(cat.id)
                                                     if (e.key === 'Escape') { setCreandoSubFor(null); setNuovaSubNome('') }
                                                 }}
-                                                placeholder="Nome sottocategoria..."
+                                                placeholder={t('modal_categorie.placeholder_sottocategoria')}
                                                 className="flex-1 bg-slate border border-oro/40 text-nebbia font-body text-xs px-2 py-1 outline-none"
                                             />
                                             <button
@@ -837,7 +824,7 @@ function ModalGestioneCategorie({
                                             onClick={() => { setCreandoSubFor(cat.id); setNuovaSubNome('') }}
                                             className="flex items-center gap-1 mt-1 font-body text-[11px] text-nebbia/30 hover:text-oro transition-colors"
                                         >
-                                            <Plus size={10} /> Aggiungi sottocategoria
+                                            <Plus size={10} /> {t('modal_categorie.aggiungi_sottocategoria')}
                                         </button>
                                     )}
                                 </div>
@@ -855,7 +842,7 @@ function ModalGestioneCategorie({
                                     if (e.key === 'Enter') creaCategoria()
                                     if (e.key === 'Escape') { setCreandoCat(false); setNuovaCatNome('') }
                                 }}
-                                placeholder="Nome categoria..."
+                                placeholder={t('modal_categorie.placeholder_categoria')}
                                 className="flex-1 bg-petrolio border border-oro/40 text-nebbia font-body text-sm px-3 py-2 outline-none"
                             />
                             <button
@@ -877,7 +864,7 @@ function ModalGestioneCategorie({
                             onClick={() => setCreandoCat(true)}
                             className="w-full flex items-center justify-center gap-2 py-2.5 border border-dashed border-white/10 text-nebbia/40 hover:border-oro/40 hover:text-oro font-body text-sm transition-colors"
                         >
-                            <Plus size={13} /> Nuova categoria
+                            <Plus size={13} /> {t('modal_categorie.nuova_categoria')}
                         </button>
                     )}
                 </div>
@@ -887,7 +874,7 @@ function ModalGestioneCategorie({
                         onClick={onClose}
                         className="px-4 py-2 border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors"
                     >
-                        Chiudi
+                        {t('common.chiudi')}
                     </button>
                 </div>
             </div>
@@ -911,6 +898,8 @@ function CardDocumento({
     chunkRilevante = null,
     mostraPath = false,
 }) {
+    const { t, i18n } = useTranslation('avv_archivio')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const navigate = useNavigate()
     const isSentenza = doc._kind === 'sentenza'
 
@@ -922,7 +911,7 @@ function CardDocumento({
     const [testoFile, setTestoFile] = useState(null)
     const [caricandoAnteprima, setCaricandoAnteprima] = useState(false)
     const cliente = clienti.find(c => c.id === doc.cliente_id)
-    const sc = STATUS_CONFIG[doc.ocr_status] ?? STATUS_CONFIG.pending
+    const sc = statusConfig(t, doc.ocr_status)
 
     const [pickerPratica, setPickerPratica] = useState(false)
     const [pickerCat, setPickerCat] = useState(false)
@@ -965,7 +954,7 @@ function CardDocumento({
     const sugg = doc.metadati?.suggeriti ?? null
     const verAuto = doc.metadati?.verificato_auto === true
     const tipoDocLabel = sugg?.tipo_documento && sugg.tipo_documento !== 'altro'
-        ? TIPI_DOCUMENTO_LABEL[sugg.tipo_documento] ?? sugg.tipo_documento
+        ? tipoDocumentoLabel(t, sugg.tipo_documento)
         : null
 
     const evidenzia = (testo) => evidenziaParole(testo, paroleChiave)
@@ -1024,7 +1013,7 @@ function CardDocumento({
                     const text = await res.text()
                     setTestoFile(text)
                 } catch (err) {
-                    setTestoFile(`Impossibile caricare il contenuto: ${err.message}`)
+                    setTestoFile(t('anteprima.errore_contenuto', { message: err.message }))
                 }
             }
         } finally {
@@ -1059,10 +1048,10 @@ function CardDocumento({
                                             ? 'bg-oro/15 border border-oro/40 text-oro hover:bg-oro/25'
                                             : 'border border-dashed border-white/15 text-nebbia/30 hover:border-oro/30 hover:text-oro'
                                             }`}
-                                        title="Cambia categoria"
+                                        title={t('card.cambia_categoria')}
                                     >
                                         <Folder size={9} />
-                                        {categoriaCorrente?.nome ?? 'No categoria'}
+                                        {categoriaCorrente?.nome ?? t('card.no_categoria')}
                                     </button>
                                     {pickerCat && (
                                         <PickerCategoria
@@ -1088,7 +1077,7 @@ function CardDocumento({
                             )}
                             {isSentenza && (
                                 <span className="font-body text-[10px] px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 uppercase tracking-wider flex items-center gap-1">
-                                    <Gavel size={9} /> Sentenza
+                                    <Gavel size={9} /> {t('card.sentenza')}
                                 </span>
                             )}
                         </div>
@@ -1097,7 +1086,7 @@ function CardDocumento({
                         <div className="flex items-center gap-1.5 shrink-0">
                             {doc.metadati?.kind === 'fattura' && (
                                 <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/15 border border-salvia/40 text-salvia uppercase tracking-wider flex items-center gap-1 font-semibold">
-                                    <Receipt size={9} /> Fattura
+                                    <Receipt size={9} /> {t('card.fattura')}
                                 </span>
                             )}
                             {tipoDocLabel && doc.metadati?.kind !== 'fattura' && (
@@ -1108,10 +1097,10 @@ function CardDocumento({
                             {!isSentenza && <Badge label={sc.label} variant={sc.variant} />}
                             {verAuto && doc.ocr_status === 'completed' && (
                                 <span
-                                    title="Verificato automaticamente — controlla i metadati estratti"
+                                    title={t('card.tooltip_auto')}
                                     className="font-body text-[10px] px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center gap-1"
                                 >
-                                    <Sparkles size={9} /> Auto
+                                    <Sparkles size={9} /> {t('card.auto')}
                                 </span>
                             )}
                         </div>
@@ -1147,7 +1136,7 @@ function CardDocumento({
                             </span>
                         )}
                         <span className="font-body text-xs text-nebbia/25">
-                            {new Date(doc.created_at).toLocaleDateString('it-CH')}
+                            {new Date(doc.created_at).toLocaleDateString(dateLocale)}
                         </span>
                         {doc.dimensione && (
                             <span className="font-body text-xs text-nebbia/25">{formatSize(doc.dimensione)}</span>
@@ -1157,19 +1146,19 @@ function CardDocumento({
                     {/* Tag manuali + tag suggeriti Haiku */}
                     {((doc.tags ?? []).length > 0 || (sugg?.tags ?? []).length > 0) && (
                         <div className="flex flex-wrap gap-1 mt-2">
-                            {(doc.tags ?? []).map(t => (
+                            {(doc.tags ?? []).map(tagManuale => (
                                 <span
-                                    key={`m-${t}`}
+                                    key={`m-${tagManuale}`}
                                     className="font-body text-[10px] px-1.5 py-0.5 bg-petrolio border border-white/8 text-nebbia/35"
-                                    dangerouslySetInnerHTML={{ __html: evidenzia(t) }}
+                                    dangerouslySetInnerHTML={{ __html: evidenzia(tagManuale) }}
                                 />
                             ))}
-                            {(sugg?.tags ?? []).map(t => (
+                            {(sugg?.tags ?? []).map(tagSugg => (
                                 <span
-                                    key={`s-${t}`}
+                                    key={`s-${tagSugg}`}
                                     className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/5 border border-salvia/15 text-salvia/70"
-                                    title="Suggerito da Lex"
-                                    dangerouslySetInnerHTML={{ __html: evidenzia(t) }}
+                                    title={t('card.suggerito_da_lex')}
+                                    dangerouslySetInnerHTML={{ __html: evidenzia(tagSugg) }}
                                 />
                             ))}
                         </div>
@@ -1194,7 +1183,7 @@ function CardDocumento({
                             ))}
                             {sugg.soggetti.length > 3 && (
                                 <span className="font-body text-[10px] text-nebbia/30">
-                                    +{sugg.soggetti.length - 3} altri
+                                    {t('card.altri_soggetti', { count: sugg.soggetti.length - 3 })}
                                 </span>
                             )}
                         </div>
@@ -1239,7 +1228,7 @@ function CardDocumento({
                     <button
                         onClick={apriDocumento}
                         className="w-7 h-7 flex items-center justify-center text-nebbia/25 hover:text-oro transition-colors"
-                        title={isSentenza ? "Apri sentenza" : "Anteprima"}
+                        title={isSentenza ? t('card.apri_sentenza') : t('card.anteprima')}
                     >
                         {isSentenza ? <ArrowRight size={13} /> : <Eye size={13} />}
                     </button>
@@ -1247,7 +1236,7 @@ function CardDocumento({
                         <button
                             onClick={() => onElimina(doc)}
                             className="w-7 h-7 flex items-center justify-center text-nebbia/25 hover:text-red-400 transition-colors"
-                            title="Elimina"
+                            title={t('common.elimina')}
                         >
                             <Trash2 size={13} />
                         </button>
@@ -1258,7 +1247,7 @@ function CardDocumento({
 
             {chunkRilevante && (
                 <div className="bg-petrolio/40 border-t border-salvia/10 px-4 py-3">
-                    <p className="font-body text-[10px] text-salvia/50 mb-1 uppercase tracking-widest">Sezione rilevante</p>
+                    <p className="font-body text-[10px] text-salvia/50 mb-1 uppercase tracking-widest">{t('card.sezione_rilevante')}</p>
                     <p
                         className="font-body text-xs text-nebbia/50 leading-relaxed line-clamp-3"
                         dangerouslySetInnerHTML={{ __html: evidenzia(chunkRilevante) }}
@@ -1268,7 +1257,7 @@ function CardDocumento({
             {aperto && !isSentenza && (
                 <div className="border-t border-white/5 p-4">
                     <div className="flex items-center justify-between mb-3">
-                        <p className="font-body text-xs text-nebbia/40">Anteprima documento</p>
+                        <p className="font-body text-xs text-nebbia/40">{t('anteprima.titolo')}</p>
                         <button onClick={() => { setAperto(false); setPdfUrl(null); setTestoFile(null) }}
                             className="text-nebbia/25 hover:text-nebbia transition-colors">
                             <X size={14} />
@@ -1289,7 +1278,7 @@ function CardDocumento({
                         <div className="bg-petrolio/40 border border-white/5 p-6 text-center space-y-3">
                             <FileText size={32} className="text-nebbia/20 mx-auto" />
                             <p className="font-body text-xs text-nebbia/40">
-                                Anteprima non disponibile per questo formato
+                                {t('anteprima.non_disponibile')}
                             </p>
                             <a
                                 href={pdfUrl}
@@ -1297,7 +1286,7 @@ function CardDocumento({
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-2 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors"
                             >
-                                Apri in nuova scheda
+                                {t('anteprima.apri_nuova_scheda')}
                             </a>
                         </div>
                     ) : null}
@@ -1310,6 +1299,7 @@ function CardDocumento({
 // ─── PAGINA PRINCIPALE ─────────────────────────────────────
 
 export default function Archivio() {
+    const { t } = useTranslation('avv_archivio')
     const { profile } = useAuth()
     const location = useLocation()
     const fileInputRef = useRef(null)
@@ -1584,9 +1574,9 @@ export default function Archivio() {
     const uploadDisabilitato = pianoScaduto || spazioPieno
 
     const motivoBlocco = pianoScaduto
-        ? 'Piano scaduto — archivio in sola lettura'
+        ? t('blocco.piano_scaduto')
         : spazioPieno
-            ? 'Spazio esaurito — libera file o acquista un pacchetto storage'
+            ? t('blocco.spazio_esaurito')
             : null
 
     function handleFilesChange(e) {
@@ -1607,7 +1597,7 @@ export default function Archivio() {
         }
 
         if (tutti.length > MAX_FILES) {
-            setErroreUpload(`Puoi caricare massimo ${MAX_FILES} documenti alla volta. Hai selezionato ${tutti.length}.`)
+            setErroreUpload(t('errori.troppi_file', { max: MAX_FILES, selezionati: tutti.length }))
             e.target.value = ''
             return
         }
@@ -1618,7 +1608,10 @@ export default function Archivio() {
 
         if (dimensioneTotaleGB > spazioLiberoGB) {
             setErroreUpload(
-                `Spazio insufficiente. Stai caricando ${dimensioneTotaleGB.toFixed(2)} GB ma hai solo ${spazioLiberoGB.toFixed(2)} GB liberi.`
+                t('errori.spazio_insufficiente', {
+                    caricando: dimensioneTotaleGB.toFixed(2),
+                    liberi: spazioLiberoGB.toFixed(2),
+                })
             )
             e.target.value = ''
             return
@@ -1820,7 +1813,7 @@ export default function Archivio() {
     }
 
     async function eliminaDocumento(doc) {
-        if (!confirm(`Eliminare "${doc.titolo}"?`)) return
+        if (!confirm(t('conferma.elimina_documento', { titolo: doc.titolo }))) return
         if (doc.storage_path) {
             await supabase.storage.from('archivio').remove([doc.storage_path])
         }
@@ -1914,33 +1907,38 @@ export default function Archivio() {
     return (
         <div className="space-y-6 pb-16">
             <PageHeader
-                label="Avvocato"
-                title="Archivio"
+                label={t('header.label')}
+                title={t('header.title')}
                 subtitle={tabPrincipale === 'documenti'
-                    ? `${documenti.length} documenti · ${documenti.filter(d => d.ocr_status === 'completed').length} indicizzati · ${quota.occupato_gb.toFixed(2)}/${quota.gb_totali} GB`
-                    : 'Sentenze acquistate dalla banca dati'
+                    ? t('header.sottotitolo', {
+                        documenti: documenti.length,
+                        indicizzati: documenti.filter(d => d.ocr_status === 'completed').length,
+                        occupato: quota.occupato_gb.toFixed(2),
+                        totali: quota.gb_totali,
+                    })
+                    : t('header.sottotitolo_sentenze')
                 }
                 action={tabPrincipale === 'documenti' ? (
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setMostraModalCategorie(true)}
                             className="flex items-center gap-1.5 text-sm border border-white/10 text-nebbia/60 hover:border-oro/30 hover:text-oro font-body px-3 py-2 transition-colors"
-                            title="Gestisci categorie e sottocategorie"
+                            title={t('header.gestisci_categorie')}
                         >
-                            <Tags size={13} /> Categorie
+                            <Tags size={13} /> {t('header.categorie')}
                         </button>
                         <label
                             className={`text-sm flex items-center gap-2 ${uploadDisabilitato
                                 ? 'cursor-not-allowed bg-white/5 border border-white/10 text-nebbia/30 px-4 py-2'
                                 : 'btn-primary cursor-pointer'
                                 }`}
-                            title={uploadDisabilitato ? motivoBlocco : 'Carica documenti'}
+                            title={uploadDisabilitato ? motivoBlocco : t('header.carica_documenti')}
                         >
                             {uploadDisabilitato
-                                ? <><Lock size={14} /> Upload bloccato</>
+                                ? <><Lock size={14} /> {t('header.upload_bloccato')}</>
                                 : uploadInCorso
-                                    ? <><Loader2 size={14} className="animate-spin" /> Caricamento...</>
-                                    : <><Upload size={14} /> Carica documenti</>
+                                    ? <><Loader2 size={14} className="animate-spin" /> {t('header.caricamento')}</>
+                                    : <><Upload size={14} /> {t('header.carica_documenti')}</>
                             }
                             <input
                                 ref={fileInputRef}
@@ -1955,7 +1953,7 @@ export default function Archivio() {
                     </div>
                 ) : (
                     <Link to="/banca-dati" className="btn-secondary text-sm flex items-center gap-2">
-                        <Search size={13} /> Esplora banca dati
+                        <Search size={13} /> {t('header.esplora_banca_dati')}
                     </Link>
                 )}
             />
@@ -1967,12 +1965,12 @@ export default function Archivio() {
                         <div className="border bg-red-900/10 border-red-500/30 p-4 flex items-start gap-3">
                             <AlertTriangle size={16} className="text-red-400 shrink-0 mt-0.5" />
                             <div className="flex-1">
-                                <p className="font-body text-sm font-medium text-red-400">Piano scaduto — archivio in sola lettura</p>
+                                <p className="font-body text-sm font-medium text-red-400">{t('banner.piano_scaduto_titolo')}</p>
                                 <p className="font-body text-xs text-red-400/70 mt-1">
-                                    I tuoi {documenti.length} documenti restano accessibili e cercabili, ma non puoi caricarne di nuovi finché non rinnovi il piano.
+                                    {t('banner.piano_scaduto_testo', { count: documenti.length })}
                                 </p>
                                 <Link to="/studio?tab=acquista" className="mt-2 inline-block font-body text-xs text-oro border border-oro/30 px-3 py-1 hover:bg-oro/10 transition-colors">
-                                    Rinnova ora →
+                                    {t('banner.rinnova_ora')}
                                 </Link>
                             </div>
                         </div>
@@ -1982,12 +1980,12 @@ export default function Archivio() {
                         <div className="border bg-red-900/10 border-red-500/30 p-4 flex items-start gap-3">
                             <HardDrive size={16} className="text-red-400 shrink-0 mt-0.5" />
                             <div className="flex-1">
-                                <p className="font-body text-sm font-medium text-red-400">Spazio archivio esaurito</p>
+                                <p className="font-body text-sm font-medium text-red-400">{t('banner.spazio_esaurito_titolo')}</p>
                                 <p className="font-body text-xs text-red-400/70 mt-1">
-                                    Hai usato {quota.occupato_gb.toFixed(2)} GB su {quota.gb_totali} GB disponibili. Libera spazio o acquista un pacchetto extra.
+                                    {t('banner.spazio_esaurito_testo', { occupato: quota.occupato_gb.toFixed(2), totali: quota.gb_totali })}
                                 </p>
                                 <Link to="/studio?tab=acquista" className="mt-2 inline-block font-body text-xs text-oro border border-oro/30 px-3 py-1 hover:bg-oro/10 transition-colors">
-                                    Acquista storage →
+                                    {t('banner.acquista_storage')}
                                 </Link>
                             </div>
                         </div>
@@ -1998,13 +1996,13 @@ export default function Archivio() {
                             <HardDrive size={16} className="text-amber-400 shrink-0 mt-0.5" />
                             <div className="flex-1">
                                 <p className="font-body text-sm font-medium text-amber-400">
-                                    Archivio quasi pieno — {(storagePct * 100).toFixed(0)}% occupato
+                                    {t('banner.quasi_pieno_titolo', { pct: (storagePct * 100).toFixed(0) })}
                                 </p>
                                 <p className="font-body text-xs text-amber-400/70 mt-1">
-                                    {quota.occupato_gb.toFixed(2)} GB su {quota.gb_totali} GB. Considera di acquistare spazio extra prima di riempire l'archivio.
+                                    {t('banner.quasi_pieno_testo', { occupato: quota.occupato_gb.toFixed(2), totali: quota.gb_totali })}
                                 </p>
                                 <Link to="/studio?tab=acquista" className="mt-2 inline-block font-body text-xs text-oro border border-oro/30 px-3 py-1 hover:bg-oro/10 transition-colors">
-                                    Acquista storage →
+                                    {t('banner.acquista_storage')}
                                 </Link>
                             </div>
                         </div>
@@ -2048,21 +2046,21 @@ export default function Archivio() {
                     )}
 
                     <div className="flex items-center gap-6 px-4 py-2.5 bg-petrolio/30 border border-white/5">
-                        <p className="font-body text-xs text-nebbia/25 uppercase tracking-widest shrink-0">Visibilità</p>
+                        <p className="font-body text-xs text-nebbia/25 uppercase tracking-widest shrink-0">{t('visibilita.label')}</p>
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-oro/50" />
-                            <p className="font-body text-xs text-nebbia/35">Collegato a cliente — solo chi lo gestisce</p>
+                            <p className="font-body text-xs text-nebbia/35">{t('visibilita.collegato')}</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-salvia/50" />
-                            <p className="font-body text-xs text-nebbia/35">Non collegato — tutto lo studio</p>
+                            <p className="font-body text-xs text-nebbia/35">{t('visibilita.non_collegato')}</p>
                         </div>
                     </div>
 
                     {/* ═══ BOX RICERCA UNIFICATO (pattern Ricerche.jsx) ═══ */}
                     <div className="bg-slate border border-white/5 p-4 space-y-3">
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            Cerca tra i documenti del tuo archivio. Usa la ricerca tradizionale per parole chiave letterali, o Lex per query in linguaggio naturale che cercano semanticamente nel contenuto e nei metadati.
+                            {t('ricerca.descrizione')}
                         </p>
 
                         <div className="flex items-stretch gap-2">
@@ -2070,7 +2068,7 @@ export default function Archivio() {
                                 <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30 pointer-events-none" />
                                 <input
                                     type="text"
-                                    placeholder="Cerca tra i tuoi documenti..."
+                                    placeholder={t('ricerca.placeholder')}
                                     value={cerca}
                                     onChange={e => {
                                         setCerca(e.target.value)
@@ -2090,7 +2088,7 @@ export default function Archivio() {
                                     <button
                                         onClick={() => { setCerca(''); azzeraRicerca() }}
                                         className="absolute top-1/2 -translate-y-1/2 right-2 text-nebbia/30 hover:text-nebbia p-1"
-                                        title="Svuota"
+                                        title={t('ricerca.svuota')}
                                     >
                                         <X size={13} />
                                     </button>
@@ -2101,11 +2099,11 @@ export default function Archivio() {
                                 onClick={cercaTradizionale}
                                 disabled={cercando || cercandoLex || !cerca.trim()}
                                 className="flex items-center justify-center gap-2 px-4 h-[38px] bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
-                                title="Cerca per parole chiave letterali (Invio)"
+                                title={t('ricerca.tooltip_tradizionale')}
                             >
                                 {cercando
                                     ? <Loader2 size={13} className="animate-spin" />
-                                    : <><Search size={13} /> Cerca</>
+                                    : <><Search size={13} /> {t('ricerca.cerca')}</>
                                 }
                             </button>
 
@@ -2113,11 +2111,11 @@ export default function Archivio() {
                                 onClick={cercaConLex}
                                 disabled={cercando || cercandoLex || !cerca.trim()}
                                 className="flex items-center justify-center gap-2 px-4 h-[38px] bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
-                                title="Ricerca semantica (Cmd/Ctrl+Invio)"
+                                title={t('ricerca.tooltip_lex')}
                             >
                                 {cercandoLex
-                                    ? <><Loader2 size={13} className="animate-spin" /> <span className="hidden md:inline">Lex sta cercando...</span></>
-                                    : <><Sparkles size={13} /> <span className="hidden md:inline">Cerca con Lex</span><span className="md:hidden">Lex</span></>
+                                    ? <><Loader2 size={13} className="animate-spin" /> <span className="hidden md:inline">{t('ricerca.lex_sta_cercando')}</span></>
+                                    : <><Sparkles size={13} /> <span className="hidden md:inline">{t('ricerca.cerca_con_lex')}</span><span className="md:hidden">{t('ricerca.lex')}</span></>
                                 }
                             </button>
                         </div>
@@ -2132,7 +2130,7 @@ export default function Archivio() {
                             <div className="bg-petrolio/40 border border-salvia/15 p-3">
                                 <div className="flex items-center gap-2 mb-1">
                                     <Sparkles size={11} className="text-salvia" />
-                                    <p className="font-body text-[10px] font-medium text-salvia uppercase tracking-widest">Analisi Lex</p>
+                                    <p className="font-body text-[10px] font-medium text-salvia uppercase tracking-widest">{t('ricerca.analisi_lex')}</p>
                                 </div>
                                 <p className="font-body text-xs text-nebbia/55 leading-relaxed">{ragionamentoLex}</p>
                             </div>
@@ -2141,13 +2139,19 @@ export default function Archivio() {
                         {inRicerca && (
                             <div className="flex items-center justify-between gap-2 px-3 py-2 bg-salvia/5 border border-salvia/20">
                                 <p className="font-body text-xs text-salvia">
-                                    <strong>{risultatiAttivi.length}</strong> {risultatiAttivi.length === 1 ? 'risultato' : 'risultati'} per "{cercaApplicata}"
+                                    <Trans
+                                        i18nKey="ricerca.risultati_per"
+                                        ns="avv_archivio"
+                                        count={risultatiAttivi.length}
+                                        values={{ count: risultatiAttivi.length, query: cercaApplicata }}
+                                        components={{ b: <strong /> }}
+                                    />
                                 </p>
                                 <button
                                     onClick={azzeraRicerca}
                                     className="flex items-center gap-1 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors shrink-0"
                                 >
-                                    <X size={11} /> Azzera
+                                    <X size={11} /> {t('ricerca.azzera')}
                                 </button>
                             </div>
                         )}
@@ -2157,7 +2161,7 @@ export default function Archivio() {
                     <div className="flex flex-wrap gap-3 items-center">
                         <div className="flex items-center gap-1.5 text-nebbia/30">
                             <Filter size={12} />
-                            <span className="font-body text-xs uppercase tracking-widest">Filtri</span>
+                            <span className="font-body text-xs uppercase tracking-widest">{t('filtri.label')}</span>
                         </div>
 
                         {clienti.length > 0 && (
@@ -2166,7 +2170,7 @@ export default function Archivio() {
                                 onChange={e => setFiltroCliente(e.target.value)}
                                 className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40"
                             >
-                                <option value="">Tutti i clienti</option>
+                                <option value="">{t('filtri.tutti_clienti')}</option>
                                 {clienti.map(c => <option key={c.id} value={c.id}>{c.nome} {c.cognome}</option>)}
                             </select>
                         )}
@@ -2177,7 +2181,7 @@ export default function Archivio() {
                                 onChange={e => setFiltroPratica(e.target.value)}
                                 className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40"
                             >
-                                <option value="">Tutte le pratiche</option>
+                                <option value="">{t('filtri.tutte_pratiche')}</option>
                                 {pratiche.map(p => <option key={p.id} value={p.id}>{p.titolo}</option>)}
                             </select>
                         )}
@@ -2188,7 +2192,7 @@ export default function Archivio() {
                                 onChange={e => setFiltroEtichetta(e.target.value)}
                                 className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40"
                             >
-                                <option value="">Tutte le etichette</option>
+                                <option value="">{t('filtri.tutte_etichette')}</option>
                                 {etichetteUtente.map(e => <option key={e.id} value={e.id}>{e.nome}</option>)}
                             </select>
                         )}
@@ -2198,12 +2202,12 @@ export default function Archivio() {
                             onChange={e => setFiltroStato(e.target.value)}
                             className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40"
                         >
-                            <option value="">Tutti gli stati</option>
-                            <option value="completed">Indicizzati</option>
-                            <option value="pending">In coda</option>
-                            <option value="processing">In elaborazione</option>
-                            <option value="failed">Errore</option>
-                            <option value="skipped">Manuale</option>
+                            <option value="">{t('filtri.tutti_stati')}</option>
+                            <option value="completed">{t('status.completed')}</option>
+                            <option value="pending">{t('status.pending')}</option>
+                            <option value="processing">{t('filtri.in_elaborazione')}</option>
+                            <option value="failed">{t('status.failed')}</option>
+                            <option value="skipped">{t('status.skipped')}</option>
                         </select>
 
                         <select
@@ -2211,10 +2215,10 @@ export default function Archivio() {
                             onChange={e => setFiltroData(e.target.value)}
                             className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40"
                         >
-                            <option value="tutti">Qualsiasi data</option>
-                            <option value="7gg">Ultimi 7 giorni</option>
-                            <option value="30gg">Ultimi 30 giorni</option>
-                            <option value="range">Periodo personalizzato</option>
+                            <option value="tutti">{t('filtri.qualsiasi_data')}</option>
+                            <option value="7gg">{t('filtri.ultimi_7')}</option>
+                            <option value="30gg">{t('filtri.ultimi_30')}</option>
+                            <option value="range">{t('filtri.periodo_personalizzato')}</option>
                         </select>
 
                         {filtroData === 'range' && (
@@ -2224,7 +2228,7 @@ export default function Archivio() {
                                     value={filtroDataDa}
                                     onChange={e => setFiltroDataDa(e.target.value)}
                                     className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40"
-                                    title="Da"
+                                    title={t('filtri.da')}
                                 />
                                 <span className="font-body text-xs text-nebbia/30">→</span>
                                 <input
@@ -2232,7 +2236,7 @@ export default function Archivio() {
                                     value={filtroDataA}
                                     onChange={e => setFiltroDataA(e.target.value)}
                                     className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40"
-                                    title="A"
+                                    title={t('filtri.a')}
                                 />
                             </>
                         )}
@@ -2242,7 +2246,7 @@ export default function Archivio() {
                                 onClick={resetFiltri}
                                 className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1"
                             >
-                                <X size={11} /> Reset filtri
+                                <X size={11} /> {t('filtri.reset')}
                             </button>
                         )}
                     </div>
@@ -2253,11 +2257,11 @@ export default function Archivio() {
                         <div className="space-y-3">
                             {risultatiAttivi.length === 0 ? (
                                 <div className="py-10 text-center">
-                                    <p className="font-body text-sm text-nebbia/30">Nessun documento trovato</p>
+                                    <p className="font-body text-sm text-nebbia/30">{t('risultati.nessun_documento_trovato')}</p>
                                     <p className="font-body text-xs text-nebbia/20 mt-2">
                                         {risultatiLex !== null
-                                            ? 'Prova a riformulare con termini diversi.'
-                                            : 'Prova con la ricerca semantica di Lex per trovare documenti correlati.'}
+                                            ? t('risultati.riformula')
+                                            : t('risultati.prova_lex')}
                                     </p>
                                 </div>
                             ) : risultatiAttivi.map(doc => (
@@ -2282,19 +2286,19 @@ export default function Archivio() {
                         // VISTA CATALOGO CARTELLE
                         <div className="space-y-4">
                             <p className="font-body text-xs text-nebbia/30">
-                                {docsFiltrati.length} {docsFiltrati.length === 1 ? 'elemento' : 'elementi'}
+                                {t('catalogo.elementi', { count: docsFiltrati.length })}
                                 {docsInElaborazione > 0 && (
-                                    <span className="ml-2 text-oro/60">· {docsInElaborazione} in elaborazione</span>
+                                    <span className="ml-2 text-oro/60">{t('catalogo.in_elaborazione', { count: docsInElaborazione })}</span>
                                 )}
                             </p>
 
                             {docsFiltrati.length === 0 ? (
                                 <EmptyState
                                     icon={FileText}
-                                    title="Nessun documento"
+                                    title={t('catalogo.vuoto_titolo')}
                                     desc={filtriAttivi
-                                        ? "Nessun risultato con questi filtri"
-                                        : "Carica i documenti del tuo archivio per indicizzarli e renderli cercabili"
+                                        ? t('catalogo.vuoto_filtri')
+                                        : t('catalogo.vuoto_desc')
                                     }
                                 />
                             ) : (
@@ -2352,15 +2356,15 @@ export default function Archivio() {
                                                 onClick={tornaCatalogo}
                                                 className="flex items-center gap-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs"
                                             >
-                                                <ArrowLeft size={13} /> Tutte le categorie
+                                                <ArrowLeft size={13} /> {t('cartella.tutte_categorie')}
                                             </button>
                                             <span className="text-nebbia/20">·</span>
                                             <p className="font-display text-lg text-nebbia flex items-center gap-2">
                                                 <Folder size={14} className={categoriaCorrente ? 'text-oro' : 'text-nebbia/30'} />
-                                                {categoriaCorrente?.nome ?? 'Senza categoria'}
+                                                {categoriaCorrente?.nome ?? t('cartella.senza_categoria')}
                                             </p>
                                             <span className="font-body text-xs text-nebbia/30">
-                                                {docsCartella.length} {docsCartella.length === 1 ? 'elemento' : 'elementi'}
+                                                {t('catalogo.elementi', { count: docsCartella.length })}
                                             </span>
                                         </div>
                                     </div>
@@ -2414,7 +2418,7 @@ export default function Archivio() {
                                             {subsCat.length > 0 && (
                                                 <p className="font-body text-sm font-medium text-nebbia/50 italic py-1 flex items-center gap-2">
                                                     <ChevronDown size={14} className="text-nebbia/30" />
-                                                    Senza sottocategoria
+                                                    {t('cartella.senza_sottocategoria')}
                                                     <span className="font-body text-xs text-nebbia/30 not-italic">
                                                         ({docsSenzaSub.length})
                                                     </span>

@@ -10,19 +10,24 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Plus, FolderOpen, AlertCircle, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import NuovoMandato from './NuovoMandato'
 
-// Config visiva per lo stato del mandato
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
+// Config visiva per lo stato del mandato (le classi CSS restano invariate; le label sono tradotte a runtime)
 const STATO_CONFIG = {
-    attivo: { label: 'Attivo', cls: 'border-salvia/40 text-salvia' },
-    sospeso: { label: 'Sospeso', cls: 'border-amber-400/40 text-amber-400' },
-    concluso: { label: 'Concluso', cls: 'border-white/15 text-nebbia/40' },
-    archiviato: { label: 'Archiviato', cls: 'border-white/15 text-nebbia/40' },
+    attivo: { cls: 'border-salvia/40 text-salvia' },
+    sospeso: { cls: 'border-amber-400/40 text-amber-400' },
+    concluso: { cls: 'border-white/15 text-nebbia/40' },
+    archiviato: { cls: 'border-white/15 text-nebbia/40' },
 }
 
 export default function GestioneMandati({ clienteId }) {
+    const { t, i18n } = useTranslation('comp_fid_gestione_mandati')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const navigate = useNavigate()
     const [mandati, setMandati] = useState([])
     const [loading, setLoading] = useState(true)
@@ -50,14 +55,14 @@ export default function GestioneMandati({ clienteId }) {
             {/* Intestazione + azione */}
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <p className="font-body text-sm text-nebbia/40">
-                    {mandati.length} {mandati.length === 1 ? 'mandato' : 'mandati'}
+                    {mandati.length} {mandati.length === 1 ? t('conteggio.mandato_uno') : t('conteggio.mandato_molti')}
                     {mandati.length > 0 && (
-                        <span className="ml-2 text-nebbia/25">· {nAttivi} attivi</span>
+                        <span className="ml-2 text-nebbia/25">· {t('conteggio.attivi', { count: nAttivi })}</span>
                     )}
                 </p>
                 <button onClick={() => setModalAperto(true)}
                     className="btn-primary text-sm flex items-center gap-2">
-                    <Plus size={14} /> Nuovo mandato
+                    <Plus size={14} /> {t('azioni.nuovo_mandato')}
                 </button>
             </div>
 
@@ -76,9 +81,9 @@ export default function GestioneMandati({ clienteId }) {
                 <div className="bg-slate border border-white/5 p-12 flex flex-col items-center text-center gap-3">
                     <FolderOpen size={32} className="text-nebbia/15" />
                     <div>
-                        <p className="font-body text-sm text-nebbia/40">Nessun mandato</p>
+                        <p className="font-body text-sm text-nebbia/40">{t('vuoto.titolo')}</p>
                         <p className="font-body text-xs text-nebbia/25 mt-1">
-                            Crea un mandato per organizzare il lavoro e le scadenze di questo cliente
+                            {t('vuoto.descrizione')}
                         </p>
                     </div>
                 </div>
@@ -99,7 +104,7 @@ export default function GestioneMandati({ clienteId }) {
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <span className="font-body text-sm font-medium text-nebbia truncate">{m.titolo}</span>
                                         <span className={`font-body text-[10px] px-1.5 py-0.5 border uppercase tracking-wider ${sc.cls}`}>
-                                            {sc.label}
+                                            {t(`stati.${m.stato}`, { defaultValue: t('stati.attivo') })}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -107,7 +112,7 @@ export default function GestioneMandati({ clienteId }) {
                                             <span className="font-body text-xs text-nebbia/40">{m.tipo}</span>
                                         )}
                                         <span className="font-body text-xs text-nebbia/25">
-                                            dal {new Date(m.created_at).toLocaleDateString('it-CH')}
+                                            {t('riga.dal', { data: new Date(m.created_at).toLocaleDateString(dateLocale) })}
                                         </span>
                                     </div>
                                 </div>

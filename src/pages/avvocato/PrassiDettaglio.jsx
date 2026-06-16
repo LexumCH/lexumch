@@ -11,6 +11,8 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { labelFontePrassi } from '@/lib/istituzioni'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { BackButton } from '@/components/shared'
@@ -19,38 +21,16 @@ import AggiungiAPratica from '@/components/AggiungiAPratica'
 import { ScrollText, AlertCircle, Calendar, FileText, Tag } from 'lucide-react'
 
 const LINGUE_LABEL = { it: 'IT', de: 'DE', fr: 'FR' }
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
-// Label brevi italiane per gli emittenti federali (allineate a TabPrassi)
-const EMITTENTI_FEDERALI = {
-    estv: 'AFC — Contribuzioni federali',
-    ufas: 'UFAS — Assicurazioni sociali',
-    seco: 'SECO — Economia',
-    finma: 'FINMA — Vigilanza finanziaria',
-    udsc: 'UDSC — Dogane',
-    sem: 'SEM — Migrazione',
-    ufg: 'UFG — Giustizia',
-    weko: 'COMCO — Concorrenza',
-    ifpdt: 'IFPDT — Protezione dati',
-    mros: 'MROS — Riciclaggio',
-}
-
-function labelFonte(p) {
-    if (p.fonte === 'fisco_cant') {
-        return p.cantone ? `Fisco cantonale · ${p.cantone}` : 'Fisco cantonale'
-    }
-    return EMITTENTI_FEDERALI[p.fonte] ?? (p.emittente_nome ? troncaEmittente(p.emittente_nome) : (p.fonte ?? '—'))
-}
-
-// emittente_nome e' una stringa lunga trilingue: prendo il primo segmento utile
-function troncaEmittente(nome) {
-    if (!nome) return ''
-    const primo = nome.split(/[\/|;]/)[0].trim()
-    return primo.length > 60 ? primo.slice(0, 60) + '…' : primo
-}
+// Etichette emittenti/fisco cantonale centralizzate in src/lib/istituzioni.js (namespace i18n 'istituzioni')
 
 export function PrassiDettaglio() {
     const { id } = useParams()
     const { profile } = useAuth()
+    const { t, i18n } = useTranslation('avv_dettaglio')
+    const { t: tIst } = useTranslation('istituzioni')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
     const [prassi, setPrassi] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -72,7 +52,7 @@ export function PrassiDettaglio() {
                 .eq('id', id)
                 .maybeSingle()
             if (data) { setPrassi(data); setLoading(false); return }
-            setErrore('Documento di prassi non trovato')
+            setErrore(t('prassi.non_trovato'))
         } catch (e) {
             setErrore(e.message)
         } finally {
@@ -90,28 +70,28 @@ export function PrassiDettaglio() {
 
     if (errore || !prassi) return (
         <div className="space-y-5">
-            <BackButton to={tornaA} label="Banca dati" />
+            <BackButton to={tornaA} label={t('back')} />
             <div className="bg-slate border border-red-500/20 p-8 flex flex-col items-center text-center gap-3">
                 <AlertCircle size={28} className="text-red-400" />
-                <p className="font-body text-sm text-red-400">{errore ?? 'Documento non trovato'}</p>
-                <p className="font-body text-xs text-nebbia/30 mt-2">ID: {id}</p>
+                <p className="font-body text-sm text-red-400">{errore ?? t('prassi.non_trovato')}</p>
+                <p className="font-body text-xs text-nebbia/30 mt-2">{t('id')} {id}</p>
             </div>
         </div>
     )
 
     const isAvvocato = profile?.role === 'avvocato'
     const isPro = isAvvocato || profile?.role === 'fiduciario'
-    const fonteLabel = labelFonte(prassi)
+    const fonteLabel = labelFontePrassi(prassi, tIst)
 
     // oggetto spesso vuoto → uso titolo come riga principale; oggetto/sottotitolo come sezioni se presenti
     const corpo = []
-    if (prassi.sottotitolo) corpo.push({ titolo: 'Sottotitolo', testo: prassi.sottotitolo })
-    if (prassi.oggetto) corpo.push({ titolo: 'Oggetto', testo: prassi.oggetto })
-    if (prassi.testo) corpo.push({ titolo: 'Testo', testo: prassi.testo })
+    if (prassi.sottotitolo) corpo.push({ titolo: t('prassi.sottotitolo'), testo: prassi.sottotitolo })
+    if (prassi.oggetto) corpo.push({ titolo: t('oggetto'), testo: prassi.oggetto })
+    if (prassi.testo) corpo.push({ titolo: t('testo'), testo: prassi.testo })
 
     const badge = []
     if (prassi.tipo_documento) badge.push({ txt: prassi.tipo_documento, cls: 'text-oro/70 border-oro/20' })
-    if (prassi.numero) badge.push({ txt: `N. ${prassi.numero}`, cls: 'text-nebbia/50 border-white/10' })
+    if (prassi.numero) badge.push({ txt: `${t('prassi.n_prefix')} ${prassi.numero}`, cls: 'text-nebbia/50 border-white/10' })
     if (prassi.lingua && LINGUE_LABEL[prassi.lingua]) badge.push({ txt: LINGUE_LABEL[prassi.lingua], cls: 'text-salvia/60 border-salvia/20' })
 
     const titoloPerSalvataggio = [prassi.numero, prassi.titolo].filter(Boolean).join(' — ').slice(0, 300)
@@ -119,14 +99,14 @@ export function PrassiDettaglio() {
 
     return (
         <div className="space-y-5">
-            <BackButton to={tornaA} label="Banca dati" />
+            <BackButton to={tornaA} label={t('back')} />
 
             {/* Intestazione */}
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap mb-3">
                         <span className="section-label !m-0 flex items-center gap-1.5">
-                            <ScrollText size={12} className="text-oro" /> Prassi amministrativa
+                            <ScrollText size={12} className="text-oro" /> {t('prassi.label')}
                         </span>
                         {badge.map((b, i) => (
                             <span key={i} className={`font-body text-[10px] border px-1.5 py-0.5 uppercase tracking-wider ${b.cls}`}>{b.txt}</span>
@@ -137,7 +117,7 @@ export function PrassiDettaglio() {
                     <p className="font-body text-sm text-nebbia/50 mt-2">{fonteLabel}</p>
                     {prassi.data_emanazione && (
                         <p className="font-body text-xs text-nebbia/30 flex items-center gap-1.5 mt-2">
-                            <Calendar size={11} /> Emanato il {new Date(prassi.data_emanazione).toLocaleDateString('it-CH')}
+                            <Calendar size={11} /> {t('prassi.emanato_il')} {new Date(prassi.data_emanazione).toLocaleDateString(dateLocale)}
                         </p>
                     )}
                 </div>
@@ -165,7 +145,7 @@ export function PrassiDettaglio() {
             {(Array.isArray(prassi.materia) && prassi.materia.length > 0) ||
                 (Array.isArray(prassi.parole_chiave) && prassi.parole_chiave.length > 0) ? (
                 <div className="bg-slate border border-white/5 p-5">
-                    <p className="section-label mb-3 flex items-center gap-1.5"><Tag size={12} /> Classificazione</p>
+                    <p className="section-label mb-3 flex items-center gap-1.5"><Tag size={12} /> {t('prassi.classificazione')}</p>
                     <div className="flex flex-wrap gap-2">
                         {(prassi.materia ?? []).map((m, i) => (
                             <span key={`m${i}`} className="font-body text-xs text-salvia border border-salvia/20 px-2 py-1">{m}</span>
@@ -185,12 +165,12 @@ export function PrassiDettaglio() {
                 </div>
             )) : (
                 <div className="bg-slate border border-white/5 p-6">
-                    <p className="font-body text-sm text-nebbia/30 italic">Solo i metadati sono disponibili per questo documento.</p>
+                    <p className="font-body text-sm text-nebbia/30 italic">{t('prassi.solo_metadati')}</p>
                 </div>
             )}
 
             <div className="pt-4 border-t border-white/5">
-                <p className="font-body text-xs text-nebbia/25 text-center">ID: {prassi.id}</p>
+                <p className="font-body text-xs text-nebbia/25 text-center">{t('id')} {prassi.id}</p>
             </div>
         </div>
     )

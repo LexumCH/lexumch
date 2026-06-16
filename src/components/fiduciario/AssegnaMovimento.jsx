@@ -20,6 +20,7 @@
 //   onAggiornato  - callback opzionale (ricarica la lista nel parent)
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TrendingUp, TrendingDown, Loader2, X, ShieldAlert, Tag } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
@@ -30,6 +31,7 @@ function fmtCHFbreve(n) {
 }
 
 export default function AssegnaMovimento({ doc, onAggiornato }) {
+    const { t } = useTranslation('comp_fid_assegna_movimento')
     const { role } = useAuth()
     const [movimenti, setMovimenti] = useState([])
     const [estraendo, setEstraendo] = useState(null)   // 'entrata' | 'uscita' | null
@@ -76,7 +78,7 @@ export default function AssegnaMovimento({ doc, onAggiornato }) {
                 },
             })
         } else {
-            setErrore(data?.error ?? 'Estrazione non riuscita')
+            setErrore(data?.error ?? t('errori.estrazione_fallita'))
         }
     }
 
@@ -102,11 +104,11 @@ export default function AssegnaMovimento({ doc, onAggiornato }) {
                         {eEntrata ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                         {fmtCHFbreve(m.importo)}
                         {m.origine === 'ocr' && !m.verificato && (
-                            <span className="inline-flex items-center gap-0.5 text-amber-400" title="Creato da OCR, da verificare nel mandato">
+                            <span className="inline-flex items-center gap-0.5 text-amber-400" title={t('chip.ocr_da_verificare')}>
                                 <ShieldAlert size={9} />
                             </span>
                         )}
-                        <button onClick={() => scollega(m)} title="Scollega movimento"
+                        <button onClick={() => scollega(m)} title={t('chip.scollega')}
                             className="opacity-50 hover:opacity-100 hover:text-red-400 transition-opacity">
                             <X size={10} />
                         </button>
@@ -117,10 +119,10 @@ export default function AssegnaMovimento({ doc, onAggiornato }) {
             {/* Controlli tag — gated sul mandato */}
             {!haMandato ? (
                 <span
-                    title="Assegna prima un mandato al documento"
+                    title={t('controlli.mandato_richiesto')}
                     className="flex items-center gap-1.5 px-2 py-1 border border-dashed border-white/8 text-nebbia/20 font-body text-xs cursor-not-allowed"
                 >
-                    <Tag size={10} /> Entrata / Uscita
+                    <Tag size={10} /> {t('controlli.entrata_uscita')}
                 </span>
             ) : (
                 <>
@@ -129,14 +131,14 @@ export default function AssegnaMovimento({ doc, onAggiornato }) {
                         disabled={!!estraendo}
                         className="flex items-center gap-1.5 px-2 py-1 border border-salvia/30 text-salvia/80 font-body text-xs hover:bg-salvia/10 transition-colors disabled:opacity-40"
                     >
-                        {estraendo === 'entrata' ? <Loader2 size={10} className="animate-spin" /> : <TrendingUp size={10} />} Entrata
+                        {estraendo === 'entrata' ? <Loader2 size={10} className="animate-spin" /> : <TrendingUp size={10} />} {t('controlli.entrata')}
                     </button>
                     <button
                         onClick={() => tagga('uscita')}
                         disabled={!!estraendo}
                         className="flex items-center gap-1.5 px-2 py-1 border border-oro/30 text-oro/80 font-body text-xs hover:bg-oro/10 transition-colors disabled:opacity-40"
                     >
-                        {estraendo === 'uscita' ? <Loader2 size={10} className="animate-spin" /> : <TrendingDown size={10} />} Uscita
+                        {estraendo === 'uscita' ? <Loader2 size={10} className="animate-spin" /> : <TrendingDown size={10} />} {t('controlli.uscita')}
                     </button>
                 </>
             )}

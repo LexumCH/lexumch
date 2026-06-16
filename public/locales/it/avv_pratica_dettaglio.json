@@ -1,0 +1,98 @@
+{
+  "common": {
+    "trattino": "—",
+    "tu": "Tu",
+    "annulla": "Annulla",
+    "salva": "Salva",
+    "modifica": "Modifica",
+    "chiudi": "Chiudi"
+  },
+  "back": {
+    "tutte_le_pratiche": "Tutte le pratiche"
+  },
+  "note_modal": {
+    "titolo": "Note interne",
+    "sottotitolo": "— solo di questa pratica",
+    "placeholder": "Note interne sulla pratica — strategia, promemoria, osservazioni...",
+    "disclaimer": "Queste note sono visibili solo a te e ai collaboratori della pratica. Non vengono lette da Lex AI né dal generatore di documenti.",
+    "salvate": "Note salvate",
+    "ultima_modifica": "Ultima modifica: {{autore}} · {{data}}",
+    "mai_modificate": "Mai modificate",
+    "salva_note": "Salva note"
+  },
+  "ricerca_espandibile": {
+    "riduci": "▲ Riduci",
+    "espandi": "▼ Espandi"
+  },
+  "stati": {
+    "aperta": "Aperta",
+    "chiusa": "Chiusa"
+  },
+  "esiti": {
+    "vinta": "Vinta",
+    "persa": "Persa",
+    "transatta": "Transatta",
+    "archiviata": "Archiviata"
+  },
+  "loading": {
+    "non_trovata": "Pratica non trovata."
+  },
+  "header": {
+    "label": "Pratica",
+    "note_interne": "Note interne",
+    "seleziona_esito": "Seleziona esito",
+    "conferma_chiusura": "Conferma chiusura",
+    "chiudi_pratica": "Chiudi pratica",
+    "riapri_pratica": "Riapri pratica"
+  },
+  "dettagli": {
+    "titolo": "Dettagli",
+    "cliente": "Cliente",
+    "tipo": "Tipo",
+    "creata_il": "Creata il",
+    "esito": "Esito",
+    "avvocato": "Avvocato",
+    "collaboratori": "Collaboratori",
+    "nessun_collaboratore": "Nessun collaboratore"
+  },
+  "documenti": {
+    "titolo": "Documenti pratica ({{count}})",
+    "aggiungi_documento": "Aggiungi documento",
+    "disclaimer": "I documenti vengono salvati nell'archivio dello studio, indicizzati per la ricerca con Lex e collegati a questa pratica.",
+    "vuoto_titolo": "Nessun documento collegato a questa pratica",
+    "vuoto_sottotitolo": "Usa \"Aggiungi documento\" qui sopra per caricarlo",
+    "badge_archivio": "Archivio",
+    "scarica": "Scarica",
+    "rimuovi_dalla_pratica": "Rimuovi dalla pratica",
+    "elimina": "Elimina",
+    "conferma_rimuovi_archivio": "Rimuovere \"{{nome}}\" dalla pratica?\n\nIl documento resterà nell'Archivio dello studio, perderà solo il collegamento a questa pratica.",
+    "conferma_elimina": "Eliminare \"{{nome}}\"?"
+  },
+  "ricerche": {
+    "titolo": "Ricerche e descrizione causa ({{count}})",
+    "cerca_banca_dati": "Cerca in Banca Dati",
+    "aggiungi": "Aggiungi",
+    "placeholder_titolo": "Titolo ricerca (opzionale)...",
+    "placeholder_contenuto": "Scrivi il tuo ragionamento legale...",
+    "vuoto_titolo": "Nessuna ricerca",
+    "vuoto_sottotitolo": "Aggiungi una ricerca manuale o cerca in Banca Dati",
+    "tipo_ricerca_ai": "Ricerca AI",
+    "tipo_chat_lex": "Chat con Lex",
+    "tipo_ricerca_manuale": "Ricerca manuale",
+    "giurisprudenza_correlata": "Giurisprudenza correlata disponibile",
+    "errore_contenuto_obbligatorio": "Il contenuto è obbligatorio",
+    "titolo_default": "Ricerca manuale",
+    "conferma_elimina": "Eliminare questa ricerca?"
+  },
+  "note_esito": {
+    "titolo": "Note sull'esito",
+    "descrizione": "Perché la pratica si è conclusa così? Cosa ha funzionato o non ha funzionato?",
+    "placeholder": "Es. La strategia difensiva basata sull'alibi ha funzionato perché...",
+    "salva": "Salva note esito"
+  },
+  "zona_pericolosa": {
+    "titolo": "Elimina pratica",
+    "descrizione": "Rimuove definitivamente la pratica e i suoi dati (udienze, termini, controparti, ricerche, documenti). Le fatture collegate vanno scollegate prima.",
+    "bottone": "Elimina pratica"
+  }
+}

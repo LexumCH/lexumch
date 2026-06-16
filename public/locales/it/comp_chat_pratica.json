@@ -1,0 +1,139 @@
+{
+    "header": {
+        "titolo": "Lex per questa pratica",
+        "crediti": "{{count}} crediti",
+        "salvaConversazione": "Salva conversazione",
+        "nuovaChat": "Nuova chat"
+    },
+    "confermaNuova": {
+        "messaggio": "La conversazione corrente andrà persa. Continuare?",
+        "conferma": "Sì, nuova chat"
+    },
+    "confermaSalvataggio": "Conversazione salvata nelle ricerche della pratica.",
+    "formSalva": {
+        "titolo": "Salva nelle ricerche",
+        "placeholder": "Es. Strategia per l'udienza del 15 marzo",
+        "conferma": "Conferma salvataggio"
+    },
+    "vuoto": {
+        "titolo": "Lex conosce questa pratica",
+        "descrizione": "Cliente, controparti, udienze, documenti dell'archivio e ricerche già fatte. Chiedi un'analisi, una strategia, o di generare un atto (diffida, precetto LEF, petizione...).",
+        "cta": "Cosa posso chiederti?"
+    },
+    "ruolo": {
+        "tu": "Tu",
+        "lex": "Lex"
+    },
+    "badge": {
+        "documento": "Documento"
+    },
+    "creditiEsauriti": {
+        "messaggio": "Crediti Lex esauriti.",
+        "acquista": "Acquista crediti →"
+    },
+    "input": {
+        "placeholder": "Chiedi a Lex un'analisi o di generare un atto... (Ctrl+Enter per inviare)",
+        "placeholderEsauriti": "Crediti esauriti — acquista crediti per continuare",
+        "titleInvia": "Invia (Ctrl+Enter)",
+        "titleEsauriti": "Crediti esauriti",
+        "suggerimento": "Posso analizzare la pratica o generare 6 tipi di atti svizzeri. Ogni atto consuma 1 credito."
+    },
+    "comune": {
+        "annulla": "Annulla"
+    },
+    "errori": {
+        "scriviDomanda": "Scrivi una domanda per Lex",
+        "sessioneScaduta": "Sessione scaduta. Ricarica la pagina.",
+        "sconosciuto": "Errore sconosciuto",
+        "conCodice": "Errore {{codice}}",
+        "streaming": "Errore nello streaming",
+        "inserisciTitolo": "Inserisci un titolo per la conversazione"
+    },
+    "animazione": {
+        "titolo": "Lex sta lavorando sulla pratica",
+        "frasi": [
+            "Sto analizzando la pratica",
+            "Esamino la cronologia delle udienze",
+            "Controllo i documenti del fascicolo",
+            "Ricostruisco le posizioni delle parti",
+            "Consulto il diritto applicabile",
+            "Compongo una risposta strutturata"
+        ]
+    },
+    "trascrizione": {
+        "documentoGenerato": "Documento generato",
+        "atto": "atto",
+        "avvocato": "Avvocato",
+        "lex": "Lex"
+    },
+    "popover": {
+        "titolo": "Cosa puoi chiedere a Lex",
+        "analisi": {
+            "titolo": "Analisi e ragionamento",
+            "descrizione": "Chiedi a Lex di analizzare la pratica, individuare punti di forza e debolezza, proporre una strategia, prepararti per l'udienza, o ricostruire la cronologia. Esempi: \"analizza i punti deboli\", \"che strategia mi consigli\", \"cosa preparo per l'udienza\"."
+        },
+        "generazione": {
+            "titolo": "Generazione di atti",
+            "descrizione": "Lex può redigere 6 tipi di atti svizzeri usando i dati della pratica. Scrivi semplicemente cosa ti serve. Ogni atto generato consuma 1 credito."
+        },
+        "footer": "Tocca un atto per inserire un esempio nella casella di testo, poi personalizzalo."
+    },
+    "tipiDocumento": {
+        "categorie": {
+            "stragiudiziali": "Atti stragiudiziali",
+            "esecuzione": "Esecuzione (LEF)",
+            "procedura_civile": "Procedura civile (CPC)"
+        },
+        "tipi": {
+            "diffida": {
+                "nome": "Diffida e messa in mora",
+                "esempio": "scrivimi una diffida per il mancato pagamento della fattura..."
+            },
+            "parere": {
+                "nome": "Parere legale motivato",
+                "esempio": "prepara un parere sulla risoluzione del contratto di locazione..."
+            },
+            "esecuzione_lef": {
+                "nome": "Esecuzione LEF (domanda / precetto)",
+                "esempio": "avvia l'esecuzione per il credito di CHF..."
+            },
+            "rigetto": {
+                "nome": "Domanda di rigetto dell'opposizione",
+                "esempio": "prepara la domanda di rigetto dell'opposizione sul precetto..."
+            },
+            "conciliazione": {
+                "nome": "Istanza di conciliazione",
+                "esempio": "redigi un'istanza di conciliazione per la controversia..."
+            },
+            "petizione": {
+                "nome": "Petizione / atto introduttivo",
+                "esempio": "scrivimi la petizione per la causa di..."
+            }
+        }
+    },
+    "bolla": {
+        "documento": "Documento",
+        "documentoGenerato": "Documento generato",
+        "anteprima": "Anteprima",
+        "modifica": "Modifica",
+        "modificaTesto": "Modifica il testo dell'atto",
+        "avvisoNonConservato": "Questo documento non viene conservato. Salvalo in PDF ora per archiviarlo nella pratica.",
+        "generoAnteprima": "Genero l'anteprima impaginata...",
+        "anteprimaAtto": "Anteprima atto",
+        "riprova": "Riprova",
+        "modificheNonInAnteprima": "Hai modifiche non ancora in anteprima.",
+        "markdownGrezzo": "Markdown grezzo dell'atto.",
+        "rigenero": "Rigenero...",
+        "rigeneraAnteprima": "Rigenera anteprima",
+        "salvatoInDocumenti": "Salvato nei Documenti pratica:",
+        "scaricaPdf": "Scarica PDF",
+        "salvataggioInCorso": "Salvataggio...",
+        "salvaDiNuovo": "Salva di nuovo (nuova versione)",
+        "nomeFile": "Nome file",
+        "salvaPdfNellaPratica": "Salva PDF nella pratica",
+        "inserisciNomeFile": "Inserisci un nome per il file",
+        "erroreAnteprima": "Errore generazione anteprima",
+        "anteprimaNonDisponibile": "Anteprima non disponibile",
+        "erroreSalvataggio": "Errore salvataggio PDF"
+    }
+}

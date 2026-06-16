@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { PageHeader, BackButton, Badge } from '@/components/shared'
 import { Plus, Send, Search, MessageSquare, Loader2, AlertCircle } from 'lucide-react'
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 // ─────────────────────────────────────────────────────────────
 // LISTA COMUNICAZIONI
@@ -11,6 +14,8 @@ import { Plus, Send, Search, MessageSquare, Loader2, AlertCircle } from 'lucide-
 // pallino = ultimo messaggio è dell'avvocato (non del cliente)
 // ─────────────────────────────────────────────────────────────
 export function ClienteComunicazioni() {
+    const { t, i18n } = useTranslation('cli_comunicazioni')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [search, setSearch] = useState('')
     const [statoF, setStatoF] = useState('')
     const [tickets, setTickets] = useState([])
@@ -61,11 +66,11 @@ export function ClienteComunicazioni() {
     return (
         <div className="space-y-5">
             <PageHeader
-                label="Portale cliente"
-                title="Messaggi"
+                label={t('header.label')}
+                title={t('header.titolo')}
                 action={
                     <Link to="/portale/comunicazioni/nuovo" className="btn-primary text-sm">
-                        <Plus size={15} /> Nuovo messaggio
+                        <Plus size={15} /> {t('header.nuovo_messaggio')}
                     </Link>
                 }
             />
@@ -74,7 +79,9 @@ export function ClienteComunicazioni() {
                 <div className="bg-oro/5 border border-oro/20 p-3 flex items-center gap-2">
                     <MessageSquare size={14} className="text-oro shrink-0" />
                     <p className="font-body text-sm text-oro">
-                        Hai {totaleNonLetti} {totaleNonLetti === 1 ? 'messaggio non letto' : 'messaggi non letti'}
+                        {totaleNonLetti === 1
+                            ? t('non_letti.singolare', { count: totaleNonLetti })
+                            : t('non_letti.plurale', { count: totaleNonLetti })}
                     </p>
                 </div>
             )}
@@ -83,7 +90,7 @@ export function ClienteComunicazioni() {
                 <div className="relative flex-1">
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                     <input
-                        placeholder="Cerca conversazione..."
+                        placeholder={t('lista.cerca_placeholder')}
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -91,35 +98,35 @@ export function ClienteComunicazioni() {
                 </div>
                 <select value={statoF} onChange={e => setStatoF(e.target.value)}
                     className="bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50">
-                    <option value="">Tutti</option>
-                    <option value="aperto">Aperti</option>
-                    <option value="chiuso">Chiusi</option>
+                    <option value="">{t('filtri.tutti')}</option>
+                    <option value="aperto">{t('filtri.aperti')}</option>
+                    <option value="chiuso">{t('filtri.chiusi')}</option>
                 </select>
             </div>
 
             {loading ? (
                 <div className="py-12 flex items-center justify-center gap-2 text-nebbia/30">
                     <Loader2 size={16} className="animate-spin" />
-                    <span className="font-body text-sm">Caricamento…</span>
+                    <span className="font-body text-sm">{t('comune.caricamento')}</span>
                 </div>
             ) : (
                 <div className="space-y-2">
                     {rows.length === 0 ? (
                         <div className="py-12 text-center">
                             <MessageSquare size={36} className="text-nebbia/15 mx-auto mb-3" />
-                            <p className="font-body text-sm text-nebbia/30">Nessuna conversazione trovata</p>
+                            <p className="font-body text-sm text-nebbia/30">{t('lista.vuoto')}</p>
                         </div>
-                    ) : rows.map(t => {
-                        const ultimoMsg = getUltimoMsg(t)
-                        const nonLetto = t.stato === 'aperto' && ultimoMsg && ultimoMsg.autore_tipo !== 'cliente'
-                        const controparte = t.mittente_ruolo === 'cliente'
-                            ? `${t.destinatario?.nome ?? ''} ${t.destinatario?.cognome ?? ''}`.trim()
-                            : `${t.mittente?.nome ?? ''} ${t.mittente?.cognome ?? ''}`.trim()
+                    ) : rows.map(tk => {
+                        const ultimoMsg = getUltimoMsg(tk)
+                        const nonLetto = tk.stato === 'aperto' && ultimoMsg && ultimoMsg.autore_tipo !== 'cliente'
+                        const controparte = tk.mittente_ruolo === 'cliente'
+                            ? `${tk.destinatario?.nome ?? ''} ${tk.destinatario?.cognome ?? ''}`.trim()
+                            : `${tk.mittente?.nome ?? ''} ${tk.mittente?.cognome ?? ''}`.trim()
 
                         return (
                             <Link
-                                key={t.id}
-                                to={`/portale/comunicazioni/${t.id}`}
+                                key={tk.id}
+                                to={`/portale/comunicazioni/${tk.id}`}
                                 className={`flex items-center justify-between p-4 border transition-all hover:border-oro/20 ${nonLetto ? 'bg-oro/5 border-oro/15' : 'bg-slate border-white/5'}`}
                             >
                                 <div className="flex items-center gap-3 min-w-0">
@@ -129,7 +136,7 @@ export function ClienteComunicazioni() {
                                     }
                                     <div className="min-w-0">
                                         <p className={`font-body text-sm truncate ${nonLetto ? 'font-semibold text-nebbia' : 'font-medium text-nebbia'}`}>
-                                            {t.oggetto}
+                                            {tk.oggetto}
                                         </p>
                                         {ultimoMsg && (
                                             <p className="font-body text-xs text-nebbia/40 truncate mt-0.5">
@@ -141,9 +148,9 @@ export function ClienteComunicazioni() {
                                 </div>
                                 <div className="text-right shrink-0 ml-4 space-y-1">
                                     <p className="font-body text-xs text-nebbia/30">
-                                        {new Date(t.updated_at).toLocaleDateString('it-CH')}
+                                        {new Date(tk.updated_at).toLocaleDateString(dateLocale)}
                                     </p>
-                                    <Badge label={t.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={t.stato === 'aperto' ? 'salvia' : 'gray'} />
+                                    <Badge label={tk.stato === 'aperto' ? t('stati.aperto') : t('stati.chiuso')} variant={tk.stato === 'aperto' ? 'salvia' : 'gray'} />
                                 </div>
                             </Link>
                         )
@@ -158,6 +165,8 @@ export function ClienteComunicazioni() {
 // DETTAGLIO COMUNICAZIONE
 // ─────────────────────────────────────────────────────────────
 export function ClienteComunicazioniDettaglio() {
+    const { t, i18n } = useTranslation('cli_comunicazioni')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const { profile } = useAuth()
     const bottomRef = useRef(null)
@@ -235,14 +244,14 @@ export function ClienteComunicazioniDettaglio() {
     if (loading) return (
         <div className="py-20 flex items-center justify-center gap-2 text-nebbia/30">
             <Loader2 size={18} className="animate-spin" />
-            <span className="font-body text-sm">Caricamento…</span>
+            <span className="font-body text-sm">{t('comune.caricamento')}</span>
         </div>
     )
 
     if (!ticket) return (
         <div className="py-20 text-center space-y-4">
-            <p className="font-body text-sm text-nebbia/30">Conversazione non trovata.</p>
-            <Link to="/portale/comunicazioni" className="btn-secondary text-sm inline-flex">← Torna ai messaggi</Link>
+            <p className="font-body text-sm text-nebbia/30">{t('dettaglio.non_trovata')}</p>
+            <Link to="/portale/comunicazioni" className="btn-secondary text-sm inline-flex">← {t('dettaglio.torna_messaggi')}</Link>
         </div>
     )
 
@@ -252,23 +261,23 @@ export function ClienteComunicazioniDettaglio() {
 
     return (
         <div className="space-y-5 max-w-3xl">
-            <BackButton to="/portale/comunicazioni" label="Messaggi" />
+            <BackButton to="/portale/comunicazioni" label={t('header.titolo')} />
 
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="section-label mb-1">Con {controparte || 'Avvocato'}</p>
+                    <p className="section-label mb-1">{t('dettaglio.con', { nome: controparte || t('dettaglio.avvocato_fallback') })}</p>
                     <h1 className="font-display text-3xl font-light text-nebbia">{ticket.oggetto}</h1>
                     <p className="font-body text-xs text-nebbia/30 mt-1">
-                        Aperto il {new Date(ticket.created_at).toLocaleDateString('it-CH')}
+                        {t('dettaglio.aperto_il', { data: new Date(ticket.created_at).toLocaleDateString(dateLocale) })}
                     </p>
                 </div>
-                <Badge label={ticket.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={ticket.stato === 'aperto' ? 'salvia' : 'gray'} />
+                <Badge label={ticket.stato === 'aperto' ? t('stati.aperto') : t('stati.chiuso')} variant={ticket.stato === 'aperto' ? 'salvia' : 'gray'} />
             </div>
 
             {/* Messaggi */}
             <div className="bg-slate border border-white/5 p-5 space-y-4 min-h-64 max-h-[500px] overflow-y-auto">
                 {messaggi.length === 0 ? (
-                    <p className="font-body text-sm text-nebbia/30 text-center py-6">Nessun messaggio ancora.</p>
+                    <p className="font-body text-sm text-nebbia/30 text-center py-6">{t('dettaglio.nessun_messaggio')}</p>
                 ) : messaggi.map(m => {
                     const isMio = m.autore_tipo === 'cliente'
                     const nomeAutore = m.autore ? `${m.autore.nome} ${m.autore.cognome}` : m.autore_tipo
@@ -283,7 +292,7 @@ export function ClienteComunicazioniDettaglio() {
                                 </p>
                                 <p className="font-body text-sm text-nebbia leading-relaxed whitespace-pre-wrap">{m.testo}</p>
                                 <p className="font-body text-[10px] text-nebbia/25">
-                                    {new Date(m.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                    {new Date(m.created_at).toLocaleString(dateLocale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                 </p>
                             </div>
                         </div>
@@ -304,7 +313,7 @@ export function ClienteComunicazioniDettaglio() {
                             rows={2}
                             value={msg}
                             onChange={e => setMsg(e.target.value)}
-                            placeholder="Scrivi un messaggio…"
+                            placeholder={t('dettaglio.scrivi_placeholder')}
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleInvia() } }}
                             className="flex-1 bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
                         />
@@ -316,11 +325,11 @@ export function ClienteComunicazioniDettaglio() {
                             {inviando ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
                         </button>
                     </div>
-                    <p className="font-body text-[10px] text-nebbia/20">Invio con Enter · A capo con Shift+Enter</p>
+                    <p className="font-body text-[10px] text-nebbia/20">{t('dettaglio.hint_invio')}</p>
                 </div>
             ) : (
                 <div className="bg-petrolio/40 border border-white/5 p-4 text-center">
-                    <p className="font-body text-sm text-nebbia/30">Questa conversazione è chiusa</p>
+                    <p className="font-body text-sm text-nebbia/30">{t('dettaglio.conversazione_chiusa')}</p>
                 </div>
             )}
         </div>
@@ -332,6 +341,7 @@ export function ClienteComunicazioniDettaglio() {
 // Il cliente apre un ticket verso il proprio avvocato
 // ─────────────────────────────────────────────────────────────
 export function ClienteComunicazioniNuovo() {
+    const { t } = useTranslation('cli_comunicazioni')
     const navigate = useNavigate()
     const { profile } = useAuth()
     const [form, setForm] = useState({ oggetto: '', descrizione: '' })
@@ -346,7 +356,7 @@ export function ClienteComunicazioniNuovo() {
 
         try {
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) throw new Error('Utente non autenticato')
+            if (!user) throw new Error(t('nuovo.errori.non_autenticato'))
 
             // L'avvocato del cliente è in profiles.avvocato_id
             const { data: profilo } = await supabase
@@ -355,7 +365,7 @@ export function ClienteComunicazioniNuovo() {
                 .eq('id', user.id)
                 .single()
 
-            if (!profilo?.avvocato_id) throw new Error('Nessun avvocato associato al tuo account.')
+            if (!profilo?.avvocato_id) throw new Error(t('nuovo.errori.nessun_avvocato'))
 
             const { data: ticket, error: tErr } = await supabase
                 .from('ticket_assistenza')
@@ -391,21 +401,21 @@ export function ClienteComunicazioniNuovo() {
 
     if (inviato) return (
         <div className="max-w-2xl">
-            <BackButton to="/portale/comunicazioni" label="Messaggi" />
+            <BackButton to="/portale/comunicazioni" label={t('header.titolo')} />
             <div className="bg-slate border border-salvia/20 p-8 text-center space-y-4 mt-5">
                 <div className="w-12 h-12 bg-salvia/15 border border-salvia/30 flex items-center justify-center mx-auto">
                     <Send size={20} className="text-salvia" />
                 </div>
-                <h2 className="font-display text-2xl font-semibold text-nebbia">Messaggio inviato</h2>
+                <h2 className="font-display text-2xl font-semibold text-nebbia">{t('nuovo.successo.titolo')}</h2>
                 <p className="font-body text-sm text-nebbia/60 leading-relaxed max-w-md mx-auto">
-                    Il tuo avvocato riceverà una notifica e ti risponderà al più presto.
+                    {t('nuovo.successo.descrizione')}
                 </p>
                 <div className="bg-petrolio/60 border border-white/5 p-4 text-left">
-                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Oggetto</p>
+                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">{t('nuovo.campi.oggetto_label')}</p>
                     <p className="font-body text-sm text-nebbia">{form.oggetto}</p>
                 </div>
                 <button onClick={() => navigate('/portale/comunicazioni')} className="btn-primary text-sm mx-auto">
-                    Torna ai messaggi
+                    {t('dettaglio.torna_messaggi')}
                 </button>
             </div>
         </div>
@@ -413,25 +423,25 @@ export function ClienteComunicazioniNuovo() {
 
     return (
         <div className="space-y-5 max-w-2xl">
-            <BackButton to="/portale/comunicazioni" label="Messaggi" />
-            <PageHeader label="Portale cliente" title="Nuovo messaggio" />
+            <BackButton to="/portale/comunicazioni" label={t('header.titolo')} />
+            <PageHeader label={t('header.label')} title={t('nuovo.titolo')} />
             <div className="bg-slate border border-white/5 p-6 space-y-5">
                 <div>
-                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Oggetto *</label>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('nuovo.campi.oggetto_label_obbligatorio')}</label>
                     <input
                         value={form.oggetto}
                         onChange={e => setForm(p => ({ ...p, oggetto: e.target.value }))}
-                        placeholder="Di cosa si tratta?"
+                        placeholder={t('nuovo.campi.oggetto_placeholder')}
                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                     />
                 </div>
                 <div>
-                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Messaggio *</label>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('nuovo.campi.messaggio_label_obbligatorio')}</label>
                     <textarea
                         rows={5}
                         value={form.descrizione}
                         onChange={e => setForm(p => ({ ...p, descrizione: e.target.value }))}
-                        placeholder="Scrivi il tuo messaggio…"
+                        placeholder={t('nuovo.campi.messaggio_placeholder')}
                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
                     />
                 </div>
@@ -443,7 +453,7 @@ export function ClienteComunicazioniNuovo() {
                 )}
 
                 <div className="flex gap-3">
-                    <button onClick={() => navigate('/portale/comunicazioni')} className="btn-secondary text-sm flex-1">Annulla</button>
+                    <button onClick={() => navigate('/portale/comunicazioni')} className="btn-secondary text-sm flex-1">{t('nuovo.azioni.annulla')}</button>
                     <button
                         onClick={handleInvia}
                         disabled={!form.oggetto.trim() || !form.descrizione.trim() || salvando}
@@ -451,7 +461,7 @@ export function ClienteComunicazioniNuovo() {
                     >
                         {salvando
                             ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                            : <><Send size={14} /> Invia</>
+                            : <><Send size={14} /> {t('nuovo.azioni.invia')}</>
                         }
                     </button>
                 </div>

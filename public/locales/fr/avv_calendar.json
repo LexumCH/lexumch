@@ -1,0 +1,96 @@
+{
+  "mesi": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+  "giorni": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
+  "tipi": {
+    "presenza": "En présentiel",
+    "videocall": "Visioconférence",
+    "telefonico": "Téléphonique",
+    "udienza": "Audience",
+    "scadenza": "Échéance"
+  },
+  "tipi_breve": {
+    "presenza": "Présentiel",
+    "videocall": "Visio",
+    "telefonico": "Téléphone",
+    "udienza": "Audience"
+  },
+  "stati": {
+    "programmato": "Planifié",
+    "concluso": "Terminé",
+    "annullato": "Annulé"
+  },
+  "header": {
+    "label": "Agenda",
+    "titolo": "Calendrier",
+    "titolo_evidenza": "des rendez-vous",
+    "visualizza": "Afficher :",
+    "tutti": "Tous"
+  },
+  "stats": {
+    "programmati": "Planifiés",
+    "oggi": "Aujourd'hui",
+    "udienze_future": "Audiences à venir",
+    "scadenze_future": "Échéances à venir",
+    "conclusi": "Terminés"
+  },
+  "griglia": {
+    "oggi": "Aujourd'hui",
+    "badge_app": "{{count}} rdv"
+  },
+  "legenda": {
+    "appuntamento": "Rendez-vous",
+    "udienza": "Audience",
+    "scadenza": "Échéance"
+  },
+  "pannello": {
+    "app_abbr": "Rdv",
+    "ud_abbr": "Aud.",
+    "scad_abbr": "Éch.",
+    "nuovo_appuntamento": "Nouveau rendez-vous",
+    "help_scadenze": "Les échéances procédurales s'ajoutent depuis la fiche du dossier",
+    "nessun_appuntamento": "Aucun rendez-vous"
+  },
+  "form": {
+    "titolo_placeholder": "Titre du rendez-vous *",
+    "cliente_opzionale": "Client (facultatif)",
+    "inizio": "Début",
+    "fine": "Fin",
+    "tu": "Moi",
+    "tribunale_aula": "Tribunal / Salle",
+    "link_videocall": "Lien visioconférence",
+    "note_cliente_placeholder": "Notes pour le client (facultatif)",
+    "annulla": "Annuler",
+    "salva": "Enregistrer"
+  },
+  "evento": {
+    "pratica": "Dossier",
+    "note_interne": "Notes internes",
+    "note_cliente": "Notes client",
+    "scadenza_auto": "Cette échéance a été générée automatiquement. Pour la modifier ou la marquer comme accomplie, ouvrez la fiche du dossier.",
+    "azione_concludi": "Terminé",
+    "azione_annulla": "Annuler",
+    "gestisci_pratica": "⚖ Gérer dans le dossier →",
+    "udienze_da_pratica": "Les audiences se gèrent depuis la fiche du dossier associé."
+  },
+  "tabella": {
+    "titolo": "Récapitulatif de l'agenda",
+    "sottotitolo": "Tous les éléments : rendez-vous, audiences, échéances",
+    "cerca_placeholder": "Rechercher...",
+    "tutti_tipi": "Tous les types",
+    "tutti_stati": "Tous les statuts",
+    "nessun_evento": "Aucun élément trouvé",
+    "intestazioni": {
+      "tipo": "Type",
+      "titolo": "Titre",
+      "cliente": "Client",
+      "avvocato": "Avocat",
+      "pratica": "Dossier",
+      "data_ora": "Date & heure",
+      "stato": "Statut"
+    }
+  },
+  "errori": {
+    "titolo_obbligatorio": "Le titre est obligatoire",
+    "data_obbligatoria": "La date est obligatoire"
+  }
+}

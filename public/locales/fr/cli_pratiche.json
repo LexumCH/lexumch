@@ -1,0 +1,24 @@
+{
+  "header": {
+    "label": "Portail client",
+    "titolo": "Mes dossiers"
+  },
+  "filtri": {
+    "tutti": "Tous les statuts"
+  },
+  "stati": {
+    "in_corso": "En cours",
+    "in_udienza": "En audience",
+    "in_attesa": "En attente",
+    "chiusa": "Clôturé"
+  },
+  "vuoto": {
+    "nessuna_pratica": "Aucun dossier trouvé"
+  },
+  "scheda": {
+    "avvocato_prefisso": "Me",
+    "aperta_il": "Ouvert le",
+    "prossima_udienza": "Prochaine audience",
+    "note": "Notes"
+  }
+}

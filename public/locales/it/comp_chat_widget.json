@@ -1,0 +1,16 @@
+{
+    "header": {
+        "title": "Supporto Lexum"
+    },
+    "cta": {
+        "heading": "Parla con il team Lexum",
+        "description": "Vuoi richiedere una Demo Gratuita o hai altre domande? Registrati e apri una chat con noi — risponde una persona, non un bot.",
+        "bonus": "Registrandoti ricevi <1>3 ricerche gratuite</1> con Lex AI",
+        "register": "Registrati e fai la tua domanda",
+        "login": "Hai già un account? Accedi"
+    },
+    "button": {
+        "close": "Chiudi",
+        "open": "Parla con noi"
+    }
+}

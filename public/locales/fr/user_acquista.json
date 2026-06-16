@@ -1,0 +1,85 @@
+{
+  "header": {
+    "label": "Acheter",
+    "titolo_completo": "Crédits IA et abonnements",
+    "titolo_base": "Crédits IA",
+    "sottotitolo_completo": "Achetez des crédits pour Lex AI ou un abonnement pour accéder à toutes les fonctionnalités de Lexum.",
+    "sottotitolo_base": "Achetez des crédits pour utiliser Lex AI sans limites."
+  },
+  "successo": {
+    "messaggio": "Paiement effectué ! Votre achat est maintenant actif."
+  },
+  "saldo": {
+    "titolo": "Votre solde",
+    "totale": "Total",
+    "crediti_disponibili": "crédits disponibles",
+    "piano": "Abonnement",
+    "scad": "Échéance {{data}}",
+    "acquistati": "Achetés",
+    "non_scadono": "n'expirent pas",
+    "benvenuto": "Bienvenue"
+  },
+  "trasparenza": {
+    "titolo": "Comment fonctionnent les crédits :",
+    "piano_pre": "Les crédits de l'",
+    "piano_evidenza": "abonnement",
+    "piano_post": " se renouvellent automatiquement chaque mois (en fonction de la date d'achat) et ne s'accumulent pas : ceux qui ne sont pas utilisés sont perdus lors du renouvellement.",
+    "separati_pre": "Les crédits ",
+    "separati_evidenza": "achetés séparément",
+    "separati_mid": " ainsi que ceux de ",
+    "benvenuto_evidenza": "bienvenue",
+    "separati_post": " n'expirent jamais et restent toujours les vôtres.",
+    "consumo": "Lorsque vous utilisez Lex AI, les crédits de l'abonnement sont consommés en premier (pour ne pas les gaspiller), puis ceux de bienvenue, et enfin ceux achetés."
+  },
+  "tab": {
+    "crediti": "Forfaits de crédits",
+    "abbonamenti": "Abonnements",
+    "posti": "Postes supplémentaires"
+  },
+  "crediti": {
+    "vuoto": "Aucun forfait disponible pour le moment.",
+    "dettaglio": "{{crediti}} crédits · CHF {{prezzo}}/crédit",
+    "non_scadono": "N'expirent jamais",
+    "acquista": "Acheter"
+  },
+  "abbonamenti": {
+    "vuoto": "Aucun abonnement disponible pour le moment.",
+    "piano_attivo": "Vous avez déjà un abonnement actif. L'achat d'un nouvel abonnement le remplacera.",
+    "consigliato": "Recommandé",
+    "durata_mesi": "{{mesi}} mois",
+    "una_tantum": "Paiement unique",
+    "badge_pro": "Pro",
+    "badge_monetizzazione": "Monétisation",
+    "posti_badge": "{{posti}} postes",
+    "feat_clienti": "Gestion illimitée des clients",
+    "feat_pratiche": "Dossiers et documents",
+    "feat_calendario": "Calendrier des rendez-vous",
+    "feat_crediti": "{{crediti}} crédits IA/mois",
+    "feat_banca_dati": "Accès à la base de données de jurisprudence",
+    "feat_monetizzazione": "Téléversez des jugements et monétisez",
+    "feat_posti": "Jusqu'à {{posti}} avocats dans l'étude",
+    "acquista": "Acheter"
+  },
+  "seat": {
+    "posti_studio": "Postes de votre étude",
+    "di": " sur ",
+    "posti_utilizzati": " postes utilisés",
+    "vuoto": "Aucun forfait de postes disponible pour le moment.",
+    "acquista": "Acheter"
+  },
+  "verifica": {
+    "pending_titolo": "Vérification en cours",
+    "pending_testo": "Nous examinons vos documents. Vous recevrez une notification par e-mail dans un délai de 24 à 48 heures.",
+    "pending_link": "Voir l'état de la vérification",
+    "rejected_titolo": "Vérification non approuvée",
+    "rejected_motivo": "Motif : {{nota}}",
+    "rejected_default": "Vous pouvez réessayer en téléversant les documents corrects.",
+    "rejected_link": "Réessayer la vérification",
+    "cta_titolo": "Vous êtes avocat ?",
+    "cta_testo": "Vérifiez votre identité et accédez à des abonnements avec crédits mensuels inclus, gestion complète, base de données de jurisprudence et bien plus encore.",
+    "cta_link": "Démarrer la vérification"
+  },
+  "footer": {
+    "trust": "Paiement sécurisé via Stripe. Les produits sont activés immédiatement après le paiement."
+  }
+}

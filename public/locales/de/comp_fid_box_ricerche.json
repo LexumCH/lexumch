@@ -1,0 +1,36 @@
+{
+  "header": {
+    "titolo": "Recherchen ({{count}})",
+    "cercaBancaDati": "In der Datenbank suchen",
+    "aggiungi": "Hinzufügen"
+  },
+  "form": {
+    "placeholderTitolo": "Titel der Recherche (optional)...",
+    "placeholderContenuto": "Schreiben Sie Ihre Überlegung oder Notiz..."
+  },
+  "errori": {
+    "contenutoObbligatorio": "Der Inhalt ist erforderlich"
+  },
+  "conferma": {
+    "elimina": "Diese Recherche löschen?"
+  },
+  "vuoto": {
+    "titolo": "Keine Recherche",
+    "suggerimento": "Fügen Sie eine manuelle Recherche hinzu oder suchen Sie in der Datenbank"
+  },
+  "tipi": {
+    "ricercaAi": "KI-Recherche",
+    "chatLex": "Chat mit Lex",
+    "ricercaManuale": "Manuelle Recherche"
+  },
+  "lista": {
+    "giurisprudenzaCorrelata": "Zugehörige Rechtsprechung verfügbar"
+  },
+  "azioni": {
+    "salva": "Speichern",
+    "annulla": "Abbrechen",
+    "riduci": "Reduzieren",
+    "espandi": "Erweitern",
+    "modifica": "Bearbeiten"
+  }
+}

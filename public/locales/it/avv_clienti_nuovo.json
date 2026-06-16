@@ -1,0 +1,109 @@
+{
+  "back": "Tutti i clienti",
+  "header": {
+    "label": "Clienti",
+    "title": "Nuovo cliente"
+  },
+  "switcher": {
+    "persona_fisica": "Persona fisica",
+    "persona_giuridica": "Persona giuridica"
+  },
+  "banner": {
+    "bloccante_titolo": "Limite clienti raggiunto ({{conteggio}}/{{totale}})",
+    "bloccante_testo": "Hai raggiunto il numero massimo di clienti registrabili con il tuo piano. Acquista un add-on clienti per continuare a registrarne di nuovi.",
+    "bloccante_cta": "Acquista add-on clienti",
+    "critico_titolo_one": "Stai per esaurire gli slot clienti ({{count}} rimasto)",
+    "critico_titolo_other": "Stai per esaurire gli slot clienti ({{count}} rimasti)",
+    "critico_testo": "Hai usato {{conteggio}} dei {{totale}} slot disponibili. Acquista un add-on per evitare blocchi.",
+    "critico_link": "Vai all'acquisto",
+    "soft_titolo_one": "Ti resta {{count}} slot cliente",
+    "soft_titolo_other": "Ti restano {{count}} slot clienti",
+    "soft_testo": "Hai usato {{conteggio}} dei {{totale}} slot del tuo piano. Considera un add-on per non rischiare di bloccarti.",
+    "soft_link": "Vedi opzioni"
+  },
+  "sezioni": {
+    "tipo_soggetto": "Tipo di soggetto",
+    "dati_anagrafici": "Dati anagrafici",
+    "dati_societa": "Dati società",
+    "contatti": "Contatti",
+    "indirizzo": "Indirizzo"
+  },
+  "pf": {
+    "nome": "Nome *",
+    "nome_ph": "Anna",
+    "cognome": "Cognome *",
+    "cognome_ph": "Rossi",
+    "numero_avs": "Numero AVS",
+    "data_nascita": "Data di nascita",
+    "luogo_nascita": "Luogo di nascita",
+    "luogo_nascita_ph": "Lugano"
+  },
+  "pg": {
+    "ragione_sociale": "Ragione sociale *",
+    "ragione_sociale_ph": "Alfa SA",
+    "uid": "Numero UID",
+    "forma_giuridica": "Forma giuridica",
+    "forma_giuridica_ph": "Es. SA, Sàrl, ditta individuale",
+    "sede_legale": "Sede legale",
+    "sede_legale_ph": "Via Nassa 5, Lugano",
+    "iva_attiva": "Soggetto assoggettato all'IVA",
+    "rappresentante": "Rappresentante legale",
+    "rappresentante_opzionale": "— opzionale",
+    "rappr_nome": "Nome",
+    "rappr_nome_ph": "Mario",
+    "rappr_cognome": "Cognome",
+    "rappr_cognome_ph": "Bianchi",
+    "rappr_avs": "Numero AVS",
+    "rappr_avs_ph": "AVS rappresentante",
+    "rappr_carica": "Carica",
+    "rappr_carica_ph": "Es. Amministratore"
+  },
+  "contatti": {
+    "email": "Email *",
+    "telefono": "Telefono"
+  },
+  "indirizzo": {
+    "domicilio": "Indirizzo di domicilio",
+    "sede_operativa": "Sede operativa (se diversa dalla sede legale)",
+    "via_ph": "Via, numero civico",
+    "localita": "Località",
+    "localita_ph": "Lugano",
+    "cantone": "Cantone",
+    "npa": "NPA"
+  },
+  "avvocato": {
+    "assegnato": "Avvocato assegnato *",
+    "tu": "Tu"
+  },
+  "note": {
+    "label": "Note iniziali",
+    "placeholder": "Primo contatto, situazione generale..."
+  },
+  "portale": {
+    "attiva": "Attiva accesso al portale clienti",
+    "descrizione": "Il cliente potrà accedere al suo portale con email e password. Potrai resettare la password in qualsiasi momento dalla scheda cliente.",
+    "password_label": "Password iniziale *",
+    "password_ph": "Almeno 8 caratteri",
+    "password_nota": "La password non viene mai inviata via email da Lexum. Comunicala al cliente con il canale che preferisci (telefono, whatsapp, di persona)."
+  },
+  "errori": {
+    "nome_obbligatorio": "Il nome è obbligatorio",
+    "cognome_obbligatorio": "Il cognome è obbligatorio",
+    "ragione_sociale_obbligatoria": "La ragione sociale è obbligatoria",
+    "email_obbligatoria": "L'email è obbligatoria",
+    "email_non_valida": "Email non valida",
+    "password_obbligatoria": "Inserisci la password iniziale per attivare il portale",
+    "password_corta": "La password deve essere di almeno 8 caratteri"
+  },
+  "successo": {
+    "titolo": "Cliente creato",
+    "portale_attivo": "Portale attivato. Ricorda di comunicare al cliente le credenziali di accesso.",
+    "portale_disattivo": "Anagrafica salvata. L'accesso al portale è disattivato."
+  },
+  "azioni": {
+    "annulla": "Annulla",
+    "crea": "Crea cliente",
+    "limite_raggiunto": "Limite raggiunto",
+    "limite_tooltip": "Limite clienti raggiunto - acquista un add-on per continuare"
+  }
+}

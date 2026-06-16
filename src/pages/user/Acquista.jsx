@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import {
@@ -7,7 +8,11 @@ import {
     AlertCircle, Loader2, Info, Shield, Zap, X, Tag
 } from 'lucide-react'
 
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
 export default function Acquista() {
+    const { t, i18n } = useTranslation('user_acquista')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { profile } = useAuth()
     const location = useLocation()
 
@@ -154,14 +159,14 @@ export default function Acquista() {
 
             {/* Header */}
             <div>
-                <p className="section-label mb-2">Acquista</p>
+                <p className="section-label mb-2">{t('header.label')}</p>
                 <h1 className="font-display text-4xl font-light text-nebbia">
-                    {isApproved ? 'Crediti AI e Abbonamenti' : 'Crediti AI'}
+                    {isApproved ? t('header.titolo_completo') : t('header.titolo_base')}
                 </h1>
                 <p className="font-body text-sm text-nebbia/40 mt-1">
                     {isApproved
-                        ? 'Acquista crediti per Lex AI o un abbonamento per accedere a tutte le funzionalità Lexum.'
-                        : 'Acquista crediti per usare Lex AI senza limiti.'
+                        ? t('header.sottotitolo_completo')
+                        : t('header.sottotitolo_base')
                     }
                 </p>
             </div>
@@ -171,7 +176,7 @@ export default function Acquista() {
                 <div className="flex items-center gap-3 p-4 bg-salvia/10 border border-salvia/25">
                     <CheckCircle size={18} className="text-salvia shrink-0" />
                     <p className="font-body text-sm font-medium text-salvia">
-                        Pagamento completato! Il tuo acquisto è ora attivo.
+                        {t('successo.messaggio')}
                     </p>
                 </div>
             )}
@@ -181,37 +186,37 @@ export default function Acquista() {
                 <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
                     <div className="flex items-center gap-2">
                         <Sparkles size={14} className="text-salvia" />
-                        <p className="font-body text-sm font-medium text-nebbia">Il tuo saldo</p>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('saldo.titolo')}</p>
                     </div>
                     {loadingCrediti && <Loader2 size={13} className="animate-spin text-salvia/50" />}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     <div className="sm:col-span-1 bg-petrolio/60 border border-salvia/30 p-4">
-                        <p className="font-body text-xs text-salvia/70 uppercase tracking-widest mb-1">Totale</p>
+                        <p className="font-body text-xs text-salvia/70 uppercase tracking-widest mb-1">{t('saldo.totale')}</p>
                         <p className="font-display text-4xl font-light text-salvia">{crediti.totale}</p>
-                        <p className="font-body text-xs text-nebbia/40 mt-0.5">crediti disponibili</p>
+                        <p className="font-body text-xs text-nebbia/40 mt-0.5">{t('saldo.crediti_disponibili')}</p>
                     </div>
 
                     <div className="sm:col-span-3 grid grid-cols-3 gap-3">
                         <div className="bg-petrolio/40 border border-white/5 p-3">
-                            <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">Piano</p>
+                            <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">{t('saldo.piano')}</p>
                             <p className="font-display text-2xl font-light text-oro">{crediti.piano}</p>
                             {crediti.piano_scadenza && (
                                 <p className="font-body text-[10px] text-nebbia/30 mt-0.5">
-                                    Scad. {new Date(crediti.piano_scadenza).toLocaleDateString('it-CH', { day: '2-digit', month: 'short' })}
+                                    {t('saldo.scad', { data: new Date(crediti.piano_scadenza).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short' }) })}
                                 </p>
                             )}
                         </div>
                         <div className="bg-petrolio/40 border border-white/5 p-3">
-                            <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">Acquistati</p>
+                            <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">{t('saldo.acquistati')}</p>
                             <p className="font-display text-2xl font-light text-nebbia/80">{crediti.topup}</p>
-                            <p className="font-body text-[10px] text-nebbia/30 mt-0.5">non scadono</p>
+                            <p className="font-body text-[10px] text-nebbia/30 mt-0.5">{t('saldo.non_scadono')}</p>
                         </div>
                         <div className="bg-petrolio/40 border border-white/5 p-3">
-                            <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">Benvenuto</p>
+                            <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">{t('saldo.benvenuto')}</p>
                             <p className="font-display text-2xl font-light text-nebbia/80">{crediti.benvenuto}</p>
-                            <p className="font-body text-[10px] text-nebbia/30 mt-0.5">non scadono</p>
+                            <p className="font-body text-[10px] text-nebbia/30 mt-0.5">{t('saldo.non_scadono')}</p>
                         </div>
                     </div>
                 </div>
@@ -221,10 +226,20 @@ export default function Acquista() {
             <div className="bg-slate/40 border border-white/5 p-4 flex items-start gap-3">
                 <Info size={14} className="text-salvia/60 shrink-0 mt-0.5" />
                 <div className="space-y-1.5 font-body text-xs text-nebbia/55 leading-relaxed">
-                    <p><strong className="text-nebbia/80">Come funzionano i crediti:</strong></p>
-                    <p>I crediti del <span className="text-oro">piano abbonamento</span> si rinnovano automaticamente ogni mese (in base alla data di acquisto) e non si accumulano: quelli non usati vengono persi al rinnovo.</p>
-                    <p>I crediti <span className="text-nebbia/80">acquistati separatamente</span> e quelli di <span className="text-nebbia/80">benvenuto</span> non scadono mai e restano sempre tuoi.</p>
-                    <p>Quando usi Lex AI, vengono consumati prima i crediti del piano (per non sprecarli), poi quelli di benvenuto, infine quelli acquistati.</p>
+                    <p><strong className="text-nebbia/80">{t('trasparenza.titolo')}</strong></p>
+                    <p>
+                        {t('trasparenza.piano_pre')}
+                        <span className="text-oro">{t('trasparenza.piano_evidenza')}</span>
+                        {t('trasparenza.piano_post')}
+                    </p>
+                    <p>
+                        {t('trasparenza.separati_pre')}
+                        <span className="text-nebbia/80">{t('trasparenza.separati_evidenza')}</span>
+                        {t('trasparenza.separati_mid')}
+                        <span className="text-nebbia/80">{t('trasparenza.benvenuto_evidenza')}</span>
+                        {t('trasparenza.separati_post')}
+                    </p>
+                    <p>{t('trasparenza.consumo')}</p>
                 </div>
             </div>
 
@@ -236,14 +251,14 @@ export default function Acquista() {
                         className={`flex items-center gap-2 px-4 py-2 font-body text-sm transition-colors ${tabAttivo === 'crediti' ? 'bg-salvia/10 text-salvia border border-salvia/30' : 'text-nebbia/40 hover:text-nebbia'
                             }`}
                     >
-                        <Sparkles size={13} /> Pacchetti crediti
+                        <Sparkles size={13} /> {t('tab.crediti')}
                     </button>
                     <button
                         onClick={() => setTabAttivo('abbonamenti')}
                         className={`flex items-center gap-2 px-4 py-2 font-body text-sm transition-colors ${tabAttivo === 'abbonamenti' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'
                             }`}
                     >
-                        <Tag size={13} /> Abbonamenti
+                        <Tag size={13} /> {t('tab.abbonamenti')}
                     </button>
                     {haPianoStudio && seatAddon.length > 0 && (
                         <button
@@ -251,7 +266,7 @@ export default function Acquista() {
                             className={`flex items-center gap-2 px-4 py-2 font-body text-sm transition-colors ${tabAttivo === 'seat' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'
                                 }`}
                         >
-                            <CreditCard size={13} /> Posti aggiuntivi
+                            <CreditCard size={13} /> {t('tab.posti')}
                         </button>
                     )}
                 </div>
@@ -305,12 +320,12 @@ export default function Acquista() {
                         <div className="bg-slate border border-amber-500/20 p-6 flex items-start gap-3">
                             <Shield size={18} className="text-amber-400 shrink-0 mt-0.5" />
                             <div className="flex-1">
-                                <p className="font-body text-sm font-medium text-amber-400 mb-1">Verifica in corso</p>
+                                <p className="font-body text-sm font-medium text-amber-400 mb-1">{t('verifica.pending_titolo')}</p>
                                 <p className="font-body text-xs text-nebbia/50 leading-relaxed mb-3">
-                                    Stiamo esaminando i tuoi documenti. Riceverai una notifica via email entro 24-48 ore.
+                                    {t('verifica.pending_testo')}
                                 </p>
                                 <Link to="/verifica/stato" className="font-body text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5">
-                                    Vedi stato verifica <ArrowRight size={12} />
+                                    {t('verifica.pending_link')} <ArrowRight size={12} />
                                 </Link>
                             </div>
                         </div>
@@ -321,14 +336,14 @@ export default function Acquista() {
                         <div className="bg-slate border border-red-500/20 p-6 flex items-start gap-3">
                             <Shield size={18} className="text-red-400 shrink-0 mt-0.5" />
                             <div className="flex-1">
-                                <p className="font-body text-sm font-medium text-red-400 mb-1">Verifica non approvata</p>
+                                <p className="font-body text-sm font-medium text-red-400 mb-1">{t('verifica.rejected_titolo')}</p>
                                 <p className="font-body text-xs text-nebbia/50 leading-relaxed mb-3">
                                     {profile?.verification_note
-                                        ? `Motivo: ${profile.verification_note}`
-                                        : 'Puoi riprovare ricaricando i documenti corretti.'}
+                                        ? t('verifica.rejected_motivo', { nota: profile.verification_note })
+                                        : t('verifica.rejected_default')}
                                 </p>
                                 <Link to="/verifica" className="font-body text-xs text-red-400 hover:text-red-300 flex items-center gap-1.5">
-                                    Riprova la verifica <ArrowRight size={12} />
+                                    {t('verifica.rejected_link')} <ArrowRight size={12} />
                                 </Link>
                             </div>
                         </div>
@@ -339,12 +354,12 @@ export default function Acquista() {
                         <div className="flex items-start gap-3">
                             <Shield size={18} className="text-oro shrink-0 mt-0.5" />
                             <div className="flex-1">
-                                <p className="font-body text-sm font-medium text-nebbia mb-1">Sei un avvocato?</p>
+                                <p className="font-body text-sm font-medium text-nebbia mb-1">{t('verifica.cta_titolo')}</p>
                                 <p className="font-body text-xs text-nebbia/50 leading-relaxed mb-3">
-                                    Verifica la tua identità e accedi a piani con crediti mensili inclusi, gestionale completo, banca dati sentenze e molto altro.
+                                    {t('verifica.cta_testo')}
                                 </p>
                                 <Link to="/verifica" className="btn-primary text-xs">
-                                    Inizia la verifica <ArrowRight size={12} />
+                                    {t('verifica.cta_link')} <ArrowRight size={12} />
                                 </Link>
                             </div>
                         </div>
@@ -354,7 +369,7 @@ export default function Acquista() {
 
             {/* Footer trust */}
             <p className="font-body text-xs text-nebbia/20 text-center pt-4">
-                Pagamento sicuro tramite Stripe. I prodotti vengono attivati immediatamente dopo il pagamento.
+                {t('footer.trust')}
             </p>
         </div>
     )
@@ -364,6 +379,8 @@ export default function Acquista() {
 // SEZIONE PACCHETTI CREDITI
 // ═══════════════════════════════════════════════════════════════
 function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista }) {
+    const { t } = useTranslation('user_acquista')
+
     if (loading) return (
         <div className="flex items-center justify-center py-12">
             <Loader2 size={18} className="animate-spin text-salvia" />
@@ -372,7 +389,7 @@ function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista }) {
 
     if (pacchetti.length === 0) return (
         <div className="bg-slate border border-white/5 p-10 text-center">
-            <p className="font-body text-sm text-nebbia/30">Nessun pacchetto disponibile al momento.</p>
+            <p className="font-body text-sm text-nebbia/30">{t('crediti.vuoto')}</p>
         </div>
     )
 
@@ -389,9 +406,9 @@ function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista }) {
                         </div>
                         <p className="font-display text-3xl font-light text-salvia mt-2">CHF {p.prezzo}</p>
                         <p className="font-body text-xs text-nebbia/40 mt-1">
-                            {p.crediti_ai_mensili} crediti · CHF {prezzoPerCredito}/credito
+                            {t('crediti.dettaglio', { crediti: p.crediti_ai_mensili, prezzo: prezzoPerCredito })}
                         </p>
-                        <p className="font-body text-[10px] text-nebbia/30 mt-3 italic flex-1">Non scadono mai</p>
+                        <p className="font-body text-[10px] text-nebbia/30 mt-3 italic flex-1">{t('crediti.non_scadono')}</p>
                         <button
                             onClick={() => onAcquista(p.id)}
                             disabled={isLoading}
@@ -399,7 +416,7 @@ function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista }) {
                         >
                             {isLoading
                                 ? <Loader2 size={14} className="animate-spin" />
-                                : <>Acquista <ArrowRight size={12} /></>
+                                : <>{t('crediti.acquista')} <ArrowRight size={12} /></>
                             }
                         </button>
                     </div>
@@ -413,6 +430,8 @@ function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista }) {
 // SEZIONE ABBONAMENTI
 // ═══════════════════════════════════════════════════════════════
 function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_attivo }) {
+    const { t } = useTranslation('user_acquista')
+
     if (loading) return (
         <div className="flex items-center justify-center py-12">
             <Loader2 size={18} className="animate-spin text-oro" />
@@ -421,7 +440,7 @@ function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_att
 
     if (piani.length === 0) return (
         <div className="bg-slate border border-white/5 p-10 text-center">
-            <p className="font-body text-sm text-nebbia/30">Nessun piano disponibile al momento.</p>
+            <p className="font-body text-sm text-nebbia/30">{t('abbonamenti.vuoto')}</p>
         </div>
     )
 
@@ -431,7 +450,7 @@ function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_att
                 <div className="flex items-center gap-2 p-3 bg-salvia/5 border border-salvia/15 mb-4">
                     <CheckCircle size={13} className="text-salvia" />
                     <p className="font-body text-xs text-salvia/80">
-                        Hai già un piano attivo. L'acquisto di un nuovo piano lo sostituirà.
+                        {t('abbonamenti.piano_attivo')}
                     </p>
                 </div>
             )}
@@ -442,23 +461,23 @@ function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_att
                     return (
                         <div key={p.id} className={`bg-slate border p-6 flex flex-col ${isHighlight ? 'border-oro/40' : 'border-white/5'}`}>
                             {isHighlight && (
-                                <p className="font-body text-xs text-oro tracking-widest uppercase mb-3">Consigliato</p>
+                                <p className="font-body text-xs text-oro tracking-widest uppercase mb-3">{t('abbonamenti.consigliato')}</p>
                             )}
                             <h3 className="font-display text-xl font-semibold text-nebbia mb-1">{p.nome}</h3>
                             <p className="font-body text-xs text-nebbia/40 mb-3">
-                                {p.durata_mesi ? `${p.durata_mesi} mesi` : 'Una tantum'}
+                                {p.durata_mesi ? t('abbonamenti.durata_mesi', { mesi: p.durata_mesi }) : t('abbonamenti.una_tantum')}
                             </p>
 
                             <div className="flex flex-wrap gap-1.5 mb-4">
                                 {p.include_banca_dati && (
-                                    <span className="font-body text-[10px] px-2 py-0.5 border border-oro/30 text-oro">Pro</span>
+                                    <span className="font-body text-[10px] px-2 py-0.5 border border-oro/30 text-oro">{t('abbonamenti.badge_pro')}</span>
                                 )}
                                 {p.include_monetizzazione && (
-                                    <span className="font-body text-[10px] px-2 py-0.5 border border-salvia/30 text-salvia">Monetizzazione</span>
+                                    <span className="font-body text-[10px] px-2 py-0.5 border border-salvia/30 text-salvia">{t('abbonamenti.badge_monetizzazione')}</span>
                                 )}
                                 {p.posti > 1 && (
                                     <span className="font-body text-[10px] px-2 py-0.5 border border-white/10 text-nebbia/40">
-                                        {p.posti} posti
+                                        {t('abbonamenti.posti_badge', { posti: p.posti })}
                                     </span>
                                 )}
                             </div>
@@ -467,13 +486,13 @@ function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_att
 
                             <ul className="space-y-2 mb-5 flex-1">
                                 {[
-                                    'Gestione clienti illimitati',
-                                    'Pratiche e documenti',
-                                    'Calendario appuntamenti',
-                                    ...(p.crediti_ai_mensili ? [`${p.crediti_ai_mensili} crediti AI/mese`] : []),
-                                    ...(p.include_banca_dati ? ['Accesso banca dati sentenze'] : []),
-                                    ...(p.include_monetizzazione ? ['Carica sentenze e monetizza'] : []),
-                                    ...(p.posti > 1 ? [`Fino a ${p.posti} avvocati nello studio`] : []),
+                                    t('abbonamenti.feat_clienti'),
+                                    t('abbonamenti.feat_pratiche'),
+                                    t('abbonamenti.feat_calendario'),
+                                    ...(p.crediti_ai_mensili ? [t('abbonamenti.feat_crediti', { crediti: p.crediti_ai_mensili })] : []),
+                                    ...(p.include_banca_dati ? [t('abbonamenti.feat_banca_dati')] : []),
+                                    ...(p.include_monetizzazione ? [t('abbonamenti.feat_monetizzazione')] : []),
+                                    ...(p.posti > 1 ? [t('abbonamenti.feat_posti', { posti: p.posti })] : []),
                                 ].map(feat => (
                                     <li key={feat} className="flex items-start gap-2 font-body text-xs text-nebbia/60">
                                         <CheckCircle size={11} className="text-salvia shrink-0 mt-0.5" />
@@ -492,7 +511,7 @@ function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_att
                             >
                                 {isLoading
                                     ? <Loader2 size={14} className="animate-spin" />
-                                    : <>Acquista <ArrowRight size={12} /></>
+                                    : <>{t('abbonamenti.acquista')} <ArrowRight size={12} /></>
                                 }
                             </button>
                         </div>
@@ -507,6 +526,8 @@ function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_att
 // SEZIONE SEAT ADDON (avvocati con piano studio)
 // ═══════════════════════════════════════════════════════════════
 function SezioneSeat({ seats, loading, acquistando, onAcquista, posti_acquistati, posti_usati }) {
+    const { t } = useTranslation('user_acquista')
+
     if (loading) return (
         <div className="flex items-center justify-center py-12">
             <Loader2 size={18} className="animate-spin text-oro" />
@@ -516,18 +537,18 @@ function SezioneSeat({ seats, loading, acquistando, onAcquista, posti_acquistati
     return (
         <>
             <div className="bg-slate border border-white/5 p-4 mb-4">
-                <p className="font-body text-xs text-nebbia/50 mb-1">Posti del tuo studio</p>
+                <p className="font-body text-xs text-nebbia/50 mb-1">{t('seat.posti_studio')}</p>
                 <p className="font-body text-base text-nebbia">
                     <span className="text-oro font-semibold">{posti_usati ?? 1}</span>
-                    <span className="text-nebbia/40"> di </span>
+                    <span className="text-nebbia/40">{t('seat.di')}</span>
                     <span className="text-oro font-semibold">{posti_acquistati ?? 1}</span>
-                    <span className="text-nebbia/40"> posti utilizzati</span>
+                    <span className="text-nebbia/40">{t('seat.posti_utilizzati')}</span>
                 </p>
             </div>
 
             {seats.length === 0 ? (
                 <div className="bg-slate border border-white/5 p-10 text-center">
-                    <p className="font-body text-sm text-nebbia/30">Nessun pacchetto posti disponibile al momento.</p>
+                    <p className="font-body text-sm text-nebbia/30">{t('seat.vuoto')}</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -547,7 +568,7 @@ function SezioneSeat({ seats, loading, acquistando, onAcquista, posti_acquistati
                                 >
                                     {isLoading
                                         ? <Loader2 size={14} className="animate-spin" />
-                                        : <>Acquista <ArrowRight size={12} /></>
+                                        : <>{t('seat.acquista')} <ArrowRight size={12} /></>
                                     }
                                 </button>
                             </div>

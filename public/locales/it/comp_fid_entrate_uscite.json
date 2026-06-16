@@ -1,0 +1,69 @@
+{
+  "titolo": "Entrate e uscite",
+  "badge_mandato": "mandato",
+  "anno": "Anno",
+  "entrate": "Entrate",
+  "uscite": "Uscite",
+  "saldo": "Saldo",
+  "previsto_suffisso": "previsto",
+  "mese_precedente": "Mese precedente",
+  "mese_successivo": "Mese successivo",
+  "vista": {
+    "effettivo": "Effettivo",
+    "previsto": "Previsto"
+  },
+  "box_uscite": {
+    "titolo_previsto": "Uscite previste",
+    "titolo_effettivo": "Totale uscite",
+    "dettaglio_previsto": "solo costi pianificati (stipendi esclusi)",
+    "dettaglio_effettivo": "stipendi {{stipendi}} + uscite {{uscite}}"
+  },
+  "box_entrate": {
+    "titolo_previsto": "Entrate previste",
+    "titolo_effettivo": "Totale entrate",
+    "saldo_label": "saldo {{anno}}:"
+  },
+  "stipendi": {
+    "titolo": "Stipendi {{anno}}",
+    "dettaglio_one": "calcolato da {{count}} persona (dipendenti e soci) · non modificabile qui",
+    "dettaglio_other": "calcolato da {{count}} persone (dipendenti e soci) · non modificabile qui"
+  },
+  "sezione": {
+    "nuova_entrata": "Nuova entrata",
+    "nuovo_costo": "Nuovo costo",
+    "vuoto_entrate": "Nessun'entrata registrata",
+    "vuoto_uscite": "Nessun costo registrato",
+    "ricorrente": "Ricorrente",
+    "ocr_tooltip": "Creato da OCR, da verificare",
+    "da_verificare": "da verificare",
+    "modifica": "Modifica",
+    "elimina": "Elimina"
+  },
+  "ricorrenza": {
+    "una_tantum": "una tantum",
+    "mensile": "mensile",
+    "trimestrale": "trimestrale",
+    "annuale": "annuale"
+  },
+  "elimina": {
+    "titolo": "Elimina movimento",
+    "conferma_pre": "Eliminare",
+    "conferma_post": "? L'operazione è irreversibile.",
+    "annulla": "Annulla",
+    "conferma": "Elimina"
+  },
+  "mesi": [
+    "gennaio",
+    "febbraio",
+    "marzo",
+    "aprile",
+    "maggio",
+    "giugno",
+    "luglio",
+    "agosto",
+    "settembre",
+    "ottobre",
+    "novembre",
+    "dicembre"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+    "brand": {
+        "description": "La plateforme pour les avocats et les études d'avocats qui réunit gestion opérationnelle, base de données et intelligence artificielle.",
+        "status": "Plateforme active"
+    },
+    "nav": {
+        "title": "Navigation",
+        "home": "Accueil",
+        "lawyers": "Pour les études d'avocats",
+        "lex_ai": "Lex AI",
+        "contacts": "Contact"
+    },
+    "trust": {
+        "title": "Sécurité & confidentialité",
+        "encrypted": "Données protégées et chiffrées",
+        "compliance": "Conformité au RGPD et à la loi suisse sur la protection des données"
+    },
+    "bottom": {
+        "copyright": "© {{year}} Lexum. Tous droits réservés.",
+        "privacy": "Politique de confidentialité",
+        "terms": "Conditions d'utilisation"
+    }
+}

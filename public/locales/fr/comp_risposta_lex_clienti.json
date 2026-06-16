@@ -1,0 +1,11 @@
+{
+    "header": {
+        "titolo": "Réponse de Lex"
+    },
+    "cliente": {
+        "non_disponibile": "client non disponible"
+    },
+    "clienti_citati": {
+        "titolo": "Clients cités ({{count}})"
+    }
+}

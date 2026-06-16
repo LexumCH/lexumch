@@ -1,0 +1,15 @@
+{
+    "chip": {
+        "ocr_da_verificare": "Creato da OCR, da verificare nel mandato",
+        "scollega": "Scollega movimento"
+    },
+    "controlli": {
+        "mandato_richiesto": "Assegna prima un mandato al documento",
+        "entrata_uscita": "Entrata / Uscita",
+        "entrata": "Entrata",
+        "uscita": "Uscita"
+    },
+    "errori": {
+        "estrazione_fallita": "Estrazione non riuscita"
+    }
+}

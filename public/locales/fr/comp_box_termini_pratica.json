@@ -1,0 +1,42 @@
+{
+  "header": {
+    "titolo": "Délais de procédure",
+    "aggiungi_termine": "Ajouter un délai",
+    "in_corso_count_one": "{{count}} en cours",
+    "in_corso_count_other": "{{count}} en cours",
+    "storici_count_one": "{{count}} dans l'historique",
+    "storici_count_other": "{{count}} dans l'historique"
+  },
+  "filtro": {
+    "in_corso": "En cours",
+    "storico": "Historique"
+  },
+  "vuoto": {
+    "in_corso": "Aucun délai en cours",
+    "storico": "Aucun délai dans l'historique",
+    "suggerimento": "Ajoutez un délai pour calculer automatiquement l'échéance"
+  },
+  "badge": {
+    "scaduta": "Échu",
+    "oggi": "Aujourd'hui",
+    "giorni": "{{count}}j"
+  },
+  "stato": {
+    "compiuto": "Accompli le {{data}}",
+    "scaduto_non_compiuto": "Échu non accompli"
+  },
+  "campi": {
+    "scadenza": "Échéance",
+    "da": "De"
+  },
+  "azioni": {
+    "segna_compiuto": "Marquer comme accompli",
+    "elimina": "Supprimer le délai"
+  },
+  "termini": {
+    "conferma_elimina": "Annuler ce délai ? L'événement dans le calendrier sera supprimé."
+  },
+  "errori": {
+    "generico": "Erreur"
+  }
+}

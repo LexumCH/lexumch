@@ -1,0 +1,224 @@
+{
+  "header": {
+    "label": "Le mie ricerche legali",
+    "titolo": "Ricerche",
+    "sottotitolo": "Tutto quello che hai pensato, ricercato e taggato — ricerche, norme, giurisprudenza e prassi."
+  },
+  "barra_azioni": {
+    "confronto_attivo": "Confronto",
+    "confronto_elementi": " · {{count}} elementi",
+    "chiudi_confronto": "Chiudi confronto",
+    "selezionati": " / {{max}} selezionati",
+    "annulla": "Annulla",
+    "confronta_affiancati": "Confronta affiancati",
+    "confronta": "Confronta",
+    "nuova_ricerca": "Nuova ricerca"
+  },
+  "orfane": {
+    "conteggio": "{{conteggio}}/{{limite}} ricerche fuori da pratiche e senza etichette",
+    "spiegazione_prefix": "Quando superi il limite, le orfane più vecchie vengono ",
+    "spiegazione_bold": "eliminate automaticamente",
+    "spiegazione_suffix": ". Salva una ricerca dentro una pratica o assegnale almeno un'etichetta per proteggerla."
+  },
+  "ricerca": {
+    "intro": "Cerca tra le tue ricerche, norme, giurisprudenza e prassi. Usa la ricerca tradizionale per parole chiave letterali, o Lex per query in linguaggio naturale.",
+    "placeholder": "Cerca tra le tue ricerche, norme, giurisprudenza, prassi...",
+    "svuota": "Svuota",
+    "cerca": "Cerca",
+    "cerca_title": "Cerca per parole chiave letterali (Invio)",
+    "lex_sta_cercando": "Lex sta cercando...",
+    "lex_errore": "Errore durante la ricerca",
+    "cerca_con_lex": "Cerca con Lex",
+    "lex_breve": "Lex",
+    "lex_limite_title": "Limite giornaliero raggiunto",
+    "lex_troppi_title": "Troppi elementi: filtra prima per tipo o pratica (max 100)",
+    "lex_semantica_title": "Ricerca semantica (Cmd/Ctrl+Invio)",
+    "troppi_elementi": "Hai {{count}} elementi. Per usare Lex, restringi prima per tipo o pratica (max 100).",
+    "lex_trovato_uno": "Lex ha trovato <0>{{count}}</0> elemento",
+    "lex_trovati_molti": "Lex ha trovato <0>{{count}}</0> elementi",
+    "azzera_lex": "Azzera Lex"
+  },
+  "filtri": {
+    "tutte_le_pratiche": "Tutte le pratiche",
+    "etichetta": "Etichetta",
+    "gestisci": "Gestisci…",
+    "azzera": "Azzera",
+    "apri_etichetta": "Apri etichetta \"{{nome}}\""
+  },
+  "filtro_tipi": {
+    "tutti": "Tutti",
+    "ricerca_ai": "Ricerche AI",
+    "ricerca_manuale": "Ricerche manuali",
+    "chat_lex": "Chat con Lex",
+    "norma_federale": "Norme federali",
+    "norma_cantonale": "Norme cantonali",
+    "norma_ue": "Norme UE",
+    "giurisprudenza": "Giurisprudenza",
+    "sentenza_ue": "Sentenze UE",
+    "prassi": "Prassi"
+  },
+  "vuoto": {
+    "nessun_elemento": "Nessun elemento ancora",
+    "nessun_risultato": "Nessun risultato",
+    "nessun_elemento_descr": "Le ricerche AI, manuali, chat e gli elementi (norme, giurisprudenza, prassi) che taggherai compariranno qui.",
+    "nessun_risultato_descr": "Prova a cambiare i filtri o a cercare con parole diverse."
+  },
+  "tipo_label": {
+    "ricerca_ai": "Ricerca AI",
+    "chat_lex": "Chat con Lex",
+    "ricerca_manuale": "Ricerca manuale",
+    "norma_federale": "Norma federale",
+    "norma_cantonale": "Norma cantonale",
+    "norma_ue": "Norma UE",
+    "giurisprudenza": "Giurisprudenza",
+    "sentenza_ue": "Sentenza UE",
+    "prassi": "Prassi"
+  },
+  "titolo_fallback": {
+    "norma": "Norma",
+    "giurisprudenza": "Giurisprudenza",
+    "sentenza_ue": "Sentenza UE",
+    "prassi": "Prassi"
+  },
+  "card": {
+    "apri_banca_dati": "Apri nella banca dati",
+    "apri": "Apri",
+    "chiudi": "Chiudi",
+    "elimina_ricerca": "Elimina ricerca",
+    "rimuovi_tag": "Rimuovi tag",
+    "senza_pratica": "Senza pratica",
+    "nessuna_etichetta": "Nessuna etichetta disponibile",
+    "apri_etichetta": "Apri etichetta \"{{nome}}\"",
+    "conferma_elimina_ricerca": "Eliminare questa ricerca? L'azione è irreversibile.",
+    "conferma_rimuovi_tag": "Rimuovere tutti i tag da questo elemento?\nL'elemento originale ({{tipo}}) non verrà cancellato."
+  },
+  "azioni_confronto": {
+    "sintesi_unificata_label": "Sintesi unificata",
+    "sintesi_unificata_descr": "Fonde gli elementi in un quadro unitario",
+    "conflitti_label": "Conflitti & tensioni",
+    "conflitti_descr": "Evidenzia divergenze e contraddizioni",
+    "comuni_label": "Punti in comune",
+    "comuni_descr": "Estrae il fil rouge condiviso",
+    "parere_label": "Parere completo",
+    "parere_descr": "Documento strutturato pronto da copiare"
+  },
+  "frasi_confronto": {
+    "sintesi_unificata": [
+      "Sto leggendo gli elementi che mi hai dato",
+      "Identifico i punti di tangenza",
+      "Cerco il filo conduttore",
+      "Compongo il quadro unitario",
+      "Sto cucendo i tasselli",
+      "Verifico la coerenza interna",
+      "Rileggo per assicurarmi",
+      "Affino la sintesi finale"
+    ],
+    "conflitti": [
+      "Sto leggendo gli elementi",
+      "Cerco le tensioni nascoste",
+      "Identifico le divergenze",
+      "Confronto le posizioni",
+      "Valuto quale prevale",
+      "Verifico le contraddizioni",
+      "Soppeso le argomentazioni",
+      "Compongo l'analisi critica"
+    ],
+    "comuni": [
+      "Sto leggendo gli elementi",
+      "Cerco il fil rouge",
+      "Estraggo i principi condivisi",
+      "Identifico le convergenze",
+      "Verifico gli orientamenti comuni",
+      "Compongo il costrutto unitario",
+      "Mostro come si rinforzano",
+      "Affino la lettura d'insieme"
+    ],
+    "parere": [
+      "Sto leggendo gli elementi",
+      "Inquadrolo le premesse",
+      "Ricostruisco il quadro",
+      "Articolo le considerazioni",
+      "Cerco le tensioni interpretative",
+      "Compongo le conclusioni",
+      "Strutturo il parere",
+      "Rifinisco il documento"
+    ],
+    "libera": [
+      "Sto leggendo gli elementi",
+      "Analizzo la tua domanda",
+      "Cerco i punti rilevanti",
+      "Compongo la risposta",
+      "Verifico l'aderenza agli elementi",
+      "Affino il ragionamento"
+    ]
+  },
+  "animazione": {
+    "lex_ragionando": "Lex sta ragionando"
+  },
+  "confronto": {
+    "errore_generico": "Errore {{status}}",
+    "focus": "Focus",
+    "senza_titolo": "(senza titolo)",
+    "chat_titolo": "Lex — Chat sul confronto",
+    "scambi": "{{count}} scambi",
+    "nuova_sessione": "Nuova sessione",
+    "tu": "Tu",
+    "lex": "Lex",
+    "salva_come_ricerca": "Salva come ricerca",
+    "intro_chat": "Scegli un'azione guidata o scrivi una domanda libera. Lex ragionerà sui {{count}} elementi confrontati.",
+    "placeholder_approfondisci": "Approfondisci o fai una nuova domanda...",
+    "placeholder_libera": "Oppure scrivi una domanda libera...",
+    "invia_domanda_libera": "Invia domanda libera"
+  },
+  "colonna": {
+    "apri_banca_dati": "Apri nella banca dati",
+    "apri": "Apri"
+  },
+  "modale_salva": {
+    "titolo_auto": "Confronto: {{elementi}}",
+    "titolo_modale": "Salva sintesi come ricerca",
+    "label_titolo": "Titolo",
+    "label_pratica": "Pratica (opzionale)",
+    "nessuna_pratica": "Nessuna pratica",
+    "label_etichette": "Etichette (opzionali)",
+    "footer_prefix": "La sintesi verrà salvata come ",
+    "footer_bold": "ricerca AI",
+    "footer_suffix": " e potrai ritrovarla in questa pagina o nella pratica selezionata.",
+    "sintesi_footer": "\n\n---\n\n*Sintesi generata da Lex confrontando {{count}} elementi.*",
+    "annulla": "Annulla",
+    "salva_ricerca": "Salva ricerca"
+  },
+  "modale_nuova_ricerca": {
+    "titolo_modale": "Nuova ricerca",
+    "default_titolo": "Ricerca manuale",
+    "contenuto_obbligatorio": "Il contenuto è obbligatorio",
+    "label_titolo": "Titolo (opzionale)",
+    "placeholder_titolo": "Es. Riflessioni su responsabilità contrattuale",
+    "label_contenuto": "Contenuto",
+    "placeholder_contenuto": "Scrivi il tuo ragionamento, appunti, citazioni...",
+    "label_pratica": "Pratica (opzionale)",
+    "nessuna_pratica": "Nessuna pratica (ricerca libera)",
+    "label_etichette": "Etichette (opzionali)",
+    "avviso_orfana_prefix": "Senza pratica e senza etichetta, questa sarà una ",
+    "avviso_orfana_bold": "ricerca orfana",
+    "avviso_orfana_suffix": ". Puoi averne al massimo {{limite}}; le più vecchie verranno rimosse automaticamente.",
+    "annulla": "Annulla",
+    "salva_ricerca": "Salva ricerca"
+  },
+  "modale_nuova_etichetta": {
+    "titolo_modale": "Nuova etichetta",
+    "label_nome": "Nome",
+    "placeholder_nome": "Es. Diritto del lavoro, Responsabilità civile...",
+    "label_colore": "Colore",
+    "errore_duplicato": "Esiste già un'etichetta con questo nome",
+    "crea_etichetta": "Crea etichetta"
+  },
+  "modale_gestione_etichette": {
+    "titolo_modale": "Gestisci etichette",
+    "nessuna": "Nessuna etichetta da gestire",
+    "errore_duplicato": "Esiste già un'etichetta con questo nome",
+    "conferma_elimina": "Eliminare l'etichetta \"{{nome}}\"?\n\nLe ricerche taggate non verranno cancellate, perderanno solo questo tag.",
+    "annulla": "Annulla",
+    "salva": "Salva"
+  }
+}

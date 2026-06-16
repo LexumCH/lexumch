@@ -1,0 +1,142 @@
+{
+  "nav": {
+    "tutte_ricerche": "Alle Recherchen"
+  },
+  "header": {
+    "etichetta": "Etikette",
+    "elementi_one": "{{count}} Element",
+    "elementi_other": "{{count}} Elemente",
+    "creata_il": "erstellt am {{data}}"
+  },
+  "ricerca": {
+    "placeholder": "In dieser Etikette suchen..."
+  },
+  "tipi": {
+    "tutti": "Alle",
+    "ricerca_ai": "Recherchen",
+    "norma_federale": "Bundesrecht",
+    "norma_cantonale": "Kant. Recht",
+    "norma_ue": "EU-Normen",
+    "giurisprudenza": "Rechtsprechung",
+    "sentenza_ue": "EU-Urteile",
+    "prassi": "Praxis"
+  },
+  "vuoto": {
+    "nessun_contenuto": "Noch keine Inhalte in dieser Etikette",
+    "nessun_risultato": "Keine Ergebnisse für diese Filter",
+    "istruzioni": "Um Inhalte hinzuzufügen, gehen Sie in die Datenbank und klicken Sie bei Rechtsprechung, Normen oder Praxis auf \"Zur Etikette hinzufügen\". Sie können auch Ihre Recherchen auf der Seite Recherchen mit Etiketten versehen."
+  },
+  "conferma": {
+    "rimuovi": "Dieses Element aus der Etikette entfernen?\n\nDas Originalelement (Recherche, Rechtsprechung, Norm, Praxis) wird nicht gelöscht."
+  },
+  "card": {
+    "tipo_ricerca_ai": "KI-Recherche",
+    "tipo_chat_lex": "Chat mit Lex",
+    "tipo_ricerca_manuale": "Manuelle Recherche",
+    "apri": "Öffnen",
+    "chiudi": "Schliessen",
+    "rimuovi_tag": "Etikett entfernen",
+    "norma": "Norm",
+    "sentenza": "Urteil",
+    "sentenza_ue": "EU-Urteil",
+    "prassi": "Praxis"
+  },
+  "chat": {
+    "titolo": "Lex — Etiketten-Chat",
+    "nuova_sessione": "Neue Sitzung",
+    "ruolo_tu": "Sie",
+    "ruolo_lex": "Lex",
+    "salva": "Speichern",
+    "intro_one": "Wählen Sie einen Vorschlag oder stellen Sie eine Frage. Lex denkt über {{count}} Element dieser Etikette nach.",
+    "intro_other": "Wählen Sie einen Vorschlag oder stellen Sie eine Frage. Lex denkt über die {{count}} Elemente dieser Etikette nach.",
+    "vuoto": "Fügen Sie der Etikette Elemente hinzu, um den Chat zu starten.",
+    "placeholder_nuova": "Stellen Sie eine Frage zu dieser Etikette…",
+    "placeholder_segui": "Vertiefen Sie oder stellen Sie eine neue Frage…",
+    "invia": "Frage senden",
+    "focus": "Fokus",
+    "etichetta_vuota": "Die Etikette ist leer",
+    "errore_http": "Fehler {{status}}",
+    "lex_ragiona": "Lex denkt nach"
+  },
+  "azioni": {
+    "mappa_concettuale": {
+      "label": "Konzeptkarte",
+      "descr": "Nach Themen ordnen",
+      "prompt": "Erstelle eine Konzeptkarte dieser Etikette und ordne die Elemente nach Hauptthemen."
+    },
+    "cosa_ho_ragionato": {
+      "label": "Mein Gedankengang",
+      "descr": "Verlauf der Überlegung",
+      "prompt": "Rekonstruiere den Verlauf meiner Überlegungen anhand der Elemente dieser Etikette."
+    },
+    "insight": {
+      "label": "Erkenntnisse",
+      "descr": "Muster und Verbindungen",
+      "prompt": "Finde Erkenntnisse, wiederkehrende Muster und unerwartete Verbindungen zwischen den Elementen dieser Etikette."
+    },
+    "stato_arte": {
+      "label": "Sachstand",
+      "descr": "Strukturiertes Memo",
+      "prompt": "Verfasse ein Memo zum Stand der in dieser Etikette gesammelten juristischen Recherche: Überblick, Tendenzen, offene Punkte, operative Hinweise."
+    }
+  },
+  "frasi": {
+    "mappa_concettuale": [
+      "Ich lese die Etikette erneut",
+      "Ich erkenne die wiederkehrenden Themen",
+      "Ich gruppiere nach Thema",
+      "Ich identifiziere die Verbindungen",
+      "Ich erstelle die Karte",
+      "Ich prüfe die Kohärenz",
+      "Ich verfeinere die Struktur"
+    ],
+    "cosa_ho_ragionato": [
+      "Ich lese die Etikette erneut",
+      "Ich rekonstruiere den Verlauf",
+      "Ich identifiziere die Wendepunkte",
+      "Ich suche die gefestigten Punkte",
+      "Ich erkenne die offenen Bereiche",
+      "Ich stelle die Verlaufslinie zusammen",
+      "Ich verfeinere die Erzählung"
+    ],
+    "insight": [
+      "Ich lese die Etikette erneut",
+      "Ich suche verborgene Verbindungen",
+      "Ich erkenne die Muster",
+      "Ich identifiziere die neuen Hypothesen",
+      "Ich suche die Stärken",
+      "Ich prüfe die Lücken",
+      "Ich stelle die Erkenntnisse zusammen"
+    ],
+    "stato_arte": [
+      "Ich lese die Etikette erneut",
+      "Ich erfasse den Gesamtüberblick",
+      "Ich extrahiere die Tendenzen",
+      "Ich identifiziere die Spannungen",
+      "Ich formuliere die operativen Hinweise",
+      "Ich strukturiere das Memo",
+      "Ich überarbeite das Dokument"
+    ],
+    "libera": [
+      "Ich lese die Etikette erneut",
+      "Ich analysiere Ihre Frage",
+      "Ich suche die relevanten Punkte",
+      "Ich verfasse die Antwort",
+      "Ich prüfe die Stimmigkeit"
+    ]
+  },
+  "modale": {
+    "titolo_auto": "Lex zu \"{{nome}}\"",
+    "firma_sintesi": "Von Lex erstellte Zusammenfassung zur Etikette \"{{nome}}\".",
+    "titolo_header": "Als Recherche speichern",
+    "label_titolo": "Titel",
+    "label_pratica": "Dossier (optional)",
+    "nessuna_pratica": "Kein Dossier",
+    "label_etichette": "Etiketten",
+    "etichetta_preselezionata": "(die aktuelle Etikette ist vorausgewählt)",
+    "corrente": "(aktuell)",
+    "nota_salvataggio": "Die Zusammenfassung wird als <1>KI-Recherche</1> mit der bereits zugewiesenen Etikette <3>{{nome}}</3> gespeichert.",
+    "annulla": "Abbrechen",
+    "salva_ricerca": "Recherche speichern"
+  }
+}

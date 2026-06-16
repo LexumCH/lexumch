@@ -6,6 +6,7 @@
 // Date già in it-CH. Nessun importo/valuta. Pronto as-is per CH.
 
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/shared'
 import {
@@ -43,6 +44,7 @@ function SortTh({ label, field, sortField, sortDir, onSort }) {
 // MODAL ELIMINA CLIENTE (richiede digitazione del nome)
 // ─────────────────────────────────────────────────────────────
 function ModalEliminaCliente({ cliente, onClose, onEliminato }) {
+    const { t } = useTranslation('avv_clienti_lista')
     const nome = nomeCliente(cliente)
     const [conferma, setConferma] = useState('')
     const [inviando, setInviando] = useState(false)
@@ -58,7 +60,7 @@ function ModalEliminaCliente({ cliente, onClose, onEliminato }) {
                 body: { action: 'elimina-cliente', cliente_id: cliente.id }
             })
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore')
+            if (!data?.ok) throw new Error(data?.error ?? t('errori.generico'))
             setRisultato(data)
         } catch (err) {
             setErrore(err.message)
@@ -76,12 +78,12 @@ function ModalEliminaCliente({ cliente, onClose, onEliminato }) {
                         <div className="w-10 h-10 bg-salvia/10 border border-salvia/30 flex items-center justify-center">
                             <CheckCircle size={18} className="text-salvia" />
                         </div>
-                        <h2 className="font-display text-lg text-nebbia">Cliente eliminato</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('modal.eliminato_titolo')}</h2>
                     </div>
                     <p className="font-body text-sm text-nebbia/60">{risultato.messaggio}</p>
                     {totale > 0 && (
                         <div className="bg-petrolio/40 border border-white/5 p-3 space-y-1">
-                            <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">Dati cancellati</p>
+                            <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">{t('modal.dati_cancellati')}</p>
                             {Object.entries(risultato.conteggi)
                                 .filter(([_, n]) => n > 0)
                                 .map(([k, n]) => (
@@ -95,7 +97,7 @@ function ModalEliminaCliente({ cliente, onClose, onEliminato }) {
                     )}
                     <button onClick={() => { onClose(); onEliminato() }}
                         className="btn-primary text-sm w-full justify-center">
-                        Chiudi
+                        {t('modal.chiudi')}
                     </button>
                 </div>
             </div>
@@ -108,7 +110,7 @@ function ModalEliminaCliente({ cliente, onClose, onEliminato }) {
                 <div className="flex items-center justify-between p-5 border-b border-white/8">
                     <div className="flex items-center gap-2">
                         <Trash2 size={16} className="text-red-400" />
-                        <h2 className="font-display text-lg text-nebbia">Elimina cliente</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('modal.titolo')}</h2>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia">
                         <X size={18} />
@@ -118,24 +120,22 @@ function ModalEliminaCliente({ cliente, onClose, onEliminato }) {
                 <div className="p-6 space-y-5">
                     <div className="bg-red-900/15 border border-red-500/30 p-4">
                         <p className="font-body text-sm text-red-400 leading-relaxed mb-2">
-                            <span className="font-semibold">Operazione irreversibile.</span>
+                            <span className="font-semibold">{t('modal.irreversibile')}</span>
                         </p>
                         <p className="font-body text-xs text-red-400/80 leading-relaxed">
-                            Saranno cancellati definitivamente: anagrafica cliente, pratiche, fatture,
-                            note interne, appuntamenti, documenti, comunicazioni. I file caricati
-                            nello storage diventeranno orfani e inaccessibili.
+                            {t('modal.avviso')}
                         </p>
                     </div>
 
                     <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                        Per confermare digita il nome esatto del cliente:
+                        {t('modal.conferma_digita')}
                     </p>
                     <p className="font-body text-base font-semibold text-oro">{nome}</p>
 
                     <input
                         value={conferma}
                         onChange={e => setConferma(e.target.value)}
-                        placeholder="Digita qui per confermare"
+                        placeholder={t('modal.placeholder_conferma')}
                         autoFocus
                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                     />
@@ -149,13 +149,13 @@ function ModalEliminaCliente({ cliente, onClose, onEliminato }) {
                     <div className="flex gap-2">
                         <button onClick={onClose} disabled={inviando}
                             className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">
-                            Annulla
+                            {t('modal.annulla')}
                         </button>
                         <button onClick={elimina} disabled={!matchEsatto || inviando}
                             className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-500/15 border border-red-500/40 text-red-400 font-body text-sm hover:bg-red-500/25 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
                             {inviando
                                 ? <span className="animate-spin w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" />
-                                : <><Trash2 size={14} /> Elimina definitivamente</>
+                                : <><Trash2 size={14} /> {t('modal.elimina_definitivamente')}</>
                             }
                         </button>
                     </div>
@@ -169,6 +169,10 @@ function ModalEliminaCliente({ cliente, onClose, onEliminato }) {
 // LISTA CLIENTI
 // ─────────────────────────────────────────────────────────────
 export function AvvocatoClienti() {
+    const { t, i18n } = useTranslation('avv_clienti_lista')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+
     // ─── State ricerca tradizionale ───────────────────────────
     const [search, setSearch] = useState('')
     const [cercaApplicata, setCercaApplicata] = useState('')
@@ -224,7 +228,7 @@ export function AvvocatoClienti() {
             .in('avvocato_id', ids)
             .order('cognome')
 
-        if (error) { setErrore('Errore nel caricamento dei clienti'); setLoading(false); return }
+        if (error) { setErrore(t('errori.caricamento')); setLoading(false); return }
         setClienti(data ?? [])
         setLoading(false)
     }
@@ -260,7 +264,7 @@ export function AvvocatoClienti() {
                 body: { domanda: search.trim() }
             })
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore Lex')
+            if (!data?.ok) throw new Error(data?.error ?? t('errori.lex'))
             setRispostaLex({
                 risposta: data.risposta,
                 clienti_menzionati: data.clienti_menzionati ?? [],
@@ -312,16 +316,16 @@ export function AvvocatoClienti() {
     return (
         <div className="space-y-5">
             <PageHeader
-                label="Clienti"
-                title={isStudio ? 'Clienti dello studio' : 'I tuoi clienti'}
-                subtitle={`${clienti.length} ${clienti.length === 1 ? 'cliente' : 'clienti'} in totale`}
-                action={<Link to="/clienti/nuovo" className="btn-primary text-sm"><Plus size={15} />Nuovo cliente</Link>}
+                label={t('header.label')}
+                title={isStudio ? t('header.titolo_studio') : t('header.titolo_propri')}
+                subtitle={t('header.sottotitolo', { count: clienti.length })}
+                action={<Link to="/clienti/nuovo" className="btn-primary text-sm"><Plus size={15} />{t('header.nuovo_cliente')}</Link>}
             />
 
             {/* ─── BOX RICERCA stile archivio + Lex ─────────────── */}
             <div className="bg-slate border border-white/5 p-4 space-y-3">
                 <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                    Cerca clienti per nome o email. Oppure fai a Lex domande sui clienti e chiedi info su di essi. Lex non ha accesso alle note interne dei clienti.
+                    {t('ricerca.intro')}
                 </p>
 
                 <div className="flex items-stretch gap-2">
@@ -329,7 +333,7 @@ export function AvvocatoClienti() {
                         <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30 pointer-events-none" />
                         <input
                             type="text"
-                            placeholder="Cerca o chiedi a Lex..."
+                            placeholder={t('ricerca.placeholder')}
                             value={search}
                             onChange={e => {
                                 setSearch(e.target.value)
@@ -358,7 +362,7 @@ export function AvvocatoClienti() {
                     >
                         {cercando
                             ? <Loader2 size={13} className="animate-spin" />
-                            : <><Search size={13} /> Cerca</>
+                            : <><Search size={13} /> {t('ricerca.cerca')}</>
                         }
                     </button>
 
@@ -368,8 +372,8 @@ export function AvvocatoClienti() {
                         className="flex items-center justify-center gap-2 px-4 h-[38px] bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                     >
                         {cercandoLex
-                            ? <><Loader2 size={13} className="animate-spin" /> <span className="hidden md:inline">Lex sta pensando...</span></>
-                            : <><Sparkles size={13} /> <span className="hidden md:inline">Chiedi a Lex</span><span className="md:hidden">Lex</span></>
+                            ? <><Loader2 size={13} className="animate-spin" /> <span className="hidden md:inline">{t('ricerca.lex_sta_pensando')}</span></>
+                            : <><Sparkles size={13} /> <span className="hidden md:inline">{t('ricerca.chiedi_a_lex')}</span><span className="md:hidden">{t('ricerca.lex')}</span></>
                         }
                     </button>
                 </div>
@@ -393,13 +397,13 @@ export function AvvocatoClienti() {
                 {inRicerca && !rispostaLex && !erroreLex && (
                     <div className="flex items-center justify-between gap-2 px-3 py-2 bg-oro/5 border border-oro/20">
                         <p className="font-body text-xs text-oro">
-                            <strong>{rows.length}</strong> {rows.length === 1 ? 'risultato' : 'risultati'} per "{cercaApplicata}"
+                            {t('ricerca.risultato', { count: rows.length, query: cercaApplicata })}
                         </p>
                         <button
                             onClick={azzeraRicerca}
                             className="flex items-center gap-1 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors"
                         >
-                            <X size={11} /> Azzera
+                            <X size={11} /> {t('ricerca.azzera')}
                         </button>
                     </div>
                 )}
@@ -409,21 +413,21 @@ export function AvvocatoClienti() {
             <div className="flex flex-wrap gap-3">
                 <select value={tipoF} onChange={e => setTipoF(e.target.value)}
                     className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                    <option value="">Tutti i tipi</option>
-                    <option value="persona_fisica">Persone fisiche</option>
-                    <option value="persona_giuridica">Persone giuridiche</option>
+                    <option value="">{t('filtri.tutti_tipi')}</option>
+                    <option value="persona_fisica">{t('filtri.persone_fisiche')}</option>
+                    <option value="persona_giuridica">{t('filtri.persone_giuridiche')}</option>
                 </select>
                 {isStudio && collaboratori.length > 0 && (
                     <select value={avvF} onChange={e => setAvvF(e.target.value)}
                         className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                        <option value="">Tutti gli avvocati</option>
+                        <option value="">{t('filtri.tutti_avvocati')}</option>
                         {collaboratori.map(c => <option key={c.id} value={c.id}>{c.nome} {c.cognome}</option>)}
                     </select>
                 )}
                 {(avvF || tipoF) && (
                     <button onClick={() => { setAvvF(''); setTipoF('') }}
                         className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1">
-                        <X size={11} /> Reset filtri
+                        <X size={11} /> {t('filtri.reset_filtri')}
                     </button>
                 )}
             </div>
@@ -442,18 +446,18 @@ export function AvvocatoClienti() {
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/5">
-                                <SortTh label="Cliente" field="cognome" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                                <SortTh label="Email" field="email" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                                <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Telefono</th>
-                                {isStudio && <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Avvocato</th>}
-                                <SortTh label="Creato il" field="created_at" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                                <SortTh label={t('tabella.cliente')} field="cognome" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                                <SortTh label={t('tabella.email')} field="email" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                                <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('tabella.telefono')}</th>
+                                {isStudio && <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('tabella.avvocato')}</th>}
+                                <SortTh label={t('tabella.creato_il')} field="created_at" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                                 <th className="px-4 py-3 w-20" />
                             </tr>
                         </thead>
                         <tbody>
                             {rows.length === 0 ? (
                                 <tr><td colSpan={isStudio ? 6 : 5} className="px-4 py-12 text-center font-body text-sm text-nebbia/30">
-                                    {clienti.length === 0 ? "Nessun cliente. Crea il primo." : "Nessun cliente con questi filtri."}
+                                    {clienti.length === 0 ? t('tabella.vuoto_nessun_cliente') : t('tabella.vuoto_con_filtri')}
                                 </td></tr>
                             ) : rows.map(c => (
                                 <tr key={c.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors group">
@@ -474,15 +478,15 @@ export function AvvocatoClienti() {
                                         <td className="px-4 py-3 font-body text-sm text-nebbia/60">
                                             {collaboratori.find(col => col.id === c.avvocato_id)
                                                 ? `${collaboratori.find(col => col.id === c.avvocato_id).nome} ${collaboratori.find(col => col.id === c.avvocato_id).cognome}`
-                                                : 'Tu'}
+                                                : t('tabella.tu')}
                                         </td>
                                     )}
-                                    <td className="px-4 py-3 font-body text-sm text-nebbia/50 whitespace-nowrap">{new Date(c.created_at).toLocaleDateString('it-CH')}</td>
+                                    <td className="px-4 py-3 font-body text-sm text-nebbia/50 whitespace-nowrap">{new Date(c.created_at).toLocaleDateString(dateLocale)}</td>
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
                                             <button
                                                 onClick={(e) => { e.preventDefault(); setClienteDaEliminare(c) }}
-                                                title="Elimina cliente"
+                                                title={t('azioni.elimina_cliente')}
                                                 className="inline-flex items-center justify-center w-7 h-7 text-nebbia/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                                             >
                                                 <Trash2 size={13} />

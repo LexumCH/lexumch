@@ -1,0 +1,17 @@
+{
+  "avvocato": {
+    "label": "Enregistrer dans le dossier",
+    "cercaPlaceholder": "Rechercher un dossier...",
+    "vuotoConCerca": "Aucun dossier trouvé",
+    "vuotoSenzaCerca": "Aucun dossier ouvert"
+  },
+  "fiduciario": {
+    "label": "Enregistrer dans le mandat",
+    "cercaPlaceholder": "Rechercher un mandat...",
+    "vuotoConCerca": "Aucun mandat trouvé",
+    "vuotoSenzaCerca": "Aucun mandat actif"
+  },
+  "salvatoIn": "Enregistré dans « {{titolo}} »",
+  "caricamento": "Chargement...",
+  "salvataggio": "Enregistrement..."
+}

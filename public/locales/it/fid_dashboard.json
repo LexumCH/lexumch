@@ -1,0 +1,49 @@
+{
+  "hero": {
+    "etichetta": "Studio fiduciario",
+    "titolo": "Quadro generale",
+    "titolo_nome": "Quadro generale, {{nome}}",
+    "sottotitolo_one": "Anno {{anno}} · {{count}} cliente",
+    "sottotitolo_other": "Anno {{anno}} · {{count}} clienti"
+  },
+  "kpi": {
+    "clienti": "Clienti",
+    "mandati_attivi": "Mandati attivi",
+    "fatturato": "Fatturato {{anno}}",
+    "da_incassare": "Da incassare"
+  },
+  "scadute": {
+    "titolo_one": "{{count}} scadenza scaduta",
+    "titolo_other": "{{count}} scadenze scadute"
+  },
+  "scadenze": {
+    "titolo": "Prossime scadenze",
+    "vuoto": "Nessuna scadenza in arrivo.",
+    "oggi": "oggi",
+    "tra_giorni_one": "tra {{count}} gg",
+    "tra_giorni_other": "tra {{count}} gg"
+  },
+  "appuntamenti": {
+    "titolo": "Prossimi appuntamenti",
+    "vuoto": "Nessun appuntamento in programma.",
+    "senza_titolo": "(senza titolo)",
+    "studio": "studio"
+  },
+  "fatturazione": {
+    "titolo": "Studio — fatturazione {{anno}}",
+    "fatturato": "Fatturato",
+    "incassato": "Incassato",
+    "da_incassare": "Da incassare",
+    "scaduto": "Scaduto",
+    "nota": "Fatture emesse dallo studio ai clienti (i ricavi dello studio). Niente a che vedere con i conti economici dei singoli clienti."
+  },
+  "ce": {
+    "titolo": "Conto economico per cliente {{anno}}",
+    "nota": "— ogni cliente è a sé, non sommato",
+    "col_cliente": "Cliente",
+    "col_entrate": "Entrate",
+    "col_costi": "Costi",
+    "col_stipendi": "Stipendi",
+    "col_saldo": "Saldo"
+  }
+}

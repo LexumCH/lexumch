@@ -13,6 +13,8 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { labelFonteGiur } from '@/lib/istituzioni'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { BackButton } from '@/components/shared'
@@ -21,38 +23,9 @@ import AggiungiAPratica from '@/components/AggiungiAPratica'
 import { Scale, Globe, AlertCircle, Calendar, FileText } from 'lucide-react'
 
 const LINGUE_LABEL = { it: 'IT', de: 'DE', fr: 'FR' }
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
-// Mappa fonti federali → label leggibile (allineata a TabGiurisprudenza)
-const FONTI_FEDERALI = {
-    TF: 'Tribunale federale',
-    CH_BGE: 'DTF — Raccolta ufficiale',
-    TAF: 'Tribunale amministrativo federale',
-    TPF: 'Tribunale penale federale',
-}
-
-// Camere cantonali note (fallback al codice grezzo)
-const CAMERA_LABEL = {
-    OG: 'Obergericht',
-    VG: 'Verwaltungsgericht',
-    SVG: 'Sozialversicherungsgericht',
-    BR: 'Baurekursgericht',
-    SR: 'Steuerrekursgericht',
-    FI: 'Tribunal',
-}
-
-function labelFonteGiur(fonte, camera_codice) {
-    if (!fonte) return '—'
-    if (FONTI_FEDERALI[fonte]) return FONTI_FEDERALI[fonte]
-    // Cantonale: prefisso CANT_XX_camera
-    const m = /^CANT_([A-Z]{2})_(.+)$/.exec(fonte)
-    if (m) {
-        const canton = m[1]
-        const cam = m[2]
-        const camLabel = CAMERA_LABEL[cam] ?? cam
-        return `${canton} · ${camLabel}`
-    }
-    return fonte
-}
+// Etichette fonti/camere centralizzate in src/lib/istituzioni.js (namespace i18n 'istituzioni')
 
 function risolviTitoloGiur(s, linguaPref) {
     const ordine = [linguaPref, 'it', 'de', 'fr'].filter(Boolean)
@@ -66,6 +39,9 @@ function risolviTitoloGiur(s, linguaPref) {
 export function SentenzaDettaglio({ fonte: fonteProp }) {
     const { id } = useParams()
     const { profile } = useAuth()
+    const { t, i18n } = useTranslation('avv_dettaglio')
+    const { t: tIst } = useTranslation('istituzioni')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
     const [sentenza, setSentenza] = useState(null)
     const [tipoFonte, setTipoFonte] = useState(null) // 'giurisprudenza' | 'sentenza_ue'
@@ -108,7 +84,7 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
             if (provaUe) {
                 const { data } = await supabase
                     .from('eur_lex')
-                    .select('id, celex_id, ecli, tipo, numero_caso, organo, data_decisione, data_pubblicazione, oggetto, parti, relatore, materia, vigente, rilevanza')
+                    .select('id, celex_id, ecli, tipo, numero_caso, organo, data_decisione, data_pubblicazione, oggetto, parti, relatore, materia, vigente, rilevanza, testo_integrale, url_originale')
                     .eq('id', id)
                     .maybeSingle()
                 if (data) {
@@ -116,7 +92,7 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
                 }
             }
 
-            setErrore('Sentenza non trovata')
+            setErrore(t('sentenza.non_trovata'))
         } catch (e) {
             setErrore(e.message)
         } finally {
@@ -134,11 +110,11 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
 
     if (errore || !sentenza) return (
         <div className="space-y-5">
-            <BackButton to={tornaA} label="Banca dati" />
+            <BackButton to={tornaA} label={t('back')} />
             <div className="bg-slate border border-red-500/20 p-8 flex flex-col items-center text-center gap-3">
                 <AlertCircle size={28} className="text-red-400" />
-                <p className="font-body text-sm text-red-400">{errore ?? 'Sentenza non trovata'}</p>
-                <p className="font-body text-xs text-nebbia/30 mt-2">ID: {id}</p>
+                <p className="font-body text-sm text-red-400">{errore ?? t('sentenza.non_trovata')}</p>
+                <p className="font-body text-xs text-nebbia/30 mt-2">{t('id')} {id}</p>
             </div>
         </div>
     )
@@ -148,39 +124,46 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
 
     // ── Render per fonte ──
     let titolo, sottoTitolo, riferimento, badge = [], dataInfo, corpo = [], collocazione, lingueffettiva = null
+    // CEDU (Corte EDU) vive in eur_lex con organo='CEDU' / tipo='sentenza_cedu': formato caso diverso.
+    const isCedu = tipoFonte === 'sentenza_ue' && (sentenza.organo === 'CEDU' || sentenza.tipo === 'sentenza_cedu')
 
     if (tipoFonte === 'giurisprudenza') {
-        const t = risolviTitoloGiur(sentenza, linguaPref)
-        titolo = t.testo
-        lingueffettiva = t.lingua
+        const tt = risolviTitoloGiur(sentenza, linguaPref)
+        titolo = tt.testo
+        lingueffettiva = tt.lingua
         riferimento = sentenza.signature ?? sentenza.reference
-        sottoTitolo = labelFonteGiur(sentenza.fonte, sentenza.camera_codice)
+        sottoTitolo = labelFonteGiur(sentenza.fonte, tIst)
         if (sentenza.is_dtf) badge.push({ txt: sentenza.dtf_riferimento ? `DTF ${sentenza.dtf_riferimento}` : 'DTF', cls: 'text-oro border-oro/30 bg-oro/5' })
         if (lingueffettiva && LINGUE_LABEL[lingueffettiva]) badge.push({ txt: LINGUE_LABEL[lingueffettiva], cls: 'text-salvia/60 border-salvia/20' })
         if (Array.isArray(sentenza.hierarchy) && sentenza.hierarchy.length)
             collocazione = sentenza.hierarchy.filter(Boolean).join(' › ')
-        if (sentenza.data_decisione) dataInfo = { label: 'Decisione del', value: sentenza.data_decisione }
-        if (sentenza.principio_diritto) corpo.push({ titolo: 'Principio di diritto', testo: sentenza.principio_diritto })
-        if (sentenza.oggetto) corpo.push({ titolo: 'Oggetto', testo: sentenza.oggetto })
-        if (sentenza.testo) corpo.push({ titolo: 'Testo', testo: sentenza.testo })
+        if (sentenza.data_decisione) dataInfo = { label: t('decisione_del'), value: sentenza.data_decisione }
+        if (sentenza.principio_diritto) corpo.push({ titolo: t('sentenza.principio'), testo: sentenza.principio_diritto })
+        if (sentenza.oggetto) corpo.push({ titolo: t('oggetto'), testo: sentenza.oggetto })
+        if (sentenza.testo) corpo.push({ titolo: t('testo'), testo: sentenza.testo })
     } else {
-        // sentenza_ue (eur_lex)
-        titolo = sentenza.oggetto || sentenza.numero_caso || sentenza.celex_id || '—'
+        // sentenza_ue (eur_lex) — CGUE / Tribunale UE / CEDU
+        // Per la CEDU il titolo naturale è il caso (parti: "AFFAIRE X c. STATO"),
+        // mentre l'oggetto è la massima sulla violazione → va in sezione.
+        titolo = isCedu
+            ? (sentenza.parti || sentenza.oggetto || sentenza.numero_caso || sentenza.celex_id || '—')
+            : (sentenza.oggetto || sentenza.numero_caso || sentenza.celex_id || '—')
         riferimento = sentenza.numero_caso
         sottoTitolo = sentenza.organo
         if (sentenza.celex_id) badge.push({ txt: `CELEX ${sentenza.celex_id}`, cls: 'text-nebbia/50 border-white/10' })
         if (sentenza.ecli) badge.push({ txt: sentenza.ecli, cls: 'text-nebbia/40 border-white/10' })
-        if (sentenza.vigente === false) badge.push({ txt: 'Non vigente', cls: 'text-red-400/70 border-red-400/30 bg-red-400/5' })
-        if (sentenza.data_decisione) dataInfo = { label: 'Decisione del', value: sentenza.data_decisione }
-        if (sentenza.parti) corpo.push({ titolo: 'Parti', testo: sentenza.parti })
-        if (sentenza.oggetto) corpo.push({ titolo: 'Oggetto', testo: sentenza.oggetto })
-        if (sentenza.relatore) corpo.push({ titolo: 'Relatore', testo: sentenza.relatore })
+        if (sentenza.vigente === false) badge.push({ txt: t('non_vigente'), cls: 'text-red-400/70 border-red-400/30 bg-red-400/5' })
+        if (sentenza.data_decisione) dataInfo = { label: t('decisione_del'), value: sentenza.data_decisione }
+        if (sentenza.parti && sentenza.parti !== titolo) corpo.push({ titolo: t('sentenza.parti'), testo: sentenza.parti })
+        if (sentenza.oggetto) corpo.push({ titolo: t('oggetto'), testo: sentenza.oggetto })
+        if (sentenza.testo_integrale) corpo.push({ titolo: t('testo'), testo: sentenza.testo_integrale })
+        if (sentenza.relatore) corpo.push({ titolo: t('sentenza.relatore'), testo: sentenza.relatore })
         if (Array.isArray(sentenza.materia) && sentenza.materia.length)
-            corpo.push({ titolo: 'Materia', testo: sentenza.materia.join(', ') })
+            corpo.push({ titolo: t('sentenza.materia'), testo: sentenza.materia.join(', ') })
     }
 
     const FonteIcon = tipoFonte === 'giurisprudenza' ? Scale : Globe
-    const cfgLabel = tipoFonte === 'giurisprudenza' ? 'Giurisprudenza svizzera' : 'Giurisprudenza UE'
+    const cfgLabel = tipoFonte === 'giurisprudenza' ? t('sentenza.giur_ch') : (isCedu ? t('sentenza.giur_cedu') : t('sentenza.giur_ue'))
     const cfgColor = tipoFonte === 'giurisprudenza' ? 'text-salvia' : 'text-nebbia'
 
     const titoloPerSalvataggio = [riferimento, titolo].filter(Boolean).join(' — ').slice(0, 300)
@@ -188,7 +171,7 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
 
     return (
         <div className="space-y-5">
-            <BackButton to={tornaA} label="Banca dati" />
+            <BackButton to={tornaA} label={t('back')} />
 
             {/* Intestazione */}
             <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -210,8 +193,14 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
                     {collocazione && <p className="font-body text-xs text-nebbia/40 mt-1">{collocazione}</p>}
                     {dataInfo && (
                         <p className="font-body text-xs text-nebbia/30 flex items-center gap-1.5 mt-2">
-                            <Calendar size={11} /> {dataInfo.label} {new Date(dataInfo.value).toLocaleDateString('it-CH')}
+                            <Calendar size={11} /> {dataInfo.label} {new Date(dataInfo.value).toLocaleDateString(dateLocale)}
                         </p>
+                    )}
+                    {tipoFonte === 'sentenza_ue' && sentenza.url_originale && (
+                        <a href={sentenza.url_originale} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 font-body text-xs text-oro hover:text-oro/70 mt-2">
+                            <Globe size={11} /> {t('sentenza.fonte_originale')}
+                        </a>
                     )}
                 </div>
 
@@ -247,12 +236,12 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
                 </div>
             )) : (
                 <div className="bg-slate border border-white/5 p-6">
-                    <p className="font-body text-sm text-nebbia/30 italic">Nessun contenuto testuale disponibile per questa sentenza.</p>
+                    <p className="font-body text-sm text-nebbia/30 italic">{t('sentenza.nessun_contenuto')}</p>
                 </div>
             )}
 
             <div className="pt-4 border-t border-white/5">
-                <p className="font-body text-xs text-nebbia/25 text-center">ID: {sentenza.id}</p>
+                <p className="font-body text-xs text-nebbia/25 text-center">{t('id')} {sentenza.id}</p>
             </div>
         </div>
     )

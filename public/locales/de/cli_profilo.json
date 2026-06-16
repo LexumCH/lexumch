@@ -1,0 +1,38 @@
+{
+  "header": {
+    "label": "Konto",
+    "title": "Mein Profil"
+  },
+  "info_account": {
+    "titolo": "Kontoinformationen",
+    "ruolo": "Rolle",
+    "cliente": "Mandant",
+    "studio": "Kanzlei",
+    "avvocato": "Anwalt",
+    "assegnato": "Zugewiesen"
+  },
+  "dati_personali": {
+    "titolo": "Persönliche Daten",
+    "nome": "Vorname",
+    "cognome": "Nachname",
+    "telefono": "Telefon",
+    "telefono_placeholder": "+41 79 123 45 67",
+    "email": "E-Mail",
+    "indirizzo": "Adresse",
+    "indirizzo_placeholder": "Bahnhofstrasse 1, 8001 Zürich",
+    "salva": "Änderungen speichern",
+    "lingua": "Sprache",
+    "ok": "Daten aktualisiert",
+    "email_hint": "Die E-Mail kann hier nicht geändert werden"
+  },
+  "password": {
+    "titolo": "Passwort ändern",
+    "nuova": "Neues Passwort",
+    "conferma": "Passwort bestätigen",
+    "aggiorna": "Passwort aktualisieren",
+    "placeholder": "••••••••",
+    "min": "Mindestens 8 Zeichen",
+    "mismatch": "Die Passwörter stimmen nicht überein",
+    "ok": "Passwort aktualisiert"
+  }
+}

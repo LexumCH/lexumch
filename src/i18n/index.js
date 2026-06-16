@@ -14,8 +14,13 @@ i18n
         fallbackLng: LINGUA_DEFAULT,
         supportedLngs: LINGUE_SUPPORTATE,
 
-        // Precarica TUTTI i namespace all'init
-        ns: ['common', 'home', 'archivio_demo', 'lex_demo', 'per_avvocati', 'contatti', 'lex_ai', 'per_fiduciari', 'privacy', 'termini'],
+        // Precarica i namespace "chrome" sempre visibili (vetrina + layout/sidebar + shared).
+        // I namespace delle singole pagine/componenti dell'app si caricano on-demand via useTranslation(ns).
+        ns: [
+            'common', 'home', 'archivio_demo', 'lex_demo', 'per_avvocati', 'contatti', 'lex_ai', 'per_fiduciari', 'privacy', 'termini', 'auth',
+            'comp_layout_avvocato', 'comp_layout_user', 'comp_layout_fiduciario', 'comp_layout_cliente', 'comp_shared', 'comp_notifiche', 'comp_footer',
+            'istituzioni',
+        ],
         defaultNS: 'common',
 
         // Precarica le risorse anche per le lingue non attive (cache)

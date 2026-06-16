@@ -1,0 +1,30 @@
+{
+  "header": {
+    "titolo": "Codici di recupero"
+  },
+  "avviso": {
+    "titolo": "Salva subito questi codici",
+    "descrizione": "Verranno mostrati una sola volta. Servono se perdi il telefono per riprendere accesso al tuo account. Ogni codice puo essere usato una sola volta e disattivera il 2FA: dovrai riconfigurarlo."
+  },
+  "conferma": {
+    "label": "Confermo di aver salvato i codici di recupero in un luogo sicuro. Capisco che non potranno essere recuperati se li perdo."
+  },
+  "azioni": {
+    "copia": "Copia",
+    "copiati": "Copiati",
+    "scarica": "Scarica",
+    "stampa": "Stampa",
+    "chiudi": "Chiudi",
+    "chiudiSalvato": "Ho salvato i codici, chiudi"
+  },
+  "file": {
+    "titolo": "LEXUM — Codici di recupero 2FA",
+    "generatiIl": "Generati il: {{data}}",
+    "importante": "IMPORTANTE: ogni codice puo essere usato una sola volta.",
+    "conserva": "Conservali in un luogo sicuro. Servono se perdi accesso all'app autenticatore.",
+    "disattiva": "Usando un codice di recupero il 2FA verra disattivato — dovrai riconfigurarlo."
+  },
+  "stampa": {
+    "titoloPagina": "Lexum - Codici di recupero 2FA"
+  }
+}

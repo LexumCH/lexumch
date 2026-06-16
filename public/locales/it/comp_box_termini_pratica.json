@@ -1,0 +1,42 @@
+{
+  "header": {
+    "titolo": "Termini processuali",
+    "aggiungi_termine": "Aggiungi termine",
+    "in_corso_count_one": "{{count}} in corso",
+    "in_corso_count_other": "{{count}} in corso",
+    "storici_count_one": "{{count}} storico",
+    "storici_count_other": "{{count}} storici"
+  },
+  "filtro": {
+    "in_corso": "In corso",
+    "storico": "Storico"
+  },
+  "vuoto": {
+    "in_corso": "Nessun termine in corso",
+    "storico": "Nessun termine nello storico",
+    "suggerimento": "Aggiungi un termine per calcolare automaticamente la scadenza"
+  },
+  "badge": {
+    "scaduta": "Scaduta",
+    "oggi": "Oggi",
+    "giorni": "{{count}}g"
+  },
+  "stato": {
+    "compiuto": "Compiuto {{data}}",
+    "scaduto_non_compiuto": "Scaduto non compiuto"
+  },
+  "campi": {
+    "scadenza": "Scadenza",
+    "da": "Da"
+  },
+  "azioni": {
+    "segna_compiuto": "Segna come compiuto",
+    "elimina": "Elimina termine"
+  },
+  "termini": {
+    "conferma_elimina": "Annullare questo termine? L'evento sul calendario verrà rimosso."
+  },
+  "errori": {
+    "generico": "Errore"
+  }
+}

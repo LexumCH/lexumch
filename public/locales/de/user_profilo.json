@@ -1,0 +1,44 @@
+{
+  "header": {
+    "label": "Konto",
+    "title": "Mein Profil"
+  },
+  "stato": {
+    "titolo": "Kontostatus",
+    "ruolo": "Rolle",
+    "ruolo_user": "User",
+    "email": "E-Mail",
+    "verifica": "Identitätsprüfung",
+    "approvata": "Genehmigt",
+    "non_approvata": "Nicht genehmigt",
+    "in_corso": "In Bearbeitung",
+    "non_inviata": "Nicht eingereicht",
+    "motivo_rifiuto": "Ablehnungsgrund"
+  },
+  "dati": {
+    "titolo": "Persönliche Daten",
+    "salvato": "Gespeichert",
+    "nome": "Vorname",
+    "cognome": "Nachname",
+    "telefono": "Telefon",
+    "telefono_placeholder": "+41 22 123 45 67",
+    "annulla": "Abbrechen",
+    "salvataggio": "Wird gespeichert…",
+    "salva": "Änderungen speichern",
+    "lingua": "Sprache"
+  },
+  "password": {
+    "titolo": "Passwort ändern",
+    "aggiornata": "Passwort aktualisiert",
+    "modifica": "Passwort ändern",
+    "nuova": "Neues Passwort",
+    "nuova_placeholder": "Mindestens 8 Zeichen",
+    "conferma": "Passwort bestätigen",
+    "conferma_placeholder": "Neues Passwort wiederholen",
+    "annulla": "Abbrechen",
+    "aggiornamento": "Wird aktualisiert…",
+    "aggiorna": "Passwort aktualisieren",
+    "err_min": "Mindestens 8 Zeichen",
+    "err_mismatch": "Die Passwörter stimmen nicht überein"
+  }
+}

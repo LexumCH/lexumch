@@ -17,19 +17,15 @@
 // corrispondente nel calendario.
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, Calendar, AlertTriangle, Loader2, Info } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-const MATERIA_LABEL = {
-    civile: 'Civile',
-    penale: 'Penale',
-    amministrativo: 'Amministrativo',
-    tributario: 'Tributario',
-}
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
-function fmtDataLunga(iso) {
+function fmtDataLunga(iso, dateLocale = 'it-CH') {
     if (!iso) return ''
-    return new Date(iso).toLocaleDateString('it-CH', {
+    return new Date(iso).toLocaleDateString(dateLocale, {
         weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
     })
 }
@@ -51,6 +47,9 @@ function giorniDifferenza(iso) {
 }
 
 export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
+    const { t, i18n } = useTranslation('comp_nuovo_termine')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+
     // ── modalita' ──
     const [modalita, setModalita] = useState('standard') // 'standard' | 'personalizzato'
 
@@ -88,7 +87,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
             .then(({ data, error }) => {
                 if (error) {
                     console.error('Errore caricamento tipi_termini:', error.message)
-                    setErrore('Impossibile caricare i tipi di termine')
+                    setErrore(t('errori.caricamento_tipi'))
                 } else {
                     setTipi(data ?? [])
                     // Tipi standard assenti (tipi_termini vuota) → mostra solo il personalizzato
@@ -168,7 +167,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-            setErrore('Sessione scaduta. Effettua nuovamente il login.')
+            setErrore(t('errori.sessione_scaduta'))
             setSalvando(false)
             return
         }
@@ -229,11 +228,11 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
                     <div>
-                        <p className="font-display text-lg text-nebbia">Aggiungi termine processuale</p>
+                        <p className="font-display text-lg text-nebbia">{t('header.titolo')}</p>
                         <p className="font-body text-xs text-nebbia/40 mt-0.5">
                             {modalita === 'standard'
-                                ? 'La scadenza viene calcolata automaticamente in base al tipo di termine'
-                                : 'Inserisci manualmente il nome del termine e la data di scadenza'
+                                ? t('header.sottotitolo_standard')
+                                : t('header.sottotitolo_personalizzato')
                             }
                         </p>
                     </div>
@@ -257,7 +256,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                             : 'text-nebbia/50 hover:text-nebbia/80 border-b-2 border-transparent'
                             }`}
                     >
-                        Standard
+                        {t('tabs.standard')}
                     </button>
                     <button
                         onClick={() => cambiaModalita('personalizzato')}
@@ -267,7 +266,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                             : 'text-nebbia/50 hover:text-nebbia/80 border-b-2 border-transparent'
                             }`}
                     >
-                        Personalizzato
+                        {t('tabs.personalizzato')}
                     </button>
                 </div>
                 )}
@@ -284,7 +283,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                                 <div className="bg-petrolio/50 border border-amber-500/20 p-4 flex items-start gap-2.5">
                                     <Info size={14} className="text-amber-400/70 mt-0.5 shrink-0" />
                                     <p className="font-body text-xs text-nebbia/60 leading-relaxed">
-                                        Nessun tipo di termine ancora configurato. Usa la modalità <span className="text-oro">Personalizzato</span> per inserire un termine con data libera.
+                                        {t('standard.avviso_nessun_tipo_pre')} <span className="text-oro">{t('standard.avviso_nessun_tipo_link')}</span> {t('standard.avviso_nessun_tipo_post')}
                                     </p>
                                 </div>
                             )}
@@ -292,16 +291,16 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                             {/* Tipo termine */}
                             <div>
                                 <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                                    Tipo di termine *
+                                    {t('standard.tipo_label')}
                                 </label>
                                 <select
                                     value={tipoSelected}
                                     onChange={e => setTipoSelected(e.target.value)}
                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50"
                                 >
-                                    <option value="">Seleziona un tipo di termine...</option>
+                                    <option value="">{t('standard.tipo_placeholder')}</option>
                                     {Object.entries(tipiPerMateria).map(([materia, list]) => (
-                                        <optgroup key={materia} label={MATERIA_LABEL[materia] ?? materia}>
+                                        <optgroup key={materia} label={t(`materia.${materia}`, materia)}>
                                             {list.map(t => (
                                                 <option key={t.codice} value={t.codice}>{t.label}</option>
                                             ))}
@@ -320,7 +319,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                             {tipoCorrente && (
                                 <div>
                                     <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                                        {tipoCorrente.da_evento_label || 'Data evento'} *
+                                        {tipoCorrente.da_evento_label || t('standard.data_evento_label_default')}{t('standard.data_evento_suffix')}
                                     </label>
                                     <input
                                         type="date"
@@ -330,14 +329,14 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                                     />
                                     <p className="font-body text-xs text-nebbia/40 mt-2">
                                         {aRitroso
-                                            ? `Il termine viene calcolato a ritroso (${tipoCorrente.giorni} giorni prima)`
-                                            : `Il termine viene calcolato in avanti (${tipoCorrente.giorni} giorni dopo)`
+                                            ? t('standard.calcolo_a_ritroso', { giorni: tipoCorrente.giorni })
+                                            : t('standard.calcolo_in_avanti', { giorni: tipoCorrente.giorni })
                                         }
                                         {tipoCorrente.sospensione_feriale
                                             ? anteprima && anteprima.giorni_sospensione > 0
-                                                ? ` — sospensione applicata (+${anteprima.giorni_sospensione} giorni per le ferie giudiziarie)`
-                                                : ' — soggetto a sospensione durante le ferie giudiziarie federali'
-                                            : ' — senza sospensione feriale'
+                                                ? t('standard.sospensione_applicata', { giorni: anteprima.giorni_sospensione })
+                                                : t('standard.sospensione_soggetto')
+                                            : t('standard.sospensione_senza')
                                         }
                                     </p>
                                 </div>
@@ -347,17 +346,20 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                             {tipoCorrente && (
                                 <div>
                                     <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                                        Descrizione evento (opzionale)
+                                        {t('standard.descrizione_label')}
                                     </label>
                                     <input
                                         type="text"
                                         value={eventoDescrizione}
                                         onChange={e => setEventoDescrizione(e.target.value)}
-                                        placeholder={`es. ${tipoCorrente.da_evento_label || 'evento'} del ${new Date(dataEvento).toLocaleDateString('it-CH')}`}
+                                        placeholder={t('standard.descrizione_placeholder', {
+                                            evento: tipoCorrente.da_evento_label || t('standard.descrizione_evento_default'),
+                                            data: new Date(dataEvento).toLocaleDateString(dateLocale),
+                                        })}
                                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                                     />
                                     <p className="font-body text-xs text-nebbia/30 mt-1.5">
-                                        Annotazione di servizio per ricordarti il contesto dell'evento
+                                        {t('standard.descrizione_hint')}
                                     </p>
                                 </div>
                             )}
@@ -366,12 +368,12 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                             {tipoSelected && (
                                 <div className="bg-petrolio/50 border border-oro/20 p-4">
                                     <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-3">
-                                        Anteprima calcolo
+                                        {t('anteprima.titolo_calcolo')}
                                     </p>
                                     {calcolando ? (
                                         <div className="flex items-center gap-2 text-nebbia/50">
                                             <Loader2 size={14} className="animate-spin" />
-                                            <span className="font-body text-sm">Calcolo in corso...</span>
+                                            <span className="font-body text-sm">{t('anteprima.calcolo_in_corso')}</span>
                                         </div>
                                     ) : anteprima ? (
                                         <div className="space-y-3">
@@ -379,9 +381,9 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                                                 <Calendar size={18} className="text-oro mt-0.5 shrink-0" />
                                                 <div className="flex-1">
                                                     <p className="font-display text-xl font-semibold text-oro capitalize">
-                                                        {fmtDataLunga(anteprima.data_scadenza)}
+                                                        {fmtDataLunga(anteprima.data_scadenza, dateLocale)}
                                                     </p>
-                                                    <p className="font-body text-xs text-nebbia/50 mt-0.5">Scadenza calcolata</p>
+                                                    <p className="font-body text-xs text-nebbia/50 mt-0.5">{t('anteprima.scadenza_calcolata')}</p>
                                                 </div>
                                             </div>
 
@@ -391,17 +393,17 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                                                     <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />
                                                     <div className="font-body text-xs text-amber-400/90 space-y-1">
                                                         <p className="font-medium">
-                                                            Questa scadenza è già trascorsa ({giorniDifferenza(anteprima.data_scadenza)} giorni fa).
+                                                            {t('anteprima.passata_titolo', { giorni: giorniDifferenza(anteprima.data_scadenza) })}
                                                         </p>
                                                         {aRitroso ? (
                                                             <p className="text-amber-400/70">
-                                                                Per "{tipoCorrente?.label}" il termine andava rispettato {tipoCorrente?.giorni} giorni prima dell'evento. L'evento che hai indicato è troppo vicino o già passato: il termine non è pianificabile.
+                                                                {t('anteprima.passata_a_ritroso', { tipo: tipoCorrente?.label, giorni: tipoCorrente?.giorni })}
                                                                 <br />
-                                                                Inserisci comunque solo se stai registrando uno storico (es. pratica ripresa da un altro studio).
+                                                                {t('anteprima.passata_a_ritroso_storico')}
                                                             </p>
                                                         ) : (
                                                             <p className="text-amber-400/70">
-                                                                L'evento di partenza che hai indicato è nel passato e i {tipoCorrente?.giorni} giorni di termine sono già decorsi. Inserisci comunque solo se stai registrando uno storico.
+                                                                {t('anteprima.passata_in_avanti', { giorni: tipoCorrente?.giorni })}
                                                             </p>
                                                         )}
                                                     </div>
@@ -420,12 +422,12 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                                             <div className="flex items-start gap-3 pt-2 border-t border-white/5">
                                                 <AlertTriangle size={13} className="text-nebbia/40 mt-0.5 shrink-0" />
                                                 <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                                                    Calcolo basato sulle ferie giudiziarie federali (art. 145 CPC). Non tiene conto dei festivi cantonali né delle regole proprie del rito penale o amministrativo. Verifica sempre la scadenza.
+                                                    {t('anteprima.disclaimer')}
                                                 </p>
                                             </div>
                                         </div>
                                     ) : (
-                                        <p className="font-body text-sm text-nebbia/40">Seleziona un tipo e una data per vedere il calcolo</p>
+                                        <p className="font-body text-sm text-nebbia/40">{t('anteprima.vuoto')}</p>
                                     )}
                                 </div>
                             )}
@@ -440,25 +442,25 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                             {/* Nome termine */}
                             <div>
                                 <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                                    Nome termine *
+                                    {t('personalizzato.nome_label')}
                                 </label>
                                 <input
                                     type="text"
                                     value={nomePersonalizzato}
                                     onChange={e => setNomePersonalizzato(e.target.value)}
-                                    placeholder="es. Deposito perizia concordata"
+                                    placeholder={t('personalizzato.nome_placeholder')}
                                     maxLength={120}
                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                                 />
                                 <p className="font-body text-xs text-nebbia/30 mt-1.5">
-                                    Etichetta del termine così come comparirà nella pratica e nel calendario
+                                    {t('personalizzato.nome_hint')}
                                 </p>
                             </div>
 
                             {/* Data scadenza */}
                             <div>
                                 <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                                    Data scadenza *
+                                    {t('personalizzato.data_label')}
                                 </label>
                                 <input
                                     type="date"
@@ -467,7 +469,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50"
                                 />
                                 <p className="font-body text-xs text-nebbia/30 mt-1.5">
-                                    Nessun calcolo automatico: la data inserita viene salvata così com'è (nessuna sospensione feriale, nessuno slittamento)
+                                    {t('personalizzato.data_hint')}
                                 </p>
                             </div>
 
@@ -475,17 +477,17 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                             {dataScadenzaPers && (
                                 <div className="bg-petrolio/50 border border-oro/20 p-4">
                                     <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-3">
-                                        Anteprima
+                                        {t('anteprima.titolo')}
                                     </p>
                                     <div className="space-y-3">
                                         <div className="flex items-start gap-3">
                                             <Calendar size={18} className="text-oro mt-0.5 shrink-0" />
                                             <div className="flex-1">
                                                 <p className="font-display text-xl font-semibold text-oro capitalize">
-                                                    {fmtDataLunga(dataScadenzaPers)}
+                                                    {fmtDataLunga(dataScadenzaPers, dateLocale)}
                                                 </p>
                                                 <p className="font-body text-xs text-nebbia/50 mt-0.5">
-                                                    {nomePersonalizzato.trim() || 'Termine personalizzato'}
+                                                    {nomePersonalizzato.trim() || t('personalizzato.anteprima_default')}
                                                 </p>
                                             </div>
                                         </div>
@@ -494,7 +496,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                                             <div className="flex items-start gap-3 pt-3 border-t border-white/5">
                                                 <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />
                                                 <p className="font-body text-xs text-amber-400/90">
-                                                    Questa scadenza è già trascorsa ({giorniDifferenza(dataScadenzaPers)} giorni fa). Inserisci comunque solo se stai registrando uno storico.
+                                                    {t('personalizzato.passata', { giorni: giorniDifferenza(dataScadenzaPers) })}
                                                 </p>
                                             </div>
                                         )}
@@ -508,13 +510,13 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                     {((modalita === 'standard' && tipoCorrente) || modalita === 'personalizzato') && (
                         <div>
                             <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                                Note (opzionale)
+                                {t('note.label')}
                             </label>
                             <textarea
                                 value={noteAvvocato}
                                 onChange={e => setNoteAvvocato(e.target.value)}
                                 rows={2}
-                                placeholder="Promemoria, riferimenti, strategia..."
+                                placeholder={t('note.placeholder')}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
                             />
                         </div>
@@ -525,7 +527,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                         <div className="flex items-start gap-2 text-nebbia/40">
                             <Info size={11} className="mt-0.5 shrink-0" />
                             <p className="font-body text-xs">
-                                Salvando, il termine verrà aggiunto anche al calendario come scadenza
+                                {t('info_calendario')}
                             </p>
                         </div>
                     )}
@@ -545,7 +547,7 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                         disabled={salvando}
                         className="font-body text-sm text-nebbia/60 hover:text-nebbia px-4 py-2 transition-colors disabled:opacity-40"
                     >
-                        Annulla
+                        {t('footer.annulla')}
                     </button>
                     <button
                         onClick={salva}
@@ -553,9 +555,9 @@ export default function NuovoTerminePratica({ praticaId, onClose, onSaved }) {
                         className="flex items-center gap-2 px-5 py-2 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         {salvando ? (
-                            <><Loader2 size={14} className="animate-spin" /> Salvando...</>
+                            <><Loader2 size={14} className="animate-spin" /> {t('footer.salvando')}</>
                         ) : (
-                            'Aggiungi termine'
+                            t('footer.aggiungi')
                         )}
                     </button>
                 </div>

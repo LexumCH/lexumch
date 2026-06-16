@@ -10,22 +10,25 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Trash2, X, AlertCircle, AlertTriangle, ExternalLink, FileText } from 'lucide-react'
+import { useTranslation, Trans } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 
-function fmtEUR(n) {
+function fmtCHF(n) {
     const v = Number(n ?? 0)
     return v.toLocaleString('it-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-const STATO_LABEL = {
-    bozza: 'Bozza',
-    in_attesa: 'In attesa',
-    scaduta: 'Scaduta',
-    pagata: 'Pagata',
-    annullata: 'Annullata',
-}
-
 export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
+    const { t } = useTranslation('comp_modal_elimina_pratica')
+
+    const STATO_LABEL = {
+        bozza: t('statoFattura.bozza'),
+        in_attesa: t('statoFattura.in_attesa'),
+        scaduta: t('statoFattura.scaduta'),
+        pagata: t('statoFattura.pagata'),
+        annullata: t('statoFattura.annullata'),
+    }
+
     const [conferma, setConferma] = useState('')
     const [inviando, setInviando] = useState(false)
     const [errore, setErrore] = useState('')
@@ -63,7 +66,7 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
                     setFattureBlock(data.meta?.fatture ?? [])
                     return
                 }
-                throw new Error(data?.error ?? 'Errore eliminazione')
+                throw new Error(data?.error ?? t('errori.eliminazione'))
             }
 
             onEliminata()
@@ -82,7 +85,7 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
                 <div className="flex items-center justify-between p-5 border-b border-white/8 shrink-0">
                     <div className="flex items-center gap-2">
                         <Trash2 size={16} className="text-red-400" />
-                        <h2 className="font-display text-lg text-nebbia">Elimina pratica</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('header.titolo')}</h2>
                     </div>
                     <button onClick={onClose} disabled={inviando} className="text-nebbia/40 hover:text-nebbia disabled:opacity-40">
                         <X size={18} />
@@ -100,18 +103,17 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
                                     <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
                                     <div>
                                         <p className="font-body text-sm text-amber-400 leading-relaxed mb-1">
-                                            <span className="font-semibold">Impossibile eliminare la pratica</span>
+                                            <span className="font-semibold">{t('blocco.titolo')}</span>
                                         </p>
                                         <p className="font-body text-xs text-amber-400/80 leading-relaxed">
-                                            Ci sono {fattureBlock.length} fatture collegate. Per eliminare la pratica
-                                            devi prima scollegare o eliminare queste fatture da Fatturazione.
+                                            {t('blocco.descrizione', { count: fattureBlock.length })}
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest">Fatture collegate</p>
+                                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest">{t('blocco.listaTitolo')}</p>
                                 {fattureBlock.map(f => (
                                     <Link
                                         key={f.id}
@@ -123,7 +125,7 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
                                             <div className="min-w-0">
                                                 <p className="font-body text-sm text-nebbia">{f.numero}</p>
                                                 <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                                    {STATO_LABEL[f.stato] ?? f.stato} · EUR {fmtEUR(f.totale)}
+                                                    {STATO_LABEL[f.stato] ?? f.stato} · CHF {fmtCHF(f.totale)}
                                                 </p>
                                             </div>
                                         </div>
@@ -134,9 +136,14 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
 
                             <div className="bg-petrolio/40 border border-white/5 p-3">
                                 <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                                    <span className="text-nebbia/70">Suggerimento:</span> apri ciascuna fattura,
-                                    usa il pulsante <span className="text-oro">Scollega</span> nel box destinatario,
-                                    poi torna qui e riprova.
+                                    <Trans
+                                        t={t}
+                                        i18nKey="blocco.suggerimento"
+                                        components={{
+                                            etichetta: <span className="text-nebbia/70" />,
+                                            azione: <span className="text-oro" />,
+                                        }}
+                                    />
                                 </p>
                             </div>
 
@@ -145,7 +152,7 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
                                     onClick={onClose}
                                     className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5"
                                 >
-                                    Chiudi
+                                    {t('azioni.chiudi')}
                                 </button>
                             </div>
                         </>
@@ -154,21 +161,22 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
                         <>
                             <div className="bg-red-900/15 border border-red-500/30 p-4">
                                 <p className="font-body text-sm text-red-400 leading-relaxed mb-2">
-                                    <span className="font-semibold">Operazione irreversibile.</span>
+                                    <span className="font-semibold">{t('conferma.irreversibile')}</span>
                                 </p>
                                 <p className="font-body text-xs text-red-400/80 leading-relaxed">
-                                    Saranno cancellati definitivamente: la pratica, le udienze e i termini processuali,
-                                    le controparti, le ricerche salvate, i documenti caricati nella pratica
-                                    e gli appuntamenti collegati.
+                                    {t('conferma.cosaVieneCancellato')}
                                 </p>
                                 <p className="font-body text-xs text-red-400/80 leading-relaxed mt-2">
-                                    I documenti dell'<span className="font-semibold">Archivio dello studio</span> resteranno
-                                    al loro posto: verrà rimosso solo il collegamento a questa pratica.
+                                    <Trans
+                                        t={t}
+                                        i18nKey="conferma.archivioResta"
+                                        components={{ grassetto: <span className="font-semibold" /> }}
+                                    />
                                 </p>
                             </div>
 
                             <p className="font-body text-sm text-nebbia/60">
-                                Per confermare digita il titolo esatto della pratica:
+                                {t('conferma.istruzione')}
                             </p>
                             <p className="font-body text-base font-semibold text-oro break-words">{titoloMostrato}</p>
 
@@ -193,7 +201,7 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
                                     disabled={inviando}
                                     className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40"
                                 >
-                                    Annulla
+                                    {t('azioni.annulla')}
                                 </button>
                                 <button
                                     onClick={elimina}
@@ -202,7 +210,7 @@ export default function ModalEliminaPratica({ pratica, onClose, onEliminata }) {
                                 >
                                     {inviando
                                         ? <span className="animate-spin w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" />
-                                        : <><Trash2 size={14} /> Elimina definitivamente</>
+                                        : <><Trash2 size={14} /> {t('azioni.eliminaDefinitivamente')}</>
                                     }
                                 </button>
                             </div>

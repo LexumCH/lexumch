@@ -1,0 +1,112 @@
+{
+  "header": {
+    "label": "Compte",
+    "title": "Mon profil"
+  },
+  "campo": {
+    "non_modificabile": "Non modifiable ici."
+  },
+  "banner": {
+    "titolo": "Complétez votre profil pour générer des actes juridiques",
+    "mancano": "Il manque :",
+    "testo_pre": "Remplissez la section",
+    "testo_sezione": "Données professionnelles pour les actes",
+    "testo_post": "ci-dessous pour activer la génération automatique de documents à partir de vos dossiers."
+  },
+  "info_account": {
+    "titolo": "Informations du compte",
+    "tipo_account": "Type de compte",
+    "studio": "Étude",
+    "verifica_identita": "Vérification de l'identité",
+    "identita_verificata": "Identité vérifiée ✓",
+    "in_attesa_verifica": "En attente de vérification",
+    "membro_note": "Vous êtes membre de l'étude. Pour modifier l'abonnement, contactez le titulaire.",
+    "gestisci_studio": "Gérer l'étude →"
+  },
+  "tipo_label": {
+    "titolare": "Titulaire de l'étude",
+    "referente": "Référent de l'étude",
+    "membro": "Membre de l'étude",
+    "singolo": "Avocat indépendant",
+    "default": "—"
+  },
+  "dati_personali": {
+    "titolo": "Données personnelles",
+    "modifica": "Modifier",
+    "annulla": "Annuler",
+    "nome": "Prénom",
+    "cognome": "Nom",
+    "studio": "Étude / Nom de l'étude",
+    "studio_placeholder": "Ex. Étude Rossi & Associés",
+    "telefono": "Téléphone",
+    "telefono_placeholder": "+41 79 123 45 67",
+    "email": "E-mail",
+    "specializzazioni": "Spécialisations",
+    "specializzazioni_placeholder": "Droit civil, Droit commercial (séparés par une virgule)",
+    "ok": "Profil mis à jour.",
+    "salva": "Enregistrer les modifications",
+    "lingua": "Langue"
+  },
+  "atti": {
+    "titolo": "Données professionnelles pour les actes",
+    "completo_badge": "Complet",
+    "modifica": "Modifier",
+    "compila": "Remplir",
+    "annulla": "Annuler",
+    "descrizione": "Ces données sont utilisées pour adresser correctement les actes juridiques générés à partir de vos dossiers.",
+    "cantone_albo": "Canton d'inscription au registre",
+    "cantone_albo_placeholder": "Ex. TI",
+    "numero_albo": "Numéro de registre",
+    "numero_albo_placeholder": "Ex. A23456",
+    "data_iscrizione": "Date d'inscription au registre",
+    "ok": "Données professionnelles mises à jour.",
+    "salva": "Enregistrer les données professionnelles"
+  },
+  "campi_mancanti": {
+    "cantone_albo": "Canton du registre",
+    "numero_albo": "Numéro de registre"
+  },
+  "abbonamento": {
+    "titolo_studio": "Abonnement de l'étude",
+    "titolo": "Abonnement",
+    "accesso": "accès",
+    "accessi": "accès",
+    "banca_dati": " · Base de données incluse",
+    "scaduto": "Expiré",
+    "scade_il": "Expire le {{data}}",
+    "attivo": "Actif",
+    "gestito_titolare": "Géré par le titulaire de l'étude.",
+    "gestisci_piano": "Gérer l'abonnement →"
+  },
+  "password": {
+    "titolo": "Mot de passe",
+    "cambia": "Modifier",
+    "annulla": "Annuler",
+    "nuova": "Nouveau mot de passe",
+    "conferma": "Confirmer le mot de passe",
+    "placeholder": "........",
+    "min_caratteri": "8 caractères minimum",
+    "non_corrispondono": "Les mots de passe ne correspondent pas",
+    "aggiorna": "Mettre à jour le mot de passe",
+    "ok": "Mot de passe mis à jour."
+  },
+  "sicurezza": {
+    "titolo": "Sécurité",
+    "due_fattori": "Authentification à deux facteurs (2FA)",
+    "attiva_dal": "Active depuis le {{data}}. Lors de la connexion, un code de l'application d'authentification vous sera demandé.",
+    "descrizione": "Protégez votre compte avec un code généré par des applications comme Google Authenticator, Authy ou 1Password.",
+    "attivo": "Actif",
+    "non_attivo": "Inactif",
+    "codici_recupero": "Codes de récupération",
+    "codici_disponibili": "{{n}} sur 10 disponibles",
+    "codici_quasi_esauriti": "Codes presque épuisés — régénérez-les par sécurité.",
+    "rigenero": "Régénération…",
+    "rigenera": "Régénérer les codes",
+    "errore_generico": "Erreur",
+    "attiva_2fa": "Activer la 2FA",
+    "disattivo": "Désactivation…",
+    "disattiva_2fa": "Désactiver la 2FA",
+    "conferma_rigenera": "Régénérer les codes de récupération ? Les codes précédents deviendront invalides.",
+    "conferma_disattiva": "Désactiver la 2FA ? Votre compte sera moins sécurisé."
+  }
+}

@@ -10,6 +10,7 @@
 //   studioId   (string|null)  - studio (passato a NuovaScadenza)
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import {
     CalendarClock, Plus, Loader2, Check, RotateCcw, Trash2,
@@ -17,9 +18,11 @@ import {
 } from 'lucide-react'
 import NuovaScadenzaFiduciaria from './NuovaScadenzaFiduciaria'
 
-function fmtData(iso) {
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
+function fmtData(iso, dateLocale = 'it-CH') {
     if (!iso) return '—'
-    return new Date(iso).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })
+    return new Date(iso).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function giorniAllaScadenza(iso) {
@@ -30,11 +33,13 @@ function giorniAllaScadenza(iso) {
 }
 
 const STATO_CONFIG = {
-    in_corso: { label: 'In corso', classe: 'bg-salvia/10 border-salvia/30 text-salvia' },
-    completata: { label: 'Completata', classe: 'bg-oro/10 border-oro/30 text-oro' },
+    in_corso: { classe: 'bg-salvia/10 border-salvia/30 text-salvia' },
+    completata: { classe: 'bg-oro/10 border-oro/30 text-oro' },
 }
 
 export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studioId = null, refreshTrigger = 0 }) {
+    const { t, i18n } = useTranslation('comp_fid_box_scadenze')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [scadenze, setScadenze] = useState([])
     const [loading, setLoading] = useState(true)
     const [mostraModal, setMostraModal] = useState(false)
@@ -88,7 +93,7 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
     }
 
     async function elimina(s) {
-        if (!confirm(`Eliminare la scadenza "${s.titolo}"?`)) return
+        if (!confirm(t('conferma.elimina', { titolo: s.titolo }))) return
         setAzione(s.id)
         await supabase.from('scadenze_fiduciarie').delete().eq('id', s.id)
         await carica()
@@ -101,7 +106,7 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
             <div className="flex items-center justify-between gap-3 px-6 pt-6 pb-4 shrink-0">
                 <div className="flex items-center gap-2">
                     <CalendarClock size={15} className="text-oro/60" />
-                    <h2 className="font-display text-lg text-nebbia">Scadenze</h2>
+                    <h2 className="font-display text-lg text-nebbia">{t('header.titolo')}</h2>
                     {scadenze.length > 0 && (
                         <span className="font-body text-xs text-nebbia/30">({scadenze.length})</span>
                     )}
@@ -110,7 +115,7 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
                     onClick={() => setMostraModal(true)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors"
                 >
-                    <Plus size={12} /> Nuova scadenza
+                    <Plus size={12} /> {t('header.nuova')}
                 </button>
             </div>
 
@@ -122,7 +127,7 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
             ) : scadenze.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center">
                     <p className="font-body text-xs text-nebbia/30 italic text-center">
-                        Nessuna scadenza per questo mandato.
+                        {t('vuoto.titolo')}
                     </p>
                 </div>
             ) : (
@@ -151,7 +156,7 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
                                             <span className={`font-body text-[10px] px-1.5 py-0.5 border uppercase tracking-wider ${cfg.classe}`}>
-                                                {cfg.label}
+                                                {t(`stato.${s.stato}`, { defaultValue: t('stato.in_corso') })}
                                             </span>
                                             {s.tipo && (
                                                 <span className="font-body text-[10px] px-1.5 py-0.5 bg-petrolio border border-white/10 text-nebbia/50 uppercase tracking-wider">
@@ -164,21 +169,21 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
                                         </p>
                                         <div className="flex items-center gap-3 mt-1 flex-wrap">
                                             <span className="font-body text-xs text-nebbia/40 flex items-center gap-1">
-                                                <Calendar size={10} /> {fmtData(s.data_scadenza)}
+                                                <Calendar size={10} /> {fmtData(s.data_scadenza, dateLocale)}
                                             </span>
                                             {!completata && gg !== null && (
                                                 <span className={`font-body text-xs flex items-center gap-1 ${scaduta ? 'text-red-400' : urgente ? 'text-amber-400' : 'text-nebbia/40'}`}>
                                                     {scaduta
-                                                        ? <><AlertTriangle size={10} /> scaduta da {Math.abs(gg)} gg</>
+                                                        ? <><AlertTriangle size={10} /> {t('giorni.scaduta', { count: Math.abs(gg) })}</>
                                                         : gg === 0
-                                                            ? <><Clock size={10} /> oggi</>
-                                                            : <><Clock size={10} /> tra {gg} gg</>
+                                                            ? <><Clock size={10} /> {t('giorni.oggi')}</>
+                                                            : <><Clock size={10} /> {t('giorni.tra', { count: gg })}</>
                                                     }
                                                 </span>
                                             )}
                                             {completata && s.data_completamento && (
                                                 <span className="font-body text-xs text-oro/60 flex items-center gap-1">
-                                                    <Check size={10} /> completata il {fmtData(s.data_completamento)}
+                                                    <Check size={10} /> {t('completata_il', { data: fmtData(s.data_completamento, dateLocale) })}
                                                 </span>
                                             )}
                                         </div>
@@ -197,7 +202,7 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
                                                     <button
                                                         onClick={() => riapri(s)}
                                                         className="w-7 h-7 flex items-center justify-center text-nebbia/25 hover:text-salvia transition-colors"
-                                                        title="Riapri"
+                                                        title={t('azioni.riapri')}
                                                     >
                                                         <RotateCcw size={13} />
                                                     </button>
@@ -205,7 +210,7 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
                                                     <button
                                                         onClick={() => completa(s)}
                                                         className="w-7 h-7 flex items-center justify-center text-nebbia/25 hover:text-oro transition-colors"
-                                                        title="Segna completata"
+                                                        title={t('azioni.completa')}
                                                     >
                                                         <Check size={14} />
                                                     </button>
@@ -213,7 +218,7 @@ export default function BoxScadenzeMandato({ mandatoId, clienteId = null, studio
                                                 <button
                                                     onClick={() => elimina(s)}
                                                     className="w-7 h-7 flex items-center justify-center text-nebbia/25 hover:text-red-400 transition-colors"
-                                                    title="Elimina"
+                                                    title={t('azioni.elimina')}
                                                 >
                                                     <Trash2 size={13} />
                                                 </button>

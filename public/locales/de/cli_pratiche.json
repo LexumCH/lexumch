@@ -1,0 +1,24 @@
+{
+  "header": {
+    "label": "Kundenportal",
+    "titolo": "Meine Dossiers"
+  },
+  "filtri": {
+    "tutti": "Alle Status"
+  },
+  "stati": {
+    "in_corso": "In Bearbeitung",
+    "in_udienza": "In Verhandlung",
+    "in_attesa": "Wartend",
+    "chiusa": "Abgeschlossen"
+  },
+  "vuoto": {
+    "nessuna_pratica": "Keine Dossiers gefunden"
+  },
+  "scheda": {
+    "avvocato_prefisso": "RA",
+    "aperta_il": "Eröffnet am",
+    "prossima_udienza": "Nächste Verhandlung",
+    "note": "Notizen"
+  }
+}

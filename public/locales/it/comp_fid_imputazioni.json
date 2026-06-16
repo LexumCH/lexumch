@@ -1,0 +1,30 @@
+{
+  "intro": "Associa ogni categoria a un conto: i movimenti effettivi diventano scritture in partita doppia.",
+  "contabilizza_non_registrati": "Contabilizza non registrati",
+  "colonne": [
+    "Categoria",
+    "Conto (contropartita)",
+    "Cassa/Banca",
+    "IVA",
+    ""
+  ],
+  "tipo": {
+    "entrata": "entrata",
+    "uscita": "uscita"
+  },
+  "azioni": {
+    "salva": "Salva",
+    "salvato": "Salvato"
+  },
+  "vuoto": {
+    "titolo": "Nessuna categoria nei movimenti effettivi.",
+    "sottotitolo": "Registra entrate/uscite con una categoria, poi torna qui per imputarle."
+  },
+  "errori": {
+    "scegli_conto_cassa": "Scegli conto e cassa per {{categoria}}"
+  },
+  "esito": {
+    "contabilizzati": "{{ok}} movimenti contabilizzati",
+    "saltati": " · {{skip}} saltati (senza imputazione o errore)"
+  }
+}

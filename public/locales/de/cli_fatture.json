@@ -1,0 +1,33 @@
+{
+  "header": {
+    "label": "Mandantenportal",
+    "titolo": "Rechnungen"
+  },
+  "avviso": {
+    "totale_da_pagare": "Offener Gesamtbetrag: CHF {{importo}}",
+    "contatta_avvocato": "Bitte kontaktieren Sie Ihren Anwalt für die Zahlungsmodalitäten."
+  },
+  "filtri": {
+    "tutte": "Alle",
+    "da_pagare": "Zu bezahlen",
+    "pagate": "Bezahlt",
+    "scadute": "Überfällig"
+  },
+  "stati": {
+    "in_attesa": "Zu bezahlen",
+    "pagata": "Bezahlt",
+    "scaduta": "Überfällig",
+    "annullata": "Storniert"
+  },
+  "vuoto": {
+    "nessuna_fattura": "Keine Rechnung gefunden"
+  },
+  "tabella": {
+    "numero": "Nummer",
+    "descrizione": "Beschreibung",
+    "importo": "Betrag",
+    "emissione": "Ausstellung",
+    "scadenza": "Fälligkeit",
+    "stato": "Status"
+  }
+}

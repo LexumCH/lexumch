@@ -1,0 +1,70 @@
+{
+  "materia": {
+    "civile": "Zivilrecht",
+    "penale": "Strafrecht",
+    "amministrativo": "Verwaltungsrecht",
+    "tributario": "Steuerrecht"
+  },
+  "header": {
+    "titolo": "Prozessuale Frist hinzufügen",
+    "sottotitolo_standard": "Der Ablauf wird automatisch anhand der Fristart berechnet",
+    "sottotitolo_personalizzato": "Geben Sie den Namen der Frist und das Ablaufdatum manuell ein"
+  },
+  "tabs": {
+    "standard": "Standard",
+    "personalizzato": "Benutzerdefiniert"
+  },
+  "standard": {
+    "avviso_nessun_tipo_pre": "Es ist noch keine Fristart konfiguriert. Verwenden Sie den Modus",
+    "avviso_nessun_tipo_link": "Benutzerdefiniert",
+    "avviso_nessun_tipo_post": ", um eine Frist mit freiem Datum zu erfassen.",
+    "tipo_label": "Fristart *",
+    "tipo_placeholder": "Wählen Sie eine Fristart...",
+    "data_evento_label_default": "Ereignisdatum",
+    "data_evento_suffix": " *",
+    "calcolo_a_ritroso": "Die Frist wird rückwärts berechnet ({{giorni}} Tage davor)",
+    "calcolo_in_avanti": "Die Frist wird vorwärts berechnet ({{giorni}} Tage danach)",
+    "sospensione_applicata": " — Stillstand angewendet (+{{giorni}} Tage für die Gerichtsferien)",
+    "sospensione_soggetto": " — unterliegt dem Stillstand während der eidgenössischen Gerichtsferien",
+    "sospensione_senza": " — ohne Fristenstillstand",
+    "descrizione_label": "Beschreibung des Ereignisses (optional)",
+    "descrizione_placeholder": "z. B. {{evento}} vom {{data}}",
+    "descrizione_evento_default": "Ereignis",
+    "descrizione_hint": "Interne Notiz, um sich an den Kontext des Ereignisses zu erinnern"
+  },
+  "anteprima": {
+    "titolo_calcolo": "Vorschau der Berechnung",
+    "titolo": "Vorschau",
+    "calcolo_in_corso": "Berechnung läuft...",
+    "scadenza_calcolata": "Berechneter Ablauf",
+    "vuoto": "Wählen Sie eine Art und ein Datum, um die Berechnung anzuzeigen",
+    "passata_titolo": "Dieser Ablauf ist bereits verstrichen (vor {{giorni}} Tagen).",
+    "passata_a_ritroso": "Für \"{{tipo}}\" musste die Frist {{giorni}} Tage vor dem Ereignis eingehalten werden. Das von Ihnen angegebene Ereignis liegt zu nahe oder ist bereits vergangen: Die Frist ist nicht planbar.",
+    "passata_a_ritroso_storico": "Erfassen Sie sie nur, wenn Sie einen Verlauf dokumentieren (z. B. ein von einer anderen Kanzlei übernommenes Dossier).",
+    "passata_in_avanti": "Das von Ihnen angegebene Ausgangsereignis liegt in der Vergangenheit und die {{giorni}} Tage der Frist sind bereits abgelaufen. Erfassen Sie sie nur, wenn Sie einen Verlauf dokumentieren.",
+    "disclaimer": "Berechnung auf Basis der eidgenössischen Gerichtsferien (Art. 145 ZPO). Sie berücksichtigt weder die kantonalen Feiertage noch die besonderen Regeln des Straf- oder Verwaltungsverfahrens. Überprüfen Sie den Ablauf stets."
+  },
+  "personalizzato": {
+    "nome_label": "Name der Frist *",
+    "nome_placeholder": "z. B. Einreichung des vereinbarten Gutachtens",
+    "nome_hint": "Bezeichnung der Frist, wie sie im Dossier und im Kalender erscheint",
+    "data_label": "Ablaufdatum *",
+    "data_hint": "Keine automatische Berechnung: Das eingegebene Datum wird unverändert gespeichert (kein Fristenstillstand, keine Verschiebung)",
+    "anteprima_default": "Benutzerdefinierte Frist",
+    "passata": "Dieser Ablauf ist bereits verstrichen (vor {{giorni}} Tagen). Erfassen Sie ihn nur, wenn Sie einen Verlauf dokumentieren."
+  },
+  "note": {
+    "label": "Notizen (optional)",
+    "placeholder": "Erinnerungen, Verweise, Strategie..."
+  },
+  "info_calendario": "Beim Speichern wird die Frist auch als Ablauf in den Kalender aufgenommen",
+  "footer": {
+    "annulla": "Abbrechen",
+    "salvando": "Wird gespeichert...",
+    "aggiungi": "Frist hinzufügen"
+  },
+  "errori": {
+    "caricamento_tipi": "Die Fristarten konnten nicht geladen werden",
+    "sessione_scaduta": "Sitzung abgelaufen. Bitte melden Sie sich erneut an."
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "header": {
+    "label": "Kaufen",
+    "titolo_completo": "KI-Credits und Abonnements",
+    "titolo_base": "KI-Credits",
+    "sottotitolo_completo": "Kaufen Sie Credits für Lex AI oder ein Abonnement, um auf alle Funktionen von Lexum zuzugreifen.",
+    "sottotitolo_base": "Kaufen Sie Credits, um Lex AI ohne Einschränkungen zu nutzen."
+  },
+  "successo": {
+    "messaggio": "Zahlung abgeschlossen! Ihr Kauf ist nun aktiv."
+  },
+  "saldo": {
+    "titolo": "Ihr Guthaben",
+    "totale": "Gesamt",
+    "crediti_disponibili": "verfügbare Credits",
+    "piano": "Abonnement",
+    "scad": "Gültig bis {{data}}",
+    "acquistati": "Gekauft",
+    "non_scadono": "verfallen nicht",
+    "benvenuto": "Willkommen"
+  },
+  "trasparenza": {
+    "titolo": "So funktionieren die Credits:",
+    "piano_pre": "Die Credits des ",
+    "piano_evidenza": "Abonnements",
+    "piano_post": " werden jeden Monat automatisch erneuert (basierend auf dem Kaufdatum) und werden nicht angesammelt: Nicht genutzte Credits verfallen bei der Erneuerung.",
+    "separati_pre": "Die ",
+    "separati_evidenza": "separat gekauften",
+    "separati_mid": " Credits sowie die ",
+    "benvenuto_evidenza": "Willkommens-Credits",
+    "separati_post": " verfallen nie und bleiben immer Ihnen erhalten.",
+    "consumo": "Wenn Sie Lex AI nutzen, werden zuerst die Credits des Abonnements verbraucht (um sie nicht zu verlieren), dann die Willkommens-Credits und zuletzt die gekauften Credits."
+  },
+  "tab": {
+    "crediti": "Credit-Pakete",
+    "abbonamenti": "Abonnements",
+    "posti": "Zusätzliche Plätze"
+  },
+  "crediti": {
+    "vuoto": "Derzeit kein Paket verfügbar.",
+    "dettaglio": "{{crediti}} Credits · CHF {{prezzo}}/Credit",
+    "non_scadono": "Verfallen nie",
+    "acquista": "Kaufen"
+  },
+  "abbonamenti": {
+    "vuoto": "Derzeit kein Abonnement verfügbar.",
+    "piano_attivo": "Sie haben bereits ein aktives Abonnement. Der Kauf eines neuen Abonnements ersetzt das bestehende.",
+    "consigliato": "Empfohlen",
+    "durata_mesi": "{{mesi}} Monate",
+    "una_tantum": "Einmalig",
+    "badge_pro": "Pro",
+    "badge_monetizzazione": "Monetarisierung",
+    "posti_badge": "{{posti}} Plätze",
+    "feat_clienti": "Unbegrenzte Mandantenverwaltung",
+    "feat_pratiche": "Dossiers und Dokumente",
+    "feat_calendario": "Terminkalender",
+    "feat_crediti": "{{crediti}} KI-Credits/Monat",
+    "feat_banca_dati": "Zugang zur Urteilsdatenbank",
+    "feat_monetizzazione": "Urteile hochladen und monetarisieren",
+    "feat_posti": "Bis zu {{posti}} Anwälte in der Kanzlei",
+    "acquista": "Kaufen"
+  },
+  "seat": {
+    "posti_studio": "Plätze Ihrer Kanzlei",
+    "di": " von ",
+    "posti_utilizzati": " Plätze belegt",
+    "vuoto": "Derzeit kein Platzpaket verfügbar.",
+    "acquista": "Kaufen"
+  },
+  "verifica": {
+    "pending_titolo": "Verifizierung läuft",
+    "pending_testo": "Wir prüfen Ihre Dokumente. Sie erhalten innerhalb von 24-48 Stunden eine Benachrichtigung per E-Mail.",
+    "pending_link": "Verifizierungsstatus ansehen",
+    "rejected_titolo": "Verifizierung nicht genehmigt",
+    "rejected_motivo": "Grund: {{nota}}",
+    "rejected_default": "Sie können es erneut versuchen, indem Sie die korrekten Dokumente hochladen.",
+    "rejected_link": "Verifizierung wiederholen",
+    "cta_titolo": "Sind Sie Anwalt?",
+    "cta_testo": "Verifizieren Sie Ihre Identität und erhalten Sie Zugang zu Abonnements mit inbegriffenen monatlichen Credits, vollständiger Verwaltung, Urteilsdatenbank und vielem mehr.",
+    "cta_link": "Verifizierung starten"
+  },
+  "footer": {
+    "trust": "Sichere Zahlung über Stripe. Die Produkte werden unmittelbar nach der Zahlung aktiviert."
+  }
+}

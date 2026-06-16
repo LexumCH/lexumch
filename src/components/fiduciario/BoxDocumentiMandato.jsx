@@ -10,11 +10,16 @@
 //   clienteId  (string)  - cliente del mandato (per pre-impostare l'upload)
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Plus, FileText, Download, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
 export default function BoxDocumentiMandato({ mandatoId, clienteId, refreshTrigger }) {
+    const { t, i18n } = useTranslation('comp_fid_box_documenti')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [documenti, setDocumenti] = useState([])
     const [loading, setLoading] = useState(true)
 
@@ -50,7 +55,7 @@ export default function BoxDocumentiMandato({ mandatoId, clienteId, refreshTrigg
     }
 
     async function scollegaDocumento(doc) {
-        if (!confirm(`Rimuovere "${doc.nome_file}" dal mandato?\n\nIl documento resterà nell'archivio dello studio, perderà solo il collegamento a questo mandato.`)) return
+        if (!confirm(t('conferma.scollega', { nome: doc.nome_file }))) return
         await supabase
             .from('archivio_documenti')
             .update({ mandato_id: null })
@@ -66,16 +71,16 @@ export default function BoxDocumentiMandato({ mandatoId, clienteId, refreshTrigg
         <div className="bg-slate border border-white/5 flex flex-col h-[560px]">
             <div className="px-5 pt-5 pb-3 shrink-0">
                 <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                    <p className="section-label">Documenti mandato ({documenti.length})</p>
+                    <p className="section-label">{t('header.titolo', { count: documenti.length })}</p>
                     <Link
                         to={linkArchivio}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors"
                     >
-                        <Plus size={11} /> Aggiungi documento
+                        <Plus size={11} /> {t('header.aggiungi')}
                     </Link>
                 </div>
                 <p className="font-body text-xs text-nebbia/30">
-                    I documenti vengono salvati nell'archivio dello studio, indicizzati per la ricerca con Lex e collegati a questo mandato.
+                    {t('header.descrizione')}
                 </p>
             </div>
 
@@ -86,8 +91,8 @@ export default function BoxDocumentiMandato({ mandatoId, clienteId, refreshTrigg
             ) : documenti.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center px-1 text-nebbia/30 text-center">
                     <FileText size={20} className="mb-2 text-nebbia/20" />
-                    <span className="font-body text-xs">Nessun documento collegato a questo mandato</span>
-                    <span className="font-body text-xs text-nebbia/25 mt-1">Usa "Aggiungi documento" qui sopra per caricarlo</span>
+                    <span className="font-body text-xs">{t('vuoto.titolo')}</span>
+                    <span className="font-body text-xs text-nebbia/25 mt-1">{t('vuoto.suggerimento')}</span>
                 </div>
             ) : (
                 <div className="flex-1 overflow-y-auto px-5 pb-5 space-y-2">
@@ -99,7 +104,7 @@ export default function BoxDocumentiMandato({ mandatoId, clienteId, refreshTrigg
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <p className="font-body text-sm text-nebbia truncate">{doc.nome_file}</p>
                                         <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/10 border border-salvia/25 text-salvia uppercase tracking-wider">
-                                            Archivio
+                                            {t('badge.archivio')}
                                         </span>
                                     </div>
                                     {doc.riepilogo && (
@@ -108,16 +113,16 @@ export default function BoxDocumentiMandato({ mandatoId, clienteId, refreshTrigg
                                         </p>
                                     )}
                                     <p className="font-body text-xs text-nebbia/30 mt-0.5">
-                                        {doc.autore ? `${doc.autore.nome} ${doc.autore.cognome}` : '—'} · {new Date(doc.created_at).toLocaleDateString('it-CH')}
+                                        {doc.autore ? `${doc.autore.nome} ${doc.autore.cognome}` : '—'} · {new Date(doc.created_at).toLocaleDateString(dateLocale)}
                                         {doc.dimensione && ` · ${(doc.dimensione / 1024 / 1024).toFixed(1)} MB`}
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
-                                <button onClick={() => scaricaDocumento(doc)} className="text-nebbia/30 hover:text-oro transition-colors" title="Scarica">
+                                <button onClick={() => scaricaDocumento(doc)} className="text-nebbia/30 hover:text-oro transition-colors" title={t('azioni.scarica')}>
                                     <Download size={13} />
                                 </button>
-                                <button onClick={() => scollegaDocumento(doc)} className="text-nebbia/30 hover:text-red-400 transition-colors" title="Rimuovi dal mandato">
+                                <button onClick={() => scollegaDocumento(doc)} className="text-nebbia/30 hover:text-red-400 transition-colors" title={t('azioni.rimuovi')}>
                                     <X size={13} />
                                 </button>
                             </div>

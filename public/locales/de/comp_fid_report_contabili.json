@@ -1,0 +1,61 @@
+{
+  "anno": "Jahr",
+  "vuoto": "Keine Buchung: Die Berichte werden aus dem Journal befüllt.",
+  "nota_finale": "Erfolgsrechnung = Flüsse des Jahres; Bilanz und Saldenbilanz = kumulierte Salden per Ende {{anno}}. Solange Sie das Geschäftsjahr nicht abschliessen, bleibt das Ergebnis auf den Erfolgskonten; der Abschluss überträgt es auf das Konto 2979.",
+  "tab": {
+    "ce": "Erfolgsrechnung",
+    "bilancio": "Bilanz",
+    "iva": "MWST",
+    "verifica": "Saldenbilanz"
+  },
+  "sezione": {
+    "nessun_movimento": "Keine Bewegung.",
+    "totale": "Total {{sezione}}"
+  },
+  "ce": {
+    "ricavi": "Erträge",
+    "costi": "Aufwand",
+    "risultato": "Jahresergebnis {{anno}}",
+    "nota_chiusura": "Der Abschluss setzt die Erfolgskonten zurück und überträgt das Ergebnis auf das Konto 2979.",
+    "chiudi_esercizio": "Geschäftsjahr {{anno}} abschliessen"
+  },
+  "bilancio": {
+    "attivo": "Aktiven",
+    "passivo": "Passiven",
+    "risultato_cumulato": "Jahresergebnis (kumuliert)",
+    "totale_passivo_risultato": "Total Passiven + Ergebnis",
+    "quadrato": "Bilanz ausgeglichen: Aktiven {{attivo}} = Passiven + Ergebnis {{passivoRisultato}}.",
+    "non_quadrato": "Bilanz NICHT ausgeglichen (Differenz {{differenza}}). Prüfen Sie die Buchungen / Eröffnungssalden."
+  },
+  "iva": {
+    "dovuta": "Geschuldete MWST (Umsatzsteuer) {{anno}}",
+    "precedente": "Vorsteuer (Guthaben)",
+    "da_versare": "Zu entrichtende MWST",
+    "a_credito": "MWST-Guthaben",
+    "colonne": ["Quartal", "Geschuldet", "Vorsteuer", "Saldo"],
+    "trimestre_riga": "{{q}}. Quartal {{anno}}",
+    "nota": "Saldo = Geschuldete MWST (Konto 2200) − Vorsteuer (1170). Positiv = an die ESTV zu entrichten; negativ = Guthaben. Die Zahlung wird manuell erfasst (Journal)."
+  },
+  "verifica": {
+    "colonne": ["Konto", "Soll", "Haben", "Saldo"],
+    "totali": "Totale",
+    "quadra": "· ausgeglichen ✓",
+    "non_quadra": "· NICHT ausgeglichen"
+  },
+  "chiusura": {
+    "titolo": "Abschluss Geschäftsjahr {{anno}}",
+    "descrizione": "Es wird eine Abschlussbuchung per 31.12.{{anno}} erzeugt: Sie setzt die Erfolgskonten (Klassen 3–8) zurück und überträgt das Ergebnis (<risultato>{{risultato}}</risultato>) auf das Konto 2979. Es handelt sich um eine Buchung: Um sie rückgängig zu machen, löschen Sie sie im Journal.",
+    "annulla": "Abbrechen",
+    "conferma": "Geschäftsjahr abschliessen",
+    "in_corso": "Abschluss läuft...",
+    "descrizione_registrazione": "Abschluss Geschäftsjahr {{anno}}",
+    "esito_chiuso": "Geschäftsjahr {{anno}} abgeschlossen: {{tipo}} {{importo}} auf 2979 übertragen.",
+    "utile": "Gewinn",
+    "perdita": "Verlust",
+    "errori": {
+      "conto2979_assente": "Konto 2979 (Jahresgewinn/-verlust) fehlt im Kontenplan.",
+      "gia_chiuso": "Geschäftsjahr {{anno}} bereits abgeschlossen.",
+      "nessun_conto": "Kein Erfolgskonto zum Abschliessen für {{anno}}."
+    }
+  }
+}

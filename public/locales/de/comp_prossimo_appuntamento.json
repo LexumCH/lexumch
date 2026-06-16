@@ -1,0 +1,28 @@
+{
+  "label": {
+    "prossimo_appuntamento": "Nächster Termin"
+  },
+  "countdown": {
+    "oggi": "Heute",
+    "domani": "Morgen",
+    "tra_giorni": "In {{count}} Tagen"
+  },
+  "tipo": {
+    "presenza": "Vor Ort",
+    "videocall": "Videoanruf",
+    "telefonico": "Telefonisch"
+  },
+  "con_avvocato": "mit RA {{nome}}",
+  "note": {
+    "titolo": "Notizen"
+  },
+  "azioni": {
+    "apri_videocall": "Videoanruf öffnen"
+  },
+  "vuoto": {
+    "nessuno": "Kein Termin geplant"
+  },
+  "errori": {
+    "caricamento": "Fehler beim Laden des Termins"
+  }
+}

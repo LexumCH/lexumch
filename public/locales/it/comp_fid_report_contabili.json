@@ -1,0 +1,61 @@
+{
+  "anno": "Anno",
+  "vuoto": "Nessuna registrazione: i report si popolano dal libro giornale.",
+  "nota_finale": "Conto economico = flussi dell'anno; Bilancio e Verifica = saldi cumulati a fine {{anno}}. Finché non chiudi l'esercizio il risultato resta sui conti economici; la chiusura lo porta al conto 2979.",
+  "tab": {
+    "ce": "Conto economico",
+    "bilancio": "Bilancio",
+    "iva": "IVA",
+    "verifica": "Verifica"
+  },
+  "sezione": {
+    "nessun_movimento": "Nessun movimento.",
+    "totale": "Totale {{sezione}}"
+  },
+  "ce": {
+    "ricavi": "Ricavi",
+    "costi": "Costi",
+    "risultato": "Risultato d'esercizio {{anno}}",
+    "nota_chiusura": "La chiusura azzera i conti economici e porta il risultato al conto 2979.",
+    "chiudi_esercizio": "Chiudi esercizio {{anno}}"
+  },
+  "bilancio": {
+    "attivo": "Attivo",
+    "passivo": "Passivo",
+    "risultato_cumulato": "Risultato d'esercizio (cumulato)",
+    "totale_passivo_risultato": "Totale passivo + risultato",
+    "quadrato": "Bilancio quadrato: Attivo {{attivo}} = Passivo + Risultato {{passivoRisultato}}.",
+    "non_quadrato": "Bilancio NON quadrato (differenza {{differenza}}). Controlla le registrazioni / saldi d'apertura."
+  },
+  "iva": {
+    "dovuta": "IVA dovuta (a debito) {{anno}}",
+    "precedente": "Imposta precedente (a credito)",
+    "da_versare": "IVA da versare",
+    "a_credito": "IVA a credito",
+    "colonne": ["Trimestre", "Dovuta", "Precedente", "Saldo"],
+    "trimestre_riga": "{{q}}° trimestre {{anno}}",
+    "nota": "Saldo = IVA dovuta (conto 2200) − Imposta precedente (1170). Positivo = da versare all'AFC; negativo = a credito. Il versamento si registra a mano (libro giornale)."
+  },
+  "verifica": {
+    "colonne": ["Conto", "Dare", "Avere", "Saldo"],
+    "totali": "Totali",
+    "quadra": "· quadra ✓",
+    "non_quadra": "· NON quadra"
+  },
+  "chiusura": {
+    "titolo": "Chiusura esercizio {{anno}}",
+    "descrizione": "Genero una registrazione di chiusura al 31.12.{{anno}}: azzera i conti economici (classi 3–8) e porta il risultato (<risultato>{{risultato}}</risultato>) al conto 2979. È una scrittura: per annullarla la elimini dal libro giornale.",
+    "annulla": "Annulla",
+    "conferma": "Chiudi esercizio",
+    "in_corso": "Chiusura...",
+    "descrizione_registrazione": "Chiusura esercizio {{anno}}",
+    "esito_chiuso": "Esercizio {{anno}} chiuso: {{tipo}} {{importo}} portato a 2979.",
+    "utile": "utile",
+    "perdita": "perdita",
+    "errori": {
+      "conto2979_assente": "Conto 2979 (Utile/perdita d'esercizio) assente nel piano.",
+      "gia_chiuso": "Esercizio {{anno}} già chiuso.",
+      "nessun_conto": "Nessun conto economico da chiudere per il {{anno}}."
+    }
+  }
+}

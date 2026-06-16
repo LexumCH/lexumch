@@ -1,0 +1,69 @@
+{
+  "titolo": "Einnahmen und Ausgaben",
+  "badge_mandato": "Mandat",
+  "anno": "Jahr",
+  "entrate": "Einnahmen",
+  "uscite": "Ausgaben",
+  "saldo": "Saldo",
+  "previsto_suffisso": "geplant",
+  "mese_precedente": "Vorheriger Monat",
+  "mese_successivo": "Nächster Monat",
+  "vista": {
+    "effettivo": "Ist",
+    "previsto": "Plan"
+  },
+  "box_uscite": {
+    "titolo_previsto": "Geplante Ausgaben",
+    "titolo_effettivo": "Total Ausgaben",
+    "dettaglio_previsto": "nur geplante Kosten (Löhne ausgeschlossen)",
+    "dettaglio_effettivo": "Löhne {{stipendi}} + Ausgaben {{uscite}}"
+  },
+  "box_entrate": {
+    "titolo_previsto": "Geplante Einnahmen",
+    "titolo_effettivo": "Total Einnahmen",
+    "saldo_label": "Saldo {{anno}}:"
+  },
+  "stipendi": {
+    "titolo": "Löhne {{anno}}",
+    "dettaglio_one": "berechnet aus {{count}} Person (Mitarbeitende und Gesellschafter) · hier nicht änderbar",
+    "dettaglio_other": "berechnet aus {{count}} Personen (Mitarbeitende und Gesellschafter) · hier nicht änderbar"
+  },
+  "sezione": {
+    "nuova_entrata": "Neue Einnahme",
+    "nuovo_costo": "Neue Kosten",
+    "vuoto_entrate": "Keine Einnahme erfasst",
+    "vuoto_uscite": "Keine Kosten erfasst",
+    "ricorrente": "Wiederkehrend",
+    "ocr_tooltip": "Per OCR erstellt, zu prüfen",
+    "da_verificare": "zu prüfen",
+    "modifica": "Bearbeiten",
+    "elimina": "Löschen"
+  },
+  "ricorrenza": {
+    "una_tantum": "einmalig",
+    "mensile": "monatlich",
+    "trimestrale": "vierteljährlich",
+    "annuale": "jährlich"
+  },
+  "elimina": {
+    "titolo": "Buchung löschen",
+    "conferma_pre": "Möchten Sie",
+    "conferma_post": " wirklich löschen? Der Vorgang ist unwiderruflich.",
+    "annulla": "Abbrechen",
+    "conferma": "Löschen"
+  },
+  "mesi": [
+    "Januar",
+    "Februar",
+    "März",
+    "April",
+    "Mai",
+    "Juni",
+    "Juli",
+    "August",
+    "September",
+    "Oktober",
+    "November",
+    "Dezember"
+  ]
+}

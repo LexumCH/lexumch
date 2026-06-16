@@ -1,0 +1,24 @@
+{
+  "header": {
+    "label": "Portail client",
+    "title": "Documents"
+  },
+  "upload": {
+    "titolo": "Téléverser un document",
+    "seleziona": "Sélectionner un fichier",
+    "carica": "Téléverser",
+    "formati": "Formats acceptés : PDF, JPG, PNG, DOC, DOCX"
+  },
+  "tabella": {
+    "intestazioni": ["Document", "Téléversé par", "Date", "Taille", ""]
+  },
+  "caricato_da": {
+    "studio": "Étude",
+    "tu": "Vous"
+  },
+  "lista": {
+    "vuoto": "Aucun document disponible",
+    "visualizza": "Consulter",
+    "nota_privacy": "Les documents sont consultables uniquement dans le portail."
+  }
+}

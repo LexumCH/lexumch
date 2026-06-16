@@ -1,0 +1,49 @@
+{
+  "titolo": "Pianificazione liquidità",
+  "badge_12_mesi": "12 mesi",
+  "saldo_cassa_label": "Saldo cassa (CHF)",
+  "alla_data": "Alla data",
+  "salva": "Salva",
+  "imposta_saldo_cassa": "Imposta saldo cassa",
+  "al_data": "al {{data}}",
+  "errori": {
+    "importo_non_valido": "Inserisci un importo valido.",
+    "data_mancante": "Inserisci la data del saldo.",
+    "sessione_scaduta": "Sessione scaduta."
+  },
+  "tabella_mancante": "Tabella <code>saldi_cassa</code> non ancora creata: esegui la migration per salvare il saldo e proiettare la liquidità.",
+  "vuoto": {
+    "titolo": "Imposta il saldo di cassa iniziale per vedere la proiezione a 12 mesi.",
+    "descrizione": "La proiezione userà i movimenti previsti, gli effettivi futuri e i salari."
+  },
+  "kpi": {
+    "saldo_oggi": "Saldo oggi",
+    "saldo_fra_12_mesi": "Saldo fra 12 mesi",
+    "punto_minimo": "Punto minimo"
+  },
+  "alert_sotto_zero": "Tensione di cassa prevista: il saldo va sotto zero a <evid>{{mese}} {{anno}}</evid> ({{importo}}). Pianifica un incasso o riduci i costi previsti.",
+  "grafico_title": "{{mese}} {{anno}}: {{saldo}} (netto {{netto}})",
+  "colonne": [
+    "Mese",
+    "Entrate",
+    "Uscite",
+    "Salari",
+    "Netto",
+    "Saldo fine"
+  ],
+  "nota": "Proiezione: saldo noto + entrate/uscite previste (espanse per ricorrenza) + effettivi futuri − salari. Il mese in corso esclude i salari (già nel saldo). Aggiorna il saldo regolarmente per tenerla accurata.",
+  "mesi_abbr": [
+    "gen",
+    "feb",
+    "mar",
+    "apr",
+    "mag",
+    "giu",
+    "lug",
+    "ago",
+    "set",
+    "ott",
+    "nov",
+    "dic"
+  ]
+}

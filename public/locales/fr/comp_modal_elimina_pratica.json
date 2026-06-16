@@ -1,0 +1,33 @@
+{
+  "header": {
+    "titolo": "Supprimer le dossier"
+  },
+  "blocco": {
+    "titolo": "Impossible de supprimer le dossier",
+    "descrizione": "Il y a {{count}} facture liée. Pour supprimer le dossier, vous devez d'abord dissocier ou supprimer ces factures depuis la Facturation.",
+    "descrizione_other": "Il y a {{count}} factures liées. Pour supprimer le dossier, vous devez d'abord dissocier ou supprimer ces factures depuis la Facturation.",
+    "listaTitolo": "Factures liées",
+    "suggerimento": "<etichetta>Conseil :</etichetta> ouvrez chaque facture, utilisez le bouton <azione>Dissocier</azione> dans l'encadré destinataire, puis revenez ici et réessayez."
+  },
+  "conferma": {
+    "irreversibile": "Opération irréversible.",
+    "cosaVieneCancellato": "Seront définitivement supprimés : le dossier, les audiences et les délais de procédure, les parties adverses, les recherches enregistrées, les documents téléversés dans le dossier et les rendez-vous liés.",
+    "archivioResta": "Les documents de l'<grassetto>Archive de l'étude</grassetto> resteront à leur place : seul le lien avec ce dossier sera supprimé.",
+    "istruzione": "Pour confirmer, saisissez le titre exact du dossier :"
+  },
+  "statoFattura": {
+    "bozza": "Brouillon",
+    "in_attesa": "En attente",
+    "scaduta": "Échue",
+    "pagata": "Payée",
+    "annullata": "Annulée"
+  },
+  "azioni": {
+    "chiudi": "Fermer",
+    "annulla": "Annuler",
+    "eliminaDefinitivamente": "Supprimer définitivement"
+  },
+  "errori": {
+    "eliminazione": "Erreur de suppression"
+  }
+}

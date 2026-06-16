@@ -1,0 +1,8 @@
+{
+  "back_button": {
+    "label": "Retour"
+  },
+  "empty_state": {
+    "title": "Aucun résultat"
+  }
+}

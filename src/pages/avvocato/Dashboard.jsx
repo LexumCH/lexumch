@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import {
@@ -15,6 +16,8 @@ import {
   User, Building2, Users, FolderOpen, FolderCheck, ChevronDown
 } from 'lucide-react'
 
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
 // ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
@@ -22,10 +25,6 @@ function nomeCliente(c) {
   if (!c) return ''
   if (c.tipo_soggetto === 'persona_giuridica') return c.ragione_sociale ?? c.nome ?? '—'
   return `${c.nome ?? ''} ${c.cognome ?? ''}`.trim() || '—'
-}
-
-function plural(n, sing, plur) {
-  return n === 1 ? `1 ${sing}` : `${n} ${plur}`
 }
 
 function fmtEUR(n) {
@@ -41,18 +40,18 @@ function giorniDa(data) {
   return Math.floor((d - oggi) / (1000 * 60 * 60 * 24))
 }
 
-function badgeUrgenza(gg) {
-  if (gg < 0) return { label: `${Math.abs(gg)}gg fa`, color: 'text-red-400 border-red-400/30 bg-red-500/10' }
-  if (gg === 0) return { label: 'Oggi', color: 'text-red-400 border-red-400/30 bg-red-500/10' }
-  if (gg <= 3) return { label: `Fra ${gg}gg`, color: 'text-oro border-oro/30 bg-oro/10' }
-  if (gg <= 7) return { label: `Fra ${gg}gg`, color: 'text-salvia border-salvia/30 bg-salvia/10' }
-  return { label: `Fra ${gg}gg`, color: 'text-nebbia/50 border-white/10 bg-petrolio/40' }
+function badgeUrgenza(gg, t) {
+  if (gg < 0) return { label: t('badge.giorni_fa', { count: Math.abs(gg) }), color: 'text-red-400 border-red-400/30 bg-red-500/10' }
+  if (gg === 0) return { label: t('badge.oggi'), color: 'text-red-400 border-red-400/30 bg-red-500/10' }
+  if (gg <= 3) return { label: t('badge.fra_giorni', { count: gg }), color: 'text-oro border-oro/30 bg-oro/10' }
+  if (gg <= 7) return { label: t('badge.fra_giorni', { count: gg }), color: 'text-salvia border-salvia/30 bg-salvia/10' }
+  return { label: t('badge.fra_giorni', { count: gg }), color: 'text-nebbia/50 border-white/10 bg-petrolio/40' }
 }
 
 // ─────────────────────────────────────────────────────────────
 // RANGE DATE: helper
 // ─────────────────────────────────────────────────────────────
-function calcolaRange(preset, customStart, customEnd) {
+function calcolaRange(preset, customStart, customEnd, t, dateLocale) {
   const oggi = new Date()
   let inizio, fine, label
 
@@ -60,33 +59,33 @@ function calcolaRange(preset, customStart, customEnd) {
     case 'mese-corrente': {
       inizio = new Date(oggi.getFullYear(), oggi.getMonth(), 1)
       fine = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0)
-      label = oggi.toLocaleDateString('it-CH', { month: 'long', year: 'numeric' })
+      label = oggi.toLocaleDateString(dateLocale, { month: 'long', year: 'numeric' })
       label = label.charAt(0).toUpperCase() + label.slice(1)
       break
     }
     case 'mese-scorso': {
       inizio = new Date(oggi.getFullYear(), oggi.getMonth() - 1, 1)
       fine = new Date(oggi.getFullYear(), oggi.getMonth(), 0)
-      label = inizio.toLocaleDateString('it-CH', { month: 'long', year: 'numeric' })
+      label = inizio.toLocaleDateString(dateLocale, { month: 'long', year: 'numeric' })
       label = label.charAt(0).toUpperCase() + label.slice(1)
       break
     }
     case 'ultimi-90': {
       fine = new Date(oggi)
       inizio = new Date(oggi); inizio.setDate(inizio.getDate() - 90)
-      label = 'Ultimi 90 giorni'
+      label = t('range.ultimi_90')
       break
     }
     case 'personalizzato': {
       inizio = customStart ? new Date(customStart) : new Date(oggi.getFullYear(), oggi.getMonth(), 1)
       fine = customEnd ? new Date(customEnd) : new Date(oggi)
-      label = `${inizio.toLocaleDateString('it-CH', { day: '2-digit', month: 'short' })} - ${fine.toLocaleDateString('it-CH', { day: '2-digit', month: 'short' })}`
+      label = `${inizio.toLocaleDateString(dateLocale, { day: '2-digit', month: 'short' })} - ${fine.toLocaleDateString(dateLocale, { day: '2-digit', month: 'short' })}`
       break
     }
     default: {
       inizio = new Date(oggi.getFullYear(), oggi.getMonth(), 1)
       fine = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0)
-      label = 'Questo mese'
+      label = t('range.questo_mese')
     }
   }
 
@@ -99,6 +98,7 @@ function calcolaRange(preset, customStart, customEnd) {
 // SELETTORE RANGE
 // ─────────────────────────────────────────────────────────────
 function SelettoreRange({ preset, onPresetChange, customStart, customEnd, onCustomChange, label }) {
+  const { t } = useTranslation('avv_dashboard')
   const [aperto, setAperto] = useState(false)
   const ref = useRef(null)
 
@@ -111,10 +111,10 @@ function SelettoreRange({ preset, onPresetChange, customStart, customEnd, onCust
   }, [])
 
   const opzioni = [
-    { value: 'mese-corrente', label: 'Questo mese' },
-    { value: 'mese-scorso', label: 'Mese scorso' },
-    { value: 'ultimi-90', label: 'Ultimi 90 giorni' },
-    { value: 'personalizzato', label: 'Personalizzato' },
+    { value: 'mese-corrente', label: t('range.questo_mese') },
+    { value: 'mese-scorso', label: t('range.mese_scorso') },
+    { value: 'ultimi-90', label: t('range.ultimi_90') },
+    { value: 'personalizzato', label: t('range.personalizzato') },
   ]
 
   return (
@@ -148,7 +148,7 @@ function SelettoreRange({ preset, onPresetChange, customStart, customEnd, onCust
           {preset === 'personalizzato' && (
             <div className="border-t border-white/10 p-3 space-y-2">
               <div>
-                <label className="block font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">Da</label>
+                <label className="block font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">{t('range.da')}</label>
                 <input
                   type="date"
                   value={customStart || ''}
@@ -157,7 +157,7 @@ function SelettoreRange({ preset, onPresetChange, customStart, customEnd, onCust
                 />
               </div>
               <div>
-                <label className="block font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">A</label>
+                <label className="block font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">{t('range.a')}</label>
                 <input
                   type="date"
                   value={customEnd || ''}
@@ -169,7 +169,7 @@ function SelettoreRange({ preset, onPresetChange, customStart, customEnd, onCust
                 onClick={() => setAperto(false)}
                 className="w-full px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors"
               >
-                Applica
+                {t('range.applica')}
               </button>
             </div>
           )}
@@ -215,6 +215,7 @@ function BoxContatore({ icon: Icon, label, value, sublabel, accent = 'nebbia', l
 // SECTION CARD
 // ─────────────────────────────────────────────────────────────
 function SectionCard({ title, icon: Icon, count, link, linkLabel, children, empty }) {
+  const { t } = useTranslation('avv_dashboard')
   return (
     <div className="bg-slate border border-white/5 flex flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
@@ -227,13 +228,13 @@ function SectionCard({ title, icon: Icon, count, link, linkLabel, children, empt
         </div>
         {link && (
           <Link to={link} className="font-body text-[10px] text-nebbia/30 hover:text-oro transition-colors flex items-center gap-1">
-            {linkLabel ?? 'Vedi tutti'} <ArrowRight size={9} />
+            {linkLabel ?? t('sezione.vedi_tutti')} <ArrowRight size={9} />
           </Link>
         )}
       </div>
       <div className="flex-1 p-3">
         {children || (
-          <p className="font-body text-xs text-nebbia/30 italic text-center py-6">{empty ?? 'Niente da mostrare.'}</p>
+          <p className="font-body text-xs text-nebbia/30 italic text-center py-6">{empty ?? t('sezione.vuoto_default')}</p>
         )}
       </div>
     </div>
@@ -264,6 +265,8 @@ function EventoItem({ icon: Icon, titolo, sottotitolo, badge, link, accent = 'or
 // ─────────────────────────────────────────────────────────────
 export default function AvvocatoDashboard() {
   const { profile } = useAuth()
+  const { t, i18n } = useTranslation('avv_dashboard')
+  const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
   const [showTrialFeedback, setShowTrialFeedback] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -273,8 +276,8 @@ export default function AvvocatoDashboard() {
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
   const range = useMemo(
-    () => calcolaRange(rangePreset, customStart, customEnd),
-    [rangePreset, customStart, customEnd]
+    () => calcolaRange(rangePreset, customStart, customEnd, t, dateLocale),
+    [rangePreset, customStart, customEnd, t, dateLocale]
   )
 
   // ─── Dati: contatori globali (snapshot, no range) ────────
@@ -494,30 +497,30 @@ export default function AvvocatoDashboard() {
     const appuntamenti = eventiOggi.filter(e => e.tipo === 'appuntamento' || e.tipo === 'chiamata').length
 
     const parti = []
-    if (udienze > 0) parti.push(plural(udienze, 'udienza', 'udienze'))
-    if (termini > 0) parti.push(plural(termini, 'termine', 'termini'))
-    if (appuntamenti > 0) parti.push(plural(appuntamenti, 'appuntamento', 'appuntamenti'))
+    if (udienze > 0) parti.push(t('hero.udienze', { count: udienze }))
+    if (termini > 0) parti.push(t('hero.termini', { count: termini }))
+    if (appuntamenti > 0) parti.push(t('hero.appuntamenti', { count: appuntamenti }))
 
     const totFatture = fatture.scadute.length + fatture.in_scadenza.length
     let frase = ''
 
     if (parti.length === 0 && totFatture === 0 && messaggi.length === 0) {
-      frase = 'Niente in calendario per oggi. Approfittane per aggiornare le pratiche o organizzare le ricerche.'
+      frase = t('hero.sommario_vuoto')
     } else {
-      if (parti.length > 0) frase = `Oggi hai ${parti.join(', ')}.`
-      if (totFatture > 0) frase += (frase ? ' ' : '') + `${plural(totFatture, 'fattura', 'fatture')} in attesa.`
-      if (messaggi.length > 0) frase += (frase ? ' ' : '') + `${plural(messaggi.length, 'messaggio nuovo', 'messaggi nuovi')}.`
+      if (parti.length > 0) frase = t('hero.sommario_oggi', { parti: parti.join(', ') })
+      if (totFatture > 0) frase += (frase ? ' ' : '') + t('hero.fatture_attesa', { count: totFatture })
+      if (messaggi.length > 0) frase += (frase ? ' ' : '') + t('hero.messaggi_nuovi', { count: messaggi.length })
     }
     return frase
-  }, [eventiOggi, fatture, messaggi])
+  }, [eventiOggi, fatture, messaggi, t])
 
   const orarioGiorno = useMemo(() => {
     const h = new Date().getHours()
-    if (h < 6) return 'Buonanotte'
-    if (h < 13) return 'Buongiorno'
-    if (h < 19) return 'Buon pomeriggio'
-    return 'Buonasera'
-  }, [])
+    if (h < 6) return t('hero.orario.notte')
+    if (h < 13) return t('hero.orario.mattino')
+    if (h < 19) return t('hero.orario.pomeriggio')
+    return t('hero.orario.sera')
+  }, [t])
 
   return (
     <div className="space-y-5">
@@ -525,9 +528,9 @@ export default function AvvocatoDashboard() {
       <div className="bg-slate border border-white/5 px-6 py-5">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-0">
-            <p className="font-body text-xs text-oro/60 tracking-widest uppercase mb-1">Dashboard</p>
+            <p className="font-body text-xs text-oro/60 tracking-widest uppercase mb-1">{t('hero.etichetta')}</p>
             <h1 className="font-display text-2xl font-light text-nebbia mb-2">
-              {orarioGiorno}, {profile?.nome ?? ''}.
+              {t('hero.saluto', { saluto: orarioGiorno, nome: profile?.nome ?? '' })}
             </h1>
             <p className="font-body text-sm text-nebbia/55 leading-relaxed">{sommario}</p>
           </div>
@@ -550,19 +553,19 @@ export default function AvvocatoDashboard() {
           <div className="absolute top-0 right-0 w-48 h-48 bg-oro/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none" />
           <div className="relative flex items-start justify-between gap-4 flex-wrap">
             <div className="space-y-1.5">
-              <p className="font-body text-sm font-medium text-oro">La tua prova gratuita e scaduta</p>
+              <p className="font-body text-sm font-medium text-oro">{t('trial.titolo')}</p>
               <p className="font-body text-xs text-nebbia/50 leading-relaxed max-w-lg">
-                Scegli un piano per continuare a lavorare con le tue pratiche, clienti e documenti.
+                {t('trial.testo')}
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0">
               <button onClick={() => setShowTrialFeedback(false)}
                 className="font-body text-xs text-nebbia/30 hover:text-nebbia transition-colors">
-                Dopo
+                {t('trial.dopo')}
               </button>
               <Link to="/studio?tab=acquista"
                 className="flex items-center gap-2 px-5 py-2.5 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors">
-                Vedi i piani →
+                {t('trial.vedi_piani')}
               </Link>
             </div>
           </div>
@@ -573,23 +576,23 @@ export default function AvvocatoDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <BoxContatore
           icon={Users}
-          label="Clienti"
+          label={t('contatori.clienti')}
           value={tot.clienti}
-          sublabel="Totale"
+          sublabel={t('contatori.clienti_sub')}
           accent="nebbia"
           link="/clienti"
         />
         <BoxContatore
           icon={FolderOpen}
-          label="Pratiche aperte"
+          label={t('contatori.pratiche_aperte')}
           value={tot.pratiche_aperte}
-          sublabel="Adesso"
+          sublabel={t('contatori.pratiche_aperte_sub')}
           accent="oro"
           link="/pratiche"
         />
         <BoxContatore
           icon={FolderCheck}
-          label="Pratiche chiuse"
+          label={t('contatori.pratiche_chiuse')}
           value={periodo.pratiche_chiuse}
           sublabel={range.label}
           accent="salvia"
@@ -610,16 +613,16 @@ export default function AvvocatoDashboard() {
 
           {/* OGGI */}
           <SectionCard
-            title="Oggi"
+            title={t('oggi.titolo')}
             icon={Clock}
             count={eventiOggi.length}
             link="/calendario"
-            empty="Nessun impegno oggi."
+            empty={t('oggi.vuoto')}
           >
             {eventiOggi.length > 0 && (
               <div className="space-y-0.5">
                 {eventiOggi.map(e => {
-                  const ora = new Date(e.data_inizio).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })
+                  const ora = new Date(e.data_inizio).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })
                   const tipoIcon = e.tipo === 'udienza' ? Scale : e.tipo === 'scadenza' ? AlertTriangle : Calendar
                   const accent = e.tipo === 'scadenza' ? 'red' : e.tipo === 'udienza' ? 'oro' : 'salvia'
                   return (
@@ -640,7 +643,7 @@ export default function AvvocatoDashboard() {
 
           {/* FATTURE */}
           <SectionCard
-            title="Fatturazione"
+            title={t('fatturazione.titolo')}
             icon={Receipt}
             link="/pagamenti"
           >
@@ -648,15 +651,15 @@ export default function AvvocatoDashboard() {
             <div className="grid grid-cols-2 gap-2 mb-3">
               <div className="bg-salvia/5 border border-salvia/15 px-3 py-2.5">
                 <p className="font-body text-[10px] text-salvia/60 uppercase tracking-widest mb-1 flex items-center gap-1">
-                  <TrendingUp size={9} /> Incassato
+                  <TrendingUp size={9} /> {t('fatturazione.incassato')}
                 </p>
-                <p className="font-body text-base text-salvia">EUR {fmtEUR(periodo.incassato)}</p>
+                <p className="font-body text-base text-salvia">CHF {fmtEUR(periodo.incassato)}</p>
                 <p className="font-body text-[10px] text-nebbia/30 mt-0.5 truncate">{range.label}</p>
               </div>
               <div className="bg-petrolio/40 border border-white/5 px-3 py-2.5">
-                <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">Da incassare</p>
-                <p className="font-body text-base text-nebbia/85">EUR {fmtEUR(periodo.da_incassare)}</p>
-                <p className="font-body text-[10px] text-nebbia/30 mt-0.5 truncate">Totale debito attivo</p>
+                <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">{t('fatturazione.da_incassare')}</p>
+                <p className="font-body text-base text-nebbia/85">CHF {fmtEUR(periodo.da_incassare)}</p>
+                <p className="font-body text-[10px] text-nebbia/30 mt-0.5 truncate">{t('fatturazione.totale_debito')}</p>
               </div>
             </div>
 
@@ -669,9 +672,9 @@ export default function AvvocatoDashboard() {
                     <EventoItem
                       key={f.id}
                       icon={FileText}
-                      titolo={`Fattura ${f.anno_numerazione}/${f.numero}`}
-                      sottotitolo={`${nomeCliente(f.cliente)} - EUR ${fmtEUR(f.totale)}`}
-                      badge={badgeUrgenza(gg)}
+                      titolo={t('fatturazione.fattura', { anno: f.anno_numerazione, numero: f.numero })}
+                      sottotitolo={`${nomeCliente(f.cliente)} - CHF ${fmtEUR(f.totale)}`}
+                      badge={badgeUrgenza(gg, t)}
                       link="/pagamenti"
                       accent="red"
                     />
@@ -688,9 +691,9 @@ export default function AvvocatoDashboard() {
                     <EventoItem
                       key={f.id}
                       icon={FileText}
-                      titolo={`Fattura ${f.anno}/${f.numero}`}
-                      sottotitolo={`${nomeCliente(f.cliente)} - EUR ${fmtEUR(f.totale)}`}
-                      badge={badgeUrgenza(gg)}
+                      titolo={t('fatturazione.fattura', { anno: f.anno, numero: f.numero })}
+                      sottotitolo={`${nomeCliente(f.cliente)} - CHF ${fmtEUR(f.totale)}`}
+                      badge={badgeUrgenza(gg, t)}
                       link="/pagamenti"
                       accent="oro"
                     />
@@ -700,17 +703,17 @@ export default function AvvocatoDashboard() {
             )}
 
             {fatture.scadute.length === 0 && fatture.in_scadenza.length === 0 && (
-              <p className="font-body text-xs text-nebbia/30 italic text-center py-3">Nessuna fattura in attesa.</p>
+              <p className="font-body text-xs text-nebbia/30 italic text-center py-3">{t('fatturazione.vuoto')}</p>
             )}
           </SectionCard>
 
           {/* PROSSIMI 7 GIORNI */}
           <SectionCard
-            title="Prossimi 7 giorni"
+            title={t('settimana.titolo')}
             icon={Calendar}
             count={eventiSettimana.length}
             link="/calendario"
-            empty="Nessun impegno nei prossimi 7 giorni."
+            empty={t('settimana.vuoto')}
           >
             {eventiSettimana.length > 0 && (
               <div className="space-y-0.5">
@@ -724,7 +727,7 @@ export default function AvvocatoDashboard() {
                       icon={tipoIcon}
                       titolo={e.titolo}
                       sottotitolo={e.pratica?.titolo}
-                      badge={badgeUrgenza(gg)}
+                      badge={badgeUrgenza(gg, t)}
                       link={e.pratica_id ? `/pratiche/${e.pratica_id}` : '/calendario'}
                       accent={accent}
                     />
@@ -736,26 +739,26 @@ export default function AvvocatoDashboard() {
 
           {/* MESSAGGI */}
           <SectionCard
-            title="Messaggi non letti"
+            title={t('messaggi.titolo')}
             icon={MessageSquare}
             count={messaggi.length}
             link="/assistenza"
-            empty="Nessun messaggio in attesa."
+            empty={t('messaggi.vuoto')}
           >
             {messaggi.length > 0 && (
               <div className="space-y-0.5">
-                {messaggi.map(t => {
-                  const data = t.ultimo_messaggio_at
-                    ? new Date(t.ultimo_messaggio_at).toLocaleDateString('it-CH', { day: '2-digit', month: 'short' })
+                {messaggi.map(tk => {
+                  const data = tk.ultimo_messaggio_at
+                    ? new Date(tk.ultimo_messaggio_at).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short' })
                     : null
                   return (
                     <EventoItem
-                      key={t.id}
+                      key={tk.id}
                       icon={Inbox}
-                      titolo={t.oggetto || 'Senza oggetto'}
-                      sottotitolo={nomeCliente(t.cliente)}
+                      titolo={tk.oggetto || t('messaggi.senza_oggetto')}
+                      sottotitolo={nomeCliente(tk.cliente)}
                       badge={data ? { label: data, color: 'text-nebbia/60 border-white/10 bg-petrolio/40' } : null}
-                      link={`/assistenza/${t.id}`}
+                      link={`/assistenza/${tk.id}`}
                       accent="salvia"
                     />
                   )
@@ -770,17 +773,17 @@ export default function AvvocatoDashboard() {
       {/* ─── PRATICHE ATTENZIONE (sempre visibile con empty) ─── */}
       {!loading && (
         <SectionCard
-          title="Pratiche che richiedono attenzione"
+          title={t('attenzione.titolo')}
           icon={Briefcase}
           count={praticheAttenzione.length}
           link="/pratiche"
-          empty="Nessuna pratica con scadenza imminente."
+          empty={t('attenzione.vuoto')}
         >
           {praticheAttenzione.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               {praticheAttenzione.map(p => {
                 const gg = p.prossima_udienza ? giorniDa(p.prossima_udienza) : null
-                const badge = gg !== null ? badgeUrgenza(gg) : null
+                const badge = gg !== null ? badgeUrgenza(gg, t) : null
                 const cli = p.cliente
                 const IconCli = cli?.tipo_soggetto === 'persona_giuridica' ? Building2 : User
                 return (

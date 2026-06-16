@@ -1,0 +1,118 @@
+{
+  "common": {
+    "trattino": "—",
+    "annulla": "Annuler",
+    "errore": "Erreur"
+  },
+  "back": {
+    "fatturazione": "Facturation"
+  },
+  "loading": {
+    "non_trovata": "Facture introuvable"
+  },
+  "stati": {
+    "pagata": "Payée",
+    "in_attesa": "En attente",
+    "scaduta": "Échue",
+    "annullata": "Annulée"
+  },
+  "metodi": {
+    "bonifico": "Virement bancaire",
+    "qr": "QR-facture",
+    "contanti": "Espèces",
+    "carta": "Carte / TWINT",
+    "altro": "Autre"
+  },
+  "header": {
+    "fattura": "Facture",
+    "emessa_il": "Émise le",
+    "scadenza": "Échéance",
+    "archiviata": "Archivée"
+  },
+  "azioni": {
+    "registra_pagamento": "Enregistrer un paiement",
+    "generando": "Génération...",
+    "genera_archivia": "Générer le PDF et archiver",
+    "apertura": "Ouverture...",
+    "scarica_pdf": "Télécharger le PDF",
+    "rigenera_title": "Régénérer le PDF et mettre à jour l'archive",
+    "rigenera_pdf": "Régénérer le PDF",
+    "annulla_fattura": "Annuler",
+    "elimina": "Supprimer"
+  },
+  "annulla_fattura": {
+    "conferma": "Annuler cette facture ? Le statut passe à « annulée », mais la facture n'est pas supprimée."
+  },
+  "pdf": {
+    "err_download": "Erreur de téléchargement"
+  },
+  "cliente": {
+    "destinatario": "Destinataire",
+    "pratica_collegata": "Dossier lié",
+    "nessuna_pratica": "Aucun dossier lié"
+  },
+  "righe": {
+    "prestazioni": "Prestations",
+    "intestazioni": ["Description", "Qté", "Prix", "Total"],
+    "nessuna": "Aucune ligne"
+  },
+  "pagamenti": {
+    "ricevuti": "Paiements reçus",
+    "aggiungi": "Ajouter",
+    "nessuno": "Aucun paiement enregistré",
+    "residuo_incassare": "Solde à encaisser"
+  },
+  "note": {
+    "titolo": "Notes",
+    "pubbliche": "Publiques (sur le PDF)",
+    "interne": "Internes (vous uniquement)"
+  },
+  "riepilogo": {
+    "titolo": "Récapitulatif",
+    "imponibile": "Montant imposable",
+    "iva_esente": "TVA — exonérée",
+    "iva": "TVA {{aliquota}}%",
+    "totale_fattura": "Total de la facture",
+    "incassato": "Encaissé",
+    "residuo": "Solde",
+    "pagamento": "Paiement",
+    "iban": "IBAN : {{iban}}",
+    "archivio_nota": "Cette facture est visible dans l'archive, dans la catégorie « Factures »."
+  },
+  "pagamento": {
+    "titolo": "Enregistrer un paiement",
+    "fattura": "Facture",
+    "residuo": "Solde à encaisser :",
+    "label_data": "Date *",
+    "label_importo": "Montant (CHF) *",
+    "label_metodo": "Méthode *",
+    "label_riferimento": "Référence",
+    "label_note": "Notes",
+    "opzionale": "— facultatif",
+    "ph_riferimento": "Ex. : n° d'opération, référence du virement...",
+    "err_importo": "Montant invalide",
+    "err_data": "Date de paiement obligatoire"
+  },
+  "elimina": {
+    "titolo": "Supprimer la facture",
+    "irreversibile": "Opération irréversible.",
+    "dettaglio": "Seront supprimés : la facture, les lignes, les paiements enregistrés, le PDF généré et l'enregistrement dans l'archive de l'étude. Le numéro <1>{{numero}}</1> reste consommé dans le registre (il ne peut pas être réutilisé).",
+    "conferma_prompt": "Pour confirmer, saisissez le numéro exact de la facture :",
+    "cta": "Supprimer définitivement"
+  },
+  "scollega": {
+    "titolo": "Dissocier le dossier",
+    "domanda": "Voulez-vous dissocier la facture <1>{{numero}}</1> du dossier <3>« {{titolo}} »</3> ?",
+    "nota": "La facture reste inchangée dans le registre, mais ne sera plus liée à ce dossier. Vous pourrez la relier à tout moment.",
+    "cta": "Dissocier"
+  },
+  "collega": {
+    "titolo": "Lier à un dossier",
+    "seleziona": "Sélectionnez le dossier auquel lier la facture <1>{{numero}}</1>",
+    "ph_cerca": "Rechercher un dossier...",
+    "nessuna_disponibile": "Aucun dossier disponible",
+    "nessuna_corrisponde": "Aucun dossier ne correspond à la recherche",
+    "chiusa": "Fermé",
+    "cta": "Lier"
+  }
+}

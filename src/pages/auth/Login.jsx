@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import logo from '@/assets/logo.png'
 import { ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react'
@@ -14,6 +15,7 @@ const ROLE_HOME = {
 
 export default function Login() {
   const navigate = useNavigate()
+  const { t } = useTranslation('auth')
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -43,7 +45,7 @@ export default function Login() {
       navigate(ROLE_HOME[role] ?? '/')
     } catch (err) {
       setError(err.message === 'Invalid login credentials'
-        ? 'Email o password non corretti'
+        ? t('login.err_invalid')
         : err.message)
     } finally {
       setLoading(false)
@@ -59,17 +61,17 @@ export default function Login() {
 
       {/* Card */}
       <div className="w-full max-w-md bg-slate border border-white/5 p-8">
-        <p className="section-label mb-6">Accesso</p>
+        <p className="section-label mb-6">{t('login.section_label')}</p>
         <h1 className="font-display text-4xl font-light text-nebbia mb-8">
-          Bentornato
+          {t('login.title')}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Email</label>
+            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('login.email_label')}</label>
             <input
               type="email" required autoComplete="email"
-              placeholder="avvocato@studio.it"
+              placeholder={t('login.email_placeholder')}
               value={form.email}
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
               className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 transition-colors placeholder:text-nebbia/25"
@@ -77,7 +79,7 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Password</label>
+            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('login.password_label')}</label>
             <div className="relative">
               <input
                 type={showPwd ? 'text' : 'password'}
@@ -107,19 +109,19 @@ export default function Login() {
             {loading ? (
               <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
             ) : (
-              <><ArrowRight size={16} /> Accedi</>
+              <><ArrowRight size={16} /> {t('login.submit')}</>
             )}
           </button>
         </form>
 
         <div className="mt-6 flex flex-col gap-3 pt-6 border-t border-white/5">
           <Link to="/recupera-password" className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors text-center">
-            Password dimenticata?
+            {t('login.forgot')}
           </Link>
           <p className="font-body text-xs text-nebbia/30 text-center">
-            Non hai un account?{' '}
+            {t('login.no_account')}{' '}
             <Link to="/registrati" className="text-oro hover:text-oro/70 transition-colors">
-              Registrati
+              {t('login.register_link')}
             </Link>
           </p>
         </div>

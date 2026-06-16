@@ -1,0 +1,60 @@
+{
+  "common": {
+    "trattino": "—",
+    "salva": "Enregistrer",
+    "modifica": "Modifier"
+  },
+  "status": {
+    "pending": "En file d'attente",
+    "processing": "Traitement",
+    "completed": "Terminé",
+    "failed": "Erreur",
+    "skipped": "Manuel"
+  },
+  "back": {
+    "archivio": "Archives"
+  },
+  "loading": {
+    "non_trovato": "Document introuvable."
+  },
+  "header": {
+    "sezione": "Document",
+    "verificato": "Vérifié"
+  },
+  "banner_verifica": {
+    "titolo": "Document à vérifier",
+    "testo": "Contrôlez le texte extrait et les métadonnées. Une fois vérifié, Lex AI pourra utiliser ce document dans ses recherches.",
+    "segna_verificato": "Marquer comme vérifié"
+  },
+  "originale": {
+    "titolo": "Original",
+    "nessun_file": "Aucun fichier disponible",
+    "apri_nuova_scheda": "Ouvrir dans un nouvel onglet"
+  },
+  "testo": {
+    "titolo": "Texte extrait",
+    "estrazione_in_corso": "Extraction du texte en cours...",
+    "estrazione_fallita": "Échec de l'extraction",
+    "inserisci_manualmente": "Saisissez le texte manuellement",
+    "avviso_non_pdf": "Fichier non PDF — saisissez le texte manuellement pour le rendre consultable par Lex.",
+    "placeholder_contenuto": "Collez ou rédigez le contenu du document...",
+    "salva_testo": "Enregistrer le texte",
+    "nessun_testo": "Aucun texte extrait"
+  },
+  "metadati": {
+    "titolo": "Métadonnées",
+    "label_titolo": "Titre",
+    "label_categoria": "Catégorie",
+    "placeholder_categoria": "P. ex. Contrats...",
+    "label_tag": "Étiquettes",
+    "placeholder_tag": "tag1, tag2",
+    "label_cliente": "Client",
+    "nessun_cliente": "Aucun client",
+    "label_pratica": "Dossier",
+    "nessuna_pratica": "Aucun dossier",
+    "tipo": "Type",
+    "dimensione": "Taille",
+    "caricato_il": "Téléversé le",
+    "documento_verificato": "Document vérifié"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "fonti": {
+    "TF": "Tribunal fédéral (TF)",
+    "CH_BGE": "ATF — Recueil officiel",
+    "TAF": "Tribunal administratif fédéral (TAF)",
+    "TPF": "Tribunal pénal fédéral (TPF)",
+    "CH_BPATG": "Tribunal fédéral des brevets",
+    "CH_WEKO": "COMCO — Commission de la concurrence",
+    "CH_EDOEB": "PFPDT — Protection des données",
+    "CH_VB": "Autorité de surveillance",
+    "CH_BUNDESRAT": "Conseil fédéral",
+    "CH_UNIBE": "Université de Berne",
+    "TA_SST": "TA — SST",
+    "MISC_UPLOAD": "Autres / téléversements"
+  },
+  "camere": {
+    "OG": "Obergericht",
+    "VG": "Verwaltungsgericht",
+    "SVG": "Sozialversicherungsgericht",
+    "BR": "Baurekursgericht",
+    "SR": "Steuerrekursgericht",
+    "FI": "Tribunal fiscal",
+    "OM": "Tribunal des assurances",
+    "ZS": "Section civile",
+    "BVD": "Recours VD",
+    "WT": "Autres",
+    "AA": "Surveillance des avocats",
+    "BG": "Bezirksgericht",
+    "AK": "Appellationskammer",
+    "BE": "Recours"
+  },
+  "emittenti": {
+    "estv": "AFC — Administration fédérale des contributions",
+    "ufas": "OFAS — Assurances sociales",
+    "seco": "SECO — Économie",
+    "finma": "FINMA — Surveillance des marchés financiers",
+    "udsc": "OFDF — Douanes",
+    "sem": "SEM — Migration",
+    "ufg": "OFJ — Justice",
+    "weko": "COMCO — Concurrence",
+    "ifpdt": "PFPDT — Protection des données",
+    "mros": "MROS — Blanchiment"
+  },
+  "fisco_cant": "Administration fiscale cantonale"
+}

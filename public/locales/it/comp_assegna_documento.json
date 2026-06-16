@@ -1,0 +1,22 @@
+{
+    "cliente": {
+        "label": "Cliente",
+        "cerca_placeholder": "Cerca cliente...",
+        "rimuovi": "Rimuovi cliente",
+        "vuoto": "Nessun cliente"
+    },
+    "dipendente": {
+        "label": "Dipendente",
+        "disabled_hint": "Assegna prima un cliente",
+        "rimuovi": "Rimuovi dipendente",
+        "vuoto": "Nessun dipendente per questo cliente"
+    },
+    "pm": {
+        "label_pratica": "Pratica",
+        "label_mandato": "Mandato",
+        "rimuovi_pratica": "Rimuovi pratica",
+        "rimuovi_mandato": "Rimuovi mandato",
+        "vuoto_pratica": "Nessuna pratica aperta",
+        "vuoto_mandato": "Nessun mandato attivo"
+    }
+}

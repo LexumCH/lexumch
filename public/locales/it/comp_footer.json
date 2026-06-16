@@ -1,0 +1,23 @@
+{
+    "brand": {
+        "description": "La piattaforma per avvocati e studi legali che unisce gestione operativa, banca dati e intelligenza artificiale.",
+        "status": "Piattaforma attiva"
+    },
+    "nav": {
+        "title": "Navigazione",
+        "home": "Home",
+        "lawyers": "Per Studi Legali",
+        "lex_ai": "Lex AI",
+        "contacts": "Contatti"
+    },
+    "trust": {
+        "title": "Sicurezza & Privacy",
+        "encrypted": "Dati protetti e crittografati",
+        "compliance": "Conformità GDPR e alla legge svizzera sulla protezione dei dati"
+    },
+    "bottom": {
+        "copyright": "© {{year}} Lexum. Tutti i diritti riservati.",
+        "privacy": "Privacy Policy",
+        "terms": "Termini di servizio"
+    }
+}

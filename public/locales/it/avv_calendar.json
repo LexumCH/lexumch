@@ -1,0 +1,96 @@
+{
+  "mesi": ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
+  "giorni": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"],
+  "tipi": {
+    "presenza": "In presenza",
+    "videocall": "Videocall",
+    "telefonico": "Telefonico",
+    "udienza": "Udienza",
+    "scadenza": "Scadenza"
+  },
+  "tipi_breve": {
+    "presenza": "Presenza",
+    "videocall": "Videocall",
+    "telefonico": "Telefono",
+    "udienza": "Udienza"
+  },
+  "stati": {
+    "programmato": "Programmato",
+    "concluso": "Concluso",
+    "annullato": "Annullato"
+  },
+  "header": {
+    "label": "Agenda",
+    "titolo": "Calendario",
+    "titolo_evidenza": "appuntamenti",
+    "visualizza": "Visualizza:",
+    "tutti": "Tutti"
+  },
+  "stats": {
+    "programmati": "Programmati",
+    "oggi": "Oggi",
+    "udienze_future": "Udienze future",
+    "scadenze_future": "Scadenze future",
+    "conclusi": "Conclusi"
+  },
+  "griglia": {
+    "oggi": "Oggi",
+    "badge_app": "{{count}} app."
+  },
+  "legenda": {
+    "appuntamento": "Appuntamento",
+    "udienza": "Udienza",
+    "scadenza": "Scadenza"
+  },
+  "pannello": {
+    "app_abbr": "App.",
+    "ud_abbr": "Ud.",
+    "scad_abbr": "Scad.",
+    "nuovo_appuntamento": "Nuovo appuntamento",
+    "help_scadenze": "Le scadenze processuali si aggiungono dalla scheda pratica",
+    "nessun_appuntamento": "Nessun appuntamento"
+  },
+  "form": {
+    "titolo_placeholder": "Titolo appuntamento *",
+    "cliente_opzionale": "Cliente (opzionale)",
+    "inizio": "Inizio",
+    "fine": "Fine",
+    "tu": "Tu",
+    "tribunale_aula": "Tribunale / Aula",
+    "link_videocall": "Link videocall",
+    "note_cliente_placeholder": "Note per il cliente (opzionale)",
+    "annulla": "Annulla",
+    "salva": "Salva"
+  },
+  "evento": {
+    "pratica": "Pratica",
+    "note_interne": "Note interne",
+    "note_cliente": "Note cliente",
+    "scadenza_auto": "Questa scadenza è stata generata automaticamente. Per modificarla o segnarla come compiuta, vai sulla scheda pratica.",
+    "azione_concludi": "Concluso",
+    "azione_annulla": "Annulla",
+    "gestisci_pratica": "⚖ Gestisci nella pratica →",
+    "udienze_da_pratica": "Le udienze si gestiscono dalla scheda della pratica collegata."
+  },
+  "tabella": {
+    "titolo": "Riepilogo agenda",
+    "sottotitolo": "Tutti gli eventi: appuntamenti, udienze, scadenze",
+    "cerca_placeholder": "Cerca...",
+    "tutti_tipi": "Tutti i tipi",
+    "tutti_stati": "Tutti gli stati",
+    "nessun_evento": "Nessun evento trovato",
+    "intestazioni": {
+      "tipo": "Tipo",
+      "titolo": "Titolo",
+      "cliente": "Cliente",
+      "avvocato": "Avvocato",
+      "pratica": "Pratica",
+      "data_ora": "Data & Ora",
+      "stato": "Stato"
+    }
+  },
+  "errori": {
+    "titolo_obbligatorio": "Il titolo è obbligatorio",
+    "data_obbligatoria": "La data è obbligatoria"
+  }
+}

@@ -1,0 +1,147 @@
+{
+    "header": {
+        "titolo": "Lex per questo mandato",
+        "crediti": "{{count}} crediti",
+        "salvaConversazione": "Salva conversazione",
+        "nuovaChat": "Nuova chat"
+    },
+    "confermaNuova": {
+        "messaggio": "La conversazione corrente andrà persa. Continuare?",
+        "conferma": "Sì, nuova chat"
+    },
+    "confermaSalvataggio": "Conversazione salvata nelle ricerche del mandato.",
+    "formSalva": {
+        "titolo": "Salva nelle ricerche",
+        "placeholder": "Es. Analisi costo del personale 2026",
+        "conferma": "Conferma salvataggio"
+    },
+    "vuoto": {
+        "titolo": "Lex conosce questo mandato",
+        "descrizione": "Cliente, dipendenti, scadenze, documenti dell'archivio e ricerche già fatte. Chiedi un'analisi, un riepilogo, o di generare un documento (rendiconto, lettera al cliente, parere fiscale...).",
+        "cta": "Cosa posso chiederti?"
+    },
+    "ruolo": {
+        "tu": "Tu",
+        "lex": "Lex"
+    },
+    "badge": {
+        "documento": "Documento"
+    },
+    "creditiEsauriti": {
+        "messaggio": "Crediti Lex esauriti.",
+        "acquista": "Acquista crediti →"
+    },
+    "input": {
+        "placeholder": "Chiedi a Lex un'analisi o di generare un documento... (Ctrl+Enter per inviare)",
+        "placeholderEsauriti": "Crediti esauriti — acquista crediti per continuare",
+        "titleInvia": "Invia (Ctrl+Enter)",
+        "titleEsauriti": "Crediti esauriti",
+        "suggerimento": "Posso analizzare il mandato o generare documenti fiduciari. Ogni documento consuma 1 credito."
+    },
+    "comune": {
+        "annulla": "Annulla"
+    },
+    "errori": {
+        "scriviDomanda": "Scrivi una domanda per Lex",
+        "sessioneScaduta": "Sessione scaduta. Ricarica la pagina.",
+        "sconosciuto": "Errore sconosciuto",
+        "conCodice": "Errore {{codice}}",
+        "streaming": "Errore nello streaming",
+        "inserisciTitolo": "Inserisci un titolo per la conversazione"
+    },
+    "animazione": {
+        "titolo": "Lex sta lavorando sul mandato",
+        "frasi": [
+            "Sto analizzando il mandato",
+            "Esamino la situazione del cliente",
+            "Controllo i documenti dell'archivio",
+            "Verifico dipendenti e scadenze",
+            "Consulto la normativa applicabile",
+            "Compongo una risposta strutturata"
+        ]
+    },
+    "trascrizione": {
+        "documentoGenerato": "Documento generato",
+        "documento": "documento",
+        "fiduciario": "Fiduciario",
+        "lex": "Lex"
+    },
+    "popover": {
+        "titolo": "Cosa puoi chiedere a Lex",
+        "analisi": {
+            "titolo": "Analisi e ragionamento",
+            "descrizione": "Chiedi a Lex di analizzare il mandato, riepilogare la situazione del cliente, verificare scadenze e dipendenti, o ragionare su una questione fiscale o contabile. Esempi: \"riepiloga la situazione del mandato\", \"quali scadenze ho questo mese\", \"analizza il costo del personale\"."
+        },
+        "generazione": {
+            "titolo": "Generazione di documenti",
+            "descrizione": "Lex può redigere documenti usando i dati del mandato. Scrivi semplicemente cosa ti serve. Ogni documento generato consuma 1 credito."
+        },
+        "altro": {
+            "titolo": "…oppure chiedi qualsiasi altro documento",
+            "descrizione": "Gli esempi qui sopra sono solo spunti. Descrivi a parole il documento che ti serve e Lex lo redige usando i dati del mandato."
+        },
+        "footer": "Tocca un documento per inserire un esempio nella casella di testo, poi personalizzalo."
+    },
+    "tipiDocumento": {
+        "categorie": {
+            "rendiconti": "Rendiconti e report",
+            "corrispondenza": "Corrispondenza",
+            "pareri": "Pareri e analisi"
+        },
+        "tipi": {
+            "rendiconto_mensile": {
+                "nome": "Rendiconto mensile per il cliente",
+                "esempio": "prepara il rendiconto mensile della situazione contabile per il cliente..."
+            },
+            "riepilogo_contabile": {
+                "nome": "Riepilogo situazione contabile",
+                "esempio": "fammi un riepilogo della situazione contabile del mandato..."
+            },
+            "prospetto_personale": {
+                "nome": "Prospetto del costo del personale",
+                "esempio": "prepara un prospetto del costo del personale per l'anno in corso, con oneri sociali a carico azienda e dipendente..."
+            },
+            "lettera_accompagnamento": {
+                "nome": "Lettera di accompagnamento al cliente",
+                "esempio": "scrivimi una lettera di accompagnamento per inviare i documenti al cliente..."
+            },
+            "sollecito_scadenza": {
+                "nome": "Sollecito / promemoria scadenza",
+                "esempio": "scrivi un promemoria al cliente per la scadenza in arrivo..."
+            },
+            "parere_fiscale": {
+                "nome": "Parere fiscale scritto",
+                "esempio": "prepara un parere fiscale sulla deducibilità di..."
+            },
+            "nota_analisi": {
+                "nome": "Nota di analisi su una questione",
+                "esempio": "analizza e mettimi per iscritto la situazione su..."
+            }
+        }
+    },
+    "bolla": {
+        "documento": "Documento",
+        "documentoGenerato": "Documento generato",
+        "anteprima": "Anteprima",
+        "modifica": "Modifica",
+        "modificaTesto": "Modifica il testo del documento",
+        "avvisoNonConservato": "Questo documento non viene conservato. Salvalo in PDF ora per archiviarlo nel mandato.",
+        "generoAnteprima": "Genero l'anteprima impaginata...",
+        "anteprimaDocumento": "Anteprima documento",
+        "riprova": "Riprova",
+        "modificheNonInAnteprima": "Hai modifiche non ancora in anteprima.",
+        "markdownGrezzo": "Markdown grezzo del documento.",
+        "rigenero": "Rigenero...",
+        "rigeneraAnteprima": "Rigenera anteprima",
+        "salvatoInDocumenti": "Salvato nei Documenti mandato:",
+        "scaricaPdf": "Scarica PDF",
+        "salvataggioInCorso": "Salvataggio...",
+        "salvaDiNuovo": "Salva di nuovo (nuova versione)",
+        "nomeFile": "Nome file",
+        "salvaPdfNelMandato": "Salva PDF nel mandato",
+        "inserisciNomeFile": "Inserisci un nome per il file",
+        "erroreAnteprima": "Errore generazione anteprima",
+        "anteprimaNonDisponibile": "Anteprima non disponibile",
+        "erroreSalvataggio": "Errore salvataggio PDF"
+    }
+}

@@ -1,0 +1,23 @@
+{
+  "conteggio": {
+    "mandato_uno": "Mandat",
+    "mandato_molti": "Mandate",
+    "attivi": "{{count}} aktiv"
+  },
+  "azioni": {
+    "nuovo_mandato": "Neues Mandat"
+  },
+  "stati": {
+    "attivo": "Aktiv",
+    "sospeso": "Pausiert",
+    "concluso": "Abgeschlossen",
+    "archiviato": "Archiviert"
+  },
+  "vuoto": {
+    "titolo": "Keine Mandate",
+    "descrizione": "Erstellen Sie ein Mandat, um die Arbeit und die Fristen dieses Kunden zu organisieren"
+  },
+  "riga": {
+    "dal": "seit {{data}}"
+  }
+}

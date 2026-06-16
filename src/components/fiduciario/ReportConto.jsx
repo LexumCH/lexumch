@@ -14,6 +14,7 @@
 //   anno       (number|null)  - anno iniziale
 
 import { useState, useEffect } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import { BarChart3, AlertCircle, TrendingUp, TrendingDown, FileDown } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import {
@@ -21,12 +22,12 @@ import {
 } from '@/lib/calcoloSalari'
 import { MESI_ABBR } from '@/lib/calcoloLiquidita'
 
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 const sum = (arr) => arr.reduce((t, m) => t + (Number(m.importo) || 0), 0)
 const N_ANNI = 4   // orizzonte del confronto pluriennale
 
-const MESI_FULL = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
 const escHtml = (s) => String(s ?? '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))
-const chfP = (n) => 'CHF ' + Number(n || 0).toLocaleString('it-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const chfP = (n, dateLocale) => 'CHF ' + Number(n || 0).toLocaleString(dateLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 function nomeClienteFmt(c) {
     if (!c) return '—'
@@ -35,29 +36,30 @@ function nomeClienteFmt(c) {
 }
 
 // Documento HTML A4 stampabile (tema chiaro) per l'export PDF del report.
-function buildPrintHtml({ anno, intestazione, mesi, usciteCat, entrateCat, perAnno }) {
+function buildPrintHtml({ anno, intestazione, mesi, usciteCat, entrateCat, perAnno, t, dateLocale, mesiFull }) {
     const totE = mesi.reduce((t, m) => t + m.entrate, 0)
     const totU = mesi.reduce((t, m) => t + m.uscite, 0)
     const saldo = totE - totU
-    const oggi = new Date().toLocaleDateString('it-CH')
+    const oggi = new Date().toLocaleDateString(dateLocale)
+    const lang = (dateLocale.split('-')[0]) || 'it'
 
     const rowsMesi = mesi.map(m =>
-        `<tr><td>${MESI_FULL[m.mo]}</td><td class="r">${m.entrate ? chfP(m.entrate) : '—'}</td><td class="r">${m.uscite ? chfP(m.uscite) : '—'}</td><td class="r ${m.netto < 0 ? 'neg' : ''}">${chfP(m.netto)}</td></tr>`
+        `<tr><td>${mesiFull[m.mo]}</td><td class="r">${m.entrate ? chfP(m.entrate, dateLocale) : '—'}</td><td class="r">${m.uscite ? chfP(m.uscite, dateLocale) : '—'}</td><td class="r ${m.netto < 0 ? 'neg' : ''}">${chfP(m.netto, dateLocale)}</td></tr>`
     ).join('')
 
     const catRows = (arr) => {
-        if (!arr.length) return '<tr><td colspan="3" class="muted">Nessun dato</td></tr>'
+        if (!arr.length) return `<tr><td colspan="3" class="muted">${escHtml(t('print.nessun_dato'))}</td></tr>`
         const tot = arr.reduce((t, r) => t + r.val, 0)
-        return arr.map(r => `<tr><td>${escHtml(r.cat)}</td><td class="r">${chfP(r.val)}</td><td class="r">${tot ? Math.round(r.val / tot * 100) : 0}%</td></tr>`).join('')
+        return arr.map(r => `<tr><td>${escHtml(r.cat)}</td><td class="r">${chfP(r.val, dateLocale)}</td><td class="r">${tot ? Math.round(r.val / tot * 100) : 0}%</td></tr>`).join('')
     }
 
     const rowsAnni = perAnno.map(a =>
-        `<tr><td>${a.anno}</td><td class="r">${a.entrate ? chfP(a.entrate) : '—'}</td><td class="r">${a.uscite ? chfP(a.uscite) : '—'}</td><td class="r ${a.saldo < 0 ? 'neg' : ''}">${chfP(a.saldo)}</td></tr>`
+        `<tr><td>${a.anno}</td><td class="r">${a.entrate ? chfP(a.entrate, dateLocale) : '—'}</td><td class="r">${a.uscite ? chfP(a.uscite, dateLocale) : '—'}</td><td class="r ${a.saldo < 0 ? 'neg' : ''}">${chfP(a.saldo, dateLocale)}</td></tr>`
     ).join('')
 
     const sub = [intestazione?.clienteNome, intestazione?.mandatoTitolo].filter(Boolean).map(escHtml).join(' · ')
 
-    return `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Conto economico ${anno}</title>
+    return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><title>${escHtml(t('print.titolo', { anno }))}</title>
 <style>
   @page { size: A4; margin: 18mm; }
   * { box-sizing: border-box; }
@@ -81,31 +83,34 @@ function buildPrintHtml({ anno, intestazione, mesi, usciteCat, entrateCat, perAn
   .cols { display: flex; gap: 20px; }
   .cols > div { flex: 1; }
 </style></head><body>
-  <h1>Conto economico ${anno}</h1>
+  <h1>${escHtml(t('print.titolo', { anno }))}</h1>
   ${sub ? `<p class="sub">${sub}</p>` : ''}
-  <p class="meta">Consuntivo (dati effettivi) · generato il ${oggi}</p>
+  <p class="meta">${escHtml(t('print.consuntivo_generato', { data: oggi }))}</p>
   <div class="kpis">
-    <div class="kpi"><div class="lbl">Totale entrate</div><div class="val pos">${chfP(totE)}</div></div>
-    <div class="kpi"><div class="lbl">Totale uscite</div><div class="val">${chfP(totU)}</div></div>
-    <div class="kpi"><div class="lbl">Saldo</div><div class="val ${saldo < 0 ? 'neg' : 'pos'}">${chfP(saldo)}</div></div>
+    <div class="kpi"><div class="lbl">${escHtml(t('print.totale_entrate'))}</div><div class="val pos">${chfP(totE, dateLocale)}</div></div>
+    <div class="kpi"><div class="lbl">${escHtml(t('print.totale_uscite'))}</div><div class="val">${chfP(totU, dateLocale)}</div></div>
+    <div class="kpi"><div class="lbl">${escHtml(t('print.saldo'))}</div><div class="val ${saldo < 0 ? 'neg' : 'pos'}">${chfP(saldo, dateLocale)}</div></div>
   </div>
-  <h2>Andamento mensile</h2>
-  <table><thead><tr><th>Mese</th><th class="r">Entrate</th><th class="r">Uscite</th><th class="r">Netto</th></tr></thead>
+  <h2>${escHtml(t('print.andamento_mensile'))}</h2>
+  <table><thead><tr><th>${escHtml(t('print.col_mese'))}</th><th class="r">${escHtml(t('print.col_entrate'))}</th><th class="r">${escHtml(t('print.col_uscite'))}</th><th class="r">${escHtml(t('print.col_netto'))}</th></tr></thead>
   <tbody>${rowsMesi}</tbody>
-  <tfoot><tr><td>Totale</td><td class="r">${chfP(totE)}</td><td class="r">${chfP(totU)}</td><td class="r ${saldo < 0 ? 'neg' : ''}">${chfP(saldo)}</td></tr></tfoot></table>
+  <tfoot><tr><td>${escHtml(t('print.totale'))}</td><td class="r">${chfP(totE, dateLocale)}</td><td class="r">${chfP(totU, dateLocale)}</td><td class="r ${saldo < 0 ? 'neg' : ''}">${chfP(saldo, dateLocale)}</td></tr></tfoot></table>
   <div class="cols">
-    <div><h2>Uscite per categoria</h2>
-      <table><thead><tr><th>Categoria</th><th class="r">Importo</th><th class="r">%</th></tr></thead><tbody>${catRows(usciteCat)}</tbody></table></div>
-    <div><h2>Entrate per categoria</h2>
-      <table><thead><tr><th>Categoria</th><th class="r">Importo</th><th class="r">%</th></tr></thead><tbody>${catRows(entrateCat)}</tbody></table></div>
+    <div><h2>${escHtml(t('print.uscite_per_categoria'))}</h2>
+      <table><thead><tr><th>${escHtml(t('print.col_categoria'))}</th><th class="r">${escHtml(t('print.col_importo'))}</th><th class="r">${escHtml(t('print.col_percentuale'))}</th></tr></thead><tbody>${catRows(usciteCat)}</tbody></table></div>
+    <div><h2>${escHtml(t('print.entrate_per_categoria'))}</h2>
+      <table><thead><tr><th>${escHtml(t('print.col_categoria'))}</th><th class="r">${escHtml(t('print.col_importo'))}</th><th class="r">${escHtml(t('print.col_percentuale'))}</th></tr></thead><tbody>${catRows(entrateCat)}</tbody></table></div>
   </div>
-  <h2>Confronto pluriennale</h2>
-  <table><thead><tr><th>Anno</th><th class="r">Entrate</th><th class="r">Uscite</th><th class="r">Saldo</th></tr></thead><tbody>${rowsAnni}</tbody></table>
-  <p class="meta" style="margin-top:16px">Le uscite includono gli stipendi calcolati dai dipendenti. I budget/previsti non sono inclusi (consuntivo).</p>
+  <h2>${escHtml(t('print.confronto_pluriennale'))}</h2>
+  <table><thead><tr><th>${escHtml(t('print.col_anno'))}</th><th class="r">${escHtml(t('print.col_entrate'))}</th><th class="r">${escHtml(t('print.col_uscite'))}</th><th class="r">${escHtml(t('print.col_saldo'))}</th></tr></thead><tbody>${rowsAnni}</tbody></table>
+  <p class="meta" style="margin-top:16px">${escHtml(t('print.nota_finale'))}</p>
 </body></html>`
 }
 
 export default function ReportConto({ clienteId, mandatoId = null, anno = null, refreshTrigger = 0 }) {
+    const { t, i18n } = useTranslation('comp_fid_report_conto')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    const MESI_FULL = t('mesi_full', { returnObjects: true })
     const annoCorr = new Date().getFullYear()
     const [annoSel, setAnnoSel] = useState(anno ?? annoCorr)
     const [movimenti, setMovimenti] = useState([])
@@ -158,7 +163,7 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
         const map = new Map()
         for (const m of eff) {
             if (m.tipo !== tipo || annoDi(m) !== annoSel) continue
-            const cat = (m.categoria ?? '').trim() || 'Senza categoria'
+            const cat = (m.categoria ?? '').trim() || t('categoria.senza_categoria')
             const key = cat.toLowerCase()
             if (!map.has(key)) map.set(key, { cat, val: 0 })
             map.get(key).val += Number(m.importo) || 0
@@ -167,7 +172,7 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
     }
     const stipendiAnno = salariProRataAnno(dipendenti, annoSel) + bonusDellAnnoX(bonus, annoSel)
     const usciteCat = raggruppa('uscita')
-    if (stipendiAnno > 0) usciteCat.push({ cat: 'Stipendi', val: stipendiAnno })
+    if (stipendiAnno > 0) usciteCat.push({ cat: t('categoria.stipendi'), val: stipendiAnno })
     usciteCat.sort((a, b) => b.val - a.val)
     const entrateCat = raggruppa('entrata').sort((a, b) => b.val - a.val)
 
@@ -193,7 +198,7 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
     // Export PDF: genera un documento A4 stampabile in un iframe nascosto e apre
     // il dialogo di stampa del browser (→ "Salva come PDF"). Nessuna dipendenza.
     function esportaPdf() {
-        const html = buildPrintHtml({ anno: annoSel, intestazione, mesi, usciteCat, entrateCat, perAnno })
+        const html = buildPrintHtml({ anno: annoSel, intestazione, mesi, usciteCat, entrateCat, perAnno, t, dateLocale, mesiFull: MESI_FULL })
         const iframe = document.createElement('iframe')
         Object.assign(iframe.style, { position: 'fixed', right: '0', bottom: '0', width: '0', height: '0', border: '0' })
         document.body.appendChild(iframe)
@@ -211,15 +216,15 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-2">
                     <BarChart3 size={15} className="text-oro/60" />
-                    <h2 className="font-display text-lg text-nebbia">Report conto economico</h2>
+                    <h2 className="font-display text-lg text-nebbia">{t('titolo')}</h2>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
-                    <button onClick={esportaPdf} disabled={loading} title="Esporta in PDF"
+                    <button onClick={esportaPdf} disabled={loading} title={t('export.titolo')}
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-white/10 text-nebbia/60 font-body text-xs hover:border-oro/30 hover:text-oro transition-colors disabled:opacity-40">
-                        <FileDown size={12} /> Esporta PDF
+                        <FileDown size={12} /> {t('export.bottone')}
                     </button>
                     <div className="flex items-center gap-2">
-                        <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Anno</span>
+                        <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{t('anno')}</span>
                         <select value={annoSel} onChange={e => setAnnoSel(Number(e.target.value))}
                             className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-2.5 py-1.5 outline-none focus:border-oro/50">
                             {anniDisponibili.map(a => <option key={a} value={a}>{a}</option>)}
@@ -230,7 +235,7 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
 
             {tabellaMancante && (
                 <div className="flex items-center gap-2 text-amber-400 text-xs font-body p-3 bg-amber-900/10 border border-amber-500/20">
-                    <AlertCircle size={14} className="shrink-0" /> Tabella <code className="font-mono">movimenti</code> non disponibile.
+                    <AlertCircle size={14} className="shrink-0" /> <Trans i18nKey="tabella_mancante" t={t} components={{ code: <code className="font-mono" /> }} />
                 </div>
             )}
 
@@ -242,16 +247,16 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
                 <>
                     {/* Legenda */}
                     <div className="flex items-center gap-4 -mb-1">
-                        <span className="flex items-center gap-1.5 font-body text-[11px] text-nebbia/40"><span className="w-3 h-2 bg-salvia/60 inline-block" /> Entrate</span>
-                        <span className="flex items-center gap-1.5 font-body text-[11px] text-nebbia/40"><span className="w-3 h-2 bg-oro/60 inline-block" /> Uscite (costi + stipendi)</span>
+                        <span className="flex items-center gap-1.5 font-body text-[11px] text-nebbia/40"><span className="w-3 h-2 bg-salvia/60 inline-block" /> {t('legenda.entrate')}</span>
+                        <span className="flex items-center gap-1.5 font-body text-[11px] text-nebbia/40"><span className="w-3 h-2 bg-oro/60 inline-block" /> {t('legenda.uscite')}</span>
                     </div>
 
                     {/* A) Andamento mensile */}
                     <div>
-                        <p className="section-label mb-3">Andamento mensile {annoSel}</p>
+                        <p className="section-label mb-3">{t('andamento.titolo', { anno: annoSel })}</p>
                         {!haDatiAnno ? (
                             <div className="bg-petrolio/40 border border-white/5 p-6 text-center font-body text-xs text-nebbia/30">
-                                Nessun movimento effettivo nel {annoSel}.
+                                {t('andamento.vuoto', { anno: annoSel })}
                             </div>
                         ) : (
                             <>
@@ -261,10 +266,10 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
                                             <div className="flex-1 w-full flex items-end justify-center gap-0.5">
                                                 <div className="w-1/2 bg-salvia/55 hover:bg-salvia/80 transition-colors"
                                                     style={{ height: `${(m.entrate / maxMese) * 100}%` }}
-                                                    title={`${MESI_ABBR[m.mo]}: entrate ${fmtCHF(m.entrate)}`} />
+                                                    title={`${MESI_ABBR[m.mo]}: ${t('andamento.tooltip_entrate', { valore: fmtCHF(m.entrate) })}`} />
                                                 <div className="w-1/2 bg-oro/55 hover:bg-oro/80 transition-colors"
                                                     style={{ height: `${(m.uscite / maxMese) * 100}%` }}
-                                                    title={`${MESI_ABBR[m.mo]}: uscite ${fmtCHF(m.uscite)}`} />
+                                                    title={`${MESI_ABBR[m.mo]}: ${t('andamento.tooltip_uscite', { valore: fmtCHF(m.uscite) })}`} />
                                             </div>
                                         </div>
                                     ))}
@@ -278,19 +283,19 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
 
                     {/* B) Composizione per categoria */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <Composizione titolo="Uscite per categoria" tipo="uscita" righe={usciteCat} />
-                        <Composizione titolo="Entrate per categoria" tipo="entrata" righe={entrateCat} />
+                        <Composizione titolo={t('composizione.uscite')} tipo="uscita" righe={usciteCat} />
+                        <Composizione titolo={t('composizione.entrate')} tipo="entrata" righe={entrateCat} />
                     </div>
 
                     {/* C) Confronto pluriennale */}
                     <div>
-                        <p className="section-label mb-3">Confronto pluriennale</p>
+                        <p className="section-label mb-3">{t('pluriennale.titolo')}</p>
                         <div className="flex items-stretch gap-3 h-28 mb-2">
                             {perAnno.map(a => (
                                 <div key={a.anno} className="flex-1 flex flex-col items-center">
                                     <div className="flex-1 w-full flex items-end justify-center gap-1">
-                                        <div className="w-1/3 bg-salvia/55" style={{ height: `${(a.entrate / maxAnno) * 100}%` }} title={`Entrate ${fmtCHF(a.entrate)}`} />
-                                        <div className="w-1/3 bg-oro/55" style={{ height: `${(a.uscite / maxAnno) * 100}%` }} title={`Uscite ${fmtCHF(a.uscite)}`} />
+                                        <div className="w-1/3 bg-salvia/55" style={{ height: `${(a.entrate / maxAnno) * 100}%` }} title={t('pluriennale.tooltip_entrate', { valore: fmtCHF(a.entrate) })} />
+                                        <div className="w-1/3 bg-oro/55" style={{ height: `${(a.uscite / maxAnno) * 100}%` }} title={t('pluriennale.tooltip_uscite', { valore: fmtCHF(a.uscite) })} />
                                     </div>
                                 </div>
                             ))}
@@ -299,7 +304,7 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-white/5">
-                                        {['Anno', 'Entrate', 'Uscite', 'Saldo'].map((h, i) => (
+                                        {t('pluriennale.colonne', { returnObjects: true }).map((h, i) => (
                                             <th key={h} className={`px-3 py-2 font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase ${i === 0 ? 'text-left' : 'text-right'}`}>{h}</th>
                                         ))}
                                     </tr>
@@ -319,7 +324,7 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
                     </div>
 
                     <p className="font-body text-[11px] text-nebbia/25">
-                        Solo dati effettivi (consuntivo). Le uscite includono gli stipendi calcolati dai dipendenti. I budget/previsti sono nella sezione “Budget e scostamenti”.
+                        {t('nota_finale')}
                     </p>
                 </>
             )}
@@ -328,6 +333,7 @@ export default function ReportConto({ clienteId, mandatoId = null, anno = null, 
 }
 
 function Composizione({ titolo, tipo, righe }) {
+    const { t } = useTranslation('comp_fid_report_conto')
     const eEntrata = tipo === 'entrata'
     const barCls = eEntrata ? 'bg-salvia/50' : 'bg-oro/50'
     const tot = righe.reduce((t, r) => t + r.val, 0)
@@ -341,7 +347,7 @@ function Composizione({ titolo, tipo, righe }) {
                 <p className="section-label !m-0">{titolo}</p>
             </div>
             {top.length === 0 ? (
-                <div className="bg-petrolio/40 border border-white/5 p-6 text-center font-body text-xs text-nebbia/30">Nessun dato.</div>
+                <div className="bg-petrolio/40 border border-white/5 p-6 text-center font-body text-xs text-nebbia/30">{t('composizione.vuoto')}</div>
             ) : (
                 <div className="space-y-2.5">
                     {top.map((r, i) => {

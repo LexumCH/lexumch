@@ -1,0 +1,109 @@
+{
+  "back": "Alle Mandanten",
+  "header": {
+    "label": "Mandanten",
+    "title": "Neuer Mandant"
+  },
+  "switcher": {
+    "persona_fisica": "Natürliche Person",
+    "persona_giuridica": "Juristische Person"
+  },
+  "banner": {
+    "bloccante_titolo": "Mandantenlimit erreicht ({{conteggio}}/{{totale}})",
+    "bloccante_testo": "Sie haben die maximale Anzahl an Mandanten erreicht, die Sie mit Ihrem Abonnement erfassen können. Erwerben Sie ein Mandanten-Add-on, um weitere zu erfassen.",
+    "bloccante_cta": "Mandanten-Add-on kaufen",
+    "critico_titolo_one": "Ihre Mandanten-Slots gehen zur Neige ({{count}} verbleibend)",
+    "critico_titolo_other": "Ihre Mandanten-Slots gehen zur Neige ({{count}} verbleibend)",
+    "critico_testo": "Sie haben {{conteggio}} von {{totale}} verfügbaren Slots genutzt. Erwerben Sie ein Add-on, um Sperren zu vermeiden.",
+    "critico_link": "Zum Kauf",
+    "soft_titolo_one": "Ihnen verbleibt noch {{count}} Mandanten-Slot",
+    "soft_titolo_other": "Ihnen verbleiben noch {{count}} Mandanten-Slots",
+    "soft_testo": "Sie haben {{conteggio}} von {{totale}} Slots Ihres Abonnements genutzt. Erwägen Sie ein Add-on, um eine Sperre zu vermeiden.",
+    "soft_link": "Optionen ansehen"
+  },
+  "sezioni": {
+    "tipo_soggetto": "Art der Person",
+    "dati_anagrafici": "Personalien",
+    "dati_societa": "Firmendaten",
+    "contatti": "Kontakt",
+    "indirizzo": "Adresse"
+  },
+  "pf": {
+    "nome": "Vorname *",
+    "nome_ph": "Anna",
+    "cognome": "Nachname *",
+    "cognome_ph": "Rossi",
+    "numero_avs": "AHV-Nummer",
+    "data_nascita": "Geburtsdatum",
+    "luogo_nascita": "Geburtsort",
+    "luogo_nascita_ph": "Lugano"
+  },
+  "pg": {
+    "ragione_sociale": "Firmenname *",
+    "ragione_sociale_ph": "Alfa AG",
+    "uid": "UID-Nummer",
+    "forma_giuridica": "Rechtsform",
+    "forma_giuridica_ph": "Z. B. AG, GmbH, Einzelfirma",
+    "sede_legale": "Sitz",
+    "sede_legale_ph": "Via Nassa 5, Lugano",
+    "iva_attiva": "Mehrwertsteuerpflichtig",
+    "rappresentante": "Gesetzlicher Vertreter",
+    "rappresentante_opzionale": "— optional",
+    "rappr_nome": "Vorname",
+    "rappr_nome_ph": "Mario",
+    "rappr_cognome": "Nachname",
+    "rappr_cognome_ph": "Bianchi",
+    "rappr_avs": "AHV-Nummer",
+    "rappr_avs_ph": "AHV des Vertreters",
+    "rappr_carica": "Funktion",
+    "rappr_carica_ph": "Z. B. Geschäftsführer"
+  },
+  "contatti": {
+    "email": "E-Mail *",
+    "telefono": "Telefon"
+  },
+  "indirizzo": {
+    "domicilio": "Wohnadresse",
+    "sede_operativa": "Geschäftsadresse (falls abweichend vom Sitz)",
+    "via_ph": "Strasse, Hausnummer",
+    "localita": "Ort",
+    "localita_ph": "Lugano",
+    "cantone": "Kanton",
+    "npa": "PLZ"
+  },
+  "avvocato": {
+    "assegnato": "Zugewiesener Anwalt *",
+    "tu": "Sie"
+  },
+  "note": {
+    "label": "Erste Notizen",
+    "placeholder": "Erster Kontakt, allgemeine Situation..."
+  },
+  "portale": {
+    "attiva": "Zugang zum Mandantenportal aktivieren",
+    "descrizione": "Der Mandant kann mit E-Mail und Passwort auf sein Portal zugreifen. Sie können das Passwort jederzeit über die Mandantenkarte zurücksetzen.",
+    "password_label": "Initiales Passwort *",
+    "password_ph": "Mindestens 8 Zeichen",
+    "password_nota": "Das Passwort wird von Lexum niemals per E-Mail versendet. Teilen Sie es dem Mandanten über den von Ihnen bevorzugten Kanal mit (Telefon, WhatsApp, persönlich)."
+  },
+  "errori": {
+    "nome_obbligatorio": "Der Vorname ist erforderlich",
+    "cognome_obbligatorio": "Der Nachname ist erforderlich",
+    "ragione_sociale_obbligatoria": "Der Firmenname ist erforderlich",
+    "email_obbligatoria": "Die E-Mail ist erforderlich",
+    "email_non_valida": "Ungültige E-Mail",
+    "password_obbligatoria": "Geben Sie das initiale Passwort ein, um das Portal zu aktivieren",
+    "password_corta": "Das Passwort muss mindestens 8 Zeichen lang sein"
+  },
+  "successo": {
+    "titolo": "Mandant erstellt",
+    "portale_attivo": "Portal aktiviert. Denken Sie daran, dem Mandanten die Zugangsdaten mitzuteilen.",
+    "portale_disattivo": "Personalien gespeichert. Der Portalzugang ist deaktiviert."
+  },
+  "azioni": {
+    "annulla": "Abbrechen",
+    "crea": "Mandant erstellen",
+    "limite_raggiunto": "Limit erreicht",
+    "limite_tooltip": "Mandantenlimit erreicht – erwerben Sie ein Add-on, um fortzufahren"
+  }
+}

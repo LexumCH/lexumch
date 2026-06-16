@@ -1,0 +1,43 @@
+{
+  "header": {
+    "label": "Kundenportal",
+    "bentornato": "Willkommen zurück",
+    "bentornato_nome": "Willkommen zurück, {{nome}}"
+  },
+  "alert": {
+    "fatture_attesa_one": "Sie haben {{count}} offene Rechnung zur Zahlung",
+    "fatture_attesa_other": "Sie haben {{count}} offene Rechnungen zur Zahlung",
+    "visualizza": "Anzeigen"
+  },
+  "contatori": {
+    "pratiche_attive": "Aktive Dossiers",
+    "appuntamenti": "Termine",
+    "messaggi_nuovi": "Neue Nachrichten",
+    "fatture_aperte": "Offene Rechnungen"
+  },
+  "prossimo": {
+    "titolo": "Nächster Termin",
+    "tutti": "Alle →",
+    "vuoto": "Keine geplanten Termine"
+  },
+  "pratiche": {
+    "titolo": "Aktive Dossiers",
+    "tutte": "Alle →",
+    "vuoto": "Keine aktiven Dossiers"
+  },
+  "stati": {
+    "in_corso": "Laufend",
+    "in_udienza": "In Verhandlung",
+    "in_attesa": "Wartend",
+    "chiusa": "Abgeschlossen"
+  },
+  "comunicazioni": {
+    "titolo": "Letzte Mitteilungen",
+    "tutte": "Alle →",
+    "vuoto": "Keine Mitteilungen",
+    "nuovo": "neu"
+  },
+  "comune": {
+    "avvocato_prefisso": "RA"
+  }
+}

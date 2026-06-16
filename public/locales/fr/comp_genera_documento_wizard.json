@@ -1,0 +1,94 @@
+{
+  "header": {
+    "titolo": "Générer un document"
+  },
+  "caricamento": "Chargement des données...",
+  "errore": "Erreur",
+  "chiudi": "Fermer",
+  "step": {
+    "verifica": "Vérification",
+    "controparti": "Parties adverses",
+    "dati_atto": "Données de l'acte",
+    "genera": "Générer"
+  },
+  "errori": {
+    "non_autenticato": "Utilisateur non authentifié",
+    "sessione_scaduta": "Session expirée. Veuillez recharger la page."
+  },
+  "prerequisiti": {
+    "titolo": "Vérification des prérequis",
+    "descrizione": "Pour générer le document, toutes les données essentielles doivent être disponibles.",
+    "tutti_presenti": "Toutes les données essentielles sont présentes",
+    "mancano_dati": "Certaines données essentielles manquent",
+    "foro_mancante": "Le for fait défaut dans le profil de l'avocat",
+    "albo_mancante": "Le numéro de registre des avocats fait défaut dans le profil de l'avocat",
+    "pec_mancante": "L'adresse e-mail certifiée fait défaut dans le profil de l'avocat",
+    "cliente_non_associato": "Aucun client n'est associé au dossier",
+    "nome_cognome_mancante": "Le prénom ou le nom du client fait défaut",
+    "ragione_sociale_mancante": "La raison sociale du client fait défaut",
+    "nessuna_controparte": "Aucune partie adverse n'a été ajoutée au dossier",
+    "vai_profilo": "Accéder au profil",
+    "apri_scheda_cliente": "Ouvrir la fiche client",
+    "checklist_titolo": "Liste de contrôle recommandée pour cet acte",
+    "nota_placeholder": "Lex générera tout de même le document; pour les données manquantes, un caractère générique explicite sera utilisé."
+  },
+  "controparti": {
+    "titolo_una": "Sélectionner la partie adverse",
+    "titolo_multipla": "Sélectionner les parties adverses",
+    "descrizione_una": "Cet acte est dirigé contre une seule partie adverse.",
+    "descrizione_multipla": "Vous pouvez sélectionner une ou plusieurs parties adverses.",
+    "vuoto": "Aucune partie adverse présente. Ajoutez-les depuis le dossier avant de poursuivre.",
+    "errore_una": "Sélectionnez exactement 1 partie adverse",
+    "errore_multipla": "Sélectionnez au moins 1 partie adverse",
+    "partita_iva": "N° TVA",
+    "codice_fiscale": "N° fiscal"
+  },
+  "campo": {
+    "seleziona": "— Sélectionner —",
+    "obbligatorio": "Champ obligatoire",
+    "numero_non_valido": "Saisissez un nombre valide",
+    "minimo": "Minimum : {{min}}",
+    "massimo": "Maximum : {{max}}"
+  },
+  "campi": {
+    "titolo": "Données spécifiques de l'acte",
+    "descrizione": "Remplissez les champs requis par le modèle. Les champs avec * sont obligatoires."
+  },
+  "genera": {
+    "pronto": "Prêt à générer",
+    "descrizione": "Lex générera le document à partir des données du dossier, de la partie adverse sélectionnée et de vos saisies. L'opération consomme 1 crédit IA.",
+    "btn_genera": "Générer le document",
+    "riprova": "Réessayer",
+    "in_corso": "Lex génère le document...",
+    "sezione_corrente": "Section en cours :",
+    "sezioni_completate": "Sections terminées : {{count}}"
+  },
+  "anteprima": {
+    "tab_anteprima": "Aperçu",
+    "tab_modifica": "Modifier",
+    "tooltip_salvato": "Document enregistré, non modifiable",
+    "suggerimento": "Modifiez le texte dans l'onglet \"Modifier\" si nécessaire, puis enregistrez le PDF dans le dossier."
+  },
+  "salva": {
+    "btn_salva": "Enregistrer le PDF dans le dossier",
+    "salvataggio": "Enregistrement...",
+    "btn_scarica": "Télécharger le PDF",
+    "errore_nome_mancante": "Saisissez un nom de fichier",
+    "errore_salvataggio": "Erreur lors de l'enregistrement du PDF",
+    "successo": "PDF enregistré dans les <strong>Documents du dossier</strong> : <file>{{nomeFile}}</file>",
+    "nome_file_label": "Nom du fichier",
+    "nota_estensione": "L'extension <ext>.pdf</ext> est ajoutée automatiquement"
+  },
+  "chiusura": {
+    "in_corso": "La génération est en cours. Fermer quand même ?",
+    "non_salvato": "Le document a été généré mais pas enregistré. Fermer quand même ?\n\nLe crédit a déjà été consommé."
+  },
+  "footer": {
+    "indietro": "Précédent",
+    "avanti": "Suivant",
+    "fine": "Terminer",
+    "stato_generando": "Génération en cours...",
+    "stato_completo": "Modifiez et enregistrez le PDF dans le dossier",
+    "stato_iniziale": "Appuyez sur \"Générer le document\" pour commencer"
+  }
+}

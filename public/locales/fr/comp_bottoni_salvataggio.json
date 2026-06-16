@@ -1,0 +1,5 @@
+{
+  "meta": {
+    "description": "Composant conteneur sans texte visible : encapsule les boutons Enregistrer dans le dossier et Ajouter à une étiquette. Les textes visibles se trouvent dans les composants enfants AggiungiAPratica et AggiungiAEtichetta."
+  }
+}

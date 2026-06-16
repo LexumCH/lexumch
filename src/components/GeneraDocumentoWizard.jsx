@@ -11,6 +11,7 @@
 // Niente più salvataggio .md, niente esport .md/.html
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import ReactMarkdown from 'react-markdown'
@@ -59,6 +60,7 @@ async function leggiStreamSSE(response, onEvent) {
 // CAMPO INPUT DINAMICO
 // ─────────────────────────────────────────────────────────────
 function CampoInput({ campo, value, onChange, errore }) {
+    const { t } = useTranslation('comp_genera_documento_wizard')
     const baseClasses = "w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
 
     return (
@@ -79,7 +81,7 @@ function CampoInput({ campo, value, onChange, errore }) {
                 />
             ) : campo.tipo === 'select' ? (
                 <select value={value ?? ''} onChange={e => onChange(e.target.value)} className={baseClasses}>
-                    <option value="">— Seleziona —</option>
+                    <option value="">{t('campo.seleziona')}</option>
                     {(campo.opzioni ?? []).map(o => (
                         <option key={o.v} value={o.v}>{o.l}</option>
                     ))}
@@ -104,7 +106,7 @@ function CampoInput({ campo, value, onChange, errore }) {
                 />
             ) : campo.tipo === 'currency' ? (
                 <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/40 font-body text-sm">EUR</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/40 font-body text-sm">CHF</span>
                     <input
                         type="number"
                         step="0.01"
@@ -144,6 +146,10 @@ function CampoInput({ campo, value, onChange, errore }) {
 // COMPONENTE PRINCIPALE
 // ─────────────────────────────────────────────────────────────
 export default function GeneraDocumentoWizard({ template, praticaId, onClose, onDocumentoSalvato }) {
+    const { t, i18n } = useTranslation('comp_genera_documento_wizard')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+
     const [step, setStep] = useState('prerequisiti')
 
     const [loadingDati, setLoadingDati] = useState(true)
@@ -180,7 +186,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
             setErroreDati('')
             try {
                 const { data: { user } } = await supabase.auth.getUser()
-                if (!user) throw new Error('Utente non autenticato')
+                if (!user) throw new Error(t('errori.non_autenticato'))
 
                 const { data: pr, error: prErr } = await supabase
                     .from('pratiche')
@@ -250,37 +256,37 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
     function verificaPrerequisitiHard() {
         const problemi = []
         if (!avvocato?.foro) problemi.push({
-            tipo: 'avvocato', label: 'Foro mancante nel profilo avvocato',
-            azione: { label: 'Vai al profilo', to: '/profilo' }
+            tipo: 'avvocato', label: t('prerequisiti.foro_mancante'),
+            azione: { label: t('prerequisiti.vai_profilo'), to: '/profilo' }
         })
         if (!avvocato?.numero_albo) problemi.push({
-            tipo: 'avvocato', label: 'Numero albo mancante nel profilo avvocato',
-            azione: { label: 'Vai al profilo', to: '/profilo' }
+            tipo: 'avvocato', label: t('prerequisiti.albo_mancante'),
+            azione: { label: t('prerequisiti.vai_profilo'), to: '/profilo' }
         })
         if (!avvocato?.pec) problemi.push({
-            tipo: 'avvocato', label: 'PEC mancante nel profilo avvocato',
-            azione: { label: 'Vai al profilo', to: '/profilo' }
+            tipo: 'avvocato', label: t('prerequisiti.pec_mancante'),
+            azione: { label: t('prerequisiti.vai_profilo'), to: '/profilo' }
         })
         if (!cliente) problemi.push({
-            tipo: 'cliente', label: 'Cliente non associato alla pratica',
+            tipo: 'cliente', label: t('prerequisiti.cliente_non_associato'),
             azione: null
         })
         else {
             const isPF = cliente.tipo_soggetto !== 'persona_giuridica'
             if (isPF) {
                 if (!cliente.nome || !cliente.cognome) problemi.push({
-                    tipo: 'cliente', label: 'Nome o cognome cliente mancante',
-                    azione: { label: 'Apri scheda cliente', to: `/clienti/${cliente.id}` }
+                    tipo: 'cliente', label: t('prerequisiti.nome_cognome_mancante'),
+                    azione: { label: t('prerequisiti.apri_scheda_cliente'), to: `/clienti/${cliente.id}` }
                 })
             } else {
                 if (!cliente.ragione_sociale) problemi.push({
-                    tipo: 'cliente', label: 'Ragione sociale cliente mancante',
-                    azione: { label: 'Apri scheda cliente', to: `/clienti/${cliente.id}` }
+                    tipo: 'cliente', label: t('prerequisiti.ragione_sociale_mancante'),
+                    azione: { label: t('prerequisiti.apri_scheda_cliente'), to: `/clienti/${cliente.id}` }
                 })
             }
         }
         if (controparti.length === 0) problemi.push({
-            tipo: 'controparti', label: 'Nessuna controparte aggiunta alla pratica',
+            tipo: 'controparti', label: t('prerequisiti.nessuna_controparte'),
             azione: null
         })
         return problemi
@@ -290,10 +296,10 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
         const sel = template.selezione_controparti ?? 'una'
         if (sel === 'tutte') return null
         if (sel === 'una' && contropartiSelezionate.length !== 1) {
-            return 'Seleziona esattamente 1 controparte'
+            return t('controparti.errore_una')
         }
         if (sel === 'multipla' && contropartiSelezionate.length === 0) {
-            return 'Seleziona almeno 1 controparte'
+            return t('controparti.errore_multipla')
         }
         return null
     }
@@ -304,16 +310,16 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                 if (c.obbligatorio) {
                     const v = campiValori[c.id]
                     if (v === undefined || v === null || v === '') {
-                        errori[c.id] = 'Campo obbligatorio'
+                        errori[c.id] = t('campo.obbligatorio')
                     }
                 }
                 if (c.tipo === 'number' || c.tipo === 'currency') {
                     const v = campiValori[c.id]
                     if (v !== undefined && v !== '' && v !== null) {
                         const n = Number(v)
-                        if (isNaN(n)) errori[c.id] = 'Inserisci un numero valido'
-                        else if (c.min !== undefined && n < c.min) errori[c.id] = `Minimo: ${c.min}`
-                        else if (c.max !== undefined && n > c.max) errori[c.id] = `Massimo: ${c.max}`
+                        if (isNaN(n)) errori[c.id] = t('campo.numero_non_valido')
+                        else if (c.min !== undefined && n < c.min) errori[c.id] = t('campo.minimo', { min: c.min })
+                        else if (c.max !== undefined && n > c.max) errori[c.id] = t('campo.massimo', { max: c.max })
                     }
                 }
             })
@@ -365,7 +371,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
 
         try {
             const { data: { session } } = await supabase.auth.getSession()
-            if (!session) throw new Error('Sessione scaduta. Ricarica la pagina.')
+            if (!session) throw new Error(t('errori.sessione_scaduta'))
 
             const url = `${supabaseUrl}${ENDPOINT_GENERA}`
             const response = await fetch(url, {
@@ -413,7 +419,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                     setSlotCorrente(null)
                     // Preimposta nome file modificabile: "Nome template - DD/MM/YYYY"
                     if (!nomeFile) {
-                        const oggiStr = new Date().toLocaleDateString('it-CH')
+                        const oggiStr = new Date().toLocaleDateString(dateLocale)
                         setNomeFile(`${template.nome} - ${oggiStr}`)
                     }
                 }
@@ -427,7 +433,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
     // Salvataggio PDF
     async function salvaPdf() {
         if (!nomeFile.trim()) {
-            setErrorePdf('Inserisci un nome per il file')
+            setErrorePdf(t('salva.errore_nome_mancante'))
             return
         }
 
@@ -446,7 +452,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
             })
 
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore salvataggio PDF')
+            if (!data?.ok) throw new Error(data?.error ?? t('salva.errore_salvataggio'))
 
             setPdfSalvato({
                 documento_id: data.documento_id,
@@ -469,9 +475,9 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
 
     function richiediChiusura() {
         if (generando) {
-            if (!confirm('La generazione è in corso. Chiudere comunque?')) return
+            if (!confirm(t('chiusura.in_corso'))) return
         } else if (generazioneCompleta && !pdfSalvato) {
-            if (!confirm('Il documento è stato generato ma non salvato. Chiudere comunque?\n\nIl credito è già stato consumato.')) return
+            if (!confirm(t('chiusura.non_salvato'))) return
         }
         onClose()
     }
@@ -481,7 +487,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
             <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
                 <div className="bg-slate border border-white/10 p-8 flex items-center gap-3">
                     <Loader2 size={20} className="animate-spin text-oro" />
-                    <p className="font-body text-sm text-nebbia/60">Caricamento dati...</p>
+                    <p className="font-body text-sm text-nebbia/60">{t('caricamento')}</p>
                 </div>
             </div>
         )
@@ -493,11 +499,11 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                 <div className="bg-slate border border-red-500/30 p-6 max-w-md" onClick={e => e.stopPropagation()}>
                     <div className="flex items-center gap-2 mb-3">
                         <AlertCircle size={18} className="text-red-400" />
-                        <p className="font-body text-base font-medium text-red-400">Errore</p>
+                        <p className="font-body text-base font-medium text-red-400">{t('errore')}</p>
                     </div>
                     <p className="font-body text-sm text-nebbia/70">{erroreDati}</p>
                     <button onClick={onClose} className="mt-4 px-4 py-2 border border-white/10 text-nebbia/60 hover:text-nebbia">
-                        Chiudi
+                        {t('chiudi')}
                     </button>
                 </div>
             </div>
@@ -513,7 +519,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                     <div className="flex items-center gap-3 min-w-0">
                         <Wand2 size={18} className="text-oro shrink-0" />
                         <div className="min-w-0">
-                            <p className="font-body text-xs text-oro/70 uppercase tracking-widest">Genera documento</p>
+                            <p className="font-body text-xs text-oro/70 uppercase tracking-widest">{t('header.titolo')}</p>
                             <p className="font-body text-base font-medium text-nebbia truncate">{template.nome}</p>
                         </div>
                     </div>
@@ -525,10 +531,10 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                 {/* Step indicator */}
                 <div className="flex items-center justify-center gap-2 px-6 py-3 border-b border-white/5 bg-petrolio/30 shrink-0">
                     {[
-                        ...(step === 'prerequisiti' ? [{ id: 'prerequisiti', label: 'Verifica' }] : []),
-                        ...(template.selezione_controparti !== 'tutte' ? [{ id: 'controparti', label: 'Controparti' }] : []),
-                        ...((template.campi_input ?? []).length > 0 ? [{ id: 'campi', label: 'Dati atto' }] : []),
-                        { id: 'genera', label: 'Genera' },
+                        ...(step === 'prerequisiti' ? [{ id: 'prerequisiti', label: t('step.verifica') }] : []),
+                        ...(template.selezione_controparti !== 'tutte' ? [{ id: 'controparti', label: t('step.controparti') }] : []),
+                        ...((template.campi_input ?? []).length > 0 ? [{ id: 'campi', label: t('step.dati_atto') }] : []),
+                        { id: 'genera', label: t('step.genera') },
                     ].map((s, i, arr) => {
                         const idx = arr.findIndex(x => x.id === s.id)
                         const idxAttuale = arr.findIndex(x => x.id === step)
@@ -555,9 +561,9 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                     {step === 'prerequisiti' && (
                         <div className="space-y-5">
                             <div>
-                                <p className="font-body text-sm font-medium text-nebbia mb-1">Verifica prerequisiti</p>
+                                <p className="font-body text-sm font-medium text-nebbia mb-1">{t('prerequisiti.titolo')}</p>
                                 <p className="font-body text-xs text-nebbia/50">
-                                    Per generare il documento devono essere disponibili tutti i dati essenziali.
+                                    {t('prerequisiti.descrizione')}
                                 </p>
                             </div>
 
@@ -565,13 +571,13 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                 {prereqOk ? (
                                     <div className="flex items-center gap-2">
                                         <CheckCircle size={15} className="text-salvia" />
-                                        <p className="font-body text-sm text-salvia font-medium">Tutti i dati essenziali sono presenti</p>
+                                        <p className="font-body text-sm text-salvia font-medium">{t('prerequisiti.tutti_presenti')}</p>
                                     </div>
                                 ) : (
                                     <>
                                         <div className="flex items-center gap-2 mb-3">
                                             <AlertCircle size={15} className="text-amber-400" />
-                                            <p className="font-body text-sm text-amber-400 font-medium">Mancano alcuni dati essenziali</p>
+                                            <p className="font-body text-sm text-amber-400 font-medium">{t('prerequisiti.mancano_dati')}</p>
                                         </div>
                                         <ul className="space-y-2 ml-7">
                                             {problemiPrereq.map((p, i) => (
@@ -591,7 +597,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
 
                             {(template.prerequisiti ?? []).length > 0 && (
                                 <div className="p-4 border border-white/8 bg-petrolio/30">
-                                    <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-3">Checklist consigliata per questo atto</p>
+                                    <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-3">{t('prerequisiti.checklist_titolo')}</p>
                                     <ul className="space-y-1.5">
                                         {template.prerequisiti.map((req, i) => (
                                             <li key={i} className="font-body text-sm text-nebbia/60 flex items-start gap-2">
@@ -601,7 +607,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                         ))}
                                     </ul>
                                     <p className="font-body text-xs text-nebbia/30 italic mt-3">
-                                        Lex genererà comunque il documento; per i dati mancanti userà placeholder esplicito.
+                                        {t('prerequisiti.nota_placeholder')}
                                     </p>
                                 </div>
                             )}
@@ -613,19 +619,19 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                         <div className="space-y-5">
                             <div>
                                 <p className="font-body text-sm font-medium text-nebbia mb-1">
-                                    {template.selezione_controparti === 'una' ? 'Seleziona la controparte' : 'Seleziona le controparti'}
+                                    {template.selezione_controparti === 'una' ? t('controparti.titolo_una') : t('controparti.titolo_multipla')}
                                 </p>
                                 <p className="font-body text-xs text-nebbia/50">
                                     {template.selezione_controparti === 'una'
-                                        ? 'Questo atto si dirige verso una sola controparte.'
-                                        : 'Puoi selezionare una o più controparti.'}
+                                        ? t('controparti.descrizione_una')
+                                        : t('controparti.descrizione_multipla')}
                                 </p>
                             </div>
 
                             {controparti.length === 0 ? (
                                 <div className="p-4 border border-amber-500/30 bg-amber-500/5">
                                     <p className="font-body text-sm text-amber-400">
-                                        Nessuna controparte presente. Aggiungile dalla pratica prima di procedere.
+                                        {t('controparti.vuoto')}
                                     </p>
                                 </div>
                             ) : (
@@ -668,9 +674,9 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                                         </div>
                                                         {(c.cf || c.partita_iva) && (
                                                             <p className="font-mono text-[11px] text-nebbia/40">
-                                                                {c.partita_iva && <>P.IVA {c.partita_iva}</>}
+                                                                {c.partita_iva && <>{t('controparti.partita_iva')} {c.partita_iva}</>}
                                                                 {c.partita_iva && c.cf && ' · '}
-                                                                {c.cf && <>CF {c.cf}</>}
+                                                                {c.cf && <>{t('controparti.codice_fiscale')} {c.cf}</>}
                                                             </p>
                                                         )}
                                                     </div>
@@ -693,9 +699,9 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                     {step === 'campi' && (
                         <div className="space-y-5">
                             <div>
-                                <p className="font-body text-sm font-medium text-nebbia mb-1">Dati specifici dell'atto</p>
+                                <p className="font-body text-sm font-medium text-nebbia mb-1">{t('campi.titolo')}</p>
                                 <p className="font-body text-xs text-nebbia/50">
-                                    Compila i campi richiesti dal template. I campi con * sono obbligatori.
+                                    {t('campi.descrizione')}
                                 </p>
                             </div>
                             <div className="space-y-4">
@@ -729,16 +735,15 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                             {!generando && documentoMd === '' && !erroreGen && (
                                 <div className="text-center py-8">
                                     <Wand2 size={32} className="text-oro/40 mx-auto mb-3" />
-                                    <p className="font-body text-base font-medium text-nebbia mb-2">Pronto a generare</p>
+                                    <p className="font-body text-base font-medium text-nebbia mb-2">{t('genera.pronto')}</p>
                                     <p className="font-body text-xs text-nebbia/50 mb-6 max-w-md mx-auto">
-                                        Lex genererà il documento usando i dati della pratica, della controparte selezionata e i tuoi input.
-                                        L'operazione consuma 1 credito AI.
+                                        {t('genera.descrizione')}
                                     </p>
                                     <button
                                         onClick={generaDocumento}
                                         className="inline-flex items-center gap-2 px-6 py-3 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors"
                                     >
-                                        <Wand2 size={14} /> Genera documento
+                                        <Wand2 size={14} /> {t('genera.btn_genera')}
                                     </button>
                                 </div>
                             )}
@@ -754,7 +759,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                         onClick={generaDocumento}
                                         className="mt-3 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10"
                                     >
-                                        Riprova
+                                        {t('genera.riprova')}
                                     </button>
                                 </div>
                             )}
@@ -765,17 +770,17 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                     <div className="flex items-center gap-3 mb-2">
                                         <Loader2 size={16} className="animate-spin text-salvia" />
                                         <p className="font-body text-sm text-salvia font-medium">
-                                            Lex sta generando il documento...
+                                            {t('genera.in_corso')}
                                         </p>
                                     </div>
                                     {slotCorrente && (
                                         <p className="font-body text-xs text-salvia/70 ml-7">
-                                            Sezione corrente: <span className="font-mono">{slotCorrente}</span>
+                                            {t('genera.sezione_corrente')} <span className="font-mono">{slotCorrente}</span>
                                         </p>
                                     )}
                                     {sezioniCompletate.length > 0 && (
                                         <p className="font-body text-xs text-nebbia/50 ml-7 mt-1">
-                                            Sezioni completate: {sezioniCompletate.length}
+                                            {t('genera.sezioni_completate', { count: sezioniCompletate.length })}
                                         </p>
                                     )}
                                 </div>
@@ -792,7 +797,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                                     ? 'bg-oro/10 border-oro/30 text-oro'
                                                     : 'border-white/10 text-nebbia/40 hover:text-nebbia'}`}
                                             >
-                                                <Eye size={11} /> Anteprima
+                                                <Eye size={11} /> {t('anteprima.tab_anteprima')}
                                             </button>
                                             <button
                                                 onClick={() => setVistaAnteprima('edit')}
@@ -800,9 +805,9 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                                 className={`flex items-center gap-1.5 px-3 py-1.5 font-body text-xs border transition-colors disabled:opacity-30 ${vistaAnteprima === 'edit'
                                                     ? 'bg-oro/10 border-oro/30 text-oro'
                                                     : 'border-white/10 text-nebbia/40 hover:text-nebbia'}`}
-                                                title={pdfSalvato ? 'Documento salvato, non più modificabile' : ''}
+                                                title={pdfSalvato ? t('anteprima.tooltip_salvato') : ''}
                                             >
-                                                <Edit2 size={11} /> Modifica
+                                                <Edit2 size={11} /> {t('anteprima.tab_modifica')}
                                             </button>
                                         </div>
 
@@ -816,8 +821,8 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                                         className="flex items-center gap-2 px-4 py-2 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors disabled:opacity-40"
                                                     >
                                                         {salvandoPdf
-                                                            ? <><Loader2 size={13} className="animate-spin" /> Salvataggio...</>
-                                                            : <><Save size={13} /> Salva PDF nella pratica</>
+                                                            ? <><Loader2 size={13} className="animate-spin" /> {t('salva.salvataggio')}</>
+                                                            : <><Save size={13} /> {t('salva.btn_salva')}</>
                                                         }
                                                     </button>
                                                 ) : (
@@ -825,7 +830,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                                         onClick={scaricaPdf}
                                                         className="flex items-center gap-1.5 px-3 py-1.5 font-body text-xs text-oro border border-oro/30 hover:bg-oro/10"
                                                     >
-                                                        <Download size={11} /> Scarica PDF
+                                                        <Download size={11} /> {t('salva.btn_scarica')}
                                                     </button>
                                                 )}
                                             </div>
@@ -843,7 +848,12 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                         <div className="p-3 bg-salvia/5 border border-salvia/30 flex items-center gap-2">
                                             <CheckCircle size={14} className="text-salvia shrink-0" />
                                             <p className="font-body text-xs text-salvia">
-                                                PDF salvato nei <strong>Documenti pratica</strong>: <span className="font-mono">{pdfSalvato.nome_file}</span>
+                                                <Trans
+                                                    t={t}
+                                                    i18nKey="salva.successo"
+                                                    values={{ nomeFile: pdfSalvato.nome_file }}
+                                                    components={{ strong: <strong />, file: <span className="font-mono" /> }}
+                                                />
                                             </p>
                                         </div>
                                     )}
@@ -852,18 +862,22 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                                     {generazioneCompleta && !pdfSalvato && (
                                         <div>
                                             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                                                Nome file
+                                                {t('salva.nome_file_label')}
                                             </label>
                                             <input
                                                 type="text"
                                                 value={nomeFile}
                                                 onChange={e => setNomeFile(e.target.value)}
                                                 disabled={salvandoPdf}
-                                                placeholder={`${template.nome} - ${new Date().toLocaleDateString('it-CH')}`}
+                                                placeholder={`${template.nome} - ${new Date().toLocaleDateString(dateLocale)}`}
                                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25 disabled:opacity-40"
                                             />
                                             <p className="font-body text-xs text-nebbia/30 mt-1.5">
-                                                Estensione <span className="font-mono">.pdf</span> aggiunta automaticamente
+                                                <Trans
+                                                    t={t}
+                                                    i18nKey="salva.nota_estensione"
+                                                    components={{ ext: <span className="font-mono" /> }}
+                                                />
                                             </p>
                                         </div>
                                     )}
@@ -900,7 +914,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
 
                                     {!pdfSalvato && generazioneCompleta && (
                                         <p className="font-body text-xs text-nebbia/40 italic">
-                                            Modifica il testo nella tab "Modifica" se necessario, poi salva il PDF nella pratica.
+                                            {t('anteprima.suggerimento')}
                                         </p>
                                     )}
                                 </>
@@ -916,7 +930,7 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                         disabled={step === 'prerequisiti' || generando || salvandoPdf}
                         className="flex items-center gap-1.5 px-4 py-2 font-body text-sm text-nebbia/50 border border-white/10 hover:text-nebbia hover:border-white/25 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                        <ChevronLeft size={13} /> Indietro
+                        <ChevronLeft size={13} /> {t('footer.indietro')}
                     </button>
 
                     {step !== 'genera' ? (
@@ -928,20 +942,20 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                             }
                             className="flex items-center gap-1.5 px-4 py-2 font-body text-sm bg-oro/10 border border-oro/30 text-oro hover:bg-oro/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                            Avanti <ChevronRight size={13} />
+                            {t('footer.avanti')} <ChevronRight size={13} />
                         </button>
                     ) : pdfSalvato ? (
                         <button
                             onClick={onClose}
                             className="flex items-center gap-1.5 px-4 py-2 font-body text-sm bg-salvia/10 border border-salvia/30 text-salvia hover:bg-salvia/20 transition-colors"
                         >
-                            <CheckCircle size={13} /> Fine
+                            <CheckCircle size={13} /> {t('footer.fine')}
                         </button>
                     ) : (
                         <span className="font-body text-xs text-nebbia/30 italic">
-                            {generando ? 'Generazione in corso...' :
-                                generazioneCompleta ? 'Modifica e salva il PDF nella pratica' :
-                                    'Premi "Genera documento" per iniziare'}
+                            {generando ? t('footer.stato_generando') :
+                                generazioneCompleta ? t('footer.stato_completo') :
+                                    t('footer.stato_iniziale')}
                         </span>
                     )}
                 </div>

@@ -1,0 +1,51 @@
+{
+  "header": {
+    "titolo": "Scadenze e udienze",
+    "aggiungi_termine": "Termine",
+    "aggiungi_udienza": "Udienza"
+  },
+  "badge": {
+    "scaduta": "Scaduta",
+    "oggi": "Oggi",
+    "giorni": "{{count}}g"
+  },
+  "termini": {
+    "titolo": "Termini processuali",
+    "filtro": {
+      "in_corso": "In corso",
+      "storico": "Storico"
+    },
+    "vuoto": {
+      "in_corso": "Nessun termine in corso",
+      "storico": "Nessun termine nello storico",
+      "suggerimento": "Aggiungi un termine per calcolare automaticamente la scadenza"
+    },
+    "stato": {
+      "compiuto": "Compiuto {{data}}",
+      "scaduto_non_compiuto": "Scaduto non compiuto"
+    },
+    "scadenza": "Scadenza",
+    "da": "Da",
+    "azioni": {
+      "segna_compiuto": "Segna come compiuto",
+      "elimina": "Elimina termine"
+    },
+    "conferma_elimina": "Annullare questo termine? L'evento sul calendario verrà rimosso."
+  },
+  "udienze": {
+    "titolo": "Udienze ed esiti",
+    "vuoto": "Nessuna udienza programmata",
+    "badge": {
+      "prossima": "Prossima",
+      "da_aggiornare": "Da aggiornare"
+    },
+    "stato": {
+      "svolta": "Svolta",
+      "rinviata": "Rinviata",
+      "annullata": "Annullata"
+    }
+  },
+  "errori": {
+    "generico": "Errore"
+  }
+}

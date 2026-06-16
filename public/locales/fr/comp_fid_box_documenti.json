@@ -1,0 +1,21 @@
+{
+  "header": {
+    "titolo": "Documents du mandat ({{count}})",
+    "aggiungi": "Ajouter un document",
+    "descrizione": "Les documents sont enregistrés dans les archives de l'étude, indexés pour la recherche avec Lex et liés à ce mandat."
+  },
+  "vuoto": {
+    "titolo": "Aucun document lié à ce mandat",
+    "suggerimento": "Utilisez \"Ajouter un document\" ci-dessus pour le téléverser"
+  },
+  "badge": {
+    "archivio": "Archives"
+  },
+  "azioni": {
+    "scarica": "Télécharger",
+    "rimuovi": "Retirer du mandat"
+  },
+  "conferma": {
+    "scollega": "Retirer \"{{nome}}\" du mandat ?\n\nLe document restera dans les archives de l'étude et perdra uniquement le lien avec ce mandat."
+  }
+}

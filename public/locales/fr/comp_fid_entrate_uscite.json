@@ -1,0 +1,69 @@
+{
+  "titolo": "Recettes et dépenses",
+  "badge_mandato": "mandat",
+  "anno": "Année",
+  "entrate": "Recettes",
+  "uscite": "Dépenses",
+  "saldo": "Solde",
+  "previsto_suffisso": "prévu",
+  "mese_precedente": "Mois précédent",
+  "mese_successivo": "Mois suivant",
+  "vista": {
+    "effettivo": "Effectif",
+    "previsto": "Prévu"
+  },
+  "box_uscite": {
+    "titolo_previsto": "Dépenses prévues",
+    "titolo_effettivo": "Total des dépenses",
+    "dettaglio_previsto": "uniquement les coûts planifiés (salaires exclus)",
+    "dettaglio_effettivo": "salaires {{stipendi}} + dépenses {{uscite}}"
+  },
+  "box_entrate": {
+    "titolo_previsto": "Recettes prévues",
+    "titolo_effettivo": "Total des recettes",
+    "saldo_label": "solde {{anno}} :"
+  },
+  "stipendi": {
+    "titolo": "Salaires {{anno}}",
+    "dettaglio_one": "calculé à partir de {{count}} personne (employés et associés) · non modifiable ici",
+    "dettaglio_other": "calculé à partir de {{count}} personnes (employés et associés) · non modifiable ici"
+  },
+  "sezione": {
+    "nuova_entrata": "Nouvelle recette",
+    "nuovo_costo": "Nouveau coût",
+    "vuoto_entrate": "Aucune recette enregistrée",
+    "vuoto_uscite": "Aucun coût enregistré",
+    "ricorrente": "Récurrent",
+    "ocr_tooltip": "Créé par OCR, à vérifier",
+    "da_verificare": "à vérifier",
+    "modifica": "Modifier",
+    "elimina": "Supprimer"
+  },
+  "ricorrenza": {
+    "una_tantum": "ponctuel",
+    "mensile": "mensuel",
+    "trimestrale": "trimestriel",
+    "annuale": "annuel"
+  },
+  "elimina": {
+    "titolo": "Supprimer l'écriture",
+    "conferma_pre": "Supprimer",
+    "conferma_post": " ? L'opération est irréversible.",
+    "annulla": "Annuler",
+    "conferma": "Supprimer"
+  },
+  "mesi": [
+    "janvier",
+    "février",
+    "mars",
+    "avril",
+    "mai",
+    "juin",
+    "juillet",
+    "août",
+    "septembre",
+    "octobre",
+    "novembre",
+    "décembre"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "header": {
+    "titolo": "Attiva 2FA"
+  },
+  "step1": {
+    "label": "Step 1 di 2",
+    "istruzione": "Scansiona il QR code con la tua app autenticatore",
+    "qrAlt": "QR code 2FA",
+    "manualeLabel": "Oppure inserisci manualmente",
+    "appConsigliate": "App consigliate: Google Authenticator, Authy, 1Password, Microsoft Authenticator, Bitwarden.",
+    "procedi": "Ho scansionato, procedi"
+  },
+  "step2": {
+    "label": "Step 2 di 2",
+    "istruzione": "Inserisci il codice a 6 cifre dall'app",
+    "codiceLabel": "Codice di verifica"
+  },
+  "azioni": {
+    "riprova": "Riprova",
+    "indietro": "Indietro",
+    "verificaAttiva": "Verifica e attiva"
+  },
+  "errori": {
+    "attivazione": "Errore durante l'attivazione",
+    "rispostaIncompleta": "Risposta server incompleta",
+    "codiceInvalido": "Inserisci il codice a 6 cifre dalla tua app",
+    "sessioneScaduta": "Sessione di attivazione scaduta. Chiudi e riprova.",
+    "generazioneCodici": "Errore generazione codici"
+  }
+}

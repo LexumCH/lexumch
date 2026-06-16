@@ -1,0 +1,33 @@
+{
+  "header": {
+    "titolo": "Dossier löschen"
+  },
+  "blocco": {
+    "titolo": "Dossier kann nicht gelöscht werden",
+    "descrizione": "Es ist {{count}} Rechnung verknüpft. Um das Dossier zu löschen, müssen Sie diese Rechnungen zuerst in der Rechnungsstellung trennen oder löschen.",
+    "descrizione_other": "Es sind {{count}} Rechnungen verknüpft. Um das Dossier zu löschen, müssen Sie diese Rechnungen zuerst in der Rechnungsstellung trennen oder löschen.",
+    "listaTitolo": "Verknüpfte Rechnungen",
+    "suggerimento": "<etichetta>Hinweis:</etichetta> Öffnen Sie jede Rechnung, verwenden Sie die Schaltfläche <azione>Trennen</azione> im Empfängerfeld, kehren Sie dann hierher zurück und versuchen Sie es erneut."
+  },
+  "conferma": {
+    "irreversibile": "Unwiderrufliche Aktion.",
+    "cosaVieneCancellato": "Endgültig gelöscht werden: das Dossier, die Verhandlungen und die prozessualen Fristen, die Gegenparteien, die gespeicherten Recherchen, die im Dossier hochgeladenen Dokumente und die verknüpften Termine.",
+    "archivioResta": "Die Dokumente im <grassetto>Kanzleiarchiv</grassetto> bleiben an ihrem Platz: Es wird nur die Verknüpfung mit diesem Dossier entfernt.",
+    "istruzione": "Geben Sie zur Bestätigung den genauen Titel des Dossiers ein:"
+  },
+  "statoFattura": {
+    "bozza": "Entwurf",
+    "in_attesa": "Ausstehend",
+    "scaduta": "Überfällig",
+    "pagata": "Bezahlt",
+    "annullata": "Storniert"
+  },
+  "azioni": {
+    "chiudi": "Schliessen",
+    "annulla": "Abbrechen",
+    "eliminaDefinitivamente": "Endgültig löschen"
+  },
+  "errori": {
+    "eliminazione": "Fehler beim Löschen"
+  }
+}

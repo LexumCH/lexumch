@@ -1,0 +1,98 @@
+{
+  "back": "Rechnungsstellung",
+  "header": {
+    "label": "Rechnungsstellung",
+    "title": "Neue Rechnung"
+  },
+  "preview": {
+    "titolo": "Rechnungsvorschau",
+    "destinatario": "Empfänger",
+    "seleziona_cliente": "Wählen Sie einen Mandanten",
+    "data_emissione": "Ausstellungsdatum",
+    "scadenza": "Fälligkeit",
+    "pratica_collegata": "Verknüpftes Dossier",
+    "prestazioni": "Leistungen",
+    "aggiungi_riga_vuoto": "Fügen Sie mindestens eine Position hinzu",
+    "imponibile": "Nettobetrag",
+    "iva_esente": "MWST — befreit",
+    "iva_aliquota": "MWST {{aliquota}}%",
+    "totale_fattura": "Rechnungstotal"
+  },
+  "destinatario": {
+    "titolo": "Empfänger",
+    "cliente_label": "Mandant *",
+    "cliente_placeholder": "Mandant auswählen...",
+    "nessun_cliente": "Kein Mandant gefunden. <1>Ersten Mandanten anlegen</1>.",
+    "pratica_label": "Verknüpftes Dossier",
+    "opzionale": "— optional",
+    "nessuna_pratica": "Kein Dossier",
+    "nessuna_pratica_aperta": "Dieser Mandant hat keine offenen Dossiers."
+  },
+  "date": {
+    "titolo": "Daten",
+    "emissione_label": "Ausstellungsdatum *",
+    "scadenza_label": "Zahlungsfrist"
+  },
+  "prestazioni": {
+    "titolo": "Leistungen",
+    "aggiungi_riga": "Position hinzufügen",
+    "riga": "Position {{numero}}",
+    "rimuovi_riga": "Position entfernen",
+    "descrizione_ph": "Leistungsbeschreibung (z. B. Rechtsberatung)",
+    "quantita": "Menge",
+    "prezzo_unitario": "Einzelpreis (CHF)",
+    "totale_riga": "Positionstotal"
+  },
+  "iva": {
+    "titolo": "MWST",
+    "esente_label": "MWST-befreit",
+    "esente_desc": "Aktivieren Sie diese Option, wenn Sie nicht mehrwertsteuerpflichtig sind (z. B. Umsatz unter der Schwelle gemäss MWSTG).",
+    "motivo_label": "Befreiungsgrund",
+    "motivo_hint": "— optional, erscheint auf der Rechnung",
+    "motivo_ph": "Z. B. Nicht mehrwertsteuerpflichtig (Art. 10 Abs. 2 MWSTG)",
+    "aliquota_label": "MWST-Satz %",
+    "aliquota_hint": "Schweizer Sätze 2024: Normalsatz 8.1%, reduziert 2.6%, Beherbergung 3.8%."
+  },
+  "pagamento": {
+    "titolo": "Zahlungsweise",
+    "metodo_label": "Methode",
+    "metodi": {
+      "bonifico": "Banküberweisung",
+      "qr": "QR-Rechnung",
+      "contanti": "Bar",
+      "carta_twint": "Karte / TWINT",
+      "altro": "Andere / Nicht angegeben"
+    },
+    "iban_label": "IBAN für Zahlung",
+    "usa_iban_profilo": "IBAN aus dem Profil verwenden",
+    "iban_hint": "Die IBAN und Ihre Profildaten (Adresse, PLZ, Ort) werden verwendet, um die Schweizer QR-Rechnung im PDF zu erstellen."
+  },
+  "note": {
+    "titolo": "Notizen",
+    "pubbliche_label": "Öffentliche Notizen",
+    "pubbliche_hint": "— erscheinen auf dem PDF",
+    "pubbliche_ph": "Z. B. Zahlbar innert 30 Tagen ab Ausstellungsdatum.",
+    "interne_label": "Interne Notizen",
+    "interne_hint": "— nur für Sie sichtbar",
+    "interne_ph": "Persönliche Erinnerung, erscheint nicht auf der Rechnung."
+  },
+  "azioni": {
+    "annulla": "Abbrechen",
+    "salvando": "Wird gespeichert...",
+    "salva_bozza": "Entwurf speichern",
+    "generando_pdf": "PDF wird erstellt...",
+    "salva_genera_pdf": "Speichern und PDF erstellen"
+  },
+  "workflow": {
+    "bozza": "<0>Entwurf speichern</0> — die Rechnung wird mit einer definitiven fortlaufenden Nummer erstellt, das PDF wird jedoch nicht generiert. Sie können sie später bearbeiten.",
+    "pdf": "<0>Speichern und PDF erstellen</0> — die Rechnung wird im Archiv der Kanzlei abgelegt und das PDF mit QR-Rechnung steht für den Mandanten bereit."
+  },
+  "errori": {
+    "cliente_obbligatorio": "Wählen Sie einen Mandanten",
+    "data_emissione_obbligatoria": "Ausstellungsdatum erforderlich",
+    "almeno_una_riga": "Mindestens eine Position mit Beschreibung und Menge > 0",
+    "prezzi_numerici": "Alle Preise müssen numerisch sein",
+    "creazione_fattura": "Fehler bei der Rechnungserstellung",
+    "fattura_creata_ma_pdf": "Rechnung erstellt, aber PDF-Fehler"
+  }
+}

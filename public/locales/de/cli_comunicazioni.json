@@ -1,0 +1,60 @@
+{
+  "header": {
+    "label": "Mandantenportal",
+    "titolo": "Nachrichten",
+    "nuovo_messaggio": "Neue Nachricht"
+  },
+  "non_letti": {
+    "singolare": "Sie haben {{count}} ungelesene Nachricht",
+    "plurale": "Sie haben {{count}} ungelesene Nachrichten"
+  },
+  "filtri": {
+    "tutti": "Alle",
+    "aperti": "Offen",
+    "chiusi": "Geschlossen"
+  },
+  "stati": {
+    "aperto": "Offen",
+    "chiuso": "Geschlossen"
+  },
+  "comune": {
+    "caricamento": "Wird geladen…"
+  },
+  "lista": {
+    "cerca_placeholder": "Konversation suchen...",
+    "vuoto": "Keine Konversation gefunden"
+  },
+  "dettaglio": {
+    "non_trovata": "Konversation nicht gefunden.",
+    "torna_messaggi": "Zurück zu den Nachrichten",
+    "con": "Mit {{nome}}",
+    "avvocato_fallback": "Anwalt",
+    "aperto_il": "Eröffnet am {{data}}",
+    "nessun_messaggio": "Noch keine Nachrichten.",
+    "scrivi_placeholder": "Nachricht schreiben…",
+    "hint_invio": "Senden mit Enter · Zeilenumbruch mit Shift+Enter",
+    "conversazione_chiusa": "Diese Konversation ist geschlossen"
+  },
+  "nuovo": {
+    "titolo": "Neue Nachricht",
+    "errori": {
+      "non_autenticato": "Benutzer nicht authentifiziert",
+      "nessun_avvocato": "Ihrem Konto ist kein Anwalt zugeordnet."
+    },
+    "successo": {
+      "titolo": "Nachricht gesendet",
+      "descrizione": "Ihr Anwalt erhält eine Benachrichtigung und antwortet Ihnen so bald wie möglich."
+    },
+    "campi": {
+      "oggetto_label": "Betreff",
+      "oggetto_label_obbligatorio": "Betreff *",
+      "oggetto_placeholder": "Worum geht es?",
+      "messaggio_label_obbligatorio": "Nachricht *",
+      "messaggio_placeholder": "Schreiben Sie Ihre Nachricht…"
+    },
+    "azioni": {
+      "annulla": "Abbrechen",
+      "invia": "Senden"
+    }
+  }
+}

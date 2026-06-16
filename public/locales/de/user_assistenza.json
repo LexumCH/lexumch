@@ -1,0 +1,45 @@
+{
+  "comune": {
+    "assistenza": "Support"
+  },
+  "stati": {
+    "aperto": "Offen",
+    "chiuso": "Geschlossen"
+  },
+  "lista": {
+    "header_label": "Support",
+    "header_titolo": "Support",
+    "nuovo_ticket": "Neues Ticket",
+    "cerca_placeholder": "Ticket suchen…",
+    "filtro_tutti_stati": "Alle Status",
+    "caricamento": "Wird geladen…",
+    "nessun_ticket_ancora": "Noch keine Tickets. Eröffnen Sie Ihr erstes Ticket.",
+    "nessun_ticket_trovato": "Keine Tickets gefunden.",
+    "col_oggetto": "Betreff",
+    "col_aperto_il": "Eröffnet am",
+    "col_ultimo_aggiornamento": "Letzte Aktualisierung",
+    "col_stato": "Status",
+    "apri": "Öffnen →"
+  },
+  "nuovo": {
+    "header_label": "Lexum-Support",
+    "header_titolo": "Neues Ticket",
+    "label_titolo": "Titel *",
+    "titolo_placeholder": "Z. B. Überprüfung der Eintragung, Frage zu den Abonnementen...",
+    "hint_messaggio": "Nachdem Sie das Ticket erstellt haben, können Sie die Nachricht im Chat mit dem Support schreiben.",
+    "annulla": "Abbrechen",
+    "apri_ticket": "Ticket öffnen",
+    "err_titolo_obbligatorio": "Der Titel ist erforderlich",
+    "err_non_autenticato": "Benutzer nicht authentifiziert"
+  },
+  "dettaglio": {
+    "non_trovato": "Ticket nicht gefunden.",
+    "torna": "← Zurück zum Support",
+    "label_lexum": "Lexum-Support",
+    "conversazione": "Konversation",
+    "autore_tu": "Sie",
+    "autore_admin": "Lexum-Admin",
+    "scrivi_placeholder": "Nachricht schreiben… (Enter zum Senden)",
+    "ticket_chiuso": "Ticket geschlossen — es können keine weiteren Nachrichten gesendet werden"
+  }
+}

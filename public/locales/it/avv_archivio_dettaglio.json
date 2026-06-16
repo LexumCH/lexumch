@@ -1,0 +1,60 @@
+{
+  "common": {
+    "trattino": "—",
+    "salva": "Salva",
+    "modifica": "Modifica"
+  },
+  "status": {
+    "pending": "In coda",
+    "processing": "Elaborazione",
+    "completed": "Completato",
+    "failed": "Errore",
+    "skipped": "Manuale"
+  },
+  "back": {
+    "archivio": "Archivio"
+  },
+  "loading": {
+    "non_trovato": "Documento non trovato."
+  },
+  "header": {
+    "sezione": "Documento",
+    "verificato": "Verificato"
+  },
+  "banner_verifica": {
+    "titolo": "Documento da verificare",
+    "testo": "Controlla il testo estratto e i metadati. Una volta verificato, Lex AI potrà usare questo documento nelle ricerche.",
+    "segna_verificato": "Segna come verificato"
+  },
+  "originale": {
+    "titolo": "Originale",
+    "nessun_file": "Nessun file disponibile",
+    "apri_nuova_scheda": "Apri in nuova scheda"
+  },
+  "testo": {
+    "titolo": "Testo estratto",
+    "estrazione_in_corso": "Estrazione testo in corso...",
+    "estrazione_fallita": "Estrazione fallita",
+    "inserisci_manualmente": "Inserisci il testo manualmente",
+    "avviso_non_pdf": "File non PDF — inserisci il testo manualmente per renderlo cercabile da Lex.",
+    "placeholder_contenuto": "Incolla o scrivi il contenuto del documento...",
+    "salva_testo": "Salva testo",
+    "nessun_testo": "Nessun testo estratto"
+  },
+  "metadati": {
+    "titolo": "Metadati",
+    "label_titolo": "Titolo",
+    "label_categoria": "Categoria",
+    "placeholder_categoria": "Es. Contratti...",
+    "label_tag": "Tag",
+    "placeholder_tag": "tag1, tag2",
+    "label_cliente": "Cliente",
+    "nessun_cliente": "Nessun cliente",
+    "label_pratica": "Pratica",
+    "nessuna_pratica": "Nessuna pratica",
+    "tipo": "Tipo",
+    "dimensione": "Dimensione",
+    "caricato_il": "Caricato il",
+    "documento_verificato": "Documento verificato"
+  }
+}

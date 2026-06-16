@@ -1,0 +1,204 @@
+{
+  "common": {
+    "salva": "Speichern",
+    "annulla": "Abbrechen",
+    "chiudi": "Schliessen",
+    "rinomina": "Umbenennen",
+    "elimina": "Löschen"
+  },
+  "status": {
+    "pending": "In Warteschlange",
+    "processing": "Verarbeitung",
+    "completed": "Indexiert",
+    "failed": "Fehler",
+    "skipped": "Manuell"
+  },
+  "tipi_documento": {
+    "contratto": "Vertrag",
+    "preliminare": "Vorvertrag",
+    "procura": "Vollmacht",
+    "perizia": "Gutachten",
+    "consulenza_tecnica": "Fachgutachten",
+    "citazione": "Vorladung",
+    "comparsa": "Klageschrift",
+    "ricorso": "Beschwerde",
+    "memoria": "Rechtsschrift",
+    "appello": "Berufung",
+    "decreto_ingiuntivo": "Zahlungsbefehl",
+    "atto_amministrativo": "Verw.-Akt",
+    "verbale": "Protokoll",
+    "delibera": "Beschluss",
+    "raccomandata": "Einschreiben",
+    "diffida": "Mahnung",
+    "lettera": "Brief",
+    "email": "E-Mail",
+    "fattura": "Rechnung",
+    "ricevuta": "Quittung",
+    "preventivo": "Kostenvoranschlag",
+    "estratto_conto": "Kontoauszug",
+    "documento_identita": "Ausweis",
+    "documento_societario": "Ges.-Dok.",
+    "denuncia": "Anzeige",
+    "querela": "Strafantrag",
+    "sentenza": "Urteil",
+    "ordinanza": "Verfügung",
+    "decreto": "Verfügung",
+    "altro": "Sonstiges"
+  },
+  "progresso": {
+    "titolo": "Archiv wird verarbeitet",
+    "di": "{{completati}} von {{totale}}",
+    "analisi": "Analyse..."
+  },
+  "form_upload": {
+    "inserisci_titolo": "Geben Sie den Titel des Dokuments ein",
+    "inserisci_titoli": "Geben Sie die Titel für {{count}} Dokumente ein",
+    "mb_totali": "({{mb}} MB insgesamt)",
+    "aggiungi_altri": "Weitere hinzufügen",
+    "categoria_per_tutti": "Kategorie für alle (optional)",
+    "nessuna_categoria": "Keine Kategorie",
+    "nessuna_sottocategoria": "Keine Unterkategorie",
+    "modifica_dopo": "Sie können die Kategorie für jedes Dokument einzeln nach dem Hochladen ändern.",
+    "badge_manuale": "Manuell",
+    "tooltip_manuale": "Wird hochgeladen, aber nicht automatisch digitalisiert",
+    "rimuovi_dalla_coda": "Aus der Warteschlange entfernen",
+    "placeholder_titolo": "Titel des Dokuments",
+    "usa_nome_file": "Dateinamen als Titel verwenden",
+    "nome_file": "↺ Dateiname",
+    "suggeriti_da_lex": "Kategorie, Beteiligte, Zusammenfassung und Tags werden nach dem Hochladen automatisch von Lex vorgeschlagen (nur für PDF und TXT).",
+    "carica_documento": "Dokument hochladen",
+    "carica_documenti": "{{count}} Dokumente hochladen"
+  },
+  "cartella": {
+    "senza_categoria": "Ohne Kategorie",
+    "vuota": "leer",
+    "documenti_one": "{{count}} Dokument",
+    "documenti_other": "{{count}} Dokumente",
+    "tutte_categorie": "Alle Kategorien",
+    "senza_sottocategoria": "Ohne Unterkategorie"
+  },
+  "picker_categoria": {
+    "titolo": "Kategorie zuweisen",
+    "nessuna_categoria": "Keine Kategorie",
+    "nessuna_disponibile": "Keine Kategorie — verwenden Sie \"Kategorien verwalten\", um welche zu erstellen"
+  },
+  "modal_categorie": {
+    "titolo": "Kategorien verwalten",
+    "nessuna_ancora": "Noch keine Kategorie",
+    "crea_prima": "Erstellen Sie die erste Kategorie, um Ihr Archiv zu organisieren",
+    "n_doc": "{{count}} Dok.",
+    "placeholder_sottocategoria": "Name der Unterkategorie...",
+    "aggiungi_sottocategoria": "Unterkategorie hinzufügen",
+    "placeholder_categoria": "Name der Kategorie...",
+    "nuova_categoria": "Neue Kategorie"
+  },
+  "conferma": {
+    "elimina_categoria": "Kategorie \"{{nome}}\" löschen?",
+    "doc_perdono_categoria_one": "{{count}} Dokument verliert die Kategorie.",
+    "doc_perdono_categoria_other": "{{count}} Dokumente verlieren die Kategorie.",
+    "sottocategorie_eliminate_one": "{{count}} Unterkategorie wird gelöscht.",
+    "sottocategorie_eliminate_other": "{{count}} Unterkategorien werden gelöscht.",
+    "elimina_sottocategoria": "\"{{nome}}\" löschen?",
+    "doc_perdono_sottocategoria_one": "{{count}} Dokument verliert die Unterkategorie (die Hauptkategorie bleibt erhalten).",
+    "doc_perdono_sottocategoria_other": "{{count}} Dokumente verlieren die Unterkategorie (die Hauptkategorie bleibt erhalten).",
+    "elimina_documento": "\"{{titolo}}\" löschen?"
+  },
+  "card": {
+    "cambia_categoria": "Kategorie ändern",
+    "no_categoria": "Keine Kategorie",
+    "sentenza": "Urteil",
+    "fattura": "Rechnung",
+    "auto": "Auto",
+    "tooltip_auto": "Automatisch geprüft — überprüfen Sie die extrahierten Metadaten",
+    "suggerito_da_lex": "Von Lex vorgeschlagen",
+    "altri_soggetti": "+{{count}} weitere",
+    "apri_sentenza": "Urteil öffnen",
+    "anteprima": "Vorschau",
+    "sezione_rilevante": "Relevanter Abschnitt"
+  },
+  "anteprima": {
+    "titolo": "Dokumentvorschau",
+    "errore_contenuto": "Inhalt kann nicht geladen werden: {{message}}",
+    "non_disponibile": "Für dieses Format ist keine Vorschau verfügbar",
+    "apri_nuova_scheda": "In neuem Tab öffnen"
+  },
+  "header": {
+    "label": "Anwalt",
+    "title": "Archiv",
+    "sottotitolo": "{{documenti}} Dokumente · {{indicizzati}} indexiert · {{occupato}}/{{totali}} GB",
+    "sottotitolo_sentenze": "Aus der Datenbank erworbene Urteile",
+    "gestisci_categorie": "Kategorien und Unterkategorien verwalten",
+    "categorie": "Kategorien",
+    "carica_documenti": "Dokumente hochladen",
+    "upload_bloccato": "Upload gesperrt",
+    "caricamento": "Wird hochgeladen...",
+    "esplora_banca_dati": "Datenbank durchsuchen"
+  },
+  "blocco": {
+    "piano_scaduto": "Abonnement abgelaufen — Archiv im Nur-Lese-Modus",
+    "spazio_esaurito": "Speicherplatz erschöpft — geben Sie Dateien frei oder erwerben Sie ein Speicherpaket"
+  },
+  "errori": {
+    "troppi_file": "Sie können maximal {{max}} Dokumente gleichzeitig hochladen. Sie haben {{selezionati}} ausgewählt.",
+    "spazio_insufficiente": "Nicht genügend Speicherplatz. Sie laden {{caricando}} GB hoch, haben aber nur {{liberi}} GB frei."
+  },
+  "banner": {
+    "piano_scaduto_titolo": "Abonnement abgelaufen — Archiv im Nur-Lese-Modus",
+    "piano_scaduto_testo_one": "Ihr {{count}} Dokument bleibt zugänglich und durchsuchbar, aber Sie können keine neuen hochladen, solange Sie das Abonnement nicht erneuern.",
+    "piano_scaduto_testo_other": "Ihre {{count}} Dokumente bleiben zugänglich und durchsuchbar, aber Sie können keine neuen hochladen, solange Sie das Abonnement nicht erneuern.",
+    "rinnova_ora": "Jetzt erneuern →",
+    "spazio_esaurito_titolo": "Archivspeicher erschöpft",
+    "spazio_esaurito_testo": "Sie haben {{occupato}} GB von {{totali}} GB verfügbar verbraucht. Geben Sie Speicherplatz frei oder erwerben Sie ein Zusatzpaket.",
+    "acquista_storage": "Speicher kaufen →",
+    "quasi_pieno_titolo": "Archiv fast voll — {{pct}}% belegt",
+    "quasi_pieno_testo": "{{occupato}} GB von {{totali}} GB. Erwägen Sie, zusätzlichen Speicherplatz zu kaufen, bevor das Archiv voll ist."
+  },
+  "visibilita": {
+    "label": "Sichtbarkeit",
+    "collegato": "Mit Mandant verknüpft — nur für den zuständigen Bearbeiter",
+    "non_collegato": "Nicht verknüpft — gesamte Kanzlei"
+  },
+  "ricerca": {
+    "descrizione": "Durchsuchen Sie die Dokumente Ihres Archivs. Verwenden Sie die herkömmliche Suche für wörtliche Stichwörter oder Lex für Anfragen in natürlicher Sprache, die Inhalt und Metadaten semantisch durchsuchen.",
+    "placeholder": "In Ihren Dokumenten suchen...",
+    "svuota": "Leeren",
+    "tooltip_tradizionale": "Nach wörtlichen Stichwörtern suchen (Enter)",
+    "cerca": "Suchen",
+    "tooltip_lex": "Semantische Suche (Cmd/Ctrl+Enter)",
+    "lex_sta_cercando": "Lex sucht...",
+    "cerca_con_lex": "Mit Lex suchen",
+    "lex": "Lex",
+    "analisi_lex": "Lex-Analyse",
+    "risultati_per_one": "<b>{{count}}</b> Ergebnis für \"{{query}}\"",
+    "risultati_per_other": "<b>{{count}}</b> Ergebnisse für \"{{query}}\"",
+    "azzera": "Zurücksetzen"
+  },
+  "filtri": {
+    "label": "Filter",
+    "tutti_clienti": "Alle Mandanten",
+    "tutte_pratiche": "Alle Dossiers",
+    "tutte_etichette": "Alle Etiketten",
+    "tutti_stati": "Alle Status",
+    "in_elaborazione": "In Verarbeitung",
+    "qualsiasi_data": "Beliebiges Datum",
+    "ultimi_7": "Letzte 7 Tage",
+    "ultimi_30": "Letzte 30 Tage",
+    "periodo_personalizzato": "Benutzerdefinierter Zeitraum",
+    "da": "Von",
+    "a": "Bis",
+    "reset": "Filter zurücksetzen"
+  },
+  "risultati": {
+    "nessun_documento_trovato": "Kein Dokument gefunden",
+    "riformula": "Versuchen Sie, die Anfrage mit anderen Begriffen neu zu formulieren.",
+    "prova_lex": "Versuchen Sie die semantische Suche von Lex, um verwandte Dokumente zu finden."
+  },
+  "catalogo": {
+    "elementi_one": "{{count}} Element",
+    "elementi_other": "{{count}} Elemente",
+    "in_elaborazione": "· {{count}} in Verarbeitung",
+    "vuoto_titolo": "Kein Dokument",
+    "vuoto_filtri": "Keine Ergebnisse mit diesen Filtern",
+    "vuoto_desc": "Laden Sie die Dokumente Ihres Archivs hoch, um sie zu indexieren und durchsuchbar zu machen"
+  }
+}

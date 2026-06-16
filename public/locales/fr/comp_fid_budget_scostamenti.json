@@ -1,0 +1,25 @@
+{
+  "titolo": "Budget et écarts",
+  "anno": "Année",
+  "tabella_mancante": "Table <code>movimenti</code> non disponible.",
+  "vuoto": {
+    "titolo": "Aucun budget défini pour {{anno}}.",
+    "descrizione": "Saisissez des mouvements <evid>prévus</evid> (bascule « Prévu » dans Recettes et dépenses) : ils deviennent le budget à comparer avec le réel."
+  },
+  "sezione": {
+    "entrate": "Recettes",
+    "uscite": "Dépenses",
+    "vuoto_entrate": "Aucun mouvement de recette pour l'année.",
+    "vuoto_uscite": "Aucun mouvement de charge pour l'année."
+  },
+  "colonne": [
+    "Catégorie",
+    "Budgété",
+    "Réel",
+    "Δ"
+  ],
+  "totale": "Total",
+  "categoria": {
+    "senza_categoria": "Sans catégorie"
+  }
+}

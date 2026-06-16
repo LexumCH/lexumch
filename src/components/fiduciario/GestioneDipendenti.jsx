@@ -9,6 +9,7 @@
 //   clienteId (string) - cliente-azienda di cui mostrare i dipendenti
 
 import { useState, useEffect } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import {
     Plus, Users, Trash2, Edit2, Briefcase, Building2, Globe, AlertCircle,
     Wallet, CalendarRange, Gift, ChevronLeft, ChevronRight,
@@ -20,7 +21,11 @@ import {
     eAttivoNelMese, bonusDelMese, bonusDellAnnoX,
 } from '@/lib/calcoloSalari'
 
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
 export default function GestioneDipendenti({ clienteId, anno = null }) {
+    const { t, i18n } = useTranslation('comp_fid_gestione_dipendenti')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     // Anno di riferimento: dal mandato se passato, altrimenti anno corrente
     const annoRif = anno ?? new Date().getFullYear()
     // Mese selezionato per il Box 1 (0-11). Default: mese corrente se siamo
@@ -105,7 +110,7 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
 
     // Nome del mese selezionato (per l'etichetta del Box 1)
     const nomeMeseSel = new Date(annoRif, meseSel, 1)
-        .toLocaleDateString('it-CH', { month: 'long' })
+        .toLocaleDateString(dateLocale, { month: 'long' })
 
     // Navigazione mesi (limitata all'anno di riferimento)
     const puoIndietro = meseSel > 0
@@ -116,17 +121,17 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
             {/* Intestazione + azione */}
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <p className="font-body text-sm text-nebbia/40">
-                    {dipendenti.length} {dipendenti.length === 1 ? 'persona' : 'persone'}
+                    {dipendenti.length} {dipendenti.length === 1 ? t('intestazione.persona') : t('intestazione.persone')}
                     {dipendenti.length > 0 && (
                         <span className="ml-2 text-nebbia/25">
-                            · {nDipendenti} dipendenti attivi · {nSoci} soci
-                            {nFonte > 0 && ` · ${nFonte} a imposta fonte`}
+                            {t('intestazione.dettaglio', { dipendenti: nDipendenti, soci: nSoci })}
+                            {nFonte > 0 && t('intestazione.dettaglio_fonte', { count: nFonte })}
                         </span>
                     )}
                 </p>
                 <button onClick={() => setModal({ mode: 'nuovo' })}
                     className="btn-primary text-sm flex items-center gap-2">
-                    <Plus size={14} /> Aggiungi dipendente
+                    <Plus size={14} /> {t('azioni.aggiungi')}
                 </button>
             </div>
 
@@ -138,14 +143,14 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                         <div className="bg-slate border border-white/5 p-4">
                             <div className="flex items-center gap-1.5 mb-1.5">
                                 <Briefcase size={11} className="text-oro/60" />
-                                <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Dipendenti attivi</p>
+                                <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{t('contatori.dipendenti_attivi')}</p>
                             </div>
                             <p className="font-display text-2xl text-nebbia">{nDipendenti}</p>
                         </div>
                         <div className="bg-slate border border-white/5 p-4">
                             <div className="flex items-center gap-1.5 mb-1.5">
                                 <Building2 size={11} className="text-salvia/60" />
-                                <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Soci</p>
+                                <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{t('contatori.soci')}</p>
                             </div>
                             <p className="font-display text-2xl text-nebbia">{nSoci}</p>
                         </div>
@@ -159,7 +164,7 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                                 <div className="flex items-center gap-1.5 min-w-0">
                                     <Wallet size={11} className="text-oro shrink-0" />
                                     <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest truncate">
-                                        Uscita {nomeMeseSel} {annoRif}
+                                        {t('box.mese.titolo', { mese: nomeMeseSel, anno: annoRif })}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-0.5 shrink-0">
@@ -167,7 +172,7 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                                         onClick={() => setMeseSel(m => Math.max(0, m - 1))}
                                         disabled={!puoIndietro}
                                         className="w-5 h-5 flex items-center justify-center text-nebbia/40 hover:text-oro disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                                        title="Mese precedente"
+                                        title={t('box.mese.precedente')}
                                     >
                                         <ChevronLeft size={13} />
                                     </button>
@@ -175,7 +180,7 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                                         onClick={() => setMeseSel(m => Math.min(11, m + 1))}
                                         disabled={!puoAvanti}
                                         className="w-5 h-5 flex items-center justify-center text-nebbia/40 hover:text-oro disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                                        title="Mese successivo"
+                                        title={t('box.mese.successivo')}
                                     >
                                         <ChevronRight size={13} />
                                     </button>
@@ -184,8 +189,8 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                             <p className="font-display text-2xl text-oro">{fmtCHF(uscitaMeseSel)}</p>
                             <p className="font-body text-[10px] text-nebbia/25 mt-0.5">
                                 {bonusMeseSel > 0
-                                    ? `salari + ${fmtCHF(bonusMeseSel)} bonus`
-                                    : 'salari del personale del mese'}
+                                    ? t('box.mese.con_bonus', { bonus: fmtCHF(bonusMeseSel) })
+                                    : t('box.mese.senza_bonus')}
                             </p>
                         </div>
 
@@ -193,23 +198,23 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                         <div className="bg-slate border border-white/10 p-4">
                             <div className="flex items-center gap-1.5 mb-1.5">
                                 <CalendarRange size={11} className="text-nebbia/50" />
-                                <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Salari fissi / mese</p>
+                                <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{t('box.fissi.titolo')}</p>
                             </div>
                             <p className="font-display text-2xl text-nebbia">{fmtCHF(salariFissiMensili)}</p>
-                            <p className="font-body text-[10px] text-nebbia/25 mt-0.5">costo ricorrente, senza bonus</p>
+                            <p className="font-body text-[10px] text-nebbia/25 mt-0.5">{t('box.fissi.sottotitolo')}</p>
                         </div>
 
                         {/* BOX 3 — Uscita annua */}
                         <div className="bg-slate border border-oro/30 p-4">
                             <div className="flex items-center gap-1.5 mb-1.5">
                                 <Gift size={11} className="text-oro" />
-                                <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Uscita annua {annoRif}</p>
+                                <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{t('box.annua.titolo', { anno: annoRif })}</p>
                             </div>
                             <p className="font-display text-2xl text-oro">{fmtCHF(uscitaAnnua)}</p>
                             <p className="font-body text-[10px] text-nebbia/25 mt-0.5">
                                 {bonusAnno > 0
-                                    ? `pro-rata salari + ${fmtCHF(bonusAnno)} bonus`
-                                    : 'pro-rata mesi lavorati'}
+                                    ? t('box.annua.con_bonus', { bonus: fmtCHF(bonusAnno) })
+                                    : t('box.annua.senza_bonus')}
                             </p>
                         </div>
                     </div>
@@ -231,9 +236,9 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                 <div className="bg-slate border border-white/5 p-12 flex flex-col items-center text-center gap-3">
                     <Users size={32} className="text-nebbia/15" />
                     <div>
-                        <p className="font-body text-sm text-nebbia/40">Nessun dipendente registrato</p>
+                        <p className="font-body text-sm text-nebbia/40">{t('vuoto.titolo')}</p>
                         <p className="font-body text-xs text-nebbia/25 mt-1">
-                            Aggiungi il personale dell'azienda per poterci ragionare con Lex
+                            {t('vuoto.descrizione')}
                         </p>
                     </div>
                 </div>
@@ -242,8 +247,16 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/5">
-                                {['Nome', 'Ruolo', 'Tipo', 'Impiego', 'Salario', 'Fonte', ''].map(h => (
-                                    <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
+                                {[
+                                    { k: 'nome', label: t('tabella.nome') },
+                                    { k: 'ruolo', label: t('tabella.ruolo') },
+                                    { k: 'tipo', label: t('tabella.tipo') },
+                                    { k: 'impiego', label: t('tabella.impiego') },
+                                    { k: 'salario', label: t('tabella.salario') },
+                                    { k: 'fonte', label: t('tabella.fonte') },
+                                    { k: 'azioni', label: '' },
+                                ].map(h => (
+                                    <th key={h.k} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h.label}</th>
                                 ))}
                             </tr>
                         </thead>
@@ -261,7 +274,7 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                                                     {d.nome} {d.cognome}
                                                 </span>
                                                 {cessato && (
-                                                    <span className="font-body text-[10px] px-1.5 py-0.5 border border-white/10 text-nebbia/30">Cessato</span>
+                                                    <span className="font-body text-[10px] px-1.5 py-0.5 border border-white/10 text-nebbia/30">{t('riga.cessato')}</span>
                                                 )}
                                             </div>
                                             {d.numero_avs && (
@@ -273,12 +286,12 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                                             <div className="flex flex-wrap gap-1">
                                                 {d.is_dipendente && (
                                                     <span className="inline-flex items-center gap-1 font-body text-[10px] px-1.5 py-0.5 border border-oro/30 text-oro">
-                                                        <Briefcase size={9} /> Dipendente
+                                                        <Briefcase size={9} /> {t('riga.dipendente')}
                                                     </span>
                                                 )}
                                                 {d.is_socio && (
                                                     <span className="inline-flex items-center gap-1 font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">
-                                                        <Building2 size={9} /> Socio{d.quota_partecipazione ? ` ${d.quota_partecipazione}%` : ''}
+                                                        <Building2 size={9} /> {t('riga.socio')}{d.quota_partecipazione ? ` ${d.quota_partecipazione}%` : ''}
                                                     </span>
                                                 )}
                                             </div>
@@ -292,7 +305,7 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                                         <td className="px-4 py-3">
                                             {d.imposta_fonte
                                                 ? <span className="inline-flex items-center gap-1 font-body text-[10px] px-1.5 py-0.5 border border-amber-400/30 text-amber-400">
-                                                    <Globe size={9} /> {d.tipo_permesso ?? 'Sì'}
+                                                    <Globe size={9} /> {d.tipo_permesso ?? t('riga.fonte_si')}
                                                 </span>
                                                 : <span className="font-body text-xs text-nebbia/20">—</span>}
                                         </td>
@@ -300,13 +313,13 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                                             <div className="flex items-center justify-end gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={e => { e.stopPropagation(); setModal({ mode: 'modifica', dipendente: d }) }}
-                                                    title="Modifica"
+                                                    title={t('riga.modifica')}
                                                     className="inline-flex items-center justify-center w-7 h-7 text-nebbia/30 hover:text-oro hover:bg-oro/10 transition-colors">
                                                     <Edit2 size={13} />
                                                 </button>
                                                 <button
                                                     onClick={e => { e.stopPropagation(); setDaEliminare(d) }}
-                                                    title="Elimina"
+                                                    title={t('riga.elimina')}
                                                     className="inline-flex items-center justify-center w-7 h-7 text-nebbia/30 hover:text-red-400 hover:bg-red-500/10 transition-colors">
                                                     <Trash2 size={13} />
                                                 </button>
@@ -338,23 +351,27 @@ export default function GestioneDipendenti({ clienteId, anno = null }) {
                     <div className="bg-slate border border-red-500/30 w-full max-w-md" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-2 p-5 border-b border-white/8">
                             <Trash2 size={16} className="text-red-400" />
-                            <h2 className="font-display text-lg text-nebbia">Elimina dipendente</h2>
+                            <h2 className="font-display text-lg text-nebbia">{t('elimina.titolo')}</h2>
                         </div>
                         <div className="p-6 space-y-4">
                             <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                                Eliminare <span className="text-nebbia font-medium">{daEliminare.nome} {daEliminare.cognome}</span> dall'anagrafica?
-                                L'operazione è irreversibile.
+                                <Trans
+                                    t={t}
+                                    i18nKey="elimina.conferma"
+                                    values={{ nome: `${daEliminare.nome} ${daEliminare.cognome}` }}
+                                    components={{ b: <span className="text-nebbia font-medium" /> }}
+                                />
                             </p>
                             <div className="flex gap-2">
                                 <button onClick={() => setDaEliminare(null)} disabled={eliminando}
                                     className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">
-                                    Annulla
+                                    {t('elimina.annulla')}
                                 </button>
                                 <button onClick={eliminaConferma} disabled={eliminando}
                                     className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-500/15 border border-red-500/40 text-red-400 font-body text-sm hover:bg-red-500/25 transition-colors disabled:opacity-40">
                                     {eliminando
                                         ? <span className="animate-spin w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" />
-                                        : <><Trash2 size={14} /> Elimina</>}
+                                        : <><Trash2 size={14} /> {t('elimina.conferma_btn')}</>}
                                 </button>
                             </div>
                         </div>

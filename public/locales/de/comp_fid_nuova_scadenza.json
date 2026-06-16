@@ -1,0 +1,29 @@
+{
+    "header": {
+        "titolo": "Frist hinzufügen",
+        "descrizione": "Erfassen Sie eine administrative oder steuerliche Frist für dieses Mandat"
+    },
+    "campi": {
+        "titolo_label": "Titel der Frist *",
+        "titolo_placeholder": "z. B. MWST-Abrechnung 1. Halbjahr 2026",
+        "categoria_label": "Kategorie (optional)",
+        "categoria_placeholder": "z. B. MWST, Steuern, Löhne, Buchhaltungsabschluss...",
+        "categoria_hint": "Freies Etikett, um Fristen nach Typ zu gruppieren",
+        "data_label": "Fälligkeitsdatum *",
+        "note_label": "Notizen (optional)",
+        "note_placeholder": "Erinnerungen, Referenzen, Beträge..."
+    },
+    "anteprima": {
+        "titolo": "Vorschau",
+        "scadenza_default": "Frist",
+        "gia_trascorsa": "Diese Frist ist bereits abgelaufen (vor {{count}} Tagen). Erfassen Sie sie trotzdem, falls Sie einen Verlauf dokumentieren."
+    },
+    "azioni": {
+        "annulla": "Abbrechen",
+        "salvando": "Wird gespeichert...",
+        "salva": "Frist hinzufügen"
+    },
+    "errori": {
+        "sessione_scaduta": "Sitzung abgelaufen. Bitte melden Sie sich erneut an."
+    }
+}

@@ -1,0 +1,59 @@
+{
+  "intestazione": {
+    "persona": "personne",
+    "persone": "personnes",
+    "dettaglio": "· {{dipendenti}} employés actifs · {{soci}} associés",
+    "dettaglio_fonte": " · {{count}} imposés à la source"
+  },
+  "azioni": {
+    "aggiungi": "Ajouter un employé"
+  },
+  "contatori": {
+    "dipendenti_attivi": "Employés actifs",
+    "soci": "Associés"
+  },
+  "box": {
+    "mese": {
+      "titolo": "Sortie {{mese}} {{anno}}",
+      "precedente": "Mois précédent",
+      "successivo": "Mois suivant",
+      "con_bonus": "salaires + {{bonus}} bonus",
+      "senza_bonus": "salaires du personnel du mois"
+    },
+    "fissi": {
+      "titolo": "Salaires fixes / mois",
+      "sottotitolo": "coût récurrent, sans bonus"
+    },
+    "annua": {
+      "titolo": "Sortie annuelle {{anno}}",
+      "con_bonus": "salaires au prorata + {{bonus}} bonus",
+      "senza_bonus": "au prorata des mois travaillés"
+    }
+  },
+  "vuoto": {
+    "titolo": "Aucun employé enregistré",
+    "descrizione": "Ajoutez le personnel de l'entreprise pour pouvoir l'analyser avec Lex"
+  },
+  "tabella": {
+    "nome": "Nom",
+    "ruolo": "Fonction",
+    "tipo": "Type",
+    "impiego": "Taux d'occupation",
+    "salario": "Salaire",
+    "fonte": "Source"
+  },
+  "riga": {
+    "cessato": "Sorti",
+    "dipendente": "Employé",
+    "socio": "Associé",
+    "fonte_si": "Oui",
+    "modifica": "Modifier",
+    "elimina": "Supprimer"
+  },
+  "elimina": {
+    "titolo": "Supprimer l'employé",
+    "conferma": "Supprimer <b>{{nome}}</b> du registre ? L'opération est irréversible.",
+    "annulla": "Annuler",
+    "conferma_btn": "Supprimer"
+  }
+}

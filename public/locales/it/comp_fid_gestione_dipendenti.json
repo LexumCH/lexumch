@@ -1,0 +1,59 @@
+{
+  "intestazione": {
+    "persona": "persona",
+    "persone": "persone",
+    "dettaglio": "· {{dipendenti}} dipendenti attivi · {{soci}} soci",
+    "dettaglio_fonte": " · {{count}} a imposta alla fonte"
+  },
+  "azioni": {
+    "aggiungi": "Aggiungi dipendente"
+  },
+  "contatori": {
+    "dipendenti_attivi": "Dipendenti attivi",
+    "soci": "Soci"
+  },
+  "box": {
+    "mese": {
+      "titolo": "Uscita {{mese}} {{anno}}",
+      "precedente": "Mese precedente",
+      "successivo": "Mese successivo",
+      "con_bonus": "salari + {{bonus}} bonus",
+      "senza_bonus": "salari del personale del mese"
+    },
+    "fissi": {
+      "titolo": "Salari fissi / mese",
+      "sottotitolo": "costo ricorrente, senza bonus"
+    },
+    "annua": {
+      "titolo": "Uscita annua {{anno}}",
+      "con_bonus": "pro-rata salari + {{bonus}} bonus",
+      "senza_bonus": "pro-rata mesi lavorati"
+    }
+  },
+  "vuoto": {
+    "titolo": "Nessun dipendente registrato",
+    "descrizione": "Aggiungi il personale dell'azienda per poterci ragionare con Lex"
+  },
+  "tabella": {
+    "nome": "Nome",
+    "ruolo": "Ruolo",
+    "tipo": "Tipo",
+    "impiego": "Impiego",
+    "salario": "Salario",
+    "fonte": "Fonte"
+  },
+  "riga": {
+    "cessato": "Cessato",
+    "dipendente": "Dipendente",
+    "socio": "Socio",
+    "fonte_si": "Sì",
+    "modifica": "Modifica",
+    "elimina": "Elimina"
+  },
+  "elimina": {
+    "titolo": "Elimina dipendente",
+    "conferma": "Eliminare <b>{{nome}}</b> dall'anagrafica? L'operazione è irreversibile.",
+    "annulla": "Annulla",
+    "conferma_btn": "Elimina"
+  }
+}

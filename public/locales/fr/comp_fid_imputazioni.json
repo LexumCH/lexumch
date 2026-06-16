@@ -1,0 +1,30 @@
+{
+  "intro": "Associez chaque catégorie à un compte : les mouvements effectifs deviennent des écritures en partie double.",
+  "contabilizza_non_registrati": "Comptabiliser les non enregistrés",
+  "colonne": [
+    "Catégorie",
+    "Compte (contrepartie)",
+    "Caisse/Banque",
+    "TVA",
+    ""
+  ],
+  "tipo": {
+    "entrata": "recette",
+    "uscita": "dépense"
+  },
+  "azioni": {
+    "salva": "Enregistrer",
+    "salvato": "Enregistré"
+  },
+  "vuoto": {
+    "titolo": "Aucune catégorie dans les mouvements effectifs.",
+    "sottotitolo": "Enregistrez des recettes/dépenses avec une catégorie, puis revenez ici pour les imputer."
+  },
+  "errori": {
+    "scegli_conto_cassa": "Choisissez le compte et la caisse pour {{categoria}}"
+  },
+  "esito": {
+    "contabilizzati": "{{ok}} mouvements comptabilisés",
+    "saltati": " · {{skip}} ignorés (sans imputation ou erreur)"
+  }
+}

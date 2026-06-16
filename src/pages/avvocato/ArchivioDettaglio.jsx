@@ -1,6 +1,7 @@
 // src/pages/avvocato/ArchivioDettaglio.jsx
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { BackButton, Badge } from '@/components/shared'
 import {
     FileText, File, Check, AlertCircle, Save, Eye, Sparkles,
@@ -9,12 +10,14 @@ import {
 import { supabase } from '@/lib/supabase'
 import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
 
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
 const STATUS_CONFIG = {
-    pending: { label: 'In coda', variant: 'gray' },
-    processing: { label: 'Elaborazione', variant: 'warning' },
-    completed: { label: 'Completato', variant: 'salvia' },
-    failed: { label: 'Errore', variant: 'red' },
-    skipped: { label: 'Manuale', variant: 'gray' },
+    pending: { labelKey: 'status.pending', variant: 'gray' },
+    processing: { labelKey: 'status.processing', variant: 'warning' },
+    completed: { labelKey: 'status.completed', variant: 'salvia' },
+    failed: { labelKey: 'status.failed', variant: 'red' },
+    skipped: { labelKey: 'status.skipped', variant: 'gray' },
 }
 
 function formatSize(bytes) {
@@ -24,6 +27,8 @@ function formatSize(bytes) {
 }
 
 export default function ArchivioDettaglio() {
+    const { t, i18n } = useTranslation('avv_archivio_dettaglio')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const navigate = useNavigate()
 
@@ -160,8 +165,8 @@ export default function ArchivioDettaglio() {
 
     if (!doc) return (
         <div className="space-y-5">
-            <BackButton to="/archivio" label="Archivio" />
-            <p className="font-body text-sm text-nebbia/40">Documento non trovato.</p>
+            <BackButton to="/archivio" label={t('back.archivio')} />
+            <p className="font-body text-sm text-nebbia/40">{t('loading.non_trovato')}</p>
         </div>
     )
 
@@ -171,20 +176,20 @@ export default function ArchivioDettaglio() {
 
     return (
         <div className="space-y-5">
-            <BackButton to="/archivio" label="Archivio" />
+            <BackButton to="/archivio" label={t('back.archivio')} />
 
             {/* Header */}
             <div className="flex items-start justify-between flex-wrap gap-3">
                 <div>
-                    <p className="section-label mb-2">Documento</p>
+                    <p className="section-label mb-2">{t('header.sezione')}</p>
                     <h1 className="font-display text-3xl font-light text-nebbia">{doc.titolo}</h1>
                     <p className="font-body text-xs text-nebbia/30 mt-1">
-                        {new Date(doc.created_at).toLocaleDateString('it-CH')} · {formatSize(doc.dimensione)}
+                        {new Date(doc.created_at).toLocaleDateString(dateLocale)} · {formatSize(doc.dimensione)}
                     </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                    <Badge label={sc.label} variant={sc.variant} />
-                    {doc.verificato && <Badge label="Verificato" variant="salvia" />}
+                    <Badge label={t(sc.labelKey)} variant={sc.variant} />
+                    {doc.verificato && <Badge label={t('header.verificato')} variant="salvia" />}
                     {/* Tag entrata/uscita (fiduciario): crea il movimento via OCR. Gated sul mandato. */}
                     <AssegnaMovimento doc={doc} />
                 </div>
@@ -196,9 +201,9 @@ export default function ArchivioDettaglio() {
                     <div className="flex items-start gap-3">
                         <AlertCircle size={16} className="text-amber-400 shrink-0 mt-0.5" />
                         <div>
-                            <p className="font-body text-sm font-medium text-amber-400">Documento da verificare</p>
+                            <p className="font-body text-sm font-medium text-amber-400">{t('banner_verifica.titolo')}</p>
                             <p className="font-body text-xs text-nebbia/50 mt-1 leading-relaxed">
-                                Controlla il testo estratto e i metadati. Una volta verificato, Lex AI potrà usare questo documento nelle ricerche.
+                                {t('banner_verifica.testo')}
                             </p>
                         </div>
                     </div>
@@ -209,7 +214,7 @@ export default function ArchivioDettaglio() {
                     >
                         {verificando
                             ? <span className="animate-spin w-4 h-4 border-2 border-salvia border-t-transparent rounded-full" />
-                            : <><Check size={13} /> Segna come verificato</>
+                            : <><Check size={13} /> {t('banner_verifica.segna_verificato')}</>
                         }
                     </button>
                 </div>
@@ -222,7 +227,7 @@ export default function ArchivioDettaglio() {
                 <div className="lg:col-span-3 space-y-3">
                     <div className="bg-slate border border-white/5 p-4">
                         <div className="flex items-center justify-between mb-3">
-                            <p className="section-label">Originale</p>
+                            <p className="section-label">{t('originale.titolo')}</p>
                             <button
                                 onClick={() => setMostraPdf(!mostraPdf)}
                                 className="text-nebbia/25 hover:text-nebbia transition-colors"
@@ -249,7 +254,7 @@ export default function ArchivioDettaglio() {
                             />
                         ) : mostraPdf && !pdfUrl ? (
                             <div className="flex items-center justify-center py-8 border border-dashed border-white/10">
-                                <p className="font-body text-xs text-nebbia/25">Nessun file disponibile</p>
+                                <p className="font-body text-xs text-nebbia/25">{t('originale.nessun_file')}</p>
                             </div>
                         ) : null}
 
@@ -260,7 +265,7 @@ export default function ArchivioDettaglio() {
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2 mt-3 font-body text-xs text-nebbia/30 hover:text-oro transition-colors"
                             >
-                                <Download size={11} /> Apri in nuova scheda
+                                <Download size={11} /> {t('originale.apri_nuova_scheda')}
                             </a>
                         )}
                     </div>
@@ -270,7 +275,7 @@ export default function ArchivioDettaglio() {
                 <div className="lg:col-span-6">
                     <div className="bg-slate border border-white/5 p-4 h-full flex flex-col">
                         <div className="flex items-center justify-between mb-3">
-                            <p className="section-label">Testo estratto</p>
+                            <p className="section-label">{t('testo.titolo')}</p>
                             <div className="flex items-center gap-2">
                                 {doc.testo_estratto && (
                                     <button
@@ -285,7 +290,7 @@ export default function ArchivioDettaglio() {
                                         onClick={() => setEditTesto(true)}
                                         className="font-body text-xs text-nebbia/25 hover:text-oro transition-colors flex items-center gap-1"
                                     >
-                                        <Edit2 size={11} /> Modifica
+                                        <Edit2 size={11} /> {t('common.modifica')}
                                     </button>
                                 ) : (
                                     <div className="flex gap-2">
@@ -296,7 +301,7 @@ export default function ArchivioDettaglio() {
                                         >
                                             {salvandoTesto
                                                 ? <span className="animate-spin w-3 h-3 border border-salvia border-t-transparent rounded-full" />
-                                                : <><Check size={11} /> Salva</>
+                                                : <><Check size={11} /> {t('common.salva')}</>
                                             }
                                         </button>
                                         <button
@@ -314,15 +319,15 @@ export default function ArchivioDettaglio() {
                             <div className="flex items-center justify-center flex-1 py-12">
                                 <div className="text-center space-y-2">
                                     <span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" />
-                                    <p className="font-body text-xs text-nebbia/30">Estrazione testo in corso...</p>
+                                    <p className="font-body text-xs text-nebbia/30">{t('testo.estrazione_in_corso')}</p>
                                 </div>
                             </div>
                         ) : doc.ocr_status === 'failed' ? (
                             <div className="flex items-center justify-center flex-1 py-12">
                                 <div className="text-center space-y-2">
                                     <AlertCircle size={24} className="text-red-400/50 mx-auto" />
-                                    <p className="font-body text-xs text-nebbia/30">Estrazione fallita</p>
-                                    <p className="font-body text-xs text-nebbia/20">Inserisci il testo manualmente</p>
+                                    <p className="font-body text-xs text-nebbia/30">{t('testo.estrazione_fallita')}</p>
+                                    <p className="font-body text-xs text-nebbia/20">{t('testo.inserisci_manualmente')}</p>
                                 </div>
                             </div>
                         ) : doc.ocr_status === 'skipped' ? (
@@ -330,14 +335,14 @@ export default function ArchivioDettaglio() {
                                 <div className="bg-amber-900/10 border border-amber-500/20 p-3 mb-3 flex items-center gap-2">
                                     <AlertCircle size={13} className="text-amber-400 shrink-0" />
                                     <p className="font-body text-xs text-nebbia/50">
-                                        File non PDF — inserisci il testo manualmente per renderlo cercabile da Lex.
+                                        {t('testo.avviso_non_pdf')}
                                     </p>
                                 </div>
                                 <textarea
                                     rows={12}
                                     value={testoEdit}
                                     onChange={e => setTestoEdit(e.target.value)}
-                                    placeholder="Incolla o scrivi il contenuto del documento..."
+                                    placeholder={t('testo.placeholder_contenuto')}
                                     className="flex-1 w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/20"
                                 />
                                 <button
@@ -347,7 +352,7 @@ export default function ArchivioDettaglio() {
                                 >
                                     {salvandoTesto
                                         ? <span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" />
-                                        : <><Save size={12} /> Salva testo</>
+                                        : <><Save size={12} /> {t('testo.salva_testo')}</>
                                     }
                                 </button>
                             </div>
@@ -366,7 +371,7 @@ export default function ArchivioDettaglio() {
                                     </p>
                                 ) : (
                                     <div className="flex items-center justify-center py-12">
-                                        <p className="font-body text-xs text-nebbia/25">Nessun testo estratto</p>
+                                        <p className="font-body text-xs text-nebbia/25">{t('testo.nessun_testo')}</p>
                                     </div>
                                 )}
                             </div>
@@ -378,13 +383,13 @@ export default function ArchivioDettaglio() {
                 <div className="lg:col-span-3">
                     <div className="bg-slate border border-white/5 p-4 space-y-4">
                         <div className="flex items-center justify-between">
-                            <p className="section-label">Metadati</p>
+                            <p className="section-label">{t('metadati.titolo')}</p>
                             {!editMode ? (
                                 <button
                                     onClick={() => setEditMode(true)}
                                     className="font-body text-xs text-nebbia/25 hover:text-oro transition-colors flex items-center gap-1"
                                 >
-                                    <Edit2 size={11} /> Modifica
+                                    <Edit2 size={11} /> {t('common.modifica')}
                                 </button>
                             ) : (
                                 <div className="flex gap-2">
@@ -395,7 +400,7 @@ export default function ArchivioDettaglio() {
                                     >
                                         {salvandoMeta
                                             ? <span className="animate-spin w-3 h-3 border border-salvia border-t-transparent rounded-full" />
-                                            : <><Check size={11} /> Salva</>
+                                            : <><Check size={11} /> {t('common.salva')}</>
                                         }
                                     </button>
                                     <button
@@ -411,7 +416,7 @@ export default function ArchivioDettaglio() {
                         {editMode ? (
                             <div className="space-y-3">
                                 <div>
-                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">Titolo</label>
+                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">{t('metadati.label_titolo')}</label>
                                     <input
                                         value={formMeta.titolo}
                                         onChange={e => setFormMeta(p => ({ ...p, titolo: e.target.value }))}
@@ -419,12 +424,12 @@ export default function ArchivioDettaglio() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">Categoria</label>
+                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">{t('metadati.label_categoria')}</label>
                                     <input
                                         list="categorie-list"
                                         value={formMeta.categoria}
                                         onChange={e => setFormMeta(p => ({ ...p, categoria: e.target.value }))}
-                                        placeholder="Es. Contratti..."
+                                        placeholder={t('metadati.placeholder_categoria')}
                                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/20"
                                     />
                                     <datalist id="categorie-list">
@@ -432,35 +437,35 @@ export default function ArchivioDettaglio() {
                                     </datalist>
                                 </div>
                                 <div>
-                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">Tag</label>
+                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">{t('metadati.label_tag')}</label>
                                     <input
                                         value={formMeta.tags}
                                         onChange={e => setFormMeta(p => ({ ...p, tags: e.target.value }))}
-                                        placeholder="tag1, tag2"
+                                        placeholder={t('metadati.placeholder_tag')}
                                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/20"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">Cliente</label>
+                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">{t('metadati.label_cliente')}</label>
                                     <select
                                         value={formMeta.cliente_id}
                                         onChange={e => setFormMeta(p => ({ ...p, cliente_id: e.target.value }))}
                                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
                                     >
-                                        <option value="">Nessun cliente</option>
+                                        <option value="">{t('metadati.nessun_cliente')}</option>
                                         {clienti.map(c => (
                                             <option key={c.id} value={c.id}>{c.nome} {c.cognome}</option>
                                         ))}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">Pratica</label>
+                                    <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">{t('metadati.label_pratica')}</label>
                                     <select
                                         value={formMeta.pratica_id}
                                         onChange={e => setFormMeta(p => ({ ...p, pratica_id: e.target.value }))}
                                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
                                     >
-                                        <option value="">Nessuna pratica</option>
+                                        <option value="">{t('metadati.nessuna_pratica')}</option>
                                         {pratiche.map(p => (
                                             <option key={p.id} value={p.id}>{p.titolo}</option>
                                         ))}
@@ -470,9 +475,9 @@ export default function ArchivioDettaglio() {
                         ) : (
                             <div className="space-y-3">
                                 {[
-                                    ['Tipo', doc.tipo?.toUpperCase() ?? '—'],
-                                    ['Dimensione', formatSize(doc.dimensione)],
-                                    ['Caricato il', new Date(doc.created_at).toLocaleDateString('it-CH')],
+                                    [t('metadati.tipo'), doc.tipo?.toUpperCase() ?? '—'],
+                                    [t('metadati.dimensione'), formatSize(doc.dimensione)],
+                                    [t('metadati.caricato_il'), new Date(doc.created_at).toLocaleDateString(dateLocale)],
                                 ].map(([l, v]) => (
                                     <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                         <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -514,7 +519,7 @@ export default function ArchivioDettaglio() {
                                 {doc.verificato && (
                                     <div className="flex items-center gap-2 pt-2 border-t border-white/5">
                                         <Check size={12} className="text-salvia" />
-                                        <span className="font-body text-xs text-salvia/70">Documento verificato</span>
+                                        <span className="font-body text-xs text-salvia/70">{t('metadati.documento_verificato')}</span>
                                     </div>
                                 )}
                             </div>

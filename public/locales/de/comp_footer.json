@@ -1,0 +1,23 @@
+{
+    "brand": {
+        "description": "Die Plattform für Anwältinnen, Anwälte und Anwaltskanzleien, die Betriebsverwaltung, Datenbank und künstliche Intelligenz vereint.",
+        "status": "Plattform aktiv"
+    },
+    "nav": {
+        "title": "Navigation",
+        "home": "Startseite",
+        "lawyers": "Für Anwaltskanzleien",
+        "lex_ai": "Lex AI",
+        "contacts": "Kontakt"
+    },
+    "trust": {
+        "title": "Sicherheit & Datenschutz",
+        "encrypted": "Geschützte und verschlüsselte Daten",
+        "compliance": "Konform mit DSGVO und dem Schweizer Datenschutzgesetz"
+    },
+    "bottom": {
+        "copyright": "© {{year}} Lexum. Alle Rechte vorbehalten.",
+        "privacy": "Datenschutzerklärung",
+        "terms": "Nutzungsbedingungen"
+    }
+}

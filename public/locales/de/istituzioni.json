@@ -1,0 +1,45 @@
+{
+  "fonti": {
+    "TF": "Bundesgericht (BGer)",
+    "CH_BGE": "BGE — Amtliche Sammlung",
+    "TAF": "Bundesverwaltungsgericht (BVGer)",
+    "TPF": "Bundesstrafgericht (BStGer)",
+    "CH_BPATG": "Bundespatentgericht",
+    "CH_WEKO": "WEKO — Wettbewerbskommission",
+    "CH_EDOEB": "EDÖB — Datenschutz",
+    "CH_VB": "Aufsichtsbehörde",
+    "CH_BUNDESRAT": "Bundesrat",
+    "CH_UNIBE": "Universität Bern",
+    "TA_SST": "TA — SST",
+    "MISC_UPLOAD": "Andere / Uploads"
+  },
+  "camere": {
+    "OG": "Obergericht",
+    "VG": "Verwaltungsgericht",
+    "SVG": "Sozialversicherungsgericht",
+    "BR": "Baurekursgericht",
+    "SR": "Steuerrekursgericht",
+    "FI": "Steuergericht",
+    "OM": "Versicherungsgericht",
+    "ZS": "Zivilabteilung",
+    "BVD": "Beschwerde VD",
+    "WT": "Weitere",
+    "AA": "Anwaltsaufsicht",
+    "BG": "Bezirksgericht",
+    "AK": "Appellationskammer",
+    "BE": "Beschwerde"
+  },
+  "emittenti": {
+    "estv": "ESTV — Eidg. Steuerverwaltung",
+    "ufas": "BSV — Sozialversicherungen",
+    "seco": "SECO — Wirtschaft",
+    "finma": "FINMA — Finanzmarktaufsicht",
+    "udsc": "BAZG — Zoll",
+    "sem": "SEM — Migration",
+    "ufg": "BJ — Justiz",
+    "weko": "WEKO — Wettbewerb",
+    "ifpdt": "EDÖB — Datenschutz",
+    "mros": "MROS — Geldwäscherei"
+  },
+  "fisco_cant": "Kantonale Steuerverwaltung"
+}

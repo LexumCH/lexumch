@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "panoramica": "Panoramica",
+    "pratiche": "Pratiche",
+    "appuntamenti": "Appuntamenti",
+    "documenti": "Documenti",
+    "comunicazioni": "Comunicazioni",
+    "fatture": "Fatture",
+    "profilo": "Profilo"
+  },
+  "azioni": {
+    "esci": "Esci"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "nav": {
+    "tutte_ricerche": "Toutes les recherches"
+  },
+  "header": {
+    "etichetta": "Étiquette",
+    "elementi_one": "{{count}} élément",
+    "elementi_other": "{{count}} éléments",
+    "creata_il": "créée le {{data}}"
+  },
+  "ricerca": {
+    "placeholder": "Rechercher dans cette étiquette..."
+  },
+  "tipi": {
+    "tutti": "Tous",
+    "ricerca_ai": "Recherches",
+    "norma_federale": "Droit féd.",
+    "norma_cantonale": "Droit cant.",
+    "norma_ue": "Normes UE",
+    "giurisprudenza": "Jurisprudence",
+    "sentenza_ue": "Arrêts UE",
+    "prassi": "Pratique"
+  },
+  "vuoto": {
+    "nessun_contenuto": "Aucun contenu dans cette étiquette pour l'instant",
+    "nessun_risultato": "Aucun résultat pour ces filtres",
+    "istruzioni": "Pour ajouter des contenus, rendez-vous dans la base de données et cliquez sur \"Ajouter à l'étiquette\" sur la jurisprudence, les normes ou la pratique. Vous pouvez aussi étiqueter vos recherches depuis la page Recherches."
+  },
+  "conferma": {
+    "rimuovi": "Retirer cet élément de l'étiquette ?\n\nL'élément original (recherche, jurisprudence, norme, pratique) n'est pas supprimé."
+  },
+  "card": {
+    "tipo_ricerca_ai": "Recherche IA",
+    "tipo_chat_lex": "Chat avec Lex",
+    "tipo_ricerca_manuale": "Recherche manuelle",
+    "apri": "Ouvrir",
+    "chiudi": "Fermer",
+    "rimuovi_tag": "Retirer l'étiquette",
+    "norma": "Norme",
+    "sentenza": "Arrêt",
+    "sentenza_ue": "Arrêt UE",
+    "prassi": "Pratique"
+  },
+  "chat": {
+    "titolo": "Lex — Chat étiquette",
+    "nuova_sessione": "Nouvelle session",
+    "ruolo_tu": "Vous",
+    "ruolo_lex": "Lex",
+    "salva": "Enregistrer",
+    "intro_one": "Choisissez une suggestion ou posez une question. Lex raisonnera sur {{count}} élément de cette étiquette.",
+    "intro_other": "Choisissez une suggestion ou posez une question. Lex raisonnera sur les {{count}} éléments de cette étiquette.",
+    "vuoto": "Ajoutez des éléments à l'étiquette pour commencer à discuter.",
+    "placeholder_nuova": "Posez une question sur cette étiquette…",
+    "placeholder_segui": "Approfondissez ou posez une nouvelle question…",
+    "invia": "Envoyer la question",
+    "focus": "Focus",
+    "etichetta_vuota": "L'étiquette est vide",
+    "errore_http": "Erreur {{status}}",
+    "lex_ragiona": "Lex réfléchit"
+  },
+  "azioni": {
+    "mappa_concettuale": {
+      "label": "Carte conceptuelle",
+      "descr": "Réorganiser par thèmes",
+      "prompt": "Crée une carte conceptuelle de cette étiquette en réorganisant les éléments par thèmes principaux."
+    },
+    "cosa_ho_ragionato": {
+      "label": "Mon raisonnement",
+      "descr": "Trajectoire de la réflexion",
+      "prompt": "Reconstitue la trajectoire de mon raisonnement à travers les éléments de cette étiquette."
+    },
+    "insight": {
+      "label": "Observations",
+      "descr": "Motifs et liens",
+      "prompt": "Trouve des observations, des motifs récurrents et des liens inattendus entre les éléments de cette étiquette."
+    },
+    "stato_arte": {
+      "label": "État des lieux",
+      "descr": "Mémo structuré",
+      "prompt": "Rédige un mémo sur l'état de la recherche juridique réunie dans cette étiquette : tableau, orientations, points ouverts, pistes opérationnelles."
+    }
+  },
+  "frasi": {
+    "mappa_concettuale": [
+      "Je relis l'étiquette",
+      "Je reconnais les thèmes récurrents",
+      "Je regroupe par sujet",
+      "J'identifie les liens",
+      "Je compose la carte",
+      "Je vérifie la cohérence",
+      "J'affine la structure"
+    ],
+    "cosa_ho_ragionato": [
+      "Je relis l'étiquette",
+      "Je reconstitue le parcours",
+      "J'identifie les tournants",
+      "Je cherche les points consolidés",
+      "Je reconnais les zones ouvertes",
+      "Je compose la trajectoire",
+      "J'affine le récit"
+    ],
+    "insight": [
+      "Je relis l'étiquette",
+      "Je cherche les liens cachés",
+      "Je reconnais les motifs",
+      "J'identifie les nouvelles hypothèses",
+      "Je cherche les points forts",
+      "Je vérifie les lacunes",
+      "Je compose les observations"
+    ],
+    "stato_arte": [
+      "Je relis l'étiquette",
+      "Je cerne le tableau d'ensemble",
+      "J'extrais les orientations",
+      "J'identifie les tensions",
+      "J'articule les pistes opérationnelles",
+      "Je structure le mémo",
+      "Je peaufine le document"
+    ],
+    "libera": [
+      "Je relis l'étiquette",
+      "J'analyse votre question",
+      "Je cherche les points pertinents",
+      "Je compose la réponse",
+      "Je vérifie la pertinence"
+    ]
+  },
+  "modale": {
+    "titolo_auto": "Lex sur \"{{nome}}\"",
+    "firma_sintesi": "Synthèse générée par Lex sur l'étiquette \"{{nome}}\".",
+    "titolo_header": "Enregistrer comme recherche",
+    "label_titolo": "Titre",
+    "label_pratica": "Dossier (facultatif)",
+    "nessuna_pratica": "Aucun dossier",
+    "label_etichette": "Étiquettes",
+    "etichetta_preselezionata": "(l'étiquette actuelle est présélectionnée)",
+    "corrente": "(actuelle)",
+    "nota_salvataggio": "La synthèse sera enregistrée comme <1>recherche IA</1> avec l'étiquette <3>{{nome}}</3> déjà préassignée.",
+    "annulla": "Annuler",
+    "salva_ricerca": "Enregistrer la recherche"
+  }
+}

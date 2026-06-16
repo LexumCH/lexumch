@@ -1,0 +1,70 @@
+{
+  "materia": {
+    "civile": "Civil",
+    "penale": "Pénal",
+    "amministrativo": "Administratif",
+    "tributario": "Fiscal"
+  },
+  "header": {
+    "titolo": "Ajouter un délai de procédure",
+    "sottotitolo_standard": "L'échéance est calculée automatiquement en fonction du type de délai",
+    "sottotitolo_personalizzato": "Saisissez manuellement le nom du délai et la date d'échéance"
+  },
+  "tabs": {
+    "standard": "Standard",
+    "personalizzato": "Personnalisé"
+  },
+  "standard": {
+    "avviso_nessun_tipo_pre": "Aucun type de délai n'est encore configuré. Utilisez le mode",
+    "avviso_nessun_tipo_link": "Personnalisé",
+    "avviso_nessun_tipo_post": "pour saisir un délai avec une date libre.",
+    "tipo_label": "Type de délai *",
+    "tipo_placeholder": "Sélectionnez un type de délai...",
+    "data_evento_label_default": "Date de l'événement",
+    "data_evento_suffix": " *",
+    "calcolo_a_ritroso": "Le délai est calculé à rebours ({{giorni}} jours avant)",
+    "calcolo_in_avanti": "Le délai est calculé en avant ({{giorni}} jours après)",
+    "sospensione_applicata": " — suspension appliquée (+{{giorni}} jours pour les féries judiciaires)",
+    "sospensione_soggetto": " — soumis à suspension pendant les féries judiciaires fédérales",
+    "sospensione_senza": " — sans suspension des féries",
+    "descrizione_label": "Description de l'événement (facultatif)",
+    "descrizione_placeholder": "p. ex. {{evento}} du {{data}}",
+    "descrizione_evento_default": "événement",
+    "descrizione_hint": "Note de service pour vous rappeler le contexte de l'événement"
+  },
+  "anteprima": {
+    "titolo_calcolo": "Aperçu du calcul",
+    "titolo": "Aperçu",
+    "calcolo_in_corso": "Calcul en cours...",
+    "scadenza_calcolata": "Échéance calculée",
+    "vuoto": "Sélectionnez un type et une date pour voir le calcul",
+    "passata_titolo": "Cette échéance est déjà passée (il y a {{giorni}} jours).",
+    "passata_a_ritroso": "Pour \"{{tipo}}\", le délai devait être respecté {{giorni}} jours avant l'événement. L'événement que vous avez indiqué est trop proche ou déjà passé : le délai n'est pas planifiable.",
+    "passata_a_ritroso_storico": "Ne le saisissez que si vous enregistrez un historique (p. ex. un dossier repris d'une autre étude).",
+    "passata_in_avanti": "L'événement de départ que vous avez indiqué est dans le passé et les {{giorni}} jours du délai sont déjà écoulés. Ne le saisissez que si vous enregistrez un historique.",
+    "disclaimer": "Calcul basé sur les féries judiciaires fédérales (art. 145 CPC). Il ne tient compte ni des jours fériés cantonaux ni des règles propres à la procédure pénale ou administrative. Vérifiez toujours l'échéance."
+  },
+  "personalizzato": {
+    "nome_label": "Nom du délai *",
+    "nome_placeholder": "p. ex. Dépôt de l'expertise convenue",
+    "nome_hint": "Libellé du délai tel qu'il apparaîtra dans le dossier et dans le calendrier",
+    "data_label": "Date d'échéance *",
+    "data_hint": "Aucun calcul automatique : la date saisie est enregistrée telle quelle (aucune suspension des féries, aucun report)",
+    "anteprima_default": "Délai personnalisé",
+    "passata": "Cette échéance est déjà passée (il y a {{giorni}} jours). Ne la saisissez que si vous enregistrez un historique."
+  },
+  "note": {
+    "label": "Notes (facultatif)",
+    "placeholder": "Mémo, références, stratégie..."
+  },
+  "info_calendario": "En enregistrant, le délai sera également ajouté au calendrier comme échéance",
+  "footer": {
+    "annulla": "Annuler",
+    "salvando": "Enregistrement...",
+    "aggiungi": "Ajouter le délai"
+  },
+  "errori": {
+    "caricamento_tipi": "Impossible de charger les types de délai",
+    "sessione_scaduta": "Session expirée. Veuillez vous reconnecter."
+  }
+}

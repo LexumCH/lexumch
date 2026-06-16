@@ -1,0 +1,118 @@
+{
+  "common": {
+    "trattino": "—",
+    "annulla": "Annulla",
+    "errore": "Errore"
+  },
+  "back": {
+    "fatturazione": "Fatturazione"
+  },
+  "loading": {
+    "non_trovata": "Fattura non trovata"
+  },
+  "stati": {
+    "pagata": "Pagata",
+    "in_attesa": "In attesa",
+    "scaduta": "Scaduta",
+    "annullata": "Annullata"
+  },
+  "metodi": {
+    "bonifico": "Bonifico bancario",
+    "qr": "QR-fattura",
+    "contanti": "Contanti",
+    "carta": "Carta / TWINT",
+    "altro": "Altro"
+  },
+  "header": {
+    "fattura": "Fattura",
+    "emessa_il": "Emessa il",
+    "scadenza": "Scadenza",
+    "archiviata": "Archiviata"
+  },
+  "azioni": {
+    "registra_pagamento": "Registra pagamento",
+    "generando": "Generando...",
+    "genera_archivia": "Genera PDF e archivia",
+    "apertura": "Apertura...",
+    "scarica_pdf": "Scarica PDF",
+    "rigenera_title": "Rigenera il PDF e aggiorna l'archivio",
+    "rigenera_pdf": "Rigenera PDF",
+    "annulla_fattura": "Annulla",
+    "elimina": "Elimina"
+  },
+  "annulla_fattura": {
+    "conferma": "Annullare questa fattura? Lo stato passa a \"annullata\" ma la fattura non viene cancellata."
+  },
+  "pdf": {
+    "err_download": "Errore download"
+  },
+  "cliente": {
+    "destinatario": "Destinatario",
+    "pratica_collegata": "Pratica collegata",
+    "nessuna_pratica": "Nessuna pratica collegata"
+  },
+  "righe": {
+    "prestazioni": "Prestazioni",
+    "intestazioni": ["Descrizione", "Qt.", "Prezzo", "Totale"],
+    "nessuna": "Nessuna riga"
+  },
+  "pagamenti": {
+    "ricevuti": "Pagamenti ricevuti",
+    "aggiungi": "Aggiungi",
+    "nessuno": "Nessun pagamento registrato",
+    "residuo_incassare": "Residuo da incassare"
+  },
+  "note": {
+    "titolo": "Note",
+    "pubbliche": "Pubbliche (sul PDF)",
+    "interne": "Interne (solo te)"
+  },
+  "riepilogo": {
+    "titolo": "Riepilogo",
+    "imponibile": "Imponibile",
+    "iva_esente": "IVA — esente",
+    "iva": "IVA {{aliquota}}%",
+    "totale_fattura": "Totale fattura",
+    "incassato": "Incassato",
+    "residuo": "Residuo",
+    "pagamento": "Pagamento",
+    "iban": "IBAN: {{iban}}",
+    "archivio_nota": "Questa fattura è visibile in archivio nella categoria \"Fatture\"."
+  },
+  "pagamento": {
+    "titolo": "Registra pagamento",
+    "fattura": "Fattura",
+    "residuo": "Residuo da incassare:",
+    "label_data": "Data *",
+    "label_importo": "Importo (CHF) *",
+    "label_metodo": "Metodo *",
+    "label_riferimento": "Riferimento",
+    "label_note": "Note",
+    "opzionale": "— opzionale",
+    "ph_riferimento": "Es. n. operazione, riferimento bonifico...",
+    "err_importo": "Importo non valido",
+    "err_data": "Data pagamento obbligatoria"
+  },
+  "elimina": {
+    "titolo": "Elimina fattura",
+    "irreversibile": "Operazione irreversibile.",
+    "dettaglio": "Saranno cancellati: la fattura, le righe, i pagamenti registrati, il PDF generato e il record nell'archivio dello studio. Il numero <1>{{numero}}</1> resta consumato nel registro (non può essere riutilizzato).",
+    "conferma_prompt": "Per confermare digita il numero esatto della fattura:",
+    "cta": "Elimina definitivamente"
+  },
+  "scollega": {
+    "titolo": "Scollega pratica",
+    "domanda": "Vuoi scollegare la fattura <1>{{numero}}</1> dalla pratica <3>\"{{titolo}}\"</3>?",
+    "nota": "La fattura resterà invariata nel registro, ma non sarà più collegata a questa pratica. Potrai ricollegarla in qualsiasi momento.",
+    "cta": "Scollega"
+  },
+  "collega": {
+    "titolo": "Collega a una pratica",
+    "seleziona": "Seleziona la pratica a cui collegare la fattura <1>{{numero}}</1>",
+    "ph_cerca": "Cerca pratica...",
+    "nessuna_disponibile": "Nessuna pratica disponibile",
+    "nessuna_corrisponde": "Nessuna pratica corrisponde alla ricerca",
+    "chiusa": "Chiusa",
+    "cta": "Collega"
+  }
+}

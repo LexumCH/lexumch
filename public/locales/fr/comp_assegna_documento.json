@@ -1,0 +1,22 @@
+{
+    "cliente": {
+        "label": "Client",
+        "cerca_placeholder": "Rechercher un client...",
+        "rimuovi": "Retirer le client",
+        "vuoto": "Aucun client"
+    },
+    "dipendente": {
+        "label": "Collaborateur",
+        "disabled_hint": "Attribuez d'abord un client",
+        "rimuovi": "Retirer le collaborateur",
+        "vuoto": "Aucun collaborateur pour ce client"
+    },
+    "pm": {
+        "label_pratica": "Dossier",
+        "label_mandato": "Mandat",
+        "rimuovi_pratica": "Retirer le dossier",
+        "rimuovi_mandato": "Retirer le mandat",
+        "vuoto_pratica": "Aucun dossier ouvert",
+        "vuoto_mandato": "Aucun mandat actif"
+    }
+}

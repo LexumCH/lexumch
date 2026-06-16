@@ -1,0 +1,77 @@
+{
+  "titolo": "Bericht Erfolgsrechnung",
+  "anno": "Jahr",
+  "tabella_mancante": "Tabelle <code>movimenti</code> nicht verfügbar.",
+  "nota_finale": "Nur Ist-Daten (Abschluss). Die Ausgaben beinhalten die aus den Mitarbeitenden berechneten Löhne. Budget/Plandaten befinden sich im Bereich «Budget und Abweichungen».",
+  "export": {
+    "titolo": "Als PDF exportieren",
+    "bottone": "PDF exportieren"
+  },
+  "legenda": {
+    "entrate": "Einnahmen",
+    "uscite": "Ausgaben (Kosten + Löhne)"
+  },
+  "andamento": {
+    "titolo": "Monatsverlauf {{anno}}",
+    "vuoto": "Keine effektive Buchung im Jahr {{anno}}.",
+    "tooltip_entrate": "Einnahmen {{valore}}",
+    "tooltip_uscite": "Ausgaben {{valore}}"
+  },
+  "composizione": {
+    "uscite": "Ausgaben nach Kategorie",
+    "entrate": "Einnahmen nach Kategorie",
+    "vuoto": "Keine Daten."
+  },
+  "pluriennale": {
+    "titolo": "Mehrjahresvergleich",
+    "tooltip_entrate": "Einnahmen {{valore}}",
+    "tooltip_uscite": "Ausgaben {{valore}}",
+    "colonne": [
+      "Jahr",
+      "Einnahmen",
+      "Ausgaben",
+      "Saldo"
+    ]
+  },
+  "categoria": {
+    "senza_categoria": "Ohne Kategorie",
+    "stipendi": "Löhne"
+  },
+  "print": {
+    "titolo": "Erfolgsrechnung {{anno}}",
+    "consuntivo_generato": "Abschluss (Ist-Daten) · erstellt am {{data}}",
+    "totale_entrate": "Total Einnahmen",
+    "totale_uscite": "Total Ausgaben",
+    "saldo": "Saldo",
+    "andamento_mensile": "Monatsverlauf",
+    "uscite_per_categoria": "Ausgaben nach Kategorie",
+    "entrate_per_categoria": "Einnahmen nach Kategorie",
+    "confronto_pluriennale": "Mehrjahresvergleich",
+    "totale": "Total",
+    "nessun_dato": "Keine Daten",
+    "nota_finale": "Die Ausgaben beinhalten die aus den Mitarbeitenden berechneten Löhne. Budget/Plandaten sind nicht enthalten (Abschluss).",
+    "col_mese": "Monat",
+    "col_entrate": "Einnahmen",
+    "col_uscite": "Ausgaben",
+    "col_netto": "Netto",
+    "col_categoria": "Kategorie",
+    "col_importo": "Betrag",
+    "col_percentuale": "%",
+    "col_anno": "Jahr",
+    "col_saldo": "Saldo"
+  },
+  "mesi_full": [
+    "Januar",
+    "Februar",
+    "März",
+    "April",
+    "Mai",
+    "Juni",
+    "Juli",
+    "August",
+    "September",
+    "Oktober",
+    "November",
+    "Dezember"
+  ]
+}

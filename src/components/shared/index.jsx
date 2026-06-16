@@ -1,5 +1,6 @@
 import { ArrowLeft, AlertCircle, SearchX } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 /* ── PageHeader ─────────────────────────────────────────────── */
 export function PageHeader({ label, title, subtitle, action }) {
@@ -16,15 +17,17 @@ export function PageHeader({ label, title, subtitle, action }) {
 }
 
 /* ── BackButton ─────────────────────────────────────────────── */
-export function BackButton({ to, label = 'Indietro' }) {
+export function BackButton({ to, label }) {
+  const { t } = useTranslation('comp_shared')
   const navigate = useNavigate()
+  const resolvedLabel = label ?? t('back_button.label')
   return (
     <button
       onClick={() => to ? navigate(to) : navigate(-1)}
       className="flex items-center gap-2 font-body text-sm text-nebbia/40 hover:text-oro transition-colors mb-6"
     >
       <ArrowLeft size={15} />
-      {label}
+      {resolvedLabel}
     </button>
   )
 }
@@ -63,11 +66,13 @@ export function Badge({ label, variant = 'gray' }) {
 }
 
 /* ── EmptyState ─────────────────────────────────────────────── */
-export function EmptyState({ icon: Icon = SearchX, title = 'Nessun risultato', desc, action }) {
+export function EmptyState({ icon: Icon = SearchX, title, desc, action }) {
+  const { t } = useTranslation('comp_shared')
+  const resolvedTitle = title ?? t('empty_state.title')
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <Icon size={36} className="text-nebbia/10 mb-4" />
-      <p className="font-display text-xl font-light text-nebbia/40 mb-2">{title}</p>
+      <p className="font-display text-xl font-light text-nebbia/40 mb-2">{resolvedTitle}</p>
       {desc && <p className="font-body text-sm text-nebbia/25 max-w-xs">{desc}</p>}
       {action && <div className="mt-6">{action}</div>}
     </div>

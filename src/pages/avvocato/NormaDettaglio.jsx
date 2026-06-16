@@ -15,6 +15,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { BackButton } from '@/components/shared'
@@ -26,6 +27,7 @@ import {
 
 const ORDINE_LINGUE = ['it', 'de', 'fr', 'en', 'rm']
 const LINGUE_LABEL = { it: 'IT', de: 'DE', fr: 'FR', en: 'EN', rm: 'RM' }
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 function risolviJsonb(campo, linguaPref) {
     if (campo && typeof campo === 'object') {
@@ -44,6 +46,8 @@ function gerarchiaLabel(g) {
 export function NormaDettaglio() {
     const { id } = useParams()
     const { profile } = useAuth()
+    const { t, i18n } = useTranslation('avv_dettaglio')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
     const [norma, setNorma] = useState(null)      // riga articolo / norma_ue
     const [atto, setAtto] = useState(null)        // atto padre (federale/cantonale)
@@ -73,7 +77,7 @@ export function NormaDettaglio() {
                 if (data) {
                     setNorma(data); setTipoFonte('norma_ue'); setLoading(false); return
                 }
-                setErrore('Norma non trovata'); setLoading(false); return
+                setErrore(t('norma.non_trovata')); setLoading(false); return
             }
 
             // ── Federale: norme_ch_articoli (uuid) ──
@@ -110,7 +114,7 @@ export function NormaDettaglio() {
                 setLoading(false); return
             }
 
-            setErrore('Norma non trovata')
+            setErrore(t('norma.non_trovata'))
         } catch (e) {
             setErrore(e.message)
         } finally {
@@ -126,20 +130,20 @@ export function NormaDettaglio() {
 
     if (errore || !norma) return (
         <div className="space-y-5">
-            <BackButton to={window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'} label="Banca dati" />
+            <BackButton to={window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'} label={t('back')} />
             <div className="bg-slate border border-red-500/20 p-8 flex flex-col items-center text-center gap-3">
                 <AlertCircle size={28} className="text-red-400" />
-                <p className="font-body text-sm text-red-400">{errore ?? 'Norma non trovata'}</p>
-                <p className="font-body text-xs text-nebbia/30 mt-2">ID: {id}</p>
+                <p className="font-body text-sm text-red-400">{errore ?? t('norma.non_trovata')}</p>
+                <p className="font-body text-xs text-nebbia/30 mt-2">{t('id')} {id}</p>
             </div>
         </div>
     )
 
     // Config per fonte
     const cfg = {
-        norma_federale: { icon: Landmark, label: 'Diritto federale', color: 'text-oro' },
-        norma_cantonale: { icon: MapPin, label: 'Diritto cantonale', color: 'text-salvia' },
-        norma_ue: { icon: Globe, label: 'Diritto UE', color: 'text-nebbia' },
+        norma_federale: { icon: Landmark, label: t('norma.fonte_federale'), color: 'text-oro' },
+        norma_cantonale: { icon: MapPin, label: t('norma.fonte_cantonale'), color: 'text-salvia' },
+        norma_ue: { icon: Globe, label: t('norma.fonte_ue'), color: 'text-nebbia' },
     }[tipoFonte]
     const FonteIcon = cfg.icon
 
@@ -164,10 +168,10 @@ export function NormaDettaglio() {
         if (atto) {
             sottoTitolo = risolviJsonb(atto.titolo, linguaArt) || risolviJsonb(atto.titolo_short, linguaArt)
             riferimentoAtto = atto.rs_numero ? `RS ${atto.rs_numero}` : null
-            if (atto.data_documento) dataInfo = { label: 'Documento del', value: atto.data_documento }
+            if (atto.data_documento) dataInfo = { label: t('documento_del'), value: atto.data_documento }
         }
     } else if (tipoFonte === 'norma_cantonale') {
-        etichettaArticolo = `Art. ${norma.article_num ?? ''}${norma.article_suffix ?? ''}`.trim()
+        etichettaArticolo = `${t('norma.art_prefix')} ${norma.article_num ?? ''}${norma.article_suffix ?? ''}`.trim()
         rubrica = norma.rubrica
         collocazione = gerarchiaLabel(norma.gerarchia)
         nonVigente = norma.is_abrogato === true || atto?.is_active === false
@@ -181,7 +185,7 @@ export function NormaDettaglio() {
         nonVigente = norma.vigente === false
         sottoTitolo = norma.titolo_doc || norma.titolo_breve
         riferimentoAtto = norma.celex ? `CELEX ${norma.celex}` : null
-        if (norma.data_atto) dataInfo = { label: 'Atto del', value: norma.data_atto }
+        if (norma.data_atto) dataInfo = { label: t('atto_del'), value: norma.data_atto }
     }
 
     const isAvvocato = profile?.role === 'avvocato'
@@ -192,7 +196,7 @@ export function NormaDettaglio() {
 
     return (
         <div className="space-y-5">
-            <BackButton to={window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'} label="Banca dati" />
+            <BackButton to={window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'} label={t('back')} />
 
             {/* Intestazione */}
             <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -205,7 +209,7 @@ export function NormaDettaglio() {
                             <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 uppercase">{LINGUE_LABEL[norma.lingua]}</span>
                         )}
                         {nonVigente && (
-                            <span className="font-body text-xs text-red-400/70 border border-red-400/30 bg-red-400/5 px-2 py-0.5">Non vigente</span>
+                            <span className="font-body text-xs text-red-400/70 border border-red-400/30 bg-red-400/5 px-2 py-0.5">{t('non_vigente')}</span>
                         )}
                         {norma.tipo_elemento && norma.tipo_elemento !== 'articolo' && (
                             <span className="font-body text-[10px] text-nebbia/50 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">{norma.tipo_elemento}</span>
@@ -221,7 +225,7 @@ export function NormaDettaglio() {
 
                     {dataInfo && (
                         <p className="font-body text-xs text-nebbia/30 flex items-center gap-1.5 mt-2">
-                            <Calendar size={11} /> {dataInfo.label} {new Date(dataInfo.value).toLocaleDateString('it-CH')}
+                            <Calendar size={11} /> {dataInfo.label} {new Date(dataInfo.value).toLocaleDateString(dateLocale)}
                         </p>
                     )}
                 </div>
@@ -257,20 +261,20 @@ export function NormaDettaglio() {
                 {testo ? (
                     <div className="font-body text-base text-nebbia/80 leading-relaxed whitespace-pre-line">{testo}</div>
                 ) : (
-                    <p className="font-body text-sm text-nebbia/30 italic">Testo non disponibile.</p>
+                    <p className="font-body text-sm text-nebbia/30 italic">{t('norma.testo_nd')}</p>
                 )}
             </div>
 
             {/* Note storiche (cantonale) */}
             {tipoFonte === 'norma_cantonale' && norma.note_storiche && (
                 <div className="bg-slate border border-white/5 p-5">
-                    <p className="section-label mb-3">Note storiche</p>
+                    <p className="section-label mb-3">{t('norma.note_storiche')}</p>
                     <p className="font-body text-sm text-nebbia/60 leading-relaxed whitespace-pre-line">{norma.note_storiche}</p>
                 </div>
             )}
 
             <div className="pt-4 border-t border-white/5">
-                <p className="font-body text-xs text-nebbia/25 text-center">ID: {norma.id}</p>
+                <p className="font-body text-xs text-nebbia/25 text-center">{t('id')} {norma.id}</p>
             </div>
         </div>
     )

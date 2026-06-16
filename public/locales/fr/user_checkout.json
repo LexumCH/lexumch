@@ -1,0 +1,37 @@
+{
+  "header": {
+    "label": "Checkout",
+    "titolo": "Récapitulatif de la commande"
+  },
+  "vuoto": {
+    "nessun_prodotto": "Aucun produit sélectionné.",
+    "torna_ai_piani": "Retour aux abonnements"
+  },
+  "intestatario": {
+    "titolo": "Titulaire",
+    "nota": "Les données sont utilisées exactement telles qu'elles ont été enregistrées. Elles ne sont pas modifiables à cette étape.",
+    "nome": "Nom",
+    "email": "E-mail",
+    "dati_errati": "Données incorrectes ?",
+    "aggiorna_profilo": "Mettre à jour le profil"
+  },
+  "prodotto": {
+    "piano_selezionato": "Abonnement sélectionné",
+    "durata_one": "{{count}} mois",
+    "durata_other": "{{count}} mois",
+    "badge_pro": "Pro",
+    "badge_base": "Base",
+    "badge_monetizzazione": "Monétisation",
+    "cambia_piano": "Changer d'abonnement"
+  },
+  "totale": {
+    "label": "Montant à payer"
+  },
+  "info": {
+    "testo": "Paiement unique — aucun renouvellement automatique. Vous recevrez un reçu par e-mail. Vous serez redirigé vers Stripe pour finaliser le paiement en toute sécurité."
+  },
+  "cta": {
+    "procedi": "Procéder au paiement",
+    "ssl": "Paiement géré par Stripe — Connexion chiffrée SSL"
+  }
+}

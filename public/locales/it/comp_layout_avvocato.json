@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "clienti": "Clienti",
+    "pratiche": "Pratiche",
+    "calendario": "Calendario",
+    "banca_dati": "Banca dati",
+    "ricerche": "Ricerche",
+    "archivio": "Archivio",
+    "fatturazione": "Fatturazione",
+    "assistenza": "Assistenza",
+    "studio": "Studio",
+    "profilo": "Profilo"
+  },
+  "account": {
+    "esci": "Esci"
+  },
+  "scadenza": {
+    "title_scaduto": "Piano scaduto - rinnova subito",
+    "title_in_scadenza_one": "Piano in scadenza tra {{count}} giorno",
+    "title_in_scadenza_other": "Piano in scadenza tra {{count}} giorni",
+    "badge_scaduto": "Scaduto",
+    "badge_giorni": "{{count}}g",
+    "title_scaduto_mobile": "Piano scaduto",
+    "title_mobile": "{{count}}g alla scadenza"
+  },
+  "storage": {
+    "title": "{{occupato}} GB occupati su {{totale}} GB"
+  },
+  "clienti": {
+    "title": "{{conteggio}} clienti registrati su {{limite}} disponibili",
+    "title_mobile": "{{conteggio}}/{{limite}} clienti"
+  },
+  "crediti": {
+    "title": "Acquista crediti AI"
+  }
+}

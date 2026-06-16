@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { PageHeader, InputField, Badge } from '@/components/shared'
 import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale } from 'lucide-react'
+import SelectLingua from '@/components/SelectLingua'
 
 export default function UserProfilo() {
+    const { t, i18n } = useTranslation('user_profilo')
     const { profile } = useAuth()
 
     // ── Dati personali ──
@@ -12,6 +15,7 @@ export default function UserProfilo() {
         nome: profile?.nome ?? '',
         cognome: profile?.cognome ?? '',
         telefono: profile?.telefono ?? '',
+        lingua: profile?.lingua ?? 'it',
     })
     const [datiOriginali, setDatiOriginali] = useState({ ...form })
 
@@ -22,6 +26,7 @@ export default function UserProfilo() {
                 nome: profile.nome ?? '',
                 cognome: profile.cognome ?? '',
                 telefono: profile.telefono ?? '',
+                lingua: profile.lingua ?? 'it',
             }
             setForm(init)
             setDatiOriginali(init)
@@ -50,9 +55,9 @@ export default function UserProfilo() {
     const isPending = profile?.verification_status === 'pending'
 
     async function handleSalvaDati() {
-        setSalvandoDati(true)
         setErrDati('')
         setOkDati(false)
+        setSalvandoDati(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
             const { error } = await supabase
@@ -61,11 +66,13 @@ export default function UserProfilo() {
                     nome: form.nome.trim(),
                     cognome: form.cognome.trim(),
                     telefono: form.telefono.trim() || null,
+                    lingua: form.lingua || 'it',
                 })
                 .eq('id', user.id)
             if (error) throw new Error(error.message)
             setDatiOriginali({ ...form })
             setOkDati(true)
+            try { i18n.changeLanguage(form.lingua); localStorage.setItem('lexum_lingua', form.lingua) } catch { /* noop */ }
             setTimeout(() => setOkDati(false), 3000)
         } catch (err) {
             setErrDati(err.message)
@@ -82,8 +89,8 @@ export default function UserProfilo() {
     async function handleCambiaPwd() {
         setErrPwd('')
         setOkPwd(false)
-        if (pwd.nuova.length < 8) return setErrPwd('Minimo 8 caratteri')
-        if (pwd.nuova !== pwd.conferma) return setErrPwd('Le password non corrispondono')
+        if (pwd.nuova.length < 8) return setErrPwd(t('password.err_min'))
+        if (pwd.nuova !== pwd.conferma) return setErrPwd(t('password.err_mismatch'))
         setSalvandoPwd(true)
         try {
             const { error } = await supabase.auth.updateUser({ password: pwd.nuova })
@@ -101,32 +108,32 @@ export default function UserProfilo() {
 
     return (
         <div className="space-y-5 max-w-2xl">
-            <PageHeader label="Account" title="Il mio profilo" />
+            <PageHeader label={t('header.label')} title={t('header.title')} />
 
             {/* Stato account */}
             <div className="bg-slate border border-white/5 p-5 space-y-3">
-                <p className="section-label mb-1">Stato account</p>
+                <p className="section-label mb-1">{t('stato.titolo')}</p>
                 <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                    <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Ruolo</span>
-                    <Badge label="User" variant="gray" />
+                    <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('stato.ruolo')}</span>
+                    <Badge label={t('stato.ruolo_user')} variant="gray" />
                 </div>
                 <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                    <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Email</span>
+                    <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('stato.email')}</span>
                     <span className="font-body text-sm text-nebbia">{profile?.email ?? '—'}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                    <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Verifica identità</span>
+                    <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('stato.verifica')}</span>
                     <div className="flex items-center gap-1.5">
-                        {isApproved && <><CheckCircle size={13} className="text-salvia" /><span className="font-body text-sm text-salvia">Approvata</span></>}
-                        {isRejected && <><AlertCircle size={13} className="text-red-400" /><span className="font-body text-sm text-red-400">Non approvata</span></>}
-                        {isPending && <><Clock size={13} className="text-amber-400" /><span className="font-body text-sm text-amber-400">In corso</span></>}
-                        {!profile?.verification_status && <span className="font-body text-sm text-nebbia/30">Non inviata</span>}
+                        {isApproved && <><CheckCircle size={13} className="text-salvia" /><span className="font-body text-sm text-salvia">{t('stato.approvata')}</span></>}
+                        {isRejected && <><AlertCircle size={13} className="text-red-400" /><span className="font-body text-sm text-red-400">{t('stato.non_approvata')}</span></>}
+                        {isPending && <><Clock size={13} className="text-amber-400" /><span className="font-body text-sm text-amber-400">{t('stato.in_corso')}</span></>}
+                        {!profile?.verification_status && <span className="font-body text-sm text-nebbia/30">{t('stato.non_inviata')}</span>}
                     </div>
                 </div>
 
                 {isRejected && profile?.verification_note && (
                     <div className="mt-2 bg-red-900/10 border border-red-500/20 p-3">
-                        <p className="font-body text-xs text-red-400/80 uppercase tracking-widest mb-1">Motivo del rifiuto</p>
+                        <p className="font-body text-xs text-red-400/80 uppercase tracking-widest mb-1">{t('stato.motivo_rifiuto')}</p>
                         <p className="font-body text-sm text-red-400 leading-relaxed">{profile.verification_note}</p>
                     </div>
                 )}
@@ -135,19 +142,23 @@ export default function UserProfilo() {
             {/* Dati personali */}
             <div className="bg-slate border border-white/5 p-6 space-y-5">
                 <div className="flex items-center justify-between">
-                    <p className="section-label">Dati personali</p>
+                    <p className="section-label">{t('dati.titolo')}</p>
                     {okDati && (
                         <span className="flex items-center gap-1 font-body text-xs text-salvia">
-                            <Check size={12} /> Salvato
+                            <Check size={12} /> {t('dati.salvato')}
                         </span>
                     )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <InputField label="Nome"    {...f('nome')} />
-                    <InputField label="Cognome" {...f('cognome')} />
+                    <InputField label={t('dati.nome')}    {...f('nome')} />
+                    <InputField label={t('dati.cognome')} {...f('cognome')} />
                 </div>
-                <InputField label="Telefono" placeholder="+39 02 1234567" {...f('telefono')} />
+                <InputField label={t('dati.telefono')} placeholder={t('dati.telefono_placeholder')} {...f('telefono')} />
+                <div>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('dati.lingua')}</label>
+                    <SelectLingua value={form.lingua} onChange={v => { setForm(p => ({ ...p, lingua: v })); setErrDati('') }} />
+                </div>
 
                 {errDati && (
                     <div className="bg-red-900/15 border border-red-500/20 px-4 py-3">
@@ -157,15 +168,15 @@ export default function UserProfilo() {
 
                 {isDirty && (
                     <div className="flex gap-3">
-                        <button onClick={handleAnnullaDati} className="btn-secondary text-sm flex-1">Annulla</button>
+                        <button onClick={handleAnnullaDati} className="btn-secondary text-sm flex-1">{t('dati.annulla')}</button>
                         <button
                             onClick={handleSalvaDati}
                             disabled={salvandoDati}
                             className="btn-primary text-sm flex-1 justify-center disabled:opacity-40"
                         >
                             {salvandoDati
-                                ? <><Loader2 size={14} className="animate-spin" /> Salvataggio…</>
-                                : 'Salva modifiche'
+                                ? <><Loader2 size={14} className="animate-spin" /> {t('dati.salvataggio')}</>
+                                : t('dati.salva')
                             }
                         </button>
                     </div>
@@ -175,23 +186,23 @@ export default function UserProfilo() {
             {/* Password */}
             <div className="bg-slate border border-white/5 p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                    <p className="section-label">Cambia password</p>
+                    <p className="section-label">{t('password.titolo')}</p>
                     {okPwd && (
                         <span className="flex items-center gap-1 font-body text-xs text-salvia">
-                            <Check size={12} /> Password aggiornata
+                            <Check size={12} /> {t('password.aggiornata')}
                         </span>
                     )}
                 </div>
 
                 {!editingPwd ? (
                     <button onClick={() => setEditingPwd(true)} className="btn-secondary text-sm">
-                        Modifica password
+                        {t('password.modifica')}
                     </button>
                 ) : (
                     <>
-                        <InputField label="Nuova password" type="password" placeholder="Minimo 8 caratteri"
+                        <InputField label={t('password.nuova')} type="password" placeholder={t('password.nuova_placeholder')}
                             value={pwd.nuova} onChange={e => setPwd(p => ({ ...p, nuova: e.target.value }))} />
-                        <InputField label="Conferma password" type="password" placeholder="Ripeti la nuova password"
+                        <InputField label={t('password.conferma')} type="password" placeholder={t('password.conferma_placeholder')}
                             value={pwd.conferma} onChange={e => setPwd(p => ({ ...p, conferma: e.target.value }))} />
 
                         {errPwd && (
@@ -205,7 +216,7 @@ export default function UserProfilo() {
                                 onClick={() => { setEditingPwd(false); setPwd({ nuova: '', conferma: '' }); setErrPwd('') }}
                                 className="btn-secondary text-sm flex-1"
                             >
-                                Annulla
+                                {t('password.annulla')}
                             </button>
                             <button
                                 onClick={handleCambiaPwd}
@@ -213,8 +224,8 @@ export default function UserProfilo() {
                                 className="btn-primary text-sm flex-1 justify-center disabled:opacity-40"
                             >
                                 {salvandoPwd
-                                    ? <><Loader2 size={14} className="animate-spin" /> Aggiornamento…</>
-                                    : 'Aggiorna password'
+                                    ? <><Loader2 size={14} className="animate-spin" /> {t('password.aggiornamento')}</>
+                                    : t('password.aggiorna')
                                 }
                             </button>
                         </div>

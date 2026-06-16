@@ -1,0 +1,29 @@
+{
+    "header": {
+        "titolo": "Ajouter une échéance",
+        "descrizione": "Saisissez une échéance administrative ou fiscale pour ce mandat"
+    },
+    "campi": {
+        "titolo_label": "Titre de l'échéance *",
+        "titolo_placeholder": "p. ex. Décompte TVA 1er semestre 2026",
+        "categoria_label": "Catégorie (facultatif)",
+        "categoria_placeholder": "p. ex. TVA, Fiscal, Salaires, Clôture comptable...",
+        "categoria_hint": "Étiquette libre pour regrouper les échéances par type",
+        "data_label": "Date d'échéance *",
+        "note_label": "Notes (facultatif)",
+        "note_placeholder": "Rappels, références, montants..."
+    },
+    "anteprima": {
+        "titolo": "Aperçu",
+        "scadenza_default": "Échéance",
+        "gia_trascorsa": "Cette échéance est déjà passée (il y a {{count}} jours). Saisissez-la quand même si vous enregistrez un historique."
+    },
+    "azioni": {
+        "annulla": "Annuler",
+        "salvando": "Enregistrement...",
+        "salva": "Ajouter l'échéance"
+    },
+    "errori": {
+        "sessione_scaduta": "Session expirée. Veuillez vous reconnecter."
+    }
+}

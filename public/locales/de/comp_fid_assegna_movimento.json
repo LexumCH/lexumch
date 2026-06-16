@@ -1,0 +1,15 @@
+{
+    "chip": {
+        "ocr_da_verificare": "Per OCR erstellt, im Mandat zu prüfen",
+        "scollega": "Buchung trennen"
+    },
+    "controlli": {
+        "mandato_richiesto": "Weisen Sie dem Dokument zuerst ein Mandat zu",
+        "entrata_uscita": "Einnahme / Ausgabe",
+        "entrata": "Einnahme",
+        "uscita": "Ausgabe"
+    },
+    "errori": {
+        "estrazione_fallita": "Extraktion fehlgeschlagen"
+    }
+}

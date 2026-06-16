@@ -1,0 +1,44 @@
+{
+  "header": {
+    "label": "Compte",
+    "title": "Mon profil"
+  },
+  "stato": {
+    "titolo": "Statut du compte",
+    "ruolo": "Rôle",
+    "ruolo_user": "User",
+    "email": "E-mail",
+    "verifica": "Vérification d'identité",
+    "approvata": "Approuvée",
+    "non_approvata": "Non approuvée",
+    "in_corso": "En cours",
+    "non_inviata": "Non soumise",
+    "motivo_rifiuto": "Motif du refus"
+  },
+  "dati": {
+    "titolo": "Données personnelles",
+    "salvato": "Enregistré",
+    "nome": "Prénom",
+    "cognome": "Nom",
+    "telefono": "Téléphone",
+    "telefono_placeholder": "+41 22 123 45 67",
+    "annulla": "Annuler",
+    "salvataggio": "Enregistrement…",
+    "salva": "Enregistrer les modifications",
+    "lingua": "Langue"
+  },
+  "password": {
+    "titolo": "Changer le mot de passe",
+    "aggiornata": "Mot de passe mis à jour",
+    "modifica": "Modifier le mot de passe",
+    "nuova": "Nouveau mot de passe",
+    "nuova_placeholder": "Minimum 8 caractères",
+    "conferma": "Confirmer le mot de passe",
+    "conferma_placeholder": "Répétez le nouveau mot de passe",
+    "annulla": "Annuler",
+    "aggiornamento": "Mise à jour…",
+    "aggiorna": "Mettre à jour le mot de passe",
+    "err_min": "Minimum 8 caractères",
+    "err_mismatch": "Les mots de passe ne correspondent pas"
+  }
+}

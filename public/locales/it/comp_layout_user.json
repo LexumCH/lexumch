@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "banca_dati": "Banca Dati",
+    "ricerche": "Ricerche",
+    "verificati": "Verìficati",
+    "verifica_identita": "Verifica identità",
+    "assistenza": "Domande?",
+    "acquista": "Acquista",
+    "profilo": "Profilo"
+  },
+  "badge": {
+    "in_corso": "In corso",
+    "approvata": "Approvata"
+  },
+  "banner": {
+    "pending": "I tuoi documenti sono in revisione. Riceverai una risposta entro 24-48 ore.",
+    "approved": "Verifica completata! Acquista un piano per accedere a pratiche, clienti e tutte le funzionalità Lexum.",
+    "approved_link": "Vedi piani →",
+    "rejected": "La tua verifica non è stata approvata. Visita il profilo per vedere i dettagli.",
+    "rejected_link": "Profilo →"
+  },
+  "account": {
+    "verificato": "Verificato",
+    "in_verifica": "In verifica",
+    "non_verificato": "Non verificato",
+    "base": "Account base",
+    "esci": "Esci"
+  },
+  "header": {
+    "acquista_crediti": "Acquista crediti AI"
+  }
+}

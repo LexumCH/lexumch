@@ -1,0 +1,25 @@
+{
+  "stati": {
+    "attivo": "Actif",
+    "sospeso": "Suspendu",
+    "concluso": "Clôturé",
+    "archiviato": "Archivé"
+  },
+  "lista": {
+    "label": "Plan de travail",
+    "titolo": "Les mandats",
+    "nuovo_mandato": "Nouveau mandat",
+    "cerca_placeholder": "Rechercher un mandat ou un client...",
+    "tutti_stati": "Tous les statuts",
+    "tutti_clienti": "Tous les clients",
+    "reset": "Réinitialiser",
+    "errore_caricamento": "Erreur lors du chargement des mandats",
+    "intestazioni": ["Mandat", "Client", "Type", "Année", "Statut", "Créé le", ""],
+    "nessun_mandato": "Aucun mandat trouvé",
+    "dettaglio": "Détails →"
+  },
+  "vuoto": {
+    "titolo": "Aucun mandat pour l'instant",
+    "sottotitolo": "Créez le premier mandat pour commencer à travailler"
+  }
+}

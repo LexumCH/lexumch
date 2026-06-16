@@ -1,0 +1,30 @@
+{
+  "header": {
+    "titolo": "Codes de récupération"
+  },
+  "avviso": {
+    "titolo": "Enregistrez ces codes immédiatement",
+    "descrizione": "Ils ne seront affichés qu'une seule fois. Ils vous serviront à récupérer l'accès à votre compte si vous perdez votre téléphone. Chaque code ne peut être utilisé qu'une seule fois et désactivera la 2FA : vous devrez la reconfigurer."
+  },
+  "conferma": {
+    "label": "Je confirme avoir enregistré les codes de récupération dans un endroit sûr. Je comprends qu'ils ne pourront pas être récupérés si je les perds."
+  },
+  "azioni": {
+    "copia": "Copier",
+    "copiati": "Copiés",
+    "scarica": "Télécharger",
+    "stampa": "Imprimer",
+    "chiudi": "Fermer",
+    "chiudiSalvato": "J'ai enregistré les codes, fermer"
+  },
+  "file": {
+    "titolo": "LEXUM — Codes de récupération 2FA",
+    "generatiIl": "Générés le : {{data}}",
+    "importante": "IMPORTANT : chaque code ne peut être utilisé qu'une seule fois.",
+    "conserva": "Conservez-les dans un endroit sûr. Ils vous serviront si vous perdez l'accès à l'application d'authentification.",
+    "disattiva": "L'utilisation d'un code de récupération désactivera la 2FA — vous devrez la reconfigurer."
+  },
+  "stampa": {
+    "titoloPagina": "Lexum - Codes de récupération 2FA"
+  }
+}

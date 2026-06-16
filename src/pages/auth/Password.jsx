@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import logo from '@/assets/logo.png'
 import { ArrowRight, CheckCircle, AlertCircle } from 'lucide-react'
 
 export function RecuperaPassword() {
+  const { t } = useTranslation('auth')
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
@@ -37,24 +39,24 @@ export function RecuperaPassword() {
         {sent ? (
           <div className="text-center">
             <CheckCircle size={36} className="text-salvia mx-auto mb-4" />
-            <h2 className="font-display text-3xl font-light text-nebbia mb-3">Email inviata</h2>
+            <h2 className="font-display text-3xl font-light text-nebbia mb-3">{t('recupera.sent_title')}</h2>
             <p className="font-body text-sm text-nebbia/50 mb-6">
-              Controlla la tua email e clicca sul link per reimpostare la password.
+              {t('recupera.sent_text')}
             </p>
-            <Link to="/login" className="btn-secondary text-sm">Torna al login</Link>
+            <Link to="/login" className="btn-secondary text-sm">{t('recupera.back_login')}</Link>
           </div>
         ) : (
           <>
-            <p className="section-label mb-6">Recupero password</p>
-            <h1 className="font-display text-4xl font-light text-nebbia mb-3">Password dimenticata?</h1>
+            <p className="section-label mb-6">{t('recupera.section_label')}</p>
+            <h1 className="font-display text-4xl font-light text-nebbia mb-3">{t('recupera.title')}</h1>
             <p className="font-body text-sm text-nebbia/40 mb-8">
-              Inserisci la tua email e ti mandiamo un link per reimpostarla.
+              {t('recupera.subtitle')}
             </p>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Email</label>
+                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('recupera.email_label')}</label>
                 <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
-                  placeholder="mario@studiorossi.it"
+                  placeholder={t('recupera.email_placeholder')}
                   className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 transition-colors placeholder:text-nebbia/25"
                 />
               </div>
@@ -64,11 +66,11 @@ export function RecuperaPassword() {
                 </div>
               )}
               <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
-                {loading ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><ArrowRight size={16} /> Invia link</>}
+                {loading ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><ArrowRight size={16} /> {t('recupera.submit')}</>}
               </button>
             </form>
             <p className="font-body text-xs text-nebbia/30 text-center mt-6">
-              <Link to="/login" className="text-oro hover:text-oro/70">Torna al login</Link>
+              <Link to="/login" className="text-oro hover:text-oro/70">{t('recupera.back_login')}</Link>
             </p>
           </>
         )}
@@ -78,6 +80,7 @@ export function RecuperaPassword() {
 }
 
 export function ResetPassword() {
+  const { t } = useTranslation('auth')
   const [form, setForm] = useState({ password: '', conferma: '' })
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
@@ -85,8 +88,8 @@ export function ResetPassword() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (form.password !== form.conferma) { setError('Le password non coincidono'); return }
-    if (form.password.length < 8) { setError('Minimo 8 caratteri'); return }
+    if (form.password !== form.conferma) { setError(t('reset.err_mismatch')); return }
+    if (form.password.length < 8) { setError(t('reset.err_min')); return }
     setError('')
     setLoading(true)
     try {
@@ -110,15 +113,15 @@ export function ResetPassword() {
         {done ? (
           <div className="text-center">
             <CheckCircle size={36} className="text-salvia mx-auto mb-4" />
-            <h2 className="font-display text-3xl font-light text-nebbia mb-3">Password aggiornata</h2>
-            <Link to="/login" className="btn-primary justify-center w-full mt-4">Vai al login</Link>
+            <h2 className="font-display text-3xl font-light text-nebbia mb-3">{t('reset.done_title')}</h2>
+            <Link to="/login" className="btn-primary justify-center w-full mt-4">{t('reset.done_cta')}</Link>
           </div>
         ) : (
           <>
-            <p className="section-label mb-6">Reset password</p>
-            <h1 className="font-display text-4xl font-light text-nebbia mb-8">Nuova password</h1>
+            <p className="section-label mb-6">{t('reset.section_label')}</p>
+            <h1 className="font-display text-4xl font-light text-nebbia mb-8">{t('reset.title')}</h1>
             <form onSubmit={handleSubmit} className="space-y-5">
-              {[['password', 'Nuova password'], ['conferma', 'Conferma password']].map(([k, l]) => (
+              {[['password', t('reset.new_password_label')], ['conferma', t('reset.confirm_password_label')]].map(([k, l]) => (
                 <div key={k}>
                   <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{l}</label>
                   <input type="password" value={form[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} placeholder="••••••••"
@@ -127,7 +130,7 @@ export function ResetPassword() {
               ))}
               {error && <p className="font-body text-xs text-red-400 flex items-center gap-1"><AlertCircle size={11} />{error}</p>}
               <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
-                {loading ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><ArrowRight size={16} /> Salva password</>}
+                {loading ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><ArrowRight size={16} /> {t('reset.submit')}</>}
               </button>
             </form>
           </>

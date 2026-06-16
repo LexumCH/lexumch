@@ -1,0 +1,49 @@
+{
+  "titolo": "Liquiditätsplanung",
+  "badge_12_mesi": "12 Monate",
+  "saldo_cassa_label": "Kassenbestand (CHF)",
+  "alla_data": "Per Datum",
+  "salva": "Speichern",
+  "imposta_saldo_cassa": "Kassenbestand festlegen",
+  "al_data": "per {{data}}",
+  "errori": {
+    "importo_non_valido": "Bitte geben Sie einen gültigen Betrag ein.",
+    "data_mancante": "Bitte geben Sie das Datum des Bestands ein.",
+    "sessione_scaduta": "Sitzung abgelaufen."
+  },
+  "tabella_mancante": "Tabelle <code>saldi_cassa</code> noch nicht erstellt: Führen Sie die Migration aus, um den Bestand zu speichern und die Liquidität zu projizieren.",
+  "vuoto": {
+    "titolo": "Legen Sie den anfänglichen Kassenbestand fest, um die 12-Monats-Projektion zu sehen.",
+    "descrizione": "Die Projektion verwendet die geplanten Bewegungen, die künftigen Ist-Bewegungen und die Löhne."
+  },
+  "kpi": {
+    "saldo_oggi": "Bestand heute",
+    "saldo_fra_12_mesi": "Bestand in 12 Monaten",
+    "punto_minimo": "Tiefpunkt"
+  },
+  "alert_sotto_zero": "Erwarteter Liquiditätsengpass: Der Bestand fällt im <evid>{{mese}} {{anno}}</evid> unter null ({{importo}}). Planen Sie einen Geldeingang oder reduzieren Sie die geplanten Kosten.",
+  "grafico_title": "{{mese}} {{anno}}: {{saldo}} (netto {{netto}})",
+  "colonne": [
+    "Monat",
+    "Einnahmen",
+    "Ausgaben",
+    "Löhne",
+    "Netto",
+    "Endbestand"
+  ],
+  "nota": "Projektion: bekannter Bestand + geplante Einnahmen/Ausgaben (nach Wiederkehr erweitert) + künftige Ist-Bewegungen − Löhne. Der laufende Monat schliesst die Löhne aus (bereits im Bestand enthalten). Aktualisieren Sie den Bestand regelmässig, um sie genau zu halten.",
+  "mesi_abbr": [
+    "Jan",
+    "Feb",
+    "Mär",
+    "Apr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Dez"
+  ]
+}

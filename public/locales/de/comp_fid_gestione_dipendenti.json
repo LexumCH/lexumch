@@ -1,0 +1,59 @@
+{
+  "intestazione": {
+    "persona": "Person",
+    "persone": "Personen",
+    "dettaglio": "· {{dipendenti}} aktive Mitarbeitende · {{soci}} Gesellschafter",
+    "dettaglio_fonte": " · {{count}} quellenbesteuert"
+  },
+  "azioni": {
+    "aggiungi": "Mitarbeitenden hinzufügen"
+  },
+  "contatori": {
+    "dipendenti_attivi": "Aktive Mitarbeitende",
+    "soci": "Gesellschafter"
+  },
+  "box": {
+    "mese": {
+      "titolo": "Ausgaben {{mese}} {{anno}}",
+      "precedente": "Vorheriger Monat",
+      "successivo": "Nächster Monat",
+      "con_bonus": "Löhne + {{bonus}} Bonus",
+      "senza_bonus": "Löhne des Personals des Monats"
+    },
+    "fissi": {
+      "titolo": "Fixe Löhne / Monat",
+      "sottotitolo": "wiederkehrende Kosten, ohne Bonus"
+    },
+    "annua": {
+      "titolo": "Jahresausgaben {{anno}}",
+      "con_bonus": "anteilige Löhne + {{bonus}} Bonus",
+      "senza_bonus": "anteilig nach gearbeiteten Monaten"
+    }
+  },
+  "vuoto": {
+    "titolo": "Keine Mitarbeitenden erfasst",
+    "descrizione": "Fügen Sie das Personal des Unternehmens hinzu, um es mit Lex auswerten zu können"
+  },
+  "tabella": {
+    "nome": "Name",
+    "ruolo": "Funktion",
+    "tipo": "Typ",
+    "impiego": "Pensum",
+    "salario": "Lohn",
+    "fonte": "Quelle"
+  },
+  "riga": {
+    "cessato": "Ausgetreten",
+    "dipendente": "Mitarbeitende:r",
+    "socio": "Gesellschafter",
+    "fonte_si": "Ja",
+    "modifica": "Bearbeiten",
+    "elimina": "Löschen"
+  },
+  "elimina": {
+    "titolo": "Mitarbeitenden löschen",
+    "conferma": "<b>{{nome}}</b> aus dem Stammdaten löschen? Der Vorgang ist unwiderruflich.",
+    "annulla": "Abbrechen",
+    "conferma_btn": "Löschen"
+  }
+}

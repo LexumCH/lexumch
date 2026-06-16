@@ -1,0 +1,30 @@
+{
+  "intro": "Ordnen Sie jeder Kategorie ein Konto zu: Die effektiven Bewegungen werden zu Buchungssätzen in der doppelten Buchhaltung.",
+  "contabilizza_non_registrati": "Nicht erfasste verbuchen",
+  "colonne": [
+    "Kategorie",
+    "Konto (Gegenkonto)",
+    "Kasse/Bank",
+    "MWST",
+    ""
+  ],
+  "tipo": {
+    "entrata": "Einnahme",
+    "uscita": "Ausgabe"
+  },
+  "azioni": {
+    "salva": "Speichern",
+    "salvato": "Gespeichert"
+  },
+  "vuoto": {
+    "titolo": "Keine Kategorie in den effektiven Bewegungen.",
+    "sottotitolo": "Erfassen Sie Einnahmen/Ausgaben mit einer Kategorie und kehren Sie dann hierher zurück, um sie zuzuordnen."
+  },
+  "errori": {
+    "scegli_conto_cassa": "Wählen Sie Konto und Kasse für {{categoria}}"
+  },
+  "esito": {
+    "contabilizzati": "{{ok}} Bewegungen verbucht",
+    "saltati": " · {{skip}} übersprungen (ohne Zuordnung oder Fehler)"
+  }
+}

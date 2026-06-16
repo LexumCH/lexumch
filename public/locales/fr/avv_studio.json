@@ -1,0 +1,204 @@
+{
+  "header": {
+    "label_user": "Compte",
+    "label_avvocato": "Avocat",
+    "title": "Votre étude",
+    "operazione_ok": "Opération effectuée avec succès."
+  },
+  "banner": {
+    "scaduto": {
+      "titolo": "Abonnement expiré",
+      "descrizione": "L'archive est en lecture seule. Renouvelez pour réactiver les téléversements, les crédits IA et toutes les fonctionnalités.",
+      "cta": "Renouveler maintenant"
+    },
+    "grazia": {
+      "titolo_one": "Délai de grâce — {{count}} jour restant",
+      "titolo_other": "Délai de grâce — {{count}} jours restants",
+      "descrizione": "Vous disposez de 7 jours après l'expiration pour renouveler avant que l'archive ne passe en lecture seule.",
+      "cta": "Renouveler maintenant"
+    },
+    "scadenza": {
+      "titolo_one": "Abonnement expirant dans {{count}} jour",
+      "titolo_other": "Abonnement expirant dans {{count}} jours",
+      "descrizione": "Échéance : {{data}}",
+      "cta": "Renouveler"
+    },
+    "crediti_zero": {
+      "titolo": "Crédits IA épuisés",
+      "descrizione": "Lex AI ne répondra plus tant que vous n'achetez pas de nouveaux crédits.",
+      "cta": "Acheter des crédits"
+    },
+    "crediti_bassi": {
+      "titolo": "Vos crédits IA du mois s'épuisent ({{count}} restants)",
+      "descrizione": "Achetez un pack supplémentaire pour ne pas être à court avant le renouvellement mensuel.",
+      "cta": "Acheter des crédits"
+    },
+    "storage_pieno": {
+      "titolo": "Espace d'archive épuisé",
+      "descrizione": "Vous ne pouvez pas téléverser de nouveaux fichiers tant que vous ne libérez pas d'espace ou n'achetez pas un pack supplémentaire.",
+      "cta": "Acheter de l'espace"
+    },
+    "storage_quasi": {
+      "titolo": "Archive presque pleine ({{pct}}% occupé)",
+      "descrizione": "{{occupato}} Go sur {{totali}} Go disponibles.",
+      "cta": "Acheter de l'espace"
+    },
+    "topup_scadenza": {
+      "titolo_one": "Pack de stockage expirant",
+      "titolo_other": "{{count}} packs de stockage expirant",
+      "riga": "{{gb}} Go expire le {{data}}",
+      "cta": "Renouveler"
+    }
+  },
+  "studio_header": {
+    "nessun_piano_attivo": "Aucun forfait actif",
+    "badge": {
+      "nessun_piano": "Aucun forfait",
+      "scaduto": "Expiré",
+      "grazia": "Grâce",
+      "in_scadenza": "Expirant",
+      "attivo": "Actif"
+    },
+    "stat": {
+      "accessi": "Accès",
+      "crediti_ai": "Crédits IA",
+      "storage": "Stockage",
+      "clienti": "Clients",
+      "scadenza": "Échéance"
+    }
+  },
+  "tabs": {
+    "mio_studio": "Mon étude",
+    "mio_piano": "Mon forfait",
+    "collaboratori": "Collaborateurs",
+    "acquista": "Acheter"
+  },
+  "user_studio": {
+    "titolo": "Pourquoi avoir un forfait ?",
+    "vantaggi": [
+      { "titolo": "Gestion des clients", "desc": "Créez et gérez vos clients, dossiers et documents au même endroit" },
+      { "titolo": "Base de données de jugements", "desc": "Accédez à des milliers de jugements téléversés par d'autres avocats (forfaits Pro)" },
+      { "titolo": "Monétisation", "desc": "Téléversez vos jugements et gagnez à chaque achat (forfaits Pro)" },
+      { "titolo": "Étude multi-accès", "desc": "Invitez des collaborateurs et gérez ensemble clients et dossiers" }
+    ],
+    "scegli_piano": "Choisir un forfait"
+  },
+  "avv_piano": {
+    "nessun_piano": "Vous n'avez pas encore de forfait actif.",
+    "acquista_piano": "Acheter un forfait",
+    "titolo": "Forfait actif",
+    "riga": {
+      "piano": "Forfait",
+      "scadenza": "Échéance",
+      "accessi": "Accès",
+      "clienti": "Clients enregistrés",
+      "crediti": "Crédits IA disponibles",
+      "spazio": "Espace d'archive",
+      "gb_inclusi": "Go inclus dans le forfait",
+      "gb_extra": "Go supplémentaires achetés",
+      "banca_dati": "Base de données",
+      "monetizzazione": "Monétisation"
+    },
+    "valore": {
+      "clienti_con_limite": "{{conteggio}} sur {{totale}} ({{piano}} forfait · {{extra}} extra)",
+      "clienti_senza_limite": "{{conteggio}} (aucune limite définie)",
+      "crediti": "{{totale}} ({{piano}} forfait · {{benvenuto}} bienvenue · {{topup}} extra)",
+      "spazio": "{{occupato}} Go sur {{totali}} Go ({{piano}} Go forfait · {{extra}} Go extra)",
+      "inclusa": "Incluse",
+      "non_inclusa": "Non incluse"
+    },
+    "cambia": "Changer de forfait, ajouter des crédits ou du stockage"
+  },
+  "collaboratori": {
+    "conteggio_one": "{{count}} collaborateur",
+    "conteggio_other": "{{count}} collaborateurs",
+    "posti_liberi_one": "{{count}} place libre",
+    "posti_liberi_other": "{{count}} places libres",
+    "invita_btn": "Inviter un collaborateur",
+    "esauriti": "Vous avez épuisé vos accès.",
+    "aggiungi_accessi": "Ajouter des accès",
+    "invita_titolo": "Inviter un collaborateur",
+    "email_label": "E-mail *",
+    "email_placeholder": "confrere@etude.ch",
+    "invia_invito": "Envoyer l'invitation",
+    "annulla": "Annuler",
+    "email_obbligatoria": "E-mail obligatoire",
+    "errore_invio": "Erreur lors de l'envoi de l'invitation",
+    "conferma_rimozione": "Retirer {{nome}} {{cognome}} de l'étude ?",
+    "tu": "(vous)",
+    "rimuovi": "Retirer"
+  },
+  "storico": {
+    "titolo": "Historique des paiements",
+    "vuoto": "Aucun paiement enregistré",
+    "intestazioni": ["Description", "Montant", "Date", "Statut"],
+    "stato": {
+      "gratis": "Gratuit",
+      "pagato": "Payé",
+      "rimborsato": "Remboursé",
+      "fallito": "Échoué"
+    }
+  },
+  "acquisto": {
+    "comune": {
+      "acquista": "Acheter"
+    },
+    "trial": {
+      "label": "Essai gratuit",
+      "badge_gratuito": "Gratuit",
+      "descrizione": "Essayez Lexum complet pendant {{giorni}} jours sans saisir de données de paiement. Activable une seule fois.",
+      "feat_accessi": "✓ {{count}} accès",
+      "feat_banca_dati": "✓ Base de données incluse",
+      "feat_crediti": "✓ {{count}} crédits Lex AI",
+      "feat_storage": "✓ {{gb}} Go de stockage",
+      "attiva": "Activer l'essai gratuit",
+      "attivato": "Essai gratuit activé ! La page sera mise à jour sous peu."
+    },
+    "piani": {
+      "label_cambia": "Changer de forfait",
+      "label_scegli": "Choisissez votre forfait",
+      "differenza": "Différence :",
+      "accessi_one": "{{count}} accès",
+      "accessi_other": "{{count}} accès",
+      "mesi_one": "{{count}} mois",
+      "mesi_other": "{{count}} mois",
+      "tag_banca_dati": "Base de données",
+      "tag_monetizzazione": "Monétisation",
+      "tag_crediti_mese": "{{count}} crédits/mois",
+      "tag_studio": "Étude",
+      "upgrade_a": "Mise à niveau vers ",
+      "acquisto": "Achat : ",
+      "importo_da_pagare": "Montant à payer :",
+      "scadenza_invariata": "échéance inchangée",
+      "procedi": "Procéder au paiement"
+    },
+    "seat": {
+      "label": "Ajouter des accès",
+      "scadenza": "L'échéance suit le forfait actuel.",
+      "scadenza_con_data": "L'échéance suit le forfait actuel ({{data}}).",
+      "piu_accessi_one": "+{{count}} accès",
+      "piu_accessi_other": "+{{count}} accès",
+      "transizione": "Accès : {{da}} → {{a}}"
+    },
+    "clienti": {
+      "label": "Augmenter la capacité clients",
+      "descrizione": "Augmentez la limite de clients enregistrables dans votre étude. L'échéance suit le forfait actuel — paiement au prorata des mois restants.",
+      "descrizione_con_data": "Augmentez la limite de clients enregistrables dans votre étude. L'échéance suit le forfait actuel ({{data}}) — paiement au prorata des mois restants.",
+      "piu_clienti": "+{{count}} clients",
+      "listino": "Tarif · prorata appliqué au paiement"
+    },
+    "crediti": {
+      "label": "Crédits IA supplémentaires",
+      "descrizione": "Packs supplémentaires qui n'expirent jamais. Ils ne sont consommés qu'après les crédits du forfait.",
+      "dettaglio": "{{crediti}} crédits · €{{prezzo_credito}}/crédit",
+      "non_scadono": "N'expirent jamais"
+    },
+    "storage": {
+      "label": "Espace de stockage",
+      "richiede_piano": "Les packs de stockage nécessitent un forfait actif. Renouvelez d'abord votre abonnement.",
+      "descrizione": "Go supplémentaires partagés au niveau de l'étude. Paiement unique pour la durée indiquée, renouvellement manuel à l'échéance.",
+      "mesi_one": "{{count}} mois",
+      "mesi_other": "{{count}} mois"
+    }
+  }
+}

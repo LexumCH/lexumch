@@ -1,0 +1,60 @@
+{
+    "header": {
+        "modifica_movimento": "Modifica movimento",
+        "entrata_prevista": "Entrata prevista",
+        "costo_previsto": "Costo previsto",
+        "nuova_entrata": "Nuova entrata",
+        "nuovo_costo": "Nuovo costo",
+        "sottotitolo_mandato": "L'importo entra nei contatori del mandato",
+        "sottotitolo_cliente": "L'importo entra nei contatori del cliente"
+    },
+    "tipo": {
+        "entrata": "Entrata",
+        "uscita": "Uscita"
+    },
+    "stato": {
+        "effettivo_label": "Effettivo",
+        "effettivo_hint": "già avvenuto",
+        "previsto_label": "Previsto",
+        "previsto_hint": "pianificato / budget"
+    },
+    "campi": {
+        "descrizione_label": "Descrizione *",
+        "descrizione_ph_entrata": "es. Fattura cliente Rossi SA",
+        "descrizione_ph_uscita": "es. Affitto ufficio, fornitore...",
+        "importo_label": "Importo (CHF) *",
+        "data_label": "Data *",
+        "data_prevista_label": "Data prevista *"
+    },
+    "ricorrenza": {
+        "label": "Ricorrenza",
+        "una_tantum": "Una tantum",
+        "mensile": "Mensile",
+        "trimestrale": "Trimestrale",
+        "annuale": "Annuale",
+        "fine_label": "Fine",
+        "fine_opz": "(opz.)"
+    },
+    "categoria": {
+        "label": "Categoria",
+        "opzionale": "(opzionale)",
+        "ph_entrata": "es. Vendite, Consulenze...",
+        "ph_uscita": "es. Affitto, Fornitori, Utenze..."
+    },
+    "documento": {
+        "label": "Documento di supporto",
+        "opzionale": "(opzionale)",
+        "nessuno": "Nessun documento collegato",
+        "hint": "I documenti si caricano dall'archivio. Qui scegli quale collegare a questo movimento."
+    },
+    "footer": {
+        "annulla": "Annulla",
+        "salvataggio": "Salvataggio...",
+        "salva_modifiche": "Salva modifiche",
+        "registra": "Registra"
+    },
+    "errori": {
+        "campi_obbligatori": "Compila descrizione, importo e data.",
+        "sessione_scaduta": "Sessione scaduta. Effettua nuovamente il login."
+    }
+}

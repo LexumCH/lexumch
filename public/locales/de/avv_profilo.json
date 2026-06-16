@@ -1,0 +1,112 @@
+{
+  "header": {
+    "label": "Konto",
+    "title": "Mein Profil"
+  },
+  "campo": {
+    "non_modificabile": "Hier nicht änderbar."
+  },
+  "banner": {
+    "titolo": "Vervollständigen Sie Ihr Profil, um Rechtsschriften zu erstellen",
+    "mancano": "Es fehlen:",
+    "testo_pre": "Füllen Sie den Abschnitt",
+    "testo_sezione": "Berufsdaten für Rechtsschriften",
+    "testo_post": "weiter unten aus, um die automatische Erstellung von Dokumenten aus Ihren Mandaten zu aktivieren."
+  },
+  "info_account": {
+    "titolo": "Kontoinformationen",
+    "tipo_account": "Kontotyp",
+    "studio": "Kanzlei",
+    "verifica_identita": "Identitätsprüfung",
+    "identita_verificata": "Identität verifiziert ✓",
+    "in_attesa_verifica": "Verifizierung ausstehend",
+    "membro_note": "Sie sind Mitglied der Kanzlei. Um das Abonnement zu ändern, wenden Sie sich bitte an den Inhaber.",
+    "gestisci_studio": "Kanzlei verwalten →"
+  },
+  "tipo_label": {
+    "titolare": "Kanzleiinhaber",
+    "referente": "Kanzleiverantwortlicher",
+    "membro": "Kanzleimitglied",
+    "singolo": "Einzelanwalt",
+    "default": "—"
+  },
+  "dati_personali": {
+    "titolo": "Persönliche Daten",
+    "modifica": "Bearbeiten",
+    "annulla": "Abbrechen",
+    "nome": "Vorname",
+    "cognome": "Nachname",
+    "studio": "Kanzlei / Kanzleiname",
+    "studio_placeholder": "Z. B. Kanzlei Rossi & Partner",
+    "telefono": "Telefon",
+    "telefono_placeholder": "+41 79 123 45 67",
+    "email": "E-Mail",
+    "specializzazioni": "Fachgebiete",
+    "specializzazioni_placeholder": "Zivilrecht, Handelsrecht (durch Komma getrennt)",
+    "ok": "Profil aktualisiert.",
+    "salva": "Änderungen speichern",
+    "lingua": "Sprache"
+  },
+  "atti": {
+    "titolo": "Berufsdaten für Rechtsschriften",
+    "completo_badge": "Vollständig",
+    "modifica": "Bearbeiten",
+    "compila": "Ausfüllen",
+    "annulla": "Abbrechen",
+    "descrizione": "Diese Daten werden verwendet, um die aus Ihren Mandaten erstellten Rechtsschriften korrekt zu adressieren.",
+    "cantone_albo": "Kanton der Anwaltsregister-Eintragung",
+    "cantone_albo_placeholder": "Z. B. TI",
+    "numero_albo": "Registernummer",
+    "numero_albo_placeholder": "Z. B. A23456",
+    "data_iscrizione": "Datum der Registereintragung",
+    "ok": "Berufsdaten aktualisiert.",
+    "salva": "Berufsdaten speichern"
+  },
+  "campi_mancanti": {
+    "cantone_albo": "Kanton des Registers",
+    "numero_albo": "Registernummer"
+  },
+  "abbonamento": {
+    "titolo_studio": "Kanzlei-Abonnement",
+    "titolo": "Abonnement",
+    "accesso": "Zugang",
+    "accessi": "Zugänge",
+    "banca_dati": " · Datenbank inbegriffen",
+    "scaduto": "Abgelaufen",
+    "scade_il": "Läuft ab am {{data}}",
+    "attivo": "Aktiv",
+    "gestito_titolare": "Verwaltet vom Kanzleiinhaber.",
+    "gestisci_piano": "Abonnement verwalten →"
+  },
+  "password": {
+    "titolo": "Passwort",
+    "cambia": "Ändern",
+    "annulla": "Abbrechen",
+    "nuova": "Neues Passwort",
+    "conferma": "Passwort bestätigen",
+    "placeholder": "........",
+    "min_caratteri": "Mindestens 8 Zeichen",
+    "non_corrispondono": "Die Passwörter stimmen nicht überein",
+    "aggiorna": "Passwort aktualisieren",
+    "ok": "Passwort aktualisiert."
+  },
+  "sicurezza": {
+    "titolo": "Sicherheit",
+    "due_fattori": "Zwei-Faktor-Authentifizierung (2FA)",
+    "attiva_dal": "Aktiv seit {{data}}. Beim Login werden Sie nach einem Code aus der Authenticator-App gefragt.",
+    "descrizione": "Schützen Sie Ihr Konto mit einem Code aus Apps wie Google Authenticator, Authy oder 1Password.",
+    "attivo": "Aktiv",
+    "non_attivo": "Nicht aktiv",
+    "codici_recupero": "Wiederherstellungscodes",
+    "codici_disponibili": "{{n}} von 10 verfügbar",
+    "codici_quasi_esauriti": "Codes fast aufgebraucht — generieren Sie sie zur Sicherheit neu.",
+    "rigenero": "Wird neu generiert…",
+    "rigenera": "Codes neu generieren",
+    "errore_generico": "Fehler",
+    "attiva_2fa": "2FA aktivieren",
+    "disattivo": "Wird deaktiviert…",
+    "disattiva_2fa": "2FA deaktivieren",
+    "conferma_rigenera": "Wiederherstellungscodes neu generieren? Die bisherigen Codes werden ungültig.",
+    "conferma_disattiva": "2FA deaktivieren? Ihr Konto wird dadurch weniger sicher."
+  }
+}

@@ -8,6 +8,7 @@
 //   Riga 4: Chat (Lex per il mandato)                       — full width (placeholder)
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import {
@@ -33,10 +34,10 @@ function nomeCliente(c) {
 }
 
 const STATO_CONFIG = {
-    attivo: { label: 'Attivo', classe: 'bg-salvia/15 border-salvia/40 text-salvia' },
-    sospeso: { label: 'Sospeso', classe: 'bg-amber-500/10 border-amber-500/30 text-amber-400' },
-    concluso: { label: 'Concluso', classe: 'bg-oro/15 border-oro/40 text-oro' },
-    archiviato: { label: 'Archiviato', classe: 'bg-white/5 border-white/15 text-nebbia/40' },
+    attivo: { classe: 'bg-salvia/15 border-salvia/40 text-salvia' },
+    sospeso: { classe: 'bg-amber-500/10 border-amber-500/30 text-amber-400' },
+    concluso: { classe: 'bg-oro/15 border-oro/40 text-oro' },
+    archiviato: { classe: 'bg-white/5 border-white/15 text-nebbia/40' },
 }
 
 const STATI_MANDATO = ['attivo', 'sospeso', 'concluso', 'archiviato']
@@ -44,6 +45,9 @@ const STATI_MANDATO = ['attivo', 'sospeso', 'concluso', 'archiviato']
 // ─── PAGINA ──────────────────────────────────────────────────
 
 export default function MandatoDettaglio() {
+    const { t, i18n } = useTranslation('fid_mandato_dettaglio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const navigate = useNavigate()
 
@@ -80,7 +84,7 @@ export default function MandatoDettaglio() {
                 .single()
 
             if (error) throw new Error(error.message)
-            if (!m) throw new Error('Mandato non trovato')
+            if (!m) throw new Error(t('errori.mandato_non_trovato'))
             setMandato(m)
 
             if (m.cliente_id) {
@@ -126,10 +130,10 @@ export default function MandatoDettaglio() {
     if (errore || !mandato) return (
         <div className="space-y-4">
             <Link to="/banco-lavoro" className="flex items-center gap-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-sm w-fit">
-                <ArrowLeft size={14} /> Banco di lavoro
+                <ArrowLeft size={14} /> {t('nav.banco_lavoro')}
             </Link>
             <div className="flex items-center gap-2 text-red-400 text-sm font-body p-4 bg-red-900/10 border border-red-500/20">
-                <AlertCircle size={15} /> {errore ?? 'Mandato non trovato'}
+                <AlertCircle size={15} /> {errore ?? t('errori.mandato_non_trovato')}
             </div>
         </div>
     )
@@ -140,7 +144,7 @@ export default function MandatoDettaglio() {
         <div className="space-y-6 pb-64">
             {/* ── Navigazione ── */}
             <Link to="/banco-lavoro" className="flex items-center gap-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-sm w-fit">
-                <ArrowLeft size={14} /> Banco di lavoro
+                <ArrowLeft size={14} /> {t('nav.banco_lavoro')}
             </Link>
 
             {/* ── Header mandato ── */}
@@ -148,7 +152,7 @@ export default function MandatoDettaglio() {
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                         <span className="section-label">
-                            <FolderOpen size={11} className="inline" /> Mandato
+                            <FolderOpen size={11} className="inline" /> {t('header.mandato')}
                         </span>
                         {mandato.tipo && (
                             <span className="font-body text-[10px] px-2 py-0.5 bg-petrolio border border-white/10 text-nebbia/50 uppercase tracking-wider">
@@ -175,13 +179,12 @@ export default function MandatoDettaglio() {
                             ? <Loader2 size={12} className="animate-spin" />
                             : <span className="w-1.5 h-1.5 rounded-full bg-current" />
                         }
-                        {statoCfg.label}
+                        {t(`stati.${mandato.stato}`, { defaultValue: t('stati.attivo') })}
                         <Edit2 size={10} className="opacity-50" />
                     </button>
                     {menuStato && (
                         <div className="absolute z-40 top-full right-0 mt-1 w-44 bg-slate border border-white/10 shadow-2xl">
                             {STATI_MANDATO.map(s => {
-                                const cfg = STATO_CONFIG[s]
                                 const attivo = s === mandato.stato
                                 return (
                                     <button
@@ -191,7 +194,7 @@ export default function MandatoDettaglio() {
                                         className="w-full text-left px-3 py-2 hover:bg-petrolio/50 transition-colors border-b border-white/5 last:border-0 disabled:opacity-50 flex items-center gap-2"
                                     >
                                         <span className={`w-1.5 h-1.5 rounded-full ${attivo ? 'bg-oro' : 'bg-nebbia/20'}`} />
-                                        <span className="font-body text-sm text-nebbia/70">{cfg.label}</span>
+                                        <span className="font-body text-sm text-nebbia/70">{t(`stati.${s}`)}</span>
                                         {attivo && <Check size={12} className="text-oro ml-auto" />}
                                     </button>
                                 )
@@ -207,7 +210,7 @@ export default function MandatoDettaglio() {
                 {/* Anagrafica: cliente + dati + note (scroll interno) */}
                 <div className="bg-slate border border-white/5 flex flex-col h-[440px]">
                     <div className="px-5 py-3 border-b border-white/5 shrink-0">
-                        <p className="section-label">Anagrafica</p>
+                        <p className="section-label">{t('anagrafica.titolo')}</p>
                     </div>
                     <div className="flex-1 overflow-y-auto p-5 space-y-5">
 
@@ -224,7 +227,7 @@ export default function MandatoDettaglio() {
                                             : <User size={15} className="text-oro" />}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-0.5">Cliente</p>
+                                        <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-0.5">{t('anagrafica.cliente')}</p>
                                         <p className="font-body text-sm font-medium text-nebbia truncate">{nomeCliente(cliente)}</p>
                                     </div>
                                     <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro transition-colors shrink-0" />
@@ -248,15 +251,15 @@ export default function MandatoDettaglio() {
                                 </div>
                             </Link>
                         ) : (
-                            <p className="font-body text-xs text-nebbia/30 italic">Nessun cliente collegato al mandato.</p>
+                            <p className="font-body text-xs text-nebbia/30 italic">{t('anagrafica.nessun_cliente')}</p>
                         )}
 
                         {/* Dati mandato */}
                         <div className="space-y-2">
                             {[
-                                ['Tipo', mandato.tipo ?? '—'],
-                                ...(mandato.anno_riferimento ? [['Anno di riferimento', String(mandato.anno_riferimento)]] : []),
-                                ['Creato il', new Date(mandato.created_at).toLocaleDateString('it-CH')],
+                                [t('dati.tipo'), mandato.tipo ?? '—'],
+                                ...(mandato.anno_riferimento ? [[t('dati.anno_riferimento'), String(mandato.anno_riferimento)]] : []),
+                                [t('dati.creato_il'), new Date(mandato.created_at).toLocaleDateString(dateLocale)],
                             ].map(([l, v]) => (
                                 <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                     <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -267,11 +270,11 @@ export default function MandatoDettaglio() {
 
                         {/* Note */}
                         <div>
-                            <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1.5">Note</p>
+                            <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1.5">{t('note.titolo')}</p>
                             {mandato.note ? (
                                 <p className="font-body text-sm text-nebbia/70 whitespace-pre-wrap leading-relaxed">{mandato.note}</p>
                             ) : (
-                                <p className="font-body text-xs text-nebbia/25 italic">Nessuna nota per questo mandato.</p>
+                                <p className="font-body text-xs text-nebbia/25 italic">{t('note.vuote')}</p>
                             )}
                         </div>
                     </div>
@@ -322,7 +325,7 @@ export default function MandatoDettaglio() {
                 <div className="bg-slate border border-white/5 p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Users size={15} className="text-oro/60" />
-                        <h2 className="font-display text-lg text-nebbia">Dipendenti del cliente</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('dipendenti.titolo')}</h2>
                     </div>
                     <GestioneDipendenti clienteId={mandato.cliente_id} anno={mandato.anno_riferimento} />
                 </div>
@@ -330,10 +333,10 @@ export default function MandatoDettaglio() {
                 <div className="bg-slate border border-white/5 p-6">
                     <div className="flex items-center gap-2 mb-2">
                         <Users size={15} className="text-oro/50" />
-                        <h2 className="font-display text-lg text-nebbia">Dipendenti del cliente</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('dipendenti.titolo')}</h2>
                     </div>
                     <p className="font-body text-xs text-nebbia/30 italic">
-                        Nessun cliente collegato al mandato — impossibile mostrare i dipendenti.
+                        {t('dipendenti.nessun_cliente')}
                     </p>
                 </div>
             )}

@@ -9,6 +9,7 @@
 // Props: clienteId (string), conti (array piano_conti)
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Tags, Loader2, Check, AlertCircle, Zap } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { contabilizzaMovimento } from '@/lib/generaScrittura'
@@ -16,6 +17,7 @@ import { contabilizzaMovimento } from '@/lib/generaScrittura'
 const ALIQUOTE = [0, 8.1, 2.6, 3.8]
 
 export default function Imputazioni({ clienteId, conti }) {
+    const { t } = useTranslation('comp_fid_imputazioni')
     const [categorie, setCategorie] = useState([])
     const [mappings, setMappings] = useState({})       // `${tipo}|${categoria}` -> mapping (parziale o salvato)
     const [loading, setLoading] = useState(true)
@@ -53,7 +55,7 @@ export default function Imputazioni({ clienteId, conti }) {
     async function salva(tipo, categoria) {
         const key = `${tipo}|${categoria}`
         const m = mappings[key] ?? {}
-        if (!m.conto_id || !m.conto_cassa_id) { setErrore('Scegli conto e cassa per ' + categoria); return }
+        if (!m.conto_id || !m.conto_cassa_id) { setErrore(t('errori.scegli_conto_cassa', { categoria })); return }
         setErrore('')
         const { data: { user } } = await supabase.auth.getUser()
         const { data: profilo } = await supabase.from('profiles').select('studio_id').eq('id', user.id).single()
@@ -89,7 +91,7 @@ export default function Imputazioni({ clienteId, conti }) {
             if (res.errore) skip++; else ok++
         }
         setContabilizzando(false)
-        setEsito(`${ok} movimenti contabilizzati${skip ? ` · ${skip} saltati (senza imputazione o errore)` : ''}.`)
+        setEsito(t('esito.contabilizzati', { ok }) + (skip ? t('esito.saltati', { skip }) : '') + '.')
     }
 
     const selCls = "w-full bg-petrolio border border-white/10 text-nebbia font-body text-xs px-2 py-1.5 outline-none focus:border-oro/50"
@@ -97,10 +99,10 @@ export default function Imputazioni({ clienteId, conti }) {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-3">
-                <p className="font-body text-xs text-nebbia/40">Associa ogni categoria a un conto: i movimenti effettivi diventano scritture in partita doppia.</p>
+                <p className="font-body text-xs text-nebbia/40">{t('intro')}</p>
                 <button onClick={contabilizza} disabled={contabilizzando}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors disabled:opacity-40">
-                    {contabilizzando ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} />} Contabilizza non registrati
+                    {contabilizzando ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} />} {t('contabilizza_non_registrati')}
                 </button>
             </div>
 
@@ -112,15 +114,15 @@ export default function Imputazioni({ clienteId, conti }) {
             ) : categorie.length === 0 ? (
                 <div className="bg-petrolio/40 border border-white/5 p-8 text-center">
                     <Tags size={26} className="text-nebbia/15 mx-auto mb-3" />
-                    <p className="font-body text-sm text-nebbia/40">Nessuna categoria nei movimenti effettivi.</p>
-                    <p className="font-body text-xs text-nebbia/25 mt-1">Registra entrate/uscite con una categoria, poi torna qui per imputarle.</p>
+                    <p className="font-body text-sm text-nebbia/40">{t('vuoto.titolo')}</p>
+                    <p className="font-body text-xs text-nebbia/25 mt-1">{t('vuoto.sottotitolo')}</p>
                 </div>
             ) : (
                 <div className="bg-slate border border-white/5 overflow-x-auto">
                     <table className="w-full">
                         <thead><tr className="border-b border-white/5">
-                            {['Categoria', 'Conto (contropartita)', 'Cassa/Banca', 'IVA', ''].map(h => (
-                                <th key={h} className="px-3 py-2 text-left font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
+                            {t('colonne', { returnObjects: true }).map((h, i) => (
+                                <th key={i} className="px-3 py-2 text-left font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                             ))}
                         </tr></thead>
                         <tbody>
@@ -132,7 +134,7 @@ export default function Imputazioni({ clienteId, conti }) {
                                     <tr key={key} className="border-b border-white/5 last:border-0">
                                         <td className="px-3 py-2">
                                             <span className="font-body text-sm text-nebbia">{categoria}</span>
-                                            <span className={`ml-2 font-body text-[10px] px-1.5 py-0.5 border ${tipo === 'entrata' ? 'border-salvia/30 text-salvia' : 'border-oro/30 text-oro'}`}>{tipo}</span>
+                                            <span className={`ml-2 font-body text-[10px] px-1.5 py-0.5 border ${tipo === 'entrata' ? 'border-salvia/30 text-salvia' : 'border-oro/30 text-oro'}`}>{t(`tipo.${tipo}`)}</span>
                                         </td>
                                         <td className="px-3 py-2 w-64">
                                             <select value={m.conto_id ?? ''} onChange={e => setLocal(key, 'conto_id', e.target.value)} className={selCls}>
@@ -154,7 +156,7 @@ export default function Imputazioni({ clienteId, conti }) {
                                         <td className="px-3 py-2">
                                             <button onClick={() => salva(tipo, categoria)}
                                                 className="flex items-center gap-1.5 px-2.5 py-1.5 border border-white/10 text-nebbia/60 font-body text-xs hover:border-oro/30 hover:text-oro transition-colors">
-                                                {salvati[key] ? <><Check size={12} className="text-salvia" /> Salvato</> : 'Salva'}
+                                                {salvati[key] ? <><Check size={12} className="text-salvia" /> {t('azioni.salvato')}</> : t('azioni.salva')}
                                             </button>
                                         </td>
                                     </tr>

@@ -1,0 +1,112 @@
+{
+  "header": {
+    "label": "Account",
+    "title": "Il mio profilo"
+  },
+  "campo": {
+    "non_modificabile": "Non modificabile da qui."
+  },
+  "banner": {
+    "titolo": "Completa il profilo per generare atti legali",
+    "mancano": "Mancano:",
+    "testo_pre": "Compila la sezione",
+    "testo_sezione": "Dati professionali per atti",
+    "testo_post": "qui sotto per abilitare la generazione automatica di documenti dalle tue pratiche."
+  },
+  "info_account": {
+    "titolo": "Informazioni account",
+    "tipo_account": "Tipo account",
+    "studio": "Studio",
+    "verifica_identita": "Verifica identità",
+    "identita_verificata": "Identità verificata ✓",
+    "in_attesa_verifica": "In attesa di verifica",
+    "membro_note": "Sei un membro dello studio. Per modificare il piano contatta il titolare.",
+    "gestisci_studio": "Gestisci studio →"
+  },
+  "tipo_label": {
+    "titolare": "Titolare studio",
+    "referente": "Referente studio",
+    "membro": "Membro studio",
+    "singolo": "Avvocato singolo",
+    "default": "—"
+  },
+  "dati_personali": {
+    "titolo": "Dati personali",
+    "modifica": "Modifica",
+    "annulla": "Annulla",
+    "nome": "Nome",
+    "cognome": "Cognome",
+    "studio": "Studio / Nome studio",
+    "studio_placeholder": "Es. Studio Rossi & Associati",
+    "telefono": "Telefono",
+    "telefono_placeholder": "+41 79 123 45 67",
+    "email": "Email",
+    "specializzazioni": "Specializzazioni",
+    "specializzazioni_placeholder": "Diritto civile, Diritto commerciale (separate da virgola)",
+    "ok": "Profilo aggiornato.",
+    "salva": "Salva modifiche",
+    "lingua": "Lingua"
+  },
+  "atti": {
+    "titolo": "Dati professionali per atti",
+    "completo_badge": "Completo",
+    "modifica": "Modifica",
+    "compila": "Compila",
+    "annulla": "Annulla",
+    "descrizione": "Questi dati vengono utilizzati per intestare correttamente gli atti legali generati dalle tue pratiche.",
+    "cantone_albo": "Cantone d'iscrizione all'albo",
+    "cantone_albo_placeholder": "Es. TI",
+    "numero_albo": "Numero albo",
+    "numero_albo_placeholder": "Es. A23456",
+    "data_iscrizione": "Data iscrizione albo",
+    "ok": "Dati professionali aggiornati.",
+    "salva": "Salva dati professionali"
+  },
+  "campi_mancanti": {
+    "cantone_albo": "Cantone albo",
+    "numero_albo": "Numero albo"
+  },
+  "abbonamento": {
+    "titolo_studio": "Piano studio",
+    "titolo": "Abbonamento",
+    "accesso": "accesso",
+    "accessi": "accessi",
+    "banca_dati": " · Banca dati inclusa",
+    "scaduto": "Scaduto",
+    "scade_il": "Scade il {{data}}",
+    "attivo": "Attivo",
+    "gestito_titolare": "Gestito dal titolare dello studio.",
+    "gestisci_piano": "Gestisci piano →"
+  },
+  "password": {
+    "titolo": "Password",
+    "cambia": "Cambia",
+    "annulla": "Annulla",
+    "nuova": "Nuova password",
+    "conferma": "Conferma password",
+    "placeholder": "........",
+    "min_caratteri": "Minimo 8 caratteri",
+    "non_corrispondono": "Le password non corrispondono",
+    "aggiorna": "Aggiorna password",
+    "ok": "Password aggiornata."
+  },
+  "sicurezza": {
+    "titolo": "Sicurezza",
+    "due_fattori": "Autenticazione a due fattori (2FA)",
+    "attiva_dal": "Attiva dal {{data}}. Al login ti verrà chiesto un codice dall'app autenticatore.",
+    "descrizione": "Proteggi il tuo account con un codice generato da app come Google Authenticator, Authy o 1Password.",
+    "attivo": "Attivo",
+    "non_attivo": "Non attivo",
+    "codici_recupero": "Codici di recupero",
+    "codici_disponibili": "{{n}} su 10 disponibili",
+    "codici_quasi_esauriti": "Codici quasi esauriti — rigenerali per sicurezza.",
+    "rigenero": "Rigenero…",
+    "rigenera": "Rigenera codici",
+    "errore_generico": "Errore",
+    "attiva_2fa": "Attiva 2FA",
+    "disattivo": "Disattivo…",
+    "disattiva_2fa": "Disattiva 2FA",
+    "conferma_rigenera": "Rigenerare i codici di recupero? I codici precedenti diventeranno invalidi.",
+    "conferma_disattiva": "Disattivare il 2FA? Il tuo account sarà meno sicuro."
+  }
+}

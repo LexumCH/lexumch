@@ -1,0 +1,45 @@
+{
+  "comune": {
+    "assistenza": "Assistance"
+  },
+  "stati": {
+    "aperto": "Ouvert",
+    "chiuso": "Fermé"
+  },
+  "lista": {
+    "header_label": "Assistance",
+    "header_titolo": "Assistance",
+    "nuovo_ticket": "Nouveau ticket",
+    "cerca_placeholder": "Rechercher un ticket…",
+    "filtro_tutti_stati": "Tous les statuts",
+    "caricamento": "Chargement…",
+    "nessun_ticket_ancora": "Aucun ticket pour le moment. Ouvrez votre premier ticket.",
+    "nessun_ticket_trovato": "Aucun ticket trouvé.",
+    "col_oggetto": "Objet",
+    "col_aperto_il": "Ouvert le",
+    "col_ultimo_aggiornamento": "Dernière mise à jour",
+    "col_stato": "Statut",
+    "apri": "Ouvrir →"
+  },
+  "nuovo": {
+    "header_label": "Assistance Lexum",
+    "header_titolo": "Nouveau ticket",
+    "label_titolo": "Titre *",
+    "titolo_placeholder": "Ex. Vérification de l'inscription, Question sur les abonnements...",
+    "hint_messaggio": "Une fois le ticket créé, vous pourrez écrire le message dans le chat avec l'assistance.",
+    "annulla": "Annuler",
+    "apri_ticket": "Ouvrir le ticket",
+    "err_titolo_obbligatorio": "Le titre est obligatoire",
+    "err_non_autenticato": "Utilisateur non authentifié"
+  },
+  "dettaglio": {
+    "non_trovato": "Ticket introuvable.",
+    "torna": "← Retour à l'assistance",
+    "label_lexum": "Assistance Lexum",
+    "conversazione": "Conversation",
+    "autore_tu": "Vous",
+    "autore_admin": "Admin Lexum",
+    "scrivi_placeholder": "Écrivez un message… (Entrée pour envoyer)",
+    "ticket_chiuso": "Ticket fermé — il n'est plus possible d'envoyer de messages"
+  }
+}

@@ -4,6 +4,7 @@
 // Click su un template apre il GeneraDocumentoWizard.
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import {
     Wand2, ChevronRight, FileText, AlertCircle, Loader2
@@ -11,51 +12,22 @@ import {
 import GeneraDocumentoWizard from './GeneraDocumentoWizard'
 
 // ─────────────────────────────────────────────────────────────
-// CATEGORIE — ordine + label di visualizzazione
+// CATEGORIE — ordine di visualizzazione (label/desc tradotti via i18n per codice)
 // ─────────────────────────────────────────────────────────────
 const CATEGORIE = [
-    {
-        codice: 'stragiudiziale',
-        label: 'Atti stragiudiziali',
-        desc: 'Diffide, messe in mora, pareri, accordi, transazioni',
-        ordine: 1,
-    },
-    {
-        codice: 'introduttivo',
-        label: 'Atti introduttivi',
-        desc: 'Citazione, ricorso, decreto ingiuntivo, opposizione',
-        ordine: 2,
-    },
-    {
-        codice: 'difensivo',
-        label: 'Atti difensivi',
-        desc: 'Comparsa, memoria, note difensive, replica, conclusionale',
-        ordine: 3,
-    },
-    {
-        codice: 'istruttorio',
-        label: 'Atti istruttori e incidentali',
-        desc: 'Istanze, richieste prova, lista testimoni, osservazioni CTU',
-        ordine: 4,
-    },
-    {
-        codice: 'esecutivo',
-        label: 'Atti esecutivi',
-        desc: 'Precetto, pignoramento, istanza di vendita o assegnazione',
-        ordine: 5,
-    },
-    {
-        codice: 'impugnazione',
-        label: 'Impugnazioni',
-        desc: 'Appello, reclamo, cassazione, revocazione',
-        ordine: 6,
-    },
+    { codice: 'stragiudiziale', ordine: 1 },
+    { codice: 'introduttivo', ordine: 2 },
+    { codice: 'difensivo', ordine: 3 },
+    { codice: 'istruttorio', ordine: 4 },
+    { codice: 'esecutivo', ordine: 5 },
+    { codice: 'impugnazione', ordine: 6 },
 ]
 
 // ─────────────────────────────────────────────────────────────
 // COMPONENTE PRINCIPALE
 // ─────────────────────────────────────────────────────────────
 export default function GeneraDocumentoMenu({ praticaId, onDocumentoSalvato }) {
+    const { t } = useTranslation('comp_genera_documento_menu')
     const [templates, setTemplates] = useState([])
     const [loading, setLoading] = useState(true)
     const [errore, setErrore] = useState('')
@@ -73,7 +45,7 @@ export default function GeneraDocumentoMenu({ praticaId, onDocumentoSalvato }) {
                 .order('ordine', { ascending: true })
 
             if (error) {
-                setErrore('Errore nel caricamento dei template')
+                setErrore(t('errori.caricamento'))
             } else {
                 setTemplates(data ?? [])
             }
@@ -106,11 +78,11 @@ export default function GeneraDocumentoMenu({ praticaId, onDocumentoSalvato }) {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
                     <div className="flex items-center gap-2">
                         <Wand2 size={16} className="text-oro" />
-                        <p className="font-body text-base font-medium text-oro">Genera documento</p>
+                        <p className="font-body text-base font-medium text-oro">{t('header.titolo')}</p>
                     </div>
                     {!loading && templates.length > 0 && (
                         <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-2 py-0.5 uppercase tracking-wider">
-                            {templates.length} {templates.length === 1 ? 'template' : 'template'}
+                            {t('header.badge_template', { count: templates.length })}
                         </span>
                     )}
                 </div>
@@ -118,7 +90,7 @@ export default function GeneraDocumentoMenu({ praticaId, onDocumentoSalvato }) {
                 {/* Subtitle */}
                 <div className="px-4 py-3 border-b border-white/5 bg-petrolio/30 shrink-0">
                     <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                        Lex genera l'atto a partire dai dati della pratica, del cliente e delle controparti.
+                        {t('sottotitolo')}
                     </p>
                 </div>
 
@@ -135,9 +107,9 @@ export default function GeneraDocumentoMenu({ praticaId, onDocumentoSalvato }) {
                     ) : templates.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-10 text-center px-6">
                             <FileText size={24} className="text-nebbia/20 mb-2" />
-                            <p className="font-body text-sm text-nebbia/40">Nessun template disponibile</p>
+                            <p className="font-body text-sm text-nebbia/40">{t('vuoto.titolo')}</p>
                             <p className="font-body text-xs text-nebbia/25 mt-1">
-                                I template saranno disponibili a breve
+                                {t('vuoto.sottotitolo')}
                             </p>
                         </div>
                     ) : categorieConTemplate.map(cat => {
@@ -150,8 +122,8 @@ export default function GeneraDocumentoMenu({ praticaId, onDocumentoSalvato }) {
                                     className="w-full flex items-center justify-between p-3 hover:bg-white/5 transition-colors text-left"
                                 >
                                     <div className="min-w-0 flex-1">
-                                        <p className="font-body text-sm font-medium text-nebbia">{cat.label}</p>
-                                        <p className="font-body text-xs text-nebbia/40 mt-0.5 truncate">{cat.desc}</p>
+                                        <p className="font-body text-sm font-medium text-nebbia">{t(`categorie.${cat.codice}.label`)}</p>
+                                        <p className="font-body text-xs text-nebbia/40 mt-0.5 truncate">{t(`categorie.${cat.codice}.desc`)}</p>
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0 ml-2">
                                         <span className="font-body text-[10px] text-nebbia/30">{lista.length}</span>

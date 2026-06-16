@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PageHeader, BackButton, Badge, InputField, TextareaField } from '@/components/shared'
 import { Plus, Send, Search, AlertCircle, X, User, Building2, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 const ALIAS_ADMIN_NOME = 'Lexum'
 const ALIAS_ADMIN_INIZIALE = 'L'
@@ -17,6 +20,7 @@ function displayNome(profilo, ruoloFallback = null) {
 }
 
 function ModalNuovoTicketCliente({ onClose, onCreato }) {
+    const { t } = useTranslation('avv_assistenza')
     const [titolo, setTitolo] = useState('')
     const [cerca, setCerca] = useState('')
     const [clienti, setClienti] = useState([])
@@ -76,8 +80,8 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
 
     async function handleCrea() {
         setErrore('')
-        if (!clienteSel) return setErrore('Seleziona un cliente')
-        if (!titolo.trim()) return setErrore('Il titolo è obbligatorio')
+        if (!clienteSel) return setErrore(t('modal_cliente.err_seleziona_cliente'))
+        if (!titolo.trim()) return setErrore(t('modal_cliente.err_titolo_obbligatorio'))
 
         setCreando(true)
         try {
@@ -114,7 +118,7 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
                     <div className="flex items-center gap-2">
                         <Plus size={14} className="text-oro" />
-                        <p className="font-body text-sm font-medium text-nebbia">Nuovo ticket a cliente</p>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('modal_cliente.titolo')}</p>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia transition-colors">
                         <X size={16} />
@@ -125,7 +129,7 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
                     {/* Cliente — dropdown con cerca */}
                     <div>
                         <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                            Cliente *
+                            {t('modal_cliente.label_cliente')}
                         </label>
 
                         {clienteSel ? (
@@ -143,7 +147,7 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
                                 <button
                                     onClick={() => { setClienteSel(null); setCerca(''); setDropdownOpen(true) }}
                                     className="text-nebbia/30 hover:text-red-400 transition-colors shrink-0 ml-2"
-                                    title="Rimuovi"
+                                    title={t('modal_cliente.rimuovi')}
                                 >
                                     <X size={14} />
                                 </button>
@@ -155,7 +159,7 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
                                     value={cerca}
                                     onChange={e => { setCerca(e.target.value); setDropdownOpen(true) }}
                                     onFocus={() => setDropdownOpen(true)}
-                                    placeholder="Cerca cliente per nome o email..."
+                                    placeholder={t('modal_cliente.cerca_placeholder')}
                                     autoFocus
                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                                 />
@@ -168,7 +172,7 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
                                             </div>
                                         ) : clientiFiltrati.length === 0 ? (
                                             <p className="font-body text-xs text-nebbia/40 text-center py-6 px-4">
-                                                {cerca ? 'Nessun cliente trovato' : 'Nessun cliente disponibile'}
+                                                {cerca ? t('modal_cliente.nessun_cliente_trovato') : t('modal_cliente.nessun_cliente_disponibile')}
                                             </p>
                                         ) : (
                                             clientiFiltrati.map(c => (
@@ -197,17 +201,17 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
                     {/* Titolo */}
                     <div>
                         <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                            Titolo / oggetto *
+                            {t('modal_cliente.label_titolo')}
                         </label>
                         <input
                             value={titolo}
                             onChange={e => setTitolo(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter' && titolo.trim() && clienteSel && !creando) handleCrea() }}
-                            placeholder="Es. Documenti mancanti, Aggiornamento pratica..."
+                            placeholder={t('modal_cliente.titolo_placeholder')}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                         />
                         <p className="font-body text-xs text-nebbia/25 mt-2">
-                            Dopo aver creato il ticket potrai scrivere il primo messaggio nella chat.
+                            {t('modal_cliente.hint_primo_messaggio')}
                         </p>
                     </div>
 
@@ -223,7 +227,7 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
                             disabled={creando}
                             className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40"
                         >
-                            Annulla
+                            {t('modal_cliente.annulla')}
                         </button>
                         <button
                             onClick={handleCrea}
@@ -232,7 +236,7 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
                         >
                             {creando
                                 ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                                : <><Check size={14} /> Apri ticket</>
+                                : <><Check size={14} /> {t('modal_cliente.apri_ticket')}</>
                             }
                         </button>
                     </div>
@@ -246,6 +250,8 @@ function ModalNuovoTicketCliente({ onClose, onCreato }) {
 // LISTA TICKET
 // ─────────────────────────────────────────────────────────────
 export function AvvocatoAssistenza() {
+    const { t, i18n } = useTranslation('avv_assistenza')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [tab, setTab] = useState('clienti')
     const [meId, setMeId] = useState(null)
     const [ids, setIds] = useState([])           // [meId, ...collaboratoriIds]
@@ -357,31 +363,31 @@ export function AvvocatoAssistenza() {
 
     return (
         <div className="space-y-5">
-            <PageHeader label="Supporto" title="Assistenza"
+            <PageHeader label={t('lista.header_label')} title={t('lista.header_titolo')}
                 action={isLexum
                     ? <Link to="/assistenza/nuovo" className="btn-primary text-sm flex items-center gap-2">
-                        <Plus size={15} /> Nuovo ticket a Lexum
+                        <Plus size={15} /> {t('lista.nuovo_ticket_lexum')}
                     </Link>
                     : <button
                         onClick={() => setMostraModalCliente(true)}
                         className="btn-primary text-sm flex items-center gap-2"
                     >
-                        <Plus size={15} /> Nuovo ticket a cliente
+                        <Plus size={15} /> {t('lista.nuovo_ticket_cliente')}
                     </button>
                 }
             />
 
             <div className="flex gap-0 border-b border-white/8">
                 {[
-                    { id: 'clienti', label: 'Clienti', badge: nApertiClienti },
-                    { id: 'lexum', label: 'Supporto Lexum', badge: nApertiLexum },
-                ].map(t => (
-                    <button key={t.id} onClick={() => { setTab(t.id); setSearch(''); setStatoF('') }}
-                        className={`flex items-center gap-2 px-5 py-3 font-body text-sm border-b-2 transition-colors ${tab === t.id ? 'border-oro text-oro' : 'border-transparent text-nebbia/40 hover:text-nebbia'}`}>
-                        {t.label}
-                        {t.badge > 0 && (
+                    { id: 'clienti', label: t('lista.tab_clienti'), badge: nApertiClienti },
+                    { id: 'lexum', label: t('lista.tab_lexum'), badge: nApertiLexum },
+                ].map(tabItem => (
+                    <button key={tabItem.id} onClick={() => { setTab(tabItem.id); setSearch(''); setStatoF('') }}
+                        className={`flex items-center gap-2 px-5 py-3 font-body text-sm border-b-2 transition-colors ${tab === tabItem.id ? 'border-oro text-oro' : 'border-transparent text-nebbia/40 hover:text-nebbia'}`}>
+                        {tabItem.label}
+                        {tabItem.badge > 0 && (
                             <span className="w-4 h-4 rounded-full bg-oro/20 text-oro text-[10px] flex items-center justify-center font-medium">
-                                {t.badge}
+                                {tabItem.badge}
                             </span>
                         )}
                     </button>
@@ -391,19 +397,19 @@ export function AvvocatoAssistenza() {
             <div className="flex flex-wrap gap-3">
                 <div className="relative flex-1 min-w-44">
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                    <input placeholder="Cerca oggetto, mittente..." value={search} onChange={e => setSearch(e.target.value)}
+                    <input placeholder={t('lista.cerca_placeholder')} value={search} onChange={e => setSearch(e.target.value)}
                         className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
                 </div>
                 <select value={statoF} onChange={e => setStatoF(e.target.value)}
                     className="bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50">
-                    <option value="">Tutti gli stati</option>
-                    <option value="aperto">Aperto</option>
-                    <option value="chiuso">Chiuso</option>
+                    <option value="">{t('lista.filtro_tutti_stati')}</option>
+                    <option value="aperto">{t('stati.aperto')}</option>
+                    <option value="chiuso">{t('stati.chiuso')}</option>
                 </select>
                 {(search || statoF) && (
                     <button onClick={() => { setSearch(''); setStatoF('') }}
                         className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors px-3 py-2.5 border border-white/5 hover:border-red-500/30">
-                        Reset
+                        {t('lista.reset')}
                     </button>
                 )}
             </div>
@@ -416,47 +422,47 @@ export function AvvocatoAssistenza() {
                 <div className="bg-slate border border-white/5 overflow-x-auto">
                     {rows.length === 0 ? (
                         <div className="py-12 text-center font-body text-sm text-nebbia/30">
-                            {source.length === 0 ? 'Nessun ticket' : 'Nessun risultato'}
+                            {source.length === 0 ? t('lista.nessun_ticket') : t('lista.nessun_risultato')}
                         </div>
                     ) : (
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-white/5">
                                     <th className="px-4 py-3 w-6" />
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Titolo</th>
-                                    {!isLexum && <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Cliente</th>}
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Aperto il</th>
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Aggiornato</th>
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Stato</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('lista.col_titolo')}</th>
+                                    {!isLexum && <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('lista.col_cliente')}</th>}
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('lista.col_aperto_il')}</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('lista.col_aggiornato')}</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('lista.col_stato')}</th>
                                     <th className="px-4 py-3 w-16" />
                                 </tr>
                             </thead>
                             <tbody>
-                                {rows.map(t => {
-                                    const ultimoAutore = getUltimoAutore(t)
-                                    const nonLetto = t.stato === 'aperto' && (isLexum ? ultimoAutore === 'admin' : ultimoAutore === 'cliente')
+                                {rows.map(row => {
+                                    const ultimoAutore = getUltimoAutore(row)
+                                    const nonLetto = row.stato === 'aperto' && (isLexum ? ultimoAutore === 'admin' : ultimoAutore === 'cliente')
                                     return (
-                                        <tr key={t.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
+                                        <tr key={row.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
                                             <td className="px-4 py-3">
                                                 {nonLetto && <span className="inline-block w-1.5 h-1.5 rounded-full bg-oro" />}
                                             </td>
-                                            <td className="px-4 py-3 font-body text-sm font-medium text-nebbia">{t.oggetto}</td>
+                                            <td className="px-4 py-3 font-body text-sm font-medium text-nebbia">{row.oggetto}</td>
                                             {!isLexum && (
                                                 <td className="px-4 py-3 font-body text-sm text-nebbia/60">
-                                                    {t.mittente ? `${t.mittente.nome} ${t.mittente.cognome}` : '—'}
+                                                    {row.mittente ? `${row.mittente.nome} ${row.mittente.cognome}` : '—'}
                                                 </td>
                                             )}
                                             <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">
-                                                {new Date(t.created_at).toLocaleDateString('it-CH')}
+                                                {new Date(row.created_at).toLocaleDateString(dateLocale)}
                                             </td>
                                             <td className="px-4 py-3 font-body text-xs text-nebbia/30 whitespace-nowrap">
-                                                {new Date(t.updated_at).toLocaleDateString('it-CH')}
+                                                {new Date(row.updated_at).toLocaleDateString(dateLocale)}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <Badge label={t.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={t.stato === 'aperto' ? 'salvia' : 'gray'} />
+                                                <Badge label={row.stato === 'aperto' ? t('stati.aperto') : t('stati.chiuso')} variant={row.stato === 'aperto' ? 'salvia' : 'gray'} />
                                             </td>
                                             <td className="px-4 py-3 text-right">
-                                                <Link to={`/assistenza/${t.id}`} className="font-body text-xs text-oro hover:text-oro/70">Apri →</Link>
+                                                <Link to={`/assistenza/${row.id}`} className="font-body text-xs text-oro hover:text-oro/70">{t('lista.apri')}</Link>
                                             </td>
                                         </tr>
                                     )
@@ -485,6 +491,7 @@ export function AvvocatoAssistenza() {
 // (solo titolo: la chat con l'admin si apre subito dopo)
 // ─────────────────────────────────────────────────────────────
 export function AvvocatoAssistenzaNuovo() {
+    const { t } = useTranslation('avv_assistenza')
     const navigate = useNavigate()
     const [titolo, setTitolo] = useState('')
     const [salvando, setSalvando] = useState(false)
@@ -492,7 +499,7 @@ export function AvvocatoAssistenzaNuovo() {
 
     async function handleCrea() {
         setErrore('')
-        if (!titolo.trim()) return setErrore('Il titolo è obbligatorio')
+        if (!titolo.trim()) return setErrore(t('nuovo.err_titolo_obbligatorio'))
         setSalvando(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
@@ -519,21 +526,21 @@ export function AvvocatoAssistenzaNuovo() {
 
     return (
         <div className="space-y-5 max-w-2xl">
-            <BackButton to="/assistenza" label="Assistenza" />
-            <PageHeader label="Supporto Lexum" title="Nuovo ticket" />
+            <BackButton to="/assistenza" label={t('comune.assistenza')} />
+            <PageHeader label={t('nuovo.header_label')} title={t('nuovo.header_titolo')} />
             <div className="bg-slate border border-white/5 p-6 space-y-5">
                 <div>
-                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Titolo *</label>
+                    <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('nuovo.label_titolo')}</label>
                     <input
                         value={titolo}
                         onChange={e => setTitolo(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && titolo.trim() && !salvando) handleCrea() }}
-                        placeholder="Es. Problema con fatturazione, Richiesta funzionalità..."
+                        placeholder={t('nuovo.titolo_placeholder')}
                         autoFocus
                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                     />
                     <p className="font-body text-xs text-nebbia/25 mt-2">
-                        Dopo aver creato il ticket potrai scrivere il messaggio nella chat con il supporto.
+                        {t('nuovo.hint_messaggio')}
                     </p>
                 </div>
 
@@ -545,7 +552,7 @@ export function AvvocatoAssistenzaNuovo() {
 
                 <div className="flex gap-3">
                     <button onClick={() => navigate('/assistenza')} className="btn-secondary text-sm flex-1">
-                        Annulla
+                        {t('nuovo.annulla')}
                     </button>
                     <button
                         onClick={handleCrea}
@@ -554,7 +561,7 @@ export function AvvocatoAssistenzaNuovo() {
                     >
                         {salvando
                             ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                            : 'Apri ticket'
+                            : t('nuovo.apri_ticket')
                         }
                     </button>
                 </div>
@@ -567,6 +574,8 @@ export function AvvocatoAssistenzaNuovo() {
 // DETTAGLIO TICKET
 // ─────────────────────────────────────────────────────────────
 export function AvvocatoAssistenzaDettaglio() {
+    const { t, i18n } = useTranslation('avv_assistenza')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const bottomRef = useRef(null)
     const [meId, setMeId] = useState(null)
@@ -626,43 +635,43 @@ export function AvvocatoAssistenzaDettaglio() {
     }
 
     if (loading) return <div className="flex justify-center py-40"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" /></div>
-    if (!ticket) return <div className="space-y-5"><BackButton to="/assistenza" label="Assistenza" /><p className="font-body text-sm text-nebbia/40">Ticket non trovato.</p></div>
+    if (!ticket) return <div className="space-y-5"><BackButton to="/assistenza" label={t('comune.assistenza')} /><p className="font-body text-sm text-nebbia/40">{t('dettaglio.non_trovato')}</p></div>
 
     // Mostra "Lexum" se il mittente è un admin (alias unificato del supporto)
     const mittente = ticket.mittente
         ? displayNome(ticket.mittente, ticket.mittente_ruolo)
-        : 'Sconosciuto'
+        : t('dettaglio.sconosciuto')
 
     return (
         <div className="space-y-5">
-            <BackButton to="/assistenza" label="Assistenza" />
+            <BackButton to="/assistenza" label={t('comune.assistenza')} />
 
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
-                    <p className="section-label mb-2">{isLexum ? 'Supporto Lexum' : 'Ticket cliente'} · #{ticket.id.slice(0, 8)}</p>
+                    <p className="section-label mb-2">{isLexum ? t('dettaglio.label_lexum') : t('dettaglio.label_cliente')} · #{ticket.id.slice(0, 8)}</p>
                     <h1 className="font-display text-3xl font-light text-nebbia">{ticket.oggetto}</h1>
-                    <p className="font-body text-xs text-nebbia/30 mt-1">{mittente} · {new Date(ticket.created_at).toLocaleDateString('it-CH')}</p>
+                    <p className="font-body text-xs text-nebbia/30 mt-1">{mittente} · {new Date(ticket.created_at).toLocaleDateString(dateLocale)}</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                    <Badge label={ticket.stato === 'aperto' ? 'Aperto' : 'Chiuso'} variant={ticket.stato === 'aperto' ? 'salvia' : 'gray'} />
+                    <Badge label={ticket.stato === 'aperto' ? t('stati.aperto') : t('stati.chiuso')} variant={ticket.stato === 'aperto' ? 'salvia' : 'gray'} />
                     {ticket.stato === 'aperto' ? (
                         <button onClick={chiudiTicket}
                             className="flex items-center gap-1.5 font-body text-xs text-nebbia/60 hover:text-salvia border border-white/15 hover:border-salvia/30 px-3 py-1.5 transition-colors">
-                            <Check size={12} /> Chiudi ticket
+                            <Check size={12} /> {t('dettaglio.chiudi_ticket')}
                         </button>
                     ) : (
                         <button onClick={riapriTicket}
                             className="flex items-center gap-1.5 font-body text-xs text-oro hover:text-oro/80 border border-oro/30 hover:border-oro/50 px-3 py-1.5 transition-colors">
-                            Riapri
+                            {t('dettaglio.riapri')}
                         </button>
                     )}
                 </div>
             </div>
 
             <div className="bg-slate border border-white/5 p-5 space-y-4 min-h-48 max-h-[500px] overflow-y-auto">
-                <p className="section-label mb-2">Conversazione</p>
+                <p className="section-label mb-2">{t('dettaglio.conversazione')}</p>
                 {messaggi.length === 0 ? (
-                    <p className="font-body text-sm text-nebbia/30 italic">Nessun messaggio</p>
+                    <p className="font-body text-sm text-nebbia/30 italic">{t('dettaglio.nessun_messaggio')}</p>
                 ) : messaggi.map(m => {
                     const isMio = m.autore_tipo === 'avvocato'
                     const nomeAutore = m.autore_tipo === 'admin'
@@ -674,7 +683,7 @@ export function AvvocatoAssistenzaDettaglio() {
                                 <p className={`font-body text-[10px] font-medium ${isMio ? 'text-oro/60' : 'text-nebbia/40'}`}>{nomeAutore}</p>
                                 <p className="font-body text-sm text-nebbia leading-relaxed whitespace-pre-wrap">{m.testo}</p>
                                 <p className="font-body text-[10px] text-nebbia/25">
-                                    {new Date(m.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    {new Date(m.created_at).toLocaleString(dateLocale, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                 </p>
                             </div>
                         </div>
@@ -687,18 +696,18 @@ export function AvvocatoAssistenzaDettaglio() {
                 <div className="space-y-2">
                     {errore && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20"><AlertCircle size={14} /> {errore}</div>}
                     <div className="flex gap-3">
-                        <textarea rows={2} value={msg} onChange={e => setMsg(e.target.value)} placeholder="Scrivi un messaggio..."
+                        <textarea rows={2} value={msg} onChange={e => setMsg(e.target.value)} placeholder={t('dettaglio.scrivi_placeholder')}
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleInvia() } }}
                             className="flex-1 bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25" />
                         <button onClick={handleInvia} disabled={inviando || !msg.trim()} className="btn-primary text-sm self-end px-4 py-3 disabled:opacity-40">
                             {inviando ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <Send size={15} />}
                         </button>
                     </div>
-                    <p className="font-body text-[10px] text-nebbia/20">Invio con Enter · A capo con Shift+Enter</p>
+                    <p className="font-body text-[10px] text-nebbia/20">{t('dettaglio.hint_invio')}</p>
                 </div>
             ) : (
                 <div className="bg-petrolio/40 border border-white/5 p-4">
-                    <p className="font-body text-sm text-nebbia/30 text-center">Ticket chiuso. Usa il pulsante in alto per riaprirlo.</p>
+                    <p className="font-body text-sm text-nebbia/30 text-center">{t('dettaglio.ticket_chiuso')}</p>
                 </div>
             )}
         </div>

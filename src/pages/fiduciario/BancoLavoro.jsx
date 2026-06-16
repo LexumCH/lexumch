@@ -9,16 +9,20 @@
 
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/shared'
 import { Plus, Search, AlertCircle, Briefcase } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import NuovoMandato from '@/components/fiduciario/NuovoMandato'
 
-const STATI = {
-    attivo: { label: 'Attivo', cls: 'bg-salvia/10 border-salvia/30 text-salvia' },
-    sospeso: { label: 'Sospeso', cls: 'bg-amber-500/10 border-amber-500/30 text-amber-400' },
-    concluso: { label: 'Concluso', cls: 'bg-oro/10 border-oro/30 text-oro' },
-    archiviato: { label: 'Archiviato', cls: 'bg-white/5 border-white/15 text-nebbia/40' },
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
+// Classi CSS per stato (le label arrivano da t('stati.<key>'))
+const STATI_CLS = {
+    attivo: 'bg-salvia/10 border-salvia/30 text-salvia',
+    sospeso: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+    concluso: 'bg-oro/10 border-oro/30 text-oro',
+    archiviato: 'bg-white/5 border-white/15 text-nebbia/40',
 }
 
 function nomeCliente(c) {
@@ -28,6 +32,8 @@ function nomeCliente(c) {
 }
 
 export default function BancoLavoro() {
+    const { t, i18n } = useTranslation('fid_banco_lavoro')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [search, setSearch] = useState('')
     const [statoF, setStatoF] = useState('')
     const [clienteF, setClienteF] = useState('')
@@ -48,7 +54,7 @@ export default function BancoLavoro() {
             .eq('avvocato_id', user.id)
             .order('updated_at', { ascending: false })
 
-        if (error) setErrore('Errore caricamento mandati')
+        if (error) setErrore(t('lista.errore_caricamento'))
         else setMandati(data ?? [])
 
         // Clienti del fiduciario per il filtro
@@ -77,13 +83,15 @@ export default function BancoLavoro() {
     })
 
     const hasFilters = search || statoF || clienteF
+    const toArray = (v) => Array.isArray(v) ? v : []
+    const intestazioni = toArray(t('lista.intestazioni', { returnObjects: true }))
 
     return (
         <div className="space-y-5">
-            <PageHeader label="Banco di lavoro" title="I mandati"
+            <PageHeader label={t('lista.label')} title={t('lista.titolo')}
                 action={
                     <button onClick={() => setMostraNuovo(true)} className="btn-primary text-sm">
-                        <Plus size={15} /> Nuovo mandato
+                        <Plus size={15} /> {t('lista.nuovo_mandato')}
                     </button>
                 } />
 
@@ -92,7 +100,7 @@ export default function BancoLavoro() {
                 <div className="relative flex-1 min-w-48">
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                     <input
-                        placeholder="Cerca mandato o cliente..."
+                        placeholder={t('lista.cerca_placeholder')}
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -101,20 +109,20 @@ export default function BancoLavoro() {
 
                 <select value={statoF} onChange={e => setStatoF(e.target.value)}
                     className="bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50">
-                    <option value="">Tutti gli stati</option>
-                    {Object.entries(STATI).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                    <option value="">{t('lista.tutti_stati')}</option>
+                    {Object.keys(STATI_CLS).map(k => <option key={k} value={k}>{t(`stati.${k}`)}</option>)}
                 </select>
 
                 <select value={clienteF} onChange={e => setClienteF(e.target.value)}
                     className="bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 max-w-56">
-                    <option value="">Tutti i clienti</option>
+                    <option value="">{t('lista.tutti_clienti')}</option>
                     {clienti.map(c => <option key={c.id} value={c.id}>{nomeCliente(c)}</option>)}
                 </select>
 
                 {hasFilters && (
                     <button onClick={() => { setSearch(''); setStatoF(''); setClienteF('') }}
                         className="font-body text-xs text-nebbia/30 hover:text-red-400 px-3 py-2.5 border border-white/5 hover:border-red-500/30 transition-colors">
-                        Reset
+                        {t('lista.reset')}
                     </button>
                 )}
             </div>
@@ -131,10 +139,10 @@ export default function BancoLavoro() {
             ) : mandati.length === 0 ? (
                 <div className="bg-slate border border-white/5 p-12 flex flex-col items-center text-center gap-3">
                     <Briefcase size={28} className="text-nebbia/20" />
-                    <p className="font-body text-sm text-nebbia/40">Nessun mandato ancora</p>
-                    <p className="font-body text-xs text-nebbia/25">Crea il primo mandato per iniziare a lavorare</p>
+                    <p className="font-body text-sm text-nebbia/40">{t('vuoto.titolo')}</p>
+                    <p className="font-body text-xs text-nebbia/25">{t('vuoto.sottotitolo')}</p>
                     <button onClick={() => setMostraNuovo(true)} className="btn-primary text-sm mt-2">
-                        <Plus size={15} /> Nuovo mandato
+                        <Plus size={15} /> {t('lista.nuovo_mandato')}
                     </button>
                 </div>
             ) : (
@@ -142,16 +150,17 @@ export default function BancoLavoro() {
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/5">
-                                {['Mandato', 'Cliente', 'Tipo', 'Anno', 'Stato', 'Creato il', ''].map(h => (
-                                    <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
+                                {intestazioni.map((h, i) => (
+                                    <th key={i} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
                             {rows.length === 0 ? (
-                                <tr><td colSpan={7} className="px-4 py-12 text-center font-body text-sm text-nebbia/30">Nessun mandato trovato</td></tr>
+                                <tr><td colSpan={7} className="px-4 py-12 text-center font-body text-sm text-nebbia/30">{t('lista.nessun_mandato')}</td></tr>
                             ) : rows.map(m => {
-                                const sc = STATI[m.stato] ?? STATI.attivo
+                                const scCls = STATI_CLS[m.stato] ?? STATI_CLS.attivo
+                                const statoLabel = STATI_CLS[m.stato] ? t(`stati.${m.stato}`) : t('stati.attivo')
                                 return (
                                     <tr key={m.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
                                         <td className="px-4 py-3 font-body text-sm font-medium text-nebbia max-w-xs truncate">{m.titolo}</td>
@@ -159,15 +168,15 @@ export default function BancoLavoro() {
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/40">{m.tipo ?? '—'}</td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/50">{m.anno_riferimento ?? '—'}</td>
                                         <td className="px-4 py-3">
-                                            <span className={`font-body text-[10px] px-2 py-0.5 border uppercase tracking-wider ${sc.cls}`}>
-                                                {sc.label}
+                                            <span className={`font-body text-[10px] px-2 py-0.5 border uppercase tracking-wider ${scCls}`}>
+                                                {statoLabel}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
-                                            {new Date(m.created_at).toLocaleDateString('it-CH')}
+                                            {new Date(m.created_at).toLocaleDateString(dateLocale)}
                                         </td>
                                         <td className="px-4 py-3 text-right">
-                                            <Link to={`/banco-lavoro/${m.id}`} className="font-body text-xs text-oro hover:text-oro/70">Dettaglio →</Link>
+                                            <Link to={`/banco-lavoro/${m.id}`} className="font-body text-xs text-oro hover:text-oro/70">{t('lista.dettaglio')}</Link>
                                         </td>
                                     </tr>
                                 )

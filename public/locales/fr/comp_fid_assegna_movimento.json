@@ -1,0 +1,15 @@
+{
+    "chip": {
+        "ocr_da_verificare": "Créé par OCR, à vérifier dans le mandat",
+        "scollega": "Dissocier l'écriture"
+    },
+    "controlli": {
+        "mandato_richiesto": "Attribuez d'abord un mandat au document",
+        "entrata_uscita": "Entrée / Sortie",
+        "entrata": "Entrée",
+        "uscita": "Sortie"
+    },
+    "errori": {
+        "estrazione_fallita": "Échec de l'extraction"
+    }
+}

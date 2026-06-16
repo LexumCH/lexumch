@@ -1,0 +1,45 @@
+{
+  "comune": {
+    "assistenza": "Assistenza"
+  },
+  "stati": {
+    "aperto": "Aperto",
+    "chiuso": "Chiuso"
+  },
+  "lista": {
+    "header_label": "Supporto",
+    "header_titolo": "Assistenza",
+    "nuovo_ticket": "Nuovo ticket",
+    "cerca_placeholder": "Cerca ticket…",
+    "filtro_tutti_stati": "Tutti gli stati",
+    "caricamento": "Caricamento…",
+    "nessun_ticket_ancora": "Nessun ticket ancora. Apri il tuo primo ticket.",
+    "nessun_ticket_trovato": "Nessun ticket trovato.",
+    "col_oggetto": "Oggetto",
+    "col_aperto_il": "Aperto il",
+    "col_ultimo_aggiornamento": "Ultimo aggiornamento",
+    "col_stato": "Stato",
+    "apri": "Apri →"
+  },
+  "nuovo": {
+    "header_label": "Supporto Lexum",
+    "header_titolo": "Nuovo ticket",
+    "label_titolo": "Titolo *",
+    "titolo_placeholder": "Es. Verifica iscrizione, Domanda sui piani...",
+    "hint_messaggio": "Dopo aver creato il ticket potrai scrivere il messaggio nella chat con il supporto.",
+    "annulla": "Annulla",
+    "apri_ticket": "Apri ticket",
+    "err_titolo_obbligatorio": "Il titolo è obbligatorio",
+    "err_non_autenticato": "Utente non autenticato"
+  },
+  "dettaglio": {
+    "non_trovato": "Ticket non trovato.",
+    "torna": "← Torna all'assistenza",
+    "label_lexum": "Supporto Lexum",
+    "conversazione": "Conversazione",
+    "autore_tu": "Tu",
+    "autore_admin": "Admin Lexum",
+    "scrivi_placeholder": "Scrivi un messaggio… (Invio per inviare)",
+    "ticket_chiuso": "Ticket chiuso — non è possibile inviare altri messaggi"
+  }
+}

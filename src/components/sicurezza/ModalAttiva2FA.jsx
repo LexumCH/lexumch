@@ -6,10 +6,12 @@
 // Dopo verifica OK, genera 10 backup codes e li passa a onSuccess.
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, AlertCircle, ShieldCheck, Copy, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export default function ModalAttiva2FA({ onClose, onSuccess }) {
+    const { t } = useTranslation('comp_modal_attiva_2fa')
     const [step, setStep] = useState(1)
     const [loading, setLoading] = useState(true)
     const [qrCode, setQrCode] = useState(null)
@@ -70,12 +72,12 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
 
             if (error) {
                 console.error('[2FA] Enroll error:', error)
-                throw new Error(error.message || 'Errore durante l\'attivazione')
+                throw new Error(error.message || t('errori.attivazione'))
             }
 
             if (!data?.id || !data?.totp?.qr_code) {
                 console.error('[2FA] Enroll response incompleta:', data)
-                throw new Error('Risposta server incompleta')
+                throw new Error(t('errori.rispostaIncompleta'))
             }
 
             console.log('[2FA] Enroll OK, factor id:', data.id)
@@ -92,11 +94,11 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
 
     async function handleVerifica() {
         if (codice.length !== 6) {
-            setErr('Inserisci il codice a 6 cifre dalla tua app')
+            setErr(t('errori.codiceInvalido'))
             return
         }
         if (!factorIdRef.current) {
-            setErr('Sessione di attivazione scaduta. Chiudi e riprova.')
+            setErr(t('errori.sessioneScaduta'))
             return
         }
         setVerificando(true); setErr('')
@@ -116,7 +118,7 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
                 body: { action: 'generate' }
             })
             if (errBkp) throw new Error(errBkp.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore generazione codici')
+            if (!data?.ok) throw new Error(data?.error ?? t('errori.generazioneCodici'))
 
             // Marca successo per evitare cleanup unenroll
             successRef.current = true
@@ -156,7 +158,7 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
                 <div className="flex items-center justify-between p-5 border-b border-white/8">
                     <div className="flex items-center gap-2">
                         <ShieldCheck size={16} className="text-oro" />
-                        <h2 className="font-display text-lg text-nebbia">Attiva 2FA</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('header.titolo')}</h2>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia">
                         <X size={18} />
@@ -175,12 +177,12 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
                             <div className="flex items-start gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
                                 <AlertCircle size={14} className="shrink-0 mt-0.5" />
                                 <div>
-                                    <p className="font-medium mb-1">Errore durante l'attivazione</p>
+                                    <p className="font-medium mb-1">{t('errori.attivazione')}</p>
                                     <p className="text-red-400/70">{err}</p>
                                 </div>
                             </div>
                             <button onClick={handleRetry} className="btn-primary text-sm w-full justify-center">
-                                Riprova
+                                {t('azioni.riprova')}
                             </button>
                         </div>
                     )}
@@ -188,18 +190,18 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
                     {!loading && qrCode && step === 1 && (
                         <>
                             <div>
-                                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Step 1 di 2</p>
+                                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('step1.label')}</p>
                                 <p className="font-body text-sm text-nebbia mb-4">
-                                    Scansiona il QR code con la tua app autenticatore
+                                    {t('step1.istruzione')}
                                 </p>
                                 <div className="bg-nebbia p-4 flex items-center justify-center">
-                                    <img src={qrCode} alt="QR code 2FA" className="w-48 h-48" />
+                                    <img src={qrCode} alt={t('step1.qrAlt')} className="w-48 h-48" />
                                 </div>
                             </div>
 
                             <div>
                                 <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">
-                                    Oppure inserisci manualmente
+                                    {t('step1.manualeLabel')}
                                 </p>
                                 <div className="flex items-center gap-2 bg-petrolio border border-white/10 p-3">
                                     <code className="flex-1 font-mono text-xs text-nebbia break-all">{secret}</code>
@@ -211,12 +213,12 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
 
                             <div className="bg-petrolio border border-white/5 p-3">
                                 <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                                    App consigliate: Google Authenticator, Authy, 1Password, Microsoft Authenticator, Bitwarden.
+                                    {t('step1.appConsigliate')}
                                 </p>
                             </div>
 
                             <button onClick={() => setStep(2)} className="btn-primary text-sm w-full justify-center">
-                                Ho scansionato, procedi
+                                {t('step1.procedi')}
                             </button>
                         </>
                     )}
@@ -224,15 +226,15 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
                     {!loading && qrCode && step === 2 && (
                         <>
                             <div>
-                                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Step 2 di 2</p>
+                                <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('step2.label')}</p>
                                 <p className="font-body text-sm text-nebbia mb-4">
-                                    Inserisci il codice a 6 cifre dall'app
+                                    {t('step2.istruzione')}
                                 </p>
                             </div>
 
                             <div>
                                 <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
-                                    Codice di verifica
+                                    {t('step2.codiceLabel')}
                                 </label>
                                 <input
                                     type="text"
@@ -259,7 +261,7 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
                                     onClick={() => setStep(1)}
                                     className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5"
                                 >
-                                    Indietro
+                                    {t('azioni.indietro')}
                                 </button>
                                 <button
                                     onClick={handleVerifica}
@@ -268,7 +270,7 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
                                 >
                                     {verificando
                                         ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                                        : 'Verifica e attiva'
+                                        : t('azioni.verificaAttiva')
                                     }
                                 </button>
                             </div>

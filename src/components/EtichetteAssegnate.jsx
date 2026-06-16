@@ -4,11 +4,13 @@
 // Si aggiorna automaticamente quando il refreshKey cambia.
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
 export default function EtichetteAssegnate({ elemento, refreshKey = 0 }) {
+    const { t } = useTranslation('comp_etichette_assegnate')
     const navigate = useNavigate()
     const { profile } = useAuth()
 
@@ -61,7 +63,7 @@ export default function EtichetteAssegnate({ elemento, refreshKey = 0 }) {
                         color: e.colore,
                         backgroundColor: `${e.colore}22`
                     }}
-                    title={`Apri etichetta "${e.nome}"`}
+                    title={t('tooltip.apri_etichetta', { nome: e.nome })}
                 >
                     <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: e.colore }} />
                     {e.nome}

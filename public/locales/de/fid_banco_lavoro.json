@@ -1,0 +1,25 @@
+{
+  "stati": {
+    "attivo": "Aktiv",
+    "sospeso": "Sistiert",
+    "concluso": "Abgeschlossen",
+    "archiviato": "Archiviert"
+  },
+  "lista": {
+    "label": "Arbeitsbereich",
+    "titolo": "Die Mandate",
+    "nuovo_mandato": "Neues Mandat",
+    "cerca_placeholder": "Mandat oder Mandant suchen...",
+    "tutti_stati": "Alle Status",
+    "tutti_clienti": "Alle Mandanten",
+    "reset": "Zurücksetzen",
+    "errore_caricamento": "Fehler beim Laden der Mandate",
+    "intestazioni": ["Mandat", "Mandant", "Art", "Jahr", "Status", "Erstellt am", ""],
+    "nessun_mandato": "Keine Mandate gefunden",
+    "dettaglio": "Details →"
+  },
+  "vuoto": {
+    "titolo": "Noch keine Mandate",
+    "sottotitolo": "Erstellen Sie das erste Mandat, um mit der Arbeit zu beginnen"
+  }
+}

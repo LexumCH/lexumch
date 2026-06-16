@@ -13,11 +13,14 @@
 
 import { useState, useEffect } from 'react'
 import { X, Calendar, AlertTriangle, Loader2, Info } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 
-function fmtDataLunga(iso) {
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
+function fmtDataLunga(iso, dateLocale) {
     if (!iso) return ''
-    return new Date(iso).toLocaleDateString('it-CH', {
+    return new Date(iso).toLocaleDateString(dateLocale, {
         weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
     })
 }
@@ -39,6 +42,8 @@ function giorniDifferenza(iso) {
 }
 
 export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = null, studioId = null, onClose, onSaved }) {
+    const { t, i18n } = useTranslation('comp_fid_nuova_scadenza')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [titolo, setTitolo] = useState('')
     const [tipo, setTipo] = useState('')
     const [dataScadenza, setDataScadenza] = useState('')
@@ -62,7 +67,7 @@ export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = 
 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-            setErrore('Sessione scaduta. Effettua nuovamente il login.')
+            setErrore(t('errori.sessione_scaduta'))
             setSalvando(false)
             return
         }
@@ -104,9 +109,9 @@ export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = 
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
                     <div>
-                        <p className="font-display text-lg text-nebbia">Aggiungi scadenza</p>
+                        <p className="font-display text-lg text-nebbia">{t('header.titolo')}</p>
                         <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                            Inserisci una scadenza amministrativa o fiscale per questo mandato
+                            {t('header.descrizione')}
                         </p>
                     </div>
                     <button
@@ -122,13 +127,13 @@ export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = 
                     {/* Titolo */}
                     <div>
                         <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                            Titolo scadenza *
+                            {t('campi.titolo_label')}
                         </label>
                         <input
                             type="text"
                             value={titolo}
                             onChange={e => setTitolo(e.target.value)}
-                            placeholder="es. Rendiconto IVA 1° semestre 2026"
+                            placeholder={t('campi.titolo_placeholder')}
                             maxLength={150}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                         />
@@ -137,25 +142,25 @@ export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = 
                     {/* Tipo (testo libero) */}
                     <div>
                         <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                            Categoria (opzionale)
+                            {t('campi.categoria_label')}
                         </label>
                         <input
                             type="text"
                             value={tipo}
                             onChange={e => setTipo(e.target.value)}
-                            placeholder="es. IVA, Fiscale, Salari, Chiusura contabile..."
+                            placeholder={t('campi.categoria_placeholder')}
                             maxLength={60}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                         />
                         <p className="font-body text-xs text-nebbia/30 mt-1.5">
-                            Etichetta libera per raggruppare le scadenze per tipo
+                            {t('campi.categoria_hint')}
                         </p>
                     </div>
 
                     {/* Data scadenza */}
                     <div>
                         <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                            Data scadenza *
+                            {t('campi.data_label')}
                         </label>
                         <input
                             type="date"
@@ -169,17 +174,17 @@ export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = 
                     {dataScadenza && (
                         <div className="bg-petrolio/50 border border-oro/20 p-4">
                             <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-3">
-                                Anteprima
+                                {t('anteprima.titolo')}
                             </p>
                             <div className="space-y-3">
                                 <div className="flex items-start gap-3">
                                     <Calendar size={18} className="text-oro mt-0.5 shrink-0" />
                                     <div className="flex-1">
                                         <p className="font-display text-xl font-semibold text-oro capitalize">
-                                            {fmtDataLunga(dataScadenza)}
+                                            {fmtDataLunga(dataScadenza, dateLocale)}
                                         </p>
                                         <p className="font-body text-xs text-nebbia/50 mt-0.5">
-                                            {titolo.trim() || 'Scadenza'}
+                                            {titolo.trim() || t('anteprima.scadenza_default')}
                                         </p>
                                     </div>
                                 </div>
@@ -188,7 +193,7 @@ export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = 
                                     <div className="flex items-start gap-3 pt-3 border-t border-white/5">
                                         <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />
                                         <p className="font-body text-xs text-amber-400/90">
-                                            Questa scadenza è già trascorsa ({giorniDifferenza(dataScadenza)} giorni fa). Inseriscila comunque se stai registrando uno storico.
+                                            {t('anteprima.gia_trascorsa', { count: giorniDifferenza(dataScadenza) })}
                                         </p>
                                     </div>
                                 )}
@@ -199,13 +204,13 @@ export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = 
                     {/* Note */}
                     <div>
                         <label className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 block">
-                            Note (opzionale)
+                            {t('campi.note_label')}
                         </label>
                         <textarea
                             value={note}
                             onChange={e => setNote(e.target.value)}
                             rows={2}
-                            placeholder="Promemoria, riferimenti, importi..."
+                            placeholder={t('campi.note_placeholder')}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
                         />
                     </div>
@@ -225,7 +230,7 @@ export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = 
                         disabled={salvando}
                         className="font-body text-sm text-nebbia/60 hover:text-nebbia px-4 py-2 transition-colors disabled:opacity-40"
                     >
-                        Annulla
+                        {t('azioni.annulla')}
                     </button>
                     <button
                         onClick={salva}
@@ -233,9 +238,9 @@ export default function NuovaScadenzaFiduciaria({ mandatoId = null, clienteId = 
                         className="flex items-center gap-2 px-5 py-2 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         {salvando ? (
-                            <><Loader2 size={14} className="animate-spin" /> Salvando...</>
+                            <><Loader2 size={14} className="animate-spin" /> {t('azioni.salvando')}</>
                         ) : (
-                            'Aggiungi scadenza'
+                            t('azioni.salva')
                         )}
                     </button>
                 </div>

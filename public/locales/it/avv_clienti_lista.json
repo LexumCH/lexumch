@@ -1,0 +1,58 @@
+{
+  "header": {
+    "label": "Clienti",
+    "titolo_studio": "Clienti dello studio",
+    "titolo_propri": "I tuoi clienti",
+    "sottotitolo_one": "{{count}} cliente in totale",
+    "sottotitolo_other": "{{count}} clienti in totale",
+    "nuovo_cliente": "Nuovo cliente"
+  },
+  "ricerca": {
+    "intro": "Cerca clienti per nome o email. Oppure fai a Lex domande sui clienti e chiedi info su di essi. Lex non ha accesso alle note interne dei clienti.",
+    "placeholder": "Cerca o chiedi a Lex...",
+    "cerca": "Cerca",
+    "lex_sta_pensando": "Lex sta pensando...",
+    "chiedi_a_lex": "Chiedi a Lex",
+    "lex": "Lex",
+    "risultato_one": "{{count}} risultato per \"{{query}}\"",
+    "risultato_other": "{{count}} risultati per \"{{query}}\"",
+    "azzera": "Azzera"
+  },
+  "filtri": {
+    "tutti_tipi": "Tutti i tipi",
+    "persone_fisiche": "Persone fisiche",
+    "persone_giuridiche": "Persone giuridiche",
+    "tutti_avvocati": "Tutti gli avvocati",
+    "reset_filtri": "Reset filtri"
+  },
+  "tabella": {
+    "cliente": "Cliente",
+    "email": "Email",
+    "telefono": "Telefono",
+    "avvocato": "Avvocato",
+    "creato_il": "Creato il",
+    "tu": "Tu",
+    "vuoto_nessun_cliente": "Nessun cliente. Crea il primo.",
+    "vuoto_con_filtri": "Nessun cliente con questi filtri."
+  },
+  "azioni": {
+    "elimina_cliente": "Elimina cliente"
+  },
+  "modal": {
+    "eliminato_titolo": "Cliente eliminato",
+    "dati_cancellati": "Dati cancellati",
+    "chiudi": "Chiudi",
+    "titolo": "Elimina cliente",
+    "irreversibile": "Operazione irreversibile.",
+    "avviso": "Saranno cancellati definitivamente: anagrafica cliente, pratiche, fatture, note interne, appuntamenti, documenti, comunicazioni. I file caricati nello storage diventeranno orfani e inaccessibili.",
+    "conferma_digita": "Per confermare digita il nome esatto del cliente:",
+    "placeholder_conferma": "Digita qui per confermare",
+    "annulla": "Annulla",
+    "elimina_definitivamente": "Elimina definitivamente"
+  },
+  "errori": {
+    "caricamento": "Errore nel caricamento dei clienti",
+    "generico": "Errore",
+    "lex": "Errore Lex"
+  }
+}

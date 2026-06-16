@@ -1,0 +1,81 @@
+{
+  "badge": {
+    "giorni_fa": "vor {{count}} T",
+    "oggi": "Heute",
+    "fra_giorni": "in {{count}} T"
+  },
+  "range": {
+    "mese_lungo": "Dieser Monat",
+    "ultimi_90": "Letzte 90 Tage",
+    "questo_mese": "Dieser Monat",
+    "mese_scorso": "Letzter Monat",
+    "personalizzato": "Benutzerdefiniert",
+    "da": "Von",
+    "a": "Bis",
+    "applica": "Anwenden"
+  },
+  "sezione": {
+    "vedi_tutti": "Alle anzeigen",
+    "vuoto_default": "Nichts anzuzeigen."
+  },
+  "hero": {
+    "etichetta": "Dashboard",
+    "saluto": "{{saluto}}, {{nome}}.",
+    "orario": {
+      "notte": "Gute Nacht",
+      "mattino": "Guten Morgen",
+      "pomeriggio": "Guten Tag",
+      "sera": "Guten Abend"
+    },
+    "sommario_vuoto": "Heute steht nichts im Kalender. Nutzen Sie die Zeit, um Ihre Dossiers zu aktualisieren oder Ihre Recherchen zu organisieren.",
+    "sommario_oggi": "Heute haben Sie {{parti}}.",
+    "udienze_one": "1 Verhandlung",
+    "udienze_other": "{{count}} Verhandlungen",
+    "termini_one": "1 Frist",
+    "termini_other": "{{count}} Fristen",
+    "appuntamenti_one": "1 Termin",
+    "appuntamenti_other": "{{count}} Termine",
+    "fatture_attesa_one": "1 offene Rechnung.",
+    "fatture_attesa_other": "{{count}} offene Rechnungen.",
+    "messaggi_nuovi_one": "1 neue Nachricht.",
+    "messaggi_nuovi_other": "{{count}} neue Nachrichten."
+  },
+  "trial": {
+    "titolo": "Ihre kostenlose Testphase ist abgelaufen",
+    "testo": "Wählen Sie einen Plan, um weiterhin mit Ihren Dossiers, Mandanten und Dokumenten zu arbeiten.",
+    "dopo": "Später",
+    "vedi_piani": "Pläne ansehen →"
+  },
+  "contatori": {
+    "clienti": "Mandanten",
+    "clienti_sub": "Gesamt",
+    "pratiche_aperte": "Offene Dossiers",
+    "pratiche_aperte_sub": "Jetzt",
+    "pratiche_chiuse": "Abgeschlossene Dossiers"
+  },
+  "oggi": {
+    "titolo": "Heute",
+    "vuoto": "Heute keine Termine."
+  },
+  "fatturazione": {
+    "titolo": "Fakturierung",
+    "incassato": "Eingenommen",
+    "da_incassare": "Ausstehend",
+    "totale_debito": "Gesamte offene Forderungen",
+    "fattura": "Rechnung {{anno}}/{{numero}}",
+    "vuoto": "Keine offenen Rechnungen."
+  },
+  "settimana": {
+    "titolo": "Nächste 7 Tage",
+    "vuoto": "Keine Termine in den nächsten 7 Tagen."
+  },
+  "messaggi": {
+    "titolo": "Ungelesene Nachrichten",
+    "senza_oggetto": "Ohne Betreff",
+    "vuoto": "Keine ausstehenden Nachrichten."
+  },
+  "attenzione": {
+    "titolo": "Dossiers, die Aufmerksamkeit erfordern",
+    "vuoto": "Kein Dossier mit nahender Frist."
+  }
+}

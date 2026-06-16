@@ -1,0 +1,91 @@
+{
+  "scelta": {
+    "label": "Verifica professionale",
+    "titolo": "Che professionista sei?",
+    "intro": "Scegli il tuo percorso. In base alla tua professione ti chiederemo i documenti adeguati e attiveremo gli strumenti giusti per te.",
+    "avvocato": {
+      "titolo": "Avvocato",
+      "desc": "Gestione clienti, pratiche, banca dati legale, sentenze e termini processuali."
+    },
+    "fiduciario": {
+      "titolo": "Fiduciario",
+      "desc": "Gestione mandati, contabilità, reportistica, fatturazione e strumenti per fogli di calcolo."
+    }
+  },
+  "set": {
+    "avvocato": {
+      "titolo": "Diventa avvocato su Lexum",
+      "intro": "Per accedere alla piattaforma come avvocato devi verificare la tua identità professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.",
+      "documenti": {
+        "identita": {
+          "label": "Documento di identità",
+          "hint": "Carta d'identità o passaporto valido"
+        },
+        "albo": {
+          "label": "Iscrizione all'Albo",
+          "hint": "Certificato di iscrizione all'Albo degli Avvocati"
+        },
+        "laurea": {
+          "label": "Laurea in Giurisprudenza",
+          "hint": "Opzionale — accelera la verifica"
+        }
+      }
+    },
+    "fiduciario": {
+      "titolo": "Diventa fiduciario su Lexum",
+      "intro": "Per accedere alla piattaforma come fiduciario devi verificare la tua attività professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.",
+      "documenti": {
+        "identita": {
+          "label": "Documento di identità",
+          "hint": "Carta d'identità o passaporto valido"
+        },
+        "registro": {
+          "label": "Estratto registro di commercio",
+          "hint": "Estratto del registro di commercio o attestazione UID"
+        },
+        "affiliazione": {
+          "label": "Affiliazione professionale",
+          "hint": "Opzionale — associazione di categoria (TREUHAND|SUISSE, EXPERTsuisse) o OAD. Accelera la verifica"
+        }
+      }
+    }
+  },
+  "upload": {
+    "label": "Verifica identità",
+    "obbligatorio": "Obbligatorio",
+    "opzionale": "Opzionale",
+    "cambia": "Cambia",
+    "carica": "Carica",
+    "privacy": "I documenti sono trattati con la massima riservatezza e utilizzati esclusivamente per la verifica dell'identità professionale.",
+    "caricamento": "Caricamento in corso…",
+    "invia": "Invia per verifica"
+  },
+  "inviato": {
+    "titolo": "Documenti inviati",
+    "desc": "Il team Lexum esaminerà i tuoi documenti e riceverai una risposta entro 24-48 ore.",
+    "controlla_stato": "Controlla lo stato"
+  },
+  "stato": {
+    "pending": {
+      "title": "Verifica in corso",
+      "desc": "Il team Lexum sta esaminando i tuoi documenti. Riceverai una notifica email entro 24-48 ore."
+    },
+    "approved": {
+      "title": "Verifica approvata!",
+      "desc": "Ottimo! Ora puoi scegliere il piano di abbonamento adatto a te per attivare il tuo account.",
+      "cta": "Scegli un piano"
+    },
+    "rejected": {
+      "title": "Verifica non approvata",
+      "desc": "Non è stato possibile verificare la tua identità con i documenti forniti.",
+      "motivazione": "Motivazione",
+      "motivazione_default": "Documenti non leggibili o incompleti. Ricarica i file in alta qualità.",
+      "ricarica": "Ricarica documenti"
+    }
+  },
+  "errori": {
+    "non_autenticato": "Utente non autenticato",
+    "upload": "Errore upload",
+    "file_grande": "File troppo grande. Massimo 10 MB."
+  }
+}

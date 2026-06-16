@@ -1,0 +1,60 @@
+{
+  "header": {
+    "label": "Portail client",
+    "titolo": "Messages",
+    "nuovo_messaggio": "Nouveau message"
+  },
+  "non_letti": {
+    "singolare": "Vous avez {{count}} message non lu",
+    "plurale": "Vous avez {{count}} messages non lus"
+  },
+  "filtri": {
+    "tutti": "Tous",
+    "aperti": "Ouverts",
+    "chiusi": "Fermés"
+  },
+  "stati": {
+    "aperto": "Ouvert",
+    "chiuso": "Fermé"
+  },
+  "comune": {
+    "caricamento": "Chargement…"
+  },
+  "lista": {
+    "cerca_placeholder": "Rechercher une conversation...",
+    "vuoto": "Aucune conversation trouvée"
+  },
+  "dettaglio": {
+    "non_trovata": "Conversation introuvable.",
+    "torna_messaggi": "Retour aux messages",
+    "con": "Avec {{nome}}",
+    "avvocato_fallback": "Avocat",
+    "aperto_il": "Ouvert le {{data}}",
+    "nessun_messaggio": "Aucun message pour l'instant.",
+    "scrivi_placeholder": "Écrivez un message…",
+    "hint_invio": "Envoyer avec Entrée · Saut de ligne avec Maj+Entrée",
+    "conversazione_chiusa": "Cette conversation est fermée"
+  },
+  "nuovo": {
+    "titolo": "Nouveau message",
+    "errori": {
+      "non_autenticato": "Utilisateur non authentifié",
+      "nessun_avvocato": "Aucun avocat n'est associé à votre compte."
+    },
+    "successo": {
+      "titolo": "Message envoyé",
+      "descrizione": "Votre avocat recevra une notification et vous répondra dans les plus brefs délais."
+    },
+    "campi": {
+      "oggetto_label": "Objet",
+      "oggetto_label_obbligatorio": "Objet *",
+      "oggetto_placeholder": "De quoi s'agit-il ?",
+      "messaggio_label_obbligatorio": "Message *",
+      "messaggio_placeholder": "Écrivez votre message…"
+    },
+    "azioni": {
+      "annulla": "Annuler",
+      "invia": "Envoyer"
+    }
+  }
+}

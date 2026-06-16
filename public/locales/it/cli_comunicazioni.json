@@ -1,0 +1,60 @@
+{
+  "header": {
+    "label": "Portale cliente",
+    "titolo": "Messaggi",
+    "nuovo_messaggio": "Nuovo messaggio"
+  },
+  "non_letti": {
+    "singolare": "Hai {{count}} messaggio non letto",
+    "plurale": "Hai {{count}} messaggi non letti"
+  },
+  "filtri": {
+    "tutti": "Tutti",
+    "aperti": "Aperti",
+    "chiusi": "Chiusi"
+  },
+  "stati": {
+    "aperto": "Aperto",
+    "chiuso": "Chiuso"
+  },
+  "comune": {
+    "caricamento": "Caricamento…"
+  },
+  "lista": {
+    "cerca_placeholder": "Cerca conversazione...",
+    "vuoto": "Nessuna conversazione trovata"
+  },
+  "dettaglio": {
+    "non_trovata": "Conversazione non trovata.",
+    "torna_messaggi": "Torna ai messaggi",
+    "con": "Con {{nome}}",
+    "avvocato_fallback": "Avvocato",
+    "aperto_il": "Aperto il {{data}}",
+    "nessun_messaggio": "Nessun messaggio ancora.",
+    "scrivi_placeholder": "Scrivi un messaggio…",
+    "hint_invio": "Invio con Enter · A capo con Shift+Enter",
+    "conversazione_chiusa": "Questa conversazione è chiusa"
+  },
+  "nuovo": {
+    "titolo": "Nuovo messaggio",
+    "errori": {
+      "non_autenticato": "Utente non autenticato",
+      "nessun_avvocato": "Nessun avvocato associato al tuo account."
+    },
+    "successo": {
+      "titolo": "Messaggio inviato",
+      "descrizione": "Il tuo avvocato riceverà una notifica e ti risponderà al più presto."
+    },
+    "campi": {
+      "oggetto_label": "Oggetto",
+      "oggetto_label_obbligatorio": "Oggetto *",
+      "oggetto_placeholder": "Di cosa si tratta?",
+      "messaggio_label_obbligatorio": "Messaggio *",
+      "messaggio_placeholder": "Scrivi il tuo messaggio…"
+    },
+    "azioni": {
+      "annulla": "Annulla",
+      "invia": "Invia"
+    }
+  }
+}

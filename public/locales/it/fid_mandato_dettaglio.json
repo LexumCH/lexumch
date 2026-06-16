@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "banco_lavoro": "Banco di lavoro"
+  },
+  "errori": {
+    "mandato_non_trovato": "Mandato non trovato"
+  },
+  "header": {
+    "mandato": "Mandato"
+  },
+  "stati": {
+    "attivo": "Attivo",
+    "sospeso": "Sospeso",
+    "concluso": "Concluso",
+    "archiviato": "Archiviato"
+  },
+  "anagrafica": {
+    "titolo": "Anagrafica",
+    "cliente": "Cliente",
+    "nessun_cliente": "Nessun cliente collegato al mandato."
+  },
+  "dati": {
+    "tipo": "Tipo",
+    "anno_riferimento": "Anno di riferimento",
+    "creato_il": "Creato il"
+  },
+  "note": {
+    "titolo": "Note",
+    "vuote": "Nessuna nota per questo mandato."
+  },
+  "dipendenti": {
+    "titolo": "Dipendenti del cliente",
+    "nessun_cliente": "Nessun cliente collegato al mandato — impossibile mostrare i dipendenti."
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "titolo": "Contabilità",
+  "badge_partita_doppia": "partita doppia",
+  "tabella_mancante": "Tabelle contabili non ancora create: esegui la migration <code>contabilita_fase_a.sql</code>.",
+  "classe_altro": "Altro",
+  "disattivo": "disattivo",
+  "vuoto_giornale": "Nessuna registrazione. Usa “Nuova registrazione” per la prima scrittura (o per i saldi d'apertura).",
+  "tab": {
+    "giornale": "Libro giornale",
+    "conti": "Piano dei conti",
+    "report": "Report",
+    "imputazioni": "Imputazioni"
+  },
+  "vuoto_piano": {
+    "titolo": "Nessun piano dei conti per questo cliente.",
+    "sottotitolo": "Inizializza il piano standard svizzero per PMI (poi personalizzabile).",
+    "inizializza": "Inizializza piano dei conti"
+  },
+  "colonne": {
+    "conto": "Conto",
+    "dare": "Dare",
+    "avere": "Avere"
+  },
+  "tipo": {
+    "ordinaria": "Ordinaria",
+    "apertura": "Apertura",
+    "rettifica": "Rettifica",
+    "chiusura": "Chiusura"
+  },
+  "form": {
+    "data": "Data",
+    "descrizione": "Descrizione",
+    "descrizione_placeholder": "es. Fattura cliente X / Pagamento affitto",
+    "tipo": "Tipo",
+    "scegli_conto": "— conto —",
+    "aggiungi_riga": "Aggiungi riga"
+  },
+  "bilancio": {
+    "bilanciata": "Bilanciata",
+    "sbilancio": "Sbilancio {{importo}}",
+    "inserisci_righe": "Inserisci le righe"
+  },
+  "elimina": {
+    "titolo": "Elimina registrazione",
+    "conferma": "Eliminare <d>{{descrizione}}</d> del {{data}}? Operazione irreversibile."
+  },
+  "azioni": {
+    "nuova_registrazione": "Nuova registrazione",
+    "elimina_registrazione": "Elimina registrazione",
+    "annulla": "Annulla",
+    "elimina": "Elimina",
+    "registra": "Registra",
+    "salvataggio": "Salvataggio..."
+  },
+  "errori": {
+    "sessione_scaduta": "Sessione scaduta.",
+    "descrizione_obbligatoria": "Inserisci una descrizione.",
+    "non_bilanciata": "La scrittura deve bilanciare (Σ dare = Σ avere) con almeno 2 righe."
+  }
+}

@@ -13,6 +13,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { useState, useEffect, useRef, Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
@@ -20,6 +21,7 @@ import { PageHeader } from '@/components/shared'
 import BottoniSalvataggio from '@/components/BottoniSalvataggio'
 import AggiungiAPratica from '@/components/AggiungiAPratica'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
+import { FONTI_FEDERALI_ORDER, SET_FEDERALI, parseCantonale, labelFonteFederale, labelCamera } from '@/lib/istituzioni'
 import {
     Search, Sparkles, ChevronRight, ChevronLeft,
     BookOpen, AlertCircle, X, FileText,
@@ -35,16 +37,11 @@ const LEAD_ENDPOINT = 'lex-lead'
 
 // Le "fasi" emesse dal Lead CH via SSE → etichette leggibili.
 // Allineate ai 5 subagent svizzeri + fasi di orchestrazione.
-const FASI_LABEL = {
-    analisi: 'Analizzo la richiesta',
-    instradamento: 'Individuo le fonti da consultare',
-    norme_federali: 'Consulto il diritto federale (Fedlex)',
-    norme_cantonali: 'Cerco nel diritto cantonale',
-    giurisprudenza: 'Confronto la giurisprudenza',
-    prassi: 'Verifico la prassi amministrativa',
-    eu: 'Esamino il diritto UE',
-    sintesi: 'Compongo la risposta',
-}
+// Le chiavi (codici fase) restano costanti; le etichette sono tradotte via i18n.
+const FASI_KEYS = [
+    'analisi', 'instradamento', 'norme_federali', 'norme_cantonali',
+    'giurisprudenza', 'prassi', 'eu', 'sintesi',
+]
 
 // ═══════════════════════════════════════════════════════════════
 // HOOK CREDITI  (identico all'IT: stessa tabella crediti_ai)
@@ -88,14 +85,9 @@ function useCreditiAI() {
 // del corpus svizzero. Se arriva una fase reale dal Lead, usala come frase.
 // ═══════════════════════════════════════════════════════════════
 function LexAnimazione({ frasi }) {
-    const frasiRotative = frasi ?? [
-        'Analizzo la richiesta',
-        'Consulto il diritto federale',
-        'Cerco nel diritto cantonale',
-        'Confronto la giurisprudenza',
-        'Verifico la prassi amministrativa',
-        'Compongo una risposta strutturata',
-    ]
+    const { t } = useTranslation('avv_banca_dati')
+    const toArray = (v) => Array.isArray(v) ? v : []
+    const frasiRotative = frasi ?? toArray(t('lex.frasi_animazione', { returnObjects: true }))
 
     const [indiceFrase, setIndiceFrase] = useState(0)
 
@@ -180,7 +172,7 @@ function LexAnimazione({ frasi }) {
 
             <div className="lex-stage">
                 <svg viewBox="62 27 416 185" xmlns="http://www.w3.org/2000/svg" role="img">
-                    <title>Lex sta consultando le fonti</title>
+                    <title>{t('lex.title_consultazione')}</title>
                     <line x1="60" y1="172" x2="480" y2="172" stroke="rgba(201, 164, 92, 0.4)" strokeWidth="0.8" />
 
                     <rect x="80" y="100" width="22" height="72" rx="1" fill="#243447" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
@@ -234,6 +226,7 @@ function LexAnimazione({ frasi }) {
 //   - niente blocco sentenze_marketplace (non esiste su CH)
 // ═══════════════════════════════════════════════════════════════
 function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
+    const { t } = useTranslation('avv_banca_dati')
     const [domanda, setDomanda] = useState('')
     const [cercando, setCercando] = useState(false)
     const [errore, setErrore] = useState(null)
@@ -279,8 +272,8 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
             )
 
             if (!res.ok) {
-                const errBody = await res.json().catch(() => ({ error: 'Errore sconosciuto' }))
-                setErrore(errBody.crediti_esauriti ? 'crediti_esauriti' : (errBody.error ?? `Errore ${res.status}`))
+                const errBody = await res.json().catch(() => ({ error: t('lex.errore_sconosciuto') }))
+                setErrore(errBody.crediti_esauriti ? 'crediti_esauriti' : (errBody.error ?? t('lex.errore_http', { status: res.status })))
                 setConversazione(conversazione)
                 setCercando(false)
                 return
@@ -323,7 +316,7 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                 tipoRisposta = data.tipo_risposta
                                 if (data.crediti_rimasti !== undefined) setCrediti(data.crediti_rimasti)
                             }
-                            if (eventoCorrente === 'error') setErrore(data.error ?? 'Errore nello streaming')
+                            if (eventoCorrente === 'error') setErrore(data.error ?? t('lex.errore_streaming'))
                         } catch { /* ignore */ }
                     }
                 }
@@ -356,7 +349,7 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
     }
 
     function approfondisci(filtro_key, label, subagent_source) {
-        cerca(`Approfondisci: ${label}`, {
+        cerca(t('lex.approfondisci_prefix', { label }), {
             tipoRichiesta: 'approfondimento',
             subagentTarget: subagent_source,
             filtroApprofondimento: filtro_key,
@@ -392,18 +385,18 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
             <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
                 <div className="flex items-center gap-2">
                     <Sparkles size={14} className="text-salvia" />
-                    <p className="font-body text-sm font-medium text-nebbia">Lex — Assistente AI</p>
+                    <p className="font-body text-sm font-medium text-nebbia">{t('lex.titolo')}</p>
                     {conversazione.length > 0 && (
                         <span className="font-body text-xs text-salvia/60 border border-salvia/20 px-2 py-0.5">
-                            {Math.floor(conversazione.length / 2)} scambi
+                            {t('lex.scambi', { count: Math.floor(conversazione.length / 2) })}
                         </span>
                     )}
                 </div>
                 <div className="flex items-center gap-3">
-                    {crediti !== null && <span className="font-body text-xs text-nebbia/30">{crediti} crediti</span>}
+                    {crediti !== null && <span className="font-body text-xs text-nebbia/30">{t('lex.crediti', { count: crediti })}</span>}
                     {conversazione.length > 0 && (
                         <button onClick={nuovaSessione} className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors">
-                            Nuova sessione
+                            {t('lex.nuova_sessione')}
                         </button>
                     )}
                 </div>
@@ -415,13 +408,13 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                         <div key={i} className="space-y-2">
                             <div className="flex items-center gap-2">
                                 <span className={`font-body text-xs font-medium ${m.role === 'user' ? 'text-oro/70' : 'text-salvia/70'}`}>
-                                    {m.role === 'user' ? 'Tu' : 'Lex'}
+                                    {m.role === 'user' ? t('lex.ruolo_tu') : t('lex.ruolo_lex')}
                                 </span>
                                 {m.tipo_risposta === 'rigettata' && (
-                                    <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">non interpretata</span>
+                                    <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">{t('lex.badge_non_interpretata')}</span>
                                 )}
                                 {m.tipo_risposta === 'messaggio_standard' && (
-                                    <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">nessun risultato</span>
+                                    <span className="font-body text-[10px] text-nebbia/40 border border-white/10 px-1.5 py-0.5 uppercase tracking-wider">{t('lex.badge_nessun_risultato')}</span>
                                 )}
                             </div>
 
@@ -435,7 +428,7 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                         <div className="mt-5 pt-4 border-t border-white/5 space-y-3">
                                             <div className="flex items-center gap-2">
                                                 <Sparkles size={12} className="text-salvia" />
-                                                <p className="font-body text-xs font-medium text-salvia uppercase tracking-widest">Approfondimenti suggeriti</p>
+                                                <p className="font-body text-xs font-medium text-salvia uppercase tracking-widest">{t('lex.approfondimenti_suggeriti')}</p>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                                 {m.meta.approfondimenti_disponibili.map((a, idx) => (
@@ -460,10 +453,10 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
 
                     {cercando && (
                         <div className="space-y-3">
-                            <span className="font-body text-xs font-medium text-salvia/70">Lex</span>
+                            <span className="font-body text-xs font-medium text-salvia/70">{t('lex.ruolo_lex')}</span>
                             {streamingTesto.length === 0 ? (
                                 <LexAnimazione
-                                    frasi={faseCorrente ? [FASI_LABEL[faseCorrente] ?? faseCorrente] : undefined}
+                                    frasi={faseCorrente ? [FASI_KEYS.includes(faseCorrente) ? t(`lex.fasi.${faseCorrente}`) : faseCorrente] : undefined}
                                 />
                             ) : (
                                 <div className="font-body text-sm text-nebbia/80 leading-relaxed space-y-2">
@@ -501,12 +494,12 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
             <div className="px-5 py-4 space-y-3 border-t border-white/5">
                 {conversazione.length === 0 && (
                     <p className="font-body text-xs text-nebbia/30">
-                        INDICA IL CANTONE IN CUI CERCARE PER RISULTATI MIGLIORI.
+                        {t('lex.suggerimento_cantone')}
                     </p>
                 )}
                 <textarea
                     rows={3}
-                    placeholder={conversazione.length > 0 ? 'Approfondisci o fai una nuova domanda…' : 'Es. Responsabilità del datore di lavoro per infortunio sul lavoro CANTON TICINO…'}
+                    placeholder={conversazione.length > 0 ? t('lex.placeholder_continua') : t('lex.placeholder_iniziale')}
                     value={domanda}
                     onChange={e => setDomanda(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) cerca() }}
@@ -521,11 +514,11 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                     <div className="flex items-center justify-between gap-3 p-3 bg-oro/5 border border-oro/20">
                         <div className="flex items-center gap-2">
                             <AlertCircle size={13} className="text-oro shrink-0" />
-                            <p className="font-body text-xs text-nebbia/60">Crediti Lex esauriti.</p>
+                            <p className="font-body text-xs text-nebbia/60">{t('lex.crediti_esauriti')}</p>
                         </div>
                         <a href="/studio?tab=acquista" target="_blank" rel="noopener noreferrer"
                             className="font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors whitespace-nowrap">
-                            Acquista crediti →
+                            {t('lex.acquista_crediti')}
                         </a>
                     </div>
                 )}
@@ -533,8 +526,8 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                 <button onClick={() => cerca()} disabled={cercando || !domanda.trim()}
                     className="flex items-center justify-center gap-2 w-full py-2.5 bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40">
                     {cercando
-                        ? <><span className="animate-spin w-4 h-4 border-2 border-salvia border-t-transparent rounded-full" /> Lex sta lavorando…</>
-                        : <><Sparkles size={13} /> {conversazione.length > 0 ? 'Continua conversazione' : 'Cerca con Lex'}</>}
+                        ? <><span className="animate-spin w-4 h-4 border-2 border-salvia border-t-transparent rounded-full" /> {t('lex.lavorando')}</>
+                        : <><Sparkles size={13} /> {conversazione.length > 0 ? t('lex.continua') : t('lex.cerca')}</>}
                 </button>
             </div>
         </div>
@@ -546,17 +539,18 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
 // DEFINIZIONE TAB CORPUS
 // ═══════════════════════════════════════════════════════════════
 const TABS = [
-    { key: 'federale', label: 'Federale', icon: Landmark },
-    { key: 'cantonale', label: 'Cantonale', icon: MapPin },
-    { key: 'giurisprudenza', label: 'Giurisprudenza', icon: Scale },
-    { key: 'prassi', label: 'Prassi', icon: ScrollText },
-    { key: 'ue', label: 'UE', icon: Globe },
+    { key: 'federale', icon: Landmark },
+    { key: 'cantonale', icon: MapPin },
+    { key: 'giurisprudenza', icon: Scale },
+    { key: 'prassi', icon: ScrollText },
+    { key: 'ue', icon: Globe },
 ]
 
 // ═══════════════════════════════════════════════════════════════
 // COMPONENTE PRINCIPALE
 // ═══════════════════════════════════════════════════════════════
 export function BancaDati() {
+    const { t } = useTranslation('avv_banca_dati')
     const { crediti, setCrediti } = useCreditiAI()
     const [messaggiConversazione, setMessaggiConversazione] = useState([])
     const [tabAttivo, setTabAttivo] = useState('federale')
@@ -564,9 +558,9 @@ export function BancaDati() {
     return (
         <div className="space-y-5 pb-24">
             <PageHeader
-                label="Banca Dati"
-                title="Diritto svizzero, giurisprudenza e prassi"
-                subtitle="Cerca con Lex AI o sfoglia diritto federale, cantonale, giurisprudenza, prassi amministrativa e diritto UE"
+                label={t('header.label')}
+                title={t('header.title')}
+                subtitle={t('header.subtitle')}
             />
 
             {/* Chat Lex — sempre in alto, cross-fonte */}
@@ -580,14 +574,14 @@ export function BancaDati() {
             {/* Tab corpus */}
             <div className="!mt-10 pt-6 border-t border-white/5 space-y-5">
                 <div className="flex items-center gap-3 flex-wrap">
-                    <p className="section-label !m-0">Sfoglia</p>
+                    <p className="section-label !m-0">{t('tabs.sfoglia')}</p>
                     <div className="flex gap-1 bg-slate border border-white/5 p-1 flex-wrap">
-                        {TABS.map(t => {
-                            const Icon = t.icon
+                        {TABS.map(tab => {
+                            const Icon = tab.icon
                             return (
-                                <button key={t.key} onClick={() => setTabAttivo(t.key)}
-                                    className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${tabAttivo === t.key ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
-                                    <Icon size={12} /> {t.label}
+                                <button key={tab.key} onClick={() => setTabAttivo(tab.key)}
+                                    className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors ${tabAttivo === tab.key ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'}`}>
+                                    <Icon size={12} /> {t(`tabs.${tab.key}`)}
                                 </button>
                             )
                         })}
@@ -650,21 +644,21 @@ function risolviMultilingua(campoJsonb, linguaScelta) {
     return { testo: null, lingua: null }
 }
 
-const TIPO_ATTO_LABEL = {
-    legge_federale: 'Leggi federali',
-    ordinanza: 'Ordinanze',
-    costituzione: 'Costituzione',
-    decreto: 'Decreti',
-    regolamento: 'Regolamenti',
-    trattato: 'Trattati internazionali',
-    altro: 'Altri atti',
-}
+// Ordine dei tipi atto federali (le label sono tradotte via i18n: federale.tipo_atto.*)
+const ORDINE_TIPO_ATTO_FED = [
+    'legge_federale', 'ordinanza', 'costituzione', 'decreto',
+    'regolamento', 'trattato', 'altro',
+]
 
 const PER_PAGINA_ATTI_FED = 50
 const PER_PAGINA_ART_FED = 50
 
 function TabFederale() {
+    const { t, i18n } = useTranslation('avv_banca_dati')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const navigate = useNavigate()
+    const tipoAttoLabel = (k) => ORDINE_TIPO_ATTO_FED.includes(k) ? t(`federale.tipo_atto.${k}`) : k
 
     const [vista, setVista] = useState('catalogo')
 
@@ -703,7 +697,7 @@ function TabFederale() {
             const { data } = await supabase
                 .from('conteggi_norme_federali_ch')
                 .select('tipo_atto')
-            const ordine = Object.keys(TIPO_ATTO_LABEL)
+            const ordine = ORDINE_TIPO_ATTO_FED
             const sorted = (data ?? []).sort((a, b) => {
                 const ia = ordine.indexOf(a.tipo_atto); const ib = ordine.indexOf(b.tipo_atto)
                 return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
@@ -815,7 +809,7 @@ function TabFederale() {
     // Selettore lingua globale — componente inline riusato in cima ai vari livelli
     const SelettoreLinguaGlobale = () => (
         <div className="flex items-center gap-2">
-            <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+            <span className="font-body text-xs text-nebbia/30">{t('comune.lingua')}</span>
             <div className="flex gap-1 bg-slate border border-white/5 p-1">
                 {LINGUE_SELETTORE.map(l => (
                     <button key={l} onClick={() => cambiaLinguaGlobale(l)}
@@ -847,7 +841,7 @@ function TabFederale() {
                                     className="bg-slate border border-white/5 p-4 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
                                     <div className="flex items-center justify-between gap-3">
                                         <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors">
-                                            {TIPO_ATTO_LABEL[c.tipo_atto] ?? c.tipo_atto}
+                                            {tipoAttoLabel(c.tipo_atto)}
                                         </p>
                                         <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
                                     </div>
@@ -863,11 +857,11 @@ function TabFederale() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                         <button onClick={tornaCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                            <ChevronLeft size={13} /> Tutti i tipi di atto
+                            <ChevronLeft size={13} /> {t('federale.tutti_tipi_atto')}
                         </button>
                         <div className="flex items-center gap-4">
                             <SelettoreLinguaGlobale />
-                            <p className="font-display text-xl text-nebbia">{TIPO_ATTO_LABEL[tipoSel] ?? tipoSel}</p>
+                            <p className="font-display text-xl text-nebbia">{tipoAttoLabel(tipoSel)}</p>
                         </div>
                     </div>
 
@@ -875,7 +869,7 @@ function TabFederale() {
                         <div className="relative flex-1">
                             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                             <input
-                                placeholder="Cerca per numero RS (es. 220, 311.0)…"
+                                placeholder={t('federale.cerca_rs_placeholder')}
                                 value={inputAtti}
                                 onChange={e => setInputAtti(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') { setPaginaAtti(0); setCercaAtti(inputAtti) } }}
@@ -884,24 +878,24 @@ function TabFederale() {
                         </div>
                         <button onClick={() => { setPaginaAtti(0); setCercaAtti(inputAtti) }}
                             className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                            <Search size={13} /> Cerca
+                            <Search size={13} /> {t('comune.cerca')}
                         </button>
                         {cercaAtti && (
                             <button onClick={() => { setInputAtti(''); setCercaAtti(''); setPaginaAtti(0) }}
                                 className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
-                                <X size={11} /> Pulisci
+                                <X size={11} /> {t('comune.pulisci')}
                             </button>
                         )}
                     </div>
 
-                    {cercaAtti && <p className="font-body text-xs text-nebbia/30">{totaleAtti.toLocaleString('it-CH')} atti per "{cercaAtti}"</p>}
+                    {cercaAtti && <p className="font-body text-xs text-nebbia/30">{t('federale.atti_per', { count: totaleAtti, n: totaleAtti.toLocaleString(dateLocale), q: cercaAtti })}</p>}
 
                     <div className="bg-slate border border-white/5">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-white/5">
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">RS</th>
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Titolo</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('federale.col_rs')}</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('comune.titolo')}</th>
                                     <th className="px-4 py-3 w-8" />
                                 </tr>
                             </thead>
@@ -912,27 +906,27 @@ function TabFederale() {
                                     </td></tr>
                                 ) : atti.length === 0 ? (
                                     <tr><td colSpan={3} className="px-4 py-20 text-center">
-                                        <p className="font-body text-sm text-nebbia/30">Nessun atto trovato</p>
+                                        <p className="font-body text-sm text-nebbia/30">{t('federale.nessun_atto')}</p>
                                     </td></tr>
                                 ) : atti.map(a => {
-                                    const t = risolviMultilingua(a.titolo, lingua)
+                                    const titoloRis = risolviMultilingua(a.titolo, lingua)
                                     const sigla = risolviMultilingua(a.titolo_short, lingua).testo
-                                    const fallback = t.lingua && t.lingua !== lingua
+                                    const fallback = titoloRis.lingua && titoloRis.lingua !== lingua
                                     return (
                                         <tr key={a.id}
                                             className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
                                             onClick={() => apriAtto(a)}>
                                             <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
                                                 {a.rs_numero ?? '—'}
-                                                {a.abrogato && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">abrogato</span>}
+                                                {a.abrogato && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">{t('federale.badge_abrogato')}</span>}
                                             </td>
                                             <td className="px-4 py-3 font-body text-sm text-nebbia/70 leading-snug">
                                                 <span className="flex items-center gap-2 flex-wrap">
                                                     {sigla && <span className="text-nebbia/40 font-medium">{sigla}</span>}
-                                                    <span>{t.testo ?? '(senza titolo)'}</span>
+                                                    <span>{titoloRis.testo ?? t('comune.senza_titolo')}</span>
                                                     {fallback && (
                                                         <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 uppercase">
-                                                            {LINGUE_LABEL[t.lingua]}
+                                                            {LINGUE_LABEL[titoloRis.lingua]}
                                                         </span>
                                                     )}
                                                 </span>
@@ -948,13 +942,13 @@ function TabFederale() {
                         {pagineAtti > 1 && (
                             <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
                                 <p className="font-body text-xs text-nebbia/30">
-                                    {paginaAtti * PER_PAGINA_ATTI_FED + 1}–{Math.min((paginaAtti + 1) * PER_PAGINA_ATTI_FED, totaleAtti)} di {totaleAtti.toLocaleString('it-CH')}
+                                    {t('comune.range_paginazione', { from: paginaAtti * PER_PAGINA_ATTI_FED + 1, to: Math.min((paginaAtti + 1) * PER_PAGINA_ATTI_FED, totaleAtti), total: totaleAtti.toLocaleString(dateLocale) })}
                                 </p>
                                 <div className="flex gap-2">
                                     <button onClick={() => setPaginaAtti(p => Math.max(0, p - 1))} disabled={paginaAtti === 0}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.prec')}</button>
                                     <button onClick={() => setPaginaAtti(p => Math.min(pagineAtti - 1, p + 1))} disabled={paginaAtti >= pagineAtti - 1}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.succ')}</button>
                                 </div>
                             </div>
                         )}
@@ -968,11 +962,11 @@ function TabFederale() {
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-3 flex-wrap">
                             <button onClick={tornaCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                <ChevronLeft size={13} /> Tutti i tipi
+                                <ChevronLeft size={13} /> {t('federale.tutti_tipi')}
                             </button>
                             <span className="text-nebbia/20">/</span>
                             <button onClick={tornaTipo} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                {TIPO_ATTO_LABEL[tipoSel] ?? tipoSel}
+                                {tipoAttoLabel(tipoSel)}
                             </button>
                         </div>
                         <p className="font-display text-lg text-nebbia text-right">
@@ -981,7 +975,7 @@ function TabFederale() {
                     </div>
                     <p className="font-body text-sm text-nebbia/50 leading-relaxed -mt-2 flex items-center gap-2 flex-wrap">
                         {attoSigla && <span className="text-nebbia/40 font-medium">{attoSigla}</span>}
-                        <span>{attoTit.testo ?? '(senza titolo)'}</span>
+                        <span>{attoTit.testo ?? t('comune.senza_titolo')}</span>
                         {attoTit.lingua && attoTit.lingua !== lingua && (
                             <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 uppercase">{LINGUE_LABEL[attoTit.lingua]}</span>
                         )}
@@ -990,7 +984,7 @@ function TabFederale() {
                     {/* Mini-selettore lingua dell'atto: salta tra le lingue di QUESTO atto */}
                     {lingueAtto.length > 1 && (
                         <div className="flex items-center gap-2">
-                            <span className="font-body text-xs text-nebbia/30">Versione:</span>
+                            <span className="font-body text-xs text-nebbia/30">{t('federale.versione')}</span>
                             <div className="flex gap-1 bg-slate border border-white/5 p-1">
                                 {lingueAtto.map(l => (
                                     <button key={l} onClick={() => cambiaLinguaArt(l)}
@@ -1001,7 +995,7 @@ function TabFederale() {
                             </div>
                             {linguaArt && linguaArt !== lingua && (
                                 <span className="font-body text-[10px] text-nebbia/30">
-                                    (non disponibile in {LINGUE_LABEL[lingua]})
+                                    {t('federale.non_disponibile_in', { lingua: LINGUE_LABEL[lingua] })}
                                 </span>
                             )}
                         </div>
@@ -1011,7 +1005,7 @@ function TabFederale() {
                         <div className="relative flex-1">
                             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                             <input
-                                placeholder="Cerca per articolo, rubrica o testo…"
+                                placeholder={t('comune.cerca_articolo_placeholder')}
                                 value={inputArt}
                                 onChange={e => setInputArt(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') { setPaginaArt(0); setCercaArt(inputArt) } }}
@@ -1020,24 +1014,24 @@ function TabFederale() {
                         </div>
                         <button onClick={() => { setPaginaArt(0); setCercaArt(inputArt) }}
                             className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                            <Search size={13} /> Cerca
+                            <Search size={13} /> {t('comune.cerca')}
                         </button>
                         {cercaArt && (
                             <button onClick={() => { setInputArt(''); setCercaArt(''); setPaginaArt(0) }}
                                 className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
-                                <X size={11} /> Pulisci
+                                <X size={11} /> {t('comune.pulisci')}
                             </button>
                         )}
                     </div>
 
-                    {cercaArt && <p className="font-body text-xs text-nebbia/30">{totaleArt.toLocaleString('it-CH')} risultati per "{cercaArt}"</p>}
+                    {cercaArt && <p className="font-body text-xs text-nebbia/30">{t('comune.risultati_per', { count: totaleArt, n: totaleArt.toLocaleString(dateLocale), q: cercaArt })}</p>}
 
                     <div className="bg-slate border border-white/5">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-white/5">
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Articolo</th>
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Rubrica / Anteprima</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('comune.col_articolo')}</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('comune.col_rubrica_anteprima')}</th>
                                     <th className="px-4 py-3 w-8" />
                                 </tr>
                             </thead>
@@ -1048,7 +1042,7 @@ function TabFederale() {
                                     </td></tr>
                                 ) : articoli.length === 0 ? (
                                     <tr><td colSpan={3} className="px-4 py-20 text-center">
-                                        <p className="font-body text-sm text-nebbia/30">Nessun articolo trovato in questa lingua</p>
+                                        <p className="font-body text-sm text-nebbia/30">{t('federale.nessun_articolo_lingua')}</p>
                                     </td></tr>
                                 ) : articoli.map(n => (
                                     <Fragment key={n.id}>
@@ -1073,7 +1067,7 @@ function TabFederale() {
                                                         <p className="font-body text-[11px] text-nebbia/30 uppercase tracking-wider mb-2">{collocazione(n)}</p>
                                                     )}
                                                     <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed"
-                                                        dangerouslySetInnerHTML={{ __html: evidenzia(n.testo ?? '(testo non disponibile)', cercaArt) }} />
+                                                        dangerouslySetInnerHTML={{ __html: evidenzia(n.testo ?? t('comune.testo_non_disponibile'), cercaArt) }} />
                                                     <div className="mt-3 flex flex-wrap items-center gap-2">
                                                         <BottoniSalvataggio
                                                             tipo="norma_federale"
@@ -1089,7 +1083,7 @@ function TabFederale() {
                                                                 navigate(`${prefix}/norma-federale/${n.id}`)
                                                             }}
                                                             className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
-                                                            Apri pagina dedicata <ChevronRight size={11} />
+                                                            {t('comune.apri_pagina_dedicata')} <ChevronRight size={11} />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -1102,13 +1096,13 @@ function TabFederale() {
                         {pagineArt > 1 && (
                             <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
                                 <p className="font-body text-xs text-nebbia/30">
-                                    {paginaArt * PER_PAGINA_ART_FED + 1}–{Math.min((paginaArt + 1) * PER_PAGINA_ART_FED, totaleArt)} di {totaleArt.toLocaleString('it-CH')}
+                                    {t('comune.range_paginazione', { from: paginaArt * PER_PAGINA_ART_FED + 1, to: Math.min((paginaArt + 1) * PER_PAGINA_ART_FED, totaleArt), total: totaleArt.toLocaleString(dateLocale) })}
                                 </p>
                                 <div className="flex gap-2">
                                     <button onClick={() => setPaginaArt(p => Math.max(0, p - 1))} disabled={paginaArt === 0}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.prec')}</button>
                                     <button onClick={() => setPaginaArt(p => Math.min(pagineArt - 1, p + 1))} disabled={paginaArt >= pagineArt - 1}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.succ')}</button>
                                 </div>
                             </div>
                         )}
@@ -1172,6 +1166,9 @@ const PER_PAGINA_LEGGI = 50
 const PER_PAGINA_ART_CANT = 50
 
 function TabCantonale() {
+    const { t, i18n } = useTranslation('avv_banca_dati')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const navigate = useNavigate()
 
     const [vista, setVista] = useState('catalogo')
@@ -1342,12 +1339,12 @@ function TabCantonale() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                         <button onClick={tornaCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                            <ChevronLeft size={13} /> Tutti i cantoni
+                            <ChevronLeft size={13} /> {t('cantonale.tutti_cantoni')}
                         </button>
                         <div className="flex items-center gap-4">
                             {isBilingue && (
                                 <div className="flex items-center gap-2">
-                                    <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+                                    <span className="font-body text-xs text-nebbia/30">{t('comune.lingua')}</span>
                                     <div className="flex gap-1 bg-slate border border-white/5 p-1">
                                         {cantoneSel.lingue.map(l => (
                                             <button key={l} onClick={() => cambiaLingua(l)}
@@ -1366,7 +1363,7 @@ function TabCantonale() {
                         <div className="relative flex-1">
                             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                             <input
-                                placeholder="Cerca per titolo, sigla o numero…"
+                                placeholder={t('cantonale.cerca_legge_placeholder')}
                                 value={inputLeggi}
                                 onChange={e => setInputLeggi(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') { setPaginaLeggi(0); setCercaLeggi(inputLeggi) } }}
@@ -1375,24 +1372,24 @@ function TabCantonale() {
                         </div>
                         <button onClick={() => { setPaginaLeggi(0); setCercaLeggi(inputLeggi) }}
                             className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                            <Search size={13} /> Cerca
+                            <Search size={13} /> {t('comune.cerca')}
                         </button>
                         {cercaLeggi && (
                             <button onClick={() => { setInputLeggi(''); setCercaLeggi(''); setPaginaLeggi(0) }}
                                 className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
-                                <X size={11} /> Pulisci
+                                <X size={11} /> {t('comune.pulisci')}
                             </button>
                         )}
                     </div>
 
-                    {cercaLeggi && <p className="font-body text-xs text-nebbia/30">{totaleLeggi.toLocaleString('it-CH')} leggi per "{cercaLeggi}"</p>}
+                    {cercaLeggi && <p className="font-body text-xs text-nebbia/30">{t('cantonale.leggi_per', { count: totaleLeggi, n: totaleLeggi.toLocaleString(dateLocale), q: cercaLeggi })}</p>}
 
                     <div className="bg-slate border border-white/5">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-white/5">
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">N.</th>
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Titolo</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('cantonale.col_numero')}</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('comune.titolo')}</th>
                                     <th className="px-4 py-3 w-8" />
                                 </tr>
                             </thead>
@@ -1403,25 +1400,25 @@ function TabCantonale() {
                                     </td></tr>
                                 ) : leggi.length === 0 ? (
                                     <tr><td colSpan={3} className="px-4 py-20 text-center">
-                                        <p className="font-body text-sm text-nebbia/30">Nessuna legge trovata</p>
+                                        <p className="font-body text-sm text-nebbia/30">{t('cantonale.nessuna_legge')}</p>
                                     </td></tr>
                                 ) : leggi.map(l => {
-                                    const t = risolviTitoloCant(l.title_by_lang, l.title, lingua)
-                                    const fallback = isBilingue && t.lingua && t.lingua !== lingua
+                                    const titoloRis = risolviTitoloCant(l.title_by_lang, l.title, lingua)
+                                    const fallback = isBilingue && titoloRis.lingua && titoloRis.lingua !== lingua
                                     return (
                                         <tr key={l.id}
                                             className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer"
                                             onClick={() => apriLegge(l)}>
                                             <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
                                                 {l.systematic_number ?? '—'}
-                                                {l.is_active === false && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">abrogata</span>}
+                                                {l.is_active === false && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">{t('cantonale.badge_abrogata')}</span>}
                                             </td>
                                             <td className="px-4 py-3 font-body text-sm text-nebbia/70 leading-snug">
                                                 <span className="flex items-center gap-2 flex-wrap">
                                                     {l.abbreviation && <span className="text-nebbia/40 font-medium">{l.abbreviation}</span>}
-                                                    <span>{t.testo ?? '(senza titolo)'}</span>
+                                                    <span>{titoloRis.testo ?? t('comune.senza_titolo')}</span>
                                                     {fallback && (
-                                                        <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 uppercase">{LINGUE_LABEL_CANT[t.lingua]}</span>
+                                                        <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 uppercase">{LINGUE_LABEL_CANT[titoloRis.lingua]}</span>
                                                     )}
                                                 </span>
                                             </td>
@@ -1436,13 +1433,13 @@ function TabCantonale() {
                         {pagineLeggi > 1 && (
                             <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
                                 <p className="font-body text-xs text-nebbia/30">
-                                    {paginaLeggi * PER_PAGINA_LEGGI + 1}–{Math.min((paginaLeggi + 1) * PER_PAGINA_LEGGI, totaleLeggi)} di {totaleLeggi.toLocaleString('it-CH')}
+                                    {t('comune.range_paginazione', { from: paginaLeggi * PER_PAGINA_LEGGI + 1, to: Math.min((paginaLeggi + 1) * PER_PAGINA_LEGGI, totaleLeggi), total: totaleLeggi.toLocaleString(dateLocale) })}
                                 </p>
                                 <div className="flex gap-2">
                                     <button onClick={() => setPaginaLeggi(p => Math.max(0, p - 1))} disabled={paginaLeggi === 0}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.prec')}</button>
                                     <button onClick={() => setPaginaLeggi(p => Math.min(pagineLeggi - 1, p + 1))} disabled={paginaLeggi >= pagineLeggi - 1}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.succ')}</button>
                                 </div>
                             </div>
                         )}
@@ -1456,7 +1453,7 @@ function TabCantonale() {
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-3 flex-wrap">
                             <button onClick={tornaCatalogo} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                <ChevronLeft size={13} /> Tutti i cantoni
+                                <ChevronLeft size={13} /> {t('cantonale.tutti_cantoni')}
                             </button>
                             <span className="text-nebbia/20">/</span>
                             <button onClick={tornaCantone} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
@@ -1469,13 +1466,13 @@ function TabCantonale() {
                     </div>
                     <p className="font-body text-sm text-nebbia/50 leading-relaxed -mt-2 flex items-center gap-2 flex-wrap">
                         {leggeSel.abbreviation && <span className="text-nebbia/40 font-medium">{leggeSel.abbreviation}</span>}
-                        <span>{risolviTitoloCant(leggeSel.title_by_lang, leggeSel.title, lingua).testo ?? '(senza titolo)'}</span>
+                        <span>{risolviTitoloCant(leggeSel.title_by_lang, leggeSel.title, lingua).testo ?? t('comune.senza_titolo')}</span>
                     </p>
 
                     {/* Selettore lingua solo per cantoni bilingui */}
                     {isBilingue && (
                         <div className="flex items-center gap-2">
-                            <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+                            <span className="font-body text-xs text-nebbia/30">{t('comune.lingua')}</span>
                             <div className="flex gap-1 bg-slate border border-white/5 p-1">
                                 {cantoneSel.lingue.map(l => (
                                     <button key={l} onClick={() => cambiaLingua(l)}
@@ -1491,7 +1488,7 @@ function TabCantonale() {
                         <div className="relative flex-1">
                             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                             <input
-                                placeholder="Cerca per articolo, rubrica o testo…"
+                                placeholder={t('comune.cerca_articolo_placeholder')}
                                 value={inputArt}
                                 onChange={e => setInputArt(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') { setPaginaArt(0); setCercaArt(inputArt) } }}
@@ -1500,24 +1497,24 @@ function TabCantonale() {
                         </div>
                         <button onClick={() => { setPaginaArt(0); setCercaArt(inputArt) }}
                             className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                            <Search size={13} /> Cerca
+                            <Search size={13} /> {t('comune.cerca')}
                         </button>
                         {cercaArt && (
                             <button onClick={() => { setInputArt(''); setCercaArt(''); setPaginaArt(0) }}
                                 className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
-                                <X size={11} /> Pulisci
+                                <X size={11} /> {t('comune.pulisci')}
                             </button>
                         )}
                     </div>
 
-                    {cercaArt && <p className="font-body text-xs text-nebbia/30">{totaleArt.toLocaleString('it-CH')} risultati per "{cercaArt}"</p>}
+                    {cercaArt && <p className="font-body text-xs text-nebbia/30">{t('comune.risultati_per', { count: totaleArt, n: totaleArt.toLocaleString(dateLocale), q: cercaArt })}</p>}
 
                     <div className="bg-slate border border-white/5">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-white/5">
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Articolo</th>
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Rubrica / Anteprima</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('comune.col_articolo')}</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('comune.col_rubrica_anteprima')}</th>
                                     <th className="px-4 py-3 w-8" />
                                 </tr>
                             </thead>
@@ -1528,7 +1525,7 @@ function TabCantonale() {
                                     </td></tr>
                                 ) : articoli.length === 0 ? (
                                     <tr><td colSpan={3} className="px-4 py-20 text-center">
-                                        <p className="font-body text-sm text-nebbia/30">Nessun articolo trovato</p>
+                                        <p className="font-body text-sm text-nebbia/30">{t('comune.nessun_articolo')}</p>
                                     </td></tr>
                                 ) : articoli.map(n => (
                                     <Fragment key={n.id}>
@@ -1553,7 +1550,7 @@ function TabCantonale() {
                                                         <p className="font-body text-[11px] text-nebbia/30 uppercase tracking-wider mb-2">{gerarchiaLabel(n.gerarchia)}</p>
                                                     )}
                                                     <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed"
-                                                        dangerouslySetInnerHTML={{ __html: evidenzia(n.testo ?? '(testo non disponibile)', cercaArt) }} />
+                                                        dangerouslySetInnerHTML={{ __html: evidenzia(n.testo ?? t('comune.testo_non_disponibile'), cercaArt) }} />
                                                     <div className="mt-3 flex flex-wrap items-center gap-2">
                                                         <BottoniSalvataggio
                                                             tipo="norma_cantonale"
@@ -1569,7 +1566,7 @@ function TabCantonale() {
                                                                 navigate(`${prefix}/norma-cantonale/${n.id}`)
                                                             }}
                                                             className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
-                                                            Apri pagina dedicata <ChevronRight size={11} />
+                                                            {t('comune.apri_pagina_dedicata')} <ChevronRight size={11} />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -1582,13 +1579,13 @@ function TabCantonale() {
                         {pagineArt > 1 && (
                             <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
                                 <p className="font-body text-xs text-nebbia/30">
-                                    {paginaArt * PER_PAGINA_ART_CANT + 1}–{Math.min((paginaArt + 1) * PER_PAGINA_ART_CANT, totaleArt)} di {totaleArt.toLocaleString('it-CH')}
+                                    {t('comune.range_paginazione', { from: paginaArt * PER_PAGINA_ART_CANT + 1, to: Math.min((paginaArt + 1) * PER_PAGINA_ART_CANT, totaleArt), total: totaleArt.toLocaleString(dateLocale) })}
                                 </p>
                                 <div className="flex gap-2">
                                     <button onClick={() => setPaginaArt(p => Math.max(0, p - 1))} disabled={paginaArt === 0}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.prec')}</button>
                                     <button onClick={() => setPaginaArt(p => Math.min(pagineArt - 1, p + 1))} disabled={paginaArt >= pagineArt - 1}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.succ')}</button>
                                 </div>
                             </div>
                         )}
@@ -1624,42 +1621,16 @@ const ANNO_MIN_GIUR = 1900
 const ANNO_MAX_GIUR = new Date().getFullYear()
 const PER_PAGINA_SENT = 50
 
-// Fonti federali → label leggibile. L'ordine qui è anche l'ordine di visualizzazione.
-const FONTI_FEDERALI = [
-    { fonte: 'TF', label: 'Tribunale federale (TF)' },
-    { fonte: 'CH_BGE', label: 'DTF — Raccolta ufficiale (BGE)' },
-    { fonte: 'TAF', label: 'Tribunale amministrativo federale (TAF)' },
-    { fonte: 'TPF', label: 'Tribunale penale federale (TPF)' },
-    { fonte: 'CH_BPATG', label: 'Tribunale federale dei brevetti' },
-    { fonte: 'CH_WEKO', label: 'COMCO — Commissione concorrenza' },
-    { fonte: 'CH_EDOEB', label: 'IFPDT — Protezione dati' },
-    { fonte: 'CH_VB', label: 'Autorità di vigilanza' },
-    { fonte: 'CH_BUNDESRAT', label: 'Consiglio federale' },
-    { fonte: 'CH_UNIBE', label: 'Università di Berna' },
-    { fonte: 'TA_SST', label: 'TA — SST' },
-    { fonte: 'MISC_UPLOAD', label: 'Altri / caricamenti' },
-]
-const SET_FEDERALI = new Set(FONTI_FEDERALI.map(f => f.fonte))
-
-// Sigle camera (parte dopo CANT_XX_) → label. Fallback = codice grezzo.
-const CAMERA_LABEL = {
-    OG: 'Obergericht', VG: 'Verwaltungsgericht', SVG: 'Sozialversicherungsgericht',
-    BR: 'Baurekurs', SR: 'Steuerrekurs', FI: 'Cour fiscale', OM: 'Cour des assurances',
-    ZS: 'Zivil', BVD: 'Beschwerde VD', WT: 'Weitere', AA: 'Anwaltsaufsicht',
-    BG: 'Bezirksgericht', AK: 'Appellationskammer', BE: 'Beschwerde',
-}
+// Fonti federali (ordine), SET_FEDERALI e camere → centralizzati in src/lib/istituzioni.js (namespace i18n 'istituzioni')
 
 const LINGUE_FILTRO_GIUR = ['it', 'de', 'fr']
 const LINGUE_LABEL_GIUR = { it: 'IT', de: 'DE', fr: 'FR' }
 
-// Da un codice CANT_XX o CANT_XX_YYY estrae { cantone, camera }
-function parseCantonale(fonte) {
-    const m = fonte.match(/^CANT_([A-Z]{2})(?:_(.+))?$/)
-    if (!m) return { cantone: null, camera: null }
-    return { cantone: m[1], camera: m[2] ?? null }
-}
-
 function TabGiurisprudenza() {
+    const { t, i18n } = useTranslation('avv_banca_dati')
+    const { t: tIst } = useTranslation('istituzioni')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const navigate = useNavigate()
 
     // vista: 'macro' | 'fed_lista' | 'cant_griglia' | 'sentenze'
@@ -1768,7 +1739,7 @@ function TabGiurisprudenza() {
         setVista('sentenze')
     }
     function apriCantone(cant) {
-        setCantoneSel(cant); setFonteSel(null); setTitoloSel(`Tribunali ${cant}`)
+        setCantoneSel(cant); setFonteSel(null); setTitoloSel(t('giurisprudenza.tribunali_cantone', { cant }))
         setLinguaFiltro(null); setAnnoFiltro(null)
         setInputSent(''); setCercaSent(''); setPaginaSent(0); setSentAperta(null)
         setVista('sentenze')
@@ -1777,7 +1748,7 @@ function TabGiurisprudenza() {
     function tornaLivello2() { setVista(ramo === 'federale' ? 'fed_lista' : 'cant_griglia'); setSentAperta(null) }
 
     function titoloSent(s) {
-        return s.titolo_it || s.titolo_de || s.titolo_fr || s.signature || s.reference || '(senza titolo)'
+        return s.titolo_it || s.titolo_de || s.titolo_fr || s.signature || s.reference || t('comune.senza_titolo')
     }
     function evidenzia(testo, cerca) {
         if (!cerca?.trim() || !testo) return testo
@@ -1788,7 +1759,7 @@ function TabGiurisprudenza() {
         if (!s.fonte) return null
         const { camera } = parseCantonale(s.fonte)
         if (!camera) return null
-        return CAMERA_LABEL[camera] ?? camera
+        return labelCamera(camera, tIst)
     }
 
     const pagineSent = Math.ceil(totaleSent / PER_PAGINA_SENT)
@@ -1802,18 +1773,18 @@ function TabGiurisprudenza() {
                     <button onClick={apriFederali}
                         className="bg-slate border border-white/5 p-8 text-left hover:border-oro/40 hover:bg-petrolio/60 transition-all group">
                         <div className="flex items-center justify-between gap-3 mb-2">
-                            <p className="font-display text-2xl text-nebbia group-hover:text-oro transition-colors">Tribunali federali</p>
+                            <p className="font-display text-2xl text-nebbia group-hover:text-oro transition-colors">{t('giurisprudenza.tribunali_federali')}</p>
                             <ChevronRight size={18} className="text-nebbia/20 group-hover:text-oro/60 transition-colors" />
                         </div>
-                        <p className="font-body text-sm text-nebbia/40">TF · TAF · TPF · DTF e autorità federali</p>
+                        <p className="font-body text-sm text-nebbia/40">{t('giurisprudenza.tribunali_federali_desc')}</p>
                     </button>
                     <button onClick={apriCantonali}
                         className="bg-slate border border-white/5 p-8 text-left hover:border-oro/40 hover:bg-petrolio/60 transition-all group">
                         <div className="flex items-center justify-between gap-3 mb-2">
-                            <p className="font-display text-2xl text-nebbia group-hover:text-oro transition-colors">Tribunali cantonali</p>
+                            <p className="font-display text-2xl text-nebbia group-hover:text-oro transition-colors">{t('giurisprudenza.tribunali_cantonali')}</p>
                             <ChevronRight size={18} className="text-nebbia/20 group-hover:text-oro/60 transition-colors" />
                         </div>
-                        <p className="font-body text-sm text-nebbia/40">Giurisprudenza dei tribunali dei singoli cantoni</p>
+                        <p className="font-body text-sm text-nebbia/40">{t('giurisprudenza.tribunali_cantonali_desc')}</p>
                     </button>
                 </div>
             )}
@@ -1822,7 +1793,7 @@ function TabGiurisprudenza() {
             {vista === 'fed_lista' && (
                 <div className="space-y-4">
                     <button onClick={tornaMacro} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                        <ChevronLeft size={13} /> Federale / Cantonale
+                        <ChevronLeft size={13} /> {t('giurisprudenza.federale_cantonale')}
                     </button>
                     {loadingConteggi ? (
                         <div className="flex items-center justify-center py-20">
@@ -1830,7 +1801,10 @@ function TabGiurisprudenza() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {FONTI_FEDERALI.filter(f => conteggi.some(c => c.fonte === f.fonte)).map(f => (
+                            {FONTI_FEDERALI_ORDER
+                                .filter(code => conteggi.some(c => c.fonte === code))
+                                .map(code => ({ fonte: code, label: labelFonteFederale(code, tIst) }))
+                                .map(f => (
                                 <button key={f.fonte} onClick={() => apriFonteFederale(f)}
                                     className="bg-slate border border-white/5 p-4 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group flex items-center justify-between gap-3">
                                     <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors">{f.label}</p>
@@ -1846,7 +1820,7 @@ function TabGiurisprudenza() {
             {vista === 'cant_griglia' && (
                 <div className="space-y-4">
                     <button onClick={tornaMacro} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                        <ChevronLeft size={13} /> Federale / Cantonale
+                        <ChevronLeft size={13} /> {t('giurisprudenza.federale_cantonale')}
                     </button>
                     {loadingConteggi ? (
                         <div className="flex items-center justify-center py-20">
@@ -1871,11 +1845,11 @@ function TabGiurisprudenza() {
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-3 flex-wrap">
                             <button onClick={tornaMacro} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                <ChevronLeft size={13} /> Federale / Cantonale
+                                <ChevronLeft size={13} /> {t('giurisprudenza.federale_cantonale')}
                             </button>
                             <span className="text-nebbia/20">/</span>
                             <button onClick={tornaLivello2} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                {ramo === 'federale' ? 'Tribunali federali' : 'Tribunali cantonali'}
+                                {ramo === 'federale' ? t('giurisprudenza.tribunali_federali') : t('giurisprudenza.tribunali_cantonali')}
                             </button>
                         </div>
                         <p className="font-display text-lg text-nebbia text-right">{titoloSel}</p>
@@ -1886,10 +1860,10 @@ function TabGiurisprudenza() {
                         {/* Filtro lingua: solo ramo federale (multilingue) */}
                         {ramo === 'federale' && (
                             <div className="flex items-center gap-2">
-                                <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+                                <span className="font-body text-xs text-nebbia/30">{t('comune.lingua')}</span>
                                 <div className="flex gap-1 bg-slate border border-white/5 p-1">
                                     <button onClick={() => { setLinguaFiltro(null); setPaginaSent(0) }}
-                                        className={`px-2.5 py-1 font-body text-xs transition-colors ${linguaFiltro === null ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>Tutte</button>
+                                        className={`px-2.5 py-1 font-body text-xs transition-colors ${linguaFiltro === null ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>{t('giurisprudenza.tutte_lingue')}</button>
                                     {LINGUE_FILTRO_GIUR.map(l => (
                                         <button key={l} onClick={() => { setLinguaFiltro(l); setPaginaSent(0) }}
                                             className={`px-2.5 py-1 font-body text-xs transition-colors ${linguaFiltro === l ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
@@ -1902,11 +1876,11 @@ function TabGiurisprudenza() {
                         {/* Filtro anno */}
                         {anniDisponibili.length > 0 && (
                             <div className="flex items-center gap-2">
-                                <span className="font-body text-xs text-nebbia/30">Anno:</span>
+                                <span className="font-body text-xs text-nebbia/30">{t('giurisprudenza.anno')}</span>
                                 <select value={annoFiltro ?? ''}
                                     onChange={e => { setAnnoFiltro(e.target.value ? Number(e.target.value) : null); setPaginaSent(0) }}
                                     className="bg-slate border border-white/10 text-nebbia font-body text-xs px-3 py-1.5 outline-none focus:border-oro/50">
-                                    <option value="">Tutti</option>
+                                    <option value="">{t('giurisprudenza.tutti_anni')}</option>
                                     {anniDisponibili.map(a => <option key={a} value={a}>{a}</option>)}
                                 </select>
                             </div>
@@ -1918,7 +1892,7 @@ function TabGiurisprudenza() {
                         <div className="relative flex-1">
                             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                             <input
-                                placeholder="Cerca per signature, riferimento o oggetto…"
+                                placeholder={t('giurisprudenza.cerca_sentenza_placeholder')}
                                 value={inputSent}
                                 onChange={e => setInputSent(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') { setPaginaSent(0); setCercaSent(inputSent) } }}
@@ -1927,25 +1901,25 @@ function TabGiurisprudenza() {
                         </div>
                         <button onClick={() => { setPaginaSent(0); setCercaSent(inputSent) }}
                             className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                            <Search size={13} /> Cerca
+                            <Search size={13} /> {t('comune.cerca')}
                         </button>
                         {cercaSent && (
                             <button onClick={() => { setInputSent(''); setCercaSent(''); setPaginaSent(0) }}
                                 className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
-                                <X size={11} /> Pulisci
+                                <X size={11} /> {t('comune.pulisci')}
                             </button>
                         )}
                     </div>
 
-                    {cercaSent && <p className="font-body text-xs text-nebbia/30">{totaleSent.toLocaleString('it-CH')} sentenze per "{cercaSent}"</p>}
+                    {cercaSent && <p className="font-body text-xs text-nebbia/30">{t('giurisprudenza.sentenze_per', { count: totaleSent, n: totaleSent.toLocaleString(dateLocale), q: cercaSent })}</p>}
 
                     <div className="bg-slate border border-white/5">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-white/5">
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Riferimento</th>
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Oggetto</th>
-                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase whitespace-nowrap">Anno</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('giurisprudenza.col_riferimento')}</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('comune.col_oggetto')}</th>
+                                    <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase whitespace-nowrap">{t('giurisprudenza.col_anno')}</th>
                                     <th className="px-4 py-3 w-8" />
                                 </tr>
                             </thead>
@@ -1956,7 +1930,7 @@ function TabGiurisprudenza() {
                                     </td></tr>
                                 ) : sentenze.length === 0 ? (
                                     <tr><td colSpan={4} className="px-4 py-20 text-center">
-                                        <p className="font-body text-sm text-nebbia/30">Nessuna sentenza trovata</p>
+                                        <p className="font-body text-sm text-nebbia/30">{t('giurisprudenza.nessuna_sentenza')}</p>
                                     </td></tr>
                                 ) : sentenze.map(s => {
                                     const cam = cameraBadge(s)
@@ -1990,13 +1964,13 @@ function TabGiurisprudenza() {
                                                     <td colSpan={4} className="px-4 py-4 space-y-3">
                                                         {s.principio_diritto && (
                                                             <div>
-                                                                <p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">Principio di diritto</p>
+                                                                <p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">{t('giurisprudenza.principio_diritto')}</p>
                                                                 <p className="font-body text-sm text-nebbia/70 leading-relaxed">{s.principio_diritto}</p>
                                                             </div>
                                                         )}
                                                         {s.oggetto && (
                                                             <div>
-                                                                <p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">Oggetto</p>
+                                                                <p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">{t('comune.oggetto')}</p>
                                                                 <p className="font-body text-sm text-nebbia/70 leading-relaxed">{s.oggetto}</p>
                                                             </div>
                                                         )}
@@ -2014,7 +1988,7 @@ function TabGiurisprudenza() {
                                                                     navigate(`${prefix}/sentenza-ch/${s.id}`)
                                                                 }}
                                                                 className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
-                                                                Apri pagina dedicata <ChevronRight size={11} />
+                                                                {t('comune.apri_pagina_dedicata')} <ChevronRight size={11} />
                                                             </button>
                                                         </div>
                                                     </td>
@@ -2028,13 +2002,13 @@ function TabGiurisprudenza() {
                         {pagineSent > 1 && (
                             <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
                                 <p className="font-body text-xs text-nebbia/30">
-                                    {paginaSent * PER_PAGINA_SENT + 1}–{Math.min((paginaSent + 1) * PER_PAGINA_SENT, totaleSent)} di {totaleSent.toLocaleString('it-CH')}
+                                    {t('comune.range_paginazione', { from: paginaSent * PER_PAGINA_SENT + 1, to: Math.min((paginaSent + 1) * PER_PAGINA_SENT, totaleSent), total: totaleSent.toLocaleString(dateLocale) })}
                                 </p>
                                 <div className="flex gap-2">
                                     <button onClick={() => setPaginaSent(p => Math.max(0, p - 1))} disabled={paginaSent === 0}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.prec')}</button>
                                     <button onClick={() => setPaginaSent(p => Math.min(pagineSent - 1, p + 1))} disabled={paginaSent >= pagineSent - 1}
-                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                        className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.succ')}</button>
                                 </div>
                             </div>
                         )}
@@ -2065,18 +2039,10 @@ function TabGiurisprudenza() {
 
 const PER_PAGINA_UE = 50
 
-const TIPO_ATTO_UE_LABEL = {
-    REG: 'Regolamenti',
-    DIR: 'Direttive',
-    DEC: 'Decisioni',
-}
+// Le label dei tipi atto UE sono tradotte via i18n (ue.tipo_atto.*)
 const ORDINE_TIPO_UE = ['REG', 'DIR', 'DEC']
 
-const ELEMENTO_UE_LABEL = {
-    articolo: 'Articoli',
-    considerando: 'Considerando',
-    allegato: 'Allegati',
-}
+// Le label degli elementi UE sono tradotte via i18n (ue.elemento.*)
 const ORDINE_ELEMENTO_UE = ['articolo', 'considerando', 'allegato']
 
 // Selettore lingua predisposto: IT attiva, le altre disabilitate (traduzioni future).
@@ -2088,14 +2054,15 @@ const LINGUE_UE = [
 ]
 
 function SelettoreLinguaUE({ lingua }) {
+    const { t } = useTranslation('avv_banca_dati')
     return (
         <div className="flex items-center gap-2">
-            <span className="font-body text-xs text-nebbia/30">Lingua:</span>
+            <span className="font-body text-xs text-nebbia/30">{t('comune.lingua')}</span>
             <div className="flex gap-1 bg-slate border border-white/5 p-1">
                 {LINGUE_UE.map(l => (
                     <button key={l.code}
                         disabled={!l.attiva}
-                        title={l.attiva ? '' : 'Traduzione in arrivo'}
+                        title={l.attiva ? '' : t('ue.traduzione_in_arrivo')}
                         className={`px-2.5 py-1 font-body text-xs transition-colors ${lingua === l.code ? 'bg-oro/10 text-oro border border-oro/30'
                             : l.attiva ? 'text-nebbia/40 hover:text-nebbia border border-transparent'
                                 : 'text-nebbia/20 border border-transparent cursor-not-allowed'
@@ -2109,7 +2076,12 @@ function SelettoreLinguaUE({ lingua }) {
 }
 
 function TabUE() {
+    const { t, i18n } = useTranslation('avv_banca_dati')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const navigate = useNavigate()
+    const tipoAttoUeLabel = (k) => ORDINE_TIPO_UE.includes(k) ? t(`ue.tipo_atto.${k}`) : k
+    const elementoUeLabel = (k) => ORDINE_ELEMENTO_UE.includes(k) ? t(`ue.elemento.${k}`) : k
 
     // sezione attiva: 'norme' | 'sentenze'
     const [sezione, setSezione] = useState('norme')
@@ -2280,7 +2252,7 @@ function TabUE() {
         return testo.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
     }
     function attoUeLabel(a) {
-        return a.titolo_doc || a.titolo_breve || a.celex || '(senza titolo)'
+        return a.titolo_doc || a.titolo_breve || a.celex || t('comune.senza_titolo')
     }
 
     const pagineAttiUe = Math.ceil(totaleAttiUe / PER_PAGINA_UE)
@@ -2295,11 +2267,11 @@ function TabUE() {
                 <div className="flex gap-1 bg-slate border border-white/5 p-1">
                     <button onClick={() => setSezione('norme')}
                         className={`px-4 py-1.5 font-body text-xs transition-colors ${sezione === 'norme' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
-                        Norme UE
+                        {t('ue.sezione_norme')}
                     </button>
                     <button onClick={() => setSezione('sentenze')}
                         className={`px-4 py-1.5 font-body text-xs transition-colors ${sezione === 'sentenze' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
-                        Sentenze CGUE
+                        {t('ue.sezione_sentenze')}
                     </button>
                 </div>
                 <SelettoreLinguaUE lingua={lingua} />
@@ -2320,7 +2292,7 @@ function TabUE() {
                                     <button key={c.chiave} onClick={() => apriTipoUe(c.chiave)}
                                         className="bg-slate border border-white/5 p-5 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
                                         <div className="flex items-center justify-between gap-3">
-                                            <p className="font-display text-lg text-nebbia group-hover:text-oro transition-colors">{TIPO_ATTO_UE_LABEL[c.chiave] ?? c.chiave}</p>
+                                            <p className="font-display text-lg text-nebbia group-hover:text-oro transition-colors">{tipoAttoUeLabel(c.chiave)}</p>
                                             <ChevronRight size={16} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
                                         </div>
                                     </button>
@@ -2334,15 +2306,15 @@ function TabUE() {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between gap-3 flex-wrap">
                                 <button onClick={tornaCatalogoN} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                    <ChevronLeft size={13} /> Tutti i tipi
+                                    <ChevronLeft size={13} /> {t('ue.tutti_tipi')}
                                 </button>
-                                <p className="font-display text-xl text-nebbia">{TIPO_ATTO_UE_LABEL[tipoSel] ?? tipoSel}</p>
+                                <p className="font-display text-xl text-nebbia">{tipoAttoUeLabel(tipoSel)}</p>
                             </div>
 
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
                                     <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                                    <input placeholder="Cerca per titolo, CELEX o numero…"
+                                    <input placeholder={t('ue.cerca_atto_placeholder')}
                                         value={inputAttiUe}
                                         onChange={e => setInputAttiUe(e.target.value)}
                                         onKeyDown={e => { if (e.key === 'Enter') { setPaginaAttiUe(0); setCercaAttiUe(inputAttiUe) } }}
@@ -2350,12 +2322,12 @@ function TabUE() {
                                 </div>
                                 <button onClick={() => { setPaginaAttiUe(0); setCercaAttiUe(inputAttiUe) }}
                                     className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                                    <Search size={13} /> Cerca
+                                    <Search size={13} /> {t('comune.cerca')}
                                 </button>
                                 {cercaAttiUe && (
                                     <button onClick={() => { setInputAttiUe(''); setCercaAttiUe(''); setPaginaAttiUe(0) }}
                                         className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
-                                        <X size={11} /> Pulisci
+                                        <X size={11} /> {t('comune.pulisci')}
                                     </button>
                                 )}
                             </div>
@@ -2364,8 +2336,8 @@ function TabUE() {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-white/5">
-                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">CELEX</th>
-                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Titolo</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('ue.col_celex')}</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('comune.titolo')}</th>
                                             <th className="px-4 py-3 w-8" />
                                         </tr>
                                     </thead>
@@ -2373,12 +2345,12 @@ function TabUE() {
                                         {loadingAttiUe ? (
                                             <tr><td colSpan={3} className="px-4 py-20 text-center"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" /></td></tr>
                                         ) : attiUe.length === 0 ? (
-                                            <tr><td colSpan={3} className="px-4 py-20 text-center"><p className="font-body text-sm text-nebbia/30">Nessun atto trovato</p></td></tr>
+                                            <tr><td colSpan={3} className="px-4 py-20 text-center"><p className="font-body text-sm text-nebbia/30">{t('ue.nessun_atto')}</p></td></tr>
                                         ) : attiUe.map(a => (
                                             <tr key={a.celex} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer" onClick={() => apriAttoUe(a)}>
                                                 <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
                                                     {a.celex ?? '—'}
-                                                    {a.vigente === false && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">abrogato</span>}
+                                                    {a.vigente === false && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">{t('ue.badge_abrogato')}</span>}
                                                 </td>
                                                 <td className="px-4 py-3 font-body text-sm text-nebbia/70 leading-snug">{attoUeLabel(a)}</td>
                                                 <td className="px-4 py-3"><ChevronRight size={13} className="text-nebbia/20" /></td>
@@ -2388,10 +2360,10 @@ function TabUE() {
                                 </table>
                                 {pagineAttiUe > 1 && (
                                     <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
-                                        <p className="font-body text-xs text-nebbia/30">{paginaAttiUe * PER_PAGINA_UE + 1}–{Math.min((paginaAttiUe + 1) * PER_PAGINA_UE, totaleAttiUe)} di {totaleAttiUe.toLocaleString('it-CH')}</p>
+                                        <p className="font-body text-xs text-nebbia/30">{t('comune.range_paginazione', { from: paginaAttiUe * PER_PAGINA_UE + 1, to: Math.min((paginaAttiUe + 1) * PER_PAGINA_UE, totaleAttiUe), total: totaleAttiUe.toLocaleString(dateLocale) })}</p>
                                         <div className="flex gap-2">
-                                            <button onClick={() => setPaginaAttiUe(p => Math.max(0, p - 1))} disabled={paginaAttiUe === 0} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
-                                            <button onClick={() => setPaginaAttiUe(p => Math.min(pagineAttiUe - 1, p + 1))} disabled={paginaAttiUe >= pagineAttiUe - 1} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                            <button onClick={() => setPaginaAttiUe(p => Math.max(0, p - 1))} disabled={paginaAttiUe === 0} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.prec')}</button>
+                                            <button onClick={() => setPaginaAttiUe(p => Math.min(pagineAttiUe - 1, p + 1))} disabled={paginaAttiUe >= pagineAttiUe - 1} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.succ')}</button>
                                         </div>
                                     </div>
                                 )}
@@ -2405,10 +2377,10 @@ function TabUE() {
                             <div className="flex items-center justify-between gap-3 flex-wrap">
                                 <div className="flex items-center gap-3 flex-wrap">
                                     <button onClick={tornaCatalogoN} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                        <ChevronLeft size={13} /> Tutti i tipi
+                                        <ChevronLeft size={13} /> {t('ue.tutti_tipi')}
                                     </button>
                                     <span className="text-nebbia/20">/</span>
-                                    <button onClick={tornaTipoN} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">{TIPO_ATTO_UE_LABEL[tipoSel] ?? tipoSel}</button>
+                                    <button onClick={tornaTipoN} className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors">{tipoAttoUeLabel(tipoSel)}</button>
                                 </div>
                                 <p className="font-display text-base text-nebbia text-right">{attoUeSel.celex}</p>
                             </div>
@@ -2420,7 +2392,7 @@ function TabUE() {
                                     {ORDINE_ELEMENTO_UE.map(el => (
                                         <button key={el} onClick={() => cambiaElemento(el)}
                                             className={`px-3 py-1 font-body text-xs transition-colors ${elementoSel === el ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
-                                            {ELEMENTO_UE_LABEL[el]}
+                                            {elementoUeLabel(el)}
                                         </button>
                                     ))}
                                 </div>
@@ -2429,7 +2401,7 @@ function TabUE() {
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
                                     <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                                    <input placeholder="Cerca nel testo…"
+                                    <input placeholder={t('ue.cerca_testo_placeholder')}
                                         value={inputArtUe}
                                         onChange={e => setInputArtUe(e.target.value)}
                                         onKeyDown={e => { if (e.key === 'Enter') { setPaginaArtUe(0); setCercaArtUe(inputArtUe) } }}
@@ -2437,12 +2409,12 @@ function TabUE() {
                                 </div>
                                 <button onClick={() => { setPaginaArtUe(0); setCercaArtUe(inputArtUe) }}
                                     className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                                    <Search size={13} /> Cerca
+                                    <Search size={13} /> {t('comune.cerca')}
                                 </button>
                                 {cercaArtUe && (
                                     <button onClick={() => { setInputArtUe(''); setCercaArtUe(''); setPaginaArtUe(0) }}
                                         className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
-                                        <X size={11} /> Pulisci
+                                        <X size={11} /> {t('comune.pulisci')}
                                     </button>
                                 )}
                             </div>
@@ -2451,8 +2423,8 @@ function TabUE() {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-white/5">
-                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{elementoSel === 'articolo' ? 'Articolo' : elementoSel === 'considerando' ? 'Considerando' : 'Allegato'}</th>
-                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Rubrica / Anteprima</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t(`ue.elemento_singolare.${elementoSel}`)}</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('comune.col_rubrica_anteprima')}</th>
                                             <th className="px-4 py-3 w-8" />
                                         </tr>
                                     </thead>
@@ -2460,7 +2432,7 @@ function TabUE() {
                                         {loadingArtUe ? (
                                             <tr><td colSpan={3} className="px-4 py-20 text-center"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" /></td></tr>
                                         ) : articoliUe.length === 0 ? (
-                                            <tr><td colSpan={3} className="px-4 py-20 text-center"><p className="font-body text-sm text-nebbia/30">Nessun elemento trovato</p></td></tr>
+                                            <tr><td colSpan={3} className="px-4 py-20 text-center"><p className="font-body text-sm text-nebbia/30">{t('ue.nessun_elemento')}</p></td></tr>
                                         ) : articoliUe.map(n => (
                                             <Fragment key={n.id}>
                                                 <tr className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer" onClick={() => setArtUeAperto(artUeAperto?.id === n.id ? null : n)}>
@@ -2474,7 +2446,7 @@ function TabUE() {
                                                 {artUeAperto?.id === n.id && (
                                                     <tr key={`${n.id}-t`} className="border-b border-white/5 bg-petrolio/20">
                                                         <td colSpan={3} className="px-4 py-4">
-                                                            <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: evidenzia(n.testo ?? '(testo non disponibile)', cercaArtUe) }} />
+                                                            <p className="font-body text-sm text-nebbia/70 whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: evidenzia(n.testo ?? t('comune.testo_non_disponibile'), cercaArtUe) }} />
                                                             <div className="mt-3 flex items-center gap-2">
                                                                 <BottoniSalvataggio
                                                                     tipo="norma_ue"
@@ -2484,7 +2456,7 @@ function TabUE() {
                                                                 />
                                                                 <button type="button" onClick={(e) => { e.stopPropagation(); const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'; navigate(`${prefix}/norma-ue/${n.id}`) }}
                                                                     className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
-                                                                    Apri pagina dedicata <ChevronRight size={11} />
+                                                                    {t('comune.apri_pagina_dedicata')} <ChevronRight size={11} />
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -2496,10 +2468,10 @@ function TabUE() {
                                 </table>
                                 {pagineArtUe > 1 && (
                                     <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
-                                        <p className="font-body text-xs text-nebbia/30">{paginaArtUe * PER_PAGINA_UE + 1}–{Math.min((paginaArtUe + 1) * PER_PAGINA_UE, totaleArtUe)} di {totaleArtUe.toLocaleString('it-CH')}</p>
+                                        <p className="font-body text-xs text-nebbia/30">{t('comune.range_paginazione', { from: paginaArtUe * PER_PAGINA_UE + 1, to: Math.min((paginaArtUe + 1) * PER_PAGINA_UE, totaleArtUe), total: totaleArtUe.toLocaleString(dateLocale) })}</p>
                                         <div className="flex gap-2">
-                                            <button onClick={() => setPaginaArtUe(p => Math.max(0, p - 1))} disabled={paginaArtUe === 0} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
-                                            <button onClick={() => setPaginaArtUe(p => Math.min(pagineArtUe - 1, p + 1))} disabled={paginaArtUe >= pagineArtUe - 1} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                            <button onClick={() => setPaginaArtUe(p => Math.max(0, p - 1))} disabled={paginaArtUe === 0} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.prec')}</button>
+                                            <button onClick={() => setPaginaArtUe(p => Math.min(pagineArtUe - 1, p + 1))} disabled={paginaArtUe >= pagineArtUe - 1} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.succ')}</button>
                                         </div>
                                     </div>
                                 )}
@@ -2538,7 +2510,7 @@ function TabUE() {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between gap-3 flex-wrap">
                                 <button onClick={tornaCatalogoS} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                                    <ChevronLeft size={13} /> Tutti gli organi
+                                    <ChevronLeft size={13} /> {t('ue.tutti_organi')}
                                 </button>
                                 <p className="font-display text-lg text-nebbia text-right">{organoSel}</p>
                             </div>
@@ -2546,7 +2518,7 @@ function TabUE() {
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
                                     <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
-                                    <input placeholder="Cerca per caso, parti, oggetto o ECLI…"
+                                    <input placeholder={t('ue.cerca_sentenza_placeholder')}
                                         value={inputSentUe}
                                         onChange={e => setInputSentUe(e.target.value)}
                                         onKeyDown={e => { if (e.key === 'Enter') { setPaginaSentUe(0); setCercaSentUe(inputSentUe) } }}
@@ -2554,12 +2526,12 @@ function TabUE() {
                                 </div>
                                 <button onClick={() => { setPaginaSentUe(0); setCercaSentUe(inputSentUe) }}
                                     className="flex items-center gap-2 px-4 py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors">
-                                    <Search size={13} /> Cerca
+                                    <Search size={13} /> {t('comune.cerca')}
                                 </button>
                                 {cercaSentUe && (
                                     <button onClick={() => { setInputSentUe(''); setCercaSentUe(''); setPaginaSentUe(0) }}
                                         className="px-3 py-2.5 text-nebbia/30 hover:text-red-400 transition-colors font-body text-xs flex items-center gap-1">
-                                        <X size={11} /> Pulisci
+                                        <X size={11} /> {t('comune.pulisci')}
                                     </button>
                                 )}
                             </div>
@@ -2568,9 +2540,9 @@ function TabUE() {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-white/5">
-                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Caso</th>
-                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Oggetto / Parti</th>
-                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase whitespace-nowrap">Data</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('ue.col_caso')}</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('ue.col_oggetto_parti')}</th>
+                                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase whitespace-nowrap">{t('ue.col_data')}</th>
                                             <th className="px-4 py-3 w-8" />
                                         </tr>
                                     </thead>
@@ -2578,16 +2550,16 @@ function TabUE() {
                                         {loadingSentUe ? (
                                             <tr><td colSpan={4} className="px-4 py-20 text-center"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full inline-block" /></td></tr>
                                         ) : sentUe.length === 0 ? (
-                                            <tr><td colSpan={4} className="px-4 py-20 text-center"><p className="font-body text-sm text-nebbia/30">Nessuna sentenza trovata</p></td></tr>
+                                            <tr><td colSpan={4} className="px-4 py-20 text-center"><p className="font-body text-sm text-nebbia/30">{t('ue.nessuna_sentenza')}</p></td></tr>
                                         ) : sentUe.map(s => (
                                             <Fragment key={s.id}>
                                                 <tr className="border-b border-white/5 hover:bg-petrolio/40 transition-colors cursor-pointer" onClick={() => setSentUeAperta(sentUeAperta?.id === s.id ? null : s)}>
                                                     <td className="px-4 py-3 font-body text-sm text-oro font-medium whitespace-nowrap align-top">
                                                         {s.numero_caso || s.celex_id || '—'}
-                                                        {s.vigente === false && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">non vig.</span>}
+                                                        {s.vigente === false && <span className="ml-2 font-body text-[10px] text-red-400/70 border border-red-400/20 px-1.5 py-0.5 uppercase">{t('ue.badge_non_vigente')}</span>}
                                                     </td>
                                                     <td className="px-4 py-3 font-body text-sm text-nebbia/60 max-w-lg">
-                                                        <p className="line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenzia(s.oggetto || s.parti || '(senza oggetto)', cercaSentUe) }} />
+                                                        <p className="line-clamp-2" dangerouslySetInnerHTML={{ __html: evidenzia(s.oggetto || s.parti || t('ue.senza_oggetto'), cercaSentUe) }} />
                                                     </td>
                                                     <td className="px-4 py-3 font-body text-sm text-nebbia/50 whitespace-nowrap align-top">{s.data_decisione ?? '—'}</td>
                                                     <td className="px-4 py-3"><ChevronRight size={13} className={`text-nebbia/20 transition-transform ${sentUeAperta?.id === s.id ? 'rotate-90' : ''}`} /></td>
@@ -2595,9 +2567,9 @@ function TabUE() {
                                                 {sentUeAperta?.id === s.id && (
                                                     <tr key={`${s.id}-d`} className="border-b border-white/5 bg-petrolio/20">
                                                         <td colSpan={4} className="px-4 py-4 space-y-3">
-                                                            {s.parti && <div><p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">Parti</p><p className="font-body text-sm text-nebbia/70">{s.parti}</p></div>}
-                                                            {s.oggetto && <div><p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">Oggetto</p><p className="font-body text-sm text-nebbia/70 leading-relaxed">{s.oggetto}</p></div>}
-                                                            {s.relatore && <p className="font-body text-xs text-nebbia/40">Relatore: {s.relatore}</p>}
+                                                            {s.parti && <div><p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">{t('ue.parti')}</p><p className="font-body text-sm text-nebbia/70">{s.parti}</p></div>}
+                                                            {s.oggetto && <div><p className="font-body text-[11px] text-salvia/60 uppercase tracking-wider mb-1">{t('comune.oggetto')}</p><p className="font-body text-sm text-nebbia/70 leading-relaxed">{s.oggetto}</p></div>}
+                                                            {s.relatore && <p className="font-body text-xs text-nebbia/40">{t('ue.relatore', { relatore: s.relatore })}</p>}
                                                             {Array.isArray(s.materia) && s.materia.length > 0 && (
                                                                 <div className="flex flex-wrap gap-1.5">
                                                                     {s.materia.map((m, i) => <span key={i} className="font-body text-[11px] text-salvia/70 bg-salvia/5 border border-salvia/20 px-2 py-0.5">{m}</span>)}
@@ -2612,7 +2584,7 @@ function TabUE() {
                                                                 />
                                                                 <button type="button" onClick={(e) => { e.stopPropagation(); const prefix = window.location.pathname.startsWith('/area') ? '/area' : '/banca-dati'; navigate(`${prefix}/sentenza-ue/${s.id}`) }}
                                                                     className="flex items-center gap-1.5 px-2.5 py-1.5 text-nebbia/40 hover:text-oro transition-colors font-body text-xs ml-auto">
-                                                                    Apri pagina dedicata <ChevronRight size={11} />
+                                                                    {t('comune.apri_pagina_dedicata')} <ChevronRight size={11} />
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -2624,10 +2596,10 @@ function TabUE() {
                                 </table>
                                 {pagineSentUe > 1 && (
                                     <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
-                                        <p className="font-body text-xs text-nebbia/30">{paginaSentUe * PER_PAGINA_UE + 1}–{Math.min((paginaSentUe + 1) * PER_PAGINA_UE, totaleSentUe)} di {totaleSentUe.toLocaleString('it-CH')}</p>
+                                        <p className="font-body text-xs text-nebbia/30">{t('comune.range_paginazione', { from: paginaSentUe * PER_PAGINA_UE + 1, to: Math.min((paginaSentUe + 1) * PER_PAGINA_UE, totaleSentUe), total: totaleSentUe.toLocaleString(dateLocale) })}</p>
                                         <div className="flex gap-2">
-                                            <button onClick={() => setPaginaSentUe(p => Math.max(0, p - 1))} disabled={paginaSentUe === 0} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">← Prec</button>
-                                            <button onClick={() => setPaginaSentUe(p => Math.min(pagineSentUe - 1, p + 1))} disabled={paginaSentUe >= pagineSentUe - 1} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">Succ →</button>
+                                            <button onClick={() => setPaginaSentUe(p => Math.max(0, p - 1))} disabled={paginaSentUe === 0} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.prec')}</button>
+                                            <button onClick={() => setPaginaSentUe(p => Math.min(pagineSentUe - 1, p + 1))} disabled={paginaSentUe >= pagineSentUe - 1} className="px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors disabled:opacity-30">{t('comune.succ')}</button>
                                         </div>
                                     </div>
                                 )}

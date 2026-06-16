@@ -1,0 +1,118 @@
+{
+  "common": {
+    "trattino": "—",
+    "annulla": "Abbrechen",
+    "errore": "Fehler"
+  },
+  "back": {
+    "fatturazione": "Rechnungsstellung"
+  },
+  "loading": {
+    "non_trovata": "Rechnung nicht gefunden"
+  },
+  "stati": {
+    "pagata": "Bezahlt",
+    "in_attesa": "Ausstehend",
+    "scaduta": "Überfällig",
+    "annullata": "Storniert"
+  },
+  "metodi": {
+    "bonifico": "Banküberweisung",
+    "qr": "QR-Rechnung",
+    "contanti": "Bar",
+    "carta": "Karte / TWINT",
+    "altro": "Andere"
+  },
+  "header": {
+    "fattura": "Rechnung",
+    "emessa_il": "Ausgestellt am",
+    "scadenza": "Fälligkeit",
+    "archiviata": "Archiviert"
+  },
+  "azioni": {
+    "registra_pagamento": "Zahlung erfassen",
+    "generando": "Wird erstellt...",
+    "genera_archivia": "PDF erstellen und archivieren",
+    "apertura": "Wird geöffnet...",
+    "scarica_pdf": "PDF herunterladen",
+    "rigenera_title": "PDF neu erstellen und Archiv aktualisieren",
+    "rigenera_pdf": "PDF neu erstellen",
+    "annulla_fattura": "Stornieren",
+    "elimina": "Löschen"
+  },
+  "annulla_fattura": {
+    "conferma": "Möchten Sie diese Rechnung stornieren? Der Status wechselt auf \"storniert\", die Rechnung wird jedoch nicht gelöscht."
+  },
+  "pdf": {
+    "err_download": "Fehler beim Herunterladen"
+  },
+  "cliente": {
+    "destinatario": "Empfänger",
+    "pratica_collegata": "Verknüpftes Dossier",
+    "nessuna_pratica": "Kein Dossier verknüpft"
+  },
+  "righe": {
+    "prestazioni": "Leistungen",
+    "intestazioni": ["Beschreibung", "Menge", "Preis", "Total"],
+    "nessuna": "Keine Position"
+  },
+  "pagamenti": {
+    "ricevuti": "Erhaltene Zahlungen",
+    "aggiungi": "Hinzufügen",
+    "nessuno": "Keine Zahlung erfasst",
+    "residuo_incassare": "Offener Betrag"
+  },
+  "note": {
+    "titolo": "Notizen",
+    "pubbliche": "Öffentlich (auf dem PDF)",
+    "interne": "Intern (nur für Sie)"
+  },
+  "riepilogo": {
+    "titolo": "Zusammenfassung",
+    "imponibile": "Steuerbarer Betrag",
+    "iva_esente": "MWST — befreit",
+    "iva": "MWST {{aliquota}}%",
+    "totale_fattura": "Rechnungsbetrag",
+    "incassato": "Eingegangen",
+    "residuo": "Offener Betrag",
+    "pagamento": "Zahlung",
+    "iban": "IBAN: {{iban}}",
+    "archivio_nota": "Diese Rechnung ist im Archiv in der Kategorie \"Rechnungen\" sichtbar."
+  },
+  "pagamento": {
+    "titolo": "Zahlung erfassen",
+    "fattura": "Rechnung",
+    "residuo": "Offener Betrag:",
+    "label_data": "Datum *",
+    "label_importo": "Betrag (CHF) *",
+    "label_metodo": "Methode *",
+    "label_riferimento": "Referenz",
+    "label_note": "Notizen",
+    "opzionale": "— optional",
+    "ph_riferimento": "Z. B. Transaktionsnr., Überweisungsreferenz...",
+    "err_importo": "Ungültiger Betrag",
+    "err_data": "Zahlungsdatum erforderlich"
+  },
+  "elimina": {
+    "titolo": "Rechnung löschen",
+    "irreversibile": "Unwiderruflicher Vorgang.",
+    "dettaglio": "Gelöscht werden: die Rechnung, die Positionen, die erfassten Zahlungen, das erstellte PDF und der Eintrag im Kanzleiarchiv. Die Nummer <1>{{numero}}</1> bleibt im Register vergeben (sie kann nicht wiederverwendet werden).",
+    "conferma_prompt": "Geben Sie zur Bestätigung die genaue Rechnungsnummer ein:",
+    "cta": "Endgültig löschen"
+  },
+  "scollega": {
+    "titolo": "Dossier trennen",
+    "domanda": "Möchten Sie die Rechnung <1>{{numero}}</1> vom Dossier <3>\"{{titolo}}\"</3> trennen?",
+    "nota": "Die Rechnung bleibt im Register unverändert, ist aber nicht mehr mit diesem Dossier verknüpft. Sie können sie jederzeit erneut verknüpfen.",
+    "cta": "Trennen"
+  },
+  "collega": {
+    "titolo": "Mit einem Dossier verknüpfen",
+    "seleziona": "Wählen Sie das Dossier, mit dem Sie die Rechnung <1>{{numero}}</1> verknüpfen möchten",
+    "ph_cerca": "Dossier suchen...",
+    "nessuna_disponibile": "Kein Dossier verfügbar",
+    "nessuna_corrisponde": "Kein Dossier entspricht der Suche",
+    "chiusa": "Geschlossen",
+    "cta": "Verknüpfen"
+  }
+}

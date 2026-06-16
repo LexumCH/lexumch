@@ -1,0 +1,38 @@
+{
+  "header": {
+    "label": "Compte",
+    "title": "Mon profil"
+  },
+  "info_account": {
+    "titolo": "Informations du compte",
+    "ruolo": "Rôle",
+    "cliente": "Client",
+    "studio": "Étude",
+    "avvocato": "Avocat",
+    "assegnato": "Assigné"
+  },
+  "dati_personali": {
+    "titolo": "Données personnelles",
+    "nome": "Prénom",
+    "cognome": "Nom",
+    "telefono": "Téléphone",
+    "telefono_placeholder": "+41 79 123 45 67",
+    "email": "E-mail",
+    "indirizzo": "Adresse",
+    "indirizzo_placeholder": "Rue du Rhône 1, 1204 Genève",
+    "salva": "Enregistrer les modifications",
+    "lingua": "Langue",
+    "ok": "Données mises à jour",
+    "email_hint": "L'e-mail n'est pas modifiable ici"
+  },
+  "password": {
+    "titolo": "Changer le mot de passe",
+    "nuova": "Nouveau mot de passe",
+    "conferma": "Confirmer le mot de passe",
+    "aggiorna": "Mettre à jour le mot de passe",
+    "placeholder": "••••••••",
+    "min": "8 caractères minimum",
+    "mismatch": "Les mots de passe ne correspondent pas",
+    "ok": "Mot de passe mis à jour"
+  }
+}

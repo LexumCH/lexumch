@@ -8,12 +8,14 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Shield, AlertCircle, KeyRound, LogOut } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
 export default function Verifica2FA() {
     const navigate = useNavigate()
+    const { t } = useTranslation('auth')
     const { profile, signOut } = useAuth()
 
     const [modalita, setModalita] = useState('totp') // 'totp' | 'backup'
@@ -65,7 +67,7 @@ export default function Verifica2FA() {
 
     async function handleVerificaTotp() {
         if (codice.length !== 6) {
-            setErr('Inserisci il codice a 6 cifre dalla tua app')
+            setErr(t('tfa.err_totp_len'))
             return
         }
         setVerificando(true); setErr('')
@@ -87,7 +89,7 @@ export default function Verifica2FA() {
 
     async function handleVerificaBackup() {
         if (!backupCode.trim()) {
-            setErr('Inserisci un codice di recupero')
+            setErr(t('tfa.err_backup_empty'))
             return
         }
         setVerificando(true); setErr('')
@@ -96,7 +98,7 @@ export default function Verifica2FA() {
                 body: { action: 'verify', code: backupCode.trim() }
             })
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Codice non valido')
+            if (!data?.ok) throw new Error(data?.error ?? t('tfa.err_backup_invalid'))
 
             // MFA resettato. Per pulizia di sessione: signOut e redirect a login
             // L'utente dovra fare login e ri-attivare 2FA dal profilo.
@@ -127,22 +129,21 @@ export default function Verifica2FA() {
                         <div className="w-10 h-10 bg-salvia/10 border border-salvia/30 flex items-center justify-center">
                             <Shield size={18} className="text-salvia" />
                         </div>
-                        <h1 className="font-display text-xl text-nebbia">2FA disattivato</h1>
+                        <h1 className="font-display text-xl text-nebbia">{t('tfa.reset_title')}</h1>
                     </div>
 
                     <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                        Il codice di recupero e stato accettato. Per sicurezza, il 2FA e stato disattivato sul tuo account.
+                        {t('tfa.reset_text')}
                     </p>
 
                     <div className="bg-amber-900/10 border border-amber-500/30 p-4">
                         <p className="font-body text-xs text-amber-400 leading-relaxed">
-                            <span className="font-medium">Importante:</span> ti consigliamo di riattivare il 2FA dal tuo profilo
-                            appena rientrato. Il tuo account e attualmente protetto solo dalla password.
+                            <span className="font-medium">{t('tfa.reset_important_label')}</span>{t('tfa.reset_important_text')}
                         </p>
                     </div>
 
                     <button onClick={handleLogoutDopoReset} className="btn-primary w-full justify-center text-sm">
-                        Continua al login
+                        {t('tfa.reset_cta')}
                     </button>
                 </div>
             </div>
@@ -169,10 +170,10 @@ export default function Verifica2FA() {
                         </div>
                         <div>
                             <h1 className="font-display text-xl text-nebbia">
-                                {modalita === 'totp' ? 'Verifica 2FA' : 'Codice di recupero'}
+                                {modalita === 'totp' ? t('tfa.totp_title') : t('tfa.backup_title')}
                             </h1>
                             <p className="font-body text-xs text-nebbia/40">
-                                {modalita === 'totp' ? 'Inserisci il codice dall\'app autenticatore' : 'Usa uno dei codici salvati'}
+                                {modalita === 'totp' ? t('tfa.totp_subtitle') : t('tfa.backup_subtitle')}
                             </p>
                         </div>
                     </div>
@@ -182,7 +183,7 @@ export default function Verifica2FA() {
                         <>
                             <div>
                                 <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
-                                    Codice a 6 cifre
+                                    {t('tfa.totp_label')}
                                 </label>
                                 <input
                                     type="text"
@@ -211,7 +212,7 @@ export default function Verifica2FA() {
                             >
                                 {verificando
                                     ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                                    : 'Verifica e accedi'
+                                    : t('tfa.totp_submit')
                                 }
                             </button>
 
@@ -219,7 +220,7 @@ export default function Verifica2FA() {
                                 onClick={() => { setModalita('backup'); setErr(''); setCodice('') }}
                                 className="w-full font-body text-xs text-nebbia/50 hover:text-oro underline-offset-2 hover:underline"
                             >
-                                Ho perso il telefono — usa un codice di recupero
+                                {t('tfa.to_backup')}
                             </button>
                         </>
                     )}
@@ -229,13 +230,13 @@ export default function Verifica2FA() {
                         <>
                             <div className="bg-amber-900/10 border border-amber-500/30 p-3">
                                 <p className="font-body text-xs text-amber-400/80 leading-relaxed">
-                                    Usando un codice di recupero il 2FA verra disattivato. Dovrai riconfigurarlo dopo l'accesso.
+                                    {t('tfa.backup_warning')}
                                 </p>
                             </div>
 
                             <div>
                                 <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
-                                    Codice di recupero
+                                    {t('tfa.backup_label')}
                                 </label>
                                 <input
                                     type="text"
@@ -261,7 +262,7 @@ export default function Verifica2FA() {
                             >
                                 {verificando
                                     ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                                    : 'Usa codice e accedi'
+                                    : t('tfa.backup_submit')
                                 }
                             </button>
 
@@ -269,7 +270,7 @@ export default function Verifica2FA() {
                                 onClick={() => { setModalita('totp'); setErr(''); setBackupCode('') }}
                                 className="w-full font-body text-xs text-nebbia/50 hover:text-oro underline-offset-2 hover:underline"
                             >
-                                Indietro — usa app autenticatore
+                                {t('tfa.to_totp')}
                             </button>
                         </>
                     )}
@@ -280,7 +281,7 @@ export default function Verifica2FA() {
                     onClick={handleLogout}
                     className="w-full font-body text-xs text-nebbia/30 hover:text-nebbia/60 flex items-center justify-center gap-1.5"
                 >
-                    <LogOut size={12} /> Esci e torna al login
+                    <LogOut size={12} /> {t('tfa.logout')}
                 </button>
             </div>
         </div>

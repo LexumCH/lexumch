@@ -1,0 +1,37 @@
+{
+  "header": {
+    "label": "Checkout",
+    "titolo": "Bestellübersicht"
+  },
+  "vuoto": {
+    "nessun_prodotto": "Kein Produkt ausgewählt.",
+    "torna_ai_piani": "Zurück zu den Abos"
+  },
+  "intestatario": {
+    "titolo": "Inhaber",
+    "nota": "Die Daten werden genau so verwendet, wie sie erfasst wurden. In diesem Schritt sind sie nicht änderbar.",
+    "nome": "Name",
+    "email": "E-Mail",
+    "dati_errati": "Falsche Daten?",
+    "aggiorna_profilo": "Profil aktualisieren"
+  },
+  "prodotto": {
+    "piano_selezionato": "Ausgewähltes Abo",
+    "durata_one": "{{count}} Monat",
+    "durata_other": "{{count}} Monate",
+    "badge_pro": "Pro",
+    "badge_base": "Basis",
+    "badge_monetizzazione": "Monetarisierung",
+    "cambia_piano": "Abo ändern"
+  },
+  "totale": {
+    "label": "Zu zahlender Betrag"
+  },
+  "info": {
+    "testo": "Einmalige Zahlung — keine automatische Verlängerung. Sie erhalten eine Quittung per E-Mail. Sie werden zu Stripe weitergeleitet, um die Zahlung sicher abzuschliessen."
+  },
+  "cta": {
+    "procedi": "Zur Zahlung",
+    "ssl": "Zahlung über Stripe abgewickelt — SSL-verschlüsselte Verbindung"
+  }
+}

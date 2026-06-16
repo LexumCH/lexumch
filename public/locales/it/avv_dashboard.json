@@ -1,0 +1,81 @@
+{
+  "badge": {
+    "giorni_fa": "{{count}}gg fa",
+    "oggi": "Oggi",
+    "fra_giorni": "Fra {{count}}gg"
+  },
+  "range": {
+    "mese_lungo": "Questo mese",
+    "ultimi_90": "Ultimi 90 giorni",
+    "questo_mese": "Questo mese",
+    "mese_scorso": "Mese scorso",
+    "personalizzato": "Personalizzato",
+    "da": "Da",
+    "a": "A",
+    "applica": "Applica"
+  },
+  "sezione": {
+    "vedi_tutti": "Vedi tutti",
+    "vuoto_default": "Niente da mostrare."
+  },
+  "hero": {
+    "etichetta": "Dashboard",
+    "saluto": "{{saluto}}, {{nome}}.",
+    "orario": {
+      "notte": "Buonanotte",
+      "mattino": "Buongiorno",
+      "pomeriggio": "Buon pomeriggio",
+      "sera": "Buonasera"
+    },
+    "sommario_vuoto": "Niente in calendario per oggi. Approfittane per aggiornare le pratiche o organizzare le ricerche.",
+    "sommario_oggi": "Oggi hai {{parti}}.",
+    "udienze_one": "1 udienza",
+    "udienze_other": "{{count}} udienze",
+    "termini_one": "1 termine",
+    "termini_other": "{{count}} termini",
+    "appuntamenti_one": "1 appuntamento",
+    "appuntamenti_other": "{{count}} appuntamenti",
+    "fatture_attesa_one": "1 fattura in attesa.",
+    "fatture_attesa_other": "{{count}} fatture in attesa.",
+    "messaggi_nuovi_one": "1 messaggio nuovo.",
+    "messaggi_nuovi_other": "{{count}} messaggi nuovi."
+  },
+  "trial": {
+    "titolo": "La tua prova gratuita e scaduta",
+    "testo": "Scegli un piano per continuare a lavorare con le tue pratiche, clienti e documenti.",
+    "dopo": "Dopo",
+    "vedi_piani": "Vedi i piani →"
+  },
+  "contatori": {
+    "clienti": "Clienti",
+    "clienti_sub": "Totale",
+    "pratiche_aperte": "Pratiche aperte",
+    "pratiche_aperte_sub": "Adesso",
+    "pratiche_chiuse": "Pratiche chiuse"
+  },
+  "oggi": {
+    "titolo": "Oggi",
+    "vuoto": "Nessun impegno oggi."
+  },
+  "fatturazione": {
+    "titolo": "Fatturazione",
+    "incassato": "Incassato",
+    "da_incassare": "Da incassare",
+    "totale_debito": "Totale debito attivo",
+    "fattura": "Fattura {{anno}}/{{numero}}",
+    "vuoto": "Nessuna fattura in attesa."
+  },
+  "settimana": {
+    "titolo": "Prossimi 7 giorni",
+    "vuoto": "Nessun impegno nei prossimi 7 giorni."
+  },
+  "messaggi": {
+    "titolo": "Messaggi non letti",
+    "senza_oggetto": "Senza oggetto",
+    "vuoto": "Nessun messaggio in attesa."
+  },
+  "attenzione": {
+    "titolo": "Pratiche che richiedono attenzione",
+    "vuoto": "Nessuna pratica con scadenza imminente."
+  }
+}

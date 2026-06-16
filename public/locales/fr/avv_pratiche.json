@@ -1,0 +1,59 @@
+{
+  "stati": {
+    "aperta": "Ouvert",
+    "chiusa": "Clos"
+  },
+  "tipi": ["Civil", "Pénal", "Commercial", "Administratif", "Travail", "Famille"],
+  "lista": {
+    "label": "Dossiers",
+    "titolo": "Les dossiers",
+    "nuova_pratica": "Nouveau dossier",
+    "cerca_placeholder": "Rechercher un dossier ou un client...",
+    "tutti_stati": "Tous les statuts",
+    "tutti_avvocati": "Tous les avocats",
+    "dal": "Du",
+    "al": "Au",
+    "reset": "Réinitialiser",
+    "errore_caricamento": "Erreur de chargement",
+    "intestazioni": {
+      "pratica": "Dossier",
+      "cliente": "Client",
+      "tipo": "Type",
+      "avvocato": "Avocat",
+      "stato": "Statut",
+      "creata_il": "Créé le",
+      "pross_udienza": "Proch. audience"
+    },
+    "nessuna_pratica": "Aucun dossier trouvé",
+    "dettaglio": "Détail →",
+    "tu": "Vous"
+  },
+  "nuova": {
+    "torna": "Tous les dossiers",
+    "label": "Dossiers",
+    "titolo_pagina": "Nouveau dossier",
+    "successo_titolo": "Dossier créé",
+    "titolo_pratica": "Titre du dossier *",
+    "titolo_placeholder": "Ex. Procès civil Rossi c. Ferrari",
+    "cliente": "Client *",
+    "seleziona_cliente": "Sélectionner un client...",
+    "tipo_causa": "Type d'affaire *",
+    "seleziona_tipo": "Sélectionner le type...",
+    "stato": "Statut",
+    "prossima_udienza": "Prochaine audience",
+    "opzionale": "— facultatif",
+    "avvocato_principale": "Avocat principal *",
+    "collaboratori": "Collaborateurs",
+    "tu": "Vous",
+    "note_label": "Notes internes (facultatif)",
+    "note_placeholder": "Description de l'affaire, faits marquants, stratégie de défense...",
+    "note_help": "Ces notes seront visibles dans la section \"Notes internes\" de la fiche du dossier et vous pourrez les modifier à tout moment. Lex AI ne les lit pas.",
+    "annulla": "Annuler",
+    "crea_pratica": "Créer le dossier",
+    "errori": {
+      "titolo_obbligatorio": "Le titre est obligatoire",
+      "seleziona_cliente": "Sélectionnez un client",
+      "seleziona_tipo": "Sélectionnez le type d'affaire"
+    }
+  }
+}

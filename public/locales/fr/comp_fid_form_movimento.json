@@ -1,0 +1,60 @@
+{
+    "header": {
+        "modifica_movimento": "Modifier le mouvement",
+        "entrata_prevista": "Recette prévue",
+        "costo_previsto": "Charge prévue",
+        "nuova_entrata": "Nouvelle recette",
+        "nuovo_costo": "Nouvelle charge",
+        "sottotitolo_mandato": "Le montant alimente les compteurs du mandat",
+        "sottotitolo_cliente": "Le montant alimente les compteurs du client"
+    },
+    "tipo": {
+        "entrata": "Recette",
+        "uscita": "Dépense"
+    },
+    "stato": {
+        "effettivo_label": "Effectif",
+        "effettivo_hint": "déjà survenu",
+        "previsto_label": "Prévu",
+        "previsto_hint": "planifié / budget"
+    },
+    "campi": {
+        "descrizione_label": "Description *",
+        "descrizione_ph_entrata": "p. ex. Facture client Rossi SA",
+        "descrizione_ph_uscita": "p. ex. Loyer du bureau, fournisseur...",
+        "importo_label": "Montant (CHF) *",
+        "data_label": "Date *",
+        "data_prevista_label": "Date prévue *"
+    },
+    "ricorrenza": {
+        "label": "Récurrence",
+        "una_tantum": "Ponctuel",
+        "mensile": "Mensuel",
+        "trimestrale": "Trimestriel",
+        "annuale": "Annuel",
+        "fine_label": "Fin",
+        "fine_opz": "(opt.)"
+    },
+    "categoria": {
+        "label": "Catégorie",
+        "opzionale": "(facultatif)",
+        "ph_entrata": "p. ex. Ventes, Conseils...",
+        "ph_uscita": "p. ex. Loyer, Fournisseurs, Charges..."
+    },
+    "documento": {
+        "label": "Document justificatif",
+        "opzionale": "(facultatif)",
+        "nessuno": "Aucun document lié",
+        "hint": "Les documents se téléchargent depuis l'archive. Ici, vous choisissez celui à lier à ce mouvement."
+    },
+    "footer": {
+        "annulla": "Annuler",
+        "salvataggio": "Enregistrement...",
+        "salva_modifiche": "Enregistrer les modifications",
+        "registra": "Enregistrer"
+    },
+    "errori": {
+        "campi_obbligatori": "Veuillez remplir la description, le montant et la date.",
+        "sessione_scaduta": "Session expirée. Veuillez vous reconnecter."
+    }
+}

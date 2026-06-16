@@ -1,0 +1,91 @@
+{
+  "scelta": {
+    "label": "Vérification professionnelle",
+    "titolo": "Quel professionnel êtes-vous ?",
+    "intro": "Choisissez votre parcours. Selon votre profession, nous vous demanderons les documents appropriés et activerons les outils adaptés à vos besoins.",
+    "avvocato": {
+      "titolo": "Avocat",
+      "desc": "Gestion des clients, des dossiers, de la base de données juridique, des arrêts et des délais de procédure."
+    },
+    "fiduciario": {
+      "titolo": "Fiduciaire",
+      "desc": "Gestion des mandats, comptabilité, reporting, facturation et outils de tableur."
+    }
+  },
+  "set": {
+    "avvocato": {
+      "titolo": "Devenez avocat sur Lexum",
+      "intro": "Pour accéder à la plateforme en tant qu'avocat, vous devez vérifier votre identité professionnelle. Téléchargez les documents requis et notre équipe les examinera sous 24-48 heures.",
+      "documenti": {
+        "identita": {
+          "label": "Pièce d'identité",
+          "hint": "Carte d'identité ou passeport valable"
+        },
+        "albo": {
+          "label": "Inscription au registre des avocats",
+          "hint": "Attestation d'inscription au registre des avocats"
+        },
+        "laurea": {
+          "label": "Diplôme universitaire en droit",
+          "hint": "Facultatif — accélère la vérification"
+        }
+      }
+    },
+    "fiduciario": {
+      "titolo": "Devenez fiduciaire sur Lexum",
+      "intro": "Pour accéder à la plateforme en tant que fiduciaire, vous devez vérifier votre activité professionnelle. Téléchargez les documents requis et notre équipe les examinera sous 24-48 heures.",
+      "documenti": {
+        "identita": {
+          "label": "Pièce d'identité",
+          "hint": "Carte d'identité ou passeport valable"
+        },
+        "registro": {
+          "label": "Extrait du registre du commerce",
+          "hint": "Extrait du registre du commerce ou attestation IDE"
+        },
+        "affiliazione": {
+          "label": "Affiliation professionnelle",
+          "hint": "Facultatif — association professionnelle (TREUHAND|SUISSE, EXPERTsuisse) ou OAR. Accélère la vérification"
+        }
+      }
+    }
+  },
+  "upload": {
+    "label": "Vérification d'identité",
+    "obbligatorio": "Obligatoire",
+    "opzionale": "Facultatif",
+    "cambia": "Changer",
+    "carica": "Téléverser",
+    "privacy": "Les documents sont traités avec la plus stricte confidentialité et utilisés exclusivement pour la vérification de l'identité professionnelle.",
+    "caricamento": "Téléversement en cours…",
+    "invia": "Envoyer pour vérification"
+  },
+  "inviato": {
+    "titolo": "Documents envoyés",
+    "desc": "L'équipe Lexum examinera vos documents et vous recevrez une réponse sous 24-48 heures.",
+    "controlla_stato": "Vérifier le statut"
+  },
+  "stato": {
+    "pending": {
+      "title": "Vérification en cours",
+      "desc": "L'équipe Lexum examine vos documents. Vous recevrez une notification par e-mail sous 24-48 heures."
+    },
+    "approved": {
+      "title": "Vérification approuvée !",
+      "desc": "Excellent ! Vous pouvez maintenant choisir l'abonnement qui vous convient pour activer votre compte.",
+      "cta": "Choisir un abonnement"
+    },
+    "rejected": {
+      "title": "Vérification non approuvée",
+      "desc": "Il n'a pas été possible de vérifier votre identité avec les documents fournis.",
+      "motivazione": "Motif",
+      "motivazione_default": "Documents illisibles ou incomplets. Veuillez téléverser à nouveau les fichiers en haute qualité.",
+      "ricarica": "Téléverser à nouveau les documents"
+    }
+  },
+  "errori": {
+    "non_autenticato": "Utilisateur non authentifié",
+    "upload": "Erreur de téléversement",
+    "file_grande": "Fichier trop volumineux. Maximum 10 MB."
+  }
+}

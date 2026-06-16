@@ -3,6 +3,7 @@
 // La logica cambia in base a profile.role
 
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PageHeader, Badge, StatCard } from '@/components/shared'
 import {
     UserPlus, Trash2, AlertTriangle, CheckCircle,
@@ -87,6 +88,9 @@ function BannerAlert({ tone = 'warning', icon: Icon, titolo, descrizione, ctaLab
 // SEZIONE ACQUISTO — esportata, riusabile
 // ─────────────────────────────────────────────────────────────
 export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scadenzaAttuale = null, postiAttuali = 0, isUser = false, pianoScaduto = false }) {
+    const { t, i18n } = useTranslation('avv_studio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [piani, setPiani] = useState([])
     const [addons, setAddons] = useState([])
     const [clientiAddons, setClientiAddons] = useState([])
@@ -187,31 +191,30 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
             {/* ── Trial gratuito (solo se non già usato) ── */}
             {trialProdotto && !trialAttivato && (
                 <div className="space-y-3">
-                    <p className="section-label">Prova gratuita</p>
+                    <p className="section-label">{t('acquisto.trial.label')}</p>
                     <div className="bg-slate border border-salvia/25 p-5 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-salvia/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-xl pointer-events-none" />
                         <div className="relative flex items-start justify-between gap-4 flex-wrap">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2">
                                     <p className="font-body text-sm font-medium text-nebbia">{trialProdotto.nome}</p>
-                                    <span className="font-body text-xs px-2 py-0.5 bg-salvia/15 border border-salvia/30 text-salvia">Gratuito</span>
+                                    <span className="font-body text-xs px-2 py-0.5 bg-salvia/15 border border-salvia/30 text-salvia">{t('acquisto.trial.badge_gratuito')}</span>
                                 </div>
                                 <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                                    Prova Lexum completo per {trialProdotto.durata_mesi ? `${trialProdotto.durata_mesi * 30} giorni` : '7 giorni'} senza inserire dati di pagamento.
-                                    Attivabile una sola volta.
+                                    {t('acquisto.trial.descrizione', { giorni: trialProdotto.durata_mesi ? trialProdotto.durata_mesi * 30 : 7 })}
                                 </p>
                                 <div className="flex flex-wrap gap-3 pt-1">
                                     {trialProdotto.posti > 1 && (
-                                        <span className="font-body text-xs text-nebbia/40">✓ {trialProdotto.posti} accessi</span>
+                                        <span className="font-body text-xs text-nebbia/40">{t('acquisto.trial.feat_accessi', { count: trialProdotto.posti })}</span>
                                     )}
                                     {trialProdotto.include_banca_dati && (
-                                        <span className="font-body text-xs text-nebbia/40">✓ Banca dati inclusa</span>
+                                        <span className="font-body text-xs text-nebbia/40">{t('acquisto.trial.feat_banca_dati')}</span>
                                     )}
                                     {trialProdotto.crediti_ai_mensili > 0 && (
-                                        <span className="font-body text-xs text-nebbia/40">✓ {trialProdotto.crediti_ai_mensili} crediti Lex AI</span>
+                                        <span className="font-body text-xs text-nebbia/40">{t('acquisto.trial.feat_crediti', { count: trialProdotto.crediti_ai_mensili })}</span>
                                     )}
                                     {trialProdotto.spazio_gb > 0 && (
-                                        <span className="font-body text-xs text-nebbia/40">✓ {trialProdotto.spazio_gb} GB storage</span>
+                                        <span className="font-body text-xs text-nebbia/40">{t('acquisto.trial.feat_storage', { gb: trialProdotto.spazio_gb })}</span>
                                     )}
                                 </div>
                             </div>
@@ -222,7 +225,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                             >
                                 {attivandoTrial
                                     ? <span className="animate-spin w-4 h-4 border-2 border-salvia border-t-transparent rounded-full" />
-                                    : 'Attiva prova gratuita'
+                                    : t('acquisto.trial.attiva')
                                 }
                             </button>
                         </div>
@@ -233,14 +236,14 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
             {trialAttivato && (
                 <div className="flex items-center gap-3 p-4 bg-salvia/5 border border-salvia/20">
                     <span className="text-salvia">✓</span>
-                    <p className="font-body text-sm text-salvia">Prova gratuita attivata! La pagina si aggiornerà a breve.</p>
+                    <p className="font-body text-sm text-salvia">{t('acquisto.trial.attivato')}</p>
                 </div>
             )}
 
             {/* ── Piani abbonamento ── */}
             {piani.length > 0 && (
                 <div className="space-y-3">
-                    <p className="section-label">{pianoAttualeId ? 'Cambia piano' : 'Scegli il tuo piano'}</p>
+                    <p className="section-label">{pianoAttualeId ? t('acquisto.piani.label_cambia') : t('acquisto.piani.label_scegli')}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {piani.map(p => {
                             const isSelezionato = pianoProposto?.id === p.id
@@ -254,28 +257,28 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                                     <p className="font-display text-2xl font-light text-oro mb-1">€ {p.prezzo}</p>
                                     {differenza !== null && (
                                         <p className="font-body text-xs text-nebbia/40 mb-2">
-                                            Differenza: <span className={differenza > 0 ? 'text-amber-400' : 'text-salvia'}>€ {Math.abs(differenza)}</span>
+                                            {t('acquisto.piani.differenza')} <span className={differenza > 0 ? 'text-amber-400' : 'text-salvia'}>€ {Math.abs(differenza)}</span>
                                         </p>
                                     )}
                                     <p className="font-body text-xs text-nebbia/40 mb-2">
-                                        {p.posti ? `${p.posti} ${p.posti === 1 ? 'accesso' : 'accessi'}` : '—'}
-                                        {p.durata_mesi && ` · ${p.durata_mesi} mesi`}
+                                        {p.posti ? t('acquisto.piani.accessi', { count: p.posti }) : '—'}
+                                        {p.durata_mesi && ` · ${t('acquisto.piani.mesi', { count: p.durata_mesi })}`}
                                     </p>
                                     <div className="flex gap-1.5 flex-wrap">
                                         {p.include_banca_dati && (
-                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-oro/30 text-oro">Banca dati</span>
+                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-oro/30 text-oro">{t('acquisto.piani.tag_banca_dati')}</span>
                                         )}
                                         {p.include_monetizzazione && (
-                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">Monetizzazione</span>
+                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">{t('acquisto.piani.tag_monetizzazione')}</span>
                                         )}
                                         {p.crediti_ai_mensili > 0 && (
-                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">{p.crediti_ai_mensili} crediti/mese</span>
+                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">{t('acquisto.piani.tag_crediti_mese', { count: p.crediti_ai_mensili })}</span>
                                         )}
                                         {p.spazio_gb > 0 && (
                                             <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">{p.spazio_gb} GB</span>
                                         )}
                                         {p.posti > 1 && (
-                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-white/10 text-nebbia/40">Studio</span>
+                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-white/10 text-nebbia/40">{t('acquisto.piani.tag_studio')}</span>
                                         )}
                                     </div>
                                 </button>
@@ -287,15 +290,15 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                         <div className="flex items-center justify-between p-4 bg-oro/5 border border-oro/20">
                             <div>
                                 <p className="font-body text-sm text-nebbia">
-                                    {pianoAttualeId ? 'Upgrade a ' : 'Acquisto: '}
+                                    {pianoAttualeId ? t('acquisto.piani.upgrade_a') : t('acquisto.piani.acquisto')}
                                     <span className="font-medium text-oro">{pianoProposto.nome}</span>
                                 </p>
                                 <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                    Importo da pagare:{' '}
+                                    {t('acquisto.piani.importo_da_pagare')}{' '}
                                     <span className="text-nebbia/70">
                                         € {pianoAttualeId ? Math.max(pianoProposto.prezzo - prezzoAttuale, 0) : pianoProposto.prezzo}
                                     </span>
-                                    {pianoAttualeId && <span className="text-nebbia/30"> · scadenza invariata</span>}
+                                    {pianoAttualeId && <span className="text-nebbia/30"> · {t('acquisto.piani.scadenza_invariata')}</span>}
                                 </p>
                             </div>
                             <button
@@ -305,7 +308,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                             >
                                 {acquistando === pianoProposto.id
                                     ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                                    : 'Procedi al pagamento'
+                                    : t('acquisto.piani.procedi')
                                 }
                             </button>
                         </div>
@@ -316,20 +319,22 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
             {/* ── Seat addons ── */}
             {addons.length > 0 && (
                 <div className="space-y-3">
-                    <p className="section-label">Aggiungi accessi</p>
+                    <p className="section-label">{t('acquisto.seat.label')}</p>
                     <p className="font-body text-xs text-nebbia/40">
-                        La scadenza segue il piano attuale{scadenzaAttuale ? ` (${new Date(scadenzaAttuale).toLocaleDateString('it-CH')})` : ''}.
+                        {scadenzaAttuale
+                            ? t('acquisto.seat.scadenza_con_data', { data: new Date(scadenzaAttuale).toLocaleDateString(dateLocale) })
+                            : t('acquisto.seat.scadenza')}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {addons.map(a => (
                             <div key={a.id} className="bg-slate border border-white/5 p-4 space-y-3">
                                 <p className="font-body text-sm font-medium text-nebbia">{a.nome}</p>
-                                <p className="font-body text-xs text-nebbia/40">+{a.posti} {a.posti === 1 ? 'accesso' : 'accessi'}</p>
+                                <p className="font-body text-xs text-nebbia/40">{t('acquisto.seat.piu_accessi', { count: a.posti })}</p>
                                 <p className="font-display text-2xl font-light text-oro">€ {a.prezzo}</p>
-                                <p className="font-body text-xs text-nebbia/30">Accessi: {postiAttuali} → {postiAttuali + (a.posti ?? 1)}</p>
+                                <p className="font-body text-xs text-nebbia/30">{t('acquisto.seat.transizione', { da: postiAttuali, a: postiAttuali + (a.posti ?? 1) })}</p>
                                 <button onClick={() => acquista(a.id, false)} disabled={acquistando === a.id}
                                     className="btn-secondary text-sm w-full justify-center disabled:opacity-40">
-                                    {acquistando === a.id ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : 'Acquista'}
+                                    {acquistando === a.id ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : t('acquisto.comune.acquista')}
                                 </button>
                             </div>
                         ))}
@@ -340,20 +345,22 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
             {/* ── Clienti addons ── */}
             {clientiAddons.length > 0 && (
                 <div className="space-y-3">
-                    <p className="section-label">Aggiungi capacità clienti</p>
+                    <p className="section-label">{t('acquisto.clienti.label')}</p>
                     <p className="font-body text-xs text-nebbia/40">
-                        Alza il limite di clienti registrabili nel tuo studio. La scadenza segue il piano attuale{scadenzaAttuale ? ` (${new Date(scadenzaAttuale).toLocaleDateString('it-CH')})` : ''} — pagamento pro-rata sui mesi residui.
+                        {scadenzaAttuale
+                            ? t('acquisto.clienti.descrizione_con_data', { data: new Date(scadenzaAttuale).toLocaleDateString(dateLocale) })
+                            : t('acquisto.clienti.descrizione')}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {clientiAddons.map(c => (
                             <div key={c.id} className="bg-slate border border-white/5 hover:border-salvia/30 p-4 space-y-3 transition-colors">
                                 <p className="font-body text-sm font-medium text-nebbia">{c.nome}</p>
-                                <p className="font-body text-xs text-nebbia/40">+{c.limite_clienti} clienti</p>
+                                <p className="font-body text-xs text-nebbia/40">{t('acquisto.clienti.piu_clienti', { count: c.limite_clienti })}</p>
                                 <p className="font-display text-2xl font-light text-oro">€ {c.prezzo}</p>
-                                <p className="font-body text-[10px] text-nebbia/30 italic">Listino · pro-rata applicato al checkout</p>
+                                <p className="font-body text-[10px] text-nebbia/30 italic">{t('acquisto.clienti.listino')}</p>
                                 <button onClick={() => acquista(c.id, false)} disabled={acquistando === c.id}
                                     className="btn-secondary text-sm w-full justify-center disabled:opacity-40">
-                                    {acquistando === c.id ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : 'Acquista'}
+                                    {acquistando === c.id ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : t('acquisto.comune.acquista')}
                                 </button>
                             </div>
                         ))}
@@ -364,9 +371,9 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
             {/* ── Pacchetti crediti AI (solo per avvocato) ── */}
             {!isUser && pacchettiCrediti.length > 0 && (
                 <div className="space-y-3">
-                    <p className="section-label">Crediti AI extra</p>
+                    <p className="section-label">{t('acquisto.crediti.label')}</p>
                     <p className="font-body text-xs text-nebbia/40">
-                        Pacchetti aggiuntivi che non scadono mai. Si consumano solo dopo i crediti del piano.
+                        {t('acquisto.crediti.descrizione')}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {pacchettiCrediti.map(p => (
@@ -377,14 +384,14 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                                 </div>
                                 <p className="font-display text-2xl font-light text-salvia">€ {p.prezzo}</p>
                                 <p className="font-body text-xs text-nebbia/40">
-                                    {p.crediti_ai_mensili} crediti · €{(p.prezzo / p.crediti_ai_mensili).toFixed(2)}/credito
+                                    {t('acquisto.crediti.dettaglio', { crediti: p.crediti_ai_mensili, prezzo_credito: (p.prezzo / p.crediti_ai_mensili).toFixed(2) })}
                                 </p>
-                                <p className="font-body text-[10px] text-nebbia/30 italic">Non scadono mai</p>
+                                <p className="font-body text-[10px] text-nebbia/30 italic">{t('acquisto.crediti.non_scadono')}</p>
                                 <button onClick={() => acquista(p.id, false)} disabled={acquistando === p.id}
                                     className="w-full flex items-center justify-center gap-2 py-2 bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40">
                                     {acquistando === p.id
                                         ? <span className="animate-spin w-4 h-4 border-2 border-salvia border-t-transparent rounded-full" />
-                                        : 'Acquista'
+                                        : t('acquisto.comune.acquista')
                                     }
                                 </button>
                             </div>
@@ -396,18 +403,18 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
             {/* ── Pacchetti storage (solo per avvocato con piano attivo) ── */}
             {!isUser && pacchettiStorage.length > 0 && (
                 <div className="space-y-3">
-                    <p className="section-label">Spazio archiviazione</p>
+                    <p className="section-label">{t('acquisto.storage.label')}</p>
                     {!haPianoAttivo ? (
                         <div className="bg-slate border border-white/5 p-5 flex items-center gap-3">
                             <AlertTriangle size={14} className="text-amber-400/60 shrink-0" />
                             <p className="font-body text-xs text-nebbia/50">
-                                I pacchetti storage richiedono un piano attivo. Rinnova prima il tuo abbonamento.
+                                {t('acquisto.storage.richiede_piano')}
                             </p>
                         </div>
                     ) : (
                         <>
                             <p className="font-body text-xs text-nebbia/40">
-                                GB extra condivisi a livello studio. Pagamento una tantum per la durata indicata, rinnovo manuale alla scadenza.
+                                {t('acquisto.storage.descrizione')}
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {pacchettiStorage.map(s => (
@@ -418,13 +425,13 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                                         </div>
                                         <p className="font-display text-2xl font-light text-salvia">€ {s.prezzo}</p>
                                         <p className="font-body text-xs text-nebbia/40">
-                                            {s.spazio_gb} GB · {s.durata_mesi} {s.durata_mesi === 1 ? 'mese' : 'mesi'}
+                                            {s.spazio_gb} GB · {t('acquisto.storage.mesi', { count: s.durata_mesi })}
                                         </p>
                                         <button onClick={() => acquista(s.id, false)} disabled={acquistando === s.id}
                                             className="w-full flex items-center justify-center gap-2 py-2 bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40">
                                             {acquistando === s.id
                                                 ? <span className="animate-spin w-4 h-4 border-2 border-salvia border-t-transparent rounded-full" />
-                                                : 'Acquista'
+                                                : t('acquisto.comune.acquista')
                                             }
                                         </button>
                                     </div>
@@ -442,10 +449,11 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
 // RIGA COLLABORATORE (solo avvocato)
 // ─────────────────────────────────────────────────────────────
 function CollaboRow({ collabo, isTitolare, meId, onRefresh }) {
+    const { t } = useTranslation('avv_studio')
     const isMe = collabo.id === meId
 
     async function rimuovi() {
-        if (!confirm(`Rimuovere ${collabo.nome} ${collabo.cognome} dallo studio?`)) return
+        if (!confirm(t('collaboratori.conferma_rimozione', { nome: collabo.nome, cognome: collabo.cognome }))) return
         await supabase.from('profiles').update({ titolare_id: null, tipo_account: 'singolo' }).eq('id', collabo.id)
         onRefresh()
     }
@@ -459,13 +467,13 @@ function CollaboRow({ collabo, isTitolare, meId, onRefresh }) {
                 <div className="flex-1 min-w-0">
                     <p className="font-body text-sm font-medium text-nebbia">
                         {collabo.nome} {collabo.cognome}
-                        {isMe && <span className="text-nebbia/30 ml-1">(tu)</span>}
+                        {isMe && <span className="text-nebbia/30 ml-1">{t('collaboratori.tu')}</span>}
                     </p>
                     <p className="font-body text-xs text-nebbia/40">{collabo.email}</p>
                 </div>
                 {isTitolare && !isMe && (
                     <button onClick={rimuovi} className="flex items-center gap-1.5 font-body text-xs text-nebbia/25 hover:text-red-400 transition-colors">
-                        <Trash2 size={11} /> Rimuovi
+                        <Trash2 size={11} /> {t('collaboratori.rimuovi')}
                     </button>
                 )}
             </div>
@@ -477,6 +485,10 @@ function CollaboRow({ collabo, isTitolare, meId, onRefresh }) {
 // STORICO TRANSAZIONI
 // ─────────────────────────────────────────────────────────────
 function StoricoTransazioni({ meId, includiSentenze = false }) {
+    const { t, i18n } = useTranslation('avv_studio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    const toArray = (v) => Array.isArray(v) ? v : []
     const [storico, setStorico] = useState([])
     const [loading, setLoading] = useState(true)
 
@@ -499,15 +511,15 @@ function StoricoTransazioni({ meId, includiSentenze = false }) {
 
     return (
         <div className="bg-slate border border-white/5 p-5">
-            <p className="section-label mb-4">Storico pagamenti</p>
+            <p className="section-label mb-4">{t('storico.titolo')}</p>
             {storico.length === 0 ? (
-                <p className="font-body text-sm text-nebbia/30 italic">Nessun pagamento registrato</p>
+                <p className="font-body text-sm text-nebbia/30 italic">{t('storico.vuoto')}</p>
             ) : (
                 <table className="w-full">
                     <thead>
                         <tr className="border-b border-white/5">
-                            {['Descrizione', 'Importo', 'Data', 'Stato'].map(h => (
-                                <th key={h} className="px-4 py-2 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
+                            {toArray(t('storico.intestazioni', { returnObjects: true })).map((h, i) => (
+                                <th key={i} className="px-4 py-2 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                             ))}
                         </tr>
                     </thead>
@@ -519,17 +531,17 @@ function StoricoTransazioni({ meId, includiSentenze = false }) {
                                     {parseFloat(s.importo ?? 0) === 0 ? '—' : `€ ${parseFloat(s.importo).toFixed(2)}`}
                                 </td>
                                 <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
-                                    {new Date(s.created_at).toLocaleDateString('it-CH')}
+                                    {new Date(s.created_at).toLocaleDateString(dateLocale)}
                                 </td>
                                 <td className="px-4 py-3">
                                     {(() => {
                                         // Badge "Gratis" se importo=0 (es. trial gratuito attivato)
                                         const importo = parseFloat(s.importo ?? 0)
                                         if (importo === 0 && s.stato === 'completato') {
-                                            return <Badge label="Gratis" variant="salvia" />
+                                            return <Badge label={t('storico.stato.gratis')} variant="salvia" />
                                         }
                                         return <Badge
-                                            label={s.stato === 'completato' ? 'Pagato' : s.stato === 'rimborsato' ? 'Rimborsato' : 'Fallito'}
+                                            label={s.stato === 'completato' ? t('storico.stato.pagato') : s.stato === 'rimborsato' ? t('storico.stato.rimborsato') : t('storico.stato.fallito')}
                                             variant={s.stato === 'completato' ? 'salvia' : s.stato === 'rimborsato' ? 'warning' : 'red'}
                                         />
                                     })()}
@@ -547,6 +559,10 @@ function StoricoTransazioni({ meId, includiSentenze = false }) {
 // PAGINA PRINCIPALE — dual role: user + avvocato
 // ─────────────────────────────────────────────────────────────
 export default function AvvocatoStudio() {
+    const { t, i18n } = useTranslation('avv_studio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    const toArray = (v) => Array.isArray(v) ? v : []
     const { profile: authProfile } = useAuth()
     const isUser = authProfile?.role === 'user'
 
@@ -690,7 +706,7 @@ export default function AvvocatoStudio() {
 
     async function invitaMembro() {
         setErroreInvito('')
-        if (!emailInvito.trim()) return setErroreInvito('Email obbligatoria')
+        if (!emailInvito.trim()) return setErroreInvito(t('collaboratori.email_obbligatoria'))
         setInviando(true)
         try {
             const { data: { session } } = await supabase.auth.getSession()
@@ -703,7 +719,7 @@ export default function AvvocatoStudio() {
                 }
             )
             const json = await res.json()
-            if (!json.ok) throw new Error(json.error ?? 'Errore invio invito')
+            if (!json.ok) throw new Error(json.error ?? t('collaboratori.errore_invio'))
             setInviatoOk(true)
             setEmailInvito('')
             setShowInvita(false)
@@ -757,23 +773,23 @@ export default function AvvocatoStudio() {
     // Tab in base al ruolo
     const tabs = isUser
         ? [
-            { id: 'piano', label: 'Il mio studio' },
-            { id: 'acquista', label: 'Acquista' },
+            { id: 'piano', label: t('tabs.mio_studio') },
+            { id: 'acquista', label: t('tabs.acquista') },
         ]
         : [
-            { id: 'piano', label: 'Il mio piano' },
-            ...(haStudio ? [{ id: 'collaboratori', label: 'Collaboratori', count: collaboratori.length }] : []),
-            { id: 'acquista', label: 'Acquista' },
+            { id: 'piano', label: t('tabs.mio_piano') },
+            ...(haStudio ? [{ id: 'collaboratori', label: t('tabs.collaboratori'), count: collaboratori.length }] : []),
+            { id: 'acquista', label: t('tabs.acquista') },
         ]
 
     return (
         <div className="space-y-5">
-            <PageHeader label={isUser ? 'Account' : 'Avvocato'} title="Il tuo studio" />
+            <PageHeader label={isUser ? t('header.label_user') : t('header.label_avvocato')} title={t('header.title')} />
 
             {inviatoOk && (
                 <div className="flex items-center gap-2 p-3 bg-salvia/5 border border-salvia/20">
                     <CheckCircle size={14} className="text-salvia shrink-0" />
-                    <p className="font-body text-sm text-salvia">Operazione completata con successo.</p>
+                    <p className="font-body text-sm text-salvia">{t('header.operazione_ok')}</p>
                     <button onClick={() => setInviatoOk(false)} className="ml-auto text-nebbia/30 hover:text-nebbia"><X size={14} /></button>
                 </div>
             )}
@@ -786,9 +802,9 @@ export default function AvvocatoStudio() {
                         <BannerAlert
                             tone="red"
                             icon={AlertTriangle}
-                            titolo="Abbonamento scaduto"
-                            descrizione="L'archivio è in sola lettura. Rinnova per riattivare upload, crediti AI e funzionalità complete."
-                            ctaLabel="Rinnova ora"
+                            titolo={t('banner.scaduto.titolo')}
+                            descrizione={t('banner.scaduto.descrizione')}
+                            ctaLabel={t('banner.scaduto.cta')}
                             onCta={() => setTab('acquista')}
                         />
                     )}
@@ -796,9 +812,9 @@ export default function AvvocatoStudio() {
                         <BannerAlert
                             tone="red"
                             icon={AlertTriangle}
-                            titolo={`Periodo di grazia — ${giorni} ${giorni === 1 ? 'giorno' : 'giorni'} rimanenti`}
-                            descrizione="Hai 7 giorni dalla scadenza per rinnovare prima che l'archivio passi in sola lettura."
-                            ctaLabel="Rinnova ora"
+                            titolo={t('banner.grazia.titolo', { count: giorni })}
+                            descrizione={t('banner.grazia.descrizione')}
+                            ctaLabel={t('banner.grazia.cta')}
                             onCta={() => setTab('acquista')}
                         />
                     )}
@@ -806,9 +822,9 @@ export default function AvvocatoStudio() {
                         <BannerAlert
                             tone="warning"
                             icon={AlertTriangle}
-                            titolo={`Abbonamento in scadenza tra ${giorni} giorni`}
-                            descrizione={profilo?.abbonamento_scadenza ? `Scadenza: ${new Date(profilo.abbonamento_scadenza).toLocaleDateString('it-CH')}` : null}
-                            ctaLabel="Rinnova"
+                            titolo={t('banner.scadenza.titolo', { count: giorni })}
+                            descrizione={profilo?.abbonamento_scadenza ? t('banner.scadenza.descrizione', { data: new Date(profilo.abbonamento_scadenza).toLocaleDateString(dateLocale) }) : null}
+                            ctaLabel={t('banner.scadenza.cta')}
                             onCta={() => setTab('acquista')}
                         />
                     )}
@@ -818,9 +834,9 @@ export default function AvvocatoStudio() {
                         <BannerAlert
                             tone="red"
                             icon={Sparkles}
-                            titolo="Crediti AI esauriti"
-                            descrizione="Lex AI non risponderà finché non acquisti nuovi crediti."
-                            ctaLabel="Acquista crediti"
+                            titolo={t('banner.crediti_zero.titolo')}
+                            descrizione={t('banner.crediti_zero.descrizione')}
+                            ctaLabel={t('banner.crediti_zero.cta')}
                             onCta={() => setTab('acquista')}
                         />
                     )}
@@ -828,9 +844,9 @@ export default function AvvocatoStudio() {
                         <BannerAlert
                             tone="warning"
                             icon={Sparkles}
-                            titolo={`Stai esaurendo i crediti AI del mese (${crediti.piano} rimasti)`}
-                            descrizione="Acquista un pacchetto extra per non restare a secco prima del rinnovo mensile."
-                            ctaLabel="Acquista crediti"
+                            titolo={t('banner.crediti_bassi.titolo', { count: crediti.piano })}
+                            descrizione={t('banner.crediti_bassi.descrizione')}
+                            ctaLabel={t('banner.crediti_bassi.cta')}
                             onCta={() => setTab('acquista')}
                         />
                     )}
@@ -840,9 +856,9 @@ export default function AvvocatoStudio() {
                         <BannerAlert
                             tone="red"
                             icon={HardDrive}
-                            titolo="Spazio archivio esaurito"
-                            descrizione="Non puoi caricare nuovi file finché non liberi spazio o acquisti un pacchetto extra."
-                            ctaLabel="Acquista storage"
+                            titolo={t('banner.storage_pieno.titolo')}
+                            descrizione={t('banner.storage_pieno.descrizione')}
+                            ctaLabel={t('banner.storage_pieno.cta')}
                             onCta={() => setTab('acquista')}
                         />
                     )}
@@ -850,9 +866,9 @@ export default function AvvocatoStudio() {
                         <BannerAlert
                             tone="warning"
                             icon={HardDrive}
-                            titolo={`Archivio quasi pieno (${(storagePct * 100).toFixed(0)}% occupato)`}
-                            descrizione={`${storage.occupato_gb.toFixed(2)} GB su ${storage.gb_totali} GB disponibili.`}
-                            ctaLabel="Acquista storage"
+                            titolo={t('banner.storage_quasi.titolo', { pct: (storagePct * 100).toFixed(0) })}
+                            descrizione={t('banner.storage_quasi.descrizione', { occupato: storage.occupato_gb.toFixed(2), totali: storage.gb_totali })}
+                            ctaLabel={t('banner.storage_quasi.cta')}
                             onCta={() => setTab('acquista')}
                         />
                     )}
@@ -860,11 +876,11 @@ export default function AvvocatoStudio() {
                         <BannerAlert
                             tone="warning"
                             icon={Clock}
-                            titolo={`${topupInScadenza.length === 1 ? 'Pacchetto storage in scadenza' : `${topupInScadenza.length} pacchetti storage in scadenza`}`}
-                            descrizione={topupInScadenza.map(t =>
-                                `${t.gb} GB scade il ${new Date(t.periodo_fine).toLocaleDateString('it-CH')}`
+                            titolo={t('banner.topup_scadenza.titolo', { count: topupInScadenza.length })}
+                            descrizione={topupInScadenza.map(tp =>
+                                t('banner.topup_scadenza.riga', { gb: tp.gb, data: new Date(tp.periodo_fine).toLocaleDateString(dateLocale) })
                             ).join(' · ')}
-                            ctaLabel="Rinnova"
+                            ctaLabel={t('banner.topup_scadenza.cta')}
                             onCta={() => setTab('acquista')}
                         />
                     )}
@@ -902,12 +918,12 @@ export default function AvvocatoStudio() {
                                 </div>
                             )}
                             <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                {hasPiano ? profilo?.abbonamento_tipo : 'Nessun piano attivo'}
+                                {hasPiano ? profilo?.abbonamento_tipo : t('studio_header.nessun_piano_attivo')}
                             </p>
                         </div>
                     </div>
                     <Badge
-                        label={!hasPiano ? 'Nessun piano' : pianoScaduto ? 'Scaduto' : inGrazia ? 'Grazia' : inScadenza ? 'In scadenza' : 'Attivo'}
+                        label={!hasPiano ? t('studio_header.badge.nessun_piano') : pianoScaduto ? t('studio_header.badge.scaduto') : inGrazia ? t('studio_header.badge.grazia') : inScadenza ? t('studio_header.badge.in_scadenza') : t('studio_header.badge.attivo')}
                         variant={!hasPiano ? 'gray' : pianoScaduto || inGrazia ? 'red' : inScadenza ? 'warning' : 'salvia'}
                     />
                 </div>
@@ -915,21 +931,21 @@ export default function AvvocatoStudio() {
                 {/* Stats — solo avvocato con piano */}
                 {!isUser && hasPiano && (
                     <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mt-5">
-                        <StatCard label="Accessi" value={`${postiUsati}/${postiAcquistati}`} colorClass={postiLiberi === 0 ? 'text-amber-400' : 'text-nebbia/60'} />
-                        <StatCard label="Crediti AI" value={crediti.totale} colorClass={creditiAZero ? 'text-red-400' : creditiBassi ? 'text-amber-400' : 'text-salvia'} />
-                        <StatCard label="Storage" value={`${storage.occupato_gb.toFixed(1)} / ${storage.gb_totali} GB`} colorClass={storagePieno ? 'text-red-400' : storageQuasiPieno ? 'text-amber-400' : 'text-salvia'} />
+                        <StatCard label={t('studio_header.stat.accessi')} value={`${postiUsati}/${postiAcquistati}`} colorClass={postiLiberi === 0 ? 'text-amber-400' : 'text-nebbia/60'} />
+                        <StatCard label={t('studio_header.stat.crediti_ai')} value={crediti.totale} colorClass={creditiAZero ? 'text-red-400' : creditiBassi ? 'text-amber-400' : 'text-salvia'} />
+                        <StatCard label={t('studio_header.stat.storage')} value={`${storage.occupato_gb.toFixed(1)} / ${storage.gb_totali} GB`} colorClass={storagePieno ? 'text-red-400' : storageQuasiPieno ? 'text-amber-400' : 'text-salvia'} />
                         {haLimiteClienti ? (
                             <StatCard
-                                label="Clienti"
+                                label={t('studio_header.stat.clienti')}
                                 value={`${clienti.conteggio}/${clienti.limite_totale}`}
                                 colorClass={clientiPieno || clientiCritico ? 'text-red-400' : clientiQuasiPieno ? 'text-amber-400' : 'text-salvia'}
                             />
                         ) : (
-                            <StatCard label="Clienti" value={String(clienti.conteggio)} colorClass="text-nebbia/60" />
+                            <StatCard label={t('studio_header.stat.clienti')} value={String(clienti.conteggio)} colorClass="text-nebbia/60" />
                         )}
                         <StatCard
-                            label="Scadenza"
-                            value={profilo?.abbonamento_scadenza ? new Date(profilo.abbonamento_scadenza).toLocaleDateString('it-CH') : '—'}
+                            label={t('studio_header.stat.scadenza')}
+                            value={profilo?.abbonamento_scadenza ? new Date(profilo.abbonamento_scadenza).toLocaleDateString(dateLocale) : '—'}
                             colorClass={inScadenza || inGrazia || pianoScaduto ? 'text-amber-400' : 'text-nebbia/60'}
                         />
                     </div>
@@ -955,23 +971,18 @@ export default function AvvocatoStudio() {
             {tab === 'piano' && isUser && (
                 <div className="space-y-4">
                     <div className="bg-slate border border-white/5 p-5 space-y-3">
-                        <p className="section-label">Perché avere un piano?</p>
-                        {[
-                            ['Gestione clienti', 'Crea e gestisci i tuoi clienti, pratiche e documenti in un unico posto'],
-                            ['Banca dati sentenze', 'Accedi a migliaia di sentenze caricate da altri avvocati (piani Pro)'],
-                            ['Monetizzazione', 'Carica le tue sentenze e guadagna ogni volta che vengono acquistate (piani Pro)'],
-                            ['Studio multi-accesso', 'Invita collaboratori e gestite insieme clienti e pratiche'],
-                        ].map(([titolo, desc]) => (
-                            <div key={titolo} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
+                        <p className="section-label">{t('user_studio.titolo')}</p>
+                        {toArray(t('user_studio.vantaggi', { returnObjects: true })).map((v, i) => (
+                            <div key={i} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
                                 <CheckCircle size={14} className="text-salvia mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="font-body text-sm font-medium text-nebbia">{titolo}</p>
-                                    <p className="font-body text-xs text-nebbia/40 mt-0.5">{desc}</p>
+                                    <p className="font-body text-sm font-medium text-nebbia">{v.titolo}</p>
+                                    <p className="font-body text-xs text-nebbia/40 mt-0.5">{v.desc}</p>
                                 </div>
                             </div>
                         ))}
                         <button onClick={() => setTab('acquista')} className="btn-primary text-sm mt-2 inline-flex items-center gap-2">
-                            Scegli un piano <ChevronRight size={14} />
+                            {t('user_studio.scegli_piano')} <ChevronRight size={14} />
                         </button>
                     </div>
                     <StoricoTransazioni meId={meId} includiSentenze={true} />
@@ -983,28 +994,28 @@ export default function AvvocatoStudio() {
                 <div className="space-y-4">
                     {!hasPiano ? (
                         <div className="bg-slate border border-white/5 p-8 text-center space-y-3">
-                            <p className="font-body text-sm text-nebbia/40">Non hai ancora un piano attivo.</p>
+                            <p className="font-body text-sm text-nebbia/40">{t('avv_piano.nessun_piano')}</p>
                             <button onClick={() => setTab('acquista')} className="btn-primary text-sm inline-flex items-center gap-2">
-                                Acquista un piano <ChevronRight size={14} />
+                                {t('avv_piano.acquista_piano')} <ChevronRight size={14} />
                             </button>
                         </div>
                     ) : (
                         <div className="bg-slate border border-white/5 p-5 space-y-4">
-                            <p className="section-label">Piano attivo</p>
+                            <p className="section-label">{t('avv_piano.titolo')}</p>
                             <div className="space-y-0">
                                 {[
-                                    ['Piano', profilo?.abbonamento_tipo ?? '—'],
-                                    ['Scadenza', profilo?.abbonamento_scadenza ? new Date(profilo.abbonamento_scadenza).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'],
-                                    ['Accessi', `${postiUsati} / ${postiAcquistati}`],
-                                    ['Clienti registrati', clienti.limite_totale > 0
-                                        ? `${clienti.conteggio} su ${clienti.limite_totale} (${clienti.limite_piano} piano · ${clienti.limite_extra} extra)`
-                                        : `${clienti.conteggio} (nessun limite definito)`],
-                                    ['Crediti AI disponibili', `${crediti.totale} (${crediti.piano} piano · ${crediti.benvenuto} benvenuto · ${crediti.topup} extra)`],
-                                    ['Spazio archivio', `${storage.occupato_gb.toFixed(2)} GB su ${storage.gb_totali} GB (${storage.gb_piano} GB piano · ${storage.gb_topup} GB extra)`],
-                                    ['GB inclusi nel piano', `${storage.gb_piano} GB`],
-                                    ['GB extra acquistati', `${storage.gb_topup} GB`],
-                                    ['Banca dati', profilo?.include_banca_dati ? 'Inclusa' : 'Non inclusa'],
-                                    ['Monetizzazione', profilo?.include_monetizzazione ? 'Inclusa' : 'Non inclusa'],
+                                    [t('avv_piano.riga.piano'), profilo?.abbonamento_tipo ?? '—'],
+                                    [t('avv_piano.riga.scadenza'), profilo?.abbonamento_scadenza ? new Date(profilo.abbonamento_scadenza).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' }) : '—'],
+                                    [t('avv_piano.riga.accessi'), `${postiUsati} / ${postiAcquistati}`],
+                                    [t('avv_piano.riga.clienti'), clienti.limite_totale > 0
+                                        ? t('avv_piano.valore.clienti_con_limite', { conteggio: clienti.conteggio, totale: clienti.limite_totale, piano: clienti.limite_piano, extra: clienti.limite_extra })
+                                        : t('avv_piano.valore.clienti_senza_limite', { conteggio: clienti.conteggio })],
+                                    [t('avv_piano.riga.crediti'), t('avv_piano.valore.crediti', { totale: crediti.totale, piano: crediti.piano, benvenuto: crediti.benvenuto, topup: crediti.topup })],
+                                    [t('avv_piano.riga.spazio'), t('avv_piano.valore.spazio', { occupato: storage.occupato_gb.toFixed(2), totali: storage.gb_totali, piano: storage.gb_piano, extra: storage.gb_topup })],
+                                    [t('avv_piano.riga.gb_inclusi'), `${storage.gb_piano} GB`],
+                                    [t('avv_piano.riga.gb_extra'), `${storage.gb_topup} GB`],
+                                    [t('avv_piano.riga.banca_dati'), profilo?.include_banca_dati ? t('avv_piano.valore.inclusa') : t('avv_piano.valore.non_inclusa')],
+                                    [t('avv_piano.riga.monetizzazione'), profilo?.include_monetizzazione ? t('avv_piano.valore.inclusa') : t('avv_piano.valore.non_inclusa')],
                                 ].map(([label, value]) => (
                                     <div key={label} className="flex justify-between items-center py-2 border-b border-white/5">
                                         <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{label}</span>
@@ -1013,7 +1024,7 @@ export default function AvvocatoStudio() {
                                 ))}
                             </div>
                             <button onClick={() => setTab('acquista')} className="btn-secondary text-sm">
-                                Cambia piano, aggiungi crediti o storage
+                                {t('avv_piano.cambia')}
                             </button>
                         </div>
                     )}
@@ -1026,11 +1037,11 @@ export default function AvvocatoStudio() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <p className="font-body text-sm text-nebbia/40">
-                            {collaboratori.length} {collaboratori.length === 1 ? 'collaboratore' : 'collaboratori'} · {postiLiberi} posti liberi
+                            {t('collaboratori.conteggio', { count: collaboratori.length })} · {t('collaboratori.posti_liberi', { count: postiLiberi })}
                         </p>
                         {isTitolare && postiLiberi > 0 && (
                             <button onClick={() => setShowInvita(v => !v)} className="btn-primary text-sm flex items-center gap-2">
-                                <UserPlus size={14} /> Invita collaboratore
+                                <UserPlus size={14} /> {t('collaboratori.invita_btn')}
                             </button>
                         )}
                     </div>
@@ -1038,20 +1049,20 @@ export default function AvvocatoStudio() {
                     {postiLiberi === 0 && (
                         <div className="flex items-center gap-3 p-3 bg-oro/5 border border-oro/15">
                             <CreditCard size={14} className="text-oro/60 shrink-0" />
-                            <p className="font-body text-xs text-nebbia/50 flex-1">Hai esaurito gli accessi.</p>
+                            <p className="font-body text-xs text-nebbia/50 flex-1">{t('collaboratori.esauriti')}</p>
                             <button onClick={() => setTab('acquista')} className="font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors whitespace-nowrap">
-                                Aggiungi accessi
+                                {t('collaboratori.aggiungi_accessi')}
                             </button>
                         </div>
                     )}
 
                     {showInvita && (
                         <div className="bg-slate border border-oro/20 p-5 space-y-4">
-                            <p className="section-label">Invita un collaboratore</p>
+                            <p className="section-label">{t('collaboratori.invita_titolo')}</p>
                             <div>
-                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Email *</label>
+                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('collaboratori.email_label')}</label>
                                 <input type="email" value={emailInvito} onChange={e => setEmailInvito(e.target.value)}
-                                    placeholder="collega@studio.it"
+                                    placeholder={t('collaboratori.email_placeholder')}
                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
                             </div>
                             {erroreInvito && (
@@ -1061,9 +1072,9 @@ export default function AvvocatoStudio() {
                             )}
                             <div className="flex gap-3">
                                 <button onClick={invitaMembro} disabled={inviando} className="btn-primary text-sm flex items-center gap-2 disabled:opacity-40">
-                                    {inviando ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><Send size={13} /> Invia invito</>}
+                                    {inviando ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><Send size={13} /> {t('collaboratori.invia_invito')}</>}
                                 </button>
-                                <button onClick={() => { setShowInvita(false); setErroreInvito('') }} className="btn-secondary text-sm">Annulla</button>
+                                <button onClick={() => { setShowInvita(false); setErroreInvito('') }} className="btn-secondary text-sm">{t('collaboratori.annulla')}</button>
                             </div>
                         </div>
                     )}

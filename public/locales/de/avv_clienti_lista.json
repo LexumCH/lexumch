@@ -1,0 +1,58 @@
+{
+  "header": {
+    "label": "Mandanten",
+    "titolo_studio": "Mandanten der Kanzlei",
+    "titolo_propri": "Ihre Mandanten",
+    "sottotitolo_one": "{{count}} Mandant insgesamt",
+    "sottotitolo_other": "{{count}} Mandanten insgesamt",
+    "nuovo_cliente": "Neuer Mandant"
+  },
+  "ricerca": {
+    "intro": "Suchen Sie Mandanten nach Name oder E-Mail. Oder stellen Sie Lex Fragen zu den Mandanten und fordern Sie Informationen dazu an. Lex hat keinen Zugriff auf die internen Notizen der Mandanten.",
+    "placeholder": "Suchen oder Lex fragen...",
+    "cerca": "Suchen",
+    "lex_sta_pensando": "Lex denkt nach...",
+    "chiedi_a_lex": "Lex fragen",
+    "lex": "Lex",
+    "risultato_one": "{{count}} Ergebnis für \"{{query}}\"",
+    "risultato_other": "{{count}} Ergebnisse für \"{{query}}\"",
+    "azzera": "Zurücksetzen"
+  },
+  "filtri": {
+    "tutti_tipi": "Alle Typen",
+    "persone_fisiche": "Natürliche Personen",
+    "persone_giuridiche": "Juristische Personen",
+    "tutti_avvocati": "Alle Anwälte",
+    "reset_filtri": "Filter zurücksetzen"
+  },
+  "tabella": {
+    "cliente": "Mandant",
+    "email": "E-Mail",
+    "telefono": "Telefon",
+    "avvocato": "Anwalt",
+    "creato_il": "Erstellt am",
+    "tu": "Sie",
+    "vuoto_nessun_cliente": "Keine Mandanten. Erstellen Sie den ersten.",
+    "vuoto_con_filtri": "Keine Mandanten mit diesen Filtern."
+  },
+  "azioni": {
+    "elimina_cliente": "Mandant löschen"
+  },
+  "modal": {
+    "eliminato_titolo": "Mandant gelöscht",
+    "dati_cancellati": "Gelöschte Daten",
+    "chiudi": "Schliessen",
+    "titolo": "Mandant löschen",
+    "irreversibile": "Unwiderruflicher Vorgang.",
+    "avviso": "Endgültig gelöscht werden: Stammdaten des Mandanten, Dossiers, Rechnungen, interne Notizen, Termine, Dokumente, Mitteilungen. Die im Speicher hochgeladenen Dateien werden verwaist und unzugänglich.",
+    "conferma_digita": "Geben Sie zur Bestätigung den genauen Namen des Mandanten ein:",
+    "placeholder_conferma": "Zur Bestätigung hier eingeben",
+    "annulla": "Abbrechen",
+    "elimina_definitivamente": "Endgültig löschen"
+  },
+  "errori": {
+    "caricamento": "Fehler beim Laden der Mandanten",
+    "generico": "Fehler",
+    "lex": "Lex-Fehler"
+  }
+}

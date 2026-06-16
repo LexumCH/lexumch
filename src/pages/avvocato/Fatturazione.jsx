@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation, Trans } from 'react-i18next'
 import { PageHeader, Badge, StatCard, EmptyState } from '@/components/shared'
 import {
     Plus, Search, FileText, AlertCircle, Check, X, Sparkles,
@@ -20,19 +21,22 @@ import { ModalEliminaFattura } from './FatturazioneDettaglio'
 // ─────────────────────────────────────────────────────────────
 // COSTANTI
 // ─────────────────────────────────────────────────────────────
-const STATO_CONFIG = {
-    pagata: { label: 'Pagata', variant: 'salvia' },
-    in_attesa: { label: 'In attesa', variant: 'warning' },
-    scaduta: { label: 'Scaduta', variant: 'red' },
-    annullata: { label: 'Annullata', variant: 'gray' },
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
+// Variant per stato (le label arrivano da t())
+const STATO_VARIANT = {
+    pagata: 'salvia',
+    in_attesa: 'warning',
+    scaduta: 'red',
+    annullata: 'gray',
 }
 
 // ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
-function fmtCHF(n) {
+function fmtCHF(n, locale = 'it-CH') {
     const v = Number(n ?? 0)
-    return v.toLocaleString('it-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    return v.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 function nomeCliente(c) {
@@ -78,6 +82,8 @@ function SortTh({ label, field, sortField, sortDir, onSort }) {
 // TAB PANORAMICA
 // ─────────────────────────────────────────────────────────────
 function TabPanoramica({ fatture, clienti }) {
+    const { t, i18n } = useTranslation('avv_fatturazione')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const annoCorrente = new Date().getFullYear()
 
     const fattureAnno = fatture.filter(f =>
@@ -107,7 +113,7 @@ function TabPanoramica({ fatture, clienti }) {
         const d = new Date()
         d.setMonth(d.getMonth() - i)
         const meseKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-        const label = d.toLocaleDateString('it-CH', { month: 'short' }).replace('.', '')
+        const label = d.toLocaleDateString(dateLocale, { month: 'short' }).replace('.', '')
         meseLabels.push({ key: meseKey, label, anno: d.getFullYear() })
     }
     for (const m of meseLabels) {
@@ -135,41 +141,41 @@ function TabPanoramica({ fatture, clienti }) {
                 <div className="bg-slate border border-white/5 p-5">
                     <div className="flex items-center gap-2 mb-2">
                         <TrendingUp size={13} className="text-oro/60" />
-                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Fatturato {annoCorrente}</p>
+                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('panoramica.kpi.fatturato', { anno: annoCorrente })}</p>
                     </div>
-                    <p className="font-display text-2xl font-light text-oro">CHF {fmtCHF(totFatturatoAnno)}</p>
-                    <p className="font-body text-xs text-nebbia/30 mt-1">{fattureAnno.length} fatture</p>
+                    <p className="font-display text-2xl font-light text-oro">CHF {fmtCHF(totFatturatoAnno, dateLocale)}</p>
+                    <p className="font-body text-xs text-nebbia/30 mt-1">{t('panoramica.kpi.num_fatture', { count: fattureAnno.length })}</p>
                 </div>
 
                 <div className="bg-slate border border-white/5 p-5">
                     <div className="flex items-center gap-2 mb-2">
                         <Check size={13} className="text-salvia/70" />
-                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Incassato {annoCorrente}</p>
+                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('panoramica.kpi.incassato', { anno: annoCorrente })}</p>
                     </div>
-                    <p className="font-display text-2xl font-light text-salvia">CHF {fmtCHF(totIncassatoAnno)}</p>
+                    <p className="font-display text-2xl font-light text-salvia">CHF {fmtCHF(totIncassatoAnno, dateLocale)}</p>
                     <p className="font-body text-xs text-nebbia/30 mt-1">
-                        {totFatturatoAnno > 0 ? `${Math.round((totIncassatoAnno / totFatturatoAnno) * 100)}% del fatturato` : '—'}
+                        {totFatturatoAnno > 0 ? t('panoramica.kpi.perc_fatturato', { perc: Math.round((totIncassatoAnno / totFatturatoAnno) * 100) }) : '—'}
                     </p>
                 </div>
 
                 <div className="bg-slate border border-white/5 p-5">
                     <div className="flex items-center gap-2 mb-2">
                         <Clock size={13} className="text-amber-400/70" />
-                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Da incassare</p>
+                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('panoramica.kpi.da_incassare')}</p>
                     </div>
-                    <p className="font-display text-2xl font-light text-amber-400">CHF {fmtCHF(totDaIncassare)}</p>
-                    <p className="font-body text-xs text-nebbia/30 mt-1">non scadute</p>
+                    <p className="font-display text-2xl font-light text-amber-400">CHF {fmtCHF(totDaIncassare, dateLocale)}</p>
+                    <p className="font-body text-xs text-nebbia/30 mt-1">{t('panoramica.kpi.non_scadute')}</p>
                 </div>
 
                 <div className={`bg-slate border p-5 ${totScaduto > 0 ? 'border-red-500/30' : 'border-white/5'}`}>
                     <div className="flex items-center gap-2 mb-2">
                         <AlertTriangle size={13} className={totScaduto > 0 ? 'text-red-400' : 'text-nebbia/30'} />
-                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Scaduto</p>
+                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('panoramica.kpi.scaduto')}</p>
                     </div>
                     <p className={`font-display text-2xl font-light ${totScaduto > 0 ? 'text-red-400' : 'text-nebbia/40'}`}>
-                        CHF {fmtCHF(totScaduto)}
+                        CHF {fmtCHF(totScaduto, dateLocale)}
                     </p>
-                    <p className="font-body text-xs text-nebbia/30 mt-1">richiede attenzione</p>
+                    <p className="font-body text-xs text-nebbia/30 mt-1">{t('panoramica.kpi.richiede_attenzione')}</p>
                 </div>
             </div>
 
@@ -177,17 +183,17 @@ function TabPanoramica({ fatture, clienti }) {
             <div className="bg-slate border border-white/5 p-5">
                 <div className="flex items-center justify-between mb-5">
                     <div>
-                        <p className="section-label mb-1">Ultimi 12 mesi</p>
-                        <p className="font-body text-xs text-nebbia/40">Emesso vs incassato per mese</p>
+                        <p className="section-label mb-1">{t('panoramica.grafico.titolo')}</p>
+                        <p className="font-body text-xs text-nebbia/40">{t('panoramica.grafico.sottotitolo')}</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1.5">
                             <div className="w-3 h-3 bg-oro/70" />
-                            <span className="font-body text-xs text-nebbia/50">Emesso</span>
+                            <span className="font-body text-xs text-nebbia/50">{t('panoramica.grafico.emesso')}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                             <div className="w-3 h-3 bg-salvia/70" />
-                            <span className="font-body text-xs text-nebbia/50">Incassato</span>
+                            <span className="font-body text-xs text-nebbia/50">{t('panoramica.grafico.incassato')}</span>
                         </div>
                     </div>
                 </div>
@@ -199,12 +205,12 @@ function TabPanoramica({ fatture, clienti }) {
                                 <div className="flex-1 flex items-end">
                                     <div className="w-full bg-oro/70 hover:bg-oro transition-colors min-h-[2px]"
                                         style={{ height: `${(m.emesso / maxValore) * 100}%` }}
-                                        title={`Emesso: CHF ${fmtCHF(m.emesso)}`} />
+                                        title={t('panoramica.grafico.tooltip_emesso', { valore: fmtCHF(m.emesso, dateLocale) })} />
                                 </div>
                                 <div className="flex-1 flex items-end">
                                     <div className="w-full bg-salvia/70 hover:bg-salvia transition-colors min-h-[2px]"
                                         style={{ height: `${(m.incassato / maxValore) * 100}%` }}
-                                        title={`Incassato: CHF ${fmtCHF(m.incassato)}`} />
+                                        title={t('panoramica.grafico.tooltip_incassato', { valore: fmtCHF(m.incassato, dateLocale) })} />
                                 </div>
                             </div>
                             <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-wider">{m.label}</p>
@@ -216,9 +222,9 @@ function TabPanoramica({ fatture, clienti }) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Top clienti */}
                 <div className="bg-slate border border-white/5 p-5">
-                    <p className="section-label mb-4">Top clienti {annoCorrente}</p>
+                    <p className="section-label mb-4">{t('panoramica.top_clienti.titolo', { anno: annoCorrente })}</p>
                     {topClienti.length === 0 ? (
-                        <p className="font-body text-sm text-nebbia/30 text-center py-8">Nessun cliente fatturato quest'anno</p>
+                        <p className="font-body text-sm text-nebbia/30 text-center py-8">{t('panoramica.top_clienti.vuoto')}</p>
                     ) : (
                         <div className="space-y-2">
                             {topClienti.map((tc, i) => {
@@ -237,13 +243,13 @@ function TabPanoramica({ fatture, clienti }) {
                                                     }
                                                     <span className="font-body text-sm text-nebbia truncate">{nomeCliente(tc.cliente)}</span>
                                                 </div>
-                                                <span className="font-body text-sm font-semibold text-oro shrink-0">CHF {fmtCHF(tc.totale)}</span>
+                                                <span className="font-body text-sm font-semibold text-oro shrink-0">CHF {fmtCHF(tc.totale, dateLocale)}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <div className="flex-1 h-1 bg-petrolio">
                                                     <div className="h-full bg-oro/60" style={{ width: `${pct}%` }} />
                                                 </div>
-                                                <span className="font-body text-xs text-nebbia/30 w-12 text-right">{tc.fatture} fatt.</span>
+                                                <span className="font-body text-xs text-nebbia/30 w-12 text-right">{t('panoramica.top_clienti.num_fatt', { count: tc.fatture })}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -256,7 +262,7 @@ function TabPanoramica({ fatture, clienti }) {
                 {/* Urgenti */}
                 <div className="bg-slate border border-white/5 p-5">
                     <div className="flex items-center justify-between mb-4">
-                        <p className="section-label">In scadenza (7 giorni)</p>
+                        <p className="section-label">{t('panoramica.urgenti.titolo')}</p>
                         {urgenti.length > 0 && (
                             <span className="font-body text-xs px-2 py-0.5 bg-amber-400/10 border border-amber-400/30 text-amber-400">
                                 {urgenti.length}
@@ -266,7 +272,7 @@ function TabPanoramica({ fatture, clienti }) {
                     {urgenti.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-10 gap-2">
                             <Check size={24} className="text-salvia/40" />
-                            <p className="font-body text-sm text-nebbia/30">Tutto in regola</p>
+                            <p className="font-body text-sm text-nebbia/30">{t('panoramica.urgenti.vuoto')}</p>
                         </div>
                     ) : (
                         <div className="space-y-2">
@@ -278,9 +284,9 @@ function TabPanoramica({ fatture, clienti }) {
                                         <p className="font-body text-xs text-nebbia/40 mt-0.5">{f.numero}</p>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <p className="font-body text-sm font-semibold text-oro">CHF {fmtCHF(f.totale)}</p>
+                                        <p className="font-body text-sm font-semibold text-oro">CHF {fmtCHF(f.totale, dateLocale)}</p>
                                         <p className={`font-body text-xs mt-0.5 ${f.giorni < 0 ? 'text-red-400' : 'text-amber-400'}`}>
-                                            {f.giorni < 0 ? `Scaduta ${Math.abs(f.giorni)}g fa` : f.giorni === 0 ? 'Oggi' : `Tra ${f.giorni}g`}
+                                            {f.giorni < 0 ? t('panoramica.urgenti.scaduta_da', { giorni: Math.abs(f.giorni) }) : f.giorni === 0 ? t('panoramica.urgenti.oggi') : t('panoramica.urgenti.tra', { giorni: f.giorni })}
                                         </p>
                                     </div>
                                 </Link>
@@ -297,6 +303,8 @@ function TabPanoramica({ fatture, clienti }) {
 // TAB FATTURE (lista con filtri + Lex search)
 // ─────────────────────────────────────────────────────────────
 function TabFatture({ fatture, clienti, onReload }) {
+    const { t, i18n } = useTranslation('avv_fatturazione')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [cerca, setCerca] = useState('')
     const [cercaApplicata, setCercaApplicata] = useState('')
     const [cercando, setCercando] = useState(false)
@@ -343,7 +351,7 @@ function TabFatture({ fatture, clienti, onReload }) {
                 body: { domanda: cerca.trim() }
             })
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore Lex')
+            if (!data?.ok) throw new Error(data?.error ?? t('fatture.errore_lex'))
             setIdsLex(data.fatture_ids ?? [])
             setRagionamentoLex(data.ragionamento ?? '')
         } catch (err) {
@@ -415,13 +423,13 @@ function TabFatture({ fatture, clienti, onReload }) {
             {/* Box ricerca */}
             <div className="bg-slate border border-white/5 p-4 space-y-3">
                 <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                    Cerca tra le fatture per numero, cliente o descrizione. Usa Lex per domande in linguaggio naturale come "fatture scadute dei clienti aziendali" o "quanto ho incassato da Rossi quest'anno".
+                    {t('fatture.ricerca_help')}
                 </p>
 
                 <div className="flex items-stretch gap-2">
                     <div className="relative flex-1">
                         <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30 pointer-events-none" />
-                        <input type="text" placeholder="Cerca o chiedi a Lex..." value={cerca}
+                        <input type="text" placeholder={t('fatture.ricerca_placeholder')} value={cerca}
                             onChange={e => {
                                 setCerca(e.target.value)
                                 if (e.target.value.trim() === '' && inRicerca) azzeraRicerca()
@@ -441,14 +449,14 @@ function TabFatture({ fatture, clienti, onReload }) {
 
                     <button onClick={cercaTradizionale} disabled={cercando || cercandoLex || !cerca.trim()}
                         className="flex items-center justify-center gap-2 px-4 h-[38px] bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
-                        {cercando ? <Loader2 size={13} className="animate-spin" /> : <><Search size={13} /> Cerca</>}
+                        {cercando ? <Loader2 size={13} className="animate-spin" /> : <><Search size={13} /> {t('fatture.cerca')}</>}
                     </button>
 
                     <button onClick={cercaConLex} disabled={cercando || cercandoLex || !cerca.trim()}
                         className="flex items-center justify-center gap-2 px-4 h-[38px] bg-salvia/10 border border-salvia/30 text-salvia font-body text-sm hover:bg-salvia/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
                         {cercandoLex
-                            ? <><Loader2 size={13} className="animate-spin" /> <span className="hidden md:inline">Lex sta cercando...</span></>
-                            : <><Sparkles size={13} /> <span className="hidden md:inline">Cerca con Lex</span><span className="md:hidden">Lex</span></>
+                            ? <><Loader2 size={13} className="animate-spin" /> <span className="hidden md:inline">{t('fatture.lex_cercando')}</span></>
+                            : <><Sparkles size={13} /> <span className="hidden md:inline">{t('fatture.cerca_con_lex')}</span><span className="md:hidden">{t('fatture.lex')}</span></>
                         }
                     </button>
                 </div>
@@ -463,7 +471,7 @@ function TabFatture({ fatture, clienti, onReload }) {
                     <div className="bg-petrolio/40 border border-salvia/15 p-3">
                         <div className="flex items-center gap-2 mb-1">
                             <Sparkles size={11} className="text-salvia" />
-                            <p className="font-body text-[10px] font-medium text-salvia uppercase tracking-widest">Analisi Lex</p>
+                            <p className="font-body text-[10px] font-medium text-salvia uppercase tracking-widest">{t('fatture.analisi_lex')}</p>
                         </div>
                         <p className="font-body text-xs text-nebbia/55 leading-relaxed">{ragionamentoLex}</p>
                     </div>
@@ -472,11 +480,16 @@ function TabFatture({ fatture, clienti, onReload }) {
                 {inRicerca && (
                     <div className="flex items-center justify-between gap-2 px-3 py-2 bg-salvia/5 border border-salvia/20">
                         <p className="font-body text-xs text-salvia">
-                            <strong>{rows.length}</strong> {rows.length === 1 ? 'risultato' : 'risultati'} per "{cercaApplicata}"
+                            <Trans
+                                i18nKey={rows.length === 1 ? 'fatture.risultato' : 'fatture.risultati'}
+                                ns="avv_fatturazione"
+                                values={{ count: rows.length, query: cercaApplicata }}
+                                components={{ b: <strong /> }}
+                            />
                         </p>
                         <button onClick={azzeraRicerca}
                             className="flex items-center gap-1 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors">
-                            <X size={11} /> Azzera
+                            <X size={11} /> {t('fatture.azzera')}
                         </button>
                     </div>
                 )}
@@ -486,22 +499,22 @@ function TabFatture({ fatture, clienti, onReload }) {
             <div className="flex flex-wrap gap-3 items-center">
                 <div className="flex items-center gap-1.5 text-nebbia/30">
                     <Filter size={12} />
-                    <span className="font-body text-xs uppercase tracking-widest">Filtri</span>
+                    <span className="font-body text-xs uppercase tracking-widest">{t('fatture.filtri.label')}</span>
                 </div>
 
                 <select value={statoF} onChange={e => setStatoF(e.target.value)}
                     className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                    <option value="">Tutti gli stati</option>
-                    <option value="in_attesa">In attesa</option>
-                    <option value="pagata">Pagate</option>
-                    <option value="scaduta">Scadute</option>
-                    <option value="annullata">Annullate</option>
+                    <option value="">{t('fatture.filtri.tutti_stati')}</option>
+                    <option value="in_attesa">{t('fatture.filtri.in_attesa')}</option>
+                    <option value="pagata">{t('fatture.filtri.pagate')}</option>
+                    <option value="scaduta">{t('fatture.filtri.scadute')}</option>
+                    <option value="annullata">{t('fatture.filtri.annullate')}</option>
                 </select>
 
                 {clienti.length > 0 && (
                     <select value={clienteF} onChange={e => setClienteF(e.target.value)}
                         className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                        <option value="">Tutti i clienti</option>
+                        <option value="">{t('fatture.filtri.tutti_clienti')}</option>
                         {clienti.map(c => <option key={c.id} value={c.id}>{nomeCliente(c)}</option>)}
                     </select>
                 )}
@@ -509,23 +522,23 @@ function TabFatture({ fatture, clienti, onReload }) {
                 {anniDisp.length > 0 && (
                     <select value={annoF} onChange={e => setAnnoF(e.target.value)}
                         className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-3 py-1.5 outline-none focus:border-oro/40">
-                        <option value="">Tutti gli anni</option>
+                        <option value="">{t('fatture.filtri.tutti_anni')}</option>
                         {anniDisp.map(a => <option key={a} value={a}>{a}</option>)}
                     </select>
                 )}
 
                 <div className="flex items-center gap-1">
                     <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                        className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40" title="Da" />
+                        className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40" title={t('fatture.filtri.da')} />
                     <span className="font-body text-xs text-nebbia/30">→</span>
                     <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                        className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40" title="A" />
+                        className="bg-slate border border-white/10 text-nebbia/60 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40" title={t('fatture.filtri.a')} />
                 </div>
 
                 {hasFilters && (
                     <button onClick={() => { setStatoF(''); setClienteF(''); setAnnoF(''); setDateFrom(''); setDateTo('') }}
                         className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors flex items-center gap-1">
-                        <X size={11} /> Reset filtri
+                        <X size={11} /> {t('fatture.filtri.reset')}
                     </button>
                 )}
             </div>
@@ -535,24 +548,24 @@ function TabFatture({ fatture, clienti, onReload }) {
                 <table className="w-full">
                     <thead>
                         <tr className="border-b border-white/5">
-                            <SortTh label="Numero" field="numero" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                            <SortTh label="Cliente" field="cliente" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">Pratica</th>
-                            <SortTh label="Totale" field="totale" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                            <SortTh label="Emessa il" field="data_emissione" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                            <SortTh label="Scadenza" field="data_scadenza" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                            <SortTh label="Stato" field="stato" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                            <SortTh label={t('fatture.tabella.numero')} field="numero" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                            <SortTh label={t('fatture.tabella.cliente')} field="cliente" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('fatture.tabella.pratica')}</th>
+                            <SortTh label={t('fatture.tabella.totale')} field="totale" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                            <SortTh label={t('fatture.tabella.emessa_il')} field="data_emissione" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                            <SortTh label={t('fatture.tabella.scadenza')} field="data_scadenza" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                            <SortTh label={t('fatture.tabella.stato')} field="stato" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                             <th className="px-4 py-3 w-20" />
                         </tr>
                     </thead>
                     <tbody>
                         {rows.length === 0 ? (
                             <tr><td colSpan={8} className="px-4 py-12 text-center font-body text-sm text-nebbia/30">
-                                {fatture.length === 0 ? 'Nessuna fattura ancora. Crea la prima.' : 'Nessuna fattura trovata'}
+                                {fatture.length === 0 ? t('fatture.tabella.vuoto_nessuna') : t('fatture.tabella.vuoto_filtri')}
                             </td></tr>
                         ) : rows.map(f => {
                             const stato = statoEffettivo(f)
-                            const sc = STATO_CONFIG[stato] ?? STATO_CONFIG.in_attesa
+                            const scVariant = STATO_VARIANT[stato] ?? STATO_VARIANT.in_attesa
                             const sc_scaduta = stato === 'scaduta'
                             return (
                                 <tr key={f.id} className={`border-b border-white/5 hover:bg-petrolio/40 transition-colors ${sc_scaduta ? 'bg-red-900/5' : ''}`}>
@@ -571,23 +584,23 @@ function TabFatture({ fatture, clienti, onReload }) {
                                         </div>
                                     </td>
                                     <td className="px-4 py-3 font-body text-xs text-nebbia/50 max-w-xs truncate">{f.pratica?.titolo ?? '—'}</td>
-                                    <td className="px-4 py-3 font-body text-sm font-semibold text-oro whitespace-nowrap">CHF {fmtCHF(f.totale)}</td>
-                                    <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">{f.data_emissione ? new Date(f.data_emissione).toLocaleDateString('it-CH') : '—'}</td>
+                                    <td className="px-4 py-3 font-body text-sm font-semibold text-oro whitespace-nowrap">CHF {fmtCHF(f.totale, dateLocale)}</td>
+                                    <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">{f.data_emissione ? new Date(f.data_emissione).toLocaleDateString(dateLocale) : '—'}</td>
                                     <td className={`px-4 py-3 font-body text-xs whitespace-nowrap ${f.stato === 'pagata' ? 'text-salvia' : sc_scaduta ? 'text-red-400' : 'text-nebbia/50'}`}>
                                         {f.stato === 'pagata' && f.data_pagamento
-                                            ? `Pagata ${new Date(f.data_pagamento).toLocaleDateString('it-CH')}`
+                                            ? t('fatture.tabella.pagata_il', { data: new Date(f.data_pagamento).toLocaleDateString(dateLocale) })
                                             : f.stato === 'pagata'
-                                                ? 'Pagata'
+                                                ? t('stati.pagata')
                                                 : f.data_scadenza
-                                                    ? new Date(f.data_scadenza).toLocaleDateString('it-CH')
+                                                    ? new Date(f.data_scadenza).toLocaleDateString(dateLocale)
                                                     : '—'}
                                     </td>
-                                    <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
+                                    <td className="px-4 py-3"><Badge label={t(`stati.${stato}`)} variant={scVariant} /></td>
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             {f.stato !== 'pagata' && (
                                                 <button onClick={(e) => { e.preventDefault(); setEliminando(f); }}
-                                                    title="Elimina fattura"
+                                                    title={t('fatture.elimina_fattura')}
                                                     className="inline-flex items-center justify-center w-7 h-7 text-nebbia/20 hover:text-red-400 hover:bg-red-500/10 transition-colors">
                                                     <Trash2 size={12} />
                                                 </button>
@@ -619,6 +632,8 @@ function TabFatture({ fatture, clienti, onReload }) {
 // TAB SCADENZARIO
 // ─────────────────────────────────────────────────────────────
 function TabScadenzario({ fatture }) {
+    const { t, i18n } = useTranslation('avv_fatturazione')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const oggi = new Date(new Date().toISOString().slice(0, 10))
     const in7gg = new Date(oggi); in7gg.setDate(in7gg.getDate() + 7)
     const in30gg = new Date(oggi); in30gg.setDate(in30gg.getDate() + 30)
@@ -651,8 +666,8 @@ function TabScadenzario({ fatture }) {
                 <div className="flex items-center justify-between">
                     <p className={`section-label !m-0 ${textColor[variant]} !text-current`}>{titolo}</p>
                     <div className="flex items-center gap-3">
-                        <span className="font-body text-xs text-nebbia/40">{lista.length} {lista.length === 1 ? 'fattura' : 'fatture'}</span>
-                        <span className={`font-body text-sm font-semibold ${textColor[variant]}`}>CHF {fmtCHF(totale)}</span>
+                        <span className="font-body text-xs text-nebbia/40">{t('scadenzario.conteggio', { count: lista.length })}</span>
+                        <span className={`font-body text-sm font-semibold ${textColor[variant]}`}>CHF {fmtCHF(totale, dateLocale)}</span>
                     </div>
                 </div>
 
@@ -665,15 +680,15 @@ function TabScadenzario({ fatture }) {
                                 <div className="min-w-0 flex-1">
                                     <p className="font-body text-sm text-nebbia truncate">{nomeCliente(f.cliente)}</p>
                                     <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                        {f.numero} · {new Date(f.data_scadenza).toLocaleDateString('it-CH', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                        {f.numero} · {new Date(f.data_scadenza).toLocaleDateString(dateLocale, { day: '2-digit', month: 'long', year: 'numeric' })}
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 shrink-0">
                                 <span className={`font-body text-xs ${textColor[variant]}`}>
-                                    {f.giorni < 0 ? `${Math.abs(f.giorni)}g fa` : f.giorni === 0 ? 'Oggi' : `tra ${f.giorni}g`}
+                                    {f.giorni < 0 ? t('scadenzario.giorni_fa', { giorni: Math.abs(f.giorni) }) : f.giorni === 0 ? t('scadenzario.oggi') : t('scadenzario.tra', { giorni: f.giorni })}
                                 </span>
-                                <p className="font-body text-sm font-semibold text-oro whitespace-nowrap">CHF {fmtCHF(f.totale)}</p>
+                                <p className="font-body text-sm font-semibold text-oro whitespace-nowrap">CHF {fmtCHF(f.totale, dateLocale)}</p>
                                 <ArrowRight size={13} className="text-nebbia/20" />
                             </div>
                         </Link>
@@ -687,18 +702,18 @@ function TabScadenzario({ fatture }) {
         return (
             <EmptyState
                 icon={CalendarDays}
-                title="Nessuna scadenza"
-                desc="Non hai fatture in attesa con scadenza impostata"
+                title={t('scadenzario.vuoto_titolo')}
+                desc={t('scadenzario.vuoto_desc')}
             />
         )
     }
 
     return (
         <div className="space-y-4">
-            <Sezione titolo="Scadute" lista={scadute} variant="red" />
-            <Sezione titolo="In scadenza (7 giorni)" lista={in7} variant="amber" />
-            <Sezione titolo="Prossime (30 giorni)" lista={in30} variant="slate" />
-            <Sezione titolo="Oltre i 30 giorni" lista={oltre} variant="slate" />
+            <Sezione titolo={t('scadenzario.sez_scadute')} lista={scadute} variant="red" />
+            <Sezione titolo={t('scadenzario.sez_7giorni')} lista={in7} variant="amber" />
+            <Sezione titolo={t('scadenzario.sez_30giorni')} lista={in30} variant="slate" />
+            <Sezione titolo={t('scadenzario.sez_oltre')} lista={oltre} variant="slate" />
         </div>
     )
 }
@@ -707,6 +722,7 @@ function TabScadenzario({ fatture }) {
 // PAGINA PRINCIPALE
 // ─────────────────────────────────────────────────────────────
 export default function AvvocatoFatturazione() {
+    const { t } = useTranslation('avv_fatturazione')
     const [fatture, setFatture] = useState([])
     const [clienti, setClienti] = useState([])
     const [loading, setLoading] = useState(true)
@@ -754,9 +770,9 @@ export default function AvvocatoFatturazione() {
     useEffect(() => { carica() }, [])
 
     const TABS = [
-        { id: 'panoramica', label: 'Panoramica', icon: TrendingUp },
-        { id: 'fatture', label: 'Fatture', icon: FileText },
-        { id: 'scadenzario', label: 'Scadenzario', icon: CalendarDays },
+        { id: 'panoramica', label: t('tabs.panoramica'), icon: TrendingUp },
+        { id: 'fatture', label: t('tabs.fatture'), icon: FileText },
+        { id: 'scadenzario', label: t('tabs.scadenzario'), icon: CalendarDays },
     ]
 
     if (loading) return (
@@ -768,12 +784,12 @@ export default function AvvocatoFatturazione() {
     return (
         <div className="space-y-5">
             <PageHeader
-                label="Fatturazione"
-                title="Fatture studio"
-                subtitle={`${fatture.length} ${fatture.length === 1 ? 'fattura' : 'fatture'} in totale`}
+                label={t('header.label')}
+                title={t('header.titolo')}
+                subtitle={t('header.sottotitolo', { count: fatture.length })}
                 action={
                     <Link to="/fatturazione/nuova" className="btn-primary text-sm flex items-center gap-2">
-                        <Plus size={15} /> Nuova fattura
+                        <Plus size={15} /> {t('header.nuova_fattura')}
                     </Link>
                 }
             />

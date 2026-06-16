@@ -1,0 +1,59 @@
+{
+  "stati": {
+    "aperta": "Aperta",
+    "chiusa": "Chiusa"
+  },
+  "tipi": ["Civile", "Penale", "Commerciale", "Amministrativo", "Lavoro", "Famiglia"],
+  "lista": {
+    "label": "Pratiche",
+    "titolo": "Le pratiche",
+    "nuova_pratica": "Nuova pratica",
+    "cerca_placeholder": "Cerca pratica o cliente...",
+    "tutti_stati": "Tutti gli stati",
+    "tutti_avvocati": "Tutti gli avvocati",
+    "dal": "Dal",
+    "al": "Al",
+    "reset": "Reset",
+    "errore_caricamento": "Errore caricamento",
+    "intestazioni": {
+      "pratica": "Pratica",
+      "cliente": "Cliente",
+      "tipo": "Tipo",
+      "avvocato": "Avvocato",
+      "stato": "Stato",
+      "creata_il": "Creata il",
+      "pross_udienza": "Pross. udienza"
+    },
+    "nessuna_pratica": "Nessuna pratica trovata",
+    "dettaglio": "Dettaglio →",
+    "tu": "Tu"
+  },
+  "nuova": {
+    "torna": "Tutte le pratiche",
+    "label": "Pratiche",
+    "titolo_pagina": "Nuova pratica",
+    "successo_titolo": "Pratica creata",
+    "titolo_pratica": "Titolo pratica *",
+    "titolo_placeholder": "Es. Causa civile Rossi vs Ferrari",
+    "cliente": "Cliente *",
+    "seleziona_cliente": "Seleziona cliente...",
+    "tipo_causa": "Tipo causa *",
+    "seleziona_tipo": "Seleziona tipo...",
+    "stato": "Stato",
+    "prossima_udienza": "Prossima udienza",
+    "opzionale": "— opzionale",
+    "avvocato_principale": "Avvocato principale *",
+    "collaboratori": "Collaboratori",
+    "tu": "Tu",
+    "note_label": "Note interne (opzionale)",
+    "note_placeholder": "Descrizione della causa, fatti salienti, strategia difensiva...",
+    "note_help": "Queste note saranno visibili nella sezione \"Note interne\" della scheda pratica e potrai modificarle in qualsiasi momento. Lex AI non le legge.",
+    "annulla": "Annulla",
+    "crea_pratica": "Crea pratica",
+    "errori": {
+      "titolo_obbligatorio": "Il titolo è obbligatorio",
+      "seleziona_cliente": "Seleziona un cliente",
+      "seleziona_tipo": "Seleziona il tipo di causa"
+    }
+  }
+}

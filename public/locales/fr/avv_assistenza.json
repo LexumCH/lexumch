@@ -1,0 +1,66 @@
+{
+  "comune": {
+    "assistenza": "Assistance"
+  },
+  "stati": {
+    "aperto": "Ouvert",
+    "chiuso": "Fermé"
+  },
+  "modal_cliente": {
+    "titolo": "Nouveau ticket à un client",
+    "label_cliente": "Client *",
+    "rimuovi": "Retirer",
+    "cerca_placeholder": "Rechercher un client par nom ou e-mail...",
+    "nessun_cliente_trovato": "Aucun client trouvé",
+    "nessun_cliente_disponibile": "Aucun client disponible",
+    "label_titolo": "Titre / objet *",
+    "titolo_placeholder": "Ex. Documents manquants, Mise à jour du dossier...",
+    "hint_primo_messaggio": "Une fois le ticket créé, vous pourrez écrire le premier message dans le chat.",
+    "annulla": "Annuler",
+    "apri_ticket": "Ouvrir le ticket",
+    "err_seleziona_cliente": "Veuillez sélectionner un client",
+    "err_titolo_obbligatorio": "Le titre est obligatoire"
+  },
+  "lista": {
+    "header_label": "Assistance",
+    "header_titolo": "Assistance",
+    "nuovo_ticket_lexum": "Nouveau ticket à Lexum",
+    "nuovo_ticket_cliente": "Nouveau ticket à un client",
+    "tab_clienti": "Clients",
+    "tab_lexum": "Assistance Lexum",
+    "cerca_placeholder": "Rechercher objet, expéditeur...",
+    "filtro_tutti_stati": "Tous les statuts",
+    "reset": "Réinitialiser",
+    "nessun_ticket": "Aucun ticket",
+    "nessun_risultato": "Aucun résultat",
+    "col_titolo": "Titre",
+    "col_cliente": "Client",
+    "col_aperto_il": "Ouvert le",
+    "col_aggiornato": "Mis à jour",
+    "col_stato": "Statut",
+    "apri": "Ouvrir →"
+  },
+  "nuovo": {
+    "header_label": "Assistance Lexum",
+    "header_titolo": "Nouveau ticket",
+    "label_titolo": "Titre *",
+    "titolo_placeholder": "Ex. Problème de facturation, Demande de fonctionnalité...",
+    "hint_messaggio": "Une fois le ticket créé, vous pourrez écrire le message dans le chat avec l'assistance.",
+    "annulla": "Annuler",
+    "apri_ticket": "Ouvrir le ticket",
+    "err_titolo_obbligatorio": "Le titre est obligatoire"
+  },
+  "dettaglio": {
+    "non_trovato": "Ticket introuvable.",
+    "sconosciuto": "Inconnu",
+    "label_lexum": "Assistance Lexum",
+    "label_cliente": "Ticket client",
+    "chiudi_ticket": "Fermer le ticket",
+    "riapri": "Rouvrir",
+    "conversazione": "Conversation",
+    "nessun_messaggio": "Aucun message",
+    "scrivi_placeholder": "Écrivez un message...",
+    "hint_invio": "Envoi avec Entrée · Saut de ligne avec Maj+Entrée",
+    "ticket_chiuso": "Ticket fermé. Utilisez le bouton en haut pour le rouvrir."
+  }
+}

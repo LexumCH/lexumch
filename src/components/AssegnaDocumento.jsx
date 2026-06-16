@@ -19,19 +19,22 @@
 //   onAggiornato  - callback dopo ogni modifica (ricarica la lista nel parent)
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { User, Users, FolderOpen, FileText, Search, X, ChevronDown } from 'lucide-react'
 
-// Config bifronte per il legame pratica/mandato
+// Config bifronte per il legame pratica/mandato.
+// `label` resta una chiave logica interna (NON tradurre); i testi visibili
+// arrivano dalle chiavi i18n `labelVuoto` e dai label dei picker.
 const PM_CONFIG = {
     avvocato: {
         tabella: 'pratiche', fk: 'pratica_id', filtroStato: ['stato', 'aperta'],
-        label: 'pratica', labelVuoto: 'Nessuna pratica aperta', icona: FileText,
+        label: 'pratica', labelVuoto: 'pm.vuoto_pratica', icona: FileText,
     },
     fiduciario: {
         tabella: 'mandati', fk: 'mandato_id', filtroStato: ['stato', 'attivo'],
-        label: 'mandato', labelVuoto: 'Nessun mandato attivo', icona: FolderOpen,
+        label: 'mandato', labelVuoto: 'pm.vuoto_mandato', icona: FolderOpen,
     },
 }
 
@@ -79,6 +82,7 @@ function Picker({ label, icona: Icona, valore, valoreLabel, disabled, disabledHi
 }
 
 export default function AssegnaDocumento({ doc, onAggiornato }) {
+    const { t } = useTranslation('comp_assegna_documento')
     const { profile } = useAuth()
     const pm = PM_CONFIG[profile?.role] ?? null
 
@@ -215,10 +219,10 @@ export default function AssegnaDocumento({ doc, onAggiornato }) {
         <div className="flex items-center gap-1.5 flex-wrap">
             {/* ── CLIENTE ── */}
             <Picker
-                label="Cliente"
+                label={t('cliente.label')}
                 icona={User}
                 valore={!!clienteId}
-                valoreLabel={clienteLabel || 'Cliente'}
+                valoreLabel={clienteLabel || t('cliente.label')}
                 aperto={apertoPicker === 'cliente'}
                 onApri={() => { setApertoPicker('cliente'); caricaClienti() }}
                 onChiudi={() => setApertoPicker(null)}
@@ -228,7 +232,7 @@ export default function AssegnaDocumento({ doc, onAggiornato }) {
                         <Search size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-nebbia/30" />
                         <input
                             autoFocus value={cercaCliente} onChange={e => setCercaCliente(e.target.value)}
-                            placeholder="Cerca cliente..."
+                            placeholder={t('cliente.cerca_placeholder')}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-xs pl-7 pr-2 py-1.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                         />
                     </div>
@@ -237,13 +241,13 @@ export default function AssegnaDocumento({ doc, onAggiornato }) {
                     {clienteId && (
                         <button onClick={rimuoviCliente} disabled={salvando}
                             className="w-full text-left px-3 py-2 hover:bg-petrolio/50 border-b border-white/5 disabled:opacity-50">
-                            <p className="font-body text-xs text-red-400/70 italic">✕ Rimuovi cliente</p>
+                            <p className="font-body text-xs text-red-400/70 italic">✕ {t('cliente.rimuovi')}</p>
                         </button>
                     )}
                     {clienti === null ? (
                         <div className="p-3 flex justify-center"><span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" /></div>
                     ) : clientiFiltrati.length === 0 ? (
-                        <p className="p-3 text-center font-body text-xs text-nebbia/25">Nessun cliente</p>
+                        <p className="p-3 text-center font-body text-xs text-nebbia/25">{t('cliente.vuoto')}</p>
                     ) : clientiFiltrati.map(c => (
                         <button key={c.id} onClick={() => assegnaCliente(c.id)} disabled={salvando}
                             className="w-full text-left px-3 py-2 hover:bg-petrolio/50 transition-colors border-b border-white/5 last:border-0 disabled:opacity-50">
@@ -256,12 +260,12 @@ export default function AssegnaDocumento({ doc, onAggiornato }) {
             {/* ── DIPENDENTE (solo fiduciario, gated sul cliente) ── */}
             {profile?.role === 'fiduciario' && (
             <Picker
-                label="Dipendente"
+                label={t('dipendente.label')}
                 icona={Users}
                 valore={!!dipendenteId}
-                valoreLabel={dipendenteLabel || 'Dipendente'}
+                valoreLabel={dipendenteLabel || t('dipendente.label')}
                 disabled={!clienteId}
-                disabledHint="Assegna prima un cliente"
+                disabledHint={t('dipendente.disabled_hint')}
                 aperto={apertoPicker === 'dipendente'}
                 onApri={() => { setApertoPicker('dipendente'); caricaDipendenti() }}
                 onChiudi={() => setApertoPicker(null)}
@@ -270,13 +274,13 @@ export default function AssegnaDocumento({ doc, onAggiornato }) {
                     {dipendenteId && (
                         <button onClick={() => assegnaDipendente(null)} disabled={salvando}
                             className="w-full text-left px-3 py-2 hover:bg-petrolio/50 border-b border-white/5 disabled:opacity-50">
-                            <p className="font-body text-xs text-red-400/70 italic">✕ Rimuovi dipendente</p>
+                            <p className="font-body text-xs text-red-400/70 italic">✕ {t('dipendente.rimuovi')}</p>
                         </button>
                     )}
                     {dipendenti === null ? (
                         <div className="p-3 flex justify-center"><span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" /></div>
                     ) : dipendenti.length === 0 ? (
-                        <p className="p-3 text-center font-body text-xs text-nebbia/25">Nessun dipendente per questo cliente</p>
+                        <p className="p-3 text-center font-body text-xs text-nebbia/25">{t('dipendente.vuoto')}</p>
                     ) : dipendenti.map(d => (
                         <button key={d.id} onClick={() => assegnaDipendente(d.id)} disabled={salvando}
                             className="w-full text-left px-3 py-2 hover:bg-petrolio/50 transition-colors border-b border-white/5 last:border-0 disabled:opacity-50">
@@ -290,10 +294,10 @@ export default function AssegnaDocumento({ doc, onAggiornato }) {
 
             {/* ── PRATICA / MANDATO (bifronte) ── */}
             <Picker
-                label={pm.label === 'pratica' ? 'Pratica' : 'Mandato'}
+                label={t(`pm.label_${pm.label}`)}
                 icona={pm.icona}
                 valore={!!pmId}
-                valoreLabel={pmLabel || (pm.label === 'pratica' ? 'Pratica' : 'Mandato')}
+                valoreLabel={pmLabel || t(`pm.label_${pm.label}`)}
                 aperto={apertoPicker === 'pm'}
                 onApri={() => { setApertoPicker('pm'); caricaPm() }}
                 onChiudi={() => setApertoPicker(null)}
@@ -302,13 +306,13 @@ export default function AssegnaDocumento({ doc, onAggiornato }) {
                     {pmId && (
                         <button onClick={() => assegnaPm(null)} disabled={salvando}
                             className="w-full text-left px-3 py-2 hover:bg-petrolio/50 border-b border-white/5 disabled:opacity-50">
-                            <p className="font-body text-xs text-red-400/70 italic">✕ Rimuovi {pm.label}</p>
+                            <p className="font-body text-xs text-red-400/70 italic">✕ {t(`pm.rimuovi_${pm.label}`)}</p>
                         </button>
                     )}
                     {pmItems === null ? (
                         <div className="p-3 flex justify-center"><span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" /></div>
                     ) : pmItems.length === 0 ? (
-                        <p className="p-3 text-center font-body text-xs text-nebbia/25">{pm.labelVuoto}</p>
+                        <p className="p-3 text-center font-body text-xs text-nebbia/25">{t(pm.labelVuoto)}</p>
                     ) : pmItems.map(p => (
                         <button key={p.id} onClick={() => assegnaPm(p.id)} disabled={salvando}
                             className="w-full text-left px-3 py-2 hover:bg-petrolio/50 transition-colors border-b border-white/5 last:border-0 disabled:opacity-50">

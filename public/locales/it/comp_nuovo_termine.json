@@ -1,0 +1,70 @@
+{
+  "materia": {
+    "civile": "Civile",
+    "penale": "Penale",
+    "amministrativo": "Amministrativo",
+    "tributario": "Tributario"
+  },
+  "header": {
+    "titolo": "Aggiungi termine processuale",
+    "sottotitolo_standard": "La scadenza viene calcolata automaticamente in base al tipo di termine",
+    "sottotitolo_personalizzato": "Inserisci manualmente il nome del termine e la data di scadenza"
+  },
+  "tabs": {
+    "standard": "Standard",
+    "personalizzato": "Personalizzato"
+  },
+  "standard": {
+    "avviso_nessun_tipo_pre": "Nessun tipo di termine ancora configurato. Usa la modalità",
+    "avviso_nessun_tipo_link": "Personalizzato",
+    "avviso_nessun_tipo_post": "per inserire un termine con data libera.",
+    "tipo_label": "Tipo di termine *",
+    "tipo_placeholder": "Seleziona un tipo di termine...",
+    "data_evento_label_default": "Data evento",
+    "data_evento_suffix": " *",
+    "calcolo_a_ritroso": "Il termine viene calcolato a ritroso ({{giorni}} giorni prima)",
+    "calcolo_in_avanti": "Il termine viene calcolato in avanti ({{giorni}} giorni dopo)",
+    "sospensione_applicata": " — sospensione applicata (+{{giorni}} giorni per le ferie giudiziarie)",
+    "sospensione_soggetto": " — soggetto a sospensione durante le ferie giudiziarie federali",
+    "sospensione_senza": " — senza sospensione feriale",
+    "descrizione_label": "Descrizione evento (opzionale)",
+    "descrizione_placeholder": "es. {{evento}} del {{data}}",
+    "descrizione_evento_default": "evento",
+    "descrizione_hint": "Annotazione di servizio per ricordarti il contesto dell'evento"
+  },
+  "anteprima": {
+    "titolo_calcolo": "Anteprima calcolo",
+    "titolo": "Anteprima",
+    "calcolo_in_corso": "Calcolo in corso...",
+    "scadenza_calcolata": "Scadenza calcolata",
+    "vuoto": "Seleziona un tipo e una data per vedere il calcolo",
+    "passata_titolo": "Questa scadenza è già trascorsa ({{giorni}} giorni fa).",
+    "passata_a_ritroso": "Per \"{{tipo}}\" il termine andava rispettato {{giorni}} giorni prima dell'evento. L'evento che hai indicato è troppo vicino o già passato: il termine non è pianificabile.",
+    "passata_a_ritroso_storico": "Inserisci comunque solo se stai registrando uno storico (es. pratica ripresa da un altro studio).",
+    "passata_in_avanti": "L'evento di partenza che hai indicato è nel passato e i {{giorni}} giorni di termine sono già decorsi. Inserisci comunque solo se stai registrando uno storico.",
+    "disclaimer": "Calcolo basato sulle ferie giudiziarie federali (art. 145 CPC). Non tiene conto dei festivi cantonali né delle regole proprie del rito penale o amministrativo. Verifica sempre la scadenza."
+  },
+  "personalizzato": {
+    "nome_label": "Nome termine *",
+    "nome_placeholder": "es. Deposito perizia concordata",
+    "nome_hint": "Etichetta del termine così come comparirà nella pratica e nel calendario",
+    "data_label": "Data scadenza *",
+    "data_hint": "Nessun calcolo automatico: la data inserita viene salvata così com'è (nessuna sospensione feriale, nessuno slittamento)",
+    "anteprima_default": "Termine personalizzato",
+    "passata": "Questa scadenza è già trascorsa ({{giorni}} giorni fa). Inserisci comunque solo se stai registrando uno storico."
+  },
+  "note": {
+    "label": "Note (opzionale)",
+    "placeholder": "Promemoria, riferimenti, strategia..."
+  },
+  "info_calendario": "Salvando, il termine verrà aggiunto anche al calendario come scadenza",
+  "footer": {
+    "annulla": "Annulla",
+    "salvando": "Salvando...",
+    "aggiungi": "Aggiungi termine"
+  },
+  "errori": {
+    "caricamento_tipi": "Impossibile caricare i tipi di termine",
+    "sessione_scaduta": "Sessione scaduta. Effettua nuovamente il login."
+  }
+}

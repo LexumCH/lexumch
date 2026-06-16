@@ -1,0 +1,81 @@
+{
+  "badge": {
+    "giorni_fa": "il y a {{count}} j",
+    "oggi": "Aujourd'hui",
+    "fra_giorni": "dans {{count}} j"
+  },
+  "range": {
+    "mese_lungo": "Ce mois-ci",
+    "ultimi_90": "90 derniers jours",
+    "questo_mese": "Ce mois-ci",
+    "mese_scorso": "Mois dernier",
+    "personalizzato": "Personnalisé",
+    "da": "Du",
+    "a": "Au",
+    "applica": "Appliquer"
+  },
+  "sezione": {
+    "vedi_tutti": "Tout voir",
+    "vuoto_default": "Rien à afficher."
+  },
+  "hero": {
+    "etichetta": "Tableau de bord",
+    "saluto": "{{saluto}}, {{nome}}.",
+    "orario": {
+      "notte": "Bonne nuit",
+      "mattino": "Bonjour",
+      "pomeriggio": "Bon après-midi",
+      "sera": "Bonsoir"
+    },
+    "sommario_vuoto": "Rien dans l'agenda aujourd'hui. Profitez-en pour mettre à jour vos dossiers ou organiser vos recherches.",
+    "sommario_oggi": "Aujourd'hui, vous avez {{parti}}.",
+    "udienze_one": "1 audience",
+    "udienze_other": "{{count}} audiences",
+    "termini_one": "1 délai",
+    "termini_other": "{{count}} délais",
+    "appuntamenti_one": "1 rendez-vous",
+    "appuntamenti_other": "{{count}} rendez-vous",
+    "fatture_attesa_one": "1 facture en attente.",
+    "fatture_attesa_other": "{{count}} factures en attente.",
+    "messaggi_nuovi_one": "1 nouveau message.",
+    "messaggi_nuovi_other": "{{count}} nouveaux messages."
+  },
+  "trial": {
+    "titolo": "Votre essai gratuit a expiré",
+    "testo": "Choisissez un forfait pour continuer à travailler avec vos dossiers, clients et documents.",
+    "dopo": "Plus tard",
+    "vedi_piani": "Voir les forfaits →"
+  },
+  "contatori": {
+    "clienti": "Clients",
+    "clienti_sub": "Total",
+    "pratiche_aperte": "Dossiers ouverts",
+    "pratiche_aperte_sub": "Maintenant",
+    "pratiche_chiuse": "Dossiers clôturés"
+  },
+  "oggi": {
+    "titolo": "Aujourd'hui",
+    "vuoto": "Aucun engagement aujourd'hui."
+  },
+  "fatturazione": {
+    "titolo": "Facturation",
+    "incassato": "Encaissé",
+    "da_incassare": "À encaisser",
+    "totale_debito": "Total des créances actives",
+    "fattura": "Facture {{anno}}/{{numero}}",
+    "vuoto": "Aucune facture en attente."
+  },
+  "settimana": {
+    "titolo": "7 prochains jours",
+    "vuoto": "Aucun engagement dans les 7 prochains jours."
+  },
+  "messaggi": {
+    "titolo": "Messages non lus",
+    "senza_oggetto": "Sans objet",
+    "vuoto": "Aucun message en attente."
+  },
+  "attenzione": {
+    "titolo": "Dossiers nécessitant une attention",
+    "vuoto": "Aucun dossier avec échéance imminente."
+  }
+}

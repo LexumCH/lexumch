@@ -1,0 +1,96 @@
+{
+  "mesi": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+  "giorni": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+  "tipi": {
+    "presenza": "Vor Ort",
+    "videocall": "Videocall",
+    "telefonico": "Telefonisch",
+    "udienza": "Verhandlung",
+    "scadenza": "Frist"
+  },
+  "tipi_breve": {
+    "presenza": "Vor Ort",
+    "videocall": "Videocall",
+    "telefonico": "Telefon",
+    "udienza": "Verhandlung"
+  },
+  "stati": {
+    "programmato": "Geplant",
+    "concluso": "Abgeschlossen",
+    "annullato": "Abgesagt"
+  },
+  "header": {
+    "label": "Agenda",
+    "titolo": "Kalender",
+    "titolo_evidenza": "Termine",
+    "visualizza": "Anzeigen:",
+    "tutti": "Alle"
+  },
+  "stats": {
+    "programmati": "Geplant",
+    "oggi": "Heute",
+    "udienze_future": "Kommende Verhandlungen",
+    "scadenze_future": "Kommende Fristen",
+    "conclusi": "Abgeschlossen"
+  },
+  "griglia": {
+    "oggi": "Heute",
+    "badge_app": "{{count}} Term."
+  },
+  "legenda": {
+    "appuntamento": "Termin",
+    "udienza": "Verhandlung",
+    "scadenza": "Frist"
+  },
+  "pannello": {
+    "app_abbr": "Term.",
+    "ud_abbr": "Verh.",
+    "scad_abbr": "Frist",
+    "nuovo_appuntamento": "Neuer Termin",
+    "help_scadenze": "Verfahrensfristen werden im Dossier hinzugefügt",
+    "nessun_appuntamento": "Keine Termine"
+  },
+  "form": {
+    "titolo_placeholder": "Titel des Termins *",
+    "cliente_opzionale": "Mandant (optional)",
+    "inizio": "Beginn",
+    "fine": "Ende",
+    "tu": "Ich",
+    "tribunale_aula": "Gericht / Saal",
+    "link_videocall": "Videocall-Link",
+    "note_cliente_placeholder": "Notizen für den Mandanten (optional)",
+    "annulla": "Abbrechen",
+    "salva": "Speichern"
+  },
+  "evento": {
+    "pratica": "Dossier",
+    "note_interne": "Interne Notizen",
+    "note_cliente": "Mandantennotizen",
+    "scadenza_auto": "Diese Frist wurde automatisch erstellt. Um sie zu ändern oder als erledigt zu markieren, öffnen Sie das Dossier.",
+    "azione_concludi": "Abgeschlossen",
+    "azione_annulla": "Absagen",
+    "gestisci_pratica": "⚖ Im Dossier verwalten →",
+    "udienze_da_pratica": "Verhandlungen werden im verknüpften Dossier verwaltet."
+  },
+  "tabella": {
+    "titolo": "Agenda-Übersicht",
+    "sottotitolo": "Alle Einträge: Termine, Verhandlungen, Fristen",
+    "cerca_placeholder": "Suchen...",
+    "tutti_tipi": "Alle Typen",
+    "tutti_stati": "Alle Status",
+    "nessun_evento": "Kein Eintrag gefunden",
+    "intestazioni": {
+      "tipo": "Typ",
+      "titolo": "Titel",
+      "cliente": "Mandant",
+      "avvocato": "Anwalt",
+      "pratica": "Dossier",
+      "data_ora": "Datum & Zeit",
+      "stato": "Status"
+    }
+  },
+  "errori": {
+    "titolo_obbligatorio": "Der Titel ist erforderlich",
+    "data_obbligatoria": "Das Datum ist erforderlich"
+  }
+}

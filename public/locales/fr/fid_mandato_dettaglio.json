@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "banco_lavoro": "Plan de travail"
+  },
+  "errori": {
+    "mandato_non_trovato": "Mandat introuvable"
+  },
+  "header": {
+    "mandato": "Mandat"
+  },
+  "stati": {
+    "attivo": "Actif",
+    "sospeso": "Suspendu",
+    "concluso": "Clôturé",
+    "archiviato": "Archivé"
+  },
+  "anagrafica": {
+    "titolo": "Données",
+    "cliente": "Client",
+    "nessun_cliente": "Aucun client lié au mandat."
+  },
+  "dati": {
+    "tipo": "Type",
+    "anno_riferimento": "Année de référence",
+    "creato_il": "Créé le"
+  },
+  "note": {
+    "titolo": "Notes",
+    "vuote": "Aucune note pour ce mandat."
+  },
+  "dipendenti": {
+    "titolo": "Employés du client",
+    "nessun_cliente": "Aucun client lié au mandat — impossible d'afficher les employés."
+  }
+}

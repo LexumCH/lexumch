@@ -1,0 +1,98 @@
+{
+  "common": {
+    "trattino": "—",
+    "tu": "Sie",
+    "annulla": "Abbrechen",
+    "salva": "Speichern",
+    "modifica": "Bearbeiten",
+    "chiudi": "Schliessen"
+  },
+  "back": {
+    "tutte_le_pratiche": "Alle Dossiers"
+  },
+  "note_modal": {
+    "titolo": "Interne Notizen",
+    "sottotitolo": "— nur für dieses Dossier",
+    "placeholder": "Interne Notizen zum Dossier — Strategie, Erinnerungen, Beobachtungen...",
+    "disclaimer": "Diese Notizen sind nur für Sie und die Mitarbeitenden des Dossiers sichtbar. Sie werden weder von Lex AI noch vom Dokumentengenerator gelesen.",
+    "salvate": "Notizen gespeichert",
+    "ultima_modifica": "Letzte Änderung: {{autore}} · {{data}}",
+    "mai_modificate": "Nie geändert",
+    "salva_note": "Notizen speichern"
+  },
+  "ricerca_espandibile": {
+    "riduci": "▲ Reduzieren",
+    "espandi": "▼ Erweitern"
+  },
+  "stati": {
+    "aperta": "Offen",
+    "chiusa": "Abgeschlossen"
+  },
+  "esiti": {
+    "vinta": "Gewonnen",
+    "persa": "Verloren",
+    "transatta": "Vergleich",
+    "archiviata": "Archiviert"
+  },
+  "loading": {
+    "non_trovata": "Dossier nicht gefunden."
+  },
+  "header": {
+    "label": "Dossier",
+    "note_interne": "Interne Notizen",
+    "seleziona_esito": "Ergebnis auswählen",
+    "conferma_chiusura": "Abschluss bestätigen",
+    "chiudi_pratica": "Dossier abschliessen",
+    "riapri_pratica": "Dossier wieder öffnen"
+  },
+  "dettagli": {
+    "titolo": "Details",
+    "cliente": "Mandant",
+    "tipo": "Art",
+    "creata_il": "Erstellt am",
+    "esito": "Ergebnis",
+    "avvocato": "Anwalt",
+    "collaboratori": "Mitarbeitende",
+    "nessun_collaboratore": "Keine Mitarbeitenden"
+  },
+  "documenti": {
+    "titolo": "Dossier-Dokumente ({{count}})",
+    "aggiungi_documento": "Dokument hinzufügen",
+    "disclaimer": "Die Dokumente werden im Archiv der Kanzlei gespeichert, für die Suche mit Lex indexiert und mit diesem Dossier verknüpft.",
+    "vuoto_titolo": "Keine Dokumente mit diesem Dossier verknüpft",
+    "vuoto_sottotitolo": "Verwenden Sie oben \"Dokument hinzufügen\", um es hochzuladen",
+    "badge_archivio": "Archiv",
+    "scarica": "Herunterladen",
+    "rimuovi_dalla_pratica": "Aus dem Dossier entfernen",
+    "elimina": "Löschen",
+    "conferma_rimuovi_archivio": "\"{{nome}}\" aus dem Dossier entfernen?\n\nDas Dokument bleibt im Archiv der Kanzlei, es verliert nur die Verknüpfung zu diesem Dossier.",
+    "conferma_elimina": "\"{{nome}}\" löschen?"
+  },
+  "ricerche": {
+    "titolo": "Recherchen und Sachverhaltsdarstellung ({{count}})",
+    "cerca_banca_dati": "In der Datenbank suchen",
+    "aggiungi": "Hinzufügen",
+    "placeholder_titolo": "Titel der Recherche (optional)...",
+    "placeholder_contenuto": "Verfassen Sie Ihre rechtliche Argumentation...",
+    "vuoto_titolo": "Keine Recherche",
+    "vuoto_sottotitolo": "Fügen Sie eine manuelle Recherche hinzu oder suchen Sie in der Datenbank",
+    "tipo_ricerca_ai": "KI-Recherche",
+    "tipo_chat_lex": "Chat mit Lex",
+    "tipo_ricerca_manuale": "Manuelle Recherche",
+    "giurisprudenza_correlata": "Verwandte Rechtsprechung verfügbar",
+    "errore_contenuto_obbligatorio": "Der Inhalt ist erforderlich",
+    "titolo_default": "Manuelle Recherche",
+    "conferma_elimina": "Diese Recherche löschen?"
+  },
+  "note_esito": {
+    "titolo": "Notizen zum Ergebnis",
+    "descrizione": "Warum ist das Dossier so ausgegangen? Was hat funktioniert oder nicht funktioniert?",
+    "placeholder": "Z. B. Die auf dem Alibi basierende Verteidigungsstrategie hat funktioniert, weil...",
+    "salva": "Ergebnisnotizen speichern"
+  },
+  "zona_pericolosa": {
+    "titolo": "Dossier löschen",
+    "descrizione": "Entfernt das Dossier und seine Daten (Verhandlungen, Fristen, Gegenparteien, Recherchen, Dokumente) endgültig. Verknüpfte Rechnungen müssen vorher getrennt werden.",
+    "bottone": "Dossier löschen"
+  }
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import logo from '@/assets/logo.png'
 import {
@@ -9,16 +10,17 @@ import {
 import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 
 const NAV = [
-  { path: '/portale', label: 'Panoramica', icon: Home },
-  { path: '/portale/pratiche', label: 'Pratiche', icon: FolderOpen },
-  { path: '/portale/appuntamenti', label: 'Appuntamenti', icon: Calendar },
-  { path: '/portale/documenti', label: 'Documenti', icon: FileText },
-  { path: '/portale/comunicazioni', label: 'Comunicazioni', icon: MessageSquare },
-  { path: '/portale/fatture', label: 'Fatture', icon: CreditCard },
-  { path: '/portale/profilo', label: 'Profilo', icon: User },
+  { path: '/portale', labelKey: 'nav.panoramica', icon: Home },
+  { path: '/portale/pratiche', labelKey: 'nav.pratiche', icon: FolderOpen },
+  { path: '/portale/appuntamenti', labelKey: 'nav.appuntamenti', icon: Calendar },
+  { path: '/portale/documenti', labelKey: 'nav.documenti', icon: FileText },
+  { path: '/portale/comunicazioni', labelKey: 'nav.comunicazioni', icon: MessageSquare },
+  { path: '/portale/fatture', labelKey: 'nav.fatture', icon: CreditCard },
+  { path: '/portale/profilo', labelKey: 'nav.profilo', icon: User },
 ]
 
 export default function ClienteLayout({ children }) {
+  const { t } = useTranslation('comp_layout_cliente')
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
@@ -44,14 +46,14 @@ export default function ClienteLayout({ children }) {
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 space-y-0.5 px-2">
-          {NAV.map(({ path, label, icon: Icon }) => (
+          {NAV.map(({ path, labelKey, icon: Icon }) => (
             <NavLink key={path} to={path} end={path === '/portale'}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 font-body text-sm transition-colors ${isActive ? 'bg-oro/10 text-oro border-r-2 border-oro' : 'text-nebbia/50 hover:text-nebbia hover:bg-white/5'
                 }`
               }>
               <Icon size={16} strokeWidth={1.5} />
-              {label}
+              {t(labelKey)}
             </NavLink>
           ))}
         </nav>
@@ -71,7 +73,7 @@ export default function ClienteLayout({ children }) {
           </div>
           <button onClick={handleSignOut}
             className="w-full flex items-center gap-2 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors px-1 py-1">
-            <LogOut size={13} /> Esci
+            <LogOut size={13} /> {t('azioni.esci')}
           </button>
         </div>
       </aside>

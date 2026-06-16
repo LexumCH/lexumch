@@ -1,0 +1,5 @@
+{
+  "meta": {
+    "description": "Componente contenitore senza testo visibile: incapsula i bottoni Salva in pratica e Aggiungi a etichetta. Le stringhe visibili sono nei componenti figli AggiungiAPratica e AggiungiAEtichetta."
+  }
+}

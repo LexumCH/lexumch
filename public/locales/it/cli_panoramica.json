@@ -1,0 +1,43 @@
+{
+  "header": {
+    "label": "Portale cliente",
+    "bentornato": "Bentornato",
+    "bentornato_nome": "Bentornato, {{nome}}"
+  },
+  "alert": {
+    "fatture_attesa_one": "Hai {{count}} fattura in attesa di pagamento",
+    "fatture_attesa_other": "Hai {{count}} fatture in attesa di pagamento",
+    "visualizza": "Visualizza"
+  },
+  "contatori": {
+    "pratiche_attive": "Pratiche attive",
+    "appuntamenti": "Appuntamenti",
+    "messaggi_nuovi": "Messaggi nuovi",
+    "fatture_aperte": "Fatture aperte"
+  },
+  "prossimo": {
+    "titolo": "Prossimo appuntamento",
+    "tutti": "Tutti →",
+    "vuoto": "Nessun appuntamento programmato"
+  },
+  "pratiche": {
+    "titolo": "Pratiche attive",
+    "tutte": "Tutte →",
+    "vuoto": "Nessuna pratica attiva"
+  },
+  "stati": {
+    "in_corso": "In corso",
+    "in_udienza": "In udienza",
+    "in_attesa": "In attesa",
+    "chiusa": "Chiusa"
+  },
+  "comunicazioni": {
+    "titolo": "Ultime comunicazioni",
+    "tutte": "Tutte →",
+    "vuoto": "Nessuna comunicazione",
+    "nuovo": "nuovo"
+  },
+  "comune": {
+    "avvocato_prefisso": "Avv."
+  }
+}

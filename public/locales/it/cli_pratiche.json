@@ -1,0 +1,24 @@
+{
+  "header": {
+    "label": "Portale cliente",
+    "titolo": "Le mie pratiche"
+  },
+  "filtri": {
+    "tutti": "Tutti gli stati"
+  },
+  "stati": {
+    "in_corso": "In corso",
+    "in_udienza": "In udienza",
+    "in_attesa": "In attesa",
+    "chiusa": "Chiusa"
+  },
+  "vuoto": {
+    "nessuna_pratica": "Nessuna pratica trovata"
+  },
+  "scheda": {
+    "avvocato_prefisso": "Avv.",
+    "aperta_il": "Aperta il",
+    "prossima_udienza": "Prossima udienza",
+    "note": "Note"
+  }
+}

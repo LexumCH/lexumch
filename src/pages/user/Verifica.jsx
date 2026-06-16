@@ -1,40 +1,41 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { Upload, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2, Scale, Calculator } from 'lucide-react'
 
-// ── Config set documentale per direzione ──────────────────────
+const toArray = (v) => Array.isArray(v) ? v : []
+
+// ── Config set documentale per direzione (chiavi i18n + flag req) ──
+// I testi (titolo/intro/label/hint) arrivano da t(); qui restano solo key e req.
 const SET_DOCUMENTALE = {
     avvocato: {
-        titolo: 'Diventa avvocato su Lexum',
-        intro: 'Per accedere alla piattaforma come avvocato devi verificare la tua identità professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.',
         documenti: [
-            { key: 'identita', label: 'Documento di identità', hint: "Carta d'identità o passaporto valido", req: true },
-            { key: 'albo', label: "Iscrizione all'Albo", hint: "Certificato di iscrizione all'Albo degli Avvocati", req: true },
-            { key: 'laurea', label: 'Laurea in Giurisprudenza', hint: 'Opzionale — accelera la verifica', req: false },
+            { key: 'identita', req: true },
+            { key: 'albo', req: true },
+            { key: 'laurea', req: false },
         ],
     },
     fiduciario: {
-        titolo: 'Diventa fiduciario su Lexum',
-        intro: 'Per accedere alla piattaforma come fiduciario devi verificare la tua attività professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.',
         documenti: [
-            { key: 'identita', label: 'Documento di identità', hint: "Carta d'identità o passaporto valido", req: true },
-            { key: 'registro', label: 'Estratto registro di commercio', hint: 'Estratto del registro di commercio o attestazione UID', req: true },
-            { key: 'affiliazione', label: 'Affiliazione professionale', hint: 'Opzionale — associazione di categoria (TREUHAND|SUISSE, EXPERTsuisse) o OAD. Accelera la verifica', req: false },
+            { key: 'identita', req: true },
+            { key: 'registro', req: true },
+            { key: 'affiliazione', req: false },
         ],
     },
 }
 
 // ── SCELTA DIREZIONE (se tipo_richiesta non ancora impostato) ──
 function SceltaDirezione({ onScelta, loading }) {
+    const { t } = useTranslation('user_verifica')
     return (
         <div className="space-y-6 max-w-2xl">
             <div>
-                <p className="section-label mb-3">Verifica professionale</p>
-                <h1 className="font-display text-4xl font-light text-nebbia mb-2">Che professionista sei?</h1>
+                <p className="section-label mb-3">{t('scelta.label')}</p>
+                <h1 className="font-display text-4xl font-light text-nebbia mb-2">{t('scelta.titolo')}</h1>
                 <p className="font-body text-sm text-nebbia/50 leading-relaxed">
-                    Scegli il tuo percorso. In base alla tua professione ti chiederemo i documenti adeguati e attiveremo gli strumenti giusti per te.
+                    {t('scelta.intro')}
                 </p>
             </div>
 
@@ -45,9 +46,9 @@ function SceltaDirezione({ onScelta, loading }) {
                     className="bg-slate border border-white/5 hover:border-oro/40 p-6 text-left transition-colors group disabled:opacity-40"
                 >
                     <Scale size={28} className="text-oro mb-4" />
-                    <p className="font-display text-xl text-nebbia mb-2">Avvocato</p>
+                    <p className="font-display text-xl text-nebbia mb-2">{t('scelta.avvocato.titolo')}</p>
                     <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                        Gestione clienti, pratiche, banca dati legale, sentenze e termini processuali.
+                        {t('scelta.avvocato.desc')}
                     </p>
                 </button>
 
@@ -57,9 +58,9 @@ function SceltaDirezione({ onScelta, loading }) {
                     className="bg-slate border border-white/5 hover:border-oro/40 p-6 text-left transition-colors group disabled:opacity-40"
                 >
                     <Calculator size={28} className="text-oro mb-4" />
-                    <p className="font-display text-xl text-nebbia mb-2">Fiduciario</p>
+                    <p className="font-display text-xl text-nebbia mb-2">{t('scelta.fiduciario.titolo')}</p>
                     <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                        Gestione mandati, contabilità, reportistica, fatturazione e strumenti per fogli di calcolo.
+                        {t('scelta.fiduciario.desc')}
                     </p>
                 </button>
             </div>
@@ -69,6 +70,7 @@ function SceltaDirezione({ onScelta, loading }) {
 
 // ── UPLOAD DOCUMENTI ──────────────────────────────────────────
 export function UserVerifica() {
+    const { t } = useTranslation('user_verifica')
     const { profile, reloadProfile } = useAuth()
     const navigate = useNavigate()
 
@@ -114,7 +116,7 @@ export function UserVerifica() {
 
         try {
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) throw new Error('Utente non autenticato')
+            if (!user) throw new Error(t('errori.non_autenticato'))
 
             const uploads = config.documenti
                 .filter(d => docs[d.key])
@@ -125,7 +127,7 @@ export function UserVerifica() {
                 const { error: upErr } = await supabase.storage
                     .from('verification-docs')
                     .upload(`${path}.${ext}`, file, { upsert: true })
-                if (upErr) throw new Error(`Errore upload: ${upErr.message}`)
+                if (upErr) throw new Error(`${t('errori.upload')}: ${upErr.message}`)
             }
 
             const { error: updateErr } = await supabase
@@ -146,12 +148,12 @@ export function UserVerifica() {
     if (inviato) return (
         <div className="text-center py-12">
             <CheckCircle size={48} className="text-salvia mx-auto mb-4" />
-            <h2 className="font-display text-4xl font-light text-nebbia mb-3">Documenti inviati</h2>
+            <h2 className="font-display text-4xl font-light text-nebbia mb-3">{t('inviato.titolo')}</h2>
             <p className="font-body text-sm text-nebbia/50 mb-6 leading-relaxed max-w-sm mx-auto">
-                Il team Lexum esaminerà i tuoi documenti e riceverai una risposta entro 24-48 ore.
+                {t('inviato.desc')}
             </p>
             <Link to="/verifica/stato" className="btn-primary justify-center inline-flex">
-                Controlla lo stato <ArrowRight size={14} />
+                {t('inviato.controlla_stato')} <ArrowRight size={14} />
             </Link>
         </div>
     )
@@ -159,24 +161,24 @@ export function UserVerifica() {
     return (
         <div className="space-y-6 max-w-2xl">
             <div>
-                <p className="section-label mb-3">Verifica identità</p>
-                <h1 className="font-display text-4xl font-light text-nebbia mb-2">{config.titolo}</h1>
-                <p className="font-body text-sm text-nebbia/50 leading-relaxed">{config.intro}</p>
+                <p className="section-label mb-3">{t('upload.label')}</p>
+                <h1 className="font-display text-4xl font-light text-nebbia mb-2">{t(`set.${direzione}.titolo`)}</h1>
+                <p className="font-body text-sm text-nebbia/50 leading-relaxed">{t(`set.${direzione}.intro`)}</p>
             </div>
 
             <div className="space-y-4">
-                {config.documenti.map(({ key, label, hint, req }) => (
+                {config.documenti.map(({ key, req }) => (
                     <div key={key} className={`bg-slate border p-5 ${docs[key] ? 'border-salvia/30' : 'border-white/5'}`}>
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <p className="font-body text-sm font-medium text-nebbia">{label}</p>
+                                    <p className="font-body text-sm font-medium text-nebbia">{t(`set.${direzione}.documenti.${key}.label`)}</p>
                                     {req
-                                        ? <span className="font-body text-[10px] text-red-400 border border-red-500/30 px-1.5 py-0.5">Obbligatorio</span>
-                                        : <span className="font-body text-[10px] text-nebbia/30 border border-white/10 px-1.5 py-0.5">Opzionale</span>
+                                        ? <span className="font-body text-[10px] text-red-400 border border-red-500/30 px-1.5 py-0.5">{t('upload.obbligatorio')}</span>
+                                        : <span className="font-body text-[10px] text-nebbia/30 border border-white/10 px-1.5 py-0.5">{t('upload.opzionale')}</span>
                                     }
                                 </div>
-                                <p className="font-body text-xs text-nebbia/40">{hint}</p>
+                                <p className="font-body text-xs text-nebbia/40">{t(`set.${direzione}.documenti.${key}.hint`)}</p>
                                 {docs[key] && (
                                     <p className="font-body text-xs text-salvia mt-1">
                                         ✓ {docs[key].name} ({(docs[key].size / 1024).toFixed(0)} KB)
@@ -184,7 +186,7 @@ export function UserVerifica() {
                                 )}
                             </div>
                             <label className={`cursor-pointer ${docs[key] ? 'btn-secondary' : 'btn-primary'} text-xs px-3 py-2 flex items-center gap-1.5`}>
-                                <Upload size={12} /> {docs[key] ? 'Cambia' : 'Carica'}
+                                <Upload size={12} /> {docs[key] ? t('upload.cambia') : t('upload.carica')}
                                 <input
                                     type="file"
                                     accept=".pdf,.jpg,.jpeg,.png"
@@ -192,7 +194,7 @@ export function UserVerifica() {
                                     onChange={e => {
                                         const f = e.target.files?.[0]
                                         if (!f) return
-                                        if (f.size > 10 * 1024 * 1024) { setErrore('File troppo grande. Massimo 10 MB.'); return }
+                                        if (f.size > 10 * 1024 * 1024) { setErrore(t('errori.file_grande')); return }
                                         setErrore('')
                                         setDocs(d => ({ ...d, [key]: f }))
                                     }}
@@ -212,8 +214,7 @@ export function UserVerifica() {
             <div className="bg-slate/40 border border-salvia/15 p-4 flex items-start gap-3">
                 <Shield size={16} className="text-salvia mt-0.5 shrink-0" />
                 <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                    I documenti sono trattati con la massima riservatezza e utilizzati esclusivamente
-                    per la verifica dell'identità professionale.
+                    {t('upload.privacy')}
                 </p>
             </div>
 
@@ -223,8 +224,8 @@ export function UserVerifica() {
                 className="btn-primary w-full justify-center disabled:opacity-40 disabled:cursor-not-allowed"
             >
                 {loading
-                    ? <><Loader2 size={16} className="animate-spin" /> Caricamento in corso…</>
-                    : <><ArrowRight size={16} /> Invia per verifica</>
+                    ? <><Loader2 size={16} className="animate-spin" /> {t('upload.caricamento')}</>
+                    : <><ArrowRight size={16} /> {t('upload.invia')}</>
                 }
             </button>
         </div>
@@ -233,16 +234,20 @@ export function UserVerifica() {
 
 // ── STATO VERIFICA ────────────────────────────────────────────
 export function UserVerificaStato() {
+    const { t } = useTranslation('user_verifica')
     const { profile } = useAuth()
     const stato = profile?.verification_status ?? 'pending'
 
-    const CONFIG = {
-        pending: { icon: Clock, color: 'text-amber-400', title: 'Verifica in corso', desc: 'Il team Lexum sta esaminando i tuoi documenti. Riceverai una notifica email entro 24-48 ore.' },
-        approved: { icon: CheckCircle, color: 'text-salvia', title: 'Verifica approvata!', desc: 'Ottimo! Ora puoi scegliere il piano di abbonamento adatto a te per attivare il tuo account.' },
-        rejected: { icon: XCircle, color: 'text-red-400', title: 'Verifica non approvata', desc: 'Non è stato possibile verificare la tua identità con i documenti forniti.' },
+    // Icone/colori mai nel JSON: costanti JS indicizzate per chiave-stato.
+    const STATO_META = {
+        pending: { icon: Clock, color: 'text-amber-400' },
+        approved: { icon: CheckCircle, color: 'text-salvia' },
+        rejected: { icon: XCircle, color: 'text-red-400' },
     }
 
-    const { icon: Icon, color, title, desc } = CONFIG[stato] ?? CONFIG.pending
+    const { icon: Icon, color } = STATO_META[stato] ?? STATO_META.pending
+    const title = t(`stato.${stato in STATO_META ? stato : 'pending'}.title`)
+    const desc = t(`stato.${stato in STATO_META ? stato : 'pending'}.desc`)
 
     return (
         <div className="text-center py-10 space-y-6 max-w-lg mx-auto">
@@ -255,19 +260,19 @@ export function UserVerificaStato() {
             {stato === 'approved' && (
                 <div className="space-y-3">
                     <Link to="/area/acquista" className="btn-primary justify-center inline-flex w-full">
-                        Scegli un piano <ArrowRight size={16} />
+                        {t('stato.approved.cta')} <ArrowRight size={16} />
                     </Link>
                 </div>
             )}
             {stato === 'rejected' && (
                 <div className="space-y-3">
                     <div className="bg-red-900/10 border border-red-500/20 p-4 text-left">
-                        <p className="font-body text-xs text-red-400 mb-1">Motivazione</p>
+                        <p className="font-body text-xs text-red-400 mb-1">{t('stato.rejected.motivazione')}</p>
                         <p className="font-body text-sm text-nebbia/60">
-                            {profile?.verification_note || profile?.note_iniziali || 'Documenti non leggibili o incompleti. Ricarica i file in alta qualità.'}
+                            {profile?.verification_note || profile?.note_iniziali || t('stato.rejected.motivazione_default')}
                         </p>
                     </div>
-                    <Link to="/verifica" className="btn-primary justify-center inline-flex">Ricarica documenti</Link>
+                    <Link to="/verifica" className="btn-primary justify-center inline-flex">{t('stato.rejected.ricarica')}</Link>
                 </div>
             )}
         </div>

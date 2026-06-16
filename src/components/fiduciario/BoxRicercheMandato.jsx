@@ -14,14 +14,18 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Plus, Search, Sparkles, Save, AlertCircle, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import ReactMarkdown from 'react-markdown'
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 // ─────────────────────────────────────────────────────────────
 // RICERCA ESPANDIBILE (identica alla pratica)
 // ─────────────────────────────────────────────────────────────
 function RicercaEspandibile({ contenuto, id, tipo, onSalva }) {
+    const { t } = useTranslation('comp_fid_box_ricerche')
     const [espansa, setEspansa] = useState(false)
     const [modifica, setModifica] = useState(false)
     const [contenutoEdit, setContenutoEdit] = useState(contenuto ?? '')
@@ -51,14 +55,14 @@ function RicercaEspandibile({ contenuto, id, tipo, onSalva }) {
                 >
                     {salvando
                         ? <span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" />
-                        : <><Save size={10} /> Salva</>
+                        : <><Save size={10} /> {t('azioni.salva')}</>
                     }
                 </button>
                 <button
                     onClick={() => { setModifica(false); setContenutoEdit(contenuto ?? '') }}
                     className="px-3 py-1.5 border border-white/10 text-nebbia/40 font-body text-xs hover:text-nebbia transition-colors"
                 >
-                    Annulla
+                    {t('azioni.annulla')}
                 </button>
             </div>
         </div>
@@ -92,14 +96,14 @@ function RicercaEspandibile({ contenuto, id, tipo, onSalva }) {
                     onClick={() => setEspansa(!espansa)}
                     className="font-body text-xs text-nebbia/25 hover:text-nebbia/50 transition-colors"
                 >
-                    {espansa ? '▲ Riduci' : '▼ Espandi'}
+                    {espansa ? `▲ ${t('azioni.riduci')}` : `▼ ${t('azioni.espandi')}`}
                 </button>
                 {tipo === 'ricerca_manuale' && (
                     <button
                         onClick={() => setModifica(true)}
                         className="font-body text-xs text-nebbia/25 hover:text-oro transition-colors"
                     >
-                        Modifica
+                        {t('azioni.modifica')}
                     </button>
                 )}
             </div>
@@ -112,6 +116,8 @@ function RicercaEspandibile({ contenuto, id, tipo, onSalva }) {
 // ─────────────────────────────────────────────────────────────
 export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
     const navigate = useNavigate()
+    const { t, i18n } = useTranslation('comp_fid_box_ricerche')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
     const [ricerche, setRicerche] = useState([])
     const [loading, setLoading] = useState(true)
@@ -135,7 +141,7 @@ export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
 
     async function salvaManuale() {
         setErrore(null)
-        if (!nuova.contenuto.trim()) return setErrore('Il contenuto è obbligatorio')
+        if (!nuova.contenuto.trim()) return setErrore(t('errori.contenutoObbligatorio'))
         setSalvando(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
@@ -144,7 +150,7 @@ export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
                 user_id: user.id,
                 autore_id: user.id,
                 tipo: 'ricerca_manuale',
-                titolo: nuova.titolo.trim() || 'Ricerca manuale',
+                titolo: nuova.titolo.trim() || t('tipi.ricercaManuale'),
                 contenuto: nuova.contenuto.trim(),
                 metadati: { ts: new Date().toISOString() },
             })
@@ -159,7 +165,7 @@ export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
     }
 
     async function elimina(ricercaId) {
-        if (!confirm('Eliminare questa ricerca?')) return
+        if (!confirm(t('conferma.elimina'))) return
         await supabase.from('ricerche').delete().eq('id', ricercaId)
         setRicerche(prev => prev.filter(r => r.id !== ricercaId))
     }
@@ -169,19 +175,19 @@ export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
 
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 shrink-0 flex-wrap gap-2">
-                <p className="section-label">Ricerche ({ricerche.length})</p>
+                <p className="section-label">{t('header.titolo', { count: ricerche.length })}</p>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => navigate('/banca-dati')}
                         className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors flex items-center gap-1"
                     >
-                        <Search size={11} /> Cerca in Banca Dati
+                        <Search size={11} /> {t('header.cercaBancaDati')}
                     </button>
                     <button
                         onClick={() => setMostraForm(!mostraForm)}
                         className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors"
                     >
-                        <Plus size={11} /> Aggiungi
+                        <Plus size={11} /> {t('header.aggiungi')}
                     </button>
                 </div>
             </div>
@@ -190,14 +196,14 @@ export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
             {mostraForm && (
                 <div className="px-4 py-3 border-b border-white/5 bg-petrolio/30 shrink-0 space-y-3">
                     <input
-                        placeholder="Titolo ricerca (opzionale)..."
+                        placeholder={t('form.placeholderTitolo')}
                         value={nuova.titolo}
                         onChange={e => setNuova(p => ({ ...p, titolo: e.target.value }))}
                         className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                     />
                     <textarea
                         rows={4}
-                        placeholder="Scrivi il tuo ragionamento o annotazione..."
+                        placeholder={t('form.placeholderContenuto')}
                         value={nuova.contenuto}
                         onChange={e => setNuova(p => ({ ...p, contenuto: e.target.value }))}
                         className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
@@ -215,14 +221,14 @@ export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
                         >
                             {salvando
                                 ? <span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" />
-                                : <><Save size={11} /> Salva</>
+                                : <><Save size={11} /> {t('azioni.salva')}</>
                             }
                         </button>
                         <button
                             onClick={() => { setMostraForm(false); setNuova({ titolo: '', contenuto: '' }); setErrore(null) }}
                             className="px-3 py-1.5 border border-white/10 text-nebbia/40 font-body text-xs hover:text-nebbia transition-colors"
                         >
-                            Annulla
+                            {t('azioni.annulla')}
                         </button>
                     </div>
                 </div>
@@ -237,9 +243,9 @@ export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
                 ) : ricerche.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full py-12 text-center px-4">
                         <Sparkles size={20} className="text-nebbia/20 mb-2" />
-                        <p className="font-body text-sm text-nebbia/30">Nessuna ricerca</p>
+                        <p className="font-body text-sm text-nebbia/30">{t('vuoto.titolo')}</p>
                         <p className="font-body text-xs text-nebbia/20 mt-1">
-                            Aggiungi una ricerca manuale o cerca in Banca Dati
+                            {t('vuoto.suggerimento')}
                         </p>
                     </div>
                 ) : ricerche.map(r => (
@@ -252,14 +258,14 @@ export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
                                 }
                                 <p className="font-body text-xs font-medium text-nebbia/70">
                                     {r.titolo ?? (
-                                        r.tipo === 'ricerca_ai' ? 'Ricerca AI' :
-                                            r.tipo === 'chat_lex' ? 'Chat con Lex' : 'Ricerca manuale'
+                                        r.tipo === 'ricerca_ai' ? t('tipi.ricercaAi') :
+                                            r.tipo === 'chat_lex' ? t('tipi.chatLex') : t('tipi.ricercaManuale')
                                     )}
                                 </p>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
                                 <span className="font-body text-xs text-nebbia/25">
-                                    {r.autore ? `${r.autore.nome} ${r.autore.cognome}` : '—'} · {new Date(r.created_at).toLocaleDateString('it-CH')}
+                                    {r.autore ? `${r.autore.nome} ${r.autore.cognome}` : '—'} · {new Date(r.created_at).toLocaleDateString(dateLocale)}
                                 </span>
                                 <button onClick={() => elimina(r.id)} className="text-nebbia/20 hover:text-red-400 transition-colors">
                                     <X size={12} />
@@ -268,7 +274,7 @@ export default function BoxRicercheMandato({ mandatoId, refreshTrigger = 0 }) {
                         </div>
                         <RicercaEspandibile contenuto={r.contenuto} id={r.id} tipo={r.tipo} onSalva={carica} />
                         {(r.tipo === 'ricerca_ai' || r.tipo === 'chat_lex') && r.metadati?.sentenze && (
-                            <p className="font-body text-xs text-oro/50 ml-5">Giurisprudenza correlata disponibile</p>
+                            <p className="font-body text-xs text-oro/50 ml-5">{t('lista.giurisprudenzaCorrelata')}</p>
                         )}
                     </div>
                 ))}

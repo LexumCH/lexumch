@@ -1,0 +1,33 @@
+{
+  "header": {
+    "label": "Portail client",
+    "titolo": "Factures"
+  },
+  "avviso": {
+    "totale_da_pagare": "Total à payer : CHF {{importo}}",
+    "contatta_avvocato": "Veuillez contacter votre avocat pour les modalités de paiement."
+  },
+  "filtri": {
+    "tutte": "Toutes",
+    "da_pagare": "À payer",
+    "pagate": "Payées",
+    "scadute": "Échues"
+  },
+  "stati": {
+    "in_attesa": "À payer",
+    "pagata": "Payée",
+    "scaduta": "Échue",
+    "annullata": "Annulée"
+  },
+  "vuoto": {
+    "nessuna_fattura": "Aucune facture trouvée"
+  },
+  "tabella": {
+    "numero": "Numéro",
+    "descrizione": "Description",
+    "importo": "Montant",
+    "emissione": "Émission",
+    "scadenza": "Échéance",
+    "stato": "Statut"
+  }
+}

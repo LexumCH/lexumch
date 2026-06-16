@@ -1,0 +1,37 @@
+{
+  "header": {
+    "label": "Checkout",
+    "titolo": "Riepilogo ordine"
+  },
+  "vuoto": {
+    "nessun_prodotto": "Nessun prodotto selezionato.",
+    "torna_ai_piani": "Torna ai piani"
+  },
+  "intestatario": {
+    "titolo": "Intestatario",
+    "nota": "I dati vengono usati esattamente come registrati. Non sono modificabili in questa fase.",
+    "nome": "Nome",
+    "email": "Email",
+    "dati_errati": "Dati errati?",
+    "aggiorna_profilo": "Aggiorna il profilo"
+  },
+  "prodotto": {
+    "piano_selezionato": "Piano selezionato",
+    "durata_one": "{{count}} mese",
+    "durata_other": "{{count}} mesi",
+    "badge_pro": "Pro",
+    "badge_base": "Base",
+    "badge_monetizzazione": "Monetizzazione",
+    "cambia_piano": "Cambia piano"
+  },
+  "totale": {
+    "label": "Totale da pagare"
+  },
+  "info": {
+    "testo": "Pagamento unico — nessun rinnovo automatico. Riceverai una ricevuta via email. Sarai reindirizzato a Stripe per completare il pagamento in modo sicuro."
+  },
+  "cta": {
+    "procedi": "Procedi al pagamento",
+    "ssl": "Pagamento gestito da Stripe — Connessione cifrata SSL"
+  }
+}

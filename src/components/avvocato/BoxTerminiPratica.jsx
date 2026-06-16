@@ -7,13 +7,16 @@
 // - Anteprima dei termini scaduti/compiuti separati
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, AlertTriangle, CheckCircle2, XCircle, Calendar, Trash2, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import NuovoTerminePratica from './NuovoTerminePratica'
 
-function fmtData(iso) {
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
+function fmtData(iso, dateLocale) {
     if (!iso) return ''
-    return new Date(iso).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })
+    return new Date(iso).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function giorniMancanti(dataScadenza) {
@@ -24,16 +27,18 @@ function giorniMancanti(dataScadenza) {
     return Math.round((target - oggi) / (1000 * 60 * 60 * 24))
 }
 
-function badgeUrgenza(giorni) {
-    if (giorni < 0) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: 'Scaduta', critico: true }
-    if (giorni === 0) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: 'Oggi', critico: true }
-    if (giorni <= 3) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: `${giorni}g`, critico: true }
-    if (giorni <= 7) return { color: 'text-amber-400 bg-amber-500/10 border-amber-500/30', label: `${giorni}g`, critico: false }
-    if (giorni <= 30) return { color: 'text-salvia bg-salvia/10 border-salvia/30', label: `${giorni}g`, critico: false }
-    return { color: 'text-nebbia/50 bg-white/5 border-white/10', label: `${giorni}g`, critico: false }
+function badgeUrgenza(giorni, t) {
+    if (giorni < 0) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: t('badge.scaduta'), critico: true }
+    if (giorni === 0) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: t('badge.oggi'), critico: true }
+    if (giorni <= 3) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: t('badge.giorni', { count: giorni }), critico: true }
+    if (giorni <= 7) return { color: 'text-amber-400 bg-amber-500/10 border-amber-500/30', label: t('badge.giorni', { count: giorni }), critico: false }
+    if (giorni <= 30) return { color: 'text-salvia bg-salvia/10 border-salvia/30', label: t('badge.giorni', { count: giorni }), critico: false }
+    return { color: 'text-nebbia/50 bg-white/5 border-white/10', label: t('badge.giorni', { count: giorni }), critico: false }
 }
 
 export default function BoxTerminiPratica({ praticaId }) {
+    const { t, i18n } = useTranslation('comp_box_termini_pratica')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [termini, setTermini] = useState([])
     const [loading, setLoading] = useState(true)
     const [modalOpen, setModalOpen] = useState(false)
@@ -64,17 +69,17 @@ export default function BoxTerminiPratica({ praticaId }) {
             .from('termini_processuali')
             .update({ stato: 'compiuto', data_compimento: oggi })
             .eq('id', id)
-        if (error) return alert('Errore: ' + error.message)
+        if (error) return alert(t('errori.generico') + ': ' + error.message)
         carica()
     }
 
     async function annullaTermine(id) {
-        if (!confirm('Annullare questo termine? L\'evento sul calendario sara` rimosso.')) return
+        if (!confirm(t('termini.conferma_elimina'))) return
         const { error } = await supabase
             .from('termini_processuali')
             .delete()
             .eq('id', id)
-        if (error) return alert('Errore: ' + error.message)
+        if (error) return alert(t('errori.generico') + ': ' + error.message)
         carica()
     }
 
@@ -87,11 +92,11 @@ export default function BoxTerminiPratica({ praticaId }) {
         <div className="bg-slate border border-white/5 p-5">
             <div className="flex items-center justify-between mb-4">
                 <div>
-                    <p className="section-label">Termini processuali</p>
+                    <p className="section-label">{t('header.titolo')}</p>
                     {terminiInCorso.length > 0 && (
                         <p className="font-body text-xs text-nebbia/40 mt-1">
-                            {terminiInCorso.length} in corso
-                            {terminiStorico.length > 0 && ` - ${terminiStorico.length} storici`}
+                            {t('header.in_corso_count', { count: terminiInCorso.length })}
+                            {terminiStorico.length > 0 && ` - ${t('header.storici_count', { count: terminiStorico.length })}`}
                         </p>
                     )}
                 </div>
@@ -99,7 +104,7 @@ export default function BoxTerminiPratica({ praticaId }) {
                     onClick={() => setModalOpen(true)}
                     className="flex items-center gap-2 px-3 py-1.5 bg-oro text-petrolio font-body text-xs font-medium hover:bg-oro/90 transition-colors"
                 >
-                    <Plus size={13} /> Aggiungi termine
+                    <Plus size={13} /> {t('header.aggiungi_termine')}
                 </button>
             </div>
 
@@ -113,7 +118,7 @@ export default function BoxTerminiPratica({ praticaId }) {
                             : 'text-nebbia/40 hover:text-nebbia/70 border-transparent'
                             }`}
                     >
-                        In corso ({terminiInCorso.length})
+                        {t('filtro.in_corso')} ({terminiInCorso.length})
                     </button>
                     <button
                         onClick={() => setFiltroStato('storico')}
@@ -122,7 +127,7 @@ export default function BoxTerminiPratica({ praticaId }) {
                             : 'text-nebbia/40 hover:text-nebbia/70 border-transparent'
                             }`}
                     >
-                        Storico ({terminiStorico.length})
+                        {t('filtro.storico')} ({terminiStorico.length})
                     </button>
                 </div>
             )}
@@ -135,31 +140,31 @@ export default function BoxTerminiPratica({ praticaId }) {
                 <div className="py-8 text-center">
                     <Calendar size={28} className="text-nebbia/20 mx-auto mb-2" />
                     <p className="font-body text-sm text-nebbia/40">
-                        {filtroStato === 'in_corso' ? 'Nessun termine in corso' : 'Nessun termine nello storico'}
+                        {filtroStato === 'in_corso' ? t('vuoto.in_corso') : t('vuoto.storico')}
                     </p>
                     {filtroStato === 'in_corso' && (
                         <p className="font-body text-xs text-nebbia/30 mt-1">
-                            Aggiungi un termine per calcolare automaticamente la scadenza
+                            {t('vuoto.suggerimento')}
                         </p>
                     )}
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {terminiVisibili.map(t => {
-                        const giorni = giorniMancanti(t.data_scadenza)
-                        const badge = badgeUrgenza(giorni)
-                        const isAttivo = t.stato === 'in_corso'
+                    {terminiVisibili.map(term => {
+                        const giorni = giorniMancanti(term.data_scadenza)
+                        const badge = badgeUrgenza(giorni, t)
+                        const isAttivo = term.stato === 'in_corso'
 
                         // Icona di stato
                         let StatoIcon = Calendar
                         let statoColor = 'text-salvia'
-                        if (t.stato === 'compiuto') { StatoIcon = CheckCircle2; statoColor = 'text-salvia' }
-                        else if (t.stato === 'scaduto_non_compiuto') { StatoIcon = XCircle; statoColor = 'text-red-400' }
+                        if (term.stato === 'compiuto') { StatoIcon = CheckCircle2; statoColor = 'text-salvia' }
+                        else if (term.stato === 'scaduto_non_compiuto') { StatoIcon = XCircle; statoColor = 'text-red-400' }
                         else if (badge.critico) { StatoIcon = AlertTriangle; statoColor = 'text-red-400' }
 
                         return (
                             <div
-                                key={t.id}
+                                key={term.id}
                                 className={`group p-3 border transition-colors ${isAttivo && badge.critico
                                     ? 'bg-red-500/[0.03] border-red-500/20'
                                     : 'bg-petrolio/40 border-white/5 hover:border-white/10'
@@ -169,40 +174,40 @@ export default function BoxTerminiPratica({ praticaId }) {
                                     <StatoIcon size={16} className={`${statoColor} mt-0.5 shrink-0`} />
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <p className="font-body text-sm text-nebbia font-medium">{t.tipo_label}</p>
+                                            <p className="font-body text-sm text-nebbia font-medium">{term.tipo_label}</p>
                                             {isAttivo && (
                                                 <span className={`font-body text-[10px] px-2 py-0.5 border ${badge.color}`}>
                                                     {badge.label}
                                                 </span>
                                             )}
-                                            {t.stato === 'compiuto' && (
+                                            {term.stato === 'compiuto' && (
                                                 <span className="font-body text-[10px] px-2 py-0.5 border text-salvia bg-salvia/10 border-salvia/30">
-                                                    Compiuto {fmtData(t.data_compimento)}
+                                                    {t('stato.compiuto', { data: fmtData(term.data_compimento, dateLocale) })}
                                                 </span>
                                             )}
-                                            {t.stato === 'scaduto_non_compiuto' && (
+                                            {term.stato === 'scaduto_non_compiuto' && (
                                                 <span className="font-body text-[10px] px-2 py-0.5 border text-red-400 bg-red-500/10 border-red-500/30">
-                                                    Scaduto non compiuto
+                                                    {t('stato.scaduto_non_compiuto')}
                                                 </span>
                                             )}
                                         </div>
 
                                         <div className="flex items-center gap-3 mt-1 flex-wrap">
                                             <p className="font-body text-xs text-nebbia/50">
-                                                Scadenza: <span className="text-nebbia/80">{fmtData(t.data_scadenza)}</span>
+                                                {t('campi.scadenza')}: <span className="text-nebbia/80">{fmtData(term.data_scadenza, dateLocale)}</span>
                                             </p>
-                                            {t.evento_descrizione && (
+                                            {term.evento_descrizione && (
                                                 <p className="font-body text-xs text-nebbia/40">
-                                                    Da: {t.evento_descrizione}
+                                                    {t('campi.da')}: {term.evento_descrizione}
                                                 </p>
                                             )}
                                         </div>
 
-                                        {t.note_calcolo && (
-                                            <p className="font-body text-[11px] text-nebbia/40 mt-1 italic">{t.note_calcolo}</p>
+                                        {term.note_calcolo && (
+                                            <p className="font-body text-[11px] text-nebbia/40 mt-1 italic">{term.note_calcolo}</p>
                                         )}
-                                        {t.note_avvocato && (
-                                            <p className="font-body text-xs text-nebbia/60 mt-1">{t.note_avvocato}</p>
+                                        {term.note_avvocato && (
+                                            <p className="font-body text-xs text-nebbia/60 mt-1">{term.note_avvocato}</p>
                                         )}
                                     </div>
 
@@ -210,15 +215,15 @@ export default function BoxTerminiPratica({ praticaId }) {
                                     {isAttivo && (
                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                             <button
-                                                onClick={() => marcaCompiuto(t.id)}
-                                                title="Segna come compiuto"
+                                                onClick={() => marcaCompiuto(term.id)}
+                                                title={t('azioni.segna_compiuto')}
                                                 className="p-1.5 hover:bg-salvia/10 border border-transparent hover:border-salvia/30 transition-colors"
                                             >
                                                 <Check size={13} className="text-salvia" />
                                             </button>
                                             <button
-                                                onClick={() => annullaTermine(t.id)}
-                                                title="Elimina termine"
+                                                onClick={() => annullaTermine(term.id)}
+                                                title={t('azioni.elimina')}
                                                 className="p-1.5 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-colors"
                                             >
                                                 <Trash2 size={13} className="text-nebbia/40 hover:text-red-400" />

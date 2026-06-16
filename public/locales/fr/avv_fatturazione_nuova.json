@@ -1,0 +1,98 @@
+{
+  "back": "Facturation",
+  "header": {
+    "label": "Facturation",
+    "title": "Nouvelle facture"
+  },
+  "preview": {
+    "titolo": "Aperçu de la facture",
+    "destinatario": "Destinataire",
+    "seleziona_cliente": "Sélectionnez un client",
+    "data_emissione": "Date d'émission",
+    "scadenza": "Échéance",
+    "pratica_collegata": "Dossier lié",
+    "prestazioni": "Prestations",
+    "aggiungi_riga_vuoto": "Ajoutez au moins une ligne",
+    "imponibile": "Montant net",
+    "iva_esente": "TVA — exonérée",
+    "iva_aliquota": "TVA {{aliquota}}%",
+    "totale_fattura": "Total de la facture"
+  },
+  "destinatario": {
+    "titolo": "Destinataire",
+    "cliente_label": "Client *",
+    "cliente_placeholder": "Sélectionner un client...",
+    "nessun_cliente": "Aucun client trouvé. <1>Créer le premier client</1>.",
+    "pratica_label": "Dossier lié",
+    "opzionale": "— facultatif",
+    "nessuna_pratica": "Aucun dossier",
+    "nessuna_pratica_aperta": "Ce client n'a aucun dossier ouvert."
+  },
+  "date": {
+    "titolo": "Dates",
+    "emissione_label": "Date d'émission *",
+    "scadenza_label": "Délai de paiement"
+  },
+  "prestazioni": {
+    "titolo": "Prestations",
+    "aggiungi_riga": "Ajouter une ligne",
+    "riga": "Ligne {{numero}}",
+    "rimuovi_riga": "Supprimer la ligne",
+    "descrizione_ph": "Description de la prestation (p. ex. conseil juridique)",
+    "quantita": "Quantité",
+    "prezzo_unitario": "Prix unit. (CHF)",
+    "totale_riga": "Total de la ligne"
+  },
+  "iva": {
+    "titolo": "TVA",
+    "esente_label": "Exonéré de TVA",
+    "esente_desc": "Cochez si vous n'êtes pas assujetti à la TVA (p. ex. chiffre d'affaires inférieur au seuil de la LTVA).",
+    "motivo_label": "Motif d'exonération",
+    "motivo_hint": "— facultatif, figure sur la facture",
+    "motivo_ph": "P. ex. Non assujetti à la TVA (art. 10 al. 2 LTVA)",
+    "aliquota_label": "Taux de TVA %",
+    "aliquota_hint": "Taux suisses 2024 : normal 8.1%, réduit 2.6%, hébergement 3.8%."
+  },
+  "pagamento": {
+    "titolo": "Mode de paiement",
+    "metodo_label": "Méthode",
+    "metodi": {
+      "bonifico": "Virement bancaire",
+      "qr": "QR-facture",
+      "contanti": "Espèces",
+      "carta_twint": "Carte / TWINT",
+      "altro": "Autre / Non spécifié"
+    },
+    "iban_label": "IBAN pour le paiement",
+    "usa_iban_profilo": "Utiliser l'IBAN du profil",
+    "iban_hint": "L'IBAN et les données de votre profil (adresse, NPA, localité) sont utilisés pour générer la QR-facture suisse dans le PDF."
+  },
+  "note": {
+    "titolo": "Notes",
+    "pubbliche_label": "Notes publiques",
+    "pubbliche_hint": "— figureront sur le PDF",
+    "pubbliche_ph": "P. ex. Payable dans les 30 jours à compter de la date d'émission.",
+    "interne_label": "Notes internes",
+    "interne_hint": "— visibles uniquement par vous",
+    "interne_ph": "Mémo personnel, ne figure pas sur la facture."
+  },
+  "azioni": {
+    "annulla": "Annuler",
+    "salvando": "Enregistrement...",
+    "salva_bozza": "Enregistrer le brouillon",
+    "generando_pdf": "Génération du PDF...",
+    "salva_genera_pdf": "Enregistrer et générer le PDF"
+  },
+  "workflow": {
+    "bozza": "<0>Enregistrer le brouillon</0> — la facture est créée avec un numéro séquentiel définitif, mais le PDF n'est pas généré. Vous pourrez la modifier ultérieurement.",
+    "pdf": "<0>Enregistrer et générer le PDF</0> — la facture est classée dans les archives de l'étude et le PDF avec QR-facture est prêt pour le client."
+  },
+  "errori": {
+    "cliente_obbligatorio": "Sélectionnez un client",
+    "data_emissione_obbligatoria": "Date d'émission obligatoire",
+    "almeno_una_riga": "Au moins une ligne avec description et quantité > 0",
+    "prezzi_numerici": "Tous les prix doivent être numériques",
+    "creazione_fattura": "Erreur lors de la création de la facture",
+    "fattura_creata_ma_pdf": "Facture créée mais erreur PDF"
+  }
+}

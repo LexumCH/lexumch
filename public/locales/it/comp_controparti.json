@@ -1,0 +1,87 @@
+{
+    "header": {
+        "titolo": "Controparti ({{n}})"
+    },
+    "azioni": {
+        "aggiungi": "Aggiungi controparte",
+        "salva_modifiche": "Salva modifiche",
+        "annulla": "Annulla",
+        "modifica": "Modifica",
+        "elimina": "Elimina"
+    },
+    "vuoto": {
+        "titolo": "Nessuna controparte",
+        "sottotitolo": "Aggiungile per generare correttamente gli atti"
+    },
+    "conferme": {
+        "elimina": "Eliminare la controparte \"{{nome}}\"?"
+    },
+    "switcher": {
+        "persona_fisica": "Persona fisica",
+        "persona_giuridica": "Persona giuridica"
+    },
+    "form": {
+        "titolo_nuova": "Nuova controparte",
+        "titolo_modifica": "Modifica controparte",
+        "ruolo_processuale": "Ruolo processuale"
+    },
+    "sezioni": {
+        "rappresentante_legale": "Rappresentante legale",
+        "indirizzo": "Indirizzo",
+        "contatti": "Contatti",
+        "legale_avversario": "Legale avversario",
+        "legale_avversario_hint": "— se noto"
+    },
+    "campi": {
+        "nome": "Nome",
+        "cognome": "Cognome",
+        "nome_obbl": "Nome *",
+        "cognome_obbl": "Cognome *",
+        "numero_avs": "N. AVS",
+        "data_nascita": "Data nascita",
+        "luogo_nascita": "Luogo nascita",
+        "ragione_sociale_obbl": "Ragione sociale *",
+        "uid": "IDI / UID",
+        "sede_legale": "Sede legale",
+        "numero_avs_rappresentante": "N. AVS rappresentante",
+        "carica": "Carica",
+        "carica_placeholder": "Es. Amministratore Unico",
+        "indirizzo": "Indirizzo",
+        "citta": "Città",
+        "cantone": "Cantone",
+        "cap": "CAP",
+        "email": "Email",
+        "telefono": "Telefono",
+        "cantone_albo": "Cantone albo",
+        "numero_albo": "N. albo",
+        "note": "Note",
+        "note_placeholder": "Note libere sulla controparte..."
+    },
+    "card": {
+        "rappresentante": "Rappr.:",
+        "avvocato_prefisso": "avv."
+    },
+    "errori": {
+        "nome_obbligatorio": "Nome obbligatorio",
+        "cognome_obbligatorio": "Cognome obbligatorio",
+        "ragione_sociale_obbligatoria": "Ragione sociale obbligatoria"
+    },
+    "ruoli": {
+        "placeholder": "— Seleziona ruolo —",
+        "convenuto": "Convenuto",
+        "co_convenuto": "Co-convenuto",
+        "attore": "Attore",
+        "co_attore": "Co-attore",
+        "imputato": "Imputato",
+        "co_imputato": "Co-imputato",
+        "parte_civile": "Parte civile",
+        "persona_offesa": "Persona offesa",
+        "ricorrente": "Ricorrente",
+        "resistente": "Resistente",
+        "opponente": "Opponente",
+        "opposto": "Opposto",
+        "terzo_chiamato": "Terzo chiamato",
+        "litisconsorte": "Litisconsorte",
+        "altro": "Altro"
+    }
+}

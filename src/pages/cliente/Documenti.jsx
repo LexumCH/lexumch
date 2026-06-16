@@ -1,9 +1,13 @@
 // src/pages/cliente/Documenti.jsx
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PageHeader, Badge } from '@/components/shared'
 import { Upload, FileText, Eye, Lock, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+const toArray = (v) => Array.isArray(v) ? v : []
 
 function formatSize(bytes) {
     if (!bytes) return '—'
@@ -13,6 +17,8 @@ function formatSize(bytes) {
 }
 
 export default function ClienteDocumenti() {
+    const { t, i18n } = useTranslation('cli_documenti')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [documenti, setDocumenti] = useState([])
     const [loading, setLoading] = useState(true)
     const [userId, setUserId] = useState(null)
@@ -80,11 +86,11 @@ export default function ClienteDocumenti() {
 
     return (
         <div className="space-y-5">
-            <PageHeader label="Portale cliente" title="Documenti" />
+            <PageHeader label={t('header.label')} title={t('header.title')} />
 
             {/* Upload */}
             <div className="bg-slate border border-white/5 p-5">
-                <p className="section-label mb-3">Carica un documento</p>
+                <p className="section-label mb-3">{t('upload.titolo')}</p>
                 <div className="flex items-center gap-3">
                     <label className="cursor-pointer flex-1">
                         <div className={`border border-dashed p-4 text-center transition-all ${file ? 'border-salvia/30 bg-salvia/5' : 'border-white/15 hover:border-oro/30'}`}>
@@ -92,7 +98,7 @@ export default function ClienteDocumenti() {
                                 ? <p className="font-body text-sm text-salvia">{file.name}</p>
                                 : <div className="flex items-center justify-center gap-2 text-nebbia/30">
                                     <Upload size={16} />
-                                    <span className="font-body text-sm">Seleziona un file</span>
+                                    <span className="font-body text-sm">{t('upload.seleziona')}</span>
                                 </div>
                             }
                         </div>
@@ -101,7 +107,7 @@ export default function ClienteDocumenti() {
                     </label>
                     <button onClick={handleUpload} disabled={!file || uploading}
                         className="btn-primary text-sm disabled:opacity-40 disabled:cursor-not-allowed">
-                        {uploading ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : 'Carica'}
+                        {uploading ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : t('upload.carica')}
                     </button>
                 </div>
                 {errore && (
@@ -109,7 +115,7 @@ export default function ClienteDocumenti() {
                         <AlertCircle size={13} /> {errore}
                     </div>
                 )}
-                <p className="font-body text-xs text-nebbia/25 mt-2">Formati accettati: PDF, JPG, PNG, DOC, DOCX</p>
+                <p className="font-body text-xs text-nebbia/25 mt-2">{t('upload.formati')}</p>
             </div>
 
             {/* Lista */}
@@ -122,14 +128,14 @@ export default function ClienteDocumenti() {
                     {documenti.length === 0 ? (
                         <div className="py-12 text-center">
                             <FileText size={36} className="text-nebbia/15 mx-auto mb-3" />
-                            <p className="font-body text-sm text-nebbia/30">Nessun documento disponibile</p>
+                            <p className="font-body text-sm text-nebbia/30">{t('lista.vuoto')}</p>
                         </div>
                     ) : (
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-white/5">
-                                    {['Documento', 'Caricato da', 'Data', 'Dimensione', ''].map(h => (
-                                        <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
+                                    {toArray(t('tabella.intestazioni', { returnObjects: true })).map((h, i) => (
+                                        <th key={i} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -143,15 +149,15 @@ export default function ClienteDocumenti() {
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <Badge label={d.caricato_da === 'avvocato' ? 'Studio' : 'Tu'} variant={d.caricato_da === 'avvocato' ? 'oro' : 'salvia'} />
+                                            <Badge label={d.caricato_da === 'avvocato' ? t('caricato_da.studio') : t('caricato_da.tu')} variant={d.caricato_da === 'avvocato' ? 'oro' : 'salvia'} />
                                         </td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
-                                            {new Date(d.created_at).toLocaleDateString('it-CH')}
+                                            {new Date(d.created_at).toLocaleDateString(dateLocale)}
                                         </td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/40">{formatSize(d.dimensione)}</td>
                                         <td className="px-4 py-3 text-right">
                                             <button onClick={() => apriDoc(d)} className="inline-flex items-center gap-1.5 font-body text-xs text-oro hover:text-oro/70 transition-colors">
-                                                <Eye size={13} /> Visualizza
+                                                <Eye size={13} /> {t('lista.visualizza')}
                                             </button>
                                         </td>
                                     </tr>
@@ -162,7 +168,7 @@ export default function ClienteDocumenti() {
                 </div>
             )}
             <p className="font-body text-xs text-nebbia/25 flex items-center gap-1.5">
-                <Lock size={11} /> I documenti sono visualizzabili solo nel portale.
+                <Lock size={11} /> {t('lista.nota_privacy')}
             </p>
         </div>
     )

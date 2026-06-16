@@ -1,0 +1,98 @@
+{
+  "back": "Fatturazione",
+  "header": {
+    "label": "Fatturazione",
+    "title": "Nuova fattura"
+  },
+  "preview": {
+    "titolo": "Anteprima fattura",
+    "destinatario": "Destinatario",
+    "seleziona_cliente": "Seleziona un cliente",
+    "data_emissione": "Data emissione",
+    "scadenza": "Scadenza",
+    "pratica_collegata": "Pratica collegata",
+    "prestazioni": "Prestazioni",
+    "aggiungi_riga_vuoto": "Aggiungi almeno una riga",
+    "imponibile": "Imponibile",
+    "iva_esente": "IVA — esente",
+    "iva_aliquota": "IVA {{aliquota}}%",
+    "totale_fattura": "Totale fattura"
+  },
+  "destinatario": {
+    "titolo": "Destinatario",
+    "cliente_label": "Cliente *",
+    "cliente_placeholder": "Seleziona cliente...",
+    "nessun_cliente": "Nessun cliente trovato. <1>Crea il primo cliente</1>.",
+    "pratica_label": "Pratica collegata",
+    "opzionale": "— opzionale",
+    "nessuna_pratica": "Nessuna pratica",
+    "nessuna_pratica_aperta": "Questo cliente non ha pratiche aperte."
+  },
+  "date": {
+    "titolo": "Date",
+    "emissione_label": "Data emissione *",
+    "scadenza_label": "Scadenza pagamento"
+  },
+  "prestazioni": {
+    "titolo": "Prestazioni",
+    "aggiungi_riga": "Aggiungi riga",
+    "riga": "Riga {{numero}}",
+    "rimuovi_riga": "Rimuovi riga",
+    "descrizione_ph": "Descrizione prestazione (es. Consulenza legale)",
+    "quantita": "Quantità",
+    "prezzo_unitario": "Prezzo unit. (CHF)",
+    "totale_riga": "Totale riga"
+  },
+  "iva": {
+    "titolo": "IVA",
+    "esente_label": "Esente IVA",
+    "esente_desc": "Spunta se non sei assoggettato all'IVA (es. cifra d'affari sotto la soglia LIVA).",
+    "motivo_label": "Motivo esenzione",
+    "motivo_hint": "— opzionale, compare in fattura",
+    "motivo_ph": "Es. Non assoggettato IVA (art. 10 cpv. 2 LIVA)",
+    "aliquota_label": "Aliquota IVA %",
+    "aliquota_hint": "Aliquote svizzere 2024: normale 8.1%, ridotta 2.6%, alloggio 3.8%."
+  },
+  "pagamento": {
+    "titolo": "Modalità di pagamento",
+    "metodo_label": "Metodo",
+    "metodi": {
+      "bonifico": "Bonifico bancario",
+      "qr": "QR-fattura",
+      "contanti": "Contanti",
+      "carta_twint": "Carta / TWINT",
+      "altro": "Altro / Non specificato"
+    },
+    "iban_label": "IBAN per pagamento",
+    "usa_iban_profilo": "Usa IBAN del profilo",
+    "iban_hint": "L'IBAN e i tuoi dati di profilo (indirizzo, CAP, città) vengono usati per generare la QR-fattura svizzera nel PDF."
+  },
+  "note": {
+    "titolo": "Note",
+    "pubbliche_label": "Note pubbliche",
+    "pubbliche_hint": "— compariranno sul PDF",
+    "pubbliche_ph": "Es. Pagamento entro 30 giorni dalla data di emissione.",
+    "interne_label": "Note interne",
+    "interne_hint": "— visibili solo a te",
+    "interne_ph": "Promemoria personale, non compare in fattura."
+  },
+  "azioni": {
+    "annulla": "Annulla",
+    "salvando": "Salvando...",
+    "salva_bozza": "Salva bozza",
+    "generando_pdf": "Generando PDF...",
+    "salva_genera_pdf": "Salva e genera PDF"
+  },
+  "workflow": {
+    "bozza": "<0>Salva bozza</0> — la fattura viene creata con un numero progressivo definitivo, ma il PDF non viene generato. Puoi modificarla in seguito.",
+    "pdf": "<0>Salva e genera PDF</0> — la fattura viene archiviata nell'archivio dello studio e il PDF con QR-fattura è pronto per il cliente."
+  },
+  "errori": {
+    "cliente_obbligatorio": "Seleziona un cliente",
+    "data_emissione_obbligatoria": "Data emissione obbligatoria",
+    "almeno_una_riga": "Almeno una riga con descrizione e quantità > 0",
+    "prezzi_numerici": "Tutti i prezzi devono essere numerici",
+    "creazione_fattura": "Errore creazione fattura",
+    "fattura_creata_ma_pdf": "Fattura creata ma errore PDF"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "header": {
+    "label": "Clients",
+    "titolo_studio": "Clients de l'étude",
+    "titolo_propri": "Vos clients",
+    "sottotitolo_one": "{{count}} client au total",
+    "sottotitolo_other": "{{count}} clients au total",
+    "nuovo_cliente": "Nouveau client"
+  },
+  "ricerca": {
+    "intro": "Recherchez des clients par nom ou e-mail. Ou posez des questions à Lex sur les clients et demandez-lui des informations à leur sujet. Lex n'a pas accès aux notes internes des clients.",
+    "placeholder": "Rechercher ou demander à Lex...",
+    "cerca": "Rechercher",
+    "lex_sta_pensando": "Lex réfléchit...",
+    "chiedi_a_lex": "Demander à Lex",
+    "lex": "Lex",
+    "risultato_one": "{{count}} résultat pour \"{{query}}\"",
+    "risultato_other": "{{count}} résultats pour \"{{query}}\"",
+    "azzera": "Réinitialiser"
+  },
+  "filtri": {
+    "tutti_tipi": "Tous les types",
+    "persone_fisiche": "Personnes physiques",
+    "persone_giuridiche": "Personnes morales",
+    "tutti_avvocati": "Tous les avocats",
+    "reset_filtri": "Réinitialiser les filtres"
+  },
+  "tabella": {
+    "cliente": "Client",
+    "email": "E-mail",
+    "telefono": "Téléphone",
+    "avvocato": "Avocat",
+    "creato_il": "Créé le",
+    "tu": "Vous",
+    "vuoto_nessun_cliente": "Aucun client. Créez le premier.",
+    "vuoto_con_filtri": "Aucun client avec ces filtres."
+  },
+  "azioni": {
+    "elimina_cliente": "Supprimer le client"
+  },
+  "modal": {
+    "eliminato_titolo": "Client supprimé",
+    "dati_cancellati": "Données supprimées",
+    "chiudi": "Fermer",
+    "titolo": "Supprimer le client",
+    "irreversibile": "Opération irréversible.",
+    "avviso": "Seront définitivement supprimés : données du client, dossiers, factures, notes internes, rendez-vous, documents, communications. Les fichiers téléchargés dans le stockage deviendront orphelins et inaccessibles.",
+    "conferma_digita": "Pour confirmer, saisissez le nom exact du client :",
+    "placeholder_conferma": "Saisissez ici pour confirmer",
+    "annulla": "Annuler",
+    "elimina_definitivamente": "Supprimer définitivement"
+  },
+  "errori": {
+    "caricamento": "Erreur lors du chargement des clients",
+    "generico": "Erreur",
+    "lex": "Erreur Lex"
+  }
+}

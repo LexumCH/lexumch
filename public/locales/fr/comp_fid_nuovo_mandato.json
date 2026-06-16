@@ -1,0 +1,30 @@
+{
+  "header": {
+    "titolo": "Nouveau mandat",
+    "sottotitolo": "Organisez le travail et les échéances pour ce client"
+  },
+  "campi": {
+    "cliente": "Client",
+    "seleziona_cliente_opzione": "— Sélectionner un client —",
+    "titolo": "Titre",
+    "titolo_placeholder": "p. ex. Comptabilité 2026, Déclaration fiscale...",
+    "tipo": "Type",
+    "tipo_placeholder": "p. ex. Comptabilité annuelle, Conseil TVA...",
+    "opzionale": "(facultatif)",
+    "anno_riferimento": "Année de référence",
+    "anno_nessuno": "Aucune — mandat permanent",
+    "anno_hint": "Si elle est définie, les compteurs du mandat (dépenses, échéances) se réfèrent à cette année.",
+    "note": "Notes",
+    "note_placeholder": "Remarques sur le mandat..."
+  },
+  "errori": {
+    "titolo_obbligatorio": "Le titre est obligatoire.",
+    "seleziona_cliente": "Veuillez sélectionner un client.",
+    "sessione_scaduta": "Session expirée. Veuillez vous reconnecter."
+  },
+  "azioni": {
+    "annulla": "Annuler",
+    "creazione": "Création...",
+    "crea": "Créer le mandat"
+  }
+}

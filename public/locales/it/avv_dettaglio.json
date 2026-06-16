@@ -1,0 +1,41 @@
+{
+  "back": "Banca dati",
+  "id": "ID:",
+  "non_vigente": "Non vigente",
+  "oggetto": "Oggetto",
+  "testo": "Testo",
+  "documento_del": "Documento del",
+  "atto_del": "Atto del",
+  "decisione_del": "Decisione del",
+  "norma": {
+    "non_trovata": "Norma non trovata",
+    "fonte_federale": "Diritto federale",
+    "fonte_cantonale": "Diritto cantonale",
+    "fonte_ue": "Diritto UE",
+    "art_prefix": "Art.",
+    "note_storiche": "Note storiche",
+    "testo_nd": "Testo non disponibile."
+  },
+  "sentenza": {
+    "non_trovata": "Sentenza non trovata",
+    "giur_ch": "Giurisprudenza svizzera",
+    "giur_ue": "Giurisprudenza UE",
+    "giur_cedu": "Giurisprudenza CEDU",
+    "fonte_originale": "Apri la fonte originale",
+    "principio": "Principio di diritto",
+    "parti": "Parti",
+    "relatore": "Relatore",
+    "materia": "Materia",
+    "nessun_contenuto": "Nessun contenuto testuale disponibile per questa sentenza."
+  },
+  "prassi": {
+    "non_trovato": "Documento di prassi non trovato",
+    "label": "Prassi amministrativa",
+    "fisco_cantonale": "Fisco cantonale",
+    "n_prefix": "N.",
+    "emanato_il": "Emanato il",
+    "classificazione": "Classificazione",
+    "sottotitolo": "Sottotitolo",
+    "solo_metadati": "Solo i metadati sono disponibili per questo documento."
+  }
+}

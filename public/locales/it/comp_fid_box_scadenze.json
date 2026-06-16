@@ -1,0 +1,27 @@
+{
+  "header": {
+    "titolo": "Scadenze",
+    "nuova": "Nuova scadenza"
+  },
+  "vuoto": {
+    "titolo": "Nessuna scadenza per questo mandato."
+  },
+  "stato": {
+    "in_corso": "In corso",
+    "completata": "Completata"
+  },
+  "giorni": {
+    "scaduta": "scaduta da {{count}} gg",
+    "oggi": "oggi",
+    "tra": "tra {{count}} gg"
+  },
+  "completata_il": "completata il {{data}}",
+  "azioni": {
+    "riapri": "Riapri",
+    "completa": "Segna completata",
+    "elimina": "Elimina"
+  },
+  "conferma": {
+    "elimina": "Eliminare la scadenza \"{{titolo}}\"?"
+  }
+}

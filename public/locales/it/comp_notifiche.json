@@ -1,0 +1,22 @@
+{
+  "aria": {
+    "campanella": "Notifiche",
+    "elimina": "Elimina notifica"
+  },
+  "header": {
+    "titolo": "Notifiche",
+    "non_lette_one": "{{count}} non letta",
+    "non_lette_other": "{{count}} non lette",
+    "segna_tutte": "Segna tutte lette"
+  },
+  "vuoto": {
+    "titolo": "Nessuna notifica",
+    "sottotitolo": "Quando arriveranno le vedrai qui"
+  },
+  "tempo": {
+    "ora": "ora",
+    "min_fa": "{{count}}min fa",
+    "ore_fa": "{{count}}h fa",
+    "giorni_fa": "{{count}}g fa"
+  }
+}

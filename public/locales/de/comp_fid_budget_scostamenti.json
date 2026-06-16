@@ -1,0 +1,25 @@
+{
+  "titolo": "Budget und Abweichungen",
+  "anno": "Jahr",
+  "tabella_mancante": "Tabelle <code>movimenti</code> nicht verfügbar.",
+  "vuoto": {
+    "titolo": "Kein Budget für {{anno}} festgelegt.",
+    "descrizione": "Erfassen Sie <evid>geplante</evid> Bewegungen (Umschalter «Geplant» unter Einnahmen und Ausgaben): Diese werden zum Budget, das mit dem Ist-Wert verglichen wird."
+  },
+  "sezione": {
+    "entrate": "Einnahmen",
+    "uscite": "Ausgaben",
+    "vuoto_entrate": "Keine Einnahmenbewegung für das Jahr.",
+    "vuoto_uscite": "Keine Aufwandbewegung für das Jahr."
+  },
+  "colonne": [
+    "Kategorie",
+    "Budgetiert",
+    "Ist",
+    "Δ"
+  ],
+  "totale": "Total",
+  "categoria": {
+    "senza_categoria": "Ohne Kategorie"
+  }
+}

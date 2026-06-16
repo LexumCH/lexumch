@@ -1,0 +1,31 @@
+{
+  "header": {
+    "label": "Kundenportal",
+    "titolo": "Meine Termine"
+  },
+  "filtri": {
+    "tutti": "Alle Status",
+    "programmati": "Geplant",
+    "conclusi": "Abgeschlossen",
+    "annullati": "Abgesagt"
+  },
+  "stati": {
+    "programmato": "Geplant",
+    "concluso": "Abgeschlossen",
+    "annullato": "Abgesagt"
+  },
+  "tipi": {
+    "presenza": "Vor Ort",
+    "videocall": "Videocall",
+    "telefonico": "Telefonisch",
+    "udienza": "Verhandlung"
+  },
+  "vuoto": {
+    "nessun_appuntamento": "Keine Termine gefunden"
+  },
+  "scheda": {
+    "avvocato_prefisso": "RA",
+    "note": "Notizen",
+    "entra_videocall": "Am Videocall teilnehmen"
+  }
+}

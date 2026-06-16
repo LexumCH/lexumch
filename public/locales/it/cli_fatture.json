@@ -1,0 +1,33 @@
+{
+  "header": {
+    "label": "Portale cliente",
+    "titolo": "Fatture"
+  },
+  "avviso": {
+    "totale_da_pagare": "Totale da pagare: CHF {{importo}}",
+    "contatta_avvocato": "Contatta il tuo avvocato per le modalità di pagamento."
+  },
+  "filtri": {
+    "tutte": "Tutte",
+    "da_pagare": "Da pagare",
+    "pagate": "Pagate",
+    "scadute": "Scadute"
+  },
+  "stati": {
+    "in_attesa": "Da pagare",
+    "pagata": "Pagata",
+    "scaduta": "Scaduta",
+    "annullata": "Annullata"
+  },
+  "vuoto": {
+    "nessuna_fattura": "Nessuna fattura trovata"
+  },
+  "tabella": {
+    "numero": "Numero",
+    "descrizione": "Descrizione",
+    "importo": "Importo",
+    "emissione": "Emissione",
+    "scadenza": "Scadenza",
+    "stato": "Stato"
+  }
+}

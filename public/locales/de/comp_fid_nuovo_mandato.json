@@ -1,0 +1,30 @@
+{
+  "header": {
+    "titolo": "Neues Mandat",
+    "sottotitolo": "Organisieren Sie die Arbeit und die Fristen für diesen Kunden"
+  },
+  "campi": {
+    "cliente": "Kunde",
+    "seleziona_cliente_opzione": "— Kunde auswählen —",
+    "titolo": "Titel",
+    "titolo_placeholder": "z. B. Buchhaltung 2026, Steuererklärung...",
+    "tipo": "Typ",
+    "tipo_placeholder": "z. B. Jahresbuchhaltung, MWST-Beratung...",
+    "opzionale": "(optional)",
+    "anno_riferimento": "Bezugsjahr",
+    "anno_nessuno": "Keines — fortlaufendes Mandat",
+    "anno_hint": "Wenn gesetzt, beziehen sich die Zähler des Mandats (Ausgaben, Fristen) auf dieses Jahr.",
+    "note": "Notizen",
+    "note_placeholder": "Anmerkungen zum Mandat..."
+  },
+  "errori": {
+    "titolo_obbligatorio": "Der Titel ist erforderlich.",
+    "seleziona_cliente": "Bitte wählen Sie einen Kunden aus.",
+    "sessione_scaduta": "Sitzung abgelaufen. Bitte melden Sie sich erneut an."
+  },
+  "azioni": {
+    "annulla": "Abbrechen",
+    "creazione": "Wird erstellt...",
+    "crea": "Mandat erstellen"
+  }
+}

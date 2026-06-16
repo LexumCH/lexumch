@@ -1,0 +1,24 @@
+{
+  "header": {
+    "label": "Mandantenportal",
+    "title": "Dokumente"
+  },
+  "upload": {
+    "titolo": "Dokument hochladen",
+    "seleziona": "Datei auswählen",
+    "carica": "Hochladen",
+    "formati": "Zulässige Formate: PDF, JPG, PNG, DOC, DOCX"
+  },
+  "tabella": {
+    "intestazioni": ["Dokument", "Hochgeladen von", "Datum", "Grösse", ""]
+  },
+  "caricato_da": {
+    "studio": "Kanzlei",
+    "tu": "Sie"
+  },
+  "lista": {
+    "vuoto": "Keine Dokumente verfügbar",
+    "visualizza": "Ansehen",
+    "nota_privacy": "Die Dokumente sind nur im Portal einsehbar."
+  }
+}

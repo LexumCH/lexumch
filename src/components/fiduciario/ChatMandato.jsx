@@ -19,6 +19,7 @@
 //   event: error  -> { error }
 
 import { useState, useEffect, useRef, cloneElement, isValidElement, Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import ReactMarkdown from 'react-markdown'
 import {
@@ -31,24 +32,26 @@ import {
 // ─────────────────────────────────────────────────────────────
 const ENDPOINT_MANDATO = '/functions/v1/lex-mandato'
 
+// Lista documenti fiduciari per popover (solo display).
+// Le chiavi (catKey/key) sono stabili; il testo (categoria/nome/esempio) è tradotto a runtime.
 const TIPI_DOCUMENTO_UI = [
     {
-        categoria: 'Rendiconti e report', tipi: [
-            { nome: 'Rendiconto mensile per il cliente', esempio: 'prepara il rendiconto mensile della situazione contabile per il cliente...' },
-            { nome: 'Riepilogo situazione contabile', esempio: 'fammi un riepilogo della situazione contabile del mandato...' },
-            { nome: 'Prospetto del costo del personale', esempio: 'prepara un prospetto del costo del personale per l\'anno in corso, con oneri sociali a carico azienda e dipendente...' },
+        catKey: 'rendiconti', tipi: [
+            { key: 'rendiconto_mensile' },
+            { key: 'riepilogo_contabile' },
+            { key: 'prospetto_personale' },
         ]
     },
     {
-        categoria: 'Corrispondenza', tipi: [
-            { nome: 'Lettera di accompagnamento al cliente', esempio: 'scrivimi una lettera di accompagnamento per inviare i documenti al cliente...' },
-            { nome: 'Sollecito / promemoria scadenza', esempio: 'scrivi un promemoria al cliente per la scadenza in arrivo...' },
+        catKey: 'corrispondenza', tipi: [
+            { key: 'lettera_accompagnamento' },
+            { key: 'sollecito_scadenza' },
         ]
     },
     {
-        categoria: 'Pareri e analisi', tipi: [
-            { nome: 'Parere fiscale scritto', esempio: 'prepara un parere fiscale sulla deducibilità di...' },
-            { nome: 'Nota di analisi su una questione', esempio: 'analizza e mettimi per iscritto la situazione su...' },
+        catKey: 'pareri', tipi: [
+            { key: 'parere_fiscale' },
+            { key: 'nota_analisi' },
         ]
     },
 ]
@@ -57,14 +60,8 @@ const TIPI_DOCUMENTO_UI = [
 // LEX ANIMAZIONE — frasi dominio fiduciario
 // ─────────────────────────────────────────────────────────────
 function LexAnimazione({ frasi }) {
-    const frasiRotative = frasi ?? [
-        'Sto analizzando il mandato',
-        'Esamino la situazione del cliente',
-        'Controllo i documenti dell\'archivio',
-        'Verifico dipendenti e scadenze',
-        'Consulto la normativa applicabile',
-        'Compongo una risposta strutturata',
-    ]
+    const { t } = useTranslation('comp_fid_chat_mandato')
+    const frasiRotative = frasi ?? t('animazione.frasi', { returnObjects: true })
 
     const [indiceFrase, setIndiceFrase] = useState(0)
 
@@ -149,7 +146,7 @@ function LexAnimazione({ frasi }) {
 
             <div className="lex-stage">
                 <svg viewBox="62 27 416 185" xmlns="http://www.w3.org/2000/svg" role="img">
-                    <title>Lex sta lavorando sul mandato</title>
+                    <title>{t('animazione.titolo')}</title>
                     <line x1="60" y1="172" x2="480" y2="172" stroke="rgba(201, 164, 92, 0.4)" strokeWidth="0.8" />
 
                     <rect x="80" y="100" width="22" height="72" rx="1" fill="#243447" stroke="rgba(201, 164, 92, 0.2)" strokeWidth="1" />
@@ -198,17 +195,17 @@ function LexAnimazione({ frasi }) {
 // ─────────────────────────────────────────────────────────────
 // HELPER: trascrizione conversazione in Markdown (per salva chat)
 // ─────────────────────────────────────────────────────────────
-function trascriviConversazione(messaggi) {
+function trascriviConversazione(messaggi, t, dateLocale) {
     return messaggi.map(m => {
         if (m.tipo === 'documento') {
-            const ts = m.ts ? new Date(m.ts).toLocaleString('it-CH', {
+            const ts = m.ts ? new Date(m.ts).toLocaleString(dateLocale, {
                 day: '2-digit', month: '2-digit', year: 'numeric',
                 hour: '2-digit', minute: '2-digit'
             }) : ''
-            return `**Documento generato — ${m.tipo_nome ?? 'documento'}:**${ts ? ` _(${ts})_` : ''}\n\n${m.content}\n`
+            return `**${t('trascrizione.documentoGenerato')} — ${m.tipo_nome ?? t('trascrizione.documento')}:**${ts ? ` _(${ts})_` : ''}\n\n${m.content}\n`
         }
-        const ruolo = m.role === 'user' ? '**Fiduciario:**' : '**Lex:**'
-        const ts = m.ts ? new Date(m.ts).toLocaleString('it-CH', {
+        const ruolo = m.role === 'user' ? `**${t('trascrizione.fiduciario')}:**` : `**${t('trascrizione.lex')}:**`
+        const ts = m.ts ? new Date(m.ts).toLocaleString(dateLocale, {
             day: '2-digit', month: '2-digit', year: 'numeric',
             hour: '2-digit', minute: '2-digit'
         }) : ''
@@ -308,6 +305,8 @@ function FoglioA4({ markdown }) {
 // POPOVER "Cosa posso chiederti?"
 // ─────────────────────────────────────────────────────────────
 function PopoverCapacita({ onClose, onEsempio }) {
+    const { t } = useTranslation('comp_fid_chat_mandato')
+
     useEffect(() => {
         const onKey = e => { if (e.key === 'Escape') onClose() }
         window.addEventListener('keydown', onKey)
@@ -326,7 +325,7 @@ function PopoverCapacita({ onClose, onEsempio }) {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
                     <div className="flex items-center gap-2">
                         <Sparkles size={14} className="text-salvia" />
-                        <p className="font-body text-sm font-medium text-nebbia">Cosa puoi chiedere a Lex</p>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('popover.titolo')}</p>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia transition-colors">
                         <X size={16} />
@@ -335,46 +334,45 @@ function PopoverCapacita({ onClose, onEsempio }) {
 
                 <div className="flex-1 overflow-y-auto p-5 space-y-5">
                     <div>
-                        <p className="font-body text-xs text-salvia uppercase tracking-widest mb-2">Analisi e ragionamento</p>
+                        <p className="font-body text-xs text-salvia uppercase tracking-widest mb-2">{t('popover.analisi.titolo')}</p>
                         <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                            Chiedi a Lex di analizzare il mandato, riepilogare la situazione del cliente,
-                            verificare scadenze e dipendenti, o ragionare su una questione fiscale o contabile.
-                            Esempi: "riepiloga la situazione del mandato", "quali scadenze ho questo mese",
-                            "analizza il costo del personale".
+                            {t('popover.analisi.descrizione')}
                         </p>
                     </div>
 
                     <div>
-                        <p className="font-body text-xs text-oro uppercase tracking-widest mb-2">Generazione di documenti</p>
+                        <p className="font-body text-xs text-oro uppercase tracking-widest mb-2">{t('popover.generazione.titolo')}</p>
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed mb-3">
-                            Lex può redigere documenti usando i dati del mandato. Scrivi semplicemente cosa ti serve.
-                            Ogni documento generato consuma 1 credito.
+                            {t('popover.generazione.descrizione')}
                         </p>
                         <div className="space-y-3">
                             {TIPI_DOCUMENTO_UI.map(gruppo => (
-                                <div key={gruppo.categoria}>
-                                    <p className="font-body text-[11px] text-nebbia/40 uppercase tracking-wider mb-1.5">{gruppo.categoria}</p>
+                                <div key={gruppo.catKey}>
+                                    <p className="font-body text-[11px] text-nebbia/40 uppercase tracking-wider mb-1.5">{t(`tipiDocumento.categorie.${gruppo.catKey}`)}</p>
                                     <div className="space-y-1">
-                                        {gruppo.tipi.map(t => (
-                                            <button
-                                                key={t.nome}
-                                                onClick={() => { onEsempio(t.esempio); onClose() }}
-                                                className="w-full text-left p-2.5 bg-petrolio/40 border border-white/8 hover:border-oro/30 hover:bg-oro/5 transition-colors group"
-                                            >
-                                                <p className="font-body text-sm text-nebbia group-hover:text-oro transition-colors">{t.nome}</p>
-                                                <p className="font-body text-xs text-nebbia/35 mt-0.5 italic">"{t.esempio}"</p>
-                                            </button>
-                                        ))}
+                                        {gruppo.tipi.map(tipo => {
+                                            const nome = t(`tipiDocumento.tipi.${tipo.key}.nome`)
+                                            const esempio = t(`tipiDocumento.tipi.${tipo.key}.esempio`)
+                                            return (
+                                                <button
+                                                    key={tipo.key}
+                                                    onClick={() => { onEsempio(esempio); onClose() }}
+                                                    className="w-full text-left p-2.5 bg-petrolio/40 border border-white/8 hover:border-oro/30 hover:bg-oro/5 transition-colors group"
+                                                >
+                                                    <p className="font-body text-sm text-nebbia group-hover:text-oro transition-colors">{nome}</p>
+                                                    <p className="font-body text-xs text-nebbia/35 mt-0.5 italic">"{esempio}"</p>
+                                                </button>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             ))}
 
                             {/* Gli esempi sopra non sono un elenco chiuso: Lex genera qualsiasi documento. */}
                             <div className="mt-1 p-2.5 bg-salvia/5 border border-salvia/20">
-                                <p className="font-body text-sm text-salvia">…oppure chiedi qualsiasi altro documento</p>
+                                <p className="font-body text-sm text-salvia">{t('popover.altro.titolo')}</p>
                                 <p className="font-body text-xs text-nebbia/40 mt-0.5 leading-relaxed">
-                                    Gli esempi qui sopra sono solo spunti. Descrivi a parole il documento che ti serve
-                                    e Lex lo redige usando i dati del mandato.
+                                    {t('popover.altro.descrizione')}
                                 </p>
                             </div>
                         </div>
@@ -383,7 +381,7 @@ function PopoverCapacita({ onClose, onEsempio }) {
 
                 <div className="px-5 py-3 border-t border-white/5 shrink-0">
                     <p className="font-body text-xs text-nebbia/30">
-                        Tocca un documento per inserire un esempio nella casella di testo, poi personalizzalo.
+                        {t('popover.footer')}
                     </p>
                 </div>
             </div>
@@ -396,11 +394,15 @@ function PopoverCapacita({ onClose, onEsempio }) {
 // (chiama l'edge salva-documento-pdf con mandato_id)
 // ─────────────────────────────────────────────────────────────
 function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
+    const { t, i18n } = useTranslation('comp_fid_chat_mandato')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+
     const [vista, setVista] = useState('preview') // 'preview' | 'edit'
     const [markdown, setMarkdown] = useState(messaggio.content)
     const [markdownAnteprima, setMarkdownAnteprima] = useState(null)
     const [nomeFile, setNomeFile] = useState(
-        `${messaggio.tipo_nome ?? 'Documento'} - ${new Date().toLocaleDateString('it-CH')}`
+        `${messaggio.tipo_nome ?? t('bolla.documento')} - ${new Date().toLocaleDateString(dateLocale)}`
     )
 
     const [pdfUrl, setPdfUrl] = useState(null)
@@ -421,14 +423,14 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                 body: {
                     mandato_id: mandatoId,
                     tipo_codice: messaggio.tipo_documento ?? 'documento',
-                    tipo_nome: messaggio.tipo_nome ?? 'Documento',
+                    tipo_nome: messaggio.tipo_nome ?? t('bolla.documento'),
                     markdown_finale: markdownDaRendere,
                     solo_anteprima: true,
                 }
             })
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore generazione anteprima')
-            if (!data.pdf_base64) throw new Error('Anteprima non disponibile')
+            if (!data?.ok) throw new Error(data?.error ?? t('bolla.erroreAnteprima'))
+            if (!data.pdf_base64) throw new Error(t('bolla.anteprimaNonDisponibile'))
 
             const bin = atob(data.pdf_base64)
             const bytes = new Uint8Array(bin.length)
@@ -459,7 +461,7 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
     const modificheNonRiflesse = vista === 'edit' && markdown !== markdownAnteprima
 
     async function salvaPdf() {
-        if (!nomeFile.trim()) { setErrore('Inserisci un nome per il file'); return }
+        if (!nomeFile.trim()) { setErrore(t('bolla.inserisciNomeFile')); return }
         setSalvando(true)
         setErrore('')
         try {
@@ -467,13 +469,13 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                 body: {
                     mandato_id: mandatoId,
                     tipo_codice: messaggio.tipo_documento ?? 'documento',
-                    tipo_nome: messaggio.tipo_nome ?? 'Documento',
+                    tipo_nome: messaggio.tipo_nome ?? t('bolla.documento'),
                     markdown_finale: markdown,
                     nome_file_personalizzato: nomeFile.trim(),
                 }
             })
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore salvataggio PDF')
+            if (!data?.ok) throw new Error(data?.error ?? t('bolla.erroreSalvataggio'))
 
             setSalvato({ url: data.url, nome_file: data.nome_file })
             if (onDocumentoSalvato) onDocumentoSalvato()
@@ -494,7 +496,7 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                 <div className="flex items-center gap-2 min-w-0">
                     <FileText size={14} className="text-oro shrink-0" />
                     <p className="font-body text-sm font-medium text-oro truncate">
-                        {messaggio.tipo_nome ?? 'Documento generato'}
+                        {messaggio.tipo_nome ?? t('bolla.documentoGenerato')}
                     </p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
@@ -504,16 +506,16 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                             ? 'bg-oro/10 border-oro/30 text-oro'
                             : 'border-white/10 text-nebbia/40 hover:text-nebbia'}`}
                     >
-                        <Eye size={11} /> Anteprima
+                        <Eye size={11} /> {t('bolla.anteprima')}
                     </button>
                     <button
                         onClick={() => setVista('edit')}
                         className={`flex items-center gap-1 px-2.5 py-1 font-body text-xs border transition-colors ${vista === 'edit'
                             ? 'bg-oro/10 border-oro/30 text-oro'
                             : 'border-white/10 text-nebbia/40 hover:text-nebbia'}`}
-                        title="Modifica il testo del documento"
+                        title={t('bolla.modificaTesto')}
                     >
-                        <Edit2 size={11} /> Modifica
+                        <Edit2 size={11} /> {t('bolla.modifica')}
                     </button>
                 </div>
             </div>
@@ -522,7 +524,7 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                 <div className="px-4 py-2 bg-amber-500/5 border-b border-amber-500/20">
                     <p className="font-body text-xs text-amber-400/90 flex items-start gap-1.5">
                         <Info size={11} className="shrink-0 mt-0.5" />
-                        <span>Questo documento non viene conservato. Salvalo in PDF ora per archiviarlo nel mandato.</span>
+                        <span>{t('bolla.avvisoNonConservato')}</span>
                     </p>
                 </div>
             )}
@@ -533,7 +535,7 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                         {generandoPdf ? (
                             <div className="flex flex-col items-center justify-center py-16 text-center">
                                 <Loader2 size={22} className="animate-spin text-oro/70 mb-3" />
-                                <p className="font-body text-sm text-nebbia/60">Genero l'anteprima impaginata...</p>
+                                <p className="font-body text-sm text-nebbia/60">{t('bolla.generoAnteprima')}</p>
                             </div>
                         ) : errorePdf ? (
                             <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
@@ -543,13 +545,13 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                                     onClick={() => generaAnteprima(markdown)}
                                     className="font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors"
                                 >
-                                    Riprova
+                                    {t('bolla.riprova')}
                                 </button>
                             </div>
                         ) : pdfUrl ? (
                             <iframe
                                 src={pdfUrl}
-                                title="Anteprima documento"
+                                title={t('bolla.anteprimaDocumento')}
                                 className="w-full bg-white shadow-xl"
                                 style={{ height: '560px', border: 'none' }}
                             />
@@ -567,8 +569,8 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                         <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-t border-white/10 bg-petrolio/60 flex-wrap">
                             <p className="font-body text-xs text-nebbia/40">
                                 {modificheNonRiflesse
-                                    ? 'Hai modifiche non ancora in anteprima.'
-                                    : 'Markdown grezzo del documento.'}
+                                    ? t('bolla.modificheNonInAnteprima')
+                                    : t('bolla.markdownGrezzo')}
                             </p>
                             <button
                                 onClick={async () => { await generaAnteprima(markdown); setVista('preview') }}
@@ -576,8 +578,8 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                                 className="flex items-center gap-1.5 px-3 py-1.5 font-body text-xs text-oro border border-oro/30 hover:bg-oro/10 transition-colors disabled:opacity-40"
                             >
                                 {generandoPdf
-                                    ? <><Loader2 size={11} className="animate-spin" /> Rigenero...</>
-                                    : <><Eye size={11} /> Rigenera anteprima</>
+                                    ? <><Loader2 size={11} className="animate-spin" /> {t('bolla.rigenero')}</>
+                                    : <><Eye size={11} /> {t('bolla.rigeneraAnteprima')}</>
                                 }
                             </button>
                         </div>
@@ -599,14 +601,14 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                             <div className="flex items-center gap-2">
                                 <CheckCircle size={14} className="text-salvia shrink-0" />
                                 <p className="font-body text-xs text-salvia">
-                                    Salvato nei Documenti mandato: <span className="font-mono">{salvato.nome_file}</span>
+                                    {t('bolla.salvatoInDocumenti')} <span className="font-mono">{salvato.nome_file}</span>
                                 </p>
                             </div>
                             <button
                                 onClick={scarica}
                                 className="flex items-center gap-1.5 px-3 py-1.5 font-body text-xs text-oro border border-oro/30 hover:bg-oro/10 transition-colors"
                             >
-                                <Download size={11} /> Scarica PDF
+                                <Download size={11} /> {t('bolla.scaricaPdf')}
                             </button>
                         </div>
                         <button
@@ -615,8 +617,8 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                             className="flex items-center gap-2 px-4 py-2 border border-oro/30 text-oro font-body text-sm font-medium hover:bg-oro/10 transition-colors disabled:opacity-40"
                         >
                             {salvando
-                                ? <><Loader2 size={13} className="animate-spin" /> Salvataggio...</>
-                                : <><Save size={13} /> Salva di nuovo (nuova versione)</>
+                                ? <><Loader2 size={13} className="animate-spin" /> {t('bolla.salvataggioInCorso')}</>
+                                : <><Save size={13} /> {t('bolla.salvaDiNuovo')}</>
                             }
                         </button>
                     </>
@@ -624,7 +626,7 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                     <>
                         <div>
                             <label className="block font-body text-[11px] text-nebbia/50 tracking-widest uppercase mb-1.5">
-                                Nome file
+                                {t('bolla.nomeFile')}
                             </label>
                             <input
                                 type="text"
@@ -640,8 +642,8 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
                             className="flex items-center gap-2 px-4 py-2 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors disabled:opacity-40"
                         >
                             {salvando
-                                ? <><Loader2 size={13} className="animate-spin" /> Salvataggio...</>
-                                : <><Save size={13} /> Salva PDF nel mandato</>
+                                ? <><Loader2 size={13} className="animate-spin" /> {t('bolla.salvataggioInCorso')}</>
+                                : <><Save size={13} /> {t('bolla.salvaPdfNelMandato')}</>
                             }
                         </button>
                     </>
@@ -655,6 +657,10 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
 // COMPONENTE PRINCIPALE
 // ─────────────────────────────────────────────────────────────
 export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSalvato, onRicercaSalvata }) {
+    const { t, i18n } = useTranslation('comp_fid_chat_mandato')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+
     const [conversazione, setConversazione] = useState([])
     const [domandaLibera, setDomandaLibera] = useState('')
     const [inviando, setInviando] = useState(false)
@@ -716,7 +722,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
 
         const domandaPerEdge = (domandaCustom ?? domandaLibera).trim()
         if (!domandaPerEdge) {
-            setErrore('Scrivi una domanda per Lex')
+            setErrore(t('errori.scriviDomanda'))
             return
         }
 
@@ -738,7 +744,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
 
         try {
             const { data: { session } } = await supabase.auth.getSession()
-            if (!session) throw new Error('Sessione scaduta. Ricarica la pagina.')
+            if (!session) throw new Error(t('errori.sessioneScaduta'))
 
             const url = `${supabaseUrl}${ENDPOINT_MANDATO}`
 
@@ -764,9 +770,9 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
             })
 
             if (!response.ok) {
-                const errBody = await response.json().catch(() => ({ error: 'Errore sconosciuto' }))
+                const errBody = await response.json().catch(() => ({ error: t('errori.sconosciuto') }))
                 if (errBody.crediti_esauriti) setErrore('crediti_esauriti')
-                else setErrore(errBody.error ?? `Errore ${response.status}`)
+                else setErrore(errBody.error ?? t('errori.conCodice', { codice: response.status }))
                 setConversazione(conversazione)
                 setInviando(false)
                 return
@@ -824,7 +830,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                             }
 
                             if (eventoCorrente === 'error') {
-                                setErrore(data.error ?? 'Errore nello streaming')
+                                setErrore(data.error ?? t('errori.streaming'))
                             }
                         } catch { /* ignore */ }
                     }
@@ -873,12 +879,12 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
     }
 
     async function salvaConversazione() {
-        if (!titoloSalva.trim()) { setErrore('Inserisci un titolo per la conversazione'); return }
+        if (!titoloSalva.trim()) { setErrore(t('errori.inserisciTitolo')); return }
         setSalvando(true)
         setErrore('')
         try {
             const { data: { user } } = await supabase.auth.getUser()
-            const trascrizione = trascriviConversazione(conversazione)
+            const trascrizione = trascriviConversazione(conversazione, t, dateLocale)
             const { error } = await supabase.from('ricerche').insert({
                 mandato_id: mandatoId,
                 user_id: user.id,
@@ -952,9 +958,9 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
                 <div className="flex items-center gap-2">
                     <Sparkles size={16} className="text-salvia" />
-                    <p className="font-body text-base font-medium text-salvia">Lex per questo mandato</p>
+                    <p className="font-body text-base font-medium text-salvia">{t('header.titolo')}</p>
                     {crediti !== null && (
-                        <span className="font-body text-xs text-nebbia/30 ml-2">{crediti} crediti</span>
+                        <span className="font-body text-xs text-nebbia/30 ml-2">{t('header.crediti', { count: crediti })}</span>
                     )}
                 </div>
                 {haMessaggi && (
@@ -964,14 +970,14 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                             disabled={inviando}
                             className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors disabled:opacity-40"
                         >
-                            <Save size={11} /> Salva conversazione
+                            <Save size={11} /> {t('header.salvaConversazione')}
                         </button>
                         <button
                             onClick={richiediNuovaChat}
                             disabled={inviando}
                             className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 border border-white/10 px-3 py-1.5 hover:text-nebbia hover:border-white/25 transition-colors disabled:opacity-40"
                         >
-                            <Plus size={11} /> Nuova chat
+                            <Plus size={11} /> {t('header.nuovaChat')}
                         </button>
                     </div>
                 )}
@@ -983,14 +989,14 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                     <div className="flex items-center justify-between gap-3">
                         <p className="font-body text-xs text-amber-400">
                             <AlertCircle size={12} className="inline mr-1" />
-                            La conversazione corrente andrà persa. Continuare?
+                            {t('confermaNuova.messaggio')}
                         </p>
                         <div className="flex gap-2">
                             <button onClick={nuovaChat} className="font-body text-xs text-amber-400 border border-amber-500/40 px-3 py-1 hover:bg-amber-500/10">
-                                Sì, nuova chat
+                                {t('confermaNuova.conferma')}
                             </button>
                             <button onClick={() => setConfermaNuova(false)} className="font-body text-xs text-nebbia/40 px-3 py-1 hover:text-nebbia">
-                                Annulla
+                                {t('comune.annulla')}
                             </button>
                         </div>
                     </div>
@@ -1002,7 +1008,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                 <div className="px-5 py-3 border-b border-salvia/30 bg-salvia/5 shrink-0">
                     <p className="font-body text-xs text-salvia flex items-center gap-2">
                         <CheckCircle size={12} />
-                        Conversazione salvata nelle ricerche del mandato.
+                        {t('confermaSalvataggio')}
                     </p>
                 </div>
             )}
@@ -1011,7 +1017,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
             {mostraSalva && (
                 <div className="px-5 py-4 border-b border-white/5 bg-petrolio/30 shrink-0 space-y-3">
                     <div className="flex items-center justify-between">
-                        <p className="font-body text-xs text-oro tracking-widest uppercase">Salva nelle ricerche</p>
+                        <p className="font-body text-xs text-oro tracking-widest uppercase">{t('formSalva.titolo')}</p>
                         <button onClick={() => { setMostraSalva(false); setTitoloSalva('') }} className="text-nebbia/30 hover:text-nebbia">
                             <X size={13} />
                         </button>
@@ -1020,7 +1026,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                         type="text"
                         value={titoloSalva}
                         onChange={e => setTitoloSalva(e.target.value)}
-                        placeholder="Es. Analisi costo del personale 2026"
+                        placeholder={t('formSalva.placeholder')}
                         autoFocus
                         className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                     />
@@ -1032,11 +1038,11 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                         >
                             {salvando
                                 ? <span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" />
-                                : <><Save size={11} /> Conferma salvataggio</>
+                                : <><Save size={11} /> {t('formSalva.conferma')}</>
                             }
                         </button>
                         <button onClick={() => { setMostraSalva(false); setTitoloSalva('') }} className="px-3 py-1.5 border border-white/10 text-nebbia/40 font-body text-xs hover:text-nebbia transition-colors">
-                            Annulla
+                            {t('comune.annulla')}
                         </button>
                     </div>
                 </div>
@@ -1049,17 +1055,16 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                     <div className="flex flex-col items-center justify-center text-center py-8">
                         <Sparkles size={36} className="text-salvia/40 mb-4" />
                         <p className="font-display text-2xl font-light text-nebbia/80">
-                            Lex conosce questo mandato
+                            {t('vuoto.titolo')}
                         </p>
                         <p className="font-body text-sm text-nebbia/50 mt-3 max-w-lg leading-relaxed">
-                            Cliente, dipendenti, scadenze, documenti dell'archivio e ricerche già fatte.
-                            Chiedi un'analisi, un riepilogo, o di generare un documento (rendiconto, lettera al cliente, parere fiscale...).
+                            {t('vuoto.descrizione')}
                         </p>
                         <button
                             onClick={() => setMostraPopover(true)}
                             className="mt-5 flex items-center gap-2 font-body text-sm text-salvia border border-salvia/40 px-5 py-2.5 hover:bg-salvia/10 transition-colors"
                         >
-                            <HelpCircle size={15} /> Cosa posso chiederti?
+                            <HelpCircle size={15} /> {t('vuoto.cta')}
                         </button>
                     </div>
                 )}
@@ -1068,11 +1073,11 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                     <div key={i} className="space-y-2">
                         <div className="flex items-center gap-2">
                             <span className={`font-body text-xs font-medium ${m.role === 'user' ? 'text-oro/70' : 'text-salvia/70'}`}>
-                                {m.role === 'user' ? 'Tu' : 'Lex'}
+                                {m.role === 'user' ? t('ruolo.tu') : t('ruolo.lex')}
                             </span>
                             {m.tipo === 'documento' && (
                                 <span className="font-body text-[10px] text-oro/60 border border-oro/20 px-1.5 py-0.5 uppercase tracking-wider">
-                                    Documento
+                                    {t('badge.documento')}
                                 </span>
                             )}
                         </div>
@@ -1098,10 +1103,10 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                 {inviando && (
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                            <span className="font-body text-xs font-medium text-salvia/70">Lex</span>
+                            <span className="font-body text-xs font-medium text-salvia/70">{t('ruolo.lex')}</span>
                             {isDocumentoStreaming && (
                                 <span className="font-body text-[10px] text-oro/60 border border-oro/20 px-1.5 py-0.5 uppercase tracking-wider">
-                                    Documento
+                                    {t('badge.documento')}
                                 </span>
                             )}
                         </div>
@@ -1152,7 +1157,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                 <div className="mx-5 mb-3 flex items-center justify-between gap-3 p-3 bg-oro/5 border border-oro/20">
                     <div className="flex items-center gap-2">
                         <AlertCircle size={13} className="text-oro shrink-0" />
-                        <p className="font-body text-xs text-nebbia/60">Crediti Lex esauriti.</p>
+                        <p className="font-body text-xs text-nebbia/60">{t('creditiEsauriti.messaggio')}</p>
                     </div>
                     <a
                         href="/studio?tab=acquista"
@@ -1160,7 +1165,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                         rel="noopener noreferrer"
                         className="font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors whitespace-nowrap"
                     >
-                        Acquista crediti →
+                        {t('creditiEsauriti.acquista')}
                     </a>
                 </div>
             )}
@@ -1175,8 +1180,8 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                         onKeyDown={handleKeyDown}
                         disabled={inviando || creditiZero}
                         placeholder={creditiZero
-                            ? "Crediti esauriti — acquista crediti per continuare"
-                            : "Chiedi a Lex un'analisi o di generare un documento... (Ctrl+Enter per inviare)"
+                            ? t('input.placeholderEsauriti')
+                            : t('input.placeholder')
                         }
                         className="flex-1 bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-salvia/50 resize-none placeholder:text-nebbia/25 disabled:opacity-50"
                         style={{ minHeight: '60px', maxHeight: '200px' }}
@@ -1185,7 +1190,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                         onClick={() => invia()}
                         disabled={inviando || !domandaLibera.trim() || creditiZero}
                         className="px-4 py-3 bg-salvia/10 border border-salvia/30 text-salvia hover:bg-salvia/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed self-end"
-                        title={creditiZero ? 'Crediti esauriti' : 'Invia (Ctrl+Enter)'}
+                        title={creditiZero ? t('input.titleEsauriti') : t('input.titleInvia')}
                     >
                         {inviando
                             ? <Loader2 size={15} className="animate-spin" />
@@ -1196,13 +1201,13 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
 
                 <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
                     <p className="font-body text-xs text-nebbia/55">
-                        Posso analizzare il mandato o generare documenti fiduciari. Ogni documento consuma 1 credito.
+                        {t('input.suggerimento')}
                     </p>
                     <button
                         onClick={() => setMostraPopover(true)}
                         className="flex items-center gap-1.5 font-body text-xs text-salvia hover:text-salvia/80 transition-colors shrink-0 underline underline-offset-2 decoration-salvia/40"
                     >
-                        <HelpCircle size={13} /> Cosa posso chiederti?
+                        <HelpCircle size={13} /> {t('vuoto.cta')}
                     </button>
                 </div>
             </div>

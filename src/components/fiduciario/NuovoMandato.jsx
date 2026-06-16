@@ -9,10 +9,13 @@
 //   onSaved(nuovoId) - callback dopo la creazione; riceve l'id del nuovo mandato
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, FolderOpen, Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export default function NuovoMandato({ clienteId, onClose, onSaved }) {
+    const { t } = useTranslation('comp_fid_nuovo_mandato')
+
     const [titolo, setTitolo] = useState('')
     const [tipo, setTipo] = useState('')
     const [annoRiferimento, setAnnoRiferimento] = useState('') // '' = nessuno
@@ -57,14 +60,14 @@ export default function NuovoMandato({ clienteId, onClose, onSaved }) {
     const puoSalvare = titolo.trim().length > 0 && !!clienteIdEffettivo
 
     async function salva() {
-        if (!titolo.trim()) { setErrore('Il titolo è obbligatorio.'); return }
-        if (!clienteIdEffettivo) { setErrore('Seleziona un cliente.'); return }
+        if (!titolo.trim()) { setErrore(t('errori.titolo_obbligatorio')); return }
+        if (!clienteIdEffettivo) { setErrore(t('errori.seleziona_cliente')); return }
         setSalvando(true)
         setErrore(null)
 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-            setErrore('Sessione scaduta. Effettua nuovamente il login.')
+            setErrore(t('errori.sessione_scaduta'))
             setSalvando(false)
             return
         }
@@ -120,9 +123,9 @@ export default function NuovoMandato({ clienteId, onClose, onSaved }) {
                     <div className="flex items-center gap-2">
                         <FolderOpen size={16} className="text-oro" />
                         <div>
-                            <p className="font-display text-lg text-nebbia">Nuovo mandato</p>
+                            <p className="font-display text-lg text-nebbia">{t('header.titolo')}</p>
                             <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                Organizza il lavoro e le scadenze per questo cliente
+                                {t('header.sottotitolo')}
                             </p>
                         </div>
                     </div>
@@ -136,9 +139,9 @@ export default function NuovoMandato({ clienteId, onClose, onSaved }) {
                 <div className="p-6 space-y-4 overflow-y-auto flex-1">
                     {serveSelettore && (
                         <div>
-                            <label className={labelCls}>Cliente *</label>
+                            <label className={labelCls}>{t('campi.cliente')} *</label>
                             <select value={clienteSel} onChange={e => setClienteSel(e.target.value)} className={inputCls}>
-                                <option value="">— Seleziona cliente —</option>
+                                <option value="">{t('campi.seleziona_cliente_opzione')}</option>
                                 {clienti.map(c => (
                                     <option key={c.id} value={c.id}>
                                         {c.tipo_soggetto === 'persona_giuridica' ? (c.ragione_sociale ?? '—') : `${c.nome ?? ''} ${c.cognome ?? ''}`.trim()}
@@ -148,50 +151,50 @@ export default function NuovoMandato({ clienteId, onClose, onSaved }) {
                         </div>
                     )}
                     <div>
-                        <label className={labelCls}>Titolo *</label>
+                        <label className={labelCls}>{t('campi.titolo')} *</label>
                         <input
                             value={titolo}
                             onChange={e => setTitolo(e.target.value)}
-                            placeholder="es. Contabilità 2026, Dichiarazione fiscale..."
+                            placeholder={t('campi.titolo_placeholder')}
                             className={inputCls}
                             autoFocus
                         />
                     </div>
 
                     <div>
-                        <label className={labelCls}>Tipo <span className="text-nebbia/25 normal-case tracking-normal">(opzionale)</span></label>
+                        <label className={labelCls}>{t('campi.tipo')} <span className="text-nebbia/25 normal-case tracking-normal">{t('campi.opzionale')}</span></label>
                         <input
                             value={tipo}
                             onChange={e => setTipo(e.target.value)}
-                            placeholder="es. Contabilità annuale, Consulenza IVA..."
+                            placeholder={t('campi.tipo_placeholder')}
                             className={inputCls}
                         />
                     </div>
 
                     <div>
-                        <label className={labelCls}>Anno di riferimento <span className="text-nebbia/25 normal-case tracking-normal">(opzionale)</span></label>
+                        <label className={labelCls}>{t('campi.anno_riferimento')} <span className="text-nebbia/25 normal-case tracking-normal">{t('campi.opzionale')}</span></label>
                         <select
                             value={annoRiferimento}
                             onChange={e => setAnnoRiferimento(e.target.value)}
                             className={inputCls}
                         >
-                            <option value="">Nessuno — mandato continuativo</option>
+                            <option value="">{t('campi.anno_nessuno')}</option>
                             {anniDisponibili.map(a => (
                                 <option key={a} value={a}>{a}</option>
                             ))}
                         </select>
                         <p className="font-body text-xs text-nebbia/30 mt-1.5">
-                            Se impostato, i contatori del mandato (uscite, scadenze) si riferiscono a quest'anno.
+                            {t('campi.anno_hint')}
                         </p>
                     </div>
 
                     <div>
-                        <label className={labelCls}>Note <span className="text-nebbia/25 normal-case tracking-normal">(opzionale)</span></label>
+                        <label className={labelCls}>{t('campi.note')} <span className="text-nebbia/25 normal-case tracking-normal">{t('campi.opzionale')}</span></label>
                         <textarea
                             value={note}
                             onChange={e => setNote(e.target.value)}
                             rows={3}
-                            placeholder="Annotazioni sul mandato..."
+                            placeholder={t('campi.note_placeholder')}
                             className={`${inputCls} resize-none`}
                         />
                     </div>
@@ -207,13 +210,13 @@ export default function NuovoMandato({ clienteId, onClose, onSaved }) {
                 <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/5 shrink-0">
                     <button onClick={onClose} disabled={salvando}
                         className="font-body text-sm text-nebbia/60 hover:text-nebbia px-4 py-2 transition-colors disabled:opacity-40">
-                        Annulla
+                        {t('azioni.annulla')}
                     </button>
                     <button onClick={salva} disabled={!puoSalvare || salvando}
                         className="flex items-center gap-2 px-5 py-2 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                         {salvando
-                            ? <><Loader2 size={14} className="animate-spin" /> Creazione...</>
-                            : 'Crea mandato'}
+                            ? <><Loader2 size={14} className="animate-spin" /> {t('azioni.creazione')}</>
+                            : t('azioni.crea')}
                     </button>
                 </div>
             </div>

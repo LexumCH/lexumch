@@ -1,0 +1,142 @@
+{
+  "nav": {
+    "tutte_ricerche": "Tutte le ricerche"
+  },
+  "header": {
+    "etichetta": "Etichetta",
+    "elementi_one": "{{count}} elemento",
+    "elementi_other": "{{count}} elementi",
+    "creata_il": "creata il {{data}}"
+  },
+  "ricerca": {
+    "placeholder": "Cerca dentro questa etichetta..."
+  },
+  "tipi": {
+    "tutti": "Tutti",
+    "ricerca_ai": "Ricerche",
+    "norma_federale": "Norme fed.",
+    "norma_cantonale": "Norme cant.",
+    "norma_ue": "Norme UE",
+    "giurisprudenza": "Giurisprudenza",
+    "sentenza_ue": "Sentenze UE",
+    "prassi": "Prassi"
+  },
+  "vuoto": {
+    "nessun_contenuto": "Nessun contenuto in questa etichetta ancora",
+    "nessun_risultato": "Nessun risultato per questi filtri",
+    "istruzioni": "Per aggiungere contenuti, vai nella banca dati e clicca \"Aggiungi a etichetta\" su giurisprudenza, norme o prassi. Puoi anche taggare le tue ricerche dalla pagina Ricerche."
+  },
+  "conferma": {
+    "rimuovi": "Rimuovere questo elemento dall'etichetta?\n\nL'elemento originale (ricerca, giurisprudenza, norma, prassi) non viene cancellato."
+  },
+  "card": {
+    "tipo_ricerca_ai": "Ricerca AI",
+    "tipo_chat_lex": "Chat con Lex",
+    "tipo_ricerca_manuale": "Ricerca manuale",
+    "apri": "Apri",
+    "chiudi": "Chiudi",
+    "rimuovi_tag": "Rimuovi tag",
+    "norma": "Norma",
+    "sentenza": "Sentenza",
+    "sentenza_ue": "Sentenza UE",
+    "prassi": "Prassi"
+  },
+  "chat": {
+    "titolo": "Lex — Chat etichetta",
+    "nuova_sessione": "Nuova sessione",
+    "ruolo_tu": "Tu",
+    "ruolo_lex": "Lex",
+    "salva": "Salva",
+    "intro_one": "Scegli un suggerimento o scrivi una domanda. Lex ragionerà su {{count}} elemento di questa etichetta.",
+    "intro_other": "Scegli un suggerimento o scrivi una domanda. Lex ragionerà sui {{count}} elementi di questa etichetta.",
+    "vuoto": "Aggiungi elementi all'etichetta per iniziare a chattare.",
+    "placeholder_nuova": "Scrivi una domanda su questa etichetta…",
+    "placeholder_segui": "Approfondisci o nuova domanda…",
+    "invia": "Invia domanda",
+    "focus": "Focus",
+    "etichetta_vuota": "L'etichetta è vuota",
+    "errore_http": "Errore {{status}}",
+    "lex_ragiona": "Lex sta ragionando"
+  },
+  "azioni": {
+    "mappa_concettuale": {
+      "label": "Mappa concettuale",
+      "descr": "Riorganizza per temi",
+      "prompt": "Crea una mappa concettuale di questa etichetta, riorganizzando gli elementi per temi principali."
+    },
+    "cosa_ho_ragionato": {
+      "label": "Cosa ho ragionato",
+      "descr": "Traiettoria del pensiero",
+      "prompt": "Ricostruisci la traiettoria del mio ragionamento attraverso gli elementi di questa etichetta."
+    },
+    "insight": {
+      "label": "Insight",
+      "descr": "Pattern e connessioni",
+      "prompt": "Trova insight, pattern ricorrenti e connessioni inaspettate tra gli elementi di questa etichetta."
+    },
+    "stato_arte": {
+      "label": "Stato dell'arte",
+      "descr": "Memo strutturato",
+      "prompt": "Redigi un memo sullo stato della ricerca giuridica raccolta in questa etichetta: quadro, orientamenti, aree aperte, direzioni operative."
+    }
+  },
+  "frasi": {
+    "mappa_concettuale": [
+      "Sto rileggendo l'etichetta",
+      "Riconosco i temi ricorrenti",
+      "Raggruppo per argomento",
+      "Identifico le connessioni",
+      "Compongo la mappa",
+      "Verifico la coerenza",
+      "Affino la struttura"
+    ],
+    "cosa_ho_ragionato": [
+      "Sto rileggendo l'etichetta",
+      "Ricostruisco il percorso",
+      "Identifico le svolte",
+      "Cerco i punti consolidati",
+      "Riconosco le aree aperte",
+      "Compongo la traiettoria",
+      "Affino la narrazione"
+    ],
+    "insight": [
+      "Sto rileggendo l'etichetta",
+      "Cerco connessioni nascoste",
+      "Riconosco i pattern",
+      "Identifico le ipotesi nuove",
+      "Cerco punti di forza",
+      "Verifico le lacune",
+      "Compongo gli insight"
+    ],
+    "stato_arte": [
+      "Sto rileggendo l'etichetta",
+      "Inquadro il quadro complessivo",
+      "Estraggo gli orientamenti",
+      "Identifico le tensioni",
+      "Articolo le direzioni operative",
+      "Strutturo il memo",
+      "Rifinisco il documento"
+    ],
+    "libera": [
+      "Sto rileggendo l'etichetta",
+      "Analizzo la tua domanda",
+      "Cerco i punti rilevanti",
+      "Compongo la risposta",
+      "Verifico l'aderenza"
+    ]
+  },
+  "modale": {
+    "titolo_auto": "Lex su \"{{nome}}\"",
+    "firma_sintesi": "Sintesi generata da Lex sull'etichetta \"{{nome}}\".",
+    "titolo_header": "Salva come ricerca",
+    "label_titolo": "Titolo",
+    "label_pratica": "Pratica (opzionale)",
+    "nessuna_pratica": "Nessuna pratica",
+    "label_etichette": "Etichette",
+    "etichetta_preselezionata": "(l'etichetta corrente è preselezionata)",
+    "corrente": "(corrente)",
+    "nota_salvataggio": "La sintesi verrà salvata come <1>ricerca AI</1> con l'etichetta <3>{{nome}}</3> già preassegnata.",
+    "annulla": "Annulla",
+    "salva_ricerca": "Salva ricerca"
+  }
+}

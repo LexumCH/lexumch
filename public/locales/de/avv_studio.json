@@ -1,0 +1,204 @@
+{
+  "header": {
+    "label_user": "Konto",
+    "label_avvocato": "Anwalt",
+    "title": "Ihre Kanzlei",
+    "operazione_ok": "Vorgang erfolgreich abgeschlossen."
+  },
+  "banner": {
+    "scaduto": {
+      "titolo": "Abonnement abgelaufen",
+      "descrizione": "Das Archiv ist schreibgeschützt. Erneuern Sie, um Uploads, KI-Credits und alle Funktionen wieder zu aktivieren.",
+      "cta": "Jetzt erneuern"
+    },
+    "grazia": {
+      "titolo_one": "Kulanzfrist — noch {{count}} Tag",
+      "titolo_other": "Kulanzfrist — noch {{count}} Tage",
+      "descrizione": "Sie haben ab Ablauf 7 Tage Zeit zur Erneuerung, bevor das Archiv schreibgeschützt wird.",
+      "cta": "Jetzt erneuern"
+    },
+    "scadenza": {
+      "titolo_one": "Abonnement läuft in {{count}} Tag ab",
+      "titolo_other": "Abonnement läuft in {{count}} Tagen ab",
+      "descrizione": "Ablauf: {{data}}",
+      "cta": "Erneuern"
+    },
+    "crediti_zero": {
+      "titolo": "KI-Credits aufgebraucht",
+      "descrizione": "Lex AI antwortet erst wieder, wenn Sie neue Credits kaufen.",
+      "cta": "Credits kaufen"
+    },
+    "crediti_bassi": {
+      "titolo": "Ihre KI-Credits des Monats gehen zur Neige ({{count}} verbleibend)",
+      "descrizione": "Kaufen Sie ein Zusatzpaket, um nicht vor der monatlichen Erneuerung leer auszugehen.",
+      "cta": "Credits kaufen"
+    },
+    "storage_pieno": {
+      "titolo": "Archivspeicher aufgebraucht",
+      "descrizione": "Sie können keine neuen Dateien hochladen, bis Sie Speicher freigeben oder ein Zusatzpaket kaufen.",
+      "cta": "Speicher kaufen"
+    },
+    "storage_quasi": {
+      "titolo": "Archiv fast voll ({{pct}}% belegt)",
+      "descrizione": "{{occupato}} GB von {{totali}} GB verfügbar.",
+      "cta": "Speicher kaufen"
+    },
+    "topup_scadenza": {
+      "titolo_one": "Speicherpaket läuft ab",
+      "titolo_other": "{{count}} Speicherpakete laufen ab",
+      "riga": "{{gb}} GB läuft am {{data}} ab",
+      "cta": "Erneuern"
+    }
+  },
+  "studio_header": {
+    "nessun_piano_attivo": "Kein aktiver Plan",
+    "badge": {
+      "nessun_piano": "Kein Plan",
+      "scaduto": "Abgelaufen",
+      "grazia": "Kulanz",
+      "in_scadenza": "Läuft ab",
+      "attivo": "Aktiv"
+    },
+    "stat": {
+      "accessi": "Zugänge",
+      "crediti_ai": "KI-Credits",
+      "storage": "Speicher",
+      "clienti": "Mandanten",
+      "scadenza": "Ablauf"
+    }
+  },
+  "tabs": {
+    "mio_studio": "Meine Kanzlei",
+    "mio_piano": "Mein Plan",
+    "collaboratori": "Mitarbeitende",
+    "acquista": "Kaufen"
+  },
+  "user_studio": {
+    "titolo": "Warum einen Plan haben?",
+    "vantaggi": [
+      { "titolo": "Mandantenverwaltung", "desc": "Erstellen und verwalten Sie Ihre Mandanten, Dossiers und Dokumente an einem Ort" },
+      { "titolo": "Urteilsdatenbank", "desc": "Zugriff auf Tausende von anderen Anwälten hochgeladene Urteile (Pro-Pläne)" },
+      { "titolo": "Monetarisierung", "desc": "Laden Sie Ihre Urteile hoch und verdienen Sie bei jedem Kauf (Pro-Pläne)" },
+      { "titolo": "Kanzlei mit mehreren Zugängen", "desc": "Laden Sie Mitarbeitende ein und verwalten Sie gemeinsam Mandanten und Dossiers" }
+    ],
+    "scegli_piano": "Plan wählen"
+  },
+  "avv_piano": {
+    "nessun_piano": "Sie haben noch keinen aktiven Plan.",
+    "acquista_piano": "Plan kaufen",
+    "titolo": "Aktiver Plan",
+    "riga": {
+      "piano": "Plan",
+      "scadenza": "Ablauf",
+      "accessi": "Zugänge",
+      "clienti": "Registrierte Mandanten",
+      "crediti": "Verfügbare KI-Credits",
+      "spazio": "Archivspeicher",
+      "gb_inclusi": "Im Plan enthaltene GB",
+      "gb_extra": "Zusätzlich gekaufte GB",
+      "banca_dati": "Datenbank",
+      "monetizzazione": "Monetarisierung"
+    },
+    "valore": {
+      "clienti_con_limite": "{{conteggio}} von {{totale}} ({{piano}} Plan · {{extra}} zusätzlich)",
+      "clienti_senza_limite": "{{conteggio}} (kein Limit festgelegt)",
+      "crediti": "{{totale}} ({{piano}} Plan · {{benvenuto}} Willkommen · {{topup}} zusätzlich)",
+      "spazio": "{{occupato}} GB von {{totali}} GB ({{piano}} GB Plan · {{extra}} GB zusätzlich)",
+      "inclusa": "Inbegriffen",
+      "non_inclusa": "Nicht inbegriffen"
+    },
+    "cambia": "Plan wechseln, Credits oder Speicher hinzufügen"
+  },
+  "collaboratori": {
+    "conteggio_one": "{{count}} Mitarbeitende(r)",
+    "conteggio_other": "{{count}} Mitarbeitende",
+    "posti_liberi_one": "{{count}} freier Platz",
+    "posti_liberi_other": "{{count}} freie Plätze",
+    "invita_btn": "Mitarbeitende einladen",
+    "esauriti": "Sie haben alle Zugänge ausgeschöpft.",
+    "aggiungi_accessi": "Zugänge hinzufügen",
+    "invita_titolo": "Mitarbeitende(n) einladen",
+    "email_label": "E-Mail *",
+    "email_placeholder": "kollege@kanzlei.ch",
+    "invia_invito": "Einladung senden",
+    "annulla": "Abbrechen",
+    "email_obbligatoria": "E-Mail erforderlich",
+    "errore_invio": "Fehler beim Senden der Einladung",
+    "conferma_rimozione": "{{nome}} {{cognome}} aus der Kanzlei entfernen?",
+    "tu": "(Sie)",
+    "rimuovi": "Entfernen"
+  },
+  "storico": {
+    "titolo": "Zahlungsverlauf",
+    "vuoto": "Keine Zahlung erfasst",
+    "intestazioni": ["Beschreibung", "Betrag", "Datum", "Status"],
+    "stato": {
+      "gratis": "Gratis",
+      "pagato": "Bezahlt",
+      "rimborsato": "Erstattet",
+      "fallito": "Fehlgeschlagen"
+    }
+  },
+  "acquisto": {
+    "comune": {
+      "acquista": "Kaufen"
+    },
+    "trial": {
+      "label": "Kostenlose Testversion",
+      "badge_gratuito": "Kostenlos",
+      "descrizione": "Testen Sie Lexum vollständig für {{giorni}} Tage ohne Angabe von Zahlungsdaten. Nur einmal aktivierbar.",
+      "feat_accessi": "✓ {{count}} Zugänge",
+      "feat_banca_dati": "✓ Datenbank inbegriffen",
+      "feat_crediti": "✓ {{count}} Lex-AI-Credits",
+      "feat_storage": "✓ {{gb}} GB Speicher",
+      "attiva": "Kostenlose Testversion aktivieren",
+      "attivato": "Kostenlose Testversion aktiviert! Die Seite wird in Kürze aktualisiert."
+    },
+    "piani": {
+      "label_cambia": "Plan wechseln",
+      "label_scegli": "Wählen Sie Ihren Plan",
+      "differenza": "Differenz:",
+      "accessi_one": "{{count}} Zugang",
+      "accessi_other": "{{count}} Zugänge",
+      "mesi_one": "{{count}} Monat",
+      "mesi_other": "{{count}} Monate",
+      "tag_banca_dati": "Datenbank",
+      "tag_monetizzazione": "Monetarisierung",
+      "tag_crediti_mese": "{{count}} Credits/Monat",
+      "tag_studio": "Kanzlei",
+      "upgrade_a": "Upgrade auf ",
+      "acquisto": "Kauf: ",
+      "importo_da_pagare": "Zu zahlender Betrag:",
+      "scadenza_invariata": "Ablauf unverändert",
+      "procedi": "Zur Zahlung"
+    },
+    "seat": {
+      "label": "Zugänge hinzufügen",
+      "scadenza": "Der Ablauf folgt dem aktuellen Plan.",
+      "scadenza_con_data": "Der Ablauf folgt dem aktuellen Plan ({{data}}).",
+      "piu_accessi_one": "+{{count}} Zugang",
+      "piu_accessi_other": "+{{count}} Zugänge",
+      "transizione": "Zugänge: {{da}} → {{a}}"
+    },
+    "clienti": {
+      "label": "Mandantenkapazität erhöhen",
+      "descrizione": "Erhöhen Sie das Limit registrierbarer Mandanten in Ihrer Kanzlei. Der Ablauf folgt dem aktuellen Plan — anteilige Zahlung für die verbleibenden Monate.",
+      "descrizione_con_data": "Erhöhen Sie das Limit registrierbarer Mandanten in Ihrer Kanzlei. Der Ablauf folgt dem aktuellen Plan ({{data}}) — anteilige Zahlung für die verbleibenden Monate.",
+      "piu_clienti": "+{{count}} Mandanten",
+      "listino": "Listenpreis · anteilige Berechnung beim Checkout"
+    },
+    "crediti": {
+      "label": "Zusätzliche KI-Credits",
+      "descrizione": "Zusatzpakete, die nie verfallen. Sie werden erst nach den Plan-Credits verbraucht.",
+      "dettaglio": "{{crediti}} Credits · €{{prezzo_credito}}/Credit",
+      "non_scadono": "Verfallen nie"
+    },
+    "storage": {
+      "label": "Speicherplatz",
+      "richiede_piano": "Speicherpakete erfordern einen aktiven Plan. Erneuern Sie zuerst Ihr Abonnement.",
+      "descrizione": "Zusätzliche GB, kanzleiweit geteilt. Einmalige Zahlung für die angegebene Dauer, manuelle Erneuerung bei Ablauf.",
+      "mesi_one": "{{count}} Monat",
+      "mesi_other": "{{count}} Monate"
+    }
+  }
+}

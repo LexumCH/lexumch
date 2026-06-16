@@ -1,0 +1,41 @@
+{
+  "header": {
+    "titolo": "Genera documento",
+    "badge_template_one": "{{count}} template",
+    "badge_template_other": "{{count}} template"
+  },
+  "sottotitolo": "Lex genera l'atto a partire dai dati della pratica, del cliente e delle controparti.",
+  "vuoto": {
+    "titolo": "Nessun template disponibile",
+    "sottotitolo": "I template saranno disponibili a breve"
+  },
+  "errori": {
+    "caricamento": "Errore nel caricamento dei template"
+  },
+  "categorie": {
+    "stragiudiziale": {
+      "label": "Atti stragiudiziali",
+      "desc": "Diffide, messe in mora, pareri, accordi, transazioni"
+    },
+    "introduttivo": {
+      "label": "Atti introduttivi",
+      "desc": "Citazione, ricorso, decreto ingiuntivo, opposizione"
+    },
+    "difensivo": {
+      "label": "Atti difensivi",
+      "desc": "Comparsa, memoria, note difensive, replica, conclusionale"
+    },
+    "istruttorio": {
+      "label": "Atti istruttori e incidentali",
+      "desc": "Istanze, richieste prova, lista testimoni, osservazioni CTU"
+    },
+    "esecutivo": {
+      "label": "Atti esecutivi",
+      "desc": "Precetto, pignoramento, istanza di vendita o assegnazione"
+    },
+    "impugnazione": {
+      "label": "Impugnazioni",
+      "desc": "Appello, reclamo, cassazione, revocazione"
+    }
+  }
+}

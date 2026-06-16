@@ -1,0 +1,98 @@
+{
+  "common": {
+    "trattino": "—",
+    "tu": "Vous",
+    "annulla": "Annuler",
+    "salva": "Enregistrer",
+    "modifica": "Modifier",
+    "chiudi": "Fermer"
+  },
+  "back": {
+    "tutte_le_pratiche": "Tous les dossiers"
+  },
+  "note_modal": {
+    "titolo": "Notes internes",
+    "sottotitolo": "— uniquement pour ce dossier",
+    "placeholder": "Notes internes sur le dossier — stratégie, rappels, observations...",
+    "disclaimer": "Ces notes ne sont visibles que par vous et les collaborateurs du dossier. Elles ne sont lues ni par Lex AI ni par le générateur de documents.",
+    "salvate": "Notes enregistrées",
+    "ultima_modifica": "Dernière modification : {{autore}} · {{data}}",
+    "mai_modificate": "Jamais modifiées",
+    "salva_note": "Enregistrer les notes"
+  },
+  "ricerca_espandibile": {
+    "riduci": "▲ Réduire",
+    "espandi": "▼ Développer"
+  },
+  "stati": {
+    "aperta": "Ouvert",
+    "chiusa": "Clôturé"
+  },
+  "esiti": {
+    "vinta": "Gagné",
+    "persa": "Perdu",
+    "transatta": "Transigé",
+    "archiviata": "Archivé"
+  },
+  "loading": {
+    "non_trovata": "Dossier introuvable."
+  },
+  "header": {
+    "label": "Dossier",
+    "note_interne": "Notes internes",
+    "seleziona_esito": "Sélectionner le résultat",
+    "conferma_chiusura": "Confirmer la clôture",
+    "chiudi_pratica": "Clôturer le dossier",
+    "riapri_pratica": "Rouvrir le dossier"
+  },
+  "dettagli": {
+    "titolo": "Détails",
+    "cliente": "Client",
+    "tipo": "Type",
+    "creata_il": "Créé le",
+    "esito": "Résultat",
+    "avvocato": "Avocat",
+    "collaboratori": "Collaborateurs",
+    "nessun_collaboratore": "Aucun collaborateur"
+  },
+  "documenti": {
+    "titolo": "Documents du dossier ({{count}})",
+    "aggiungi_documento": "Ajouter un document",
+    "disclaimer": "Les documents sont enregistrés dans l'archive de l'étude, indexés pour la recherche avec Lex et liés à ce dossier.",
+    "vuoto_titolo": "Aucun document lié à ce dossier",
+    "vuoto_sottotitolo": "Utilisez \"Ajouter un document\" ci-dessus pour le téléverser",
+    "badge_archivio": "Archive",
+    "scarica": "Télécharger",
+    "rimuovi_dalla_pratica": "Retirer du dossier",
+    "elimina": "Supprimer",
+    "conferma_rimuovi_archivio": "Retirer \"{{nome}}\" du dossier ?\n\nLe document restera dans l'archive de l'étude, il perdra uniquement le lien avec ce dossier.",
+    "conferma_elimina": "Supprimer \"{{nome}}\" ?"
+  },
+  "ricerche": {
+    "titolo": "Recherches et description de la cause ({{count}})",
+    "cerca_banca_dati": "Rechercher dans la base de données",
+    "aggiungi": "Ajouter",
+    "placeholder_titolo": "Titre de la recherche (facultatif)...",
+    "placeholder_contenuto": "Rédigez votre raisonnement juridique...",
+    "vuoto_titolo": "Aucune recherche",
+    "vuoto_sottotitolo": "Ajoutez une recherche manuelle ou recherchez dans la base de données",
+    "tipo_ricerca_ai": "Recherche IA",
+    "tipo_chat_lex": "Chat avec Lex",
+    "tipo_ricerca_manuale": "Recherche manuelle",
+    "giurisprudenza_correlata": "Jurisprudence connexe disponible",
+    "errore_contenuto_obbligatorio": "Le contenu est obligatoire",
+    "titolo_default": "Recherche manuelle",
+    "conferma_elimina": "Supprimer cette recherche ?"
+  },
+  "note_esito": {
+    "titolo": "Notes sur le résultat",
+    "descrizione": "Pourquoi le dossier s'est-il conclu ainsi ? Qu'est-ce qui a fonctionné ou n'a pas fonctionné ?",
+    "placeholder": "Ex. La stratégie de défense fondée sur l'alibi a fonctionné parce que...",
+    "salva": "Enregistrer les notes de résultat"
+  },
+  "zona_pericolosa": {
+    "titolo": "Supprimer le dossier",
+    "descrizione": "Supprime définitivement le dossier et ses données (audiences, délais, parties adverses, recherches, documents). Les factures liées doivent être dissociées au préalable.",
+    "bottone": "Supprimer le dossier"
+  }
+}

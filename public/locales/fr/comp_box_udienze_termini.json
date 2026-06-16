@@ -1,0 +1,51 @@
+{
+  "header": {
+    "titolo": "Délais et audiences",
+    "aggiungi_termine": "Délai",
+    "aggiungi_udienza": "Audience"
+  },
+  "badge": {
+    "scaduta": "Échu",
+    "oggi": "Aujourd'hui",
+    "giorni": "{{count}}j"
+  },
+  "termini": {
+    "titolo": "Délais de procédure",
+    "filtro": {
+      "in_corso": "En cours",
+      "storico": "Historique"
+    },
+    "vuoto": {
+      "in_corso": "Aucun délai en cours",
+      "storico": "Aucun délai dans l'historique",
+      "suggerimento": "Ajoutez un délai pour calculer automatiquement l'échéance"
+    },
+    "stato": {
+      "compiuto": "Accompli le {{data}}",
+      "scaduto_non_compiuto": "Échu non accompli"
+    },
+    "scadenza": "Échéance",
+    "da": "De",
+    "azioni": {
+      "segna_compiuto": "Marquer comme accompli",
+      "elimina": "Supprimer le délai"
+    },
+    "conferma_elimina": "Annuler ce délai ? L'événement dans le calendrier sera supprimé."
+  },
+  "udienze": {
+    "titolo": "Audiences et résultats",
+    "vuoto": "Aucune audience planifiée",
+    "badge": {
+      "prossima": "Prochaine",
+      "da_aggiornare": "À mettre à jour"
+    },
+    "stato": {
+      "svolta": "Tenue",
+      "rinviata": "Renvoyée",
+      "annullata": "Annulée"
+    }
+  },
+  "errori": {
+    "generico": "Erreur"
+  }
+}

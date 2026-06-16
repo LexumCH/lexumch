@@ -1,0 +1,49 @@
+{
+  "titolo": "Planification de la trésorerie",
+  "badge_12_mesi": "12 mois",
+  "saldo_cassa_label": "Solde de caisse (CHF)",
+  "alla_data": "À la date",
+  "salva": "Enregistrer",
+  "imposta_saldo_cassa": "Définir le solde de caisse",
+  "al_data": "au {{data}}",
+  "errori": {
+    "importo_non_valido": "Veuillez saisir un montant valide.",
+    "data_mancante": "Veuillez saisir la date du solde.",
+    "sessione_scaduta": "Session expirée."
+  },
+  "tabella_mancante": "Table <code>saldi_cassa</code> pas encore créée : exécutez la migration pour enregistrer le solde et projeter la trésorerie.",
+  "vuoto": {
+    "titolo": "Définissez le solde de caisse initial pour voir la projection sur 12 mois.",
+    "descrizione": "La projection utilisera les mouvements prévus, les mouvements réels futurs et les salaires."
+  },
+  "kpi": {
+    "saldo_oggi": "Solde aujourd'hui",
+    "saldo_fra_12_mesi": "Solde dans 12 mois",
+    "punto_minimo": "Point le plus bas"
+  },
+  "alert_sotto_zero": "Tension de trésorerie prévue : le solde passe sous zéro en <evid>{{mese}} {{anno}}</evid> ({{importo}}). Planifiez une entrée ou réduisez les coûts prévus.",
+  "grafico_title": "{{mese}} {{anno}} : {{saldo}} (net {{netto}})",
+  "colonne": [
+    "Mois",
+    "Entrées",
+    "Sorties",
+    "Salaires",
+    "Net",
+    "Solde final"
+  ],
+  "nota": "Projection : solde connu + entrées/sorties prévues (étendues selon la récurrence) + réels futurs − salaires. Le mois en cours exclut les salaires (déjà dans le solde). Mettez le solde à jour régulièrement pour la garder précise.",
+  "mesi_abbr": [
+    "janv.",
+    "févr.",
+    "mars",
+    "avr.",
+    "mai",
+    "juin",
+    "juil.",
+    "août",
+    "sept.",
+    "oct.",
+    "nov.",
+    "déc."
+  ]
+}

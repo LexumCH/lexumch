@@ -1,0 +1,147 @@
+{
+    "header": {
+        "titolo": "Lex pour ce mandat",
+        "crediti": "{{count}} crédits",
+        "salvaConversazione": "Enregistrer la conversation",
+        "nuovaChat": "Nouveau chat"
+    },
+    "confermaNuova": {
+        "messaggio": "La conversation actuelle sera perdue. Continuer ?",
+        "conferma": "Oui, nouveau chat"
+    },
+    "confermaSalvataggio": "Conversation enregistrée dans les recherches du mandat.",
+    "formSalva": {
+        "titolo": "Enregistrer dans les recherches",
+        "placeholder": "Ex. Analyse des charges de personnel 2026",
+        "conferma": "Confirmer l'enregistrement"
+    },
+    "vuoto": {
+        "titolo": "Lex connaît ce mandat",
+        "descrizione": "Client, employés, échéances, documents de l'archive et recherches déjà effectuées. Demandez une analyse, une synthèse ou la génération d'un document (rapport, lettre au client, avis fiscal...).",
+        "cta": "Que puis-je vous proposer ?"
+    },
+    "ruolo": {
+        "tu": "Vous",
+        "lex": "Lex"
+    },
+    "badge": {
+        "documento": "Document"
+    },
+    "creditiEsauriti": {
+        "messaggio": "Crédits Lex épuisés.",
+        "acquista": "Acheter des crédits →"
+    },
+    "input": {
+        "placeholder": "Demandez à Lex une analyse ou la génération d'un document... (Ctrl+Entrée pour envoyer)",
+        "placeholderEsauriti": "Crédits épuisés — achetez des crédits pour continuer",
+        "titleInvia": "Envoyer (Ctrl+Entrée)",
+        "titleEsauriti": "Crédits épuisés",
+        "suggerimento": "Je peux analyser le mandat ou générer des documents fiduciaires. Chaque document consomme 1 crédit."
+    },
+    "comune": {
+        "annulla": "Annuler"
+    },
+    "errori": {
+        "scriviDomanda": "Écrivez une question à Lex",
+        "sessioneScaduta": "Session expirée. Veuillez recharger la page.",
+        "sconosciuto": "Erreur inconnue",
+        "conCodice": "Erreur {{codice}}",
+        "streaming": "Erreur lors du streaming",
+        "inserisciTitolo": "Saisissez un titre pour la conversation"
+    },
+    "animazione": {
+        "titolo": "Lex travaille sur le mandat",
+        "frasi": [
+            "J'analyse le mandat",
+            "J'examine la situation du client",
+            "Je contrôle les documents de l'archive",
+            "Je vérifie les employés et les échéances",
+            "Je consulte la réglementation applicable",
+            "Je rédige une réponse structurée"
+        ]
+    },
+    "trascrizione": {
+        "documentoGenerato": "Document généré",
+        "documento": "document",
+        "fiduciario": "Fiduciaire",
+        "lex": "Lex"
+    },
+    "popover": {
+        "titolo": "Ce que vous pouvez demander à Lex",
+        "analisi": {
+            "titolo": "Analyse et raisonnement",
+            "descrizione": "Demandez à Lex d'analyser le mandat, de résumer la situation du client, de vérifier les échéances et les employés, ou de réfléchir à une question fiscale ou comptable. Exemples : \"résume la situation du mandat\", \"quelles échéances ai-je ce mois-ci\", \"analyse les charges de personnel\"."
+        },
+        "generazione": {
+            "titolo": "Génération de documents",
+            "descrizione": "Lex peut rédiger des documents à partir des données du mandat. Écrivez simplement ce dont vous avez besoin. Chaque document généré consomme 1 crédit."
+        },
+        "altro": {
+            "titolo": "…ou demandez tout autre document",
+            "descrizione": "Les exemples ci-dessus ne sont que des suggestions. Décrivez avec des mots le document dont vous avez besoin et Lex le rédige à partir des données du mandat."
+        },
+        "footer": "Touchez un document pour insérer un exemple dans la zone de texte, puis personnalisez-le."
+    },
+    "tipiDocumento": {
+        "categorie": {
+            "rendiconti": "Rapports et reportings",
+            "corrispondenza": "Correspondance",
+            "pareri": "Avis et analyses"
+        },
+        "tipi": {
+            "rendiconto_mensile": {
+                "nome": "Rapport mensuel pour le client",
+                "esempio": "prépare le rapport mensuel de la situation comptable pour le client..."
+            },
+            "riepilogo_contabile": {
+                "nome": "Synthèse de la situation comptable",
+                "esempio": "fais-moi une synthèse de la situation comptable du mandat..."
+            },
+            "prospetto_personale": {
+                "nome": "État des charges de personnel",
+                "esempio": "prépare un état des charges de personnel pour l'année en cours, avec les charges sociales à la charge de l'employeur et de l'employé..."
+            },
+            "lettera_accompagnamento": {
+                "nome": "Lettre d'accompagnement au client",
+                "esempio": "rédige-moi une lettre d'accompagnement pour transmettre les documents au client..."
+            },
+            "sollecito_scadenza": {
+                "nome": "Rappel / aide-mémoire d'échéance",
+                "esempio": "rédige un aide-mémoire au client pour l'échéance à venir..."
+            },
+            "parere_fiscale": {
+                "nome": "Avis fiscal écrit",
+                "esempio": "prépare un avis fiscal sur la déductibilité de..."
+            },
+            "nota_analisi": {
+                "nome": "Note d'analyse sur une question",
+                "esempio": "analyse et formule par écrit la situation concernant..."
+            }
+        }
+    },
+    "bolla": {
+        "documento": "Document",
+        "documentoGenerato": "Document généré",
+        "anteprima": "Aperçu",
+        "modifica": "Modifier",
+        "modificaTesto": "Modifier le texte du document",
+        "avvisoNonConservato": "Ce document n'est pas conservé. Enregistrez-le en PDF maintenant pour l'archiver dans le mandat.",
+        "generoAnteprima": "Je génère l'aperçu mis en page...",
+        "anteprimaDocumento": "Aperçu du document",
+        "riprova": "Réessayer",
+        "modificheNonInAnteprima": "Vous avez des modifications pas encore dans l'aperçu.",
+        "markdownGrezzo": "Markdown brut du document.",
+        "rigenero": "Je régénère...",
+        "rigeneraAnteprima": "Régénérer l'aperçu",
+        "salvatoInDocumenti": "Enregistré dans les Documents du mandat :",
+        "scaricaPdf": "Télécharger le PDF",
+        "salvataggioInCorso": "Enregistrement...",
+        "salvaDiNuovo": "Enregistrer à nouveau (nouvelle version)",
+        "nomeFile": "Nom du fichier",
+        "salvaPdfNelMandato": "Enregistrer le PDF dans le mandat",
+        "inserisciNomeFile": "Saisissez un nom pour le fichier",
+        "erroreAnteprima": "Erreur lors de la génération de l'aperçu",
+        "anteprimaNonDisponibile": "Aperçu non disponible",
+        "erroreSalvataggio": "Erreur lors de l'enregistrement du PDF"
+    }
+}

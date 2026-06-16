@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "banca_dati": "Base de données",
+    "ricerche": "Recherches",
+    "verificati": "Vérifiez-vous",
+    "verifica_identita": "Vérification d'identité",
+    "assistenza": "Des questions ?",
+    "acquista": "Acheter",
+    "profilo": "Profil"
+  },
+  "badge": {
+    "in_corso": "En cours",
+    "approvata": "Approuvée"
+  },
+  "banner": {
+    "pending": "Vos documents sont en cours d'examen. Vous recevrez une réponse sous 24 à 48 heures.",
+    "approved": "Vérification terminée ! Souscrivez un abonnement pour accéder aux dossiers, aux clients et à toutes les fonctionnalités de Lexum.",
+    "approved_link": "Voir les abonnements →",
+    "rejected": "Votre vérification n'a pas été approuvée. Consultez votre profil pour en voir les détails.",
+    "rejected_link": "Profil →"
+  },
+  "account": {
+    "verificato": "Vérifié",
+    "in_verifica": "En vérification",
+    "non_verificato": "Non vérifié",
+    "base": "Compte de base",
+    "esci": "Déconnexion"
+  },
+  "header": {
+    "acquista_crediti": "Acheter des crédits IA"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "titolo": "Report conto economico",
+  "anno": "Anno",
+  "tabella_mancante": "Tabella <code>movimenti</code> non disponibile.",
+  "nota_finale": "Solo dati effettivi (consuntivo). Le uscite includono gli stipendi calcolati dai dipendenti. I budget/previsti sono nella sezione “Budget e scostamenti”.",
+  "export": {
+    "titolo": "Esporta in PDF",
+    "bottone": "Esporta PDF"
+  },
+  "legenda": {
+    "entrate": "Entrate",
+    "uscite": "Uscite (costi + stipendi)"
+  },
+  "andamento": {
+    "titolo": "Andamento mensile {{anno}}",
+    "vuoto": "Nessun movimento effettivo nel {{anno}}.",
+    "tooltip_entrate": "entrate {{valore}}",
+    "tooltip_uscite": "uscite {{valore}}"
+  },
+  "composizione": {
+    "uscite": "Uscite per categoria",
+    "entrate": "Entrate per categoria",
+    "vuoto": "Nessun dato."
+  },
+  "pluriennale": {
+    "titolo": "Confronto pluriennale",
+    "tooltip_entrate": "Entrate {{valore}}",
+    "tooltip_uscite": "Uscite {{valore}}",
+    "colonne": [
+      "Anno",
+      "Entrate",
+      "Uscite",
+      "Saldo"
+    ]
+  },
+  "categoria": {
+    "senza_categoria": "Senza categoria",
+    "stipendi": "Stipendi"
+  },
+  "print": {
+    "titolo": "Conto economico {{anno}}",
+    "consuntivo_generato": "Consuntivo (dati effettivi) · generato il {{data}}",
+    "totale_entrate": "Totale entrate",
+    "totale_uscite": "Totale uscite",
+    "saldo": "Saldo",
+    "andamento_mensile": "Andamento mensile",
+    "uscite_per_categoria": "Uscite per categoria",
+    "entrate_per_categoria": "Entrate per categoria",
+    "confronto_pluriennale": "Confronto pluriennale",
+    "totale": "Totale",
+    "nessun_dato": "Nessun dato",
+    "nota_finale": "Le uscite includono gli stipendi calcolati dai dipendenti. I budget/previsti non sono inclusi (consuntivo).",
+    "col_mese": "Mese",
+    "col_entrate": "Entrate",
+    "col_uscite": "Uscite",
+    "col_netto": "Netto",
+    "col_categoria": "Categoria",
+    "col_importo": "Importo",
+    "col_percentuale": "%",
+    "col_anno": "Anno",
+    "col_saldo": "Saldo"
+  },
+  "mesi_full": [
+    "Gennaio",
+    "Febbraio",
+    "Marzo",
+    "Aprile",
+    "Maggio",
+    "Giugno",
+    "Luglio",
+    "Agosto",
+    "Settembre",
+    "Ottobre",
+    "Novembre",
+    "Dicembre"
+  ]
+}

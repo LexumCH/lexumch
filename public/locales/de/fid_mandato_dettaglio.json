@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "banco_lavoro": "Arbeitsplatz"
+  },
+  "errori": {
+    "mandato_non_trovato": "Mandat nicht gefunden"
+  },
+  "header": {
+    "mandato": "Mandat"
+  },
+  "stati": {
+    "attivo": "Aktiv",
+    "sospeso": "Pausiert",
+    "concluso": "Abgeschlossen",
+    "archiviato": "Archiviert"
+  },
+  "anagrafica": {
+    "titolo": "Stammdaten",
+    "cliente": "Kunde",
+    "nessun_cliente": "Kein Kunde mit dem Mandat verknüpft."
+  },
+  "dati": {
+    "tipo": "Typ",
+    "anno_riferimento": "Bezugsjahr",
+    "creato_il": "Erstellt am"
+  },
+  "note": {
+    "titolo": "Notizen",
+    "vuote": "Keine Notizen zu diesem Mandat."
+  },
+  "dipendenti": {
+    "titolo": "Mitarbeitende des Kunden",
+    "nessun_cliente": "Kein Kunde mit dem Mandat verknüpft — Mitarbeitende können nicht angezeigt werden."
+  }
+}

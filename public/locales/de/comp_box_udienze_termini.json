@@ -1,0 +1,51 @@
+{
+  "header": {
+    "titolo": "Fristen und Verhandlungen",
+    "aggiungi_termine": "Frist",
+    "aggiungi_udienza": "Verhandlung"
+  },
+  "badge": {
+    "scaduta": "Abgelaufen",
+    "oggi": "Heute",
+    "giorni": "{{count}}T"
+  },
+  "termini": {
+    "titolo": "Prozessuale Fristen",
+    "filtro": {
+      "in_corso": "Laufend",
+      "storico": "Verlauf"
+    },
+    "vuoto": {
+      "in_corso": "Keine laufenden Fristen",
+      "storico": "Keine Fristen im Verlauf",
+      "suggerimento": "Fügen Sie eine Frist hinzu, um den Ablauf automatisch zu berechnen"
+    },
+    "stato": {
+      "compiuto": "Erledigt {{data}}",
+      "scaduto_non_compiuto": "Abgelaufen, nicht erledigt"
+    },
+    "scadenza": "Ablauf",
+    "da": "Aus",
+    "azioni": {
+      "segna_compiuto": "Als erledigt markieren",
+      "elimina": "Frist löschen"
+    },
+    "conferma_elimina": "Diese Frist annullieren? Der Eintrag im Kalender wird entfernt."
+  },
+  "udienze": {
+    "titolo": "Verhandlungen und Ergebnisse",
+    "vuoto": "Keine Verhandlung geplant",
+    "badge": {
+      "prossima": "Nächste",
+      "da_aggiornare": "Zu aktualisieren"
+    },
+    "stato": {
+      "svolta": "Durchgeführt",
+      "rinviata": "Verschoben",
+      "annullata": "Annulliert"
+    }
+  },
+  "errori": {
+    "generico": "Fehler"
+  }
+}

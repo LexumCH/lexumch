@@ -1,0 +1,106 @@
+{
+  "stati": {
+    "pagata": "Payée",
+    "in_attesa": "En attente",
+    "scaduta": "Échue",
+    "annullata": "Annulée"
+  },
+  "header": {
+    "label": "Facturation",
+    "titolo": "Factures de l'étude",
+    "sottotitolo": "{{count}} factures au total",
+    "sottotitolo_one": "{{count}} facture au total",
+    "nuova_fattura": "Nouvelle facture"
+  },
+  "tabs": {
+    "panoramica": "Aperçu",
+    "fatture": "Factures",
+    "scadenzario": "Échéancier"
+  },
+  "panoramica": {
+    "kpi": {
+      "fatturato": "Chiffre d'affaires {{anno}}",
+      "incassato": "Encaissé {{anno}}",
+      "da_incassare": "À encaisser",
+      "scaduto": "Échu",
+      "num_fatture": "{{count}} factures",
+      "num_fatture_one": "{{count}} facture",
+      "perc_fatturato": "{{perc}}% du chiffre d'affaires",
+      "non_scadute": "non échues",
+      "richiede_attenzione": "nécessite attention"
+    },
+    "grafico": {
+      "titolo": "12 derniers mois",
+      "sottotitolo": "Émis vs encaissé par mois",
+      "emesso": "Émis",
+      "incassato": "Encaissé",
+      "tooltip_emesso": "Émis : CHF {{valore}}",
+      "tooltip_incassato": "Encaissé : CHF {{valore}}"
+    },
+    "top_clienti": {
+      "titolo": "Meilleurs clients {{anno}}",
+      "vuoto": "Aucun client facturé cette année",
+      "num_fatt": "{{count}} fact.",
+      "num_fatt_one": "{{count}} fact."
+    },
+    "urgenti": {
+      "titolo": "À échéance (7 jours)",
+      "vuoto": "Tout est en ordre",
+      "scaduta_da": "Échue il y a {{giorni}}j",
+      "oggi": "Aujourd'hui",
+      "tra": "Dans {{giorni}}j"
+    }
+  },
+  "fatture": {
+    "ricerca_help": "Recherchez parmi les factures par numéro, client ou description. Utilisez Lex pour des questions en langage naturel comme \"factures échues des clients entreprises\" ou \"combien ai-je encaissé de Rossi cette année\".",
+    "ricerca_placeholder": "Rechercher ou demander à Lex...",
+    "cerca": "Rechercher",
+    "cerca_con_lex": "Rechercher avec Lex",
+    "lex_cercando": "Lex recherche...",
+    "lex": "Lex",
+    "errore_lex": "Erreur Lex",
+    "analisi_lex": "Analyse Lex",
+    "risultato": "<b>{{count}}</b> résultat pour \"{{query}}\"",
+    "risultati": "<b>{{count}}</b> résultats pour \"{{query}}\"",
+    "azzera": "Réinitialiser",
+    "elimina_fattura": "Supprimer la facture",
+    "filtri": {
+      "label": "Filtres",
+      "tutti_stati": "Tous les statuts",
+      "in_attesa": "En attente",
+      "pagate": "Payées",
+      "scadute": "Échues",
+      "annullate": "Annulées",
+      "tutti_clienti": "Tous les clients",
+      "tutti_anni": "Toutes les années",
+      "da": "Du",
+      "a": "Au",
+      "reset": "Réinitialiser les filtres"
+    },
+    "tabella": {
+      "numero": "Numéro",
+      "cliente": "Client",
+      "pratica": "Dossier",
+      "totale": "Total",
+      "emessa_il": "Émise le",
+      "scadenza": "Échéance",
+      "stato": "Statut",
+      "pagata_il": "Payée {{data}}",
+      "vuoto_nessuna": "Aucune facture pour le moment. Créez la première.",
+      "vuoto_filtri": "Aucune facture trouvée"
+    }
+  },
+  "scadenzario": {
+    "vuoto_titolo": "Aucune échéance",
+    "vuoto_desc": "Vous n'avez aucune facture en attente avec une échéance définie",
+    "sez_scadute": "Échues",
+    "sez_7giorni": "À échéance (7 jours)",
+    "sez_30giorni": "Prochaines (30 jours)",
+    "sez_oltre": "Au-delà de 30 jours",
+    "conteggio": "{{count}} factures",
+    "conteggio_one": "{{count}} facture",
+    "giorni_fa": "il y a {{giorni}}j",
+    "oggi": "Aujourd'hui",
+    "tra": "dans {{giorni}}j"
+  }
+}

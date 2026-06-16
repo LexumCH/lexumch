@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -10,6 +11,7 @@ import {
 } from 'lucide-react'
 
 export default function UserLayout({ children }) {
+  const { t } = useTranslation('comp_layout_user')
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
@@ -40,35 +42,35 @@ export default function UserLayout({ children }) {
 
   // Voce sidebar verifica (nascosta se rejected)
   const verifyItem = isRejected ? null : isUnverified
-    ? { path: '/verifica', label: 'Verìficati', icon: ShieldCheck }
+    ? { path: '/verifica', label: t('nav.verificati'), icon: ShieldCheck }
     : isPending
-      ? { path: '/verifica/stato', label: 'Verifica identità', icon: ShieldCheck, badge: 'In corso', badgeColor: 'amber' }
-      : { path: '/verifica/stato', label: 'Verifica identità', icon: ShieldCheck, badge: 'Approvata', badgeColor: 'salvia' }
+      ? { path: '/verifica/stato', label: t('nav.verifica_identita'), icon: ShieldCheck, badge: t('badge.in_corso'), badgeColor: 'amber' }
+      : { path: '/verifica/stato', label: t('nav.verifica_identita'), icon: ShieldCheck, badge: t('badge.approvata'), badgeColor: 'salvia' }
 
   const NAV = [
-    { path: '/area', label: 'Banca Dati', icon: Home, end: true },
-    { path: '/area/ricerche', label: 'Ricerche', icon: Search },
+    { path: '/area', label: t('nav.banca_dati'), icon: Home, end: true },
+    { path: '/area/ricerche', label: t('nav.ricerche'), icon: Search },
     ...(verifyItem ? [verifyItem] : []),
-    { path: '/area/assistenza', label: 'Domande?', icon: Headphones },
-    { path: '/area/acquista', label: 'Acquista', icon: CreditCard },
-    { path: '/area/profilo', label: 'Profilo', icon: User },
+    { path: '/area/assistenza', label: t('nav.assistenza'), icon: Headphones },
+    { path: '/area/acquista', label: t('nav.acquista'), icon: CreditCard },
+    { path: '/area/profilo', label: t('nav.profilo'), icon: User },
   ]
 
   // Banner contestuale
   const banner = bannerDismissed ? null
     : isPending ? {
       icon: Clock, color: 'amber',
-      text: 'I tuoi documenti sono in revisione. Riceverai una risposta entro 24-48 ore.',
+      text: t('banner.pending'),
     }
       : isApproved && !profile?.piano_id ? {
         icon: CheckCircle, color: 'salvia',
-        text: 'Verifica completata! Acquista un piano per accedere a pratiche, clienti e tutte le funzionalità Lexum.',
-        link: { to: '/area/acquista', label: 'Vedi piani →' },
+        text: t('banner.approved'),
+        link: { to: '/area/acquista', label: t('banner.approved_link') },
       }
         : isRejected ? {
           icon: XCircle, color: 'red',
-          text: 'La tua verifica non è stata approvata. Visita il profilo per vedere i dettagli.',
-          link: { to: '/area/profilo', label: 'Profilo →' },
+          text: t('banner.rejected'),
+          link: { to: '/area/profilo', label: t('banner.rejected_link') },
         }
           : null
 
@@ -141,13 +143,13 @@ export default function UserLayout({ children }) {
                 {profile?.nome ? `${profile.nome} ${profile.cognome ?? ''}`.trim() : profile?.email}
               </p>
               <p className="font-body text-[10px] text-nebbia/30 mt-0.5">
-                {isApproved ? 'Verificato' : isPending ? 'In verifica' : isRejected ? 'Non verificato' : 'Account base'}
+                {isApproved ? t('account.verificato') : isPending ? t('account.in_verifica') : isRejected ? t('account.non_verificato') : t('account.base')}
               </p>
             </div>
           </div>
           <button onClick={handleSignOut}
             className="w-full flex items-center gap-2 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors px-1 py-1">
-            <LogOut size={13} /> Esci
+            <LogOut size={13} /> {t('account.esci')}
           </button>
         </div>
       </aside>
@@ -160,7 +162,7 @@ export default function UserLayout({ children }) {
           <div /> {/* spacer */}
           <div className="flex items-center gap-4">
             <Link to="/area/acquista"
-              title="Acquista crediti AI"
+              title={t('header.acquista_crediti')}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-petrolio border border-salvia/20 hover:border-salvia/40 transition-colors group">
               <Sparkles size={13} className="text-salvia" />
               <span className="font-body text-sm text-nebbia/80 group-hover:text-nebbia transition-colors">{crediti}</span>

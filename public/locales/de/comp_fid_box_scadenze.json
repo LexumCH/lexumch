@@ -1,0 +1,27 @@
+{
+  "header": {
+    "titolo": "Fristen",
+    "nuova": "Neue Frist"
+  },
+  "vuoto": {
+    "titolo": "Keine Fristen für dieses Mandat."
+  },
+  "stato": {
+    "in_corso": "Laufend",
+    "completata": "Erledigt"
+  },
+  "giorni": {
+    "scaduta": "seit {{count}} Tagen überfällig",
+    "oggi": "heute",
+    "tra": "in {{count}} Tagen"
+  },
+  "completata_il": "erledigt am {{data}}",
+  "azioni": {
+    "riapri": "Wieder öffnen",
+    "completa": "Als erledigt markieren",
+    "elimina": "Löschen"
+  },
+  "conferma": {
+    "elimina": "Frist \"{{titolo}}\" löschen?"
+  }
+}

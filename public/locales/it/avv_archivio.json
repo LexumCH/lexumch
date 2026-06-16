@@ -1,0 +1,204 @@
+{
+  "common": {
+    "salva": "Salva",
+    "annulla": "Annulla",
+    "chiudi": "Chiudi",
+    "rinomina": "Rinomina",
+    "elimina": "Elimina"
+  },
+  "status": {
+    "pending": "In coda",
+    "processing": "Elaborazione",
+    "completed": "Indicizzato",
+    "failed": "Errore",
+    "skipped": "Manuale"
+  },
+  "tipi_documento": {
+    "contratto": "Contratto",
+    "preliminare": "Preliminare",
+    "procura": "Procura",
+    "perizia": "Perizia",
+    "consulenza_tecnica": "CT",
+    "citazione": "Citazione",
+    "comparsa": "Comparsa",
+    "ricorso": "Ricorso",
+    "memoria": "Memoria",
+    "appello": "Appello",
+    "decreto_ingiuntivo": "D. Ingiuntivo",
+    "atto_amministrativo": "Atto amm.",
+    "verbale": "Verbale",
+    "delibera": "Delibera",
+    "raccomandata": "Raccomandata",
+    "diffida": "Diffida",
+    "lettera": "Lettera",
+    "email": "Email",
+    "fattura": "Fattura",
+    "ricevuta": "Ricevuta",
+    "preventivo": "Preventivo",
+    "estratto_conto": "E/C",
+    "documento_identita": "ID",
+    "documento_societario": "Doc. soc.",
+    "denuncia": "Denuncia",
+    "querela": "Querela",
+    "sentenza": "Sentenza",
+    "ordinanza": "Ordinanza",
+    "decreto": "Decreto",
+    "altro": "Altro"
+  },
+  "progresso": {
+    "titolo": "Elaborazione archivio",
+    "di": "{{completati}} di {{totale}}",
+    "analisi": "analisi..."
+  },
+  "form_upload": {
+    "inserisci_titolo": "Inserisci il titolo del documento",
+    "inserisci_titoli": "Inserisci i titoli per {{count}} documenti",
+    "mb_totali": "({{mb}} MB totali)",
+    "aggiungi_altri": "Aggiungi altri",
+    "categoria_per_tutti": "Categoria per tutti (opzionale)",
+    "nessuna_categoria": "Nessuna categoria",
+    "nessuna_sottocategoria": "Nessuna sottocategoria",
+    "modifica_dopo": "Potrai modificare la categoria per ogni documento singolarmente dopo il caricamento.",
+    "badge_manuale": "Manuale",
+    "tooltip_manuale": "Verrà caricato ma non digitalizzato automaticamente",
+    "rimuovi_dalla_coda": "Rimuovi dalla coda",
+    "placeholder_titolo": "Titolo del documento",
+    "usa_nome_file": "Usa il nome del file come titolo",
+    "nome_file": "↺ Nome file",
+    "suggeriti_da_lex": "Categoria, soggetti, riepilogo e tag verranno suggeriti automaticamente da Lex dopo l'upload (solo per PDF e TXT).",
+    "carica_documento": "Carica documento",
+    "carica_documenti": "Carica {{count}} documenti"
+  },
+  "cartella": {
+    "senza_categoria": "Senza categoria",
+    "vuota": "vuota",
+    "documenti_one": "{{count}} documento",
+    "documenti_other": "{{count}} documenti",
+    "tutte_categorie": "Tutte le categorie",
+    "senza_sottocategoria": "Senza sottocategoria"
+  },
+  "picker_categoria": {
+    "titolo": "Assegna categoria",
+    "nessuna_categoria": "Nessuna categoria",
+    "nessuna_disponibile": "Nessuna categoria — usa \"Gestisci categorie\" per crearne"
+  },
+  "modal_categorie": {
+    "titolo": "Gestisci categorie",
+    "nessuna_ancora": "Nessuna categoria ancora",
+    "crea_prima": "Crea la prima categoria per organizzare il tuo archivio",
+    "n_doc": "{{count}} doc",
+    "placeholder_sottocategoria": "Nome sottocategoria...",
+    "aggiungi_sottocategoria": "Aggiungi sottocategoria",
+    "placeholder_categoria": "Nome categoria...",
+    "nuova_categoria": "Nuova categoria"
+  },
+  "conferma": {
+    "elimina_categoria": "Eliminare la categoria \"{{nome}}\"?",
+    "doc_perdono_categoria_one": "{{count}} documento perderà la categoria.",
+    "doc_perdono_categoria_other": "{{count}} documenti perderanno la categoria.",
+    "sottocategorie_eliminate_one": "{{count}} sottocategoria sarà eliminata.",
+    "sottocategorie_eliminate_other": "{{count}} sottocategorie saranno eliminate.",
+    "elimina_sottocategoria": "Eliminare \"{{nome}}\"?",
+    "doc_perdono_sottocategoria_one": "{{count}} documento perderà la sottocategoria (la categoria principale resta).",
+    "doc_perdono_sottocategoria_other": "{{count}} documenti perderanno la sottocategoria (la categoria principale resta).",
+    "elimina_documento": "Eliminare \"{{titolo}}\"?"
+  },
+  "card": {
+    "cambia_categoria": "Cambia categoria",
+    "no_categoria": "No categoria",
+    "sentenza": "Sentenza",
+    "fattura": "Fattura",
+    "auto": "Auto",
+    "tooltip_auto": "Verificato automaticamente — controlla i metadati estratti",
+    "suggerito_da_lex": "Suggerito da Lex",
+    "altri_soggetti": "+{{count}} altri",
+    "apri_sentenza": "Apri sentenza",
+    "anteprima": "Anteprima",
+    "sezione_rilevante": "Sezione rilevante"
+  },
+  "anteprima": {
+    "titolo": "Anteprima documento",
+    "errore_contenuto": "Impossibile caricare il contenuto: {{message}}",
+    "non_disponibile": "Anteprima non disponibile per questo formato",
+    "apri_nuova_scheda": "Apri in nuova scheda"
+  },
+  "header": {
+    "label": "Avvocato",
+    "title": "Archivio",
+    "sottotitolo": "{{documenti}} documenti · {{indicizzati}} indicizzati · {{occupato}}/{{totali}} GB",
+    "sottotitolo_sentenze": "Sentenze acquistate dalla banca dati",
+    "gestisci_categorie": "Gestisci categorie e sottocategorie",
+    "categorie": "Categorie",
+    "carica_documenti": "Carica documenti",
+    "upload_bloccato": "Upload bloccato",
+    "caricamento": "Caricamento...",
+    "esplora_banca_dati": "Esplora banca dati"
+  },
+  "blocco": {
+    "piano_scaduto": "Piano scaduto — archivio in sola lettura",
+    "spazio_esaurito": "Spazio esaurito — libera file o acquista un pacchetto storage"
+  },
+  "errori": {
+    "troppi_file": "Puoi caricare massimo {{max}} documenti alla volta. Hai selezionato {{selezionati}}.",
+    "spazio_insufficiente": "Spazio insufficiente. Stai caricando {{caricando}} GB ma hai solo {{liberi}} GB liberi."
+  },
+  "banner": {
+    "piano_scaduto_titolo": "Piano scaduto — archivio in sola lettura",
+    "piano_scaduto_testo_one": "Il tuo {{count}} documento resta accessibile e cercabile, ma non puoi caricarne di nuovi finché non rinnovi il piano.",
+    "piano_scaduto_testo_other": "I tuoi {{count}} documenti restano accessibili e cercabili, ma non puoi caricarne di nuovi finché non rinnovi il piano.",
+    "rinnova_ora": "Rinnova ora →",
+    "spazio_esaurito_titolo": "Spazio archivio esaurito",
+    "spazio_esaurito_testo": "Hai usato {{occupato}} GB su {{totali}} GB disponibili. Libera spazio o acquista un pacchetto extra.",
+    "acquista_storage": "Acquista storage →",
+    "quasi_pieno_titolo": "Archivio quasi pieno — {{pct}}% occupato",
+    "quasi_pieno_testo": "{{occupato}} GB su {{totali}} GB. Considera di acquistare spazio extra prima di riempire l'archivio."
+  },
+  "visibilita": {
+    "label": "Visibilità",
+    "collegato": "Collegato a cliente — solo chi lo gestisce",
+    "non_collegato": "Non collegato — tutto lo studio"
+  },
+  "ricerca": {
+    "descrizione": "Cerca tra i documenti del tuo archivio. Usa la ricerca tradizionale per parole chiave letterali, o Lex per query in linguaggio naturale che cercano semanticamente nel contenuto e nei metadati.",
+    "placeholder": "Cerca tra i tuoi documenti...",
+    "svuota": "Svuota",
+    "tooltip_tradizionale": "Cerca per parole chiave letterali (Invio)",
+    "cerca": "Cerca",
+    "tooltip_lex": "Ricerca semantica (Cmd/Ctrl+Invio)",
+    "lex_sta_cercando": "Lex sta cercando...",
+    "cerca_con_lex": "Cerca con Lex",
+    "lex": "Lex",
+    "analisi_lex": "Analisi Lex",
+    "risultati_per_one": "<b>{{count}}</b> risultato per \"{{query}}\"",
+    "risultati_per_other": "<b>{{count}}</b> risultati per \"{{query}}\"",
+    "azzera": "Azzera"
+  },
+  "filtri": {
+    "label": "Filtri",
+    "tutti_clienti": "Tutti i clienti",
+    "tutte_pratiche": "Tutte le pratiche",
+    "tutte_etichette": "Tutte le etichette",
+    "tutti_stati": "Tutti gli stati",
+    "in_elaborazione": "In elaborazione",
+    "qualsiasi_data": "Qualsiasi data",
+    "ultimi_7": "Ultimi 7 giorni",
+    "ultimi_30": "Ultimi 30 giorni",
+    "periodo_personalizzato": "Periodo personalizzato",
+    "da": "Da",
+    "a": "A",
+    "reset": "Reset filtri"
+  },
+  "risultati": {
+    "nessun_documento_trovato": "Nessun documento trovato",
+    "riformula": "Prova a riformulare con termini diversi.",
+    "prova_lex": "Prova con la ricerca semantica di Lex per trovare documenti correlati."
+  },
+  "catalogo": {
+    "elementi_one": "{{count}} elemento",
+    "elementi_other": "{{count}} elementi",
+    "in_elaborazione": "· {{count}} in elaborazione",
+    "vuoto_titolo": "Nessun documento",
+    "vuoto_filtri": "Nessun risultato con questi filtri",
+    "vuoto_desc": "Carica i documenti del tuo archivio per indicizzarli e renderli cercabili"
+  }
+}

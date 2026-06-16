@@ -1,0 +1,17 @@
+{
+  "avvocato": {
+    "label": "Salva in pratica",
+    "cercaPlaceholder": "Cerca pratica...",
+    "vuotoConCerca": "Nessuna pratica trovata",
+    "vuotoSenzaCerca": "Nessuna pratica aperta"
+  },
+  "fiduciario": {
+    "label": "Salva in mandato",
+    "cercaPlaceholder": "Cerca mandato...",
+    "vuotoConCerca": "Nessun mandato trovato",
+    "vuotoSenzaCerca": "Nessun mandato attivo"
+  },
+  "salvatoIn": "Salvato in \"{{titolo}}\"",
+  "caricamento": "Caricamento...",
+  "salvataggio": "Salvataggio..."
+}

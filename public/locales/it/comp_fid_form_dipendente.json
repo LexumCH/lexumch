@@ -1,0 +1,84 @@
+{
+    "header": {
+        "modifica": "Modifica dipendente",
+        "nuovo": "Nuovo dipendente",
+        "sottotitolo": "Anagrafica del personale dell'azienda cliente"
+    },
+    "toast": {
+        "salvato": "Salvato"
+    },
+    "anagrafica": {
+        "titolo": "Anagrafica",
+        "nome": "Nome *",
+        "cognome": "Cognome *",
+        "data_nascita": "Data di nascita",
+        "numero_avs": "Numero AVS"
+    },
+    "ruolo": {
+        "titolo": "Ruolo in azienda",
+        "dipendente": "Dipendente",
+        "socio": "Socio / Proprietario",
+        "qualifica": "Qualifica / Ruolo",
+        "qualifica_ph": "es. Amministratore, Contabile...",
+        "quota": "Quota partecipazione (%)",
+        "quota_ph": "es. 50"
+    },
+    "rapporto": {
+        "titolo": "Rapporto di lavoro",
+        "data_assunzione": "Data assunzione",
+        "data_fine": "Data fine",
+        "data_fine_hint": "(se cessato)",
+        "impiego": "Impiego (%)",
+        "salario": "Salario (CHF)",
+        "periodicita": "Periodicità",
+        "periodicita_annuo": "Annuo",
+        "periodicita_mensile": "Mensile"
+    },
+    "fonte": {
+        "titolo": "Imposta alla fonte",
+        "nazionalita": "Nazionalità",
+        "nazionalita_ph": "es. Italiana",
+        "tipo_permesso": "Tipo permesso",
+        "tipo_permesso_ph": "es. G (frontaliere), B, C...",
+        "soggetto": "Soggetto a imposta alla fonte"
+    },
+    "note": {
+        "label": "Note",
+        "opzionale": "(opzionale)",
+        "placeholder": "Annotazioni..."
+    },
+    "bonus": {
+        "titolo": "Bonus / premi",
+        "importo": "Importo (CHF)",
+        "data": "Data",
+        "descrizione": "Descrizione",
+        "descrizione_ph": "es. Premio obiettivi",
+        "aggiungi": "Aggiungi",
+        "elimina_tooltip": "Elimina bonus",
+        "nota": "I bonus pesano sull'uscita del mese in cui cadono e sul totale annuo. Non incidono sul fisso mensile.",
+        "salva_prima": "Salva prima il dipendente per poter aggiungere bonus."
+    },
+    "documenti": {
+        "titolo": "Documenti",
+        "nessuno": "Nessun documento assegnato a questa persona",
+        "conteggio_uno": "{{count}} documento assegnato",
+        "conteggio_molti": "{{count}} documenti assegnati",
+        "aggiungi": "Aggiungi documento",
+        "nota": "I documenti si caricano dall'archivio. Da lì vengono elaborati e resi ricercabili da Lex.",
+        "salva_prima": "Salva prima il dipendente per poter allegare documenti."
+    },
+    "footer": {
+        "annulla": "Annulla",
+        "salvando": "Salvando...",
+        "salva_modifiche": "Salva modifiche",
+        "aggiungi": "Aggiungi dipendente"
+    },
+    "errori": {
+        "bonus_invalido": "Per il bonus servono un importo valido e una data.",
+        "campi_obbligatori": "Nome, cognome e almeno un ruolo (socio o dipendente) sono obbligatori.",
+        "sessione_scaduta": "Sessione scaduta. Effettua nuovamente il login."
+    },
+    "conferme": {
+        "modifiche_non_salvate": "Hai modifiche non salvate su questo dipendente.\n\nVuoi salvarle e andare all'archivio per aggiungere un documento?"
+    }
+}

@@ -9,6 +9,7 @@
 // Nessuna somma dei libri dei clienti (ogni cliente è a sé). Nessun nuovo SQL.
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import {
     Users, FolderOpen, Receipt, CalendarClock, CalendarDays, AlertTriangle,
@@ -16,6 +17,8 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { fmtCHF } from '@/lib/calcoloSalari'
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 const oggiISO = () => new Date().toISOString().slice(0, 10)
 function nomeCliente(c) {
@@ -34,6 +37,8 @@ function giorniA(dataIso) {
 }
 
 export default function FiduciarioDashboard() {
+    const { t, i18n } = useTranslation('fid_dashboard')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const annoCorr = new Date().getFullYear()
     const [anno] = useState(annoCorr)
     const [loading, setLoading] = useState(true)
@@ -121,17 +126,17 @@ export default function FiduciarioDashboard() {
     return (
         <div className="space-y-6 pb-20">
             <div>
-                <p className="section-label"><Scale size={11} className="inline" /> Studio fiduciario</p>
-                <h1 className="font-display text-3xl text-nebbia leading-tight">Quadro generale{nome ? `, ${nome}` : ''}</h1>
-                <p className="font-body text-sm text-nebbia/40 mt-1">Anno {anno} · {D.clienti.length} {D.clienti.length === 1 ? 'cliente' : 'clienti'}</p>
+                <p className="section-label"><Scale size={11} className="inline" /> {t('hero.etichetta')}</p>
+                <h1 className="font-display text-3xl text-nebbia leading-tight">{nome ? t('hero.titolo_nome', { nome }) : t('hero.titolo')}</h1>
+                <p className="font-body text-sm text-nebbia/40 mt-1">{t('hero.sottotitolo', { anno, count: D.clienti.length })}</p>
             </div>
 
             {/* KPI studio: portfolio + soldi dello studio */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <Kpi icon={Users} label="Clienti" value={D.clienti.length} />
-                <Kpi icon={FolderOpen} label="Mandati attivi" value={mandatiAttivi} />
-                <Kpi icon={Receipt} label={`Fatturato ${anno}`} value={fmtCHF(fatturato)} small />
-                <Kpi icon={Wallet} label="Da incassare" value={fmtCHF(daIncassare)} small accent={scaduto > 0 ? 'red' : 'nebbia'} />
+                <Kpi icon={Users} label={t('kpi.clienti')} value={D.clienti.length} />
+                <Kpi icon={FolderOpen} label={t('kpi.mandati_attivi')} value={mandatiAttivi} />
+                <Kpi icon={Receipt} label={t('kpi.fatturato', { anno })} value={fmtCHF(fatturato)} small />
+                <Kpi icon={Wallet} label={t('kpi.da_incassare')} value={fmtCHF(daIncassare)} small accent={scaduto > 0 ? 'red' : 'nebbia'} />
             </div>
 
             {/* Scadute */}
@@ -139,13 +144,13 @@ export default function FiduciarioDashboard() {
                 <div className="bg-red-900/10 border border-red-500/25 p-4">
                     <div className="flex items-center gap-2 mb-2">
                         <AlertTriangle size={15} className="text-red-400" />
-                        <p className="font-body text-sm font-medium text-red-400">{scadute.length} {scadute.length === 1 ? 'scadenza scaduta' : 'scadenze scadute'}</p>
+                        <p className="font-body text-sm font-medium text-red-400">{t('scadute.titolo', { count: scadute.length })}</p>
                     </div>
                     <div className="space-y-1.5">
                         {scadute.slice(0, 6).map(s => (
                             <Link key={s.id} to={linkScad(s)} className="flex items-center justify-between gap-3">
                                 <span className="font-body text-xs text-nebbia/70 truncate">{s.titolo} · <span className="text-nebbia/40">{nomeById[s.cliente_id] ?? '—'}</span></span>
-                                <span className="font-body text-xs text-red-400/80 shrink-0">{new Date(s.data_scadenza).toLocaleDateString('it-CH')}</span>
+                                <span className="font-body text-xs text-red-400/80 shrink-0">{new Date(s.data_scadenza).toLocaleDateString(dateLocale)}</span>
                             </Link>
                         ))}
                     </div>
@@ -157,10 +162,10 @@ export default function FiduciarioDashboard() {
                 <div className="bg-slate border border-white/5 p-5">
                     <div className="flex items-center gap-2 mb-4">
                         <CalendarClock size={15} className="text-oro/60" />
-                        <p className="section-label !m-0">Prossime scadenze</p>
+                        <p className="section-label !m-0">{t('scadenze.titolo')}</p>
                     </div>
                     {prossimeScad.length === 0 ? (
-                        <p className="font-body text-xs text-nebbia/30 italic">Nessuna scadenza in arrivo.</p>
+                        <p className="font-body text-xs text-nebbia/30 italic">{t('scadenze.vuoto')}</p>
                     ) : (
                         <div className="space-y-2">
                             {prossimeScad.map(s => {
@@ -172,8 +177,8 @@ export default function FiduciarioDashboard() {
                                             <p className="font-body text-[11px] text-nebbia/35 truncate">{nomeById[s.cliente_id] ?? '—'}{s.tipo ? ` · ${s.tipo}` : ''}</p>
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <p className="font-body text-xs text-nebbia/60">{new Date(s.data_scadenza).toLocaleDateString('it-CH')}</p>
-                                            <p className={`font-body text-[10px] ${gg <= 7 ? 'text-oro' : 'text-nebbia/30'}`}>{gg === 0 ? 'oggi' : `tra ${gg} gg`}</p>
+                                            <p className="font-body text-xs text-nebbia/60">{new Date(s.data_scadenza).toLocaleDateString(dateLocale)}</p>
+                                            <p className={`font-body text-[10px] ${gg <= 7 ? 'text-oro' : 'text-nebbia/30'}`}>{gg === 0 ? t('scadenze.oggi') : t('scadenze.tra_giorni', { count: gg })}</p>
                                         </div>
                                     </Link>
                                 )
@@ -185,10 +190,10 @@ export default function FiduciarioDashboard() {
                 <div className="bg-slate border border-white/5 p-5">
                     <div className="flex items-center gap-2 mb-4">
                         <CalendarDays size={15} className="text-oro/60" />
-                        <p className="section-label !m-0">Prossimi appuntamenti</p>
+                        <p className="section-label !m-0">{t('appuntamenti.titolo')}</p>
                     </div>
                     {prossimiApp.length === 0 ? (
-                        <p className="font-body text-xs text-nebbia/30 italic">Nessun appuntamento in programma.</p>
+                        <p className="font-body text-xs text-nebbia/30 italic">{t('appuntamenti.vuoto')}</p>
                     ) : (
                         <div className="space-y-2">
                             {prossimiApp.map(a => {
@@ -196,12 +201,12 @@ export default function FiduciarioDashboard() {
                                 return (
                                     <Link key={a.id} to="/calendario" className="flex items-center justify-between gap-3 p-2.5 bg-petrolio border border-white/5 hover:border-oro/30 transition-colors">
                                         <div className="min-w-0">
-                                            <p className="font-body text-sm text-nebbia truncate">{a.titolo ?? '(senza titolo)'}</p>
-                                            <p className="font-body text-[11px] text-nebbia/35 truncate">{a.cliente_id ? (nomeById[a.cliente_id] ?? '—') : 'studio'}{a.tipo ? ` · ${a.tipo}` : ''}</p>
+                                            <p className="font-body text-sm text-nebbia truncate">{a.titolo ?? t('appuntamenti.senza_titolo')}</p>
+                                            <p className="font-body text-[11px] text-nebbia/35 truncate">{a.cliente_id ? (nomeById[a.cliente_id] ?? '—') : t('appuntamenti.studio')}{a.tipo ? ` · ${a.tipo}` : ''}</p>
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <p className="font-body text-xs text-nebbia/60">{d.toLocaleDateString('it-CH')}</p>
-                                            <p className="font-body text-[10px] text-nebbia/30">{d.toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })}</p>
+                                            <p className="font-body text-xs text-nebbia/60">{d.toLocaleDateString(dateLocale)}</p>
+                                            <p className="font-body text-[10px] text-nebbia/30">{d.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}</p>
                                         </div>
                                     </Link>
                                 )
@@ -215,15 +220,15 @@ export default function FiduciarioDashboard() {
             <div className="bg-slate border border-white/5 p-5">
                 <div className="flex items-center gap-2 mb-4">
                     <Receipt size={15} className="text-oro/60" />
-                    <p className="section-label !m-0">Studio — fatturazione {anno}</p>
+                    <p className="section-label !m-0">{t('fatturazione.titolo', { anno })}</p>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <MiniStat label="Fatturato" value={fmtCHF(fatturato)} />
-                    <MiniStat label="Incassato" value={fmtCHF(incassato)} accent="salvia" />
-                    <MiniStat label="Da incassare" value={fmtCHF(daIncassare)} />
-                    <MiniStat label="Scaduto" value={fmtCHF(scaduto)} accent={scaduto > 0 ? 'red' : 'nebbia'} />
+                    <MiniStat label={t('fatturazione.fatturato')} value={fmtCHF(fatturato)} />
+                    <MiniStat label={t('fatturazione.incassato')} value={fmtCHF(incassato)} accent="salvia" />
+                    <MiniStat label={t('fatturazione.da_incassare')} value={fmtCHF(daIncassare)} />
+                    <MiniStat label={t('fatturazione.scaduto')} value={fmtCHF(scaduto)} accent={scaduto > 0 ? 'red' : 'nebbia'} />
                 </div>
-                <p className="font-body text-[11px] text-nebbia/25 mt-3">Fatture emesse dallo studio ai clienti (i ricavi dello studio). Niente a che vedere con i conti economici dei singoli clienti.</p>
+                <p className="font-body text-[11px] text-nebbia/25 mt-3">{t('fatturazione.nota')}</p>
             </div>
 
             {/* Conto economico PER CLIENTE (ogni cliente a sé) */}
@@ -231,14 +236,14 @@ export default function FiduciarioDashboard() {
                 <div className="bg-slate border border-white/5">
                     <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
                         <Users size={14} className="text-oro/60" />
-                        <p className="section-label !m-0">Conto economico per cliente {anno}</p>
-                        <span className="font-body text-[10px] text-nebbia/30 ml-1">— ogni cliente è a sé, non sommato</span>
+                        <p className="section-label !m-0">{t('ce.titolo', { anno })}</p>
+                        <span className="font-body text-[10px] text-nebbia/30 ml-1">{t('ce.nota')}</span>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead><tr className="border-b border-white/5">
-                                {['Cliente', 'Entrate', 'Costi', 'Stipendi', 'Saldo', ''].map((h, i) => (
-                                    <th key={h} className={`px-4 py-2.5 font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase ${i === 0 ? 'text-left' : i === 5 ? '' : 'text-right'}`}>{h}</th>
+                                {[t('ce.col_cliente'), t('ce.col_entrate'), t('ce.col_costi'), t('ce.col_stipendi'), t('ce.col_saldo'), ''].map((h, i) => (
+                                    <th key={i} className={`px-4 py-2.5 font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase ${i === 0 ? 'text-left' : i === 5 ? '' : 'text-right'}`}>{h}</th>
                                 ))}
                             </tr></thead>
                             <tbody>

@@ -1,0 +1,17 @@
+{
+  "avvocato": {
+    "label": "In Dossier speichern",
+    "cercaPlaceholder": "Dossier suchen...",
+    "vuotoConCerca": "Kein Dossier gefunden",
+    "vuotoSenzaCerca": "Kein offenes Dossier"
+  },
+  "fiduciario": {
+    "label": "In Mandat speichern",
+    "cercaPlaceholder": "Mandat suchen...",
+    "vuotoConCerca": "Kein Mandat gefunden",
+    "vuotoSenzaCerca": "Kein aktives Mandat"
+  },
+  "salvatoIn": "Gespeichert in \"{{titolo}}\"",
+  "caricamento": "Wird geladen...",
+  "salvataggio": "Wird gespeichert..."
+}

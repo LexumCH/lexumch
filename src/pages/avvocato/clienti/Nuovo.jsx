@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PageHeader, BackButton, InputField, TextareaField } from '@/components/shared'
 import { AlertCircle, CheckCircle, User, Building2, Eye, EyeOff, Lock, Users, ShoppingBag } from 'lucide-react'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
@@ -16,6 +17,7 @@ import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 // SWITCHER PF / PG
 // ─────────────────────────────────────────────────────────────
 function SwitcherTipoSoggetto({ value, onChange, disabled = false }) {
+    const { t } = useTranslation('avv_clienti_nuovo')
     return (
         <div className="flex gap-1 bg-petrolio border border-white/10 p-1 w-fit">
             <button
@@ -26,7 +28,7 @@ function SwitcherTipoSoggetto({ value, onChange, disabled = false }) {
                     ? 'bg-oro/10 text-oro border border-oro/30'
                     : 'text-nebbia/40 hover:text-nebbia'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-                <User size={13} /> Persona fisica
+                <User size={13} /> {t('switcher.persona_fisica')}
             </button>
             <button
                 type="button"
@@ -36,7 +38,7 @@ function SwitcherTipoSoggetto({ value, onChange, disabled = false }) {
                     ? 'bg-oro/10 text-oro border border-oro/30'
                     : 'text-nebbia/40 hover:text-nebbia'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-                <Building2 size={13} /> Persona giuridica
+                <Building2 size={13} /> {t('switcher.persona_giuridica')}
             </button>
         </div>
     )
@@ -47,6 +49,7 @@ function SwitcherTipoSoggetto({ value, onChange, disabled = false }) {
 // Soglie: < 70% nessun banner · 70-89% ambra · 90-99% rosso chiaro · 100% rosso bloccante
 // ─────────────────────────────────────────────────────────────
 function BannerContatoreClienti({ clienti, limiteRaggiunto }) {
+    const { t } = useTranslation('avv_clienti_nuovo')
     // Se il piano non ha limite definito (es. avvocato senza piano valido o piano legacy), niente banner
     if (clienti.limite_totale <= 0 && !limiteRaggiunto) return null
 
@@ -68,10 +71,10 @@ function BannerContatoreClienti({ clienti, limiteRaggiunto }) {
                     <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
                         <p className="font-body text-sm font-medium text-red-400">
-                            Limite clienti raggiunto ({clienti.conteggio}/{clienti.limite_totale})
+                            {t('banner.bloccante_titolo', { conteggio: clienti.conteggio, totale: clienti.limite_totale })}
                         </p>
                         <p className="font-body text-xs text-red-400/70 mt-1 leading-relaxed">
-                            Hai raggiunto il numero massimo di clienti registrabili con il tuo piano. Acquista un add-on clienti per continuare a registrarne di nuovi.
+                            {t('banner.bloccante_testo')}
                         </p>
                     </div>
                 </div>
@@ -79,7 +82,7 @@ function BannerContatoreClienti({ clienti, limiteRaggiunto }) {
                     to="/studio?tab=acquista"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/40 text-red-400 font-body text-sm hover:bg-red-500/30 transition-colors"
                 >
-                    <ShoppingBag size={13} /> Acquista add-on clienti
+                    <ShoppingBag size={13} /> {t('banner.bloccante_cta')}
                 </Link>
             </div>
         )
@@ -92,12 +95,12 @@ function BannerContatoreClienti({ clienti, limiteRaggiunto }) {
                 <Users size={16} className="text-red-400/80 shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                     <p className="font-body text-sm font-medium text-red-400/90">
-                        Stai per esaurire gli slot clienti ({slotRimanenti} {slotRimanenti === 1 ? 'rimasto' : 'rimasti'})
+                        {t('banner.critico_titolo', { count: slotRimanenti })}
                     </p>
                     <p className="font-body text-xs text-red-400/60 mt-1 leading-relaxed">
-                        Hai usato {clienti.conteggio} dei {clienti.limite_totale} slot disponibili. Acquista un add-on per evitare blocchi.{' '}
+                        {t('banner.critico_testo', { conteggio: clienti.conteggio, totale: clienti.limite_totale })}{' '}
                         <Link to="/studio?tab=acquista" className="underline hover:text-red-400">
-                            Vai all'acquisto
+                            {t('banner.critico_link')}
                         </Link>
                     </p>
                 </div>
@@ -111,12 +114,12 @@ function BannerContatoreClienti({ clienti, limiteRaggiunto }) {
             <Users size={16} className="text-amber-400/80 shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
                 <p className="font-body text-sm text-amber-400/90">
-                    Ti restano {slotRimanenti} {slotRimanenti === 1 ? 'slot cliente' : 'slot clienti'}
+                    {t('banner.soft_titolo', { count: slotRimanenti })}
                 </p>
                 <p className="font-body text-xs text-amber-400/60 mt-1 leading-relaxed">
-                    Hai usato {clienti.conteggio} dei {clienti.limite_totale} slot del tuo piano. Considera un add-on per non rischiare di bloccarti.{' '}
+                    {t('banner.soft_testo', { conteggio: clienti.conteggio, totale: clienti.limite_totale })}{' '}
                     <Link to="/studio?tab=acquista" className="underline hover:text-amber-400">
-                        Vedi opzioni
+                        {t('banner.soft_link')}
                     </Link>
                 </p>
             </div>
@@ -128,6 +131,7 @@ function BannerContatoreClienti({ clienti, limiteRaggiunto }) {
 // NUOVO CLIENTE
 // ─────────────────────────────────────────────────────────────
 export default function AvvocatoClientiNuovo() {
+    const { t } = useTranslation('avv_clienti_nuovo')
     const navigate = useNavigate()
     const [tipo, setTipo] = useState('persona_fisica')
     const [form, setForm] = useState({
@@ -196,17 +200,17 @@ export default function AvvocatoClientiNuovo() {
         e.preventDefault(); setErrore('')
 
         if (tipo === 'persona_fisica') {
-            if (!form.nome.trim()) return setErrore('Il nome è obbligatorio')
-            if (!form.cognome.trim()) return setErrore('Il cognome è obbligatorio')
+            if (!form.nome.trim()) return setErrore(t('errori.nome_obbligatorio'))
+            if (!form.cognome.trim()) return setErrore(t('errori.cognome_obbligatorio'))
         } else {
-            if (!form.ragione_sociale.trim()) return setErrore('La ragione sociale è obbligatoria')
+            if (!form.ragione_sociale.trim()) return setErrore(t('errori.ragione_sociale_obbligatoria'))
         }
-        if (!form.email.trim()) return setErrore("L'email è obbligatoria")
-        if (!/\S+@\S+\.\S+/.test(form.email)) return setErrore('Email non valida')
+        if (!form.email.trim()) return setErrore(t('errori.email_obbligatoria'))
+        if (!/\S+@\S+\.\S+/.test(form.email)) return setErrore(t('errori.email_non_valida'))
 
         if (form.attiva_portale) {
-            if (!form.password_iniziale) return setErrore('Inserisci la password iniziale per attivare il portale')
-            if (form.password_iniziale.length < 8) return setErrore('La password deve essere di almeno 8 caratteri')
+            if (!form.password_iniziale) return setErrore(t('errori.password_obbligatoria'))
+            if (form.password_iniziale.length < 8) return setErrore(t('errori.password_corta'))
         }
 
         setLoading(true)
@@ -288,17 +292,17 @@ export default function AvvocatoClientiNuovo() {
 
     if (success) return (
         <div className="space-y-5 max-w-2xl">
-            <BackButton to="/clienti" label="Tutti i clienti" />
+            <BackButton to="/clienti" label={t('back')} />
             <div className="bg-slate border border-white/5 p-10 flex flex-col items-center text-center gap-4">
                 <CheckCircle size={40} className="text-salvia" />
-                <h2 className="font-display text-2xl text-nebbia">Cliente creato</h2>
+                <h2 className="font-display text-2xl text-nebbia">{t('successo.titolo')}</h2>
                 {form.attiva_portale ? (
                     <p className="font-body text-sm text-nebbia/50">
-                        Portale attivato. Ricorda di comunicare al cliente le credenziali di accesso.
+                        {t('successo.portale_attivo')}
                     </p>
                 ) : (
                     <p className="font-body text-sm text-nebbia/50">
-                        Anagrafica salvata. L'accesso al portale è disattivato.
+                        {t('successo.portale_disattivo')}
                     </p>
                 )}
             </div>
@@ -307,8 +311,8 @@ export default function AvvocatoClientiNuovo() {
 
     return (
         <div className="space-y-5 max-w-2xl">
-            <BackButton to="/clienti" label="Tutti i clienti" />
-            <PageHeader label="Clienti" title="Nuovo cliente" />
+            <BackButton to="/clienti" label={t('back')} />
+            <PageHeader label={t('header.label')} title={t('header.title')} />
 
             {/* ── Banner contatore clienti (soft / critico / bloccante) ── */}
             <BannerContatoreClienti clienti={clienti} limiteRaggiunto={limiteRaggiunto} />
@@ -318,33 +322,33 @@ export default function AvvocatoClientiNuovo() {
 
                     {/* Tipo soggetto */}
                     <div>
-                        <p className="section-label mb-3">Tipo di soggetto</p>
+                        <p className="section-label mb-3">{t('sezioni.tipo_soggetto')}</p>
                         <SwitcherTipoSoggetto value={tipo} onChange={setTipo} />
                     </div>
 
                     {/* Dati anagrafici */}
                     {tipo === 'persona_fisica' ? (
                         <>
-                            <p className="section-label">Dati anagrafici</p>
+                            <p className="section-label">{t('sezioni.dati_anagrafici')}</p>
                             <div className="grid grid-cols-2 gap-4">
-                                <InputField label="Nome *" placeholder="Anna" {...f('nome')} />
-                                <InputField label="Cognome *" placeholder="Rossi" {...f('cognome')} />
+                                <InputField label={t('pf.nome')} placeholder={t('pf.nome_ph')} {...f('nome')} />
+                                <InputField label={t('pf.cognome')} placeholder={t('pf.cognome_ph')} {...f('cognome')} />
                             </div>
-                            <InputField label="Numero AVS" placeholder="756.1234.5678.97" {...f('numero_avs')} />
+                            <InputField label={t('pf.numero_avs')} placeholder="756.1234.5678.97" {...f('numero_avs')} />
                             <div className="grid grid-cols-2 gap-4">
-                                <InputField label="Data di nascita" type="date" {...f('data_nascita')} />
-                                <InputField label="Luogo di nascita" placeholder="Lugano" {...f('luogo_nascita')} />
+                                <InputField label={t('pf.data_nascita')} type="date" {...f('data_nascita')} />
+                                <InputField label={t('pf.luogo_nascita')} placeholder={t('pf.luogo_nascita_ph')} {...f('luogo_nascita')} />
                             </div>
                         </>
                     ) : (
                         <>
-                            <p className="section-label">Dati società</p>
-                            <InputField label="Ragione sociale *" placeholder="Alfa SA" {...f('ragione_sociale')} />
+                            <p className="section-label">{t('sezioni.dati_societa')}</p>
+                            <InputField label={t('pg.ragione_sociale')} placeholder={t('pg.ragione_sociale_ph')} {...f('ragione_sociale')} />
                             <div className="grid grid-cols-2 gap-4">
-                                <InputField label="Numero UID" placeholder="CHE-123.456.789" {...f('uid')} />
-                                <InputField label="Forma giuridica" placeholder="Es. SA, Sàrl, ditta individuale" {...f('forma_giuridica')} />
+                                <InputField label={t('pg.uid')} placeholder="CHE-123.456.789" {...f('uid')} />
+                                <InputField label={t('pg.forma_giuridica')} placeholder={t('pg.forma_giuridica_ph')} {...f('forma_giuridica')} />
                             </div>
-                            <InputField label="Sede legale" placeholder="Via Nassa 5, Lugano" {...f('sede_legale')} />
+                            <InputField label={t('pg.sede_legale')} placeholder={t('pg.sede_legale_ph')} {...f('sede_legale')} />
 
                             <label className="flex items-center gap-3 cursor-pointer group">
                                 <input
@@ -354,22 +358,22 @@ export default function AvvocatoClientiNuovo() {
                                     className="w-4 h-4 accent-oro shrink-0"
                                 />
                                 <span className="font-body text-sm text-nebbia/85 group-hover:text-nebbia transition-colors">
-                                    Soggetto assoggettato all'IVA
+                                    {t('pg.iva_attiva')}
                                 </span>
                             </label>
 
                             <div className="border-t border-white/8 pt-5 space-y-4">
                                 <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">
-                                    Rappresentante legale{' '}
-                                    <span className="text-nebbia/25 normal-case tracking-normal">— opzionale</span>
+                                    {t('pg.rappresentante')}{' '}
+                                    <span className="text-nebbia/25 normal-case tracking-normal">{t('pg.rappresentante_opzionale')}</span>
                                 </p>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="Nome" placeholder="Mario" {...f('rappr_nome')} />
-                                    <InputField label="Cognome" placeholder="Bianchi" {...f('rappr_cognome')} />
+                                    <InputField label={t('pg.rappr_nome')} placeholder={t('pg.rappr_nome_ph')} {...f('rappr_nome')} />
+                                    <InputField label={t('pg.rappr_cognome')} placeholder={t('pg.rappr_cognome_ph')} {...f('rappr_cognome')} />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="Numero AVS" placeholder="AVS rappresentante" {...f('rappr_avs')} />
-                                    <InputField label="Carica" placeholder="Es. Amministratore" {...f('rappr_carica')} />
+                                    <InputField label={t('pg.rappr_avs')} placeholder={t('pg.rappr_avs_ph')} {...f('rappr_avs')} />
+                                    <InputField label={t('pg.rappr_carica')} placeholder={t('pg.rappr_carica_ph')} {...f('rappr_carica')} />
                                 </div>
                             </div>
                         </>
@@ -377,23 +381,23 @@ export default function AvvocatoClientiNuovo() {
 
                     {/* Contatti */}
                     <div className="border-t border-white/8 pt-5 space-y-4">
-                        <p className="section-label">Contatti</p>
-                        <InputField label="Email *" type="email" placeholder="email@esempio.ch" {...f('email')} />
-                        <InputField label="Telefono" placeholder="+41 91 000 11 22" {...f('telefono')} />
+                        <p className="section-label">{t('sezioni.contatti')}</p>
+                        <InputField label={t('contatti.email')} type="email" placeholder="email@esempio.ch" {...f('email')} />
+                        <InputField label={t('contatti.telefono')} placeholder="+41 79 123 45 67" {...f('telefono')} />
                     </div>
 
                     {/* Indirizzo */}
                     <div className="border-t border-white/8 pt-5 space-y-4">
-                        <p className="section-label">Indirizzo</p>
+                        <p className="section-label">{t('sezioni.indirizzo')}</p>
                         <InputField
-                            label={tipo === 'persona_fisica' ? 'Indirizzo di domicilio' : 'Sede operativa (se diversa dalla sede legale)'}
-                            placeholder="Via, numero civico"
+                            label={tipo === 'persona_fisica' ? t('indirizzo.domicilio') : t('indirizzo.sede_operativa')}
+                            placeholder={t('indirizzo.via_ph')}
                             {...f('indirizzo')}
                         />
                         <div className="grid grid-cols-3 gap-4">
-                            <InputField label="Località" placeholder="Lugano" {...f('citta')} />
-                            <InputField label="Cantone" placeholder="TI" {...f('cantone')} />
-                            <InputField label="NPA" placeholder="6900" {...f('cap')} />
+                            <InputField label={t('indirizzo.localita')} placeholder={t('indirizzo.localita_ph')} {...f('citta')} />
+                            <InputField label={t('indirizzo.cantone')} placeholder="TI" {...f('cantone')} />
+                            <InputField label={t('indirizzo.npa')} placeholder="6900" {...f('cap')} />
                         </div>
                     </div>
 
@@ -401,14 +405,14 @@ export default function AvvocatoClientiNuovo() {
                     {isStudio && collaboratori.length > 0 && (
                         <div className="border-t border-white/8 pt-5">
                             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                                Avvocato assegnato *
+                                {t('avvocato.assegnato')}
                             </label>
                             <select
                                 value={form.avvocato_id}
                                 onChange={e => setForm(p => ({ ...p, avvocato_id: e.target.value }))}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50"
                             >
-                                <option value="">Tu</option>
+                                <option value="">{t('avvocato.tu')}</option>
                                 {collaboratori.map(c => (
                                     <option key={c.id} value={c.id}>{c.nome} {c.cognome}</option>
                                 ))}
@@ -419,8 +423,8 @@ export default function AvvocatoClientiNuovo() {
                     {/* Note */}
                     <div className="border-t border-white/8 pt-5">
                         <TextareaField
-                            label="Note iniziali"
-                            placeholder="Primo contatto, situazione generale..."
+                            label={t('note.label')}
+                            placeholder={t('note.placeholder')}
                             rows={3}
                             {...f('note')}
                         />
@@ -437,10 +441,10 @@ export default function AvvocatoClientiNuovo() {
                             />
                             <div className="flex-1">
                                 <p className="font-body text-sm text-nebbia/85 group-hover:text-nebbia transition-colors">
-                                    Attiva accesso al portale clienti
+                                    {t('portale.attiva')}
                                 </p>
                                 <p className="font-body text-xs text-nebbia/40 leading-relaxed mt-0.5">
-                                    Il cliente potrà accedere al suo portale con email e password. Potrai resettare la password in qualsiasi momento dalla scheda cliente.
+                                    {t('portale.descrizione')}
                                 </p>
                             </div>
                         </label>
@@ -449,7 +453,7 @@ export default function AvvocatoClientiNuovo() {
                             <div className="pl-7 space-y-3">
                                 <label className="block">
                                     <span className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                                        Password iniziale *
+                                        {t('portale.password_label')}
                                     </span>
                                     <div className="relative">
                                         <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30 pointer-events-none" />
@@ -457,7 +461,7 @@ export default function AvvocatoClientiNuovo() {
                                             type={mostraPassword ? 'text' : 'password'}
                                             value={form.password_iniziale}
                                             onChange={e => setForm(p => ({ ...p, password_iniziale: e.target.value }))}
-                                            placeholder="Almeno 8 caratteri"
+                                            placeholder={t('portale.password_ph')}
                                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-10 py-3 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                                         />
                                         <button
@@ -472,7 +476,7 @@ export default function AvvocatoClientiNuovo() {
                                 <div className="flex items-start gap-2 px-3 py-2 bg-oro/5 border border-oro/15">
                                     <AlertCircle size={11} className="text-oro/70 mt-0.5 shrink-0" />
                                     <p className="font-body text-[11px] text-nebbia/55 leading-relaxed">
-                                        La password non viene mai inviata via email da Lexum. Comunicala al cliente con il canale che preferisci (telefono, whatsapp, di persona).
+                                        {t('portale.password_nota')}
                                     </p>
                                 </div>
                             </div>
@@ -492,17 +496,17 @@ export default function AvvocatoClientiNuovo() {
                             onClick={() => navigate('/clienti')}
                             className="btn-secondary text-sm flex-1"
                         >
-                            Annulla
+                            {t('azioni.annulla')}
                         </button>
                         <button
                             type="submit"
                             disabled={loading || limiteRaggiunto}
                             className="btn-primary text-sm flex-1 justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-                            title={limiteRaggiunto ? 'Limite clienti raggiunto - acquista un add-on per continuare' : undefined}
+                            title={limiteRaggiunto ? t('azioni.limite_tooltip') : undefined}
                         >
                             {loading
                                 ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                                : limiteRaggiunto ? 'Limite raggiunto' : 'Crea cliente'
+                                : limiteRaggiunto ? t('azioni.limite_raggiunto') : t('azioni.crea')
                             }
                         </button>
                     </div>

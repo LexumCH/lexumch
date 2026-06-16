@@ -1,0 +1,139 @@
+{
+    "header": {
+        "titolo": "Lex pour ce dossier",
+        "crediti": "{{count}} crédits",
+        "salvaConversazione": "Enregistrer la conversation",
+        "nuovaChat": "Nouveau chat"
+    },
+    "confermaNuova": {
+        "messaggio": "La conversation en cours sera perdue. Continuer ?",
+        "conferma": "Oui, nouveau chat"
+    },
+    "confermaSalvataggio": "Conversation enregistrée dans les recherches du dossier.",
+    "formSalva": {
+        "titolo": "Enregistrer dans les recherches",
+        "placeholder": "Ex. Stratégie pour l'audience du 15 mars",
+        "conferma": "Confirmer l'enregistrement"
+    },
+    "vuoto": {
+        "titolo": "Lex connaît ce dossier",
+        "descrizione": "Client, parties adverses, audiences, documents de l'archive et recherches déjà effectuées. Demandez une analyse, une stratégie ou la génération d'un acte (mise en demeure, commandement de payer LP, demande...).",
+        "cta": "Que puis-je vous demander ?"
+    },
+    "ruolo": {
+        "tu": "Vous",
+        "lex": "Lex"
+    },
+    "badge": {
+        "documento": "Document"
+    },
+    "creditiEsauriti": {
+        "messaggio": "Crédits Lex épuisés.",
+        "acquista": "Acheter des crédits →"
+    },
+    "input": {
+        "placeholder": "Demandez à Lex une analyse ou la génération d'un acte... (Ctrl+Entrée pour envoyer)",
+        "placeholderEsauriti": "Crédits épuisés — achetez des crédits pour continuer",
+        "titleInvia": "Envoyer (Ctrl+Entrée)",
+        "titleEsauriti": "Crédits épuisés",
+        "suggerimento": "Je peux analyser le dossier ou générer 6 types d'actes suisses. Chaque acte consomme 1 crédit."
+    },
+    "comune": {
+        "annulla": "Annuler"
+    },
+    "errori": {
+        "scriviDomanda": "Écrivez une question pour Lex",
+        "sessioneScaduta": "Session expirée. Veuillez recharger la page.",
+        "sconosciuto": "Erreur inconnue",
+        "conCodice": "Erreur {{codice}}",
+        "streaming": "Erreur lors du streaming",
+        "inserisciTitolo": "Saisissez un titre pour la conversation"
+    },
+    "animazione": {
+        "titolo": "Lex travaille sur le dossier",
+        "frasi": [
+            "J'analyse le dossier",
+            "J'examine l'historique des audiences",
+            "Je vérifie les documents du dossier",
+            "Je reconstitue les positions des parties",
+            "Je consulte le droit applicable",
+            "Je rédige une réponse structurée"
+        ]
+    },
+    "trascrizione": {
+        "documentoGenerato": "Document généré",
+        "atto": "acte",
+        "avvocato": "Avocat",
+        "lex": "Lex"
+    },
+    "popover": {
+        "titolo": "Ce que vous pouvez demander à Lex",
+        "analisi": {
+            "titolo": "Analyse et raisonnement",
+            "descrizione": "Demandez à Lex d'analyser le dossier, d'identifier les points forts et les points faibles, de proposer une stratégie, de vous préparer à l'audience ou de reconstituer l'historique. Exemples : \"analyse les points faibles\", \"quelle stratégie me conseilles-tu\", \"que dois-je préparer pour l'audience\"."
+        },
+        "generazione": {
+            "titolo": "Génération d'actes",
+            "descrizione": "Lex peut rédiger 6 types d'actes suisses à partir des données du dossier. Écrivez simplement ce dont vous avez besoin. Chaque acte généré consomme 1 crédit."
+        },
+        "footer": "Touchez un acte pour insérer un exemple dans le champ de texte, puis personnalisez-le."
+    },
+    "tipiDocumento": {
+        "categorie": {
+            "stragiudiziali": "Actes extrajudiciaires",
+            "esecuzione": "Poursuite (LP)",
+            "procedura_civile": "Procédure civile (CPC)"
+        },
+        "tipi": {
+            "diffida": {
+                "nome": "Mise en demeure",
+                "esempio": "rédige-moi une mise en demeure pour le non-paiement de la facture..."
+            },
+            "parere": {
+                "nome": "Avis de droit motivé",
+                "esempio": "prépare un avis de droit sur la résiliation du contrat de bail..."
+            },
+            "esecuzione_lef": {
+                "nome": "Poursuite LP (réquisition / commandement de payer)",
+                "esempio": "engage la poursuite pour la créance de CHF..."
+            },
+            "rigetto": {
+                "nome": "Requête de mainlevée de l'opposition",
+                "esempio": "prépare la requête de mainlevée de l'opposition au commandement de payer..."
+            },
+            "conciliazione": {
+                "nome": "Requête de conciliation",
+                "esempio": "rédige une requête de conciliation pour le litige..."
+            },
+            "petizione": {
+                "nome": "Demande / acte introductif",
+                "esempio": "rédige-moi la demande pour la cause de..."
+            }
+        }
+    },
+    "bolla": {
+        "documento": "Document",
+        "documentoGenerato": "Document généré",
+        "anteprima": "Aperçu",
+        "modifica": "Modifier",
+        "modificaTesto": "Modifier le texte de l'acte",
+        "avvisoNonConservato": "Ce document n'est pas conservé. Enregistrez-le maintenant en PDF pour l'archiver dans le dossier.",
+        "generoAnteprima": "Je génère l'aperçu mis en page...",
+        "anteprimaAtto": "Aperçu de l'acte",
+        "riprova": "Réessayer",
+        "modificheNonInAnteprima": "Vous avez des modifications pas encore dans l'aperçu.",
+        "markdownGrezzo": "Markdown brut de l'acte.",
+        "rigenero": "Régénération...",
+        "rigeneraAnteprima": "Régénérer l'aperçu",
+        "salvatoInDocumenti": "Enregistré dans les Documents du dossier :",
+        "scaricaPdf": "Télécharger le PDF",
+        "salvataggioInCorso": "Enregistrement...",
+        "salvaDiNuovo": "Enregistrer à nouveau (nouvelle version)",
+        "nomeFile": "Nom du fichier",
+        "salvaPdfNellaPratica": "Enregistrer le PDF dans le dossier",
+        "inserisciNomeFile": "Saisissez un nom pour le fichier",
+        "erroreAnteprima": "Erreur lors de la génération de l'aperçu",
+        "anteprimaNonDisponibile": "Aperçu non disponible",
+        "erroreSalvataggio": "Erreur lors de l'enregistrement du PDF"
+    }
+}

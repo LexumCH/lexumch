@@ -1,0 +1,60 @@
+{
+  "titolo": "Buchhaltung",
+  "badge_partita_doppia": "doppelte Buchhaltung",
+  "tabella_mancante": "Buchhaltungstabellen noch nicht erstellt: führen Sie die Migration <code>contabilita_fase_a.sql</code> aus.",
+  "classe_altro": "Sonstige",
+  "disattivo": "inaktiv",
+  "vuoto_giornale": "Keine Buchung. Verwenden Sie «Neue Buchung» für den ersten Eintrag (oder für die Eröffnungssaldi).",
+  "tab": {
+    "giornale": "Journal",
+    "conti": "Kontenplan",
+    "report": "Auswertungen",
+    "imputazioni": "Zuordnungen"
+  },
+  "vuoto_piano": {
+    "titolo": "Kein Kontenplan für diesen Kunden.",
+    "sottotitolo": "Initialisieren Sie den Schweizer Standard-Kontenplan für KMU (anschliessend anpassbar).",
+    "inizializza": "Kontenplan initialisieren"
+  },
+  "colonne": {
+    "conto": "Konto",
+    "dare": "Soll",
+    "avere": "Haben"
+  },
+  "tipo": {
+    "ordinaria": "Ordentlich",
+    "apertura": "Eröffnung",
+    "rettifica": "Korrektur",
+    "chiusura": "Abschluss"
+  },
+  "form": {
+    "data": "Datum",
+    "descrizione": "Beschreibung",
+    "descrizione_placeholder": "z. B. Rechnung Kunde X / Mietzahlung",
+    "tipo": "Art",
+    "scegli_conto": "— Konto —",
+    "aggiungi_riga": "Zeile hinzufügen"
+  },
+  "bilancio": {
+    "bilanciata": "Ausgeglichen",
+    "sbilancio": "Differenz {{importo}}",
+    "inserisci_righe": "Erfassen Sie die Zeilen"
+  },
+  "elimina": {
+    "titolo": "Buchung löschen",
+    "conferma": "Möchten Sie <d>{{descrizione}}</d> vom {{data}} löschen? Dieser Vorgang ist unwiderruflich."
+  },
+  "azioni": {
+    "nuova_registrazione": "Neue Buchung",
+    "elimina_registrazione": "Buchung löschen",
+    "annulla": "Abbrechen",
+    "elimina": "Löschen",
+    "registra": "Buchen",
+    "salvataggio": "Wird gespeichert..."
+  },
+  "errori": {
+    "sessione_scaduta": "Sitzung abgelaufen.",
+    "descrizione_obbligatoria": "Geben Sie eine Beschreibung ein.",
+    "non_bilanciata": "Die Buchung muss ausgeglichen sein (Σ Soll = Σ Haben) mit mindestens 2 Zeilen."
+  }
+}

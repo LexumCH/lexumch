@@ -1,0 +1,59 @@
+{
+  "stati": {
+    "aperta": "Offen",
+    "chiusa": "Abgeschlossen"
+  },
+  "tipi": ["Zivilrecht", "Strafrecht", "Handelsrecht", "Verwaltungsrecht", "Arbeitsrecht", "Familienrecht"],
+  "lista": {
+    "label": "Dossiers",
+    "titolo": "Die Dossiers",
+    "nuova_pratica": "Neues Dossier",
+    "cerca_placeholder": "Dossier oder Mandant suchen...",
+    "tutti_stati": "Alle Status",
+    "tutti_avvocati": "Alle Anwälte",
+    "dal": "Von",
+    "al": "Bis",
+    "reset": "Zurücksetzen",
+    "errore_caricamento": "Fehler beim Laden",
+    "intestazioni": {
+      "pratica": "Dossier",
+      "cliente": "Mandant",
+      "tipo": "Art",
+      "avvocato": "Anwalt",
+      "stato": "Status",
+      "creata_il": "Erstellt am",
+      "pross_udienza": "Nächste Verhandlung"
+    },
+    "nessuna_pratica": "Keine Dossiers gefunden",
+    "dettaglio": "Details →",
+    "tu": "Sie"
+  },
+  "nuova": {
+    "torna": "Alle Dossiers",
+    "label": "Dossiers",
+    "titolo_pagina": "Neues Dossier",
+    "successo_titolo": "Dossier erstellt",
+    "titolo_pratica": "Dossiertitel *",
+    "titolo_placeholder": "Z. B. Zivilverfahren Rossi gegen Ferrari",
+    "cliente": "Mandant *",
+    "seleziona_cliente": "Mandant auswählen...",
+    "tipo_causa": "Verfahrensart *",
+    "seleziona_tipo": "Art auswählen...",
+    "stato": "Status",
+    "prossima_udienza": "Nächste Verhandlung",
+    "opzionale": "— optional",
+    "avvocato_principale": "Hauptanwalt *",
+    "collaboratori": "Mitarbeitende",
+    "tu": "Sie",
+    "note_label": "Interne Notizen (optional)",
+    "note_placeholder": "Beschreibung des Falls, wesentliche Sachverhalte, Verteidigungsstrategie...",
+    "note_help": "Diese Notizen sind im Bereich \"Interne Notizen\" des Dossiers sichtbar und können jederzeit bearbeitet werden. Lex AI liest sie nicht.",
+    "annulla": "Abbrechen",
+    "crea_pratica": "Dossier erstellen",
+    "errori": {
+      "titolo_obbligatorio": "Der Titel ist erforderlich",
+      "seleziona_cliente": "Bitte einen Mandanten auswählen",
+      "seleziona_tipo": "Bitte die Verfahrensart auswählen"
+    }
+  }
+}

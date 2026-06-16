@@ -1,0 +1,30 @@
+{
+  "header": {
+    "titolo": "Wiederherstellungscodes"
+  },
+  "avviso": {
+    "titolo": "Speichern Sie diese Codes sofort",
+    "descrizione": "Sie werden nur ein einziges Mal angezeigt. Sie benötigen sie, um wieder Zugang zu Ihrem Konto zu erhalten, falls Sie Ihr Telefon verlieren. Jeder Code kann nur einmal verwendet werden und deaktiviert die 2FA: Sie müssen sie neu einrichten."
+  },
+  "conferma": {
+    "label": "Ich bestätige, dass ich die Wiederherstellungscodes an einem sicheren Ort gespeichert habe. Mir ist bewusst, dass sie nicht wiederhergestellt werden können, wenn ich sie verliere."
+  },
+  "azioni": {
+    "copia": "Kopieren",
+    "copiati": "Kopiert",
+    "scarica": "Herunterladen",
+    "stampa": "Drucken",
+    "chiudi": "Schliessen",
+    "chiudiSalvato": "Ich habe die Codes gespeichert, schliessen"
+  },
+  "file": {
+    "titolo": "LEXUM — 2FA-Wiederherstellungscodes",
+    "generatiIl": "Erstellt am: {{data}}",
+    "importante": "WICHTIG: Jeder Code kann nur einmal verwendet werden.",
+    "conserva": "Bewahren Sie sie an einem sicheren Ort auf. Sie benötigen sie, falls Sie den Zugang zur Authenticator-App verlieren.",
+    "disattiva": "Durch die Verwendung eines Wiederherstellungscodes wird die 2FA deaktiviert — Sie müssen sie neu einrichten."
+  },
+  "stampa": {
+    "titoloPagina": "Lexum - 2FA-Wiederherstellungscodes"
+  }
+}

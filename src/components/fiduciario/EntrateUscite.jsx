@@ -17,6 +17,7 @@
 //   anno       (number|null)  - anno di riferimento iniziale (dal mandato)
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
     TrendingUp, TrendingDown, Plus, ChevronLeft, ChevronRight,
     Users, Trash2, Edit2, AlertCircle, Scale, Paperclip, ShieldAlert,
@@ -27,11 +28,14 @@ import {
 } from '@/lib/calcoloSalari'
 import FormMovimento from './FormMovimento'
 
-const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre']
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 const sum = (arr) => arr.reduce((t, m) => t + (Number(m.importo) || 0), 0)
 
 export default function EntrateUscite({ clienteId, mandatoId = null, anno = null, onMovimentiChange }) {
+    const { t, i18n } = useTranslation('comp_fid_entrate_uscite')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    const MESI = t('mesi', { returnObjects: true })
     const annoCorr = new Date().getFullYear()
     const [annoSel, setAnnoSel] = useState(anno ?? annoCorr)
     const [meseSel, setMeseSel] = useState((anno ?? annoCorr) === annoCorr ? new Date().getMonth() : 0)
@@ -138,15 +142,15 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-2">
                     <Scale size={15} className="text-oro/60" />
-                    <h2 className="font-display text-lg text-nebbia">Entrate e uscite</h2>
-                    {mandatoId && <span className="font-body text-[10px] px-2 py-0.5 bg-petrolio border border-white/10 text-nebbia/40 uppercase tracking-wider">mandato</span>}
+                    <h2 className="font-display text-lg text-nebbia">{t('titolo')}</h2>
+                    {mandatoId && <span className="font-body text-[10px] px-2 py-0.5 bg-petrolio border border-white/10 text-nebbia/40 uppercase tracking-wider">{t('badge_mandato')}</span>}
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
                     {/* Toggle vista: effettivo (consuntivo) / previsto (budget) */}
                     <div className="flex border border-white/10">
                         {[
-                            { v: 'effettivo', label: 'Effettivo' },
-                            { v: 'previsto', label: 'Previsto' },
+                            { v: 'effettivo', label: t('vista.effettivo') },
+                            { v: 'previsto', label: t('vista.previsto') },
                         ].map(({ v, label }) => (
                             <button key={v} onClick={() => setVista(v)}
                                 className={`px-3 py-1.5 font-body text-xs transition-colors ${vista === v ? 'bg-oro/15 text-oro' : 'text-nebbia/40 hover:text-nebbia/70'}`}>
@@ -155,7 +159,7 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
                         ))}
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Anno</span>
+                        <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{t('anno')}</span>
                         <select
                             value={annoSel}
                             onChange={e => setAnnoSel(Number(e.target.value))}
@@ -173,30 +177,30 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
                 <div className="bg-slate border border-white/10 p-4">
                     <div className="flex items-center justify-between gap-2 mb-3">
                         <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest truncate capitalize">
-                            {MESI[meseSel]} {annoSel}{ePrevisto ? ' · previsto' : ''}
+                            {MESI[meseSel]} {annoSel}{ePrevisto ? ` · ${t('previsto_suffisso')}` : ''}
                         </p>
                         <div className="flex items-center gap-0.5 shrink-0">
                             <button onClick={() => setMeseSel(m => Math.max(0, m - 1))} disabled={meseSel === 0}
-                                className="w-5 h-5 flex items-center justify-center text-nebbia/40 hover:text-oro disabled:opacity-20 disabled:cursor-not-allowed transition-colors" title="Mese precedente">
+                                className="w-5 h-5 flex items-center justify-center text-nebbia/40 hover:text-oro disabled:opacity-20 disabled:cursor-not-allowed transition-colors" title={t('mese_precedente')}>
                                 <ChevronLeft size={13} />
                             </button>
                             <button onClick={() => setMeseSel(m => Math.min(11, m + 1))} disabled={meseSel === 11}
-                                className="w-5 h-5 flex items-center justify-center text-nebbia/40 hover:text-oro disabled:opacity-20 disabled:cursor-not-allowed transition-colors" title="Mese successivo">
+                                className="w-5 h-5 flex items-center justify-center text-nebbia/40 hover:text-oro disabled:opacity-20 disabled:cursor-not-allowed transition-colors" title={t('mese_successivo')}>
                                 <ChevronRight size={13} />
                             </button>
                         </div>
                     </div>
                     <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                            <span className="font-body text-xs text-salvia/80 flex items-center gap-1"><TrendingUp size={11} /> Entrate</span>
+                            <span className="font-body text-xs text-salvia/80 flex items-center gap-1"><TrendingUp size={11} /> {t('entrate')}</span>
                             <span className="font-display text-base text-salvia">{fmtCHF(entrateMese)}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="font-body text-xs text-oro/80 flex items-center gap-1"><TrendingDown size={11} /> Uscite</span>
+                            <span className="font-body text-xs text-oro/80 flex items-center gap-1"><TrendingDown size={11} /> {t('uscite')}</span>
                             <span className="font-display text-base text-oro">{fmtCHF(usciteMese)}</span>
                         </div>
                         <div className="flex items-center justify-between pt-1.5 border-t border-white/5">
-                            <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Saldo</span>
+                            <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{t('saldo')}</span>
                             <span className={`font-display text-base ${saldoMese >= 0 ? 'text-salvia' : 'text-red-400'}`}>{fmtCHF(saldoMese)}</span>
                         </div>
                     </div>
@@ -206,11 +210,11 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
                 <div className="bg-slate border border-oro/30 p-4">
                     <div className="flex items-center gap-1.5 mb-1.5">
                         <TrendingDown size={11} className="text-oro" />
-                        <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{ePrevisto ? 'Uscite previste' : 'Totale uscite'} {annoSel}</p>
+                        <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{ePrevisto ? t('box_uscite.titolo_previsto') : t('box_uscite.titolo_effettivo')} {annoSel}</p>
                     </div>
                     <p className="font-display text-2xl text-oro">{fmtCHF(totaleUscite)}</p>
                     <p className="font-body text-[10px] text-nebbia/25 mt-0.5">
-                        {ePrevisto ? 'solo costi pianificati (stipendi esclusi)' : `stipendi ${fmtCHF(stipendiAnno)} + uscite ${fmtCHF(costiAnno)}`}
+                        {ePrevisto ? t('box_uscite.dettaglio_previsto') : t('box_uscite.dettaglio_effettivo', { stipendi: fmtCHF(stipendiAnno), uscite: fmtCHF(costiAnno) })}
                     </p>
                 </div>
 
@@ -218,11 +222,11 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
                 <div className="bg-slate border border-salvia/30 p-4">
                     <div className="flex items-center gap-1.5 mb-1.5">
                         <TrendingUp size={11} className="text-salvia" />
-                        <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{ePrevisto ? 'Entrate previste' : 'Totale entrate'} {annoSel}</p>
+                        <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{ePrevisto ? t('box_entrate.titolo_previsto') : t('box_entrate.titolo_effettivo')} {annoSel}</p>
                     </div>
                     <p className="font-display text-2xl text-salvia">{fmtCHF(totaleEntrate)}</p>
                     <p className="font-body text-[10px] text-nebbia/25 mt-0.5">
-                        saldo {annoSel}: <span className={saldoAnno >= 0 ? 'text-salvia' : 'text-red-400'}>{fmtCHF(saldoAnno)}</span>
+                        {t('box_entrate.saldo_label', { anno: annoSel })} <span className={saldoAnno >= 0 ? 'text-salvia' : 'text-red-400'}>{fmtCHF(saldoAnno)}</span>
                     </p>
                 </div>
             </div>
@@ -241,7 +245,7 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     {/* ── ENTRATE ── */}
                     <SezioneMovimenti
-                        titolo="Entrate"
+                        titolo={t('entrate')}
                         tipo="entrata"
                         movimenti={entrateAnnoList}
                         onNuovo={() => setForm({ tipo: 'entrata', valoriIniziali: { stato: vista } })}
@@ -251,7 +255,7 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
 
                     {/* ── USCITE (con riga stipendi computata in testa) ── */}
                     <SezioneMovimenti
-                        titolo="Uscite"
+                        titolo={t('uscite')}
                         tipo="uscita"
                         movimenti={usciteAnnoList}
                         onNuovo={() => setForm({ tipo: 'uscita', valoriIniziali: { stato: vista } })}
@@ -262,9 +266,9 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
                                 <div className="flex items-start gap-2.5 min-w-0">
                                     <Users size={14} className="text-oro/60 shrink-0 mt-0.5" />
                                     <div className="min-w-0">
-                                        <p className="font-body text-sm text-nebbia">Stipendi {annoSel}</p>
+                                        <p className="font-body text-sm text-nebbia">{t('stipendi.titolo', { anno: annoSel })}</p>
                                         <p className="font-body text-[11px] text-nebbia/30 mt-0.5">
-                                            calcolato da {nRilevanti} {nRilevanti === 1 ? 'persona' : 'persone'} (dipendenti e soci) · non modificabile qui
+                                            {t('stipendi.dettaglio', { count: nRilevanti })}
                                         </p>
                                     </div>
                                 </div>
@@ -295,22 +299,22 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
                     <div className="bg-slate border border-red-500/30 w-full max-w-md" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-2 p-5 border-b border-white/8">
                             <Trash2 size={16} className="text-red-400" />
-                            <h2 className="font-display text-lg text-nebbia">Elimina movimento</h2>
+                            <h2 className="font-display text-lg text-nebbia">{t('elimina.titolo')}</h2>
                         </div>
                         <div className="p-6 space-y-4">
                             <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                                Eliminare <span className="text-nebbia font-medium">{daEliminare.descrizione}</span> ({fmtCHF(daEliminare.importo)})? L'operazione è irreversibile.
+                                {t('elimina.conferma_pre')} <span className="text-nebbia font-medium">{daEliminare.descrizione}</span> ({fmtCHF(daEliminare.importo)}){t('elimina.conferma_post')}
                             </p>
                             <div className="flex gap-2">
                                 <button onClick={() => setDaEliminare(null)} disabled={eliminando}
                                     className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">
-                                    Annulla
+                                    {t('elimina.annulla')}
                                 </button>
                                 <button onClick={elimina} disabled={eliminando}
                                     className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-500/15 border border-red-500/40 text-red-400 font-body text-sm hover:bg-red-500/25 transition-colors disabled:opacity-40">
                                     {eliminando
                                         ? <span className="animate-spin w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" />
-                                        : <><Trash2 size={14} /> Elimina</>}
+                                        : <><Trash2 size={14} /> {t('elimina.conferma')}</>}
                                 </button>
                             </div>
                         </div>
@@ -323,6 +327,8 @@ export default function EntrateUscite({ clienteId, mandatoId = null, anno = null
 
 // ─── Sezione lista (Entrate o Uscite) ───
 function SezioneMovimenti({ titolo, tipo, movimenti, onNuovo, onModifica, onElimina, rigaTesta = null }) {
+    const { t, i18n } = useTranslation('comp_fid_entrate_uscite')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const eEntrata = tipo === 'entrata'
     const accent = eEntrata ? 'text-salvia' : 'text-oro'
     return (
@@ -334,7 +340,7 @@ function SezioneMovimenti({ titolo, tipo, movimenti, onNuovo, onModifica, onElim
                 </div>
                 <button onClick={onNuovo}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors">
-                    <Plus size={11} /> {eEntrata ? 'Nuova entrata' : 'Nuovo costo'}
+                    <Plus size={11} /> {eEntrata ? t('sezione.nuova_entrata') : t('sezione.nuovo_costo')}
                 </button>
             </div>
 
@@ -343,7 +349,7 @@ function SezioneMovimenti({ titolo, tipo, movimenti, onNuovo, onModifica, onElim
                 {movimenti.length === 0 && !rigaTesta ? (
                     <div className="flex flex-col items-center justify-center py-8 text-nebbia/30 text-center bg-petrolio/40 border border-white/5">
                         {eEntrata ? <TrendingUp size={18} className="mb-2 text-nebbia/20" /> : <TrendingDown size={18} className="mb-2 text-nebbia/20" />}
-                        <span className="font-body text-xs">Nessun{eEntrata ? "'entrata" : ' costo'} registrat{eEntrata ? 'a' : 'o'}</span>
+                        <span className="font-body text-xs">{eEntrata ? t('sezione.vuoto_entrate') : t('sezione.vuoto_uscite')}</span>
                     </div>
                 ) : movimenti.map(m => (
                     <div key={m.id} className="group flex items-start justify-between gap-3 p-3 bg-petrolio border border-white/5 hover:border-white/10 transition-colors">
@@ -354,16 +360,16 @@ function SezioneMovimenti({ titolo, tipo, movimenti, onNuovo, onModifica, onElim
                                     <span className="font-body text-[10px] px-1.5 py-0.5 bg-white/5 border border-white/10 text-nebbia/40">{m.categoria}</span>
                                 )}
                                 {m.ricorrenza && m.ricorrenza !== 'una_tantum' && (
-                                    <span className="font-body text-[10px] px-1.5 py-0.5 border border-oro/20 text-oro/60" title="Ricorrente">↻ {m.ricorrenza}</span>
+                                    <span className="font-body text-[10px] px-1.5 py-0.5 border border-oro/20 text-oro/60" title={t('sezione.ricorrente')}>↻ {t(`ricorrenza.${m.ricorrenza}`, { defaultValue: m.ricorrenza })}</span>
                                 )}
                                 {m.origine === 'ocr' && !m.verificato && (
-                                    <span className="inline-flex items-center gap-1 font-body text-[10px] px-1.5 py-0.5 border border-amber-400/30 text-amber-400" title="Creato da OCR, da verificare">
-                                        <ShieldAlert size={9} /> da verificare
+                                    <span className="inline-flex items-center gap-1 font-body text-[10px] px-1.5 py-0.5 border border-amber-400/30 text-amber-400" title={t('sezione.ocr_tooltip')}>
+                                        <ShieldAlert size={9} /> {t('sezione.da_verificare')}
                                     </span>
                                 )}
                             </div>
                             <p className="font-body text-[11px] text-nebbia/30 mt-0.5 flex items-center gap-2 flex-wrap">
-                                <span>{new Date(m.data).toLocaleDateString('it-CH')}</span>
+                                <span>{new Date(m.data).toLocaleDateString(dateLocale)}</span>
                                 {m.documento && (
                                     <span className="inline-flex items-center gap-1 text-nebbia/40"><Paperclip size={9} /> {m.documento.titolo}</span>
                                 )}
@@ -372,11 +378,11 @@ function SezioneMovimenti({ titolo, tipo, movimenti, onNuovo, onModifica, onElim
                         <div className="flex items-center gap-2 shrink-0">
                             <span className={`font-display text-sm ${accent}`}>{fmtCHF(m.importo)}</span>
                             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => onModifica(m)} title="Modifica"
+                                <button onClick={() => onModifica(m)} title={t('sezione.modifica')}
                                     className="w-6 h-6 flex items-center justify-center text-nebbia/30 hover:text-oro transition-colors">
                                     <Edit2 size={12} />
                                 </button>
-                                <button onClick={() => onElimina(m)} title="Elimina"
+                                <button onClick={() => onElimina(m)} title={t('sezione.elimina')}
                                     className="w-6 h-6 flex items-center justify-center text-nebbia/30 hover:text-red-400 transition-colors">
                                     <Trash2 size={12} />
                                 </button>

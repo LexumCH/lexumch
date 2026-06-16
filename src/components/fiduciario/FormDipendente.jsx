@@ -10,11 +10,16 @@
 //   onSaved()   - callback dopo salvataggio riuscito
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { X, User, Briefcase, Building2, Globe, Loader2, AlertCircle, Paperclip, FileText, ExternalLink, Plus, Trash2, Gift, Check, Calendar } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
 export default function FormDipendente({ clienteId, dipendente = null, onClose, onSaved, onBonusCambiato = null }) {
+    const { t, i18n } = useTranslation('comp_fid_form_dipendente')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const isModifica = !!dipendente
 
     // ── Anagrafica ──
@@ -102,7 +107,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
     async function aggiungiBonus() {
         const imp = Number(nuovoBonusImporto)
         if (!imp || imp <= 0 || !nuovoBonusData) {
-            setErrore('Per il bonus servono un importo valido e una data.')
+            setErrore(t('errori.bonus_invalido'))
             return
         }
         setSalvandoBonus(true)
@@ -171,7 +176,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
 
     async function salva(dopoSalvataggio = null) {
         if (!puoSalvare) {
-            setErrore('Nome, cognome e almeno un ruolo (socio o dipendente) sono obbligatori.')
+            setErrore(t('errori.campi_obbligatori'))
             return
         }
         setSalvando(true)
@@ -179,7 +184,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-            setErrore('Sessione scaduta. Effettua nuovamente il login.')
+            setErrore(t('errori.sessione_scaduta'))
             setSalvando(false)
             return
         }
@@ -264,9 +269,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
             return
         }
         // Modifiche pendenti → chiedi conferma; su OK salva e poi naviga
-        const conferma = confirm(
-            'Hai modifiche non salvate su questo dipendente.\n\nVuoi salvarle e andare all\'archivio per aggiungere un documento?'
-        )
+        const conferma = confirm(t('conferme.modifiche_non_salvate'))
         if (!conferma) return
         salva(vaiAdArchivio)  // salva, e a salvataggio riuscito naviga
     }
@@ -286,7 +289,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                 {/* Toast conferma salvataggio */}
                 {toast && (
                     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 px-4 py-2 bg-salvia/20 border border-salvia/40 text-salvia font-body text-sm shadow-lg">
-                        <Check size={14} /> Salvato
+                        <Check size={14} /> {t('toast.salvato')}
                     </div>
                 )}
 
@@ -295,10 +298,10 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
                     <div>
                         <p className="font-display text-lg text-nebbia">
-                            {isModifica ? 'Modifica dipendente' : 'Nuovo dipendente'}
+                            {isModifica ? t('header.modifica') : t('header.nuovo')}
                         </p>
                         <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                            Anagrafica del personale dell'azienda cliente
+                            {t('header.sottotitolo')}
                         </p>
                     </div>
                     <button onClick={onClose} disabled={salvando}
@@ -312,25 +315,25 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
                             <User size={13} className="text-oro" />
-                            <p className="section-label !m-0">Anagrafica</p>
+                            <p className="section-label !m-0">{t('anagrafica.titolo')}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className={labelCls}>Nome *</label>
+                                <label className={labelCls}>{t('anagrafica.nome')}</label>
                                 <input value={nome} onChange={e => setNome(e.target.value)} className={inputCls} />
                             </div>
                             <div>
-                                <label className={labelCls}>Cognome *</label>
+                                <label className={labelCls}>{t('anagrafica.cognome')}</label>
                                 <input value={cognome} onChange={e => setCognome(e.target.value)} className={inputCls} />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className={labelCls}>Data di nascita</label>
+                                <label className={labelCls}>{t('anagrafica.data_nascita')}</label>
                                 <input type="date" value={dataNascita} onChange={e => setDataNascita(e.target.value)} className={inputCls} />
                             </div>
                             <div>
-                                <label className={labelCls}>Numero AVS</label>
+                                <label className={labelCls}>{t('anagrafica.numero_avs')}</label>
                                 <input value={numeroAvs} onChange={e => setNumeroAvs(e.target.value)}
                                     placeholder="756.XXXX.XXXX.XX" className={inputCls} />
                             </div>
@@ -341,34 +344,34 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                     <div className="space-y-4 border-t border-white/8 pt-5">
                         <div className="flex items-center gap-2">
                             <Building2 size={13} className="text-oro" />
-                            <p className="section-label !m-0">Ruolo in azienda</p>
+                            <p className="section-label !m-0">{t('ruolo.titolo')}</p>
                         </div>
                         <div className="flex gap-4">
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" checked={isDipendente}
                                     onChange={e => setIsDipendente(e.target.checked)}
                                     className="accent-oro w-4 h-4" />
-                                <span className="font-body text-sm text-nebbia/80">Dipendente</span>
+                                <span className="font-body text-sm text-nebbia/80">{t('ruolo.dipendente')}</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" checked={isSocio}
                                     onChange={e => setIsSocio(e.target.checked)}
                                     className="accent-oro w-4 h-4" />
-                                <span className="font-body text-sm text-nebbia/80">Socio / Proprietario</span>
+                                <span className="font-body text-sm text-nebbia/80">{t('ruolo.socio')}</span>
                             </label>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className={labelCls}>Qualifica / Ruolo</label>
+                                <label className={labelCls}>{t('ruolo.qualifica')}</label>
                                 <input value={ruolo} onChange={e => setRuolo(e.target.value)}
-                                    placeholder="es. Amministratore, Contabile..." className={inputCls} />
+                                    placeholder={t('ruolo.qualifica_ph')} className={inputCls} />
                             </div>
                             {isSocio && (
                                 <div>
-                                    <label className={labelCls}>Quota partecipazione (%)</label>
+                                    <label className={labelCls}>{t('ruolo.quota')}</label>
                                     <input type="number" step="0.01" min="0" max="100"
                                         value={quota} onChange={e => setQuota(e.target.value)}
-                                        placeholder="es. 50" className={inputCls} />
+                                        placeholder={t('ruolo.quota_ph')} className={inputCls} />
                                 </div>
                             )}
                         </div>
@@ -379,36 +382,36 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                         <div className="space-y-4 border-t border-white/8 pt-5">
                             <div className="flex items-center gap-2">
                                 <Briefcase size={13} className="text-oro" />
-                                <p className="section-label !m-0">Rapporto di lavoro</p>
+                                <p className="section-label !m-0">{t('rapporto.titolo')}</p>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className={labelCls}>Data assunzione</label>
+                                    <label className={labelCls}>{t('rapporto.data_assunzione')}</label>
                                     <input type="date" value={dataAssunzione} onChange={e => setDataAssunzione(e.target.value)} className={inputCls} />
                                 </div>
                                 <div>
-                                    <label className={labelCls}>Data fine <span className="text-nebbia/25 normal-case tracking-normal">(se cessato)</span></label>
+                                    <label className={labelCls}>{t('rapporto.data_fine')} <span className="text-nebbia/25 normal-case tracking-normal">{t('rapporto.data_fine_hint')}</span></label>
                                     <input type="date" value={dataFine} onChange={e => setDataFine(e.target.value)} className={inputCls} />
                                 </div>
                             </div>
                             <div className="grid grid-cols-3 gap-3">
                                 <div>
-                                    <label className={labelCls}>Impiego (%)</label>
+                                    <label className={labelCls}>{t('rapporto.impiego')}</label>
                                     <input type="number" step="1" min="0" max="100"
                                         value={percentuale} onChange={e => setPercentuale(e.target.value)}
                                         placeholder="100" className={inputCls} />
                                 </div>
                                 <div>
-                                    <label className={labelCls}>Salario (CHF)</label>
+                                    <label className={labelCls}>{t('rapporto.salario')}</label>
                                     <input type="number" step="0.01" min="0"
                                         value={salario} onChange={e => setSalario(e.target.value)}
                                         placeholder="0.00" className={inputCls} />
                                 </div>
                                 <div>
-                                    <label className={labelCls}>Periodicità</label>
+                                    <label className={labelCls}>{t('rapporto.periodicita')}</label>
                                     <select value={salarioPeriodicita} onChange={e => setSalarioPeriodicita(e.target.value)} className={inputCls}>
-                                        <option value="annuo">Annuo</option>
-                                        <option value="mensile">Mensile</option>
+                                        <option value="annuo">{t('rapporto.periodicita_annuo')}</option>
+                                        <option value="mensile">{t('rapporto.periodicita_mensile')}</option>
                                     </select>
                                 </div>
                             </div>
@@ -419,33 +422,33 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                     <div className="space-y-4 border-t border-white/8 pt-5">
                         <div className="flex items-center gap-2">
                             <Globe size={13} className="text-oro" />
-                            <p className="section-label !m-0">Imposta alla fonte</p>
+                            <p className="section-label !m-0">{t('fonte.titolo')}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className={labelCls}>Nazionalità</label>
+                                <label className={labelCls}>{t('fonte.nazionalita')}</label>
                                 <input value={nazionalita} onChange={e => setNazionalita(e.target.value)}
-                                    placeholder="es. Italiana" className={inputCls} />
+                                    placeholder={t('fonte.nazionalita_ph')} className={inputCls} />
                             </div>
                             <div>
-                                <label className={labelCls}>Tipo permesso</label>
+                                <label className={labelCls}>{t('fonte.tipo_permesso')}</label>
                                 <input value={tipoPermesso} onChange={e => setTipoPermesso(e.target.value)}
-                                    placeholder="es. G (frontaliere), B, C..." className={inputCls} />
+                                    placeholder={t('fonte.tipo_permesso_ph')} className={inputCls} />
                             </div>
                         </div>
                         <label className="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" checked={impostaFonte}
                                 onChange={e => setImpostaFonte(e.target.checked)}
                                 className="accent-oro w-4 h-4" />
-                            <span className="font-body text-sm text-nebbia/80">Soggetto a imposta alla fonte</span>
+                            <span className="font-body text-sm text-nebbia/80">{t('fonte.soggetto')}</span>
                         </label>
                     </div>
 
                     {/* ── NOTE ── */}
                     <div className="border-t border-white/8 pt-5">
-                        <label className={labelCls}>Note <span className="text-nebbia/25 normal-case tracking-normal">(opzionale)</span></label>
+                        <label className={labelCls}>{t('note.label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('note.opzionale')}</span></label>
                         <textarea value={note} onChange={e => setNote(e.target.value)} rows={2}
-                            placeholder="Annotazioni..."
+                            placeholder={t('note.placeholder')}
                             className={`${inputCls} resize-none`} />
                     </div>
 
@@ -453,7 +456,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                     <div className="border-t border-white/8 pt-5 space-y-3">
                         <div className="flex items-center gap-2">
                             <Gift size={13} className="text-oro" />
-                            <p className="section-label !m-0">Bonus / premi</p>
+                            <p className="section-label !m-0">{t('bonus.titolo')}</p>
                         </div>
 
                         {isModifica ? (
@@ -461,25 +464,25 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                                 {/* Form aggiunta bonus */}
                                 <div className="grid grid-cols-12 gap-2 items-end">
                                     <div className="col-span-3">
-                                        <label className={labelCls}>Importo (CHF)</label>
+                                        <label className={labelCls}>{t('bonus.importo')}</label>
                                         <input type="number" step="0.01" min="0"
                                             value={nuovoBonusImporto}
                                             onChange={e => setNuovoBonusImporto(e.target.value)}
                                             placeholder="0.00" className={inputCls} />
                                     </div>
                                     <div className="col-span-3">
-                                        <label className={labelCls}>Data</label>
+                                        <label className={labelCls}>{t('bonus.data')}</label>
                                         <input type="date"
                                             value={nuovoBonusData}
                                             onChange={e => setNuovoBonusData(e.target.value)}
                                             className={inputCls} />
                                     </div>
                                     <div className="col-span-4">
-                                        <label className={labelCls}>Descrizione</label>
+                                        <label className={labelCls}>{t('bonus.descrizione')}</label>
                                         <input
                                             value={nuovoBonusDescr}
                                             onChange={e => setNuovoBonusDescr(e.target.value)}
-                                            placeholder="es. Premio obiettivi" className={inputCls} />
+                                            placeholder={t('bonus.descrizione_ph')} className={inputCls} />
                                     </div>
                                     <div className="col-span-2">
                                         <button
@@ -490,7 +493,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                                         >
                                             {salvandoBonus
                                                 ? <Loader2 size={12} className="animate-spin" />
-                                                : <><Plus size={12} /> Aggiungi</>}
+                                                : <><Plus size={12} /> {t('bonus.aggiungi')}</>}
                                         </button>
                                     </div>
                                 </div>
@@ -509,7 +512,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                                                     CHF {Number(b.importo).toLocaleString('it-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </span>
                                                 <span className="font-body text-xs text-nebbia/40 flex items-center gap-1 shrink-0">
-                                                    <Calendar size={10} /> {new Date(b.data_bonus).toLocaleDateString('it-CH')}
+                                                    <Calendar size={10} /> {new Date(b.data_bonus).toLocaleDateString(dateLocale)}
                                                 </span>
                                                 {b.descrizione && (
                                                     <span className="font-body text-xs text-nebbia/40 truncate flex-1">{b.descrizione}</span>
@@ -519,7 +522,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                                                     onClick={() => eliminaBonus(b.id)}
                                                     disabled={salvandoBonus}
                                                     className="ml-auto text-nebbia/25 hover:text-red-400 transition-colors shrink-0 disabled:opacity-40"
-                                                    title="Elimina bonus"
+                                                    title={t('bonus.elimina_tooltip')}
                                                 >
                                                     <Trash2 size={12} />
                                                 </button>
@@ -529,12 +532,12 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                                 )}
 
                                 <p className="font-body text-[11px] text-nebbia/25 italic">
-                                    I bonus pesano sull'uscita del mese in cui cadono e sul totale annuo. Non incidono sul fisso mensile.
+                                    {t('bonus.nota')}
                                 </p>
                             </>
                         ) : (
                             <p className="font-body text-xs text-nebbia/40 bg-petrolio/40 border border-white/5 p-3 leading-relaxed">
-                                Salva prima il dipendente per poter aggiungere bonus.
+                                {t('bonus.salva_prima')}
                             </p>
                         )}
                     </div>
@@ -543,7 +546,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                     <div className="border-t border-white/8 pt-5 space-y-3">
                         <div className="flex items-center gap-2">
                             <Paperclip size={13} className="text-oro" />
-                            <p className="section-label !m-0">Documenti</p>
+                            <p className="section-label !m-0">{t('documenti.titolo')}</p>
                         </div>
 
                         {isModifica ? (
@@ -551,8 +554,10 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                                 <div className="flex items-center justify-between gap-3 flex-wrap">
                                     <p className="font-body text-xs text-nebbia/40">
                                         {documenti.length === 0
-                                            ? 'Nessun documento assegnato a questa persona'
-                                            : `${documenti.length} ${documenti.length === 1 ? 'documento assegnato' : 'documenti assegnati'}`}
+                                            ? t('documenti.nessuno')
+                                            : (documenti.length === 1
+                                                ? t('documenti.conteggio_uno', { count: documenti.length })
+                                                : t('documenti.conteggio_molti', { count: documenti.length }))}
                                     </p>
                                     <button
                                         type="button"
@@ -560,7 +565,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                                         disabled={salvando}
                                         className="flex items-center gap-1.5 px-3 py-1.5 border border-oro/30 text-oro hover:bg-oro/10 font-body text-xs transition-colors disabled:opacity-40"
                                     >
-                                        <Paperclip size={11} /> Aggiungi documento
+                                        <Paperclip size={11} /> {t('documenti.aggiungi')}
                                     </button>
                                 </div>
 
@@ -579,7 +584,7 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                                                 <FileText size={13} className="text-oro/50 shrink-0" />
                                                 <span className="font-body text-sm text-nebbia/80 truncate flex-1">{d.titolo}</span>
                                                 <span className="font-body text-[10px] text-nebbia/25 shrink-0">
-                                                    {new Date(d.created_at).toLocaleDateString('it-CH')}
+                                                    {new Date(d.created_at).toLocaleDateString(dateLocale)}
                                                 </span>
                                                 <ExternalLink size={11} className="text-nebbia/20 group-hover:text-oro transition-colors shrink-0" />
                                             </Link>
@@ -588,12 +593,12 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                                 )}
 
                                 <p className="font-body text-[11px] text-nebbia/25 italic">
-                                    I documenti si caricano dall'archivio. Da lì vengono elaborati e resi ricercabili da Lex.
+                                    {t('documenti.nota')}
                                 </p>
                             </>
                         ) : (
                             <p className="font-body text-xs text-nebbia/40 bg-petrolio/40 border border-white/5 p-3 leading-relaxed">
-                                Salva prima il dipendente per poter allegare documenti.
+                                {t('documenti.salva_prima')}
                             </p>
                         )}
                     </div>
@@ -610,13 +615,13 @@ export default function FormDipendente({ clienteId, dipendente = null, onClose, 
                 <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/5 shrink-0">
                     <button onClick={onClose} disabled={salvando}
                         className="font-body text-sm text-nebbia/60 hover:text-nebbia px-4 py-2 transition-colors disabled:opacity-40">
-                        Annulla
+                        {t('footer.annulla')}
                     </button>
                     <button onClick={() => salva()} disabled={!puoSalvare || salvando}
                         className="flex items-center gap-2 px-5 py-2 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                         {salvando
-                            ? <><Loader2 size={14} className="animate-spin" /> Salvando...</>
-                            : (isModifica ? 'Salva modifiche' : 'Aggiungi dipendente')}
+                            ? <><Loader2 size={14} className="animate-spin" /> {t('footer.salvando')}</>
+                            : (isModifica ? t('footer.salva_modifiche') : t('footer.aggiungi'))}
                     </button>
                 </div>
             </div>

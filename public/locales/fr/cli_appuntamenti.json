@@ -1,0 +1,31 @@
+{
+  "header": {
+    "label": "Portail client",
+    "titolo": "Mes rendez-vous"
+  },
+  "filtri": {
+    "tutti": "Tous les statuts",
+    "programmati": "Planifiés",
+    "conclusi": "Terminés",
+    "annullati": "Annulés"
+  },
+  "stati": {
+    "programmato": "Planifié",
+    "concluso": "Terminé",
+    "annullato": "Annulé"
+  },
+  "tipi": {
+    "presenza": "En présentiel",
+    "videocall": "Visioconférence",
+    "telefonico": "Téléphonique",
+    "udienza": "Audience"
+  },
+  "vuoto": {
+    "nessun_appuntamento": "Aucun rendez-vous trouvé"
+  },
+  "scheda": {
+    "avvocato_prefisso": "Me",
+    "note": "Notes",
+    "entra_videocall": "Rejoindre la visioconférence"
+  }
+}

@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import logo from '@/assets/logo.png'
 import { ArrowRight, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import SelectLingua from '@/components/SelectLingua'
 
 export default function Registrati() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ nome: '', cognome: '', email: '', studio: '', password: '', conferma: '' })
+  const { t, i18n } = useTranslation('auth')
+  const [form, setForm] = useState(() => ({ nome: '', cognome: '', email: '', lingua: (i18n.language || 'it').slice(0, 2), studio: '', password: '', conferma: '' }))
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -15,11 +18,11 @@ export default function Registrati() {
 
   function validate() {
     const e = {}
-    if (!form.nome.trim()) e.nome = 'Campo obbligatorio'
-    if (!form.cognome.trim()) e.cognome = 'Campo obbligatorio'
-    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = 'Email non valida'
-    if (form.password.length < 8) e.password = 'Minimo 8 caratteri'
-    if (form.password !== form.conferma) e.conferma = 'Le password non coincidono'
+    if (!form.nome.trim()) e.nome = t('registrati.err_required')
+    if (!form.cognome.trim()) e.cognome = t('registrati.err_required')
+    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = t('registrati.err_email')
+    if (form.password.length < 8) e.password = t('registrati.err_min')
+    if (form.password !== form.conferma) e.conferma = t('registrati.err_mismatch')
     return e
   }
 
@@ -38,6 +41,7 @@ export default function Registrati() {
             nome: form.nome.trim(),
             cognome: form.cognome.trim(),
             studio: form.studio.trim() || null,
+            lingua: form.lingua || 'it',
           },
         },
       })
@@ -59,13 +63,12 @@ export default function Registrati() {
       <div className="min-h-screen bg-petrolio flex flex-col items-center justify-center px-4">
         <div className="w-full max-w-md bg-slate border border-white/5 p-8 text-center">
           <CheckCircle size={40} className="text-salvia mx-auto mb-4" />
-          <h2 className="font-display text-3xl font-light text-nebbia mb-3">Controlla la tua email</h2>
+          <h2 className="font-display text-3xl font-light text-nebbia mb-3">{t('registrati.success_title')}</h2>
           <p className="font-body text-sm text-nebbia/50 mb-6 leading-relaxed">
-            Abbiamo inviato un link di conferma a <span className="text-oro">{form.email}</span>.<br />
-            Clicca il link per attivare il tuo account e iniziare a usare Lex AI con 3 ricerche gratuite.
+            {t('registrati.success_text_prefix')}<span className="text-oro">{form.email}</span>{t('registrati.success_text_suffix')}
           </p>
           <p className="font-body text-xs text-nebbia/30">
-            Non hai ricevuto nulla? Controlla la cartella spam.
+            {t('registrati.success_spam')}
           </p>
         </div>
       </div>
@@ -118,39 +121,45 @@ export default function Registrati() {
       </Link>
 
       <div className="w-full max-w-md bg-slate border border-white/5 p-8">
-        <p className="section-label mb-6">Registrazione</p>
-        <h1 className="font-display text-4xl font-light text-nebbia mb-2">Crea il tuo account</h1>
+        <p className="section-label mb-6">{t('registrati.section_label')}</p>
+        <h1 className="font-display text-4xl font-light text-nebbia mb-2">{t('registrati.title')}</h1>
         <p className="font-body text-sm text-nebbia/40 mb-8 leading-relaxed">
-          Inizia subito con 3 ricerche Lex AI gratuite. Se sei un avvocato, dopo la registrazione potrai verificare la tua identità e accedere a tutte le funzionalità di Lexum.
+          {t('registrati.subtitle')}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            {field('nome', 'Nome *', 'text', 'Mario')}
-            {field('cognome', 'Cognome *', 'text', 'Rossi')}
+            {field('nome', t('registrati.nome_label'), 'text', t('registrati.nome_placeholder'))}
+            {field('cognome', t('registrati.cognome_label'), 'text', t('registrati.cognome_placeholder'))}
           </div>
-          {field('email', 'Email *', 'email', 'mario@studiorossi.it')}
+          {field('email', t('registrati.email_label'), 'email', t('registrati.email_placeholder'))}
+
+          {/* Lingua — preferita */}
+          <div>
+            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('registrati.lingua_label')}</label>
+            <SelectLingua value={form.lingua} onChange={(v) => setForm(f => ({ ...f, lingua: v }))} />
+          </div>
 
           {/* Studio — opzionale */}
           <div>
             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-              Nome studio
-              <span className="ml-2 text-nebbia/25 normal-case tracking-normal">— opzionale</span>
+              {t('registrati.studio_label')}
+              <span className="ml-2 text-nebbia/25 normal-case tracking-normal">{t('registrati.studio_optional')}</span>
             </label>
             <input
               type="text"
-              placeholder="Es. Studio Rossi e Associati"
+              placeholder={t('registrati.studio_placeholder')}
               value={form.studio}
               onChange={e => setForm(f => ({ ...f, studio: e.target.value }))}
               className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 transition-colors placeholder:text-nebbia/25"
             />
             <p className="mt-1.5 font-body text-xs text-nebbia/25 leading-relaxed">
-              Se sei un avvocato e lavori in uno studio, inserisci qui il nome. Servirà in fase di verifica. Puoi modificarlo anche dopo dal tuo profilo.
+              {t('registrati.studio_hint')}
             </p>
           </div>
 
-          {pwdField('password', 'Password *', showPwd, () => setShowPwd(v => !v))}
-          {pwdField('conferma', 'Conferma password *', showConferma, () => setShowConferma(v => !v))}
+          {pwdField('password', t('registrati.password_label'), showPwd, () => setShowPwd(v => !v))}
+          {pwdField('conferma', t('registrati.conferma_label'), showConferma, () => setShowConferma(v => !v))}
 
           {errors.global && (
             <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
@@ -161,14 +170,14 @@ export default function Registrati() {
           <button type="submit" disabled={loading} className="btn-primary w-full justify-center mt-2">
             {loading
               ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-              : <><ArrowRight size={16} /> Registrati</>
+              : <><ArrowRight size={16} /> {t('registrati.submit')}</>
             }
           </button>
         </form>
 
         <p className="font-body text-xs text-nebbia/30 text-center mt-6 pt-6 border-t border-white/5">
-          Hai già un account?{' '}
-          <Link to="/login" className="text-oro hover:text-oro/70 transition-colors">Accedi</Link>
+          {t('registrati.have_account')}{' '}
+          <Link to="/login" className="text-oro hover:text-oro/70 transition-colors">{t('registrati.login_link')}</Link>
         </p>
       </div>
     </div>

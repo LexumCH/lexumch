@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import logo from '@/assets/logo.png'
@@ -11,17 +12,17 @@ import {
 import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 
 const NAV = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/clienti', label: 'Clienti', icon: Users },
-  { path: '/banco-lavoro', label: 'Mandati', icon: Briefcase },
-  { path: '/calendario', label: 'Calendario', icon: Calendar },
-  { path: '/banca-dati', label: 'Banca dati', icon: Library },
-  { path: '/ricerche', label: 'Ricerche', icon: Search },
-  { path: '/studio', label: 'Studio', icon: Building2 },
-  { path: '/archivio', label: 'Archivio', icon: Archive },
-  { path: '/fatturazione', label: 'Fatturazione', icon: CreditCard },
-  { path: '/assistenza', label: 'Assistenza', icon: Headphones },
-  { path: '/profilo', label: 'Profilo', icon: User },
+  { path: '/dashboard', key: 'dashboard', icon: LayoutDashboard },
+  { path: '/clienti', key: 'clienti', icon: Users },
+  { path: '/banco-lavoro', key: 'mandati', icon: Briefcase },
+  { path: '/calendario', key: 'calendario', icon: Calendar },
+  { path: '/banca-dati', key: 'banca_dati', icon: Library },
+  { path: '/ricerche', key: 'ricerche', icon: Search },
+  { path: '/studio', key: 'studio', icon: Building2 },
+  { path: '/archivio', key: 'archivio', icon: Archive },
+  { path: '/fatturazione', key: 'fatturazione', icon: CreditCard },
+  { path: '/assistenza', key: 'assistenza', icon: Headphones },
+  { path: '/profilo', key: 'profilo', icon: User },
 ]
 
 function bytesToGB(b) {
@@ -34,6 +35,7 @@ function giorniAllaScadenza(dataStr) {
 }
 
 export default function FiduciarioLayout({ children }) {
+  const { t } = useTranslation('comp_layout_fiduciario')
   const [open, setOpen] = useState(false)
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
@@ -135,7 +137,7 @@ export default function FiduciarioLayout({ children }) {
         </Link>
 
         <nav className="flex-1 overflow-y-auto py-4 space-y-0.5 px-2">
-          {NAV.map(({ path, label, icon: Icon }) => (
+          {NAV.map(({ path, key, icon: Icon }) => (
             <NavLink
               key={path}
               to={path}
@@ -148,7 +150,7 @@ export default function FiduciarioLayout({ children }) {
               }
             >
               <Icon size={16} strokeWidth={1.5} />
-              <span className="flex-1">{label}</span>
+              <span className="flex-1">{t(`nav.${key}`)}</span>
               <ChevronRight size={13} className="opacity-0 group-hover:opacity-30 transition-opacity" />
             </NavLink>
           ))}
@@ -168,7 +170,7 @@ export default function FiduciarioLayout({ children }) {
             </div>
           </div>
           <button onClick={handleSignOut} className="w-full flex items-center gap-2 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors px-1 py-1">
-            <LogOut size={13} /> Esci
+            <LogOut size={13} /> {t('account.esci')}
           </button>
         </div>
       </aside>
@@ -184,21 +186,21 @@ export default function FiduciarioLayout({ children }) {
 
             {mostraScadenza && (
               <Link to="/studio?tab=acquista"
-                title={scaduto ? 'Piano scaduto - rinnova subito' : `Piano in scadenza tra ${giorni} ${giorni === 1 ? 'giorno' : 'giorni'}`}
+                title={scaduto ? t('header.scadenza.titolo_scaduto') : t('header.scadenza.titolo_in_scadenza', { count: giorni })}
                 className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors group ${scadenzaCritica || scaduto
                   ? 'bg-red-500/10 border border-red-500/30 hover:bg-red-500/15 hover:border-red-500/50'
                   : 'bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/15 hover:border-amber-500/50'
                   }`}>
                 <AlertTriangle size={13} className={scadenzaCritica || scaduto ? 'text-red-400' : 'text-amber-400'} />
                 <span className={`font-body text-sm ${scadenzaCritica || scaduto ? 'text-red-400' : 'text-amber-400'}`}>
-                  {scaduto ? 'Scaduto' : `${giorni}g`}
+                  {scaduto ? t('header.scadenza.scaduto') : t('header.scadenza.giorni_badge', { count: giorni })}
                 </span>
               </Link>
             )}
 
             {haStorage && (
               <Link to="/studio?tab=acquista"
-                title={`${storage.occupato_gb.toFixed(1)} GB occupati su ${storage.gb_totali} GB`}
+                title={t('header.storage.tooltip', { usati: storage.occupato_gb.toFixed(1), totali: storage.gb_totali })}
                 className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors group ${storagePieno
                   ? 'bg-red-500/10 border border-red-500/30 hover:bg-red-500/15 hover:border-red-500/50'
                   : storageQuasiPieno
@@ -222,7 +224,7 @@ export default function FiduciarioLayout({ children }) {
 
             {haLimiteClienti && (
               <Link to="/studio?tab=acquista"
-                title={`${clienti.conteggio} clienti registrati su ${clienti.limite_totale} disponibili`}
+                title={t('header.clienti.tooltip', { registrati: clienti.conteggio, disponibili: clienti.limite_totale })}
                 className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors group ${clientiPieno
                   ? 'bg-red-500/10 border border-red-500/30 hover:bg-red-500/15 hover:border-red-500/50'
                   : clientiCritico
@@ -247,7 +249,7 @@ export default function FiduciarioLayout({ children }) {
             )}
 
             <Link to="/studio?tab=acquista"
-              title="Acquista crediti AI"
+              title={t('header.crediti.tooltip')}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-petrolio border border-salvia/20 hover:border-salvia/40 transition-colors group">
               <Sparkles size={13} className="text-salvia" />
               <span className="font-body text-sm text-nebbia/80 group-hover:text-nebbia transition-colors">{crediti}</span>
@@ -270,21 +272,21 @@ export default function FiduciarioLayout({ children }) {
 
             {mostraScadenza && (
               <Link to="/studio?tab=acquista"
-                title={scaduto ? 'Piano scaduto' : `${giorni}g alla scadenza`}
+                title={scaduto ? t('header.scadenza.titolo_scaduto_breve') : t('header.scadenza.titolo_alla_scadenza', { count: giorni })}
                 className={`flex items-center gap-1 px-2 py-1 ${scadenzaCritica || scaduto
                   ? 'bg-red-500/10 border border-red-500/30'
                   : 'bg-amber-500/10 border border-amber-500/30'
                   }`}>
                 <AlertTriangle size={11} className={scadenzaCritica || scaduto ? 'text-red-400' : 'text-amber-400'} />
                 <span className={`font-body text-xs ${scadenzaCritica || scaduto ? 'text-red-400' : 'text-amber-400'}`}>
-                  {scaduto ? '!' : `${giorni}g`}
+                  {scaduto ? '!' : t('header.scadenza.giorni_badge', { count: giorni })}
                 </span>
               </Link>
             )}
 
             {haStorage && (
               <Link to="/studio?tab=acquista"
-                title={`${storage.occupato_gb.toFixed(1)}/${storage.gb_totali} GB`}
+                title={t('header.storage.tooltip_breve', { usati: storage.occupato_gb.toFixed(1), totali: storage.gb_totali })}
                 className={`flex items-center gap-1 px-2 py-1 ${storagePieno
                   ? 'bg-red-500/10 border border-red-500/30'
                   : storageQuasiPieno
@@ -303,7 +305,7 @@ export default function FiduciarioLayout({ children }) {
 
             {haLimiteClienti && (
               <Link to="/studio?tab=acquista"
-                title={`${clienti.conteggio}/${clienti.limite_totale} clienti`}
+                title={t('header.clienti.tooltip_breve', { registrati: clienti.conteggio, disponibili: clienti.limite_totale })}
                 className={`flex items-center gap-1 px-2 py-1 ${clientiPieno
                   ? 'bg-red-500/10 border border-red-500/30'
                   : clientiCritico

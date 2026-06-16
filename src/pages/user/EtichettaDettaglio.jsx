@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useTranslation, Trans } from 'react-i18next'
+import { labelFonteGiur, labelFontePrassi } from '@/lib/istituzioni'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
@@ -10,18 +12,18 @@ import {
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 
-const TIPI = [
-    { id: 'tutti', label: 'Tutti', icon: Tag },
-    { id: 'ricerca_ai', label: 'Ricerche', icon: Sparkles },
-    { id: 'norma_federale', label: 'Norme fed.', icon: Landmark },
-    { id: 'norma_cantonale', label: 'Norme cant.', icon: MapPin },
-    { id: 'norma_ue', label: 'Norme UE', icon: Globe },
-    { id: 'giurisprudenza', label: 'Giurisprudenza', icon: Scale },
-    { id: 'sentenza_ue', label: 'Sentenze UE', icon: Globe },
-    { id: 'prassi', label: 'Prassi', icon: ScrollText },
-]
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+const toArray = (v) => Array.isArray(v) ? v : []
+
+// Icone indicizzate per posizione (mai nel JSON)
+const TIPI_IDS = ['tutti', 'ricerca_ai', 'norma_federale', 'norma_cantonale', 'norma_ue', 'giurisprudenza', 'sentenza_ue', 'prassi']
+const TIPI_ICONS = [Tag, Sparkles, Landmark, MapPin, Globe, Scale, Globe, ScrollText]
 
 const TIPI_RICERCA = ['ricerca_ai', 'ricerca_manuale', 'chat_lex']
+
+// Azioni etichetta: id + emoji (testi in JSON, indicizzati per posizione)
+const AZIONI_IDS = ['mappa_concettuale', 'cosa_ho_ragionato', 'insight', 'stato_arte']
+const AZIONI_EMOJI = ['📊', '🔍', '💡', '📝']
 
 // ── Risoluzione multilingua (replicata dalle pagine dettaglio CH) ──
 const ORDINE_LINGUE = ['it', 'de', 'fr', 'en', 'rm']
@@ -43,54 +45,7 @@ function risolviTitoloGiur(s, linguaPref) {
     return s.signature ?? s.reference ?? '—'
 }
 
-const FONTI_FEDERALI = {
-    TF: 'Tribunale federale',
-    CH_BGE: 'DTF — Raccolta ufficiale',
-    TAF: 'Tribunale amministrativo federale',
-    TPF: 'Tribunale penale federale',
-}
-const CAMERA_LABEL = {
-    OG: 'Obergericht',
-    VG: 'Verwaltungsgericht',
-    SVG: 'Sozialversicherungsgericht',
-    BR: 'Baurekursgericht',
-    SR: 'Steuerrekursgericht',
-    FI: 'Tribunal',
-}
-function labelFonteGiur(fonte) {
-    if (!fonte) return '—'
-    if (FONTI_FEDERALI[fonte]) return FONTI_FEDERALI[fonte]
-    const m = /^CANT_([A-Z]{2})_(.+)$/.exec(fonte)
-    if (m) {
-        const cam = CAMERA_LABEL[m[2]] ?? m[2]
-        return `${m[1]} · ${cam}`
-    }
-    return fonte
-}
-
-const EMITTENTI_FEDERALI = {
-    estv: 'AFC — Contribuzioni federali',
-    ufas: 'UFAS — Assicurazioni sociali',
-    seco: 'SECO — Economia',
-    finma: 'FINMA — Vigilanza finanziaria',
-    udsc: 'UDSC — Dogane',
-    sem: 'SEM — Migrazione',
-    ufg: 'UFG — Giustizia',
-    weko: 'COMCO — Concorrenza',
-    ifpdt: 'IFPDT — Protezione dati',
-    mros: 'MROS — Riciclaggio',
-}
-function troncaEmittente(nome) {
-    if (!nome) return ''
-    const primo = nome.split(/[\/|;]/)[0].trim()
-    return primo.length > 60 ? primo.slice(0, 60) + '…' : primo
-}
-function labelFontePrassi(p) {
-    if (p.fonte === 'fisco_cant') {
-        return p.cantone ? `Fisco cantonale · ${p.cantone}` : 'Fisco cantonale'
-    }
-    return EMITTENTI_FEDERALI[p.fonte] ?? (p.emittente_nome ? troncaEmittente(p.emittente_nome) : (p.fonte ?? '—'))
-}
+// Etichette fonti giurisprudenza / emittenti prassi centralizzate in src/lib/istituzioni.js (namespace i18n 'istituzioni')
 
 function linkCorpus(kind, id, basePathBancaDati) {
     if (kind === 'norma_federale') return `${basePathBancaDati}/norma-federale/${id}`
@@ -103,6 +58,9 @@ function linkCorpus(kind, id, basePathBancaDati) {
 }
 
 export default function EtichettaDettaglio() {
+    const { t, i18n } = useTranslation('user_etichetta_dettaglio')
+    const { t: tIst } = useTranslation('istituzioni')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const navigate = useNavigate()
     const { profile } = useAuth()
@@ -248,7 +206,7 @@ export default function EtichettaDettaglio() {
                     ...rel,
                     dati: {
                         ...data,
-                        organo: labelFonteGiur(data.fonte),
+                        organo: labelFonteGiur(data.fonte, tIst),
                         titolo_risolto: risolviTitoloGiur(data, lingua),
                         numero: data.signature ?? data.reference,
                         anno: data.anno_deposito,
@@ -280,7 +238,7 @@ export default function EtichettaDettaglio() {
                     .select('id, fonte, cantone, emittente_nome, numero, anno, oggetto, titolo, data_emanazione')
                     .eq('id', rel.elemento_id).maybeSingle()
                 if (!data) return null
-                return { ...rel, dati: { ...data, fonte_label: labelFontePrassi(data) }, kindFiltro: 'prassi' }
+                return { ...rel, dati: { ...data, fonte_label: labelFontePrassi(data, tIst) }, kindFiltro: 'prassi' }
             }
 
             return null
@@ -290,7 +248,7 @@ export default function EtichettaDettaglio() {
     }
 
     async function rimuoviContenuto(rel) {
-        if (!confirm('Rimuovere questo elemento dall\'etichetta?\n\nL\'elemento originale (ricerca, giurisprudenza, norma, prassi) non viene cancellato.')) return
+        if (!confirm(t('conferma.rimuovi'))) return
         setEliminando(rel.id)
         try {
             const { error } = await supabase
@@ -348,7 +306,7 @@ export default function EtichettaDettaglio() {
     if (errore) return (
         <div className="space-y-5">
             <Link to={basePathRicerche} className="inline-flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                <ArrowLeft size={11} /> Tutte le ricerche
+                <ArrowLeft size={11} /> {t('nav.tutte_ricerche')}
             </Link>
             <div className="bg-slate border border-red-500/20 p-8 text-center">
                 <AlertCircle size={28} className="text-red-400 mx-auto mb-3" />
@@ -363,17 +321,17 @@ export default function EtichettaDettaglio() {
         <div className="space-y-5 px-6 pt-2 pb-6">
 
             <Link to={basePathRicerche} className="inline-flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
-                <ArrowLeft size={11} /> Tutte le ricerche
+                <ArrowLeft size={11} /> {t('nav.tutte_ricerche')}
             </Link>
 
             {/* Header etichetta */}
             <div className="flex items-center gap-3 min-w-0 flex-wrap">
                 <div className="w-4 h-4 rounded-full shrink-0"
                     style={{ backgroundColor: etichetta.colore || '#7FA39A' }} />
-                <p className="section-label !m-0">Etichetta</p>
+                <p className="section-label !m-0">{t('header.etichetta')}</p>
                 <h1 className="font-display text-3xl font-light text-nebbia leading-none">{etichetta.nome}</h1>
                 <p className="font-body text-xs text-nebbia/30">
-                    · {contenuti.length} {contenuti.length === 1 ? 'elemento' : 'elementi'} · creata il {new Date(etichetta.created_at).toLocaleDateString('it-CH')}
+                    · {contenuti.length === 1 ? t('header.elementi_one', { count: contenuti.length }) : t('header.elementi_other', { count: contenuti.length })} · {t('header.creata_il', { data: new Date(etichetta.created_at).toLocaleDateString(dateLocale) })}
                 </p>
             </div>
 
@@ -386,7 +344,7 @@ export default function EtichettaDettaglio() {
                     <div className="relative">
                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30" />
                         <input
-                            placeholder="Cerca dentro questa etichetta..."
+                            placeholder={t('ricerca.placeholder')}
                             value={cerca}
                             onChange={e => setCerca(e.target.value)}
                             className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm pl-9 pr-9 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -400,7 +358,8 @@ export default function EtichettaDettaglio() {
                     </div>
 
                     <div className="flex gap-1 bg-slate border border-white/5 p-1 overflow-x-auto">
-                        {TIPI.map(({ id: tid, label, icon: Icon }) => {
+                        {TIPI_IDS.map((tid, idx) => {
+                            const Icon = TIPI_ICONS[idx]
                             const isActive = tipoAttivo === tid
                             const count = conteggiPerTipo[tid]
                             return (
@@ -410,7 +369,7 @@ export default function EtichettaDettaglio() {
                                     className={`flex items-center gap-2 px-3 py-1.5 font-body text-xs transition-colors whitespace-nowrap ${isActive ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'}`}
                                 >
                                     <Icon size={11} />
-                                    <span>{label}</span>
+                                    <span>{t(`tipi.${tid}`)}</span>
                                     {count > 0 && (
                                         <span className={`text-[10px] ${isActive ? 'text-oro/60' : 'text-nebbia/30'}`}>
                                             {count}
@@ -426,12 +385,12 @@ export default function EtichettaDettaglio() {
                             <Tag size={28} className="text-nebbia/15 mx-auto mb-3" />
                             <p className="font-body text-sm text-nebbia/30">
                                 {contenuti.length === 0
-                                    ? 'Nessun contenuto in questa etichetta ancora'
-                                    : 'Nessun risultato per questi filtri'}
+                                    ? t('vuoto.nessun_contenuto')
+                                    : t('vuoto.nessun_risultato')}
                             </p>
                             {contenuti.length === 0 && (
                                 <p className="font-body text-xs text-nebbia/20 mt-2 max-w-sm mx-auto leading-relaxed">
-                                    Per aggiungere contenuti, vai nella banca dati e clicca "Aggiungi a etichetta" su giurisprudenza, norme o prassi. Puoi anche taggare le tue ricerche dalla pagina Ricerche.
+                                    {t('vuoto.istruzioni')}
                                 </p>
                             )}
                         </div>
@@ -474,13 +433,15 @@ export default function EtichettaDettaglio() {
 // CARD CONTENUTO
 // ═══════════════════════════════════════════════════════════════
 function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleApri, basePathBancaDati, onAggiornata }) {
+    const { t, i18n } = useTranslation('user_etichetta_dettaglio')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
     if (TIPI_RICERCA.includes(c.tipo)) {
         const Icon = c.tipo === 'chat_lex' ? MessageSquare : c.tipo === 'ricerca_manuale' ? Search : Sparkles
         const colorIcon = c.tipo === 'ricerca_manuale' ? 'text-oro' : 'text-salvia'
-        const tipoLabel = c.tipo === 'ricerca_ai' ? 'Ricerca AI'
-            : c.tipo === 'chat_lex' ? 'Chat con Lex'
-                : 'Ricerca manuale'
+        const tipoLabel = c.tipo === 'ricerca_ai' ? t('card.tipo_ricerca_ai')
+            : c.tipo === 'chat_lex' ? t('card.tipo_chat_lex')
+                : t('card.tipo_ricerca_manuale')
 
         return (
             <div className="bg-slate border border-white/5 hover:border-salvia/20 transition-colors">
@@ -505,17 +466,17 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                             </p>
                         )}
                         <p className="font-body text-[10px] text-nebbia/25 mt-2">
-                            {new Date(c.dati.created_at).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            {new Date(c.dati.created_at).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' })}
                         </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                         <button onClick={onToggleApri}
                             className="font-body text-xs text-nebbia/30 hover:text-oro px-2 py-1 transition-colors">
-                            {aperto ? 'Chiudi' : 'Apri'}
+                            {aperto ? t('card.chiudi') : t('card.apri')}
                         </button>
                         <button onClick={onRimuovi} disabled={eliminando}
                             className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
-                            title="Rimuovi tag">
+                            title={t('card.rimuovi_tag')}>
                             {eliminando ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                         </button>
                     </div>
@@ -562,7 +523,7 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                             <span className="font-body text-xs text-oro font-medium">
-                                {intestazione || 'Norma'}
+                                {intestazione || t('card.norma')}
                             </span>
                         </div>
                         {rubrica && (
@@ -580,7 +541,7 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                         <ExternalLink size={11} className="text-nebbia/20 group-hover:text-oro transition-colors" />
                         <button onClick={(e) => { e.preventDefault(); onRimuovi() }} disabled={eliminando}
                             className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
-                            title="Rimuovi tag">
+                            title={t('card.rimuovi_tag')}>
                             {eliminando ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                         </button>
                     </div>
@@ -600,7 +561,7 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                     <div className="flex-1 min-w-0">
                         <p className="font-body text-xs text-nebbia/50 mb-1">{titolo}</p>
                         <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors leading-snug">
-                            {c.dati.titolo_risolto ?? c.dati.oggetto ?? 'Sentenza'}
+                            {c.dati.titolo_risolto ?? c.dati.oggetto ?? t('card.sentenza')}
                         </p>
                         {c.dati.principio_diritto && (
                             <p className="font-body text-xs text-nebbia/40 mt-1 line-clamp-2 leading-relaxed">
@@ -612,7 +573,7 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                         <ExternalLink size={11} className="text-nebbia/20 group-hover:text-oro transition-colors" />
                         <button onClick={(e) => { e.preventDefault(); onRimuovi() }} disabled={eliminando}
                             className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
-                            title="Rimuovi tag">
+                            title={t('card.rimuovi_tag')}>
                             {eliminando ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                         </button>
                     </div>
@@ -632,7 +593,7 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                     <div className="flex-1 min-w-0">
                         <p className="font-body text-xs text-nebbia/50 mb-1">{titolo}</p>
                         <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors leading-snug">
-                            {c.dati.oggetto ?? 'Sentenza UE'}
+                            {c.dati.oggetto ?? t('card.sentenza_ue')}
                         </p>
                         {c.dati.parti && (
                             <p className="font-body text-xs text-nebbia/40 mt-1 line-clamp-2 leading-relaxed">
@@ -644,7 +605,7 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                         <ExternalLink size={11} className="text-nebbia/20 group-hover:text-oro transition-colors" />
                         <button onClick={(e) => { e.preventDefault(); onRimuovi() }} disabled={eliminando}
                             className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
-                            title="Rimuovi tag">
+                            title={t('card.rimuovi_tag')}>
                             {eliminando ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                         </button>
                     </div>
@@ -664,7 +625,7 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                     <div className="flex-1 min-w-0">
                         <p className="font-body text-xs text-nebbia/50 mb-1">{intestazione}</p>
                         <p className="font-body text-sm font-medium text-nebbia group-hover:text-salvia transition-colors leading-snug">
-                            {c.dati.titolo ?? c.dati.oggetto ?? 'Prassi'}
+                            {c.dati.titolo ?? c.dati.oggetto ?? t('card.prassi')}
                         </p>
                         {c.dati.oggetto && c.dati.titolo && (
                             <p className="font-body text-xs text-nebbia/40 mt-1 line-clamp-2 leading-relaxed">
@@ -676,7 +637,7 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                         <ExternalLink size={11} className="text-nebbia/20 group-hover:text-salvia transition-colors" />
                         <button onClick={(e) => { e.preventDefault(); onRimuovi() }} disabled={eliminando}
                             className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
-                            title="Rimuovi tag">
+                            title={t('card.rimuovi_tag')}>
                             {eliminando ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                         </button>
                     </div>
@@ -695,126 +656,8 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
 // così il Lead riconosce la lingua dal testo digitato.
 // ═══════════════════════════════════════════════════════════════
 
-const AZIONI_ETICHETTA = [
-    {
-        id: 'mappa_concettuale',
-        emoji: '📊',
-        label: { it: 'Mappa concettuale', de: 'Konzeptkarte', fr: 'Carte conceptuelle' },
-        descr: { it: 'Riorganizza per temi', de: 'Nach Themen ordnen', fr: 'Réorganiser par thèmes' },
-        prompt: {
-            it: 'Crea una mappa concettuale di questa etichetta, riorganizzando gli elementi per temi principali.',
-            de: 'Erstelle eine Konzeptkarte dieser Etikette und ordne die Elemente nach Hauptthemen.',
-            fr: 'Crée une carte conceptuelle de cette étiquette en réorganisant les éléments par thèmes principaux.',
-        },
-    },
-    {
-        id: 'cosa_ho_ragionato',
-        emoji: '🔍',
-        label: { it: 'Cosa ho ragionato', de: 'Mein Gedankengang', fr: 'Mon raisonnement' },
-        descr: { it: 'Traiettoria del pensiero', de: 'Verlauf der Überlegung', fr: 'Trajectoire de la réflexion' },
-        prompt: {
-            it: 'Ricostruisci la traiettoria del mio ragionamento attraverso gli elementi di questa etichetta.',
-            de: 'Rekonstruiere den Verlauf meiner Überlegungen anhand der Elemente dieser Etikette.',
-            fr: 'Reconstitue la trajectoire de mon raisonnement à travers les éléments de cette étiquette.',
-        },
-    },
-    {
-        id: 'insight',
-        emoji: '💡',
-        label: { it: 'Insight', de: 'Erkenntnisse', fr: 'Observations' },
-        descr: { it: 'Pattern e connessioni', de: 'Muster und Verbindungen', fr: 'Motifs et liens' },
-        prompt: {
-            it: 'Trova insight, pattern ricorrenti e connessioni inaspettate tra gli elementi di questa etichetta.',
-            de: 'Finde Erkenntnisse, wiederkehrende Muster und unerwartete Verbindungen zwischen den Elementen dieser Etikette.',
-            fr: 'Trouve des observations, des motifs récurrents et des liens inattendus entre les éléments de cette étiquette.',
-        },
-    },
-    {
-        id: 'stato_arte',
-        emoji: '📝',
-        label: { it: 'Stato dell\'arte', de: 'Sachstand', fr: 'État des lieux' },
-        descr: { it: 'Memo strutturato', de: 'Strukturiertes Memo', fr: 'Mémo structuré' },
-        prompt: {
-            it: 'Redigi un memo sullo stato della ricerca giuridica raccolta in questa etichetta: quadro, orientamenti, aree aperte, direzioni operative.',
-            de: 'Verfasse ein Memo zum Stand der in dieser Etikette gesammelten juristischen Recherche: Überblick, Tendenzen, offene Punkte, operative Hinweise.',
-            fr: 'Rédige un mémo sur l\'état de la recherche juridique réunie dans cette étiquette : tableau, orientations, points ouverts, pistes opérationnelles.',
-        },
-    },
-]
-
-const FRASI_ETICHETTA = {
-    mappa_concettuale: [
-        'Sto rileggendo l\'etichetta',
-        'Riconosco i temi ricorrenti',
-        'Raggruppo per argomento',
-        'Identifico le connessioni',
-        'Compongo la mappa',
-        'Verifico la coerenza',
-        'Affino la struttura',
-    ],
-    cosa_ho_ragionato: [
-        'Sto rileggendo l\'etichetta',
-        'Ricostruisco il percorso',
-        'Identifico le svolte',
-        'Cerco i punti consolidati',
-        'Riconosco le aree aperte',
-        'Compongo la traiettoria',
-        'Affino la narrazione',
-    ],
-    insight: [
-        'Sto rileggendo l\'etichetta',
-        'Cerco connessioni nascoste',
-        'Riconosco i pattern',
-        'Identifico le ipotesi nuove',
-        'Cerco punti di forza',
-        'Verifico le lacune',
-        'Compongo gli insight',
-    ],
-    stato_arte: [
-        'Sto rileggendo l\'etichetta',
-        'Inquadro il quadro complessivo',
-        'Estraggo gli orientamenti',
-        'Identifico le tensioni',
-        'Articolo le direzioni operative',
-        'Strutturo il memo',
-        'Rifinisco il documento',
-    ],
-    libera: [
-        'Sto rileggendo l\'etichetta',
-        'Analizzo la tua domanda',
-        'Cerco i punti rilevanti',
-        'Compongo la risposta',
-        'Verifico l\'aderenza',
-    ],
-}
-
 function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSintesiSalvata }) {
-    const { profile } = useAuth()
-    const lang = (profile?.lingua === 'de' || profile?.lingua === 'fr') ? profile.lingua : 'it'
-    const T = {
-        it: {
-            intro: (n) => `Scegli un suggerimento o scrivi una domanda. Lex ragionerà sui ${n} elementi di questa etichetta.`,
-            vuoto: 'Aggiungi elementi all\'etichetta per iniziare a chattare.',
-            placeholderNuova: 'Scrivi una domanda su questa etichetta…',
-            placeholderSegui: 'Approfondisci o nuova domanda…',
-            invia: 'Invia domanda',
-        },
-        de: {
-            intro: (n) => `Wähle einen Vorschlag oder stelle eine Frage. Lex denkt über die ${n} Elemente dieser Etikette nach.`,
-            vuoto: 'Füge der Etikette Elemente hinzu, um den Chat zu starten.',
-            placeholderNuova: 'Stelle eine Frage zu dieser Etikette…',
-            placeholderSegui: 'Vertiefe oder stelle eine neue Frage…',
-            invia: 'Frage senden',
-        },
-        fr: {
-            intro: (n) => `Choisis une suggestion ou pose une question. Lex raisonnera sur les ${n} éléments de cette étiquette.`,
-            vuoto: 'Ajoute des éléments à l\'étiquette pour commencer à discuter.',
-            placeholderNuova: 'Pose une question sur cette étiquette…',
-            placeholderSegui: 'Approfondis ou pose une nouvelle question…',
-            invia: 'Envoyer la question',
-        },
-    }
-    const tt = T[lang]
+    const { t } = useTranslation('user_etichetta_dettaglio')
     const [conversazione, setConversazione] = useState([])
     const [input, setInput] = useState('')
     const [cercando, setCercando] = useState(false)
@@ -838,7 +681,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
     async function eseguiAzioneOLibera({ azione, domandaTesto }) {
         if (cercando) return
         if (contenuti.length === 0) {
-            setErroreLex('L\'etichetta è vuota')
+            setErroreLex(t('chat.etichetta_vuota'))
             return
         }
 
@@ -850,8 +693,10 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
         if (azione === 'libera') {
             etichettaInput = domandaTesto
         } else {
-            const meta = AZIONI_ETICHETTA.find(a => a.id === azione)
-            etichettaInput = `${meta?.emoji ?? ''} ${meta?.label ?? azione}${domandaTesto ? `\n\nFocus: ${domandaTesto}` : ''}`
+            const idx = AZIONI_IDS.indexOf(azione)
+            const emoji = idx >= 0 ? AZIONI_EMOJI[idx] : ''
+            const label = idx >= 0 ? t(`azioni.${azione}.label`) : azione
+            etichettaInput = `${emoji} ${label}${domandaTesto ? `\n\n${t('chat.focus')}: ${domandaTesto}` : ''}`
         }
 
         const nuovaConv = [...conversazione, { role: 'user', content: etichettaInput }]
@@ -885,7 +730,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
 
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}))
-                throw new Error(err.error ?? `Errore ${res.status}`)
+                throw new Error(err.error ?? t('chat.errore_http', { status: res.status }))
             }
 
             const reader = res.body.getReader()
@@ -935,8 +780,8 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
     // I chip non inviano: riempiono la textarea con la frase pronta nella
     // lingua dell'avvocato. L'invio resta sempre una domanda libera.
     function precompilaConSuggerimento(azione) {
-        const meta = AZIONI_ETICHETTA.find(a => a.id === azione)
-        const frase = meta?.prompt?.[lang] ?? meta?.prompt?.it ?? ''
+        if (!AZIONI_IDS.includes(azione)) return
+        const frase = t(`azioni.${azione}.prompt`)
         if (frase) setInput(frase)
     }
 
@@ -960,7 +805,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
                 <div className="flex items-center gap-2 min-w-0">
                     <Sparkles size={13} className="text-salvia shrink-0" />
-                    <p className="font-body text-sm font-medium text-nebbia truncate">Lex — Chat etichetta</p>
+                    <p className="font-body text-sm font-medium text-nebbia truncate">{t('chat.titolo')}</p>
                     {conversazione.length > 0 && (
                         <span className="font-body text-[10px] text-salvia/60 border border-salvia/20 px-1.5 py-0.5 shrink-0">
                             {Math.floor(conversazione.length / 2) + (cercando || streamingTesto ? 1 : 0)}
@@ -972,7 +817,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
                         onClick={nuovaSessione}
                         className="font-body text-[11px] text-nebbia/30 hover:text-red-400 transition-colors shrink-0"
                     >
-                        Nuova sessione
+                        {t('chat.nuova_sessione')}
                     </button>
                 )}
             </div>
@@ -984,14 +829,14 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
                         <div key={i} className="space-y-1.5">
                             <div className="flex items-center justify-between gap-2">
                                 <span className={`font-body text-[11px] font-medium ${m.role === 'user' ? 'text-oro/70' : 'text-salvia/70'}`}>
-                                    {m.role === 'user' ? 'Tu' : 'Lex'}
+                                    {m.role === 'user' ? t('chat.ruolo_tu') : t('chat.ruolo_lex')}
                                 </span>
                                 {m.role === 'assistant' && (
                                     <button
                                         onClick={() => salvaMessaggio(m.content)}
                                         className="flex items-center gap-1 font-body text-[11px] text-nebbia/30 hover:text-oro transition-colors"
                                     >
-                                        <Save size={10} /> Salva
+                                        <Save size={10} /> {t('chat.salva')}
                                     </button>
                                 )}
                             </div>
@@ -1020,7 +865,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
 
                     {streamingTesto && (
                         <div className="space-y-1.5">
-                            <span className="font-body text-[11px] font-medium text-salvia/70">Lex</span>
+                            <span className="font-body text-[11px] font-medium text-salvia/70">{t('chat.ruolo_lex')}</span>
                             <div className="font-body text-xs text-nebbia/80 leading-relaxed">
                                 <ReactMarkdown
                                     components={{
@@ -1049,31 +894,31 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
                 <div className="px-4 py-3 space-y-2.5">
                     {conversazione.length === 0 && contenuti.length > 0 && (
                         <p className="font-body text-[11px] text-nebbia/30 leading-relaxed">
-                            {tt.intro(contenuti.length)}
+                            {t('chat.intro', { count: contenuti.length })}
                         </p>
                     )}
 
                     {contenuti.length === 0 ? (
                         <p className="font-body text-[11px] text-nebbia/30 text-center py-4">
-                            {tt.vuoto}
+                            {t('chat.vuoto')}
                         </p>
                     ) : (
                         <>
                             <div className="grid grid-cols-2 gap-1.5">
-                                {AZIONI_ETICHETTA.map(a => (
+                                {AZIONI_IDS.map((aid, idx) => (
                                     <button
-                                        key={a.id}
-                                        onClick={() => precompilaConSuggerimento(a.id)}
+                                        key={aid}
+                                        onClick={() => precompilaConSuggerimento(aid)}
                                         disabled={cercando}
                                         className="group flex items-start gap-1.5 p-2 bg-petrolio border border-white/5 hover:border-salvia/30 transition-colors text-left disabled:opacity-40"
                                     >
-                                        <span className="text-sm shrink-0 mt-0.5">{a.emoji}</span>
+                                        <span className="text-sm shrink-0 mt-0.5">{AZIONI_EMOJI[idx]}</span>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-body text-[11px] font-medium text-nebbia group-hover:text-salvia transition-colors leading-tight">
-                                                {a.label[lang] ?? a.label.it}
+                                                {t(`azioni.${aid}.label`)}
                                             </p>
                                             <p className="font-body text-[10px] text-nebbia/40 mt-0.5 leading-tight">
-                                                {a.descr[lang] ?? a.descr.it}
+                                                {t(`azioni.${aid}.descr`)}
                                             </p>
                                         </div>
                                     </button>
@@ -1082,7 +927,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
 
                             <textarea
                                 rows={2}
-                                placeholder={conversazione.length > 0 ? tt.placeholderSegui : tt.placeholderNuova}
+                                placeholder={conversazione.length > 0 ? t('chat.placeholder_segui') : t('chat.placeholder_nuova')}
                                 value={input}
                                 onChange={e => setInput(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) inviaLibera() }}
@@ -1101,7 +946,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
                                 disabled={cercando || !input.trim()}
                                 className="flex items-center justify-center gap-1.5 w-full py-2 bg-salvia/10 border border-salvia/30 text-salvia font-body text-xs hover:bg-salvia/20 transition-colors disabled:opacity-40"
                             >
-                                <Sparkles size={11} /> {tt.invia}
+                                <Sparkles size={11} /> {t('chat.invia')}
                             </button>
                         </>
                     )}
@@ -1129,18 +974,20 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
 // LEX ANIMAZIONE — Etichetta (frasi personalizzate per azione)
 // ═══════════════════════════════════════════════════════════════
 function LexAnimazioneEtichetta({ azione }) {
-    const frasiRotative = FRASI_ETICHETTA[azione] ?? FRASI_ETICHETTA.libera
+    const { t } = useTranslation('user_etichetta_dettaglio')
+    const chiaveFrasi = AZIONI_IDS.includes(azione) ? azione : 'libera'
+    const frasiRotative = toArray(t(`frasi.${chiaveFrasi}`, { returnObjects: true }))
     const [indiceFrase, setIndiceFrase] = useState(0)
 
     useEffect(() => {
         setIndiceFrase(0)
         const interval = setInterval(() => {
-            setIndiceFrase((i) => (i + 1) % frasiRotative.length)
+            setIndiceFrase((i) => frasiRotative.length ? (i + 1) % frasiRotative.length : 0)
         }, 4000)
         return () => clearInterval(interval)
     }, [azione])
 
-    const testoVisibile = frasiRotative[indiceFrase]
+    const testoVisibile = frasiRotative.length ? frasiRotative[indiceFrase % frasiRotative.length] : ''
 
     return (
         <div className="px-2 py-3 max-w-[420px] mx-auto">
@@ -1218,7 +1065,7 @@ function LexAnimazioneEtichetta({ azione }) {
 
             <div className="lex-stage-e">
                 <svg viewBox="62 27 416 185" xmlns="http://www.w3.org/2000/svg" role="img">
-                    <title>Lex sta ragionando</title>
+                    <title>{t('chat.lex_ragiona')}</title>
                     <line x1="60" y1="172" x2="480" y2="172" stroke="rgba(127, 163, 154, 0.4)" strokeWidth="0.8" />
 
                     <rect x="80" y="100" width="22" height="72" rx="1" fill="#243447" stroke="rgba(127, 163, 154, 0.2)" strokeWidth="1" />
@@ -1308,7 +1155,8 @@ function contenutoElementoEt(c) {
 // MODALE SALVA SINTESI (con auto-tag etichetta corrente)
 // ═══════════════════════════════════════════════════════════════
 function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onClose, onSalvata }) {
-    const titoloAuto = `Lex su "${etichetta.nome}"`
+    const { t } = useTranslation('user_etichetta_dettaglio')
+    const titoloAuto = t('modale.titolo_auto', { nome: etichetta.nome })
     const [titolo, setTitolo] = useState(titoloAuto)
     const [praticaId, setPraticaId] = useState('')
     // Auto-tag etichetta corrente
@@ -1328,7 +1176,7 @@ function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onC
         try {
             const { data: { user } } = await supabase.auth.getUser()
 
-            const contenutoCompleto = sintesi + '\n\n---\n\n*Sintesi generata da Lex sull\'etichetta "' + etichetta.nome + '".*'
+            const contenutoCompleto = sintesi + '\n\n---\n\n*' + t('modale.firma_sintesi', { nome: etichetta.nome }) + '*'
 
             const { data: ric, error } = await supabase
                 .from('ricerche')
@@ -1374,7 +1222,7 @@ function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onC
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
                     <div className="flex items-center gap-2">
                         <Save size={14} className="text-oro" />
-                        <p className="font-body text-sm font-medium text-nebbia">Salva come ricerca</p>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('modale.titolo_header')}</p>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia transition-colors">
                         <X size={16} />
@@ -1383,7 +1231,7 @@ function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onC
 
                 <div className="flex-1 overflow-y-auto p-5 space-y-4">
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Titolo</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale.label_titolo')}</label>
                         <input
                             value={titolo}
                             onChange={e => setTitolo(e.target.value)}
@@ -1392,13 +1240,13 @@ function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onC
                     </div>
 
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Pratica (opzionale)</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('modale.label_pratica')}</label>
                         <select
                             value={praticaId}
                             onChange={e => setPraticaId(e.target.value)}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                         >
-                            <option value="">Nessuna pratica</option>
+                            <option value="">{t('modale.nessuna_pratica')}</option>
                             {pratiche.map(p => (
                                 <option key={p.id} value={p.id}>{p.titolo}</option>
                             ))}
@@ -1408,9 +1256,9 @@ function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onC
                     {etichetteUtente.length > 0 && (
                         <div>
                             <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">
-                                Etichette
+                                {t('modale.label_etichette')}
                                 <span className="text-nebbia/30 normal-case tracking-normal ml-2 text-[11px]">
-                                    (l'etichetta corrente è preselezionata)
+                                    {t('modale.etichetta_preselezionata')}
                                 </span>
                             </label>
                             <div className="flex flex-wrap gap-1.5">
@@ -1432,7 +1280,7 @@ function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onC
                                             {isAttiva && <Check size={10} />}
                                             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: e.colore }} />
                                             {e.nome}
-                                            {isCorrente && <span className="text-[10px] text-salvia/70 ml-1">(corrente)</span>}
+                                            {isCorrente && <span className="text-[10px] text-salvia/70 ml-1">{t('modale.corrente')}</span>}
                                         </button>
                                     )
                                 })}
@@ -1442,8 +1290,9 @@ function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onC
 
                     <div className="bg-petrolio/30 border border-white/5 p-3">
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            La sintesi verrà salvata come <strong className="text-nebbia/70">ricerca AI</strong> con
-                            l'etichetta <strong className="text-nebbia/70">{etichetta.nome}</strong> già preassegnata.
+                            <Trans i18nKey="modale.nota_salvataggio" ns="user_etichetta_dettaglio" values={{ nome: etichetta.nome }}>
+                                La sintesi verrà salvata come <strong className="text-nebbia/70">ricerca AI</strong> con l'etichetta <strong className="text-nebbia/70">{'{{nome}}'}</strong> già preassegnata.
+                            </Trans>
                         </p>
                     </div>
 
@@ -1459,7 +1308,7 @@ function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onC
                         onClick={onClose}
                         className="px-4 py-2 border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors"
                     >
-                        Annulla
+                        {t('modale.annulla')}
                     </button>
                     <button
                         onClick={salva}
@@ -1468,7 +1317,7 @@ function ModaleSalvaSintesi({ sintesi, etichetta, pratiche, etichetteUtente, onC
                     >
                         {salvando
                             ? <Loader2 size={12} className="animate-spin" />
-                            : <><Save size={11} /> Salva ricerca</>
+                            : <><Save size={11} /> {t('modale.salva_ricerca')}</>
                         }
                     </button>
                 </div>

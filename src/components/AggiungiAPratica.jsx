@@ -11,31 +11,34 @@
 // - altri ruoli           → null (invisibile)
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { FileText, FolderOpen, Search, X, Sparkles } from 'lucide-react'
 
 // Config che astrae le differenze pratica/mandato.
 // Tutto il resto del componente è identico per i due ruoli.
+// Le stringhe visibili (label/placeholder/stati vuoti) sono risolte via t()
+// dentro il componente usando le chiavi i18n indicate qui.
 const CONFIG = {
     avvocato: {
         tabella: 'pratiche',
         fk: 'pratica_id',
         filtroStato: { campo: 'stato', valore: 'aperta' },
-        label: 'Salva in pratica',
-        cercaPlaceholder: 'Cerca pratica...',
-        vuotoConCerca: 'Nessuna pratica trovata',
-        vuotoSenzaCerca: 'Nessuna pratica aperta',
+        labelKey: 'avvocato.label',
+        cercaPlaceholderKey: 'avvocato.cercaPlaceholder',
+        vuotoConCercaKey: 'avvocato.vuotoConCerca',
+        vuotoSenzaCercaKey: 'avvocato.vuotoSenzaCerca',
         icona: FileText,
     },
     fiduciario: {
         tabella: 'mandati',
         fk: 'mandato_id',
         filtroStato: { campo: 'stato', valore: 'attivo' },
-        label: 'Salva in mandato',
-        cercaPlaceholder: 'Cerca mandato...',
-        vuotoConCerca: 'Nessun mandato trovato',
-        vuotoSenzaCerca: 'Nessun mandato attivo',
+        labelKey: 'fiduciario.label',
+        cercaPlaceholderKey: 'fiduciario.cercaPlaceholder',
+        vuotoConCercaKey: 'fiduciario.vuotoConCerca',
+        vuotoSenzaCercaKey: 'fiduciario.vuotoSenzaCerca',
         icona: FolderOpen,
     },
 }
@@ -47,6 +50,7 @@ export default function AggiungiAPratica({
     setRicercaSalvataId,
     variant = 'default',
 }) {
+    const { t } = useTranslation('comp_aggiungi_pratica')
     const { profile } = useAuth()
     const cfg = CONFIG[profile?.role] ?? null
 
@@ -152,7 +156,7 @@ export default function AggiungiAPratica({
 
     if (salvatoIn) return (
         <span className="font-body text-xs text-salvia flex items-center gap-1.5 px-3 py-2 border border-salvia/30 bg-salvia/5">
-            <Sparkles size={11} /> Salvato in "{salvatoIn.titolo}"
+            <Sparkles size={11} /> {t('salvatoIn', { titolo: salvatoIn.titolo })}
         </span>
     )
 
@@ -172,7 +176,7 @@ export default function AggiungiAPratica({
                 className={buttonClass}
             >
                 <Icona size={variant === 'compact' ? 11 : 13} />
-                <span>{cfg.label}</span>
+                <span>{t(cfg.labelKey)}</span>
             </button>
 
             {aperto && (
@@ -184,7 +188,7 @@ export default function AggiungiAPratica({
                                 autoFocus
                                 value={cerca}
                                 onChange={e => setCerca(e.target.value)}
-                                placeholder={cfg.cercaPlaceholder}
+                                placeholder={t(cfg.cercaPlaceholderKey)}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-8 pr-8 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                             <button
@@ -200,11 +204,11 @@ export default function AggiungiAPratica({
                         {loading ? (
                             <div className="p-4 flex items-center justify-center gap-2 text-nebbia/30">
                                 <span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" />
-                                <span className="font-body text-xs">Caricamento...</span>
+                                <span className="font-body text-xs">{t('caricamento')}</span>
                             </div>
                         ) : itemsFiltrati.length === 0 ? (
                             <p className="p-4 text-center font-body text-xs text-nebbia/25">
-                                {cerca ? cfg.vuotoConCerca : cfg.vuotoSenzaCerca}
+                                {cerca ? t(cfg.vuotoConCercaKey) : t(cfg.vuotoSenzaCercaKey)}
                             </p>
                         ) : (
                             itemsFiltrati.map(p => {
@@ -226,7 +230,7 @@ export default function AggiungiAPratica({
                                         {isLoading && (
                                             <span className="font-body text-xs text-oro mt-1 flex items-center gap-1">
                                                 <span className="animate-spin w-2.5 h-2.5 border border-oro border-t-transparent rounded-full" />
-                                                Salvataggio...
+                                                {t('salvataggio')}
                                             </span>
                                         )}
                                     </button>

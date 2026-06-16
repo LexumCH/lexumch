@@ -1,0 +1,25 @@
+{
+  "stati": {
+    "attivo": "Attivo",
+    "sospeso": "Sospeso",
+    "concluso": "Concluso",
+    "archiviato": "Archiviato"
+  },
+  "lista": {
+    "label": "Banco di lavoro",
+    "titolo": "I mandati",
+    "nuovo_mandato": "Nuovo mandato",
+    "cerca_placeholder": "Cerca mandato o cliente...",
+    "tutti_stati": "Tutti gli stati",
+    "tutti_clienti": "Tutti i clienti",
+    "reset": "Reset",
+    "errore_caricamento": "Errore caricamento mandati",
+    "intestazioni": ["Mandato", "Cliente", "Tipo", "Anno", "Stato", "Creato il", ""],
+    "nessun_mandato": "Nessun mandato trovato",
+    "dettaglio": "Dettaglio →"
+  },
+  "vuoto": {
+    "titolo": "Nessun mandato ancora",
+    "sottotitolo": "Crea il primo mandato per iniziare a lavorare"
+  }
+}

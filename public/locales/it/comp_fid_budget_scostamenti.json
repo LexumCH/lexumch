@@ -1,0 +1,25 @@
+{
+  "titolo": "Budget e scostamenti",
+  "anno": "Anno",
+  "tabella_mancante": "Tabella <code>movimenti</code> non disponibile.",
+  "vuoto": {
+    "titolo": "Nessun budget impostato per il {{anno}}.",
+    "descrizione": "Inserisci movimenti <evid>previsti</evid> (toggle “Previsto” in Entrate e uscite): diventano il budget da confrontare con l'effettivo."
+  },
+  "sezione": {
+    "entrate": "Entrate",
+    "uscite": "Uscite",
+    "vuoto_entrate": "Nessun movimento d'entrata per l'anno.",
+    "vuoto_uscite": "Nessun movimento di costo per l'anno."
+  },
+  "colonne": [
+    "Categoria",
+    "Previsto",
+    "Effettivo",
+    "Δ"
+  ],
+  "totale": "Totale",
+  "categoria": {
+    "senza_categoria": "Senza categoria"
+  }
+}

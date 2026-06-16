@@ -1,0 +1,28 @@
+{
+  "label": {
+    "prossimo_appuntamento": "Prossimo appuntamento"
+  },
+  "countdown": {
+    "oggi": "Oggi",
+    "domani": "Domani",
+    "tra_giorni": "Tra {{count}} giorni"
+  },
+  "tipo": {
+    "presenza": "In presenza",
+    "videocall": "Videocall",
+    "telefonico": "Telefonico"
+  },
+  "con_avvocato": "con Avv. {{nome}}",
+  "note": {
+    "titolo": "Note"
+  },
+  "azioni": {
+    "apri_videocall": "Apri videocall"
+  },
+  "vuoto": {
+    "nessuno": "Nessun appuntamento programmato"
+  },
+  "errori": {
+    "caricamento": "Errore nel caricamento dell'appuntamento"
+  }
+}

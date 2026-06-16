@@ -1,0 +1,60 @@
+{
+  "common": {
+    "trattino": "—",
+    "salva": "Speichern",
+    "modifica": "Bearbeiten"
+  },
+  "status": {
+    "pending": "In Warteschlange",
+    "processing": "Verarbeitung",
+    "completed": "Abgeschlossen",
+    "failed": "Fehler",
+    "skipped": "Manuell"
+  },
+  "back": {
+    "archivio": "Archiv"
+  },
+  "loading": {
+    "non_trovato": "Dokument nicht gefunden."
+  },
+  "header": {
+    "sezione": "Dokument",
+    "verificato": "Geprüft"
+  },
+  "banner_verifica": {
+    "titolo": "Zu prüfendes Dokument",
+    "testo": "Prüfen Sie den extrahierten Text und die Metadaten. Sobald das Dokument geprüft ist, kann Lex AI es bei Recherchen verwenden.",
+    "segna_verificato": "Als geprüft markieren"
+  },
+  "originale": {
+    "titolo": "Original",
+    "nessun_file": "Keine Datei verfügbar",
+    "apri_nuova_scheda": "In neuem Tab öffnen"
+  },
+  "testo": {
+    "titolo": "Extrahierter Text",
+    "estrazione_in_corso": "Textextraktion läuft...",
+    "estrazione_fallita": "Extraktion fehlgeschlagen",
+    "inserisci_manualmente": "Geben Sie den Text manuell ein",
+    "avviso_non_pdf": "Keine PDF-Datei — geben Sie den Text manuell ein, damit Lex ihn durchsuchen kann.",
+    "placeholder_contenuto": "Fügen Sie den Inhalt des Dokuments ein oder schreiben Sie ihn...",
+    "salva_testo": "Text speichern",
+    "nessun_testo": "Kein Text extrahiert"
+  },
+  "metadati": {
+    "titolo": "Metadaten",
+    "label_titolo": "Titel",
+    "label_categoria": "Kategorie",
+    "placeholder_categoria": "z. B. Verträge...",
+    "label_tag": "Schlagwörter",
+    "placeholder_tag": "tag1, tag2",
+    "label_cliente": "Mandant",
+    "nessun_cliente": "Kein Mandant",
+    "label_pratica": "Dossier",
+    "nessuna_pratica": "Kein Dossier",
+    "tipo": "Typ",
+    "dimensione": "Grösse",
+    "caricato_il": "Hochgeladen am",
+    "documento_verificato": "Dokument geprüft"
+  }
+}

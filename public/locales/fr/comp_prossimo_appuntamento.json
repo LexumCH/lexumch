@@ -1,0 +1,28 @@
+{
+  "label": {
+    "prossimo_appuntamento": "Prochain rendez-vous"
+  },
+  "countdown": {
+    "oggi": "Aujourd'hui",
+    "domani": "Demain",
+    "tra_giorni": "Dans {{count}} jours"
+  },
+  "tipo": {
+    "presenza": "En présentiel",
+    "videocall": "Visioconférence",
+    "telefonico": "Par téléphone"
+  },
+  "con_avvocato": "avec Me {{nome}}",
+  "note": {
+    "titolo": "Notes"
+  },
+  "azioni": {
+    "apri_videocall": "Ouvrir la visioconférence"
+  },
+  "vuoto": {
+    "nessuno": "Aucun rendez-vous prévu"
+  },
+  "errori": {
+    "caricamento": "Erreur lors du chargement du rendez-vous"
+  }
+}

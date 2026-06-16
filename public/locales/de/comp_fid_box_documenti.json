@@ -1,0 +1,21 @@
+{
+  "header": {
+    "titolo": "Mandatsdokumente ({{count}})",
+    "aggiungi": "Dokument hinzufügen",
+    "descrizione": "Die Dokumente werden im Archiv der Kanzlei gespeichert, für die Suche mit Lex indexiert und mit diesem Mandat verknüpft."
+  },
+  "vuoto": {
+    "titolo": "Keine Dokumente mit diesem Mandat verknüpft",
+    "suggerimento": "Verwenden Sie oben \"Dokument hinzufügen\", um es hochzuladen"
+  },
+  "badge": {
+    "archivio": "Archiv"
+  },
+  "azioni": {
+    "scarica": "Herunterladen",
+    "rimuovi": "Aus dem Mandat entfernen"
+  },
+  "conferma": {
+    "scollega": "\"{{nome}}\" aus dem Mandat entfernen?\n\nDas Dokument verbleibt im Archiv der Kanzlei und verliert lediglich die Verknüpfung mit diesem Mandat."
+  }
+}

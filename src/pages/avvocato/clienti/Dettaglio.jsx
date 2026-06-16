@@ -13,6 +13,7 @@
 //   - Date in it-CH (già nell'IT).
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 import { BackButton, Badge, InputField, EmptyState } from '@/components/shared'
 import {
@@ -35,33 +36,35 @@ import Contabilita from '@/components/fiduciario/Contabilita'
 // ─────────────────────────────────────────────────────────────
 // COSTANTI
 // ─────────────────────────────────────────────────────────────
+// label = chiave i18n (namespace avv_clienti_dettaglio), risolta a render-time
 const STATI_PRATICA = {
-    aperta: { label: 'Aperta', variant: 'salvia' },
-    chiusa: { label: 'Chiusa', variant: 'gray' },
+    aperta: { labelKey: 'stati_pratica.aperta', variant: 'salvia' },
+    chiusa: { labelKey: 'stati_pratica.chiusa', variant: 'gray' },
 }
 
 const STATI_FATTURA = {
-    in_attesa: { label: 'In attesa', variant: 'warning' },
-    pagata: { label: 'Pagata', variant: 'salvia' },
-    scaduta: { label: 'Scaduta', variant: 'red' },
-    annullata: { label: 'Annullata', variant: 'gray' },
+    in_attesa: { labelKey: 'stati_fattura.in_attesa', variant: 'warning' },
+    pagata: { labelKey: 'stati_fattura.pagata', variant: 'salvia' },
+    scaduta: { labelKey: 'stati_fattura.scaduta', variant: 'red' },
+    annullata: { labelKey: 'stati_fattura.annullata', variant: 'gray' },
 }
 
 const STATUS_OCR = {
-    pending: { label: 'In coda', variant: 'gray' },
-    processing: { label: 'In elaborazione', variant: 'warning' },
-    completed: { label: 'Indicizzato', variant: 'salvia' },
-    failed: { label: 'Errore', variant: 'red' },
-    skipped: { label: 'Manuale', variant: 'gray' },
+    pending: { labelKey: 'status_ocr.pending', variant: 'gray' },
+    processing: { labelKey: 'status_ocr.processing', variant: 'warning' },
+    completed: { labelKey: 'status_ocr.completed', variant: 'salvia' },
+    failed: { labelKey: 'status_ocr.failed', variant: 'red' },
+    skipped: { labelKey: 'status_ocr.skipped', variant: 'gray' },
 }
 
 // Metodi pagamento svizzeri (allineati a FatturazioneDettaglio CH)
+// value = valore salvato su DB (invariato); labelKey = chiave i18n
 const METODI_PAGAMENTO = [
-    { value: 'bonifico', label: 'Bonifico bancario' },
-    { value: 'qr', label: 'QR-fattura' },
-    { value: 'contanti', label: 'Contanti' },
-    { value: 'carta', label: 'Carta / TWINT' },
-    { value: 'altro', label: 'Altro' },
+    { value: 'bonifico', labelKey: 'metodi_pagamento.bonifico' },
+    { value: 'qr', labelKey: 'metodi_pagamento.qr' },
+    { value: 'contanti', labelKey: 'metodi_pagamento.contanti' },
+    { value: 'carta', labelKey: 'metodi_pagamento.carta' },
+    { value: 'altro', labelKey: 'metodi_pagamento.altro' },
 ]
 
 // TABS calcolato in base al ruolo (vedi dentro AvvocatoClientiDettaglio)
@@ -91,6 +94,7 @@ function nomeCliente(c) {
 // SWITCHER PF / PG
 // ─────────────────────────────────────────────────────────────
 function SwitcherTipoSoggetto({ value, onChange, disabled = false }) {
+    const { t } = useTranslation('avv_clienti_dettaglio')
     return (
         <div className="flex gap-1 bg-petrolio border border-white/10 p-1 w-fit">
             <button
@@ -101,7 +105,7 @@ function SwitcherTipoSoggetto({ value, onChange, disabled = false }) {
                     ? 'bg-oro/10 text-oro border border-oro/30'
                     : 'text-nebbia/40 hover:text-nebbia'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-                <User size={13} /> Persona fisica
+                <User size={13} /> {t('switcher.persona_fisica')}
             </button>
             <button
                 type="button"
@@ -111,7 +115,7 @@ function SwitcherTipoSoggetto({ value, onChange, disabled = false }) {
                     ? 'bg-oro/10 text-oro border border-oro/30'
                     : 'text-nebbia/40 hover:text-nebbia'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-                <Building2 size={13} /> Persona giuridica
+                <Building2 size={13} /> {t('switcher.persona_giuridica')}
             </button>
         </div>
     )
@@ -121,6 +125,7 @@ function SwitcherTipoSoggetto({ value, onChange, disabled = false }) {
 // MODAL CAMBIO PASSWORD CLIENTE (riusa pattern admin)
 // ─────────────────────────────────────────────────────────────
 function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
+    const { t } = useTranslation('avv_clienti_dettaglio')
     const [modo, setModo] = useState('genera') // 'genera' | 'manuale'
     const [pwdManuale, setPwdManuale] = useState('')
     const [showPwd, setShowPwd] = useState(false)
@@ -135,13 +140,13 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
             const body = { action: 'set-password', cliente_id: cliente.id }
             if (modo === 'manuale') {
                 if (!pwdManuale || pwdManuale.length < 8) {
-                    throw new Error('Password minimo 8 caratteri')
+                    throw new Error(t('cambio_password.errore_pwd_corta'))
                 }
                 body.new_password = pwdManuale
             }
             const { data, error } = await supabase.functions.invoke('avvocato-cliente-actions', { body })
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore')
+            if (!data?.ok) throw new Error(data?.error ?? t('cambio_password.errore_generico'))
             setRisultato(data)
         } catch (err) {
             setErrore(err.message)
@@ -159,7 +164,7 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
 
     function handleChiudi() {
         if (risultato) {
-            onSuccess(`Password aggiornata per ${nomeCliente(cliente)}`)
+            onSuccess(t('cambio_password.successo_aggiornata', { nome: nomeCliente(cliente) }))
         }
         onClose()
     }
@@ -172,21 +177,20 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
                         <div className="w-10 h-10 bg-salvia/10 border border-salvia/30 flex items-center justify-center">
                             <CheckCircle size={18} className="text-salvia" />
                         </div>
-                        <h2 className="font-display text-lg text-nebbia">Password aggiornata</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('cambio_password.titolo_successo')}</h2>
                     </div>
 
                     {risultato.generata && (
                         <>
                             <div className="bg-amber-900/10 border border-amber-500/30 p-3">
                                 <p className="font-body text-xs text-amber-400 leading-relaxed">
-                                    <span className="font-medium">Importante:</span> questa password viene mostrata una sola volta.
-                                    Comunicala in modo sicuro al cliente (telefono, di persona) — non via email o chat non cifrata.
+                                    <span className="font-medium">{t('cambio_password.importante_label')}</span> {t('cambio_password.avviso_mostrata_una_volta')}
                                 </p>
                             </div>
 
                             <div>
                                 <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
-                                    Password temporanea
+                                    {t('cambio_password.password_temporanea')}
                                 </label>
                                 <div className="flex items-center gap-2 bg-petrolio border border-white/10 p-3">
                                     <code className="flex-1 font-mono text-base text-nebbia tracking-wider">{risultato.password}</code>
@@ -200,12 +204,12 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
 
                     {!risultato.generata && (
                         <p className="font-body text-sm text-nebbia/60">
-                            La password è stata aggiornata. Comunicala al cliente.
+                            {t('cambio_password.aggiornata_manuale')}
                         </p>
                     )}
 
                     <button onClick={handleChiudi} className="btn-primary text-sm w-full justify-center">
-                        Ho preso nota, chiudi
+                        {t('cambio_password.chiudi_presa_nota')}
                     </button>
                 </div>
             </div>
@@ -218,7 +222,7 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
                 <div className="flex items-center justify-between p-5 border-b border-white/8">
                     <div className="flex items-center gap-2">
                         <KeyRound size={16} className="text-oro" />
-                        <h2 className="font-display text-lg text-nebbia">Cambia password cliente</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('cambio_password.titolo')}</h2>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia">
                         <X size={18} />
@@ -227,7 +231,9 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
 
                 <div className="p-6 space-y-5">
                     <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                        Stai cambiando la password di <span className="text-nebbia font-medium">{nomeCliente(cliente)}</span>.
+                        <Trans t={t} i18nKey="cambio_password.stai_cambiando" values={{ nome: nomeCliente(cliente) }}>
+                            Stai cambiando la password di <span className="text-nebbia font-medium">{nomeCliente(cliente)}</span>.
+                        </Trans>
                     </p>
 
                     <div className="grid grid-cols-2 gap-2">
@@ -240,9 +246,9 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
                         >
                             <div className="flex items-center gap-2">
                                 <RefreshCw size={12} className={modo === 'genera' ? 'text-oro' : 'text-nebbia/40'} />
-                                <span className="font-body text-sm font-medium text-nebbia">Genera casuale</span>
+                                <span className="font-body text-sm font-medium text-nebbia">{t('cambio_password.genera_casuale')}</span>
                             </div>
-                            <p className="font-body text-xs text-nebbia/40">12 caratteri sicuri</p>
+                            <p className="font-body text-xs text-nebbia/40">{t('cambio_password.genera_desc')}</p>
                         </button>
                         <button
                             onClick={() => setModo('manuale')}
@@ -253,23 +259,23 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
                         >
                             <div className="flex items-center gap-2">
                                 <KeyRound size={12} className={modo === 'manuale' ? 'text-oro' : 'text-nebbia/40'} />
-                                <span className="font-body text-sm font-medium text-nebbia">Manuale</span>
+                                <span className="font-body text-sm font-medium text-nebbia">{t('cambio_password.manuale')}</span>
                             </div>
-                            <p className="font-body text-xs text-nebbia/40">Scegli tu</p>
+                            <p className="font-body text-xs text-nebbia/40">{t('cambio_password.manuale_desc')}</p>
                         </button>
                     </div>
 
                     {modo === 'manuale' && (
                         <div>
                             <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
-                                Nuova password (min 8 caratteri)
+                                {t('cambio_password.nuova_password_label')}
                             </label>
                             <div className="relative">
                                 <input
                                     type={showPwd ? 'text' : 'password'}
                                     value={pwdManuale}
                                     onChange={e => setPwdManuale(e.target.value)}
-                                    placeholder="........"
+                                    placeholder={t('cambio_password.placeholder_pwd')}
                                     autoFocus
                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 pr-10 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                                 />
@@ -290,13 +296,13 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
                     <div className="flex gap-2">
                         <button onClick={onClose} disabled={inviando}
                             className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">
-                            Annulla
+                            {t('cambio_password.annulla')}
                         </button>
                         <button onClick={handleConferma} disabled={inviando || (modo === 'manuale' && pwdManuale.length < 8)}
                             className="btn-primary text-sm flex-1 justify-center disabled:opacity-40">
                             {inviando
                                 ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                                : 'Conferma cambio password'
+                                : t('cambio_password.conferma')
                             }
                         </button>
                     </div>
@@ -310,20 +316,21 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
 // SEZIONE STRUMENTI ASSISTENZA (reset email + cambia password)
 // ─────────────────────────────────────────────────────────────
 function SezioneStrumentiAssistenza({ cliente }) {
+    const { t } = useTranslation('avv_clienti_dettaglio')
     const [errore, setErrore] = useState('')
     const [successo, setSuccesso] = useState('')
     const [busyReset, setBusyReset] = useState(false)
     const [modalPwd, setModalPwd] = useState(false)
 
     async function handleSendResetEmail() {
-        if (!confirm(`Inviare email di reset password a ${cliente.email}?`)) return
+        if (!confirm(t('assistenza.conferma_invio_reset', { email: cliente.email }))) return
         setErrore(''); setSuccesso(''); setBusyReset(true)
         try {
             const { data, error } = await supabase.functions.invoke('avvocato-cliente-actions', {
                 body: { action: 'send-reset-email', cliente_id: cliente.id }
             })
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore')
+            if (!data?.ok) throw new Error(data?.error ?? t('assistenza.errore_generico'))
             setSuccesso(data.messaggio)
             setTimeout(() => setSuccesso(''), 5000)
         } catch (err) {
@@ -338,7 +345,7 @@ function SezioneStrumentiAssistenza({ cliente }) {
             <div className="bg-slate border border-amber-500/20 p-5 space-y-4">
                 <div className="flex items-center gap-2">
                     <ShieldOff size={14} className="text-amber-400" />
-                    <p className="section-label !m-0">Assistenza accesso cliente</p>
+                    <p className="section-label !m-0">{t('assistenza.titolo')}</p>
                 </div>
 
                 {errore && (
@@ -363,10 +370,10 @@ function SezioneStrumentiAssistenza({ cliente }) {
                                 ? <span className="animate-spin w-3.5 h-3.5 border-2 border-oro border-t-transparent rounded-full" />
                                 : <Mail size={14} className="text-oro" />
                             }
-                            <span className="font-body text-sm font-medium text-nebbia">Invia email reset password</span>
+                            <span className="font-body text-sm font-medium text-nebbia">{t('assistenza.invia_reset')}</span>
                         </div>
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            Il cliente riceverà un link per impostare una nuova password da solo.
+                            {t('assistenza.invia_reset_desc')}
                         </p>
                     </button>
 
@@ -377,10 +384,10 @@ function SezioneStrumentiAssistenza({ cliente }) {
                     >
                         <div className="flex items-center gap-2">
                             <KeyRound size={14} className="text-oro" />
-                            <span className="font-body text-sm font-medium text-nebbia">Cambia password</span>
+                            <span className="font-body text-sm font-medium text-nebbia">{t('assistenza.cambia_password')}</span>
                         </div>
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                            Imposta tu una password temporanea — dovrai comunicarla al cliente.
+                            {t('assistenza.cambia_password_desc')}
                         </p>
                     </button>
                 </div>
@@ -404,6 +411,9 @@ function SezioneStrumentiAssistenza({ cliente }) {
 // TAB DOCUMENTI
 // ─────────────────────────────────────────────────────────────
 function TabDocumenti({ clienteId }) {
+    const { t, i18n } = useTranslation('avv_clienti_dettaglio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [documenti, setDocumenti] = useState([])
     const [pratiche, setPratiche] = useState([])
     const [loading, setLoading] = useState(true)
@@ -446,10 +456,10 @@ function TabDocumenti({ clienteId }) {
         <div className="space-y-4">
             <div className="flex justify-between items-center">
                 <p className="font-body text-sm text-nebbia/40">
-                    {documenti.length} {documenti.length === 1 ? 'documento' : 'documenti'}
+                    {documenti.length} {documenti.length === 1 ? t('documenti.conteggio_uno') : t('documenti.conteggio_molti')}
                     {documenti.length > 0 && (
                         <span className="ml-2 text-nebbia/25">
-                            · {documenti.filter(d => d.ocr_status === 'completed').length} indicizzati
+                            · {documenti.filter(d => d.ocr_status === 'completed').length} {t('documenti.indicizzati')}
                         </span>
                     )}
                 </p>
@@ -457,7 +467,7 @@ function TabDocumenti({ clienteId }) {
                     to={`/archivio?cliente_id=${clienteId}`}
                     className="btn-primary text-sm flex items-center gap-2"
                 >
-                    <Upload size={14} /> Carica in archivio
+                    <Upload size={14} /> {t('documenti.carica_archivio')}
                 </Link>
             </div>
 
@@ -468,16 +478,16 @@ function TabDocumenti({ clienteId }) {
             ) : documenti.length === 0 ? (
                 <EmptyState
                     icon={FileText}
-                    title="Nessun documento"
-                    desc="Carica i documenti nell'archivio per collegarli a questo cliente"
+                    title={t('documenti.vuoto_titolo')}
+                    desc={t('documenti.vuoto_desc')}
                 />
             ) : (
                 <div className="bg-slate border border-white/5 overflow-x-auto">
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/5">
-                                {['Documento', 'Pratica', 'Dimensione', 'Stato', 'Caricato il', ''].map(h => (
-                                    <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
+                                {[t('documenti.th_documento'), t('documenti.th_pratica'), t('documenti.th_dimensione'), t('documenti.th_stato'), t('documenti.th_caricato_il'), ''].map((h, hi) => (
+                                    <th key={hi} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                                 ))}
                             </tr>
                         </thead>
@@ -497,23 +507,23 @@ function TabDocumenti({ clienteId }) {
                                             {pratica?.titolo ?? '—'}
                                         </td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/40">{formatSize(doc.dimensione)}</td>
-                                        <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
+                                        <td className="px-4 py-3"><Badge label={t(sc.labelKey)} variant={sc.variant} /></td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">
-                                            {new Date(doc.created_at).toLocaleDateString('it-CH')}
+                                            {new Date(doc.created_at).toLocaleDateString(dateLocale)}
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-1 justify-end">
                                                 <button
                                                     onClick={() => apriAnteprima(doc)}
                                                     className="inline-flex items-center justify-center w-7 h-7 text-nebbia/20 hover:text-oro hover:bg-oro/10 transition-colors"
-                                                    title="Apri anteprima"
+                                                    title={t('documenti.apri_anteprima')}
                                                 >
                                                     <Eye size={13} />
                                                 </button>
                                                 <Link
                                                     to={`/archivio?cliente_id=${clienteId}`}
                                                     className="inline-flex items-center justify-center w-7 h-7 text-nebbia/20 hover:text-oro hover:bg-oro/10 transition-colors"
-                                                    title="Apri in archivio"
+                                                    title={t('documenti.apri_archivio')}
                                                 >
                                                     <ExternalLink size={13} />
                                                 </Link>
@@ -534,6 +544,9 @@ function TabDocumenti({ clienteId }) {
 // TAB NOTE INTERNE
 // ─────────────────────────────────────────────────────────────
 function TabNoteInterne({ clienteId }) {
+    const { t, i18n } = useTranslation('avv_clienti_dettaglio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [noteList, setNoteList] = useState([])
     const [loading, setLoading] = useState(true)
     const [nuovaNota, setNuovaNota] = useState('')
@@ -574,7 +587,7 @@ function TabNoteInterne({ clienteId }) {
     }
 
     async function eliminaNota(id) {
-        if (!confirm('Eliminare questa nota?')) return
+        if (!confirm(t('note_interne.conferma_elimina'))) return
         await supabase.from('note_interne').delete().eq('id', id)
         setNoteList(prev => prev.filter(n => n.id !== id))
     }
@@ -583,22 +596,22 @@ function TabNoteInterne({ clienteId }) {
         <div className="space-y-4">
             <div className="flex items-center gap-2 p-4 bg-amber-900/10 border border-amber-500/20">
                 <Lock size={14} className="text-amber-400 shrink-0" />
-                <p className="font-body text-xs text-amber-400">Queste note sono visibili solo a te e a chi ha visibilità del cliente.</p>
+                <p className="font-body text-xs text-amber-400">{t('note_interne.avviso_visibilita')}</p>
             </div>
             <div className="bg-slate border border-white/5 p-5">
-                <p className="section-label mb-3">Aggiungi nota</p>
+                <p className="section-label mb-3">{t('note_interne.aggiungi_nota')}</p>
                 <textarea rows={4} value={nuovaNota} onChange={e => setNuovaNota(e.target.value)}
-                    placeholder="Strategia difensiva, punti critici, promemoria interni..."
+                    placeholder={t('note_interne.placeholder_nota')}
                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25" />
                 {errore && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20 mt-3"><AlertCircle size={14} /> {errore}</div>}
                 <button onClick={aggiungiNota} disabled={salvando || !nuovaNota.trim()} className="btn-primary text-sm mt-3 flex items-center gap-2">
-                    {salvando ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><Plus size={14} /> Aggiungi nota</>}
+                    {salvando ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><Plus size={14} /> {t('note_interne.btn_aggiungi')}</>}
                 </button>
             </div>
             <div className="bg-slate border border-white/5 p-5">
-                <p className="section-label mb-4">Storico note</p>
+                <p className="section-label mb-4">{t('note_interne.storico_note')}</p>
                 {loading ? <div className="flex items-center justify-center py-8"><span className="animate-spin w-5 h-5 border-2 border-oro border-t-transparent rounded-full" /></div>
-                    : noteList.length === 0 ? <EmptyState icon={StickyNote} title="Nessuna nota salvata" />
+                    : noteList.length === 0 ? <EmptyState icon={StickyNote} title={t('note_interne.vuoto_titolo')} />
                         : (
                             <div className="space-y-3">
                                 {noteList.map(n => (
@@ -608,8 +621,8 @@ function TabNoteInterne({ clienteId }) {
                                                 <textarea rows={3} value={editVal} onChange={e => setEditVal(e.target.value)}
                                                     className="w-full bg-petrolio border border-oro/30 text-nebbia font-body text-sm px-3 py-2 outline-none resize-none focus:border-oro/50" />
                                                 <div className="flex gap-2">
-                                                    <button onClick={() => salvaNota(n.id)} className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1"><Check size={12} /> Salva</button>
-                                                    <button onClick={() => setEditingId(null)} className="btn-secondary text-xs px-3 py-1.5">Annulla</button>
+                                                    <button onClick={() => salvaNota(n.id)} className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1"><Check size={12} /> {t('note_interne.salva')}</button>
+                                                    <button onClick={() => setEditingId(null)} className="btn-secondary text-xs px-3 py-1.5">{t('note_interne.annulla')}</button>
                                                 </div>
                                             </div>
                                         ) : (
@@ -618,7 +631,7 @@ function TabNoteInterne({ clienteId }) {
                                                 <div className="flex items-center justify-between mt-2">
                                                     <div className="flex items-center gap-2">
                                                         <Clock size={11} className="text-nebbia/25" />
-                                                        <span className="font-body text-xs text-nebbia/30">{n.autore?.nome} {n.autore?.cognome} · {new Date(n.created_at).toLocaleString('it-CH')}</span>
+                                                        <span className="font-body text-xs text-nebbia/30">{n.autore?.nome} {n.autore?.cognome} · {new Date(n.created_at).toLocaleString(dateLocale)}</span>
                                                     </div>
                                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button onClick={() => { setEditingId(n.id); setEditVal(n.testo) }} className="text-nebbia/30 hover:text-oro p-1 transition-colors"><Edit2 size={12} /></button>
@@ -642,6 +655,7 @@ function TabNoteInterne({ clienteId }) {
 // automaticamente via trigger trg_pagamenti_fattura_stato su CH.
 // ─────────────────────────────────────────────────────────────
 function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
+    const { t } = useTranslation('avv_clienti_dettaglio')
     const [form, setForm] = useState({
         data_pagamento: new Date().toISOString().slice(0, 10),
         importo: residuo.toFixed(2),
@@ -655,8 +669,8 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
     async function handleSalva() {
         setErrore('')
         const imp = Number(form.importo)
-        if (isNaN(imp) || imp <= 0) { setErrore('Importo non valido'); return }
-        if (!form.data_pagamento) { setErrore('Data pagamento obbligatoria'); return }
+        if (isNaN(imp) || imp <= 0) { setErrore(t('registra_pagamento.errore_importo')); return }
+        if (!form.data_pagamento) { setErrore(t('registra_pagamento.errore_data')); return }
 
         setSalvando(true)
         try {
@@ -685,7 +699,7 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
                 <div className="flex items-center justify-between p-5 border-b border-white/8">
                     <div className="flex items-center gap-2">
                         <Wallet size={16} className="text-salvia" />
-                        <h2 className="font-display text-lg text-nebbia">Registra pagamento</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('registra_pagamento.titolo')}</h2>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia">
                         <X size={18} />
@@ -695,16 +709,16 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
                 <div className="p-6 space-y-4">
                     <div className="bg-petrolio/40 border border-white/5 p-3 space-y-1">
                         <p className="font-body text-xs text-nebbia/40">
-                            Fattura <span className="text-nebbia/70">{fattura.numero}</span>
+                            {t('registra_pagamento.fattura')} <span className="text-nebbia/70">{fattura.numero}</span>
                         </p>
                         <p className="font-body text-xs text-nebbia/40">
-                            Residuo da incassare: <span className="text-oro font-medium">CHF {fmtCHF(residuo)}</span>
+                            {t('registra_pagamento.residuo_da_incassare')} <span className="text-oro font-medium">CHF {fmtCHF(residuo)}</span>
                         </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Data *</label>
+                            <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">{t('registra_pagamento.data_label')}</label>
                             <input
                                 type="date"
                                 value={form.data_pagamento}
@@ -713,7 +727,7 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
                             />
                         </div>
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Importo (CHF) *</label>
+                            <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">{t('registra_pagamento.importo_label')}</label>
                             <input
                                 type="number" step="0.01" min="0.01"
                                 value={form.importo}
@@ -724,22 +738,22 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
                     </div>
 
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Metodo *</label>
+                        <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">{t('registra_pagamento.metodo_label')}</label>
                         <select
                             value={form.metodo}
                             onChange={e => setForm(p => ({ ...p, metodo: e.target.value }))}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
                         >
-                            {METODI_PAGAMENTO.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                            {METODI_PAGAMENTO.map(m => <option key={m.value} value={m.value}>{t(m.labelKey)}</option>)}
                         </select>
                     </div>
 
                     <div>
                         <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
-                            Riferimento <span className="text-nebbia/25 normal-case tracking-normal">— opzionale</span>
+                            {t('registra_pagamento.riferimento_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('registra_pagamento.opzionale')}</span>
                         </label>
                         <input
-                            placeholder="Es. n. operazione, riferimento bonifico..."
+                            placeholder={t('registra_pagamento.riferimento_placeholder')}
                             value={form.riferimento}
                             onChange={e => setForm(p => ({ ...p, riferimento: e.target.value }))}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -748,7 +762,7 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
 
                     <div>
                         <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
-                            Note <span className="text-nebbia/25 normal-case tracking-normal">— opzionale</span>
+                            {t('registra_pagamento.note_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('registra_pagamento.opzionale')}</span>
                         </label>
                         <textarea
                             rows={2}
@@ -767,13 +781,13 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
                     <div className="flex gap-2 pt-2">
                         <button onClick={onClose} disabled={salvando}
                             className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">
-                            Annulla
+                            {t('registra_pagamento.annulla')}
                         </button>
                         <button onClick={handleSalva} disabled={salvando}
                             className="btn-primary text-sm flex-1 justify-center disabled:opacity-40">
                             {salvando
                                 ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                                : <><Check size={14} /> Registra pagamento</>
+                                : <><Check size={14} /> {t('registra_pagamento.conferma')}</>
                             }
                         </button>
                     </div>
@@ -789,6 +803,9 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
 // lo stato fattura passa a 'pagata' via trigger DB su pagamenti_fattura.
 // ─────────────────────────────────────────────────────────────
 function TabPagamenti({ clienteId, avvocatoId }) {
+    const { t, i18n } = useTranslation('avv_clienti_dettaglio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [fatture, setFatture] = useState([])
     const [loading, setLoading] = useState(true)
     const [fatturaPagamento, setFatturaPagamento] = useState(null)
@@ -821,29 +838,29 @@ function TabPagamenti({ clienteId, avvocatoId }) {
             {fatture.length > 0 && (
                 <div className="grid grid-cols-2 gap-3">
                     <div className="bg-slate border border-white/5 p-4">
-                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Da incassare</p>
+                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">{t('pagamenti.da_incassare')}</p>
                         <p className="font-display text-2xl font-semibold text-oro">CHF {fmtCHF(totaleAperto)}</p>
                     </div>
                     <div className="bg-slate border border-white/5 p-4">
-                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Incassato</p>
+                        <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">{t('pagamenti.incassato')}</p>
                         <p className="font-display text-2xl font-semibold text-salvia">CHF {fmtCHF(totalePagato)}</p>
                     </div>
                 </div>
             )}
             <div className="flex justify-end">
                 <Link to={`/pagamenti?cliente_id=${clienteId}`} className="btn-primary text-sm flex items-center gap-2">
-                    <Plus size={14} /> Vai a Pagamenti per nuova fattura
+                    <Plus size={14} /> {t('pagamenti.vai_pagamenti')}
                 </Link>
             </div>
             {loading ? <div className="flex items-center justify-center py-12"><span className="animate-spin w-5 h-5 border-2 border-oro border-t-transparent rounded-full" /></div>
-                : fatture.length === 0 ? <EmptyState icon={CreditCard} title="Nessuna fattura" desc="Vai alla pagina Pagamenti per emettere fatture" />
+                : fatture.length === 0 ? <EmptyState icon={CreditCard} title={t('pagamenti.vuoto_titolo')} desc={t('pagamenti.vuoto_desc')} />
                     : (
                         <div className="bg-slate border border-white/5 overflow-x-auto">
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-white/5">
-                                        {['Numero', 'Importo', 'Descrizione', 'Emessa il', 'Scadenza', 'Stato', ''].map(h => (
-                                            <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
+                                        {[t('pagamenti.th_numero'), t('pagamenti.th_importo'), t('pagamenti.th_descrizione'), t('pagamenti.th_emessa_il'), t('pagamenti.th_scadenza'), t('pagamenti.th_stato'), ''].map((h, hi) => (
+                                            <th key={hi} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                                         ))}
                                     </tr>
                                 </thead>
@@ -855,12 +872,12 @@ function TabPagamenti({ clienteId, avvocatoId }) {
                                                 <td className="px-4 py-3 font-body text-xs text-nebbia/60 font-medium">{fatt.numero}</td>
                                                 <td className="px-4 py-3 font-body text-sm font-semibold text-oro">CHF {fmtCHF(fatt.totale)}</td>
                                                 <td className="px-4 py-3 font-body text-xs text-nebbia/50 max-w-xs truncate">{fatt.descrizione ?? '—'}</td>
-                                                <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(fatt.data_emissione).toLocaleDateString('it-CH')}</td>
-                                                <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{fatt.data_scadenza ? new Date(fatt.data_scadenza).toLocaleDateString('it-CH') : '—'}</td>
-                                                <td className="px-4 py-3"><Badge label={sc.label} variant={sc.variant} /></td>
+                                                <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{new Date(fatt.data_emissione).toLocaleDateString(dateLocale)}</td>
+                                                <td className="px-4 py-3 font-body text-xs text-nebbia/40 whitespace-nowrap">{fatt.data_scadenza ? new Date(fatt.data_scadenza).toLocaleDateString(dateLocale) : '—'}</td>
+                                                <td className="px-4 py-3"><Badge label={t(sc.labelKey)} variant={sc.variant} /></td>
                                                 <td className="px-4 py-3 text-right">
                                                     {['in_attesa', 'scaduta'].includes(fatt.stato) && (
-                                                        <button onClick={() => apriPagamento(fatt)} className="font-body text-xs text-salvia hover:text-salvia/70 transition-colors whitespace-nowrap">Segna pagata</button>
+                                                        <button onClick={() => apriPagamento(fatt)} className="font-body text-xs text-salvia hover:text-salvia/70 transition-colors whitespace-nowrap">{t('pagamenti.segna_pagata')}</button>
                                                     )}
                                                 </td>
                                             </tr>
@@ -887,6 +904,9 @@ function TabPagamenti({ clienteId, avvocatoId }) {
 // TAB COMUNICAZIONI
 // ─────────────────────────────────────────────────────────────
 function TabComunicazioni({ clienteId }) {
+    const { t, i18n } = useTranslation('avv_clienti_dettaglio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [tickets, setTickets] = useState([])
     const [ticketAperto, setTicketAperto] = useState(null)
     const [messaggi, setMessaggi] = useState([])
@@ -958,10 +978,10 @@ function TabComunicazioni({ clienteId }) {
                     </div>
                     <div className="flex items-center gap-3">
                         <span className={`font-body text-xs px-2 py-0.5 border ${ticketAperto.stato === 'aperto' ? 'border-salvia/25 text-salvia bg-salvia/5' : 'border-white/10 text-nebbia/30'}`}>
-                            {ticketAperto.stato === 'aperto' ? 'Aperto' : 'Chiuso'}
+                            {ticketAperto.stato === 'aperto' ? t('comunicazioni.stato_aperto') : t('comunicazioni.stato_chiuso')}
                         </span>
                         {ticketAperto.stato === 'aperto' && (
-                            <button onClick={chiudiTicket} className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors border border-white/10 hover:border-red-500/30 px-3 py-1">Chiudi ticket</button>
+                            <button onClick={chiudiTicket} className="font-body text-xs text-nebbia/30 hover:text-red-400 transition-colors border border-white/10 hover:border-red-500/30 px-3 py-1">{t('comunicazioni.chiudi_ticket')}</button>
                         )}
                     </div>
                 </div>
@@ -970,7 +990,7 @@ function TabComunicazioni({ clienteId }) {
                         {messaggi.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full gap-2">
                                 <MessageSquare size={28} className="text-nebbia/15" />
-                                <p className="font-body text-sm text-nebbia/30">Nessun messaggio</p>
+                                <p className="font-body text-sm text-nebbia/30">{t('comunicazioni.nessun_messaggio')}</p>
                             </div>
                         ) : messaggi.map(msg => {
                             const isMio = msg.autore_id === meId
@@ -979,7 +999,7 @@ function TabComunicazioni({ clienteId }) {
                                     <div className={`max-w-sm px-4 py-2.5 ${isMio ? 'bg-oro/15 border border-oro/20' : 'bg-petrolio border border-white/10'}`}>
                                         <p className="font-body text-sm text-nebbia leading-relaxed">{msg.testo}</p>
                                         <p className={`font-body text-[10px] mt-1 ${isMio ? 'text-oro/50 text-right' : 'text-nebbia/30'}`}>
-                                            {new Date(msg.created_at).toLocaleString('it-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                            {new Date(msg.created_at).toLocaleString(dateLocale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                         </p>
                                     </div>
                                 </div>
@@ -991,13 +1011,13 @@ function TabComunicazioni({ clienteId }) {
                         <div className="border-t border-white/5 p-4 flex gap-3 items-end">
                             <textarea rows={2} value={testo} onChange={e => setTesto(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); inviaMessaggio() } }}
-                                placeholder="Scrivi un messaggio..."
+                                placeholder={t('comunicazioni.placeholder_messaggio')}
                                 className="flex-1 bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25" />
                             <button onClick={inviaMessaggio} disabled={!testo.trim()} className="btn-primary text-sm self-end px-4 py-3 shrink-0 disabled:opacity-40"><Send size={15} /></button>
                         </div>
                     ) : (
                         <div className="border-t border-white/5 p-4 text-center">
-                            <p className="font-body text-xs text-nebbia/30">Ticket chiuso</p>
+                            <p className="font-body text-xs text-nebbia/30">{t('comunicazioni.ticket_chiuso')}</p>
                         </div>
                     )}
                 </div>
@@ -1008,46 +1028,46 @@ function TabComunicazioni({ clienteId }) {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <p className="font-body text-sm text-nebbia/40">{tickets.length} {tickets.length === 1 ? 'ticket' : 'tickets'}</p>
+                <p className="font-body text-sm text-nebbia/40">{tickets.length} {tickets.length === 1 ? t('comunicazioni.conteggio_uno') : t('comunicazioni.conteggio_molti')}</p>
                 <button onClick={() => setShowForm(v => !v)} className="btn-primary text-sm flex items-center gap-2">
-                    <Plus size={14} />{showForm ? 'Annulla' : 'Nuovo ticket'}
+                    <Plus size={14} />{showForm ? t('comunicazioni.annulla') : t('comunicazioni.nuovo_ticket')}
                 </button>
             </div>
             {showForm && (
                 <div className="bg-slate border border-oro/20 p-5 space-y-4">
-                    <p className="section-label">Nuovo ticket</p>
+                    <p className="section-label">{t('comunicazioni.nuovo_ticket_titolo')}</p>
                     <div>
-                        <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Titolo *</label>
+                        <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('comunicazioni.titolo_label')}</label>
                         <input value={form.titolo} onChange={e => setForm(p => ({ ...p, titolo: e.target.value }))}
-                            placeholder="Es. Documenti mancanti..."
+                            placeholder={t('comunicazioni.titolo_placeholder')}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
                     </div>
                     <div className="flex gap-3">
-                        <button onClick={() => setShowForm(false)} className="btn-secondary text-sm flex-1">Annulla</button>
-                        <button onClick={creaNuovoTicket} disabled={!form.titolo.trim()} className="btn-primary text-sm flex-1 justify-center disabled:opacity-40">Apri ticket</button>
+                        <button onClick={() => setShowForm(false)} className="btn-secondary text-sm flex-1">{t('comunicazioni.annulla')}</button>
+                        <button onClick={creaNuovoTicket} disabled={!form.titolo.trim()} className="btn-primary text-sm flex-1 justify-center disabled:opacity-40">{t('comunicazioni.apri_ticket')}</button>
                     </div>
                 </div>
             )}
             {loading ? <div className="flex items-center justify-center py-12"><span className="animate-spin w-5 h-5 border-2 border-oro border-t-transparent rounded-full" /></div>
-                : tickets.length === 0 ? <EmptyState icon={MessageSquare} title="Nessun ticket" desc="Apri un ticket per comunicare con il cliente" />
+                : tickets.length === 0 ? <EmptyState icon={MessageSquare} title={t('comunicazioni.vuoto_titolo')} desc={t('comunicazioni.vuoto_desc')} />
                     : (
                         <div className="space-y-2">
-                            {tickets.map(t => {
-                                const msgs = [...(t.messaggi ?? [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                                const nonLetto = t.stato === 'aperto' && msgs.length > 0 && msgs[0]?.autore_tipo !== 'avvocato'
+                            {tickets.map(ticket => {
+                                const msgs = [...(ticket.messaggi ?? [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                                const nonLetto = ticket.stato === 'aperto' && msgs.length > 0 && msgs[0]?.autore_tipo !== 'avvocato'
                                 return (
-                                    <button key={t.id} onClick={() => apriTicket(t)} className="w-full text-left bg-slate border border-white/5 hover:border-oro/20 p-4 transition-all">
+                                    <button key={ticket.id} onClick={() => apriTicket(ticket)} className="w-full text-left bg-slate border border-white/5 hover:border-oro/20 p-4 transition-all">
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="flex items-center gap-2 min-w-0">
                                                 {nonLetto && <span className="w-1.5 h-1.5 rounded-full bg-oro shrink-0" />}
                                                 <div className="min-w-0">
-                                                    <p className="font-body text-sm font-medium text-nebbia truncate">{t.oggetto}</p>
-                                                    <p className="font-body text-xs text-nebbia/25 mt-1">{new Date(t.created_at).toLocaleDateString('it-CH')}</p>
+                                                    <p className="font-body text-sm font-medium text-nebbia truncate">{ticket.oggetto}</p>
+                                                    <p className="font-body text-xs text-nebbia/25 mt-1">{new Date(ticket.created_at).toLocaleDateString(dateLocale)}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2 shrink-0">
-                                                <span className={`font-body text-xs px-2 py-0.5 border ${t.stato === 'aperto' ? 'border-salvia/25 text-salvia bg-salvia/5' : 'border-white/10 text-nebbia/30'}`}>
-                                                    {t.stato === 'aperto' ? 'Aperto' : 'Chiuso'}
+                                                <span className={`font-body text-xs px-2 py-0.5 border ${ticket.stato === 'aperto' ? 'border-salvia/25 text-salvia bg-salvia/5' : 'border-white/10 text-nebbia/30'}`}>
+                                                    {ticket.stato === 'aperto' ? t('comunicazioni.stato_aperto') : t('comunicazioni.stato_chiuso')}
                                                 </span>
                                                 <ArrowRight size={14} className="text-nebbia/20" />
                                             </div>
@@ -1065,10 +1085,16 @@ function TabComunicazioni({ clienteId }) {
 // PANNELLO PRATICA + PROSSIMI APPUNTAMENTI
 // ─────────────────────────────────────────────────────────────
 function PannelloPratica({ pratica, onClose }) {
+    const { t, i18n } = useTranslation('avv_clienti_dettaglio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [documenti, setDocumenti] = useState([])
     const [ricerche, setRicerche] = useState([])
     const [loadingExtra, setLoadingExtra] = useState(true)
-    const sc = STATI_PRATICA[pratica.stato] ?? { label: pratica.stato ?? 'Aperta', variant: 'salvia' }
+    const scStato = STATI_PRATICA[pratica.stato]
+    const sc = scStato
+        ? { label: t(scStato.labelKey), variant: scStato.variant }
+        : { label: pratica.stato ?? t('stati_pratica.aperta'), variant: 'salvia' }
 
     useEffect(() => {
         async function carica() {
@@ -1097,7 +1123,7 @@ function PannelloPratica({ pratica, onClose }) {
         <div className="flex flex-col h-full overflow-y-auto space-y-4">
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Pratica</p>
+                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">{t('pannello_pratica.pratica')}</p>
                     <h3 className="font-display text-xl font-semibold text-nebbia">{pratica.titolo}</h3>
                     <p className="font-body text-xs text-nebbia/40 mt-1">{pratica.tipo ?? '—'}</p>
                 </div>
@@ -1114,15 +1140,15 @@ function PannelloPratica({ pratica, onClose }) {
                 to={`/pratiche/${pratica.id}`}
                 className="flex items-center justify-center gap-2 w-full py-2 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors"
             >
-                <ArrowRight size={13} /> Apri e modifica pratica completa
+                <ArrowRight size={13} /> {t('pannello_pratica.apri_modifica')}
             </Link>
             <div className="bg-petrolio/40 border border-white/5 p-4 space-y-2">
-                <p className="section-label mb-2">Dettagli</p>
+                <p className="section-label mb-2">{t('pannello_pratica.dettagli')}</p>
                 {[
-                    ['Tipo', pratica.tipo ?? '—'],
-                    ['Creata il', new Date(pratica.created_at).toLocaleDateString('it-CH')],
-                    ['Stato', sc.label],
-                    ...(pratica.esito ? [['Esito', pratica.esito.charAt(0).toUpperCase() + pratica.esito.slice(1)]] : []),
+                    [t('pannello_pratica.lbl_tipo'), pratica.tipo ?? '—'],
+                    [t('pannello_pratica.lbl_creata_il'), new Date(pratica.created_at).toLocaleDateString(dateLocale)],
+                    [t('pannello_pratica.lbl_stato'), sc.label],
+                    ...(pratica.esito ? [[t('pannello_pratica.lbl_esito'), pratica.esito.charAt(0).toUpperCase() + pratica.esito.slice(1)]] : []),
                 ].map(([l, v]) => (
                     <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                         <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -1134,16 +1160,16 @@ function PannelloPratica({ pratica, onClose }) {
                 <div className="flex items-center gap-3 p-3 bg-red-900/20 border border-red-500/25">
                     <Calendar size={16} className="text-red-400" />
                     <div>
-                        <p className="font-body text-xs text-red-400/60 uppercase tracking-widest mb-0.5">Prossima udienza</p>
-                        <span className="font-body text-sm text-red-400">{new Date(pratica.prossima_udienza).toLocaleDateString('it-CH')}</span>
+                        <p className="font-body text-xs text-red-400/60 uppercase tracking-widest mb-0.5">{t('pannello_pratica.prossima_udienza')}</p>
+                        <span className="font-body text-sm text-red-400">{new Date(pratica.prossima_udienza).toLocaleDateString(dateLocale)}</span>
                     </div>
                 </div>
             ) : (
-                <EmptyState icon={Calendar} title="Nessuna scadenza" />
+                <EmptyState icon={Calendar} title={t('pannello_pratica.nessuna_scadenza')} />
             )}
             {pratica.note && (
                 <div className="bg-petrolio/40 border border-white/5 p-4">
-                    <p className="section-label mb-2">Note interne</p>
+                    <p className="section-label mb-2">{t('pannello_pratica.note_interne')}</p>
                     <p className="font-body text-sm text-nebbia/60 leading-relaxed whitespace-pre-line line-clamp-4">{pratica.note}</p>
                 </div>
             )}
@@ -1154,23 +1180,23 @@ function PannelloPratica({ pratica, onClose }) {
             ) : (
                 <>
                     <div className="bg-petrolio/40 border border-white/5 p-4">
-                        <p className="section-label mb-3">Documenti ({documenti.length})</p>
+                        <p className="section-label mb-3">{t('pannello_pratica.documenti')} ({documenti.length})</p>
                         {documenti.length === 0 ? (
-                            <p className="font-body text-xs text-nebbia/30">Nessun documento</p>
+                            <p className="font-body text-xs text-nebbia/30">{t('pannello_pratica.nessun_documento')}</p>
                         ) : documenti.map(d => (
                             <div key={d.id} className="flex items-center gap-2 py-2 border-b border-white/5 last:border-0">
                                 <FileText size={12} className="text-nebbia/30 shrink-0" />
                                 <p className="font-body text-xs text-nebbia/70 truncate flex-1">{d.nome_file}</p>
                                 <span className="font-body text-xs text-nebbia/25">
-                                    {new Date(d.created_at).toLocaleDateString('it-CH')}
+                                    {new Date(d.created_at).toLocaleDateString(dateLocale)}
                                 </span>
                             </div>
                         ))}
                     </div>
                     <div className="bg-petrolio/40 border border-white/5 p-4">
-                        <p className="section-label mb-3">Ricerche ({ricerche.length})</p>
+                        <p className="section-label mb-3">{t('pannello_pratica.ricerche')} ({ricerche.length})</p>
                         {ricerche.length === 0 ? (
-                            <p className="font-body text-xs text-nebbia/30">Nessuna ricerca salvata</p>
+                            <p className="font-body text-xs text-nebbia/30">{t('pannello_pratica.nessuna_ricerca')}</p>
                         ) : ricerche.map(r => (
                             <div key={r.id} className="py-2 border-b border-white/5 last:border-0">
                                 <div className="flex items-center gap-2 mb-1">
@@ -1193,6 +1219,9 @@ function PannelloPratica({ pratica, onClose }) {
 }
 
 function ProssimiAppuntamenti({ clienteId }) {
+    const { t, i18n } = useTranslation('avv_clienti_dettaglio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [appuntamenti, setAppuntamenti] = useState([])
 
     useEffect(() => {
@@ -1215,7 +1244,7 @@ function ProssimiAppuntamenti({ clienteId }) {
 
     return (
         <div className="bg-slate border border-white/5 p-5">
-            <p className="section-label mb-3">Prossimi appuntamenti</p>
+            <p className="section-label mb-3">{t('appuntamenti.titolo')}</p>
             <div className="space-y-2">
                 {appuntamenti.map(a => (
                     <div key={a.id} className={`flex items-center gap-3 p-3 border ${a.tipo === 'udienza' ? 'bg-red-900/10 border-red-500/20' : 'bg-petrolio/40 border-white/5'}`}>
@@ -1223,13 +1252,13 @@ function ProssimiAppuntamenti({ clienteId }) {
                         <div className="min-w-0 flex-1">
                             <p className="font-body text-sm text-nebbia truncate">{a.titolo}</p>
                             <p className={`font-body text-xs mt-0.5 ${a.tipo === 'udienza' ? 'text-red-400/60' : 'text-nebbia/30'}`}>
-                                {new Date(a.data_ora_inizio).toLocaleDateString('it-CH', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                {new Date(a.data_ora_inizio).toLocaleDateString(dateLocale, { day: '2-digit', month: 'long', year: 'numeric' })}
                                 {' — '}
-                                {new Date(a.data_ora_inizio).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(a.data_ora_inizio).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
                             </p>
                         </div>
                         {a.tipo === 'udienza' && (
-                            <span className="font-body text-xs text-red-400/60 border border-red-500/20 px-2 py-0.5 shrink-0">Udienza</span>
+                            <span className="font-body text-xs text-red-400/60 border border-red-500/20 px-2 py-0.5 shrink-0">{t('appuntamenti.udienza')}</span>
                         )}
                     </div>
                 ))}
@@ -1242,6 +1271,7 @@ function ProssimiAppuntamenti({ clienteId }) {
 // MODAL RESET PASSWORD
 // ─────────────────────────────────────────────────────────────
 function ModalResetPassword({ cliente, onClose }) {
+    const { t } = useTranslation('avv_clienti_dettaglio')
     const [password, setPassword] = useState('')
     const [mostraPassword, setMostraPassword] = useState(false)
     const [inviando, setInviando] = useState(false)
@@ -1250,8 +1280,8 @@ function ModalResetPassword({ cliente, onClose }) {
 
     async function eseguiReset() {
         setErrore('')
-        if (!password) return setErrore('Inserisci una password')
-        if (password.length < 8) return setErrore('Almeno 8 caratteri')
+        if (!password) return setErrore(t('reset_password.errore_inserisci'))
+        if (password.length < 8) return setErrore(t('reset_password.errore_minimo'))
 
         setInviando(true)
         try {
@@ -1259,7 +1289,7 @@ function ModalResetPassword({ cliente, onClose }) {
                 body: { cliente_id: cliente.id, nuova_password: password }
             })
             if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore reset')
+            if (!data?.ok) throw new Error(data?.error ?? t('reset_password.errore_reset'))
             setCompletato(true)
         } catch (err) {
             setErrore(err.message)
@@ -1276,13 +1306,13 @@ function ModalResetPassword({ cliente, onClose }) {
                         <div className="w-10 h-10 bg-salvia/10 border border-salvia/30 flex items-center justify-center">
                             <CheckCircle size={18} className="text-salvia" />
                         </div>
-                        <h2 className="font-display text-lg text-nebbia">Password aggiornata</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('reset_password.titolo_successo')}</h2>
                     </div>
                     <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                        La nuova password è attiva. Comunicala al cliente con il canale che preferisci (telefono, whatsapp, di persona).
+                        {t('reset_password.successo_desc')}
                     </p>
                     <button onClick={onClose} className="btn-primary text-sm w-full justify-center">
-                        Chiudi
+                        {t('reset_password.chiudi')}
                     </button>
                 </div>
             </div>
@@ -1295,7 +1325,7 @@ function ModalResetPassword({ cliente, onClose }) {
                 <div className="flex items-center justify-between p-5 border-b border-white/8">
                     <div className="flex items-center gap-2">
                         <Lock size={16} className="text-oro" />
-                        <h2 className="font-display text-lg text-nebbia">Reset password cliente</h2>
+                        <h2 className="font-display text-lg text-nebbia">{t('reset_password.titolo')}</h2>
                     </div>
                     <button onClick={onClose} className="text-nebbia/40 hover:text-nebbia">
                         <X size={18} />
@@ -1304,12 +1334,12 @@ function ModalResetPassword({ cliente, onClose }) {
 
                 <div className="p-6 space-y-4">
                     <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                        Imposta una nuova password per accedere al portale. Comunicala al cliente con il canale che preferisci. Lexum non invia email automatiche.
+                        {t('reset_password.descrizione')}
                     </p>
 
                     <div>
                         <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                            Nuova password
+                            {t('reset_password.nuova_password_label')}
                         </label>
                         <div className="relative">
                             <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-nebbia/30 pointer-events-none" />
@@ -1317,7 +1347,7 @@ function ModalResetPassword({ cliente, onClose }) {
                                 type={mostraPassword ? 'text' : 'password'}
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
-                                placeholder="Almeno 8 caratteri"
+                                placeholder={t('reset_password.placeholder_pwd')}
                                 autoFocus
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-9 pr-10 py-3 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
@@ -1344,7 +1374,7 @@ function ModalResetPassword({ cliente, onClose }) {
                             disabled={inviando}
                             className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40"
                         >
-                            Annulla
+                            {t('reset_password.annulla')}
                         </button>
                         <button
                             type="button"
@@ -1354,7 +1384,7 @@ function ModalResetPassword({ cliente, onClose }) {
                         >
                             {inviando
                                 ? <span className="animate-spin w-4 h-4 border-2 border-oro border-t-transparent rounded-full" />
-                                : <><Lock size={14} /> Imposta password</>
+                                : <><Lock size={14} /> {t('reset_password.imposta_password')}</>
                             }
                         </button>
                     </div>
@@ -1368,27 +1398,30 @@ function ModalResetPassword({ cliente, onClose }) {
 // DETTAGLIO CLIENTE — pagina principale
 // ─────────────────────────────────────────────────────────────
 export default function AvvocatoClientiDettaglio() {
+    const { t, i18n } = useTranslation('avv_clienti_dettaglio')
+    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const { role } = useAuth()
     const isFiduciario = role === 'fiduciario'
     const TABS = isFiduciario
         ? [
-            { id: 'panoramica', label: 'Panoramica', icon: User },
-            { id: 'mandati', label: 'Mandati', icon: FolderOpen },
-            { id: 'dipendenti', label: 'Dipendenti', icon: Users },
-            { id: 'contabilita', label: 'Contabilità', icon: BookOpen },
-            { id: 'documenti', label: 'Documenti', icon: FileText },
-            { id: 'comunicazioni', label: 'Comunicazioni', icon: MessageSquare },
-            { id: 'note_interne', label: 'Note interne', icon: Lock },
-            { id: 'pagamenti', label: 'Pagamenti', icon: CreditCard },
+            { id: 'panoramica', label: t('tabs.panoramica'), icon: User },
+            { id: 'mandati', label: t('tabs.mandati'), icon: FolderOpen },
+            { id: 'dipendenti', label: t('tabs.dipendenti'), icon: Users },
+            { id: 'contabilita', label: t('tabs.contabilita'), icon: BookOpen },
+            { id: 'documenti', label: t('tabs.documenti'), icon: FileText },
+            { id: 'comunicazioni', label: t('tabs.comunicazioni'), icon: MessageSquare },
+            { id: 'note_interne', label: t('tabs.note_interne'), icon: Lock },
+            { id: 'pagamenti', label: t('tabs.pagamenti'), icon: CreditCard },
         ]
         : [
-            { id: 'panoramica', label: 'Panoramica', icon: User },
-            { id: 'pratiche', label: 'Pratiche', icon: FolderOpen },
-            { id: 'documenti', label: 'Documenti', icon: FileText },
-            { id: 'comunicazioni', label: 'Comunicazioni', icon: MessageSquare },
-            { id: 'note_interne', label: 'Note interne', icon: Lock },
-            { id: 'pagamenti', label: 'Pagamenti', icon: CreditCard },
+            { id: 'panoramica', label: t('tabs.panoramica'), icon: User },
+            { id: 'pratiche', label: t('tabs.pratiche'), icon: FolderOpen },
+            { id: 'documenti', label: t('tabs.documenti'), icon: FileText },
+            { id: 'comunicazioni', label: t('tabs.comunicazioni'), icon: MessageSquare },
+            { id: 'note_interne', label: t('tabs.note_interne'), icon: Lock },
+            { id: 'pagamenti', label: t('tabs.pagamenti'), icon: CreditCard },
         ]
     const [cliente, setCliente] = useState(null)
     const [tab, setTab] = useState('panoramica')
@@ -1488,25 +1521,25 @@ export default function AvvocatoClientiDettaglio() {
     }
 
     const fc = k => ({ value: formCliente[k] ?? '', onChange: e => setFormCliente(p => ({ ...p, [k]: e.target.value })) })
-    const nomeAvvocato = avvocatoId === meId ? 'Tu'
+    const nomeAvvocato = avvocatoId === meId ? t('principale.tu')
         : collaboratori.find(c => c.id === avvocatoId)
             ? `${collaboratori.find(c => c.id === avvocatoId).nome} ${collaboratori.find(c => c.id === avvocatoId).cognome}`
             : '—'
 
     if (loading) return <div className="flex items-center justify-center py-40"><span className="animate-spin w-6 h-6 border-2 border-oro border-t-transparent rounded-full" /></div>
-    if (!cliente) return <div className="space-y-5"><BackButton to="/clienti" label="Tutti i clienti" /><p className="font-body text-sm text-nebbia/40">Cliente non trovato.</p></div>
+    if (!cliente) return <div className="space-y-5"><BackButton to="/clienti" label={t('principale.tutti_clienti')} /><p className="font-body text-sm text-nebbia/40">{t('principale.cliente_non_trovato')}</p></div>
 
     const isPF = (cliente.tipo_soggetto ?? 'persona_fisica') === 'persona_fisica'
     const formIsPF = (formCliente.tipo_soggetto ?? 'persona_fisica') === 'persona_fisica'
 
     return (
         <div className="space-y-5">
-            <BackButton to="/clienti" label="Tutti i clienti" />
+            <BackButton to="/clienti" label={t('principale.tutti_clienti')} />
             <div className="flex items-start justify-between flex-wrap gap-3">
                 <div>
                     <p className="section-label mb-2 flex items-center gap-2">
                         {isPF ? <User size={11} /> : <Building2 size={11} />}
-                        {isPF ? 'Cliente · Persona fisica' : 'Cliente · Persona giuridica'}
+                        {isPF ? t('principale.label_pf') : t('principale.label_pg')}
                     </p>
                     <h1 className="font-display text-4xl font-light text-nebbia">{nomeCliente(cliente)}</h1>
                     <p className="font-body text-sm text-nebbia/40 mt-1">{cliente.email} · {cliente.telefono ?? '—'}</p>
@@ -1514,10 +1547,10 @@ export default function AvvocatoClientiDettaglio() {
                 <div className="flex items-center gap-3 flex-wrap">
                     {isStudio && (
                         <div className="flex items-center gap-2">
-                            <span className="font-body text-xs text-nebbia/30">Assegnato a</span>
+                            <span className="font-body text-xs text-nebbia/30">{t('principale.assegnato_a')}</span>
                             <select value={avvocatoId} onChange={e => setAvvocatoId(e.target.value)}
                                 className="bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-1.5 outline-none focus:border-oro/50">
-                                <option value={meId}>Tu</option>
+                                <option value={meId}>{t('principale.tu')}</option>
                                 {collaboratori.map(c => <option key={c.id} value={c.id}>{c.nome} {c.cognome}</option>)}
                             </select>
                         </div>
@@ -1526,7 +1559,7 @@ export default function AvvocatoClientiDettaglio() {
                         onClick={() => setMostraModalReset(true)}
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors"
                     >
-                        <Lock size={12} /> Reset password
+                        <Lock size={12} /> {t('principale.reset_password')}
                     </button>
                 </div>
             </div>
@@ -1549,12 +1582,12 @@ export default function AvvocatoClientiDettaglio() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     <div className="bg-slate border border-white/5 p-5">
                         <div className="flex items-center justify-between mb-4">
-                            <p className="section-label">Dati anagrafici</p>
+                            <p className="section-label">{t('anagrafica.titolo')}</p>
                             {!editPanoramica
-                                ? <button onClick={() => setEditPanoramica(true)} className="flex items-center gap-1.5 font-body text-xs text-nebbia/30 hover:text-oro transition-colors"><Edit2 size={12} /> Modifica</button>
+                                ? <button onClick={() => setEditPanoramica(true)} className="flex items-center gap-1.5 font-body text-xs text-nebbia/30 hover:text-oro transition-colors"><Edit2 size={12} /> {t('anagrafica.modifica')}</button>
                                 : <div className="flex gap-2">
                                     <button onClick={salvaCliente} disabled={salvandoCliente} className="flex items-center gap-1 font-body text-xs text-salvia">
-                                        {salvandoCliente ? <span className="animate-spin w-3 h-3 border border-salvia border-t-transparent rounded-full" /> : <Check size={12} />} Salva
+                                        {salvandoCliente ? <span className="animate-spin w-3 h-3 border border-salvia border-t-transparent rounded-full" /> : <Check size={12} />} {t('anagrafica.salva')}
                                     </button>
                                     <button onClick={() => { setFormCliente({ ...cliente }); setEditPanoramica(false); setErroreCliente('') }} className="font-body text-xs text-nebbia/30 hover:text-red-400"><X size={12} /></button>
                                 </div>
@@ -1571,63 +1604,63 @@ export default function AvvocatoClientiDettaglio() {
                                 {formIsPF ? (
                                     <>
                                         <div className="grid grid-cols-2 gap-3">
-                                            <InputField label="Nome" {...fc('nome')} />
-                                            <InputField label="Cognome" {...fc('cognome')} />
+                                            <InputField label={t('anagrafica.nome')} {...fc('nome')} />
+                                            <InputField label={t('anagrafica.cognome')} {...fc('cognome')} />
                                         </div>
-                                        <InputField label="Numero AVS" placeholder="756.XXXX.XXXX.XX" {...fc('numero_avs')} />
+                                        <InputField label={t('anagrafica.numero_avs')} placeholder="756.XXXX.XXXX.XX" {...fc('numero_avs')} />
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Data nascita</label>
+                                                <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">{t('anagrafica.data_nascita')}</label>
                                                 <input type="date" {...fc('data_nascita')}
                                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50" />
                                             </div>
-                                            <InputField label="Luogo nascita" placeholder="Es. Lugano" {...fc('luogo_nascita')} />
+                                            <InputField label={t('anagrafica.luogo_nascita')} placeholder={t('anagrafica.luogo_nascita_placeholder')} {...fc('luogo_nascita')} />
                                         </div>
                                     </>
                                 ) : (
                                     <>
-                                        <InputField label="Ragione sociale" {...fc('ragione_sociale')} />
+                                        <InputField label={t('anagrafica.ragione_sociale')} {...fc('ragione_sociale')} />
                                         <div className="grid grid-cols-2 gap-3">
-                                            <InputField label="Numero UID" placeholder="CHE-XXX.XXX.XXX" {...fc('uid')} />
-                                            <InputField label="Forma giuridica" placeholder="Es. SA, Sàrl" {...fc('forma_giuridica')} />
+                                            <InputField label={t('anagrafica.numero_uid')} placeholder={t('anagrafica.uid_placeholder')} {...fc('uid')} />
+                                            <InputField label={t('anagrafica.forma_giuridica')} placeholder={t('anagrafica.forma_giuridica_placeholder')} {...fc('forma_giuridica')} />
                                         </div>
                                         <label className="flex items-center gap-2 cursor-pointer">
                                             <input type="checkbox" checked={!!formCliente.iva_attiva}
                                                 onChange={e => setFormCliente(p => ({ ...p, iva_attiva: e.target.checked }))}
                                                 className="accent-oro w-4 h-4" />
-                                            <span className="font-body text-sm text-nebbia/70">Assoggettato IVA</span>
+                                            <span className="font-body text-sm text-nebbia/70">{t('anagrafica.assoggettato_iva')}</span>
                                         </label>
-                                        <InputField label="Sede legale" {...fc('sede_legale')} />
+                                        <InputField label={t('anagrafica.sede_legale')} {...fc('sede_legale')} />
                                         <div className="border-t border-white/8 pt-3 space-y-3">
-                                            <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">Rappresentante legale</p>
+                                            <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">{t('anagrafica.rappresentante_legale')}</p>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <InputField label="Nome" {...fc('rappr_nome')} />
-                                                <InputField label="Cognome" {...fc('rappr_cognome')} />
+                                                <InputField label={t('anagrafica.nome')} {...fc('rappr_nome')} />
+                                                <InputField label={t('anagrafica.cognome')} {...fc('rappr_cognome')} />
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <InputField label="Numero AVS rappr." placeholder="756.XXXX.XXXX.XX" {...fc('rappr_avs')} />
-                                                <InputField label="Carica" placeholder="Es. Amministratore" {...fc('rappr_carica')} />
+                                                <InputField label={t('anagrafica.numero_avs_rappr')} placeholder="756.XXXX.XXXX.XX" {...fc('rappr_avs')} />
+                                                <InputField label={t('anagrafica.carica')} placeholder={t('anagrafica.carica_placeholder')} {...fc('rappr_carica')} />
                                             </div>
                                         </div>
                                     </>
                                 )}
 
                                 <div className="border-t border-white/8 pt-3 space-y-3">
-                                    <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">Contatti</p>
-                                    <InputField label="Email" type="email" {...fc('email')} />
-                                    <InputField label="Telefono" placeholder="+41 ..." {...fc('telefono')} />
+                                    <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">{t('anagrafica.contatti')}</p>
+                                    <InputField label={t('anagrafica.email')} type="email" {...fc('email')} />
+                                    <InputField label={t('anagrafica.telefono')} placeholder={t('anagrafica.telefono_placeholder')} {...fc('telefono')} />
                                 </div>
 
                                 <div className="border-t border-white/8 pt-3 space-y-3">
-                                    <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">Indirizzo</p>
-                                    <InputField label="Indirizzo" placeholder="Via ..." {...fc('indirizzo')} />
+                                    <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">{t('anagrafica.indirizzo')}</p>
+                                    <InputField label={t('anagrafica.indirizzo')} placeholder={t('anagrafica.indirizzo_placeholder')} {...fc('indirizzo')} />
                                     <div className="grid grid-cols-3 gap-3">
                                         <div className="col-span-2">
-                                            <InputField label="Località" placeholder="Es. Lugano" {...fc('citta')} />
+                                            <InputField label={t('anagrafica.localita')} placeholder={t('anagrafica.luogo_nascita_placeholder')} {...fc('citta')} />
                                         </div>
-                                        <InputField label="Cantone" placeholder="TI" {...fc('cantone')} />
+                                        <InputField label={t('anagrafica.cantone')} placeholder="TI" {...fc('cantone')} />
                                     </div>
-                                    <InputField label="NPA" placeholder="6900" {...fc('cap')} />
+                                    <InputField label={t('anagrafica.npa')} placeholder="6900" {...fc('cap')} />
                                 </div>
 
                                 {erroreCliente && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20"><AlertCircle size={14} /> {erroreCliente}</div>}
@@ -1635,21 +1668,21 @@ export default function AvvocatoClientiDettaglio() {
                         ) : (
                             <div className="space-y-3">
                                 {isPF ? [
-                                    ['Nome completo', `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`.trim() || '—'],
-                                    ['Numero AVS', cliente.numero_avs || '—'],
-                                    ['Data nascita', cliente.data_nascita ? new Date(cliente.data_nascita).toLocaleDateString('it-CH') : '—'],
-                                    ['Luogo nascita', cliente.luogo_nascita || '—'],
+                                    [t('anagrafica.nome_completo'), `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`.trim() || '—'],
+                                    [t('anagrafica.numero_avs'), cliente.numero_avs || '—'],
+                                    [t('anagrafica.data_nascita'), cliente.data_nascita ? new Date(cliente.data_nascita).toLocaleDateString(dateLocale) : '—'],
+                                    [t('anagrafica.luogo_nascita'), cliente.luogo_nascita || '—'],
                                 ].map(([l, v]) => (
                                     <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                         <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
                                         <span className="font-body text-sm text-nebbia">{v}</span>
                                     </div>
                                 )) : [
-                                    ['Ragione sociale', cliente.ragione_sociale || '—'],
-                                    ['Numero UID', cliente.uid || '—'],
-                                    ['Forma giuridica', cliente.forma_giuridica || '—'],
-                                    ['Assoggettato IVA', cliente.iva_attiva ? 'Sì' : 'No'],
-                                    ['Sede legale', cliente.sede_legale || '—'],
+                                    [t('anagrafica.ragione_sociale'), cliente.ragione_sociale || '—'],
+                                    [t('anagrafica.numero_uid'), cliente.uid || '—'],
+                                    [t('anagrafica.forma_giuridica'), cliente.forma_giuridica || '—'],
+                                    [t('anagrafica.assoggettato_iva'), cliente.iva_attiva ? t('anagrafica.si') : t('anagrafica.no')],
+                                    [t('anagrafica.sede_legale'), cliente.sede_legale || '—'],
                                 ].map(([l, v]) => (
                                     <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                         <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -1659,11 +1692,11 @@ export default function AvvocatoClientiDettaglio() {
 
                                 {!isPF && (cliente.rappr_nome || cliente.rappr_cognome || cliente.rappr_carica) && (
                                     <div className="border-t border-white/5 pt-3 mt-3 space-y-2">
-                                        <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Rappresentante legale</p>
+                                        <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">{t('anagrafica.rappresentante_legale')}</p>
                                         {[
-                                            ['Nome', `${cliente.rappr_nome ?? ''} ${cliente.rappr_cognome ?? ''}`.trim() || '—'],
-                                            ['Numero AVS', cliente.rappr_avs || '—'],
-                                            ['Carica', cliente.rappr_carica || '—'],
+                                            [t('anagrafica.nome'), `${cliente.rappr_nome ?? ''} ${cliente.rappr_cognome ?? ''}`.trim() || '—'],
+                                            [t('anagrafica.numero_avs'), cliente.rappr_avs || '—'],
+                                            [t('anagrafica.carica'), cliente.rappr_carica || '—'],
                                         ].map(([l, v]) => (
                                             <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                                 <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -1674,10 +1707,10 @@ export default function AvvocatoClientiDettaglio() {
                                 )}
 
                                 <div className="border-t border-white/5 pt-3 mt-3 space-y-2">
-                                    <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Contatti</p>
+                                    <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">{t('anagrafica.contatti')}</p>
                                     {[
-                                        ['Email', cliente.email],
-                                        ['Telefono', cliente.telefono || '—'],
+                                        [t('anagrafica.email'), cliente.email],
+                                        [t('anagrafica.telefono'), cliente.telefono || '—'],
                                     ].map(([l, v]) => (
                                         <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                             <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -1687,12 +1720,12 @@ export default function AvvocatoClientiDettaglio() {
                                 </div>
 
                                 <div className="border-t border-white/5 pt-3 mt-3 space-y-2">
-                                    <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">Indirizzo</p>
+                                    <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">{t('anagrafica.indirizzo')}</p>
                                     {[
-                                        ['Indirizzo', cliente.indirizzo || '—'],
-                                        ['Località', cliente.citta || '—'],
-                                        ['Cantone', cliente.cantone || '—'],
-                                        ['NPA', cliente.cap || '—'],
+                                        [t('anagrafica.indirizzo'), cliente.indirizzo || '—'],
+                                        [t('anagrafica.localita'), cliente.citta || '—'],
+                                        [t('anagrafica.cantone'), cliente.cantone || '—'],
+                                        [t('anagrafica.npa'), cliente.cap || '—'],
                                     ].map(([l, v]) => (
                                         <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                             <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -1704,7 +1737,7 @@ export default function AvvocatoClientiDettaglio() {
                                 {isStudio && (
                                     <div className="border-t border-white/5 pt-3 mt-3">
                                         <div className="flex justify-between border-b border-white/5 pb-2">
-                                            <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Avvocato assegnato</span>
+                                            <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('anagrafica.avvocato_assegnato')}</span>
                                             <span className="font-body text-sm text-nebbia">{nomeAvvocato}</span>
                                         </div>
                                     </div>
@@ -1720,10 +1753,10 @@ export default function AvvocatoClientiDettaglio() {
                 <div className="flex gap-4 min-h-[500px]">
                     <div className={`flex flex-col gap-2 ${praticaSelezionata ? 'w-[20%] shrink-0' : 'flex-1'}`}>
                         <div className="flex justify-end mb-1">
-                            <Link to={`/pratiche/nuova?cliente_id=${id}`} className="btn-primary text-sm flex items-center gap-2"><Plus size={14} />Nuova pratica</Link>
+                            <Link to={`/pratiche/nuova?cliente_id=${id}`} className="btn-primary text-sm flex items-center gap-2"><Plus size={14} />{t('pratiche.nuova_pratica')}</Link>
                         </div>
                         {pratiche.length === 0 ? (
-                            <div className="bg-slate border border-white/5 p-8 text-center"><p className="font-body text-sm text-nebbia/30">Nessuna pratica — creane una</p></div>
+                            <div className="bg-slate border border-white/5 p-8 text-center"><p className="font-body text-sm text-nebbia/30">{t('pratiche.vuoto')}</p></div>
                         ) : pratiche.map(p => {
                             const sc = STATI_PRATICA[p.stato] ?? STATI_PRATICA.aperta
                             const sel = praticaSelezionata?.id === p.id
@@ -1739,11 +1772,11 @@ export default function AvvocatoClientiDettaglio() {
                                             <div className="flex items-center gap-1.5 shrink-0 px-2 py-1 bg-red-900/20 border border-red-500/25">
                                                 <Calendar size={10} className="text-red-400" />
                                                 <span className="font-body text-xs text-red-400/80">
-                                                    Udienza {new Date(p.prossima_udienza).toLocaleDateString('it-CH')}
+                                                    {t('pratiche.udienza_prefix')} {new Date(p.prossima_udienza).toLocaleDateString(dateLocale)}
                                                 </span>
                                             </div>
                                         )}
-                                        <Badge label={sc.label} variant={sc.variant} />
+                                        <Badge label={t(sc.labelKey)} variant={sc.variant} />
                                     </div>
                                 </button>
                             )

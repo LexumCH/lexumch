@@ -1,0 +1,60 @@
+{
+  "titolo": "Comptabilité",
+  "badge_partita_doppia": "partie double",
+  "tabella_mancante": "Tables comptables pas encore créées : exécutez la migration <code>contabilita_fase_a.sql</code>.",
+  "classe_altro": "Autre",
+  "disattivo": "inactif",
+  "vuoto_giornale": "Aucune écriture. Utilisez « Nouvelle écriture » pour la première saisie (ou pour les soldes d'ouverture).",
+  "tab": {
+    "giornale": "Journal",
+    "conti": "Plan comptable",
+    "report": "Rapports",
+    "imputazioni": "Imputations"
+  },
+  "vuoto_piano": {
+    "titolo": "Aucun plan comptable pour ce client.",
+    "sottotitolo": "Initialisez le plan comptable suisse standard pour PME (personnalisable par la suite).",
+    "inizializza": "Initialiser le plan comptable"
+  },
+  "colonne": {
+    "conto": "Compte",
+    "dare": "Débit",
+    "avere": "Crédit"
+  },
+  "tipo": {
+    "ordinaria": "Ordinaire",
+    "apertura": "Ouverture",
+    "rettifica": "Correction",
+    "chiusura": "Clôture"
+  },
+  "form": {
+    "data": "Date",
+    "descrizione": "Description",
+    "descrizione_placeholder": "p. ex. Facture client X / Paiement loyer",
+    "tipo": "Type",
+    "scegli_conto": "— compte —",
+    "aggiungi_riga": "Ajouter une ligne"
+  },
+  "bilancio": {
+    "bilanciata": "Équilibrée",
+    "sbilancio": "Écart {{importo}}",
+    "inserisci_righe": "Saisissez les lignes"
+  },
+  "elimina": {
+    "titolo": "Supprimer l'écriture",
+    "conferma": "Supprimer <d>{{descrizione}}</d> du {{data}} ? Opération irréversible."
+  },
+  "azioni": {
+    "nuova_registrazione": "Nouvelle écriture",
+    "elimina_registrazione": "Supprimer l'écriture",
+    "annulla": "Annuler",
+    "elimina": "Supprimer",
+    "registra": "Enregistrer",
+    "salvataggio": "Enregistrement..."
+  },
+  "errori": {
+    "sessione_scaduta": "Session expirée.",
+    "descrizione_obbligatoria": "Saisissez une description.",
+    "non_bilanciata": "L'écriture doit être équilibrée (Σ débit = Σ crédit) avec au moins 2 lignes."
+  }
+}

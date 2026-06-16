@@ -1,0 +1,22 @@
+{
+    "cliente": {
+        "label": "Mandant",
+        "cerca_placeholder": "Mandant suchen...",
+        "rimuovi": "Mandant entfernen",
+        "vuoto": "Kein Mandant"
+    },
+    "dipendente": {
+        "label": "Mitarbeiter",
+        "disabled_hint": "Weisen Sie zuerst einen Mandanten zu",
+        "rimuovi": "Mitarbeiter entfernen",
+        "vuoto": "Kein Mitarbeiter für diesen Mandanten"
+    },
+    "pm": {
+        "label_pratica": "Dossier",
+        "label_mandato": "Mandat",
+        "rimuovi_pratica": "Dossier entfernen",
+        "rimuovi_mandato": "Mandat entfernen",
+        "vuoto_pratica": "Kein offenes Dossier",
+        "vuoto_mandato": "Kein aktives Mandat"
+    }
+}

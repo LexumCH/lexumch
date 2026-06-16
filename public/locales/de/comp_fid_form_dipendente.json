@@ -1,0 +1,84 @@
+{
+    "header": {
+        "modifica": "Mitarbeiter bearbeiten",
+        "nuovo": "Neuer Mitarbeiter",
+        "sottotitolo": "Personalstammdaten des Kundenunternehmens"
+    },
+    "toast": {
+        "salvato": "Gespeichert"
+    },
+    "anagrafica": {
+        "titolo": "Personalien",
+        "nome": "Vorname *",
+        "cognome": "Nachname *",
+        "data_nascita": "Geburtsdatum",
+        "numero_avs": "AHV-Nummer"
+    },
+    "ruolo": {
+        "titolo": "Funktion im Unternehmen",
+        "dipendente": "Mitarbeiter",
+        "socio": "Gesellschafter / Inhaber",
+        "qualifica": "Funktion / Position",
+        "qualifica_ph": "z. B. Geschäftsführer, Buchhalter...",
+        "quota": "Beteiligungsquote (%)",
+        "quota_ph": "z. B. 50"
+    },
+    "rapporto": {
+        "titolo": "Arbeitsverhältnis",
+        "data_assunzione": "Eintrittsdatum",
+        "data_fine": "Austrittsdatum",
+        "data_fine_hint": "(bei Beendigung)",
+        "impiego": "Beschäftigungsgrad (%)",
+        "salario": "Lohn (CHF)",
+        "periodicita": "Periodizität",
+        "periodicita_annuo": "Jährlich",
+        "periodicita_mensile": "Monatlich"
+    },
+    "fonte": {
+        "titolo": "Quellensteuer",
+        "nazionalita": "Nationalität",
+        "nazionalita_ph": "z. B. Italienisch",
+        "tipo_permesso": "Bewilligungsart",
+        "tipo_permesso_ph": "z. B. G (Grenzgänger), B, C...",
+        "soggetto": "Quellensteuerpflichtig"
+    },
+    "note": {
+        "label": "Notizen",
+        "opzionale": "(optional)",
+        "placeholder": "Anmerkungen..."
+    },
+    "bonus": {
+        "titolo": "Bonus / Prämien",
+        "importo": "Betrag (CHF)",
+        "data": "Datum",
+        "descrizione": "Beschreibung",
+        "descrizione_ph": "z. B. Zielprämie",
+        "aggiungi": "Hinzufügen",
+        "elimina_tooltip": "Bonus löschen",
+        "nota": "Boni belasten die Ausgabe des Monats, in den sie fallen, sowie die Jahressumme. Sie wirken sich nicht auf den monatlichen Fixlohn aus.",
+        "salva_prima": "Speichern Sie zuerst den Mitarbeiter, um Boni hinzufügen zu können."
+    },
+    "documenti": {
+        "titolo": "Dokumente",
+        "nessuno": "Dieser Person ist kein Dokument zugewiesen",
+        "conteggio_uno": "{{count}} zugewiesenes Dokument",
+        "conteggio_molti": "{{count}} zugewiesene Dokumente",
+        "aggiungi": "Dokument hinzufügen",
+        "nota": "Dokumente werden über das Archiv hochgeladen. Von dort werden sie verarbeitet und für Lex durchsuchbar gemacht.",
+        "salva_prima": "Speichern Sie zuerst den Mitarbeiter, um Dokumente anhängen zu können."
+    },
+    "footer": {
+        "annulla": "Abbrechen",
+        "salvando": "Wird gespeichert...",
+        "salva_modifiche": "Änderungen speichern",
+        "aggiungi": "Mitarbeiter hinzufügen"
+    },
+    "errori": {
+        "bonus_invalido": "Für den Bonus sind ein gültiger Betrag und ein Datum erforderlich.",
+        "campi_obbligatori": "Vorname, Nachname und mindestens eine Funktion (Gesellschafter oder Mitarbeiter) sind erforderlich.",
+        "sessione_scaduta": "Sitzung abgelaufen. Bitte melden Sie sich erneut an."
+    },
+    "conferme": {
+        "modifiche_non_salvate": "Sie haben ungespeicherte Änderungen an diesem Mitarbeiter.\n\nMöchten Sie diese speichern und zum Archiv wechseln, um ein Dokument hinzuzufügen?"
+    }
+}

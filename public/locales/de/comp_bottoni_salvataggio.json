@@ -1,0 +1,5 @@
+{
+  "meta": {
+    "description": "Container-Komponente ohne sichtbaren Text: kapselt die Schaltflächen In Dossier speichern und Zu Etikett hinzufügen. Die sichtbaren Texte befinden sich in den untergeordneten Komponenten AggiungiAPratica und AggiungiAEtichetta."
+  }
+}

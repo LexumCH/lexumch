@@ -1,0 +1,85 @@
+{
+  "header": {
+    "label": "Acquista",
+    "titolo_completo": "Crediti AI e Abbonamenti",
+    "titolo_base": "Crediti AI",
+    "sottotitolo_completo": "Acquista crediti per Lex AI o un abbonamento per accedere a tutte le funzionalità Lexum.",
+    "sottotitolo_base": "Acquista crediti per usare Lex AI senza limiti."
+  },
+  "successo": {
+    "messaggio": "Pagamento completato! Il tuo acquisto è ora attivo."
+  },
+  "saldo": {
+    "titolo": "Il tuo saldo",
+    "totale": "Totale",
+    "crediti_disponibili": "crediti disponibili",
+    "piano": "Piano",
+    "scad": "Scad. {{data}}",
+    "acquistati": "Acquistati",
+    "non_scadono": "non scadono",
+    "benvenuto": "Benvenuto"
+  },
+  "trasparenza": {
+    "titolo": "Come funzionano i crediti:",
+    "piano_pre": "I crediti del ",
+    "piano_evidenza": "piano abbonamento",
+    "piano_post": " si rinnovano automaticamente ogni mese (in base alla data di acquisto) e non si accumulano: quelli non usati vengono persi al rinnovo.",
+    "separati_pre": "I crediti ",
+    "separati_evidenza": "acquistati separatamente",
+    "separati_mid": " e quelli di ",
+    "benvenuto_evidenza": "benvenuto",
+    "separati_post": " non scadono mai e restano sempre tuoi.",
+    "consumo": "Quando usi Lex AI, vengono consumati prima i crediti del piano (per non sprecarli), poi quelli di benvenuto, infine quelli acquistati."
+  },
+  "tab": {
+    "crediti": "Pacchetti crediti",
+    "abbonamenti": "Abbonamenti",
+    "posti": "Posti aggiuntivi"
+  },
+  "crediti": {
+    "vuoto": "Nessun pacchetto disponibile al momento.",
+    "dettaglio": "{{crediti}} crediti · CHF {{prezzo}}/credito",
+    "non_scadono": "Non scadono mai",
+    "acquista": "Acquista"
+  },
+  "abbonamenti": {
+    "vuoto": "Nessun piano disponibile al momento.",
+    "piano_attivo": "Hai già un piano attivo. L'acquisto di un nuovo piano lo sostituirà.",
+    "consigliato": "Consigliato",
+    "durata_mesi": "{{mesi}} mesi",
+    "una_tantum": "Una tantum",
+    "badge_pro": "Pro",
+    "badge_monetizzazione": "Monetizzazione",
+    "posti_badge": "{{posti}} posti",
+    "feat_clienti": "Gestione clienti illimitati",
+    "feat_pratiche": "Pratiche e documenti",
+    "feat_calendario": "Calendario appuntamenti",
+    "feat_crediti": "{{crediti}} crediti AI/mese",
+    "feat_banca_dati": "Accesso banca dati sentenze",
+    "feat_monetizzazione": "Carica sentenze e monetizza",
+    "feat_posti": "Fino a {{posti}} avvocati nello studio",
+    "acquista": "Acquista"
+  },
+  "seat": {
+    "posti_studio": "Posti del tuo studio",
+    "di": " di ",
+    "posti_utilizzati": " posti utilizzati",
+    "vuoto": "Nessun pacchetto posti disponibile al momento.",
+    "acquista": "Acquista"
+  },
+  "verifica": {
+    "pending_titolo": "Verifica in corso",
+    "pending_testo": "Stiamo esaminando i tuoi documenti. Riceverai una notifica via email entro 24-48 ore.",
+    "pending_link": "Vedi stato verifica",
+    "rejected_titolo": "Verifica non approvata",
+    "rejected_motivo": "Motivo: {{nota}}",
+    "rejected_default": "Puoi riprovare ricaricando i documenti corretti.",
+    "rejected_link": "Riprova la verifica",
+    "cta_titolo": "Sei un avvocato?",
+    "cta_testo": "Verifica la tua identità e accedi a piani con crediti mensili inclusi, gestionale completo, banca dati sentenze e molto altro.",
+    "cta_link": "Inizia la verifica"
+  },
+  "footer": {
+    "trust": "Pagamento sicuro tramite Stripe. I prodotti vengono attivati immediatamente dopo il pagamento."
+  }
+}

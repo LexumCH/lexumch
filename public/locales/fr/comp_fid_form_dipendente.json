@@ -1,0 +1,84 @@
+{
+    "header": {
+        "modifica": "Modifier l'employé",
+        "nuovo": "Nouvel employé",
+        "sottotitolo": "Données personnelles du personnel de l'entreprise cliente"
+    },
+    "toast": {
+        "salvato": "Enregistré"
+    },
+    "anagrafica": {
+        "titolo": "Données personnelles",
+        "nome": "Prénom *",
+        "cognome": "Nom *",
+        "data_nascita": "Date de naissance",
+        "numero_avs": "Numéro AVS"
+    },
+    "ruolo": {
+        "titolo": "Fonction dans l'entreprise",
+        "dipendente": "Employé",
+        "socio": "Associé / Propriétaire",
+        "qualifica": "Qualification / Fonction",
+        "qualifica_ph": "p. ex. Administrateur, Comptable...",
+        "quota": "Quote-part de participation (%)",
+        "quota_ph": "p. ex. 50"
+    },
+    "rapporto": {
+        "titolo": "Rapport de travail",
+        "data_assunzione": "Date d'engagement",
+        "data_fine": "Date de fin",
+        "data_fine_hint": "(en cas de cessation)",
+        "impiego": "Taux d'occupation (%)",
+        "salario": "Salaire (CHF)",
+        "periodicita": "Périodicité",
+        "periodicita_annuo": "Annuel",
+        "periodicita_mensile": "Mensuel"
+    },
+    "fonte": {
+        "titolo": "Impôt à la source",
+        "nazionalita": "Nationalité",
+        "nazionalita_ph": "p. ex. Italienne",
+        "tipo_permesso": "Type de permis",
+        "tipo_permesso_ph": "p. ex. G (frontalier), B, C...",
+        "soggetto": "Soumis à l'impôt à la source"
+    },
+    "note": {
+        "label": "Remarques",
+        "opzionale": "(facultatif)",
+        "placeholder": "Annotations..."
+    },
+    "bonus": {
+        "titolo": "Bonus / primes",
+        "importo": "Montant (CHF)",
+        "data": "Date",
+        "descrizione": "Description",
+        "descrizione_ph": "p. ex. Prime d'objectifs",
+        "aggiungi": "Ajouter",
+        "elimina_tooltip": "Supprimer le bonus",
+        "nota": "Les bonus pèsent sur la dépense du mois où ils tombent et sur le total annuel. Ils n'influent pas sur le salaire fixe mensuel.",
+        "salva_prima": "Enregistrez d'abord l'employé pour pouvoir ajouter des bonus."
+    },
+    "documenti": {
+        "titolo": "Documents",
+        "nessuno": "Aucun document assigné à cette personne",
+        "conteggio_uno": "{{count}} document assigné",
+        "conteggio_molti": "{{count}} documents assignés",
+        "aggiungi": "Ajouter un document",
+        "nota": "Les documents se chargent depuis les archives. De là, ils sont traités et rendus consultables par Lex.",
+        "salva_prima": "Enregistrez d'abord l'employé pour pouvoir joindre des documents."
+    },
+    "footer": {
+        "annulla": "Annuler",
+        "salvando": "Enregistrement...",
+        "salva_modifiche": "Enregistrer les modifications",
+        "aggiungi": "Ajouter l'employé"
+    },
+    "errori": {
+        "bonus_invalido": "Pour le bonus, un montant valide et une date sont requis.",
+        "campi_obbligatori": "Le prénom, le nom et au moins une fonction (associé ou employé) sont obligatoires.",
+        "sessione_scaduta": "Session expirée. Veuillez vous reconnecter."
+    },
+    "conferme": {
+        "modifiche_non_salvate": "Vous avez des modifications non enregistrées sur cet employé.\n\nVoulez-vous les enregistrer et accéder aux archives pour ajouter un document ?"
+    }
+}

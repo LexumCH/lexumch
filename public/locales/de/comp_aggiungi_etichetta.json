@@ -1,0 +1,23 @@
+{
+    "pulsante": {
+        "aggiungi": "Zu Etikett hinzufügen",
+        "assegnate_one": "{{count}} Etikett",
+        "assegnate_other": "{{count}} Etiketten"
+    },
+    "ricerca": {
+        "placeholder": "Etikett suchen oder erstellen...",
+        "chiudi": "Schliessen"
+    },
+    "stato": {
+        "caricamento": "Wird geladen...",
+        "nessuna_etichetta": "Keine Etiketten. Geben Sie einen Namen ein, um eines zu erstellen."
+    },
+    "azioni": {
+        "crea": "\"{{nome}}\" erstellen"
+    },
+    "errori": {
+        "etichetta_piena": "Etikett voll (max. {{limite}} Elemente). Entfernen Sie etwas oder verwenden Sie ein anderes Etikett.",
+        "gia_assegnato": "Dieses Element befindet sich bereits in diesem Etikett.",
+        "non_autenticato": "Sitzung abgelaufen. Bitte melden Sie sich erneut an."
+    }
+}

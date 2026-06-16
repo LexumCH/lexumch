@@ -1,0 +1,36 @@
+{
+  "header": {
+    "titolo": "Ricerche ({{count}})",
+    "cercaBancaDati": "Cerca in Banca Dati",
+    "aggiungi": "Aggiungi"
+  },
+  "form": {
+    "placeholderTitolo": "Titolo ricerca (opzionale)...",
+    "placeholderContenuto": "Scrivi il tuo ragionamento o annotazione..."
+  },
+  "errori": {
+    "contenutoObbligatorio": "Il contenuto è obbligatorio"
+  },
+  "conferma": {
+    "elimina": "Eliminare questa ricerca?"
+  },
+  "vuoto": {
+    "titolo": "Nessuna ricerca",
+    "suggerimento": "Aggiungi una ricerca manuale o cerca in Banca Dati"
+  },
+  "tipi": {
+    "ricercaAi": "Ricerca AI",
+    "chatLex": "Chat con Lex",
+    "ricercaManuale": "Ricerca manuale"
+  },
+  "lista": {
+    "giurisprudenzaCorrelata": "Giurisprudenza correlata disponibile"
+  },
+  "azioni": {
+    "salva": "Salva",
+    "annulla": "Annulla",
+    "riduci": "Riduci",
+    "espandi": "Espandi",
+    "modifica": "Modifica"
+  }
+}

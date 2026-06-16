@@ -1,0 +1,23 @@
+{
+    "pulsante": {
+        "aggiungi": "Ajouter à une étiquette",
+        "assegnate_one": "{{count}} étiquette",
+        "assegnate_other": "{{count}} étiquettes"
+    },
+    "ricerca": {
+        "placeholder": "Rechercher ou créer une étiquette...",
+        "chiudi": "Fermer"
+    },
+    "stato": {
+        "caricamento": "Chargement...",
+        "nessuna_etichetta": "Aucune étiquette. Saisissez un nom pour en créer une."
+    },
+    "azioni": {
+        "crea": "Créer \"{{nome}}\""
+    },
+    "errori": {
+        "etichetta_piena": "Étiquette pleine (max. {{limite}} éléments). Retirez quelque chose ou utilisez une autre étiquette.",
+        "gia_assegnato": "Cet élément se trouve déjà dans cette étiquette.",
+        "non_autenticato": "Session expirée. Veuillez vous reconnecter."
+    }
+}

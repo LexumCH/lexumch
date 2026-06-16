@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "clienti": "Clients",
+    "pratiche": "Dossiers",
+    "calendario": "Calendrier",
+    "banca_dati": "Base de données",
+    "ricerche": "Recherches",
+    "archivio": "Archives",
+    "fatturazione": "Facturation",
+    "assistenza": "Assistance",
+    "studio": "Cabinet",
+    "profilo": "Profil"
+  },
+  "account": {
+    "esci": "Déconnexion"
+  },
+  "scadenza": {
+    "title_scaduto": "Abonnement expiré - renouvelez maintenant",
+    "title_in_scadenza_one": "Abonnement expirant dans {{count}} jour",
+    "title_in_scadenza_other": "Abonnement expirant dans {{count}} jours",
+    "badge_scaduto": "Expiré",
+    "badge_giorni": "{{count}}j",
+    "title_scaduto_mobile": "Abonnement expiré",
+    "title_mobile": "{{count}}j avant expiration"
+  },
+  "storage": {
+    "title": "{{occupato}} GB occupés sur {{totale}} GB"
+  },
+  "clienti": {
+    "title": "{{conteggio}} clients enregistrés sur {{limite}} disponibles",
+    "title_mobile": "{{conteggio}}/{{limite}} clients"
+  },
+  "crediti": {
+    "title": "Acheter des crédits IA"
+  }
+}

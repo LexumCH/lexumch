@@ -11,12 +11,14 @@
 // Props: clienteId (string)
 
 import { useState, useEffect } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import { FileBarChart, AlertCircle, Check, AlertTriangle, Loader2, Lock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { fmtCHF } from '@/lib/calcoloSalari'
 import { NOME_CLASSE } from '@/lib/pianoContiKMU'
 
 export default function ReportContabili({ clienteId, conti = [] }) {
+    const { t } = useTranslation('comp_fid_report_contabili')
     const annoCorr = new Date().getFullYear()
     const [annoSel, setAnnoSel] = useState(annoCorr)
     const [sub, setSub] = useState('ce')   // 'ce' | 'bilancio' | 'iva' | 'verifica'
@@ -112,11 +114,11 @@ export default function ReportContabili({ clienteId, conti = [] }) {
     async function chiudiEsercizio() {
         setChiudendo(true); setEsitoChiusura(''); setErrore('')
         const id2979 = conti.find(c => c.numero === '2979')?.id
-        if (!id2979) { setErrore('Conto 2979 (Utile/perdita d\'esercizio) assente nel piano.'); setChiudendo(false); return }
+        if (!id2979) { setErrore(t('chiusura.errori.conto2979_assente')); setChiudendo(false); return }
         const { data: gia } = await supabase.from('registrazioni').select('id')
             .eq('cliente_id', clienteId).eq('tipo', 'chiusura')
             .gte('data', `${annoSel}-01-01`).lte('data', `${annoSel}-12-31`).limit(1)
-        if (gia && gia.length) { setErrore(`Esercizio ${annoSel} già chiuso.`); setChiudendo(false); setChiusura(false); return }
+        if (gia && gia.length) { setErrore(t('chiusura.errori.gia_chiuso', { anno: annoSel })); setChiudendo(false); setChiusura(false); return }
 
         const pl = balAgg.filter(a => a.c.classe >= 3 && a.c.classe <= 8)
         const rows = []
@@ -129,14 +131,14 @@ export default function ReportContabili({ clienteId, conti = [] }) {
             result += -raw
         }
         result = Math.round(result * 100) / 100
-        if (rows.length === 0) { setErrore('Nessun conto economico da chiudere per il ' + annoSel + '.'); setChiudendo(false); setChiusura(false); return }
+        if (rows.length === 0) { setErrore(t('chiusura.errori.nessun_conto', { anno: annoSel })); setChiudendo(false); setChiusura(false); return }
         if (result > 0) rows.push({ conto_id: id2979, dare: 0, avere: result })
         else if (result < 0) rows.push({ conto_id: id2979, dare: -result, avere: 0 })
 
         const { data: { user } } = await supabase.auth.getUser()
         const { data: profilo } = await supabase.from('profiles').select('studio_id').eq('id', user.id).single()
         const { data: reg, error: e1 } = await supabase.from('registrazioni').insert({
-            cliente_id: clienteId, data: `${annoSel}-12-31`, descrizione: `Chiusura esercizio ${annoSel}`, tipo: 'chiusura',
+            cliente_id: clienteId, data: `${annoSel}-12-31`, descrizione: t('chiusura.descrizione_registrazione', { anno: annoSel }), tipo: 'chiusura',
             avvocato_id: user.id, studio_id: profilo?.studio_id ?? null, creato_da: user.id, aggiornato_da: user.id,
         }).select('id').single()
         if (e1) { setErrore(e1.message); setChiudendo(false); return }
@@ -144,7 +146,7 @@ export default function ReportContabili({ clienteId, conti = [] }) {
         const { error: e2 } = await supabase.from('righe_registrazione').insert(payload)
         setChiudendo(false); setChiusura(false)
         if (e2) { await supabase.from('registrazioni').delete().eq('id', reg.id); setErrore(e2.message); return }
-        setEsitoChiusura(`Esercizio ${annoSel} chiuso: ${result >= 0 ? 'utile' : 'perdita'} ${fmtCHF(Math.abs(result))} portato a 2979.`)
+        setEsitoChiusura(t('chiusura.esito_chiuso', { anno: annoSel, tipo: result >= 0 ? t('chiusura.utile') : t('chiusura.perdita'), importo: fmtCHF(Math.abs(result)) }))
         carica()
     }
 
@@ -154,13 +156,13 @@ export default function ReportContabili({ clienteId, conti = [] }) {
         <div className="space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex border border-white/10">
-                    {[['ce', 'Conto economico'], ['bilancio', 'Bilancio'], ['iva', 'IVA'], ['verifica', 'Verifica']].map(([v, l]) => (
+                    {[['ce', t('tab.ce')], ['bilancio', t('tab.bilancio')], ['iva', t('tab.iva')], ['verifica', t('tab.verifica')]].map(([v, l]) => (
                         <button key={v} onClick={() => setSub(v)}
                             className={`px-3 py-1.5 font-body text-xs transition-colors ${sub === v ? 'bg-oro/15 text-oro' : 'text-nebbia/40 hover:text-nebbia/70'}`}>{l}</button>
                     ))}
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Anno</span>
+                    <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{t('anno')}</span>
                     <select value={annoSel} onChange={e => setAnnoSel(Number(e.target.value))}
                         className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-2.5 py-1.5 outline-none focus:border-oro/50">
                         {anni.map(a => <option key={a} value={a}>{a}</option>)}
@@ -179,21 +181,21 @@ export default function ReportContabili({ clienteId, conti = [] }) {
             ) : !haDati ? (
                 <div className="bg-petrolio/40 border border-white/5 p-8 text-center">
                     <FileBarChart size={26} className="text-nebbia/15 mx-auto mb-3" />
-                    <p className="font-body text-sm text-nebbia/40">Nessuna registrazione: i report si popolano dal libro giornale.</p>
+                    <p className="font-body text-sm text-nebbia/40">{t('vuoto')}</p>
                 </div>
             ) : sub === 'ce' ? (
                 <div className="bg-slate border border-white/5">
-                    <SezioneConti titolo="Ricavi" righe={ricavi} totale={totRicavi} />
-                    <SezioneConti titolo="Costi" righe={costi} totale={totCosti} raggruppaClasse />
+                    <SezioneConti titolo={t('ce.ricavi')} righe={ricavi} totale={totRicavi} />
+                    <SezioneConti titolo={t('ce.costi')} righe={costi} totale={totCosti} raggruppaClasse />
                     <div className="flex items-center justify-between px-4 py-3 border-t-2 border-white/15">
-                        <span className="font-display text-sm text-nebbia">Risultato d'esercizio {annoSel}</span>
+                        <span className="font-display text-sm text-nebbia">{t('ce.risultato', { anno: annoSel })}</span>
                         <span className={`font-display text-lg ${risultato >= 0 ? 'text-salvia' : 'text-red-400'}`}>{fmtCHF(risultato)}</span>
                     </div>
                     <div className="flex items-center justify-between gap-3 px-4 py-3 border-t border-white/5 flex-wrap">
-                        <span className="font-body text-[11px] text-nebbia/30">La chiusura azzera i conti economici e porta il risultato al conto 2979.</span>
+                        <span className="font-body text-[11px] text-nebbia/30">{t('ce.nota_chiusura')}</span>
                         <button onClick={() => { setErrore(''); setChiusura(true) }}
                             className="flex items-center gap-1.5 px-3 py-1.5 border border-white/10 text-nebbia/60 font-body text-xs hover:border-oro/30 hover:text-oro transition-colors">
-                            <Lock size={12} /> Chiudi esercizio {annoSel}
+                            <Lock size={12} /> {t('ce.chiudi_esercizio', { anno: annoSel })}
                         </button>
                     </div>
                     {esitoChiusura && <div className="px-4 pb-3"><span className="font-body text-xs text-salvia flex items-center gap-1.5"><Check size={13} /> {esitoChiusura}</span></div>}
@@ -202,68 +204,68 @@ export default function ReportContabili({ clienteId, conti = [] }) {
                 <>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div className="bg-slate border border-white/5">
-                            <SezioneConti titolo="Attivo" righe={attivo} totale={totAttivo} />
+                            <SezioneConti titolo={t('bilancio.attivo')} righe={attivo} totale={totAttivo} />
                         </div>
                         <div className="bg-slate border border-white/5">
-                            <SezioneConti titolo="Passivo" righe={passivo} totale={totPassivo} />
+                            <SezioneConti titolo={t('bilancio.passivo')} righe={passivo} totale={totPassivo} />
                             <div className="flex items-center justify-between px-4 py-2 border-t border-white/5">
-                                <span className="font-body text-sm text-nebbia/70">Risultato d'esercizio (cumulato)</span>
+                                <span className="font-body text-sm text-nebbia/70">{t('bilancio.risultato_cumulato')}</span>
                                 <span className={`font-body text-sm ${risultatoCum >= 0 ? 'text-salvia' : 'text-red-400'}`}>{fmtCHF(risultatoCum)}</span>
                             </div>
                             <div className="flex items-center justify-between px-4 py-3 border-t-2 border-white/15">
-                                <span className="font-display text-sm text-nebbia">Totale passivo + risultato</span>
+                                <span className="font-display text-sm text-nebbia">{t('bilancio.totale_passivo_risultato')}</span>
                                 <span className="font-display text-base text-nebbia">{fmtCHF(totPassivo + risultatoCum)}</span>
                             </div>
                         </div>
                     </div>
                     <div className={`flex items-center gap-2 text-xs font-body p-3 border ${quadra ? 'text-salvia bg-salvia/5 border-salvia/20' : 'text-red-400 bg-red-900/10 border-red-500/20'}`}>
-                        {quadra ? <><Check size={14} /> Bilancio quadrato: Attivo {fmtCHF(totAttivo)} = Passivo + Risultato {fmtCHF(totPassivo + risultatoCum)}.</>
-                            : <><AlertTriangle size={14} /> Bilancio NON quadrato (differenza {fmtCHF(sbil)}). Controlla le registrazioni / saldi d'apertura.</>}
+                        {quadra ? <><Check size={14} /> {t('bilancio.quadrato', { attivo: fmtCHF(totAttivo), passivoRisultato: fmtCHF(totPassivo + risultatoCum) })}</>
+                            : <><AlertTriangle size={14} /> {t('bilancio.non_quadrato', { differenza: fmtCHF(sbil) })}</>}
                     </div>
                 </>
             ) : sub === 'iva' ? (
                 <div className="space-y-3">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                         <div className="bg-slate border border-white/10 p-4">
-                            <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1.5">IVA dovuta (a debito) {annoSel}</p>
+                            <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1.5">{t('iva.dovuta', { anno: annoSel })}</p>
                             <p className="font-display text-xl text-nebbia">{fmtCHF(ivaAnno.dovuta)}</p>
                         </div>
                         <div className="bg-slate border border-white/10 p-4">
-                            <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1.5">Imposta precedente (a credito)</p>
+                            <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1.5">{t('iva.precedente')}</p>
                             <p className="font-display text-xl text-nebbia">{fmtCHF(ivaAnno.precedente)}</p>
                         </div>
                         <div className={`bg-slate border p-4 ${ivaAnno.saldo >= 0 ? 'border-oro/30' : 'border-salvia/30'}`}>
-                            <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1.5">{ivaAnno.saldo >= 0 ? 'IVA da versare' : 'IVA a credito'}</p>
+                            <p className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest mb-1.5">{ivaAnno.saldo >= 0 ? t('iva.da_versare') : t('iva.a_credito')}</p>
                             <p className={`font-display text-xl ${ivaAnno.saldo >= 0 ? 'text-oro' : 'text-salvia'}`}>{fmtCHF(Math.abs(ivaAnno.saldo))}</p>
                         </div>
                     </div>
                     <div className="bg-slate border border-white/5 overflow-x-auto">
                         <table className="w-full">
                             <thead><tr className="border-b border-white/5">
-                                {['Trimestre', 'Dovuta', 'Precedente', 'Saldo'].map((h, i) => (
-                                    <th key={h} className={`px-3 py-2 font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase ${i === 0 ? 'text-left' : 'text-right'}`}>{h}</th>
+                                {t('iva.colonne', { returnObjects: true }).map((h, i) => (
+                                    <th key={i} className={`px-3 py-2 font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase ${i === 0 ? 'text-left' : 'text-right'}`}>{h}</th>
                                 ))}
                             </tr></thead>
                             <tbody>
-                                {trimestri.map(t => (
-                                    <tr key={t.q} className="border-b border-white/5 last:border-0">
-                                        <td className="px-3 py-2 font-body text-xs text-nebbia/70">{t.q}° trimestre {annoSel}</td>
-                                        <td className="px-3 py-2 text-right font-body text-xs text-nebbia/60">{t.dovuta ? fmtCHF(t.dovuta) : '—'}</td>
-                                        <td className="px-3 py-2 text-right font-body text-xs text-nebbia/60">{t.precedente ? fmtCHF(t.precedente) : '—'}</td>
-                                        <td className={`px-3 py-2 text-right font-body text-xs ${t.saldo >= 0 ? 'text-oro/80' : 'text-salvia'}`}>{t.saldo ? fmtCHF(t.saldo) : '—'}</td>
+                                {trimestri.map(tr => (
+                                    <tr key={tr.q} className="border-b border-white/5 last:border-0">
+                                        <td className="px-3 py-2 font-body text-xs text-nebbia/70">{t('iva.trimestre_riga', { q: tr.q, anno: annoSel })}</td>
+                                        <td className="px-3 py-2 text-right font-body text-xs text-nebbia/60">{tr.dovuta ? fmtCHF(tr.dovuta) : '—'}</td>
+                                        <td className="px-3 py-2 text-right font-body text-xs text-nebbia/60">{tr.precedente ? fmtCHF(tr.precedente) : '—'}</td>
+                                        <td className={`px-3 py-2 text-right font-body text-xs ${tr.saldo >= 0 ? 'text-oro/80' : 'text-salvia'}`}>{tr.saldo ? fmtCHF(tr.saldo) : '—'}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                    <p className="font-body text-[11px] text-nebbia/25">Saldo = IVA dovuta (conto 2200) − Imposta precedente (1170). Positivo = da versare all'AFC; negativo = a credito. Il versamento si registra a mano (libro giornale).</p>
+                    <p className="font-body text-[11px] text-nebbia/25">{t('iva.nota')}</p>
                 </div>
             ) : (
                 <div className="bg-slate border border-white/5 overflow-x-auto">
                     <table className="w-full">
                         <thead><tr className="border-b border-white/5">
-                            {['Conto', 'Dare', 'Avere', 'Saldo'].map((h, i) => (
-                                <th key={h} className={`px-3 py-2 font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase ${i === 0 ? 'text-left' : 'text-right'}`}>{h}</th>
+                            {t('verifica.colonne', { returnObjects: true }).map((h, i) => (
+                                <th key={i} className={`px-3 py-2 font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase ${i === 0 ? 'text-left' : 'text-right'}`}>{h}</th>
                             ))}
                         </tr></thead>
                         <tbody>
@@ -280,7 +282,7 @@ export default function ReportContabili({ clienteId, conti = [] }) {
                             })}
                         </tbody>
                         <tfoot><tr className="border-t-2 border-white/15 bg-petrolio/40">
-                            <td className="px-3 py-2 font-body text-[11px] uppercase tracking-widest text-nebbia/50">Totali {verQuadra ? '· quadra ✓' : '· NON quadra'}</td>
+                            <td className="px-3 py-2 font-body text-[11px] uppercase tracking-widest text-nebbia/50">{t('verifica.totali')} {verQuadra ? t('verifica.quadra') : t('verifica.non_quadra')}</td>
                             <td className="px-3 py-2 text-right font-display text-sm text-nebbia">{fmtCHF(totVerDare)}</td>
                             <td className="px-3 py-2 text-right font-display text-sm text-nebbia">{fmtCHF(totVerAvere)}</td>
                             <td></td>
@@ -290,7 +292,7 @@ export default function ReportContabili({ clienteId, conti = [] }) {
             )}
 
             <p className="font-body text-[11px] text-nebbia/25">
-                Conto economico = flussi dell'anno; Bilancio e Verifica = saldi cumulati a fine {annoSel}. Finché non chiudi l'esercizio il risultato resta sui conti economici; la chiusura lo porta al conto 2979.
+                {t('nota_finale', { anno: annoSel })}
             </p>
 
             {chiusura && (
@@ -298,17 +300,22 @@ export default function ReportContabili({ clienteId, conti = [] }) {
                     <div className="bg-slate border border-oro/30 w-full max-w-md" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-2 p-5 border-b border-white/8">
                             <Lock size={16} className="text-oro" />
-                            <h3 className="font-display text-lg text-nebbia">Chiusura esercizio {annoSel}</h3>
+                            <h3 className="font-display text-lg text-nebbia">{t('chiusura.titolo', { anno: annoSel })}</h3>
                         </div>
                         <div className="p-6 space-y-4">
                             <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                                Genero una registrazione di chiusura al 31.12.{annoSel}: azzera i conti economici (classi 3–8) e porta il risultato (<span className={risultatoCum >= 0 ? 'text-salvia' : 'text-red-400'}>{fmtCHF(risultatoCum)}</span>) al conto 2979. È una scrittura: per annullarla la elimini dal libro giornale.
+                                <Trans
+                                    t={t}
+                                    i18nKey="chiusura.descrizione"
+                                    values={{ anno: annoSel, risultato: fmtCHF(risultatoCum) }}
+                                    components={{ risultato: <span className={risultatoCum >= 0 ? 'text-salvia' : 'text-red-400'} /> }}
+                                />
                             </p>
                             {errore && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-2 bg-red-900/10 border border-red-500/20"><AlertCircle size={13} /> {errore}</div>}
                             <div className="flex gap-2">
-                                <button onClick={() => setChiusura(false)} disabled={chiudendo} className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">Annulla</button>
+                                <button onClick={() => setChiusura(false)} disabled={chiudendo} className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">{t('chiusura.annulla')}</button>
                                 <button onClick={chiudiEsercizio} disabled={chiudendo} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors disabled:opacity-40">
-                                    {chiudendo ? <><Loader2 size={14} className="animate-spin" /> Chiusura...</> : <><Lock size={14} /> Chiudi esercizio</>}
+                                    {chiudendo ? <><Loader2 size={14} className="animate-spin" /> {t('chiusura.in_corso')}</> : <><Lock size={14} /> {t('chiusura.conferma')}</>}
                                 </button>
                             </div>
                         </div>
@@ -321,13 +328,14 @@ export default function ReportContabili({ clienteId, conti = [] }) {
 
 // Sezione conti con totale (eventuale raggruppamento per classe per i costi)
 function SezioneConti({ titolo, righe, totale, raggruppaClasse = false }) {
+    const { t } = useTranslation('comp_fid_report_contabili')
     return (
         <div>
             <div className="px-4 py-2 border-b border-white/5 bg-petrolio/30">
                 <p className="section-label !m-0">{titolo}</p>
             </div>
             {righe.length === 0 ? (
-                <p className="px-4 py-3 font-body text-xs text-nebbia/30">Nessun movimento.</p>
+                <p className="px-4 py-3 font-body text-xs text-nebbia/30">{t('sezione.nessun_movimento')}</p>
             ) : (
                 <div className="divide-y divide-white/5">
                     {righe.map(a => (
@@ -343,7 +351,7 @@ function SezioneConti({ titolo, righe, totale, raggruppaClasse = false }) {
                 </div>
             )}
             <div className="flex items-center justify-between px-4 py-2 border-t border-white/10">
-                <span className="font-body text-xs text-nebbia/50 uppercase tracking-widest">Totale {titolo.toLowerCase()}</span>
+                <span className="font-body text-xs text-nebbia/50 uppercase tracking-widest">{t('sezione.totale', { sezione: titolo })}</span>
                 <span className="font-display text-sm text-nebbia">{fmtCHF(totale)}</span>
             </div>
         </div>

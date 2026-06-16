@@ -1,0 +1,106 @@
+{
+  "stati": {
+    "pagata": "Pagata",
+    "in_attesa": "In attesa",
+    "scaduta": "Scaduta",
+    "annullata": "Annullata"
+  },
+  "header": {
+    "label": "Fatturazione",
+    "titolo": "Fatture studio",
+    "sottotitolo": "{{count}} fatture in totale",
+    "sottotitolo_one": "{{count}} fattura in totale",
+    "nuova_fattura": "Nuova fattura"
+  },
+  "tabs": {
+    "panoramica": "Panoramica",
+    "fatture": "Fatture",
+    "scadenzario": "Scadenzario"
+  },
+  "panoramica": {
+    "kpi": {
+      "fatturato": "Fatturato {{anno}}",
+      "incassato": "Incassato {{anno}}",
+      "da_incassare": "Da incassare",
+      "scaduto": "Scaduto",
+      "num_fatture": "{{count}} fatture",
+      "num_fatture_one": "{{count}} fattura",
+      "perc_fatturato": "{{perc}}% del fatturato",
+      "non_scadute": "non scadute",
+      "richiede_attenzione": "richiede attenzione"
+    },
+    "grafico": {
+      "titolo": "Ultimi 12 mesi",
+      "sottotitolo": "Emesso vs incassato per mese",
+      "emesso": "Emesso",
+      "incassato": "Incassato",
+      "tooltip_emesso": "Emesso: CHF {{valore}}",
+      "tooltip_incassato": "Incassato: CHF {{valore}}"
+    },
+    "top_clienti": {
+      "titolo": "Top clienti {{anno}}",
+      "vuoto": "Nessun cliente fatturato quest'anno",
+      "num_fatt": "{{count}} fatt.",
+      "num_fatt_one": "{{count}} fatt."
+    },
+    "urgenti": {
+      "titolo": "In scadenza (7 giorni)",
+      "vuoto": "Tutto in regola",
+      "scaduta_da": "Scaduta {{giorni}}g fa",
+      "oggi": "Oggi",
+      "tra": "Tra {{giorni}}g"
+    }
+  },
+  "fatture": {
+    "ricerca_help": "Cerca tra le fatture per numero, cliente o descrizione. Usa Lex per domande in linguaggio naturale come \"fatture scadute dei clienti aziendali\" o \"quanto ho incassato da Rossi quest'anno\".",
+    "ricerca_placeholder": "Cerca o chiedi a Lex...",
+    "cerca": "Cerca",
+    "cerca_con_lex": "Cerca con Lex",
+    "lex_cercando": "Lex sta cercando...",
+    "lex": "Lex",
+    "errore_lex": "Errore Lex",
+    "analisi_lex": "Analisi Lex",
+    "risultato": "<b>{{count}}</b> risultato per \"{{query}}\"",
+    "risultati": "<b>{{count}}</b> risultati per \"{{query}}\"",
+    "azzera": "Azzera",
+    "elimina_fattura": "Elimina fattura",
+    "filtri": {
+      "label": "Filtri",
+      "tutti_stati": "Tutti gli stati",
+      "in_attesa": "In attesa",
+      "pagate": "Pagate",
+      "scadute": "Scadute",
+      "annullate": "Annullate",
+      "tutti_clienti": "Tutti i clienti",
+      "tutti_anni": "Tutti gli anni",
+      "da": "Da",
+      "a": "A",
+      "reset": "Reset filtri"
+    },
+    "tabella": {
+      "numero": "Numero",
+      "cliente": "Cliente",
+      "pratica": "Pratica",
+      "totale": "Totale",
+      "emessa_il": "Emessa il",
+      "scadenza": "Scadenza",
+      "stato": "Stato",
+      "pagata_il": "Pagata {{data}}",
+      "vuoto_nessuna": "Nessuna fattura ancora. Crea la prima.",
+      "vuoto_filtri": "Nessuna fattura trovata"
+    }
+  },
+  "scadenzario": {
+    "vuoto_titolo": "Nessuna scadenza",
+    "vuoto_desc": "Non hai fatture in attesa con scadenza impostata",
+    "sez_scadute": "Scadute",
+    "sez_7giorni": "In scadenza (7 giorni)",
+    "sez_30giorni": "Prossime (30 giorni)",
+    "sez_oltre": "Oltre i 30 giorni",
+    "conteggio": "{{count}} fatture",
+    "conteggio_one": "{{count}} fattura",
+    "giorni_fa": "{{giorni}}g fa",
+    "oggi": "Oggi",
+    "tra": "tra {{giorni}}g"
+  }
+}

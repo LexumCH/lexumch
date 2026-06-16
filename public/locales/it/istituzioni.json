@@ -1,0 +1,45 @@
+{
+  "fonti": {
+    "TF": "Tribunale federale (TF)",
+    "CH_BGE": "DTF — Raccolta ufficiale",
+    "TAF": "Tribunale amministrativo federale (TAF)",
+    "TPF": "Tribunale penale federale (TPF)",
+    "CH_BPATG": "Tribunale federale dei brevetti",
+    "CH_WEKO": "COMCO — Commissione della concorrenza",
+    "CH_EDOEB": "IFPDT — Protezione dei dati",
+    "CH_VB": "Autorità di vigilanza",
+    "CH_BUNDESRAT": "Consiglio federale",
+    "CH_UNIBE": "Università di Berna",
+    "TA_SST": "TA — SST",
+    "MISC_UPLOAD": "Altri / caricamenti"
+  },
+  "camere": {
+    "OG": "Obergericht",
+    "VG": "Verwaltungsgericht",
+    "SVG": "Sozialversicherungsgericht",
+    "BR": "Baurekursgericht",
+    "SR": "Steuerrekursgericht",
+    "FI": "Tribunale fiscale",
+    "OM": "Tribunale delle assicurazioni",
+    "ZS": "Sezione civile",
+    "BVD": "Ricorsi VD",
+    "WT": "Altre",
+    "AA": "Vigilanza avvocati",
+    "BG": "Bezirksgericht",
+    "AK": "Appellationskammer",
+    "BE": "Ricorsi"
+  },
+  "emittenti": {
+    "estv": "AFC — Contribuzioni federali",
+    "ufas": "UFAS — Assicurazioni sociali",
+    "seco": "SECO — Economia",
+    "finma": "FINMA — Vigilanza finanziaria",
+    "udsc": "UDSC — Dogane",
+    "sem": "SEM — Migrazione",
+    "ufg": "UFG — Giustizia",
+    "weko": "COMCO — Concorrenza",
+    "ifpdt": "IFPDT — Protezione dati",
+    "mros": "MROS — Riciclaggio"
+  },
+  "fisco_cant": "Fisco cantonale"
+}

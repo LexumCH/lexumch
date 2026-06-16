@@ -1,0 +1,66 @@
+{
+  "comune": {
+    "assistenza": "Support"
+  },
+  "stati": {
+    "aperto": "Offen",
+    "chiuso": "Geschlossen"
+  },
+  "modal_cliente": {
+    "titolo": "Neues Ticket an Mandant",
+    "label_cliente": "Mandant *",
+    "rimuovi": "Entfernen",
+    "cerca_placeholder": "Mandant nach Name oder E-Mail suchen...",
+    "nessun_cliente_trovato": "Kein Mandant gefunden",
+    "nessun_cliente_disponibile": "Kein Mandant verfügbar",
+    "label_titolo": "Titel / Betreff *",
+    "titolo_placeholder": "Z. B. Fehlende Dokumente, Dossier-Update...",
+    "hint_primo_messaggio": "Nachdem Sie das Ticket erstellt haben, können Sie die erste Nachricht im Chat schreiben.",
+    "annulla": "Abbrechen",
+    "apri_ticket": "Ticket öffnen",
+    "err_seleziona_cliente": "Bitte wählen Sie einen Mandanten aus",
+    "err_titolo_obbligatorio": "Der Titel ist erforderlich"
+  },
+  "lista": {
+    "header_label": "Support",
+    "header_titolo": "Support",
+    "nuovo_ticket_lexum": "Neues Ticket an Lexum",
+    "nuovo_ticket_cliente": "Neues Ticket an Mandant",
+    "tab_clienti": "Mandanten",
+    "tab_lexum": "Lexum-Support",
+    "cerca_placeholder": "Betreff, Absender suchen...",
+    "filtro_tutti_stati": "Alle Status",
+    "reset": "Zurücksetzen",
+    "nessun_ticket": "Keine Tickets",
+    "nessun_risultato": "Keine Ergebnisse",
+    "col_titolo": "Titel",
+    "col_cliente": "Mandant",
+    "col_aperto_il": "Eröffnet am",
+    "col_aggiornato": "Aktualisiert",
+    "col_stato": "Status",
+    "apri": "Öffnen →"
+  },
+  "nuovo": {
+    "header_label": "Lexum-Support",
+    "header_titolo": "Neues Ticket",
+    "label_titolo": "Titel *",
+    "titolo_placeholder": "Z. B. Problem mit der Rechnungsstellung, Funktionswunsch...",
+    "hint_messaggio": "Nachdem Sie das Ticket erstellt haben, können Sie die Nachricht im Chat mit dem Support schreiben.",
+    "annulla": "Abbrechen",
+    "apri_ticket": "Ticket öffnen",
+    "err_titolo_obbligatorio": "Der Titel ist erforderlich"
+  },
+  "dettaglio": {
+    "non_trovato": "Ticket nicht gefunden.",
+    "sconosciuto": "Unbekannt",
+    "label_lexum": "Lexum-Support",
+    "label_cliente": "Mandantenticket",
+    "chiudi_ticket": "Ticket schliessen",
+    "riapri": "Wieder öffnen",
+    "conversazione": "Konversation",
+    "nessun_messaggio": "Keine Nachrichten",
+    "scrivi_placeholder": "Nachricht schreiben...",
+    "hint_invio": "Senden mit Enter · Zeilenumbruch mit Shift+Enter",
+    "ticket_chiuso": "Ticket geschlossen. Verwenden Sie die Schaltfläche oben, um es wieder zu öffnen."
+  }
+}

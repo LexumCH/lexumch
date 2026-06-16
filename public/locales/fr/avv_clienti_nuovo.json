@@ -1,0 +1,109 @@
+{
+  "back": "Tous les clients",
+  "header": {
+    "label": "Clients",
+    "title": "Nouveau client"
+  },
+  "switcher": {
+    "persona_fisica": "Personne physique",
+    "persona_giuridica": "Personne morale"
+  },
+  "banner": {
+    "bloccante_titolo": "Limite de clients atteinte ({{conteggio}}/{{totale}})",
+    "bloccante_testo": "Vous avez atteint le nombre maximal de clients enregistrables avec votre abonnement. Achetez un module clients pour continuer à en enregistrer de nouveaux.",
+    "bloccante_cta": "Acheter un module clients",
+    "critico_titolo_one": "Vous êtes sur le point d'épuiser vos emplacements clients ({{count}} restant)",
+    "critico_titolo_other": "Vous êtes sur le point d'épuiser vos emplacements clients ({{count}} restants)",
+    "critico_testo": "Vous avez utilisé {{conteggio}} des {{totale}} emplacements disponibles. Achetez un module pour éviter tout blocage.",
+    "critico_link": "Aller à l'achat",
+    "soft_titolo_one": "Il vous reste {{count}} emplacement client",
+    "soft_titolo_other": "Il vous reste {{count}} emplacements clients",
+    "soft_testo": "Vous avez utilisé {{conteggio}} des {{totale}} emplacements de votre abonnement. Envisagez un module pour ne pas risquer un blocage.",
+    "soft_link": "Voir les options"
+  },
+  "sezioni": {
+    "tipo_soggetto": "Type de personne",
+    "dati_anagrafici": "Données personnelles",
+    "dati_societa": "Données de la société",
+    "contatti": "Contacts",
+    "indirizzo": "Adresse"
+  },
+  "pf": {
+    "nome": "Prénom *",
+    "nome_ph": "Anna",
+    "cognome": "Nom *",
+    "cognome_ph": "Rossi",
+    "numero_avs": "Numéro AVS",
+    "data_nascita": "Date de naissance",
+    "luogo_nascita": "Lieu de naissance",
+    "luogo_nascita_ph": "Lugano"
+  },
+  "pg": {
+    "ragione_sociale": "Raison sociale *",
+    "ragione_sociale_ph": "Alfa SA",
+    "uid": "Numéro IDE",
+    "forma_giuridica": "Forme juridique",
+    "forma_giuridica_ph": "Par ex. SA, Sàrl, entreprise individuelle",
+    "sede_legale": "Siège social",
+    "sede_legale_ph": "Via Nassa 5, Lugano",
+    "iva_attiva": "Assujetti à la TVA",
+    "rappresentante": "Représentant légal",
+    "rappresentante_opzionale": "— facultatif",
+    "rappr_nome": "Prénom",
+    "rappr_nome_ph": "Mario",
+    "rappr_cognome": "Nom",
+    "rappr_cognome_ph": "Bianchi",
+    "rappr_avs": "Numéro AVS",
+    "rappr_avs_ph": "AVS du représentant",
+    "rappr_carica": "Fonction",
+    "rappr_carica_ph": "Par ex. Administrateur"
+  },
+  "contatti": {
+    "email": "E-mail *",
+    "telefono": "Téléphone"
+  },
+  "indirizzo": {
+    "domicilio": "Adresse de domicile",
+    "sede_operativa": "Adresse d'exploitation (si différente du siège social)",
+    "via_ph": "Rue, numéro",
+    "localita": "Localité",
+    "localita_ph": "Lugano",
+    "cantone": "Canton",
+    "npa": "NPA"
+  },
+  "avvocato": {
+    "assegnato": "Avocat assigné *",
+    "tu": "Vous"
+  },
+  "note": {
+    "label": "Notes initiales",
+    "placeholder": "Premier contact, situation générale..."
+  },
+  "portale": {
+    "attiva": "Activer l'accès au portail clients",
+    "descrizione": "Le client pourra accéder à son portail avec son e-mail et son mot de passe. Vous pourrez réinitialiser le mot de passe à tout moment depuis la fiche client.",
+    "password_label": "Mot de passe initial *",
+    "password_ph": "Au moins 8 caractères",
+    "password_nota": "Le mot de passe n'est jamais envoyé par e-mail par Lexum. Communiquez-le au client par le canal de votre choix (téléphone, WhatsApp, en personne)."
+  },
+  "errori": {
+    "nome_obbligatorio": "Le prénom est obligatoire",
+    "cognome_obbligatorio": "Le nom est obligatoire",
+    "ragione_sociale_obbligatoria": "La raison sociale est obligatoire",
+    "email_obbligatoria": "L'e-mail est obligatoire",
+    "email_non_valida": "E-mail invalide",
+    "password_obbligatoria": "Saisissez le mot de passe initial pour activer le portail",
+    "password_corta": "Le mot de passe doit comporter au moins 8 caractères"
+  },
+  "successo": {
+    "titolo": "Client créé",
+    "portale_attivo": "Portail activé. Pensez à communiquer les identifiants d'accès au client.",
+    "portale_disattivo": "Données enregistrées. L'accès au portail est désactivé."
+  },
+  "azioni": {
+    "annulla": "Annuler",
+    "crea": "Créer le client",
+    "limite_raggiunto": "Limite atteinte",
+    "limite_tooltip": "Limite de clients atteinte - achetez un module pour continuer"
+  }
+}

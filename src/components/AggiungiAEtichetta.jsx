@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { Tag, Check, Plus, X, Loader2, Search, AlertCircle } from 'lucide-react'
 
@@ -22,19 +23,24 @@ function coloreCasuale() {
  * In particolare intercetta il trigger `elementi_etichette_cap_per_etichetta`
  * che blocca gli insert quando l'etichetta è satura (default 30 elementi).
  */
-function formattaErroreEtichetta(error) {
+function formattaErroreEtichetta(error, t) {
     const msg = error?.message ?? ''
 
     // Trigger DB: "Limite di N elementi per etichetta raggiunto"
     if (msg.includes('Limite di') && msg.includes('per etichetta')) {
         const match = msg.match(/Limite di (\d+)/)
         const limite = match ? match[1] : '30'
-        return `Etichetta piena (max ${limite} elementi). Rimuovi qualcosa o usa un'altra etichetta.`
+        return t('errori.etichetta_piena', { limite })
     }
 
     // Unique constraint: stesso elemento già taggato
     if (msg.includes('elementi_etichette_unique') || msg.includes('duplicate key')) {
-        return 'Questo elemento è già in questa etichetta.'
+        return t('errori.gia_assegnato')
+    }
+
+    // Sessione scaduta / utente non autenticato
+    if (msg === 'Non autenticato') {
+        return t('errori.non_autenticato')
     }
 
     return msg
@@ -62,6 +68,7 @@ export default function AggiungiAEtichetta({
     ricercaIdEsterno = null,
     onRicercaCreata = null,
 }) {
+    const { t } = useTranslation('comp_aggiungi_etichetta')
     const [aperto, setAperto] = useState(false)
     const [etichette, setEtichette] = useState([])
     const [assegnate, setAssegnate] = useState(new Set()) // set di etichetta_id
@@ -174,7 +181,7 @@ export default function AggiungiAEtichetta({
                     setAssegnate(new Set((ass ?? []).map(a => a.etichetta_id)))
                 }
             } catch (err) {
-                setErrore(formattaErroreEtichetta(err))
+                setErrore(formattaErroreEtichetta(err, t))
             } finally {
                 setLoading(false)
             }
@@ -250,7 +257,7 @@ export default function AggiungiAEtichetta({
             }
             onCambio?.()
         } catch (err) {
-            setErrore(formattaErroreEtichetta(err))
+            setErrore(formattaErroreEtichetta(err, t))
         } finally {
             setSalvando(null)
         }
@@ -295,7 +302,7 @@ export default function AggiungiAEtichetta({
             setCerca('')
             onCambio?.()
         } catch (err) {
-            setErrore(formattaErroreEtichetta(err))
+            setErrore(formattaErroreEtichetta(err, t))
         } finally {
             setCreando(false)
         }
@@ -327,8 +334,8 @@ export default function AggiungiAEtichetta({
                 <Tag size={variant === 'compact' ? 11 : 13} />
                 <span>
                     {numAssegnate === 0
-                        ? 'Aggiungi a etichetta'
-                        : `${numAssegnate} ${numAssegnate === 1 ? 'etichetta' : 'etichette'}`
+                        ? t('pulsante.aggiungi')
+                        : t('pulsante.assegnate', { count: numAssegnate })
                     }
                 </span>
             </button>
@@ -350,11 +357,13 @@ export default function AggiungiAEtichetta({
                                 ref={inputRef}
                                 value={cerca}
                                 onChange={e => setCerca(e.target.value)}
-                                placeholder="Cerca o crea etichetta..."
+                                placeholder={t('ricerca.placeholder')}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm pl-8 pr-8 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                             <button
                                 onClick={() => setAperto(false)}
+                                aria-label={t('ricerca.chiudi')}
+                                title={t('ricerca.chiudi')}
                                 className="absolute right-2 top-1/2 -translate-y-1/2 text-nebbia/30 hover:text-nebbia"
                             >
                                 <X size={12} />
@@ -367,13 +376,13 @@ export default function AggiungiAEtichetta({
                         {loading ? (
                             <div className="p-4 flex items-center justify-center gap-2 text-nebbia/30">
                                 <Loader2 size={14} className="animate-spin" />
-                                <span className="font-body text-xs">Caricamento...</span>
+                                <span className="font-body text-xs">{t('stato.caricamento')}</span>
                             </div>
                         ) : (
                             <>
                                 {etichetteFiltrate.length === 0 && !mostraCrea && (
                                     <p className="p-4 text-center font-body text-xs text-nebbia/25">
-                                        Nessuna etichetta. Digita un nome per crearne una.
+                                        {t('stato.nessuna_etichetta')}
                                     </p>
                                 )}
 
@@ -413,7 +422,7 @@ export default function AggiungiAEtichetta({
                                             <Plus size={12} className="text-oro shrink-0" />
                                         )}
                                         <span className="flex-1 font-body text-sm text-oro truncate">
-                                            Crea "{cerca.trim()}"
+                                            {t('azioni.crea', { nome: cerca.trim() })}
                                         </span>
                                     </button>
                                 )}

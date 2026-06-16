@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "clienti": "Mandanten",
+    "pratiche": "Dossiers",
+    "calendario": "Kalender",
+    "banca_dati": "Datenbank",
+    "ricerche": "Recherchen",
+    "archivio": "Archiv",
+    "fatturazione": "Rechnungsstellung",
+    "assistenza": "Support",
+    "studio": "Kanzlei",
+    "profilo": "Profil"
+  },
+  "account": {
+    "esci": "Abmelden"
+  },
+  "scadenza": {
+    "title_scaduto": "Abonnement abgelaufen - jetzt erneuern",
+    "title_in_scadenza_one": "Abonnement läuft in {{count}} Tag ab",
+    "title_in_scadenza_other": "Abonnement läuft in {{count}} Tagen ab",
+    "badge_scaduto": "Abgelaufen",
+    "badge_giorni": "{{count}}T",
+    "title_scaduto_mobile": "Abonnement abgelaufen",
+    "title_mobile": "{{count}}T bis Ablauf"
+  },
+  "storage": {
+    "title": "{{occupato}} GB von {{totale}} GB belegt"
+  },
+  "clienti": {
+    "title": "{{conteggio}} von {{limite}} verfügbaren Mandanten erfasst",
+    "title_mobile": "{{conteggio}}/{{limite}} Mandanten"
+  },
+  "crediti": {
+    "title": "KI-Credits kaufen"
+  }
+}

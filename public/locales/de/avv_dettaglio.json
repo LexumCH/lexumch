@@ -1,0 +1,41 @@
+{
+  "back": "Datenbank",
+  "id": "ID:",
+  "non_vigente": "Nicht in Kraft",
+  "oggetto": "Gegenstand",
+  "testo": "Text",
+  "documento_del": "Dokument vom",
+  "atto_del": "Erlass vom",
+  "decisione_del": "Entscheid vom",
+  "norma": {
+    "non_trovata": "Norm nicht gefunden",
+    "fonte_federale": "Bundesrecht",
+    "fonte_cantonale": "Kantonales Recht",
+    "fonte_ue": "EU-Recht",
+    "art_prefix": "Art.",
+    "note_storiche": "Historische Anmerkungen",
+    "testo_nd": "Text nicht verfügbar."
+  },
+  "sentenza": {
+    "non_trovata": "Urteil nicht gefunden",
+    "giur_ch": "Schweizer Rechtsprechung",
+    "giur_ue": "EU-Rechtsprechung",
+    "giur_cedu": "EGMR-Rechtsprechung",
+    "fonte_originale": "Originalquelle öffnen",
+    "principio": "Rechtsgrundsatz",
+    "parti": "Parteien",
+    "relatore": "Berichterstatter",
+    "materia": "Sachgebiet",
+    "nessun_contenuto": "Für dieses Urteil ist kein Textinhalt verfügbar."
+  },
+  "prassi": {
+    "non_trovato": "Praxisdokument nicht gefunden",
+    "label": "Verwaltungspraxis",
+    "fisco_cantonale": "Kantonale Steuerverwaltung",
+    "n_prefix": "Nr.",
+    "emanato_il": "Erlassen am",
+    "classificazione": "Klassifizierung",
+    "sottotitolo": "Untertitel",
+    "solo_metadati": "Für dieses Dokument sind nur die Metadaten verfügbar."
+  }
+}

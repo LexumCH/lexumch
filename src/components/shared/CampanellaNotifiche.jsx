@@ -6,8 +6,11 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Bell, Check, X, AlertTriangle, Calendar, FileText, MessageCircle, User, CreditCard, Gavel, Receipt, FolderOpen } from 'lucide-react'
 import { useNotifiche } from '@/hooks/useNotifiche'
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 // ─── Icona per tipo notifica ─────────────────────────────────
 function iconaTipo(tipo) {
@@ -31,17 +34,19 @@ function iconaTipo(tipo) {
     return map[tipo] ?? { Icon: FileText, color: 'text-nebbia/40' }
 }
 
-function tempoRelativo(iso) {
+function tempoRelativo(iso, t, dateLocale) {
     if (!iso) return ''
     const diff = (Date.now() - new Date(iso).getTime()) / 1000
-    if (diff < 60) return 'ora'
-    if (diff < 3600) return `${Math.floor(diff / 60)}min fa`
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h fa`
-    if (diff < 604800) return `${Math.floor(diff / 86400)}g fa`
-    return new Date(iso).toLocaleDateString('it-CH')
+    if (diff < 60) return t('tempo.ora')
+    if (diff < 3600) return t('tempo.min_fa', { count: Math.floor(diff / 60) })
+    if (diff < 86400) return t('tempo.ore_fa', { count: Math.floor(diff / 3600) })
+    if (diff < 604800) return t('tempo.giorni_fa', { count: Math.floor(diff / 86400) })
+    return new Date(iso).toLocaleDateString(dateLocale)
 }
 
 export default function CampanellaNotifiche() {
+    const { t, i18n } = useTranslation('comp_notifiche')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [open, setOpen] = useState(false)
     const wrapperRef = useRef(null)
     const navigate = useNavigate()
@@ -70,7 +75,7 @@ export default function CampanellaNotifiche() {
             <button
                 onClick={() => setOpen(o => !o)}
                 className="relative p-2 hover:bg-white/5 transition-colors"
-                aria-label="Notifiche"
+                aria-label={t('aria.campanella')}
             >
                 <Bell size={18} className={nonLette > 0 ? 'text-oro' : 'text-nebbia/60'} />
                 {nonLette > 0 && (
@@ -85,10 +90,10 @@ export default function CampanellaNotifiche() {
                     {/* Header */}
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 shrink-0">
                         <div>
-                            <p className="font-display text-base text-nebbia">Notifiche</p>
+                            <p className="font-display text-base text-nebbia">{t('header.titolo')}</p>
                             {nonLette > 0 && (
                                 <p className="font-body text-[11px] text-nebbia/40 mt-0.5">
-                                    {nonLette} non {nonLette === 1 ? 'letta' : 'lette'}
+                                    {t('header.non_lette', { count: nonLette })}
                                 </p>
                             )}
                         </div>
@@ -97,7 +102,7 @@ export default function CampanellaNotifiche() {
                                 onClick={marcaTutteLette}
                                 className="font-body text-xs text-oro hover:text-oro/70 flex items-center gap-1"
                             >
-                                <Check size={12} /> Segna tutte lette
+                                <Check size={12} /> {t('header.segna_tutte')}
                             </button>
                         )}
                     </div>
@@ -111,8 +116,8 @@ export default function CampanellaNotifiche() {
                         ) : notifiche.length === 0 ? (
                             <div className="px-4 py-12 text-center">
                                 <Bell size={28} className="text-nebbia/20 mx-auto mb-2" />
-                                <p className="font-body text-sm text-nebbia/40">Nessuna notifica</p>
-                                <p className="font-body text-xs text-nebbia/30 mt-1">Quando arriveranno le vedrai qui</p>
+                                <p className="font-body text-sm text-nebbia/40">{t('vuoto.titolo')}</p>
+                                <p className="font-body text-xs text-nebbia/30 mt-1">{t('vuoto.sottotitolo')}</p>
                             </div>
                         ) : (
                             notifiche.map(n => {
@@ -134,12 +139,12 @@ export default function CampanellaNotifiche() {
                                                 {n.descrizione && (
                                                     <p className="font-body text-xs text-nebbia/40 mt-0.5 line-clamp-2">{n.descrizione}</p>
                                                 )}
-                                                <p className="font-body text-[10px] text-nebbia/30 mt-1">{tempoRelativo(n.created_at)}</p>
+                                                <p className="font-body text-[10px] text-nebbia/30 mt-1">{tempoRelativo(n.created_at, t, dateLocale)}</p>
                                             </div>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); elimina(n.id) }}
                                                 className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/5 shrink-0"
-                                                aria-label="Elimina notifica"
+                                                aria-label={t('aria.elimina')}
                                             >
                                                 <X size={12} className="text-nebbia/40" />
                                             </button>

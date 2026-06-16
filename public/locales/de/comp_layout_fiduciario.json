@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "clienti": "Mandanten",
+    "mandati": "Mandate",
+    "calendario": "Kalender",
+    "banca_dati": "Datenbank",
+    "ricerche": "Recherchen",
+    "studio": "Kanzlei",
+    "archivio": "Archiv",
+    "fatturazione": "Rechnungsstellung",
+    "assistenza": "Support",
+    "profilo": "Profil"
+  },
+  "account": {
+    "esci": "Abmelden"
+  },
+  "header": {
+    "scadenza": {
+      "titolo_scaduto": "Abo abgelaufen - jetzt erneuern",
+      "titolo_in_scadenza_one": "Abo läuft in {{count}} Tag ab",
+      "titolo_in_scadenza_other": "Abo läuft in {{count}} Tagen ab",
+      "titolo_scaduto_breve": "Abo abgelaufen",
+      "titolo_alla_scadenza_one": "{{count}} T bis Ablauf",
+      "titolo_alla_scadenza_other": "{{count}} T bis Ablauf",
+      "scaduto": "Abgelaufen",
+      "giorni_badge_one": "{{count}} T",
+      "giorni_badge_other": "{{count}} T"
+    },
+    "storage": {
+      "tooltip": "{{usati}} GB belegt von {{totali}} GB",
+      "tooltip_breve": "{{usati}}/{{totali}} GB"
+    },
+    "clienti": {
+      "tooltip": "{{registrati}} Mandanten erfasst von {{disponibili}} verfügbaren",
+      "tooltip_breve": "{{registrati}}/{{disponibili}} Mandanten"
+    },
+    "crediti": {
+      "tooltip": "KI-Guthaben kaufen"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+    "header": {
+        "titolo": "Aggiungi scadenza",
+        "descrizione": "Inserisci una scadenza amministrativa o fiscale per questo mandato"
+    },
+    "campi": {
+        "titolo_label": "Titolo scadenza *",
+        "titolo_placeholder": "es. Rendiconto IVA 1° semestre 2026",
+        "categoria_label": "Categoria (opzionale)",
+        "categoria_placeholder": "es. IVA, Fiscale, Salari, Chiusura contabile...",
+        "categoria_hint": "Etichetta libera per raggruppare le scadenze per tipo",
+        "data_label": "Data scadenza *",
+        "note_label": "Note (opzionale)",
+        "note_placeholder": "Promemoria, riferimenti, importi..."
+    },
+    "anteprima": {
+        "titolo": "Anteprima",
+        "scadenza_default": "Scadenza",
+        "gia_trascorsa": "Questa scadenza è già trascorsa ({{count}} giorni fa). Inseriscila comunque se stai registrando uno storico."
+    },
+    "azioni": {
+        "annulla": "Annulla",
+        "salvando": "Salvando...",
+        "salva": "Aggiungi scadenza"
+    },
+    "errori": {
+        "sessione_scaduta": "Sessione scaduta. Effettua nuovamente il login."
+    }
+}

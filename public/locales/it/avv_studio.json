@@ -1,0 +1,204 @@
+{
+  "header": {
+    "label_user": "Account",
+    "label_avvocato": "Avvocato",
+    "title": "Il tuo studio",
+    "operazione_ok": "Operazione completata con successo."
+  },
+  "banner": {
+    "scaduto": {
+      "titolo": "Abbonamento scaduto",
+      "descrizione": "L'archivio è in sola lettura. Rinnova per riattivare upload, crediti AI e funzionalità complete.",
+      "cta": "Rinnova ora"
+    },
+    "grazia": {
+      "titolo_one": "Periodo di grazia — {{count}} giorno rimanente",
+      "titolo_other": "Periodo di grazia — {{count}} giorni rimanenti",
+      "descrizione": "Hai 7 giorni dalla scadenza per rinnovare prima che l'archivio passi in sola lettura.",
+      "cta": "Rinnova ora"
+    },
+    "scadenza": {
+      "titolo_one": "Abbonamento in scadenza tra {{count}} giorno",
+      "titolo_other": "Abbonamento in scadenza tra {{count}} giorni",
+      "descrizione": "Scadenza: {{data}}",
+      "cta": "Rinnova"
+    },
+    "crediti_zero": {
+      "titolo": "Crediti AI esauriti",
+      "descrizione": "Lex AI non risponderà finché non acquisti nuovi crediti.",
+      "cta": "Acquista crediti"
+    },
+    "crediti_bassi": {
+      "titolo": "Stai esaurendo i crediti AI del mese ({{count}} rimasti)",
+      "descrizione": "Acquista un pacchetto extra per non restare a secco prima del rinnovo mensile.",
+      "cta": "Acquista crediti"
+    },
+    "storage_pieno": {
+      "titolo": "Spazio archivio esaurito",
+      "descrizione": "Non puoi caricare nuovi file finché non liberi spazio o acquisti un pacchetto extra.",
+      "cta": "Acquista storage"
+    },
+    "storage_quasi": {
+      "titolo": "Archivio quasi pieno ({{pct}}% occupato)",
+      "descrizione": "{{occupato}} GB su {{totali}} GB disponibili.",
+      "cta": "Acquista storage"
+    },
+    "topup_scadenza": {
+      "titolo_one": "Pacchetto storage in scadenza",
+      "titolo_other": "{{count}} pacchetti storage in scadenza",
+      "riga": "{{gb}} GB scade il {{data}}",
+      "cta": "Rinnova"
+    }
+  },
+  "studio_header": {
+    "nessun_piano_attivo": "Nessun piano attivo",
+    "badge": {
+      "nessun_piano": "Nessun piano",
+      "scaduto": "Scaduto",
+      "grazia": "Grazia",
+      "in_scadenza": "In scadenza",
+      "attivo": "Attivo"
+    },
+    "stat": {
+      "accessi": "Accessi",
+      "crediti_ai": "Crediti AI",
+      "storage": "Storage",
+      "clienti": "Clienti",
+      "scadenza": "Scadenza"
+    }
+  },
+  "tabs": {
+    "mio_studio": "Il mio studio",
+    "mio_piano": "Il mio piano",
+    "collaboratori": "Collaboratori",
+    "acquista": "Acquista"
+  },
+  "user_studio": {
+    "titolo": "Perché avere un piano?",
+    "vantaggi": [
+      { "titolo": "Gestione clienti", "desc": "Crea e gestisci i tuoi clienti, pratiche e documenti in un unico posto" },
+      { "titolo": "Banca dati sentenze", "desc": "Accedi a migliaia di sentenze caricate da altri avvocati (piani Pro)" },
+      { "titolo": "Monetizzazione", "desc": "Carica le tue sentenze e guadagna ogni volta che vengono acquistate (piani Pro)" },
+      { "titolo": "Studio multi-accesso", "desc": "Invita collaboratori e gestite insieme clienti e pratiche" }
+    ],
+    "scegli_piano": "Scegli un piano"
+  },
+  "avv_piano": {
+    "nessun_piano": "Non hai ancora un piano attivo.",
+    "acquista_piano": "Acquista un piano",
+    "titolo": "Piano attivo",
+    "riga": {
+      "piano": "Piano",
+      "scadenza": "Scadenza",
+      "accessi": "Accessi",
+      "clienti": "Clienti registrati",
+      "crediti": "Crediti AI disponibili",
+      "spazio": "Spazio archivio",
+      "gb_inclusi": "GB inclusi nel piano",
+      "gb_extra": "GB extra acquistati",
+      "banca_dati": "Banca dati",
+      "monetizzazione": "Monetizzazione"
+    },
+    "valore": {
+      "clienti_con_limite": "{{conteggio}} su {{totale}} ({{piano}} piano · {{extra}} extra)",
+      "clienti_senza_limite": "{{conteggio}} (nessun limite definito)",
+      "crediti": "{{totale}} ({{piano}} piano · {{benvenuto}} benvenuto · {{topup}} extra)",
+      "spazio": "{{occupato}} GB su {{totali}} GB ({{piano}} GB piano · {{extra}} GB extra)",
+      "inclusa": "Inclusa",
+      "non_inclusa": "Non inclusa"
+    },
+    "cambia": "Cambia piano, aggiungi crediti o storage"
+  },
+  "collaboratori": {
+    "conteggio_one": "{{count}} collaboratore",
+    "conteggio_other": "{{count}} collaboratori",
+    "posti_liberi_one": "{{count}} posto libero",
+    "posti_liberi_other": "{{count}} posti liberi",
+    "invita_btn": "Invita collaboratore",
+    "esauriti": "Hai esaurito gli accessi.",
+    "aggiungi_accessi": "Aggiungi accessi",
+    "invita_titolo": "Invita un collaboratore",
+    "email_label": "Email *",
+    "email_placeholder": "collega@studio.ch",
+    "invia_invito": "Invia invito",
+    "annulla": "Annulla",
+    "email_obbligatoria": "Email obbligatoria",
+    "errore_invio": "Errore invio invito",
+    "conferma_rimozione": "Rimuovere {{nome}} {{cognome}} dallo studio?",
+    "tu": "(tu)",
+    "rimuovi": "Rimuovi"
+  },
+  "storico": {
+    "titolo": "Storico pagamenti",
+    "vuoto": "Nessun pagamento registrato",
+    "intestazioni": ["Descrizione", "Importo", "Data", "Stato"],
+    "stato": {
+      "gratis": "Gratis",
+      "pagato": "Pagato",
+      "rimborsato": "Rimborsato",
+      "fallito": "Fallito"
+    }
+  },
+  "acquisto": {
+    "comune": {
+      "acquista": "Acquista"
+    },
+    "trial": {
+      "label": "Prova gratuita",
+      "badge_gratuito": "Gratuito",
+      "descrizione": "Prova Lexum completo per {{giorni}} giorni senza inserire dati di pagamento. Attivabile una sola volta.",
+      "feat_accessi": "✓ {{count}} accessi",
+      "feat_banca_dati": "✓ Banca dati inclusa",
+      "feat_crediti": "✓ {{count}} crediti Lex AI",
+      "feat_storage": "✓ {{gb}} GB storage",
+      "attiva": "Attiva prova gratuita",
+      "attivato": "Prova gratuita attivata! La pagina si aggiornerà a breve."
+    },
+    "piani": {
+      "label_cambia": "Cambia piano",
+      "label_scegli": "Scegli il tuo piano",
+      "differenza": "Differenza:",
+      "accessi_one": "{{count}} accesso",
+      "accessi_other": "{{count}} accessi",
+      "mesi_one": "{{count}} mese",
+      "mesi_other": "{{count}} mesi",
+      "tag_banca_dati": "Banca dati",
+      "tag_monetizzazione": "Monetizzazione",
+      "tag_crediti_mese": "{{count}} crediti/mese",
+      "tag_studio": "Studio",
+      "upgrade_a": "Upgrade a ",
+      "acquisto": "Acquisto: ",
+      "importo_da_pagare": "Importo da pagare:",
+      "scadenza_invariata": "scadenza invariata",
+      "procedi": "Procedi al pagamento"
+    },
+    "seat": {
+      "label": "Aggiungi accessi",
+      "scadenza": "La scadenza segue il piano attuale.",
+      "scadenza_con_data": "La scadenza segue il piano attuale ({{data}}).",
+      "piu_accessi_one": "+{{count}} accesso",
+      "piu_accessi_other": "+{{count}} accessi",
+      "transizione": "Accessi: {{da}} → {{a}}"
+    },
+    "clienti": {
+      "label": "Aggiungi capacità clienti",
+      "descrizione": "Alza il limite di clienti registrabili nel tuo studio. La scadenza segue il piano attuale — pagamento pro-rata sui mesi residui.",
+      "descrizione_con_data": "Alza il limite di clienti registrabili nel tuo studio. La scadenza segue il piano attuale ({{data}}) — pagamento pro-rata sui mesi residui.",
+      "piu_clienti": "+{{count}} clienti",
+      "listino": "Listino · pro-rata applicato al checkout"
+    },
+    "crediti": {
+      "label": "Crediti AI extra",
+      "descrizione": "Pacchetti aggiuntivi che non scadono mai. Si consumano solo dopo i crediti del piano.",
+      "dettaglio": "{{crediti}} crediti · €{{prezzo_credito}}/credito",
+      "non_scadono": "Non scadono mai"
+    },
+    "storage": {
+      "label": "Spazio archiviazione",
+      "richiede_piano": "I pacchetti storage richiedono un piano attivo. Rinnova prima il tuo abbonamento.",
+      "descrizione": "GB extra condivisi a livello studio. Pagamento una tantum per la durata indicata, rinnovo manuale alla scadenza.",
+      "mesi_one": "{{count}} mese",
+      "mesi_other": "{{count}} mesi"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "header": {
+    "titolo": "Documenti mandato ({{count}})",
+    "aggiungi": "Aggiungi documento",
+    "descrizione": "I documenti vengono salvati nell'archivio dello studio, indicizzati per la ricerca con Lex e collegati a questo mandato."
+  },
+  "vuoto": {
+    "titolo": "Nessun documento collegato a questo mandato",
+    "suggerimento": "Usa \"Aggiungi documento\" qui sopra per caricarlo"
+  },
+  "badge": {
+    "archivio": "Archivio"
+  },
+  "azioni": {
+    "scarica": "Scarica",
+    "rimuovi": "Rimuovi dal mandato"
+  },
+  "conferma": {
+    "scollega": "Rimuovere \"{{nome}}\" dal mandato?\n\nIl documento resterà nell'archivio dello studio, perderà solo il collegamento a questo mandato."
+  }
+}

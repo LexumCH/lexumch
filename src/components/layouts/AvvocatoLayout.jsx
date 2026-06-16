@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import logo from '@/assets/logo.png'
@@ -12,17 +13,17 @@ import {
 import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 
 const NAV = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/clienti', label: 'Clienti', icon: Users },
-  { path: '/pratiche', label: 'Pratiche', icon: FolderOpen },
-  { path: '/calendario', label: 'Calendario', icon: Calendar },
-  { path: '/banca-dati', label: 'Banca dati', icon: Library },
-  { path: '/ricerche', label: 'Ricerche', icon: Search },
-  { path: '/archivio', label: 'Archivio', icon: Archive },
-  { path: '/fatturazione', label: 'Fatturazione', icon: CreditCard },
-  { path: '/assistenza', label: 'Assistenza', icon: Headphones },
-  { path: '/studio', label: 'Studio', icon: Building2 },
-  { path: '/profilo', label: 'Profilo', icon: User },
+  { path: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { path: '/clienti', labelKey: 'nav.clienti', icon: Users },
+  { path: '/pratiche', labelKey: 'nav.pratiche', icon: FolderOpen },
+  { path: '/calendario', labelKey: 'nav.calendario', icon: Calendar },
+  { path: '/banca-dati', labelKey: 'nav.banca_dati', icon: Library },
+  { path: '/ricerche', labelKey: 'nav.ricerche', icon: Search },
+  { path: '/archivio', labelKey: 'nav.archivio', icon: Archive },
+  { path: '/fatturazione', labelKey: 'nav.fatturazione', icon: CreditCard },
+  { path: '/assistenza', labelKey: 'nav.assistenza', icon: Headphones },
+  { path: '/studio', labelKey: 'nav.studio', icon: Building2 },
+  { path: '/profilo', labelKey: 'nav.profilo', icon: User },
 ]
 
 function bytesToGB(b) {
@@ -35,6 +36,7 @@ function giorniAllaScadenza(dataStr) {
 }
 
 export default function AvvocatoLayout({ children }) {
+  const { t } = useTranslation('comp_layout_avvocato')
   const [open, setOpen] = useState(false)
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
@@ -142,7 +144,7 @@ export default function AvvocatoLayout({ children }) {
         </Link>
 
         <nav className="flex-1 overflow-y-auto py-4 space-y-0.5 px-2">
-          {NAV.map(({ path, label, icon: Icon }) => (
+          {NAV.map(({ path, labelKey, icon: Icon }) => (
             <NavLink
               key={path}
               to={path}
@@ -155,7 +157,7 @@ export default function AvvocatoLayout({ children }) {
               }
             >
               <Icon size={16} strokeWidth={1.5} />
-              <span className="flex-1">{label}</span>
+              <span className="flex-1">{t(labelKey)}</span>
               <ChevronRight size={13} className="opacity-0 group-hover:opacity-30 transition-opacity" />
             </NavLink>
           ))}
@@ -175,7 +177,7 @@ export default function AvvocatoLayout({ children }) {
             </div>
           </div>
           <button onClick={handleSignOut} className="w-full flex items-center gap-2 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors px-1 py-1">
-            <LogOut size={13} /> Esci
+            <LogOut size={13} /> {t('account.esci')}
           </button>
         </div>
       </aside>
@@ -193,14 +195,14 @@ export default function AvvocatoLayout({ children }) {
             {/* Scadenza piano (solo se ≤ 7 giorni) */}
             {mostraScadenza && (
               <Link to="/studio?tab=acquista"
-                title={scaduto ? 'Piano scaduto - rinnova subito' : `Piano in scadenza tra ${giorni} ${giorni === 1 ? 'giorno' : 'giorni'}`}
+                title={scaduto ? t('scadenza.title_scaduto') : t('scadenza.title_in_scadenza', { count: giorni })}
                 className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors group ${scadenzaCritica || scaduto
                   ? 'bg-red-500/10 border border-red-500/30 hover:bg-red-500/15 hover:border-red-500/50'
                   : 'bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/15 hover:border-amber-500/50'
                   }`}>
                 <AlertTriangle size={13} className={scadenzaCritica || scaduto ? 'text-red-400' : 'text-amber-400'} />
                 <span className={`font-body text-sm ${scadenzaCritica || scaduto ? 'text-red-400' : 'text-amber-400'}`}>
-                  {scaduto ? 'Scaduto' : `${giorni}g`}
+                  {scaduto ? t('scadenza.badge_scaduto') : t('scadenza.badge_giorni', { count: giorni })}
                 </span>
               </Link>
             )}
@@ -208,7 +210,7 @@ export default function AvvocatoLayout({ children }) {
             {/* Storage (sempre visibile se ha piano con quota) */}
             {haStorage && (
               <Link to="/studio?tab=acquista"
-                title={`${storage.occupato_gb.toFixed(1)} GB occupati su ${storage.gb_totali} GB`}
+                title={t('storage.title', { occupato: storage.occupato_gb.toFixed(1), totale: storage.gb_totali })}
                 className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors group ${storagePieno
                   ? 'bg-red-500/10 border border-red-500/30 hover:bg-red-500/15 hover:border-red-500/50'
                   : storageQuasiPieno
@@ -233,7 +235,7 @@ export default function AvvocatoLayout({ children }) {
             {/* Contatore clienti (sempre visibile se ha un piano con limite) */}
             {haLimiteClienti && (
               <Link to="/studio?tab=acquista"
-                title={`${clienti.conteggio} clienti registrati su ${clienti.limite_totale} disponibili`}
+                title={t('clienti.title', { conteggio: clienti.conteggio, limite: clienti.limite_totale })}
                 className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors group ${clientiPieno
                   ? 'bg-red-500/10 border border-red-500/30 hover:bg-red-500/15 hover:border-red-500/50'
                   : clientiCritico
@@ -259,7 +261,7 @@ export default function AvvocatoLayout({ children }) {
 
             {/* Crediti (sempre visibile) */}
             <Link to="/studio?tab=acquista"
-              title="Acquista crediti AI"
+              title={t('crediti.title')}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-petrolio border border-salvia/20 hover:border-salvia/40 transition-colors group">
               <Sparkles size={13} className="text-salvia" />
               <span className="font-body text-sm text-nebbia/80 group-hover:text-nebbia transition-colors">{crediti}</span>
@@ -284,14 +286,14 @@ export default function AvvocatoLayout({ children }) {
             {/* Scadenza mobile */}
             {mostraScadenza && (
               <Link to="/studio?tab=acquista"
-                title={scaduto ? 'Piano scaduto' : `${giorni}g alla scadenza`}
+                title={scaduto ? t('scadenza.title_scaduto_mobile') : t('scadenza.title_mobile', { count: giorni })}
                 className={`flex items-center gap-1 px-2 py-1 ${scadenzaCritica || scaduto
                   ? 'bg-red-500/10 border border-red-500/30'
                   : 'bg-amber-500/10 border border-amber-500/30'
                   }`}>
                 <AlertTriangle size={11} className={scadenzaCritica || scaduto ? 'text-red-400' : 'text-amber-400'} />
                 <span className={`font-body text-xs ${scadenzaCritica || scaduto ? 'text-red-400' : 'text-amber-400'}`}>
-                  {scaduto ? '!' : `${giorni}g`}
+                  {scaduto ? '!' : t('scadenza.badge_giorni', { count: giorni })}
                 </span>
               </Link>
             )}
@@ -319,7 +321,7 @@ export default function AvvocatoLayout({ children }) {
             {/* Clienti mobile (compatto) */}
             {haLimiteClienti && (
               <Link to="/studio?tab=acquista"
-                title={`${clienti.conteggio}/${clienti.limite_totale} clienti`}
+                title={t('clienti.title_mobile', { conteggio: clienti.conteggio, limite: clienti.limite_totale })}
                 className={`flex items-center gap-1 px-2 py-1 ${clientiPieno
                   ? 'bg-red-500/10 border border-red-500/30'
                   : clientiCritico

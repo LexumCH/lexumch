@@ -1,0 +1,224 @@
+{
+  "header": {
+    "label": "Meine juristischen Recherchen",
+    "titolo": "Recherchen",
+    "sottotitolo": "Alles, was Sie gedacht, recherchiert und verschlagwortet haben — Recherchen, Erlasse, Rechtsprechung und Praxis."
+  },
+  "barra_azioni": {
+    "confronto_attivo": "Vergleich",
+    "confronto_elementi": " · {{count}} Elemente",
+    "chiudi_confronto": "Vergleich schliessen",
+    "selezionati": " / {{max}} ausgewählt",
+    "annulla": "Abbrechen",
+    "confronta_affiancati": "Nebeneinander vergleichen",
+    "confronta": "Vergleichen",
+    "nuova_ricerca": "Neue Recherche"
+  },
+  "orfane": {
+    "conteggio": "{{conteggio}}/{{limite}} Recherchen ausserhalb von Dossiers und ohne Etiketten",
+    "spiegazione_prefix": "Wenn Sie das Limit überschreiten, werden die ältesten verwaisten Recherchen ",
+    "spiegazione_bold": "automatisch gelöscht",
+    "spiegazione_suffix": ". Speichern Sie eine Recherche in einem Dossier oder weisen Sie ihr mindestens ein Etikett zu, um sie zu schützen."
+  },
+  "ricerca": {
+    "intro": "Durchsuchen Sie Ihre Recherchen, Erlasse, Rechtsprechung und Praxis. Verwenden Sie die klassische Suche für wörtliche Stichwörter oder Lex für Abfragen in natürlicher Sprache.",
+    "placeholder": "Durchsuchen Sie Ihre Recherchen, Erlasse, Rechtsprechung, Praxis...",
+    "svuota": "Leeren",
+    "cerca": "Suchen",
+    "cerca_title": "Nach wörtlichen Stichwörtern suchen (Enter)",
+    "lex_sta_cercando": "Lex sucht...",
+    "lex_errore": "Fehler bei der Suche",
+    "cerca_con_lex": "Mit Lex suchen",
+    "lex_breve": "Lex",
+    "lex_limite_title": "Tageslimit erreicht",
+    "lex_troppi_title": "Zu viele Elemente: zuerst nach Typ oder Dossier filtern (max. 100)",
+    "lex_semantica_title": "Semantische Suche (Cmd/Ctrl+Enter)",
+    "troppi_elementi": "Sie haben {{count}} Elemente. Um Lex zu nutzen, grenzen Sie zuerst nach Typ oder Dossier ein (max. 100).",
+    "lex_trovato_uno": "Lex hat <0>{{count}}</0> Element gefunden",
+    "lex_trovati_molti": "Lex hat <0>{{count}}</0> Elemente gefunden",
+    "azzera_lex": "Lex zurücksetzen"
+  },
+  "filtri": {
+    "tutte_le_pratiche": "Alle Dossiers",
+    "etichetta": "Etikett",
+    "gestisci": "Verwalten…",
+    "azzera": "Zurücksetzen",
+    "apri_etichetta": "Etikett \"{{nome}}\" öffnen"
+  },
+  "filtro_tipi": {
+    "tutti": "Alle",
+    "ricerca_ai": "KI-Recherchen",
+    "ricerca_manuale": "Manuelle Recherchen",
+    "chat_lex": "Chat mit Lex",
+    "norma_federale": "Bundeserlasse",
+    "norma_cantonale": "Kantonale Erlasse",
+    "norma_ue": "EU-Erlasse",
+    "giurisprudenza": "Rechtsprechung",
+    "sentenza_ue": "EU-Urteile",
+    "prassi": "Praxis"
+  },
+  "vuoto": {
+    "nessun_elemento": "Noch keine Elemente",
+    "nessun_risultato": "Keine Ergebnisse",
+    "nessun_elemento_descr": "KI-Recherchen, manuelle Recherchen, Chats und die Elemente (Erlasse, Rechtsprechung, Praxis), die Sie verschlagworten, erscheinen hier.",
+    "nessun_risultato_descr": "Versuchen Sie, die Filter zu ändern oder mit anderen Wörtern zu suchen."
+  },
+  "tipo_label": {
+    "ricerca_ai": "KI-Recherche",
+    "chat_lex": "Chat mit Lex",
+    "ricerca_manuale": "Manuelle Recherche",
+    "norma_federale": "Bundeserlass",
+    "norma_cantonale": "Kantonaler Erlass",
+    "norma_ue": "EU-Erlass",
+    "giurisprudenza": "Rechtsprechung",
+    "sentenza_ue": "EU-Urteil",
+    "prassi": "Praxis"
+  },
+  "titolo_fallback": {
+    "norma": "Erlass",
+    "giurisprudenza": "Rechtsprechung",
+    "sentenza_ue": "EU-Urteil",
+    "prassi": "Praxis"
+  },
+  "card": {
+    "apri_banca_dati": "In der Datenbank öffnen",
+    "apri": "Öffnen",
+    "chiudi": "Schliessen",
+    "elimina_ricerca": "Recherche löschen",
+    "rimuovi_tag": "Tags entfernen",
+    "senza_pratica": "Ohne Dossier",
+    "nessuna_etichetta": "Kein Etikett verfügbar",
+    "apri_etichetta": "Etikett \"{{nome}}\" öffnen",
+    "conferma_elimina_ricerca": "Diese Recherche löschen? Der Vorgang ist unwiderruflich.",
+    "conferma_rimuovi_tag": "Alle Tags von diesem Element entfernen?\nDas Originalelement ({{tipo}}) wird nicht gelöscht."
+  },
+  "azioni_confronto": {
+    "sintesi_unificata_label": "Vereinheitlichte Synthese",
+    "sintesi_unificata_descr": "Fügt die Elemente zu einem einheitlichen Bild zusammen",
+    "conflitti_label": "Konflikte & Spannungen",
+    "conflitti_descr": "Hebt Abweichungen und Widersprüche hervor",
+    "comuni_label": "Gemeinsamkeiten",
+    "comuni_descr": "Extrahiert den gemeinsamen roten Faden",
+    "parere_label": "Vollständiges Gutachten",
+    "parere_descr": "Strukturiertes Dokument, bereit zum Kopieren"
+  },
+  "frasi_confronto": {
+    "sintesi_unificata": [
+      "Ich lese die Elemente, die Sie mir gegeben haben",
+      "Ich erkenne die Berührungspunkte",
+      "Ich suche den roten Faden",
+      "Ich setze das einheitliche Bild zusammen",
+      "Ich füge die Bausteine zusammen",
+      "Ich prüfe die innere Kohärenz",
+      "Ich lese erneut, um sicherzugehen",
+      "Ich verfeinere die finale Synthese"
+    ],
+    "conflitti": [
+      "Ich lese die Elemente",
+      "Ich suche die verborgenen Spannungen",
+      "Ich erkenne die Abweichungen",
+      "Ich vergleiche die Standpunkte",
+      "Ich beurteile, welcher überwiegt",
+      "Ich prüfe die Widersprüche",
+      "Ich wäge die Argumente ab",
+      "Ich setze die kritische Analyse zusammen"
+    ],
+    "comuni": [
+      "Ich lese die Elemente",
+      "Ich suche den roten Faden",
+      "Ich extrahiere die gemeinsamen Grundsätze",
+      "Ich erkenne die Übereinstimmungen",
+      "Ich prüfe die gemeinsamen Ausrichtungen",
+      "Ich setze das einheitliche Konstrukt zusammen",
+      "Ich zeige, wie sie sich verstärken",
+      "Ich verfeinere die Gesamtbetrachtung"
+    ],
+    "parere": [
+      "Ich lese die Elemente",
+      "Ich ordne die Prämissen ein",
+      "Ich rekonstruiere das Bild",
+      "Ich gliedere die Erwägungen",
+      "Ich suche die Auslegungsspannungen",
+      "Ich setze die Schlussfolgerungen zusammen",
+      "Ich strukturiere das Gutachten",
+      "Ich überarbeite das Dokument"
+    ],
+    "libera": [
+      "Ich lese die Elemente",
+      "Ich analysiere Ihre Frage",
+      "Ich suche die relevanten Punkte",
+      "Ich setze die Antwort zusammen",
+      "Ich prüfe die Übereinstimmung mit den Elementen",
+      "Ich verfeinere die Argumentation"
+    ]
+  },
+  "animazione": {
+    "lex_ragionando": "Lex denkt nach"
+  },
+  "confronto": {
+    "errore_generico": "Fehler {{status}}",
+    "focus": "Fokus",
+    "senza_titolo": "(ohne Titel)",
+    "chat_titolo": "Lex — Chat zum Vergleich",
+    "scambi": "{{count}} Austausche",
+    "nuova_sessione": "Neue Sitzung",
+    "tu": "Sie",
+    "lex": "Lex",
+    "salva_come_ricerca": "Als Recherche speichern",
+    "intro_chat": "Wählen Sie eine geführte Aktion oder schreiben Sie eine freie Frage. Lex analysiert die {{count}} verglichenen Elemente.",
+    "placeholder_approfondisci": "Vertiefen Sie oder stellen Sie eine neue Frage...",
+    "placeholder_libera": "Oder schreiben Sie eine freie Frage...",
+    "invia_domanda_libera": "Freie Frage senden"
+  },
+  "colonna": {
+    "apri_banca_dati": "In der Datenbank öffnen",
+    "apri": "Öffnen"
+  },
+  "modale_salva": {
+    "titolo_auto": "Vergleich: {{elementi}}",
+    "titolo_modale": "Synthese als Recherche speichern",
+    "label_titolo": "Titel",
+    "label_pratica": "Dossier (optional)",
+    "nessuna_pratica": "Kein Dossier",
+    "label_etichette": "Etiketten (optional)",
+    "footer_prefix": "Die Synthese wird als ",
+    "footer_bold": "KI-Recherche",
+    "footer_suffix": " gespeichert und Sie finden sie auf dieser Seite oder im ausgewählten Dossier wieder.",
+    "sintesi_footer": "\n\n---\n\n*Von Lex erstellte Synthese durch Vergleich von {{count}} Elementen.*",
+    "annulla": "Abbrechen",
+    "salva_ricerca": "Recherche speichern"
+  },
+  "modale_nuova_ricerca": {
+    "titolo_modale": "Neue Recherche",
+    "default_titolo": "Manuelle Recherche",
+    "contenuto_obbligatorio": "Der Inhalt ist obligatorisch",
+    "label_titolo": "Titel (optional)",
+    "placeholder_titolo": "Z. B. Überlegungen zur vertraglichen Haftung",
+    "label_contenuto": "Inhalt",
+    "placeholder_contenuto": "Schreiben Sie Ihre Überlegungen, Notizen, Zitate...",
+    "label_pratica": "Dossier (optional)",
+    "nessuna_pratica": "Kein Dossier (freie Recherche)",
+    "label_etichette": "Etiketten (optional)",
+    "avviso_orfana_prefix": "Ohne Dossier und ohne Etikett wird dies eine ",
+    "avviso_orfana_bold": "verwaiste Recherche",
+    "avviso_orfana_suffix": ". Sie können höchstens {{limite}} davon haben; die ältesten werden automatisch entfernt.",
+    "annulla": "Abbrechen",
+    "salva_ricerca": "Recherche speichern"
+  },
+  "modale_nuova_etichetta": {
+    "titolo_modale": "Neues Etikett",
+    "label_nome": "Name",
+    "placeholder_nome": "Z. B. Arbeitsrecht, Zivilrechtliche Haftung...",
+    "label_colore": "Farbe",
+    "errore_duplicato": "Es existiert bereits ein Etikett mit diesem Namen",
+    "crea_etichetta": "Etikett erstellen"
+  },
+  "modale_gestione_etichette": {
+    "titolo_modale": "Etiketten verwalten",
+    "nessuna": "Keine Etiketten zu verwalten",
+    "errore_duplicato": "Es existiert bereits ein Etikett mit diesem Namen",
+    "conferma_elimina": "Etikett \"{{nome}}\" löschen?\n\nDie verschlagworteten Recherchen werden nicht gelöscht, sie verlieren nur dieses Tag.",
+    "annulla": "Abbrechen",
+    "salva": "Speichern"
+  }
+}

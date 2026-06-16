@@ -1,0 +1,31 @@
+{
+  "header": {
+    "label": "Portale cliente",
+    "titolo": "I miei appuntamenti"
+  },
+  "filtri": {
+    "tutti": "Tutti gli stati",
+    "programmati": "Programmati",
+    "conclusi": "Conclusi",
+    "annullati": "Annullati"
+  },
+  "stati": {
+    "programmato": "Programmato",
+    "concluso": "Concluso",
+    "annullato": "Annullato"
+  },
+  "tipi": {
+    "presenza": "In presenza",
+    "videocall": "Videocall",
+    "telefonico": "Telefonico",
+    "udienza": "Udienza"
+  },
+  "vuoto": {
+    "nessun_appuntamento": "Nessun appuntamento trovato"
+  },
+  "scheda": {
+    "avvocato_prefisso": "Avv.",
+    "note": "Note",
+    "entra_videocall": "Entra nella videocall"
+  }
+}

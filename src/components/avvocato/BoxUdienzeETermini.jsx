@@ -7,6 +7,7 @@
 // Header con 2 bottoni separati: "+ Termine" e "+ Udienza"
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
     Plus, Gavel, AlertTriangle, CheckCircle2, XCircle, Calendar,
     ChevronRight, Clock, MapPin, Check, Trash2
@@ -15,15 +16,17 @@ import { supabase } from '@/lib/supabase'
 import UdienzaModal from '@/components/UdienzaModal'
 import NuovoTerminePratica from '@/components/avvocato/NuovoTerminePratica'
 
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
 // ─── Helpers ────────────────────────────────────────────────
-function fmtData(iso) {
+function fmtData(iso, dateLocale) {
     if (!iso) return ''
-    return new Date(iso).toLocaleDateString('it-CH', { day: '2-digit', month: 'short', year: 'numeric' })
+    return new Date(iso).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function fmtOra(iso) {
+function fmtOra(iso, dateLocale) {
     if (!iso) return ''
-    return new Date(iso).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' })
+    return new Date(iso).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })
 }
 
 function giorniMancanti(dataScadenza) {
@@ -34,23 +37,26 @@ function giorniMancanti(dataScadenza) {
     return Math.round((target - oggi) / (1000 * 60 * 60 * 24))
 }
 
-function badgeUrgenza(giorni) {
-    if (giorni < 0) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: 'Scaduta', critico: true }
-    if (giorni === 0) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: 'Oggi', critico: true }
-    if (giorni <= 3) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: `${giorni}g`, critico: true }
-    if (giorni <= 7) return { color: 'text-amber-400 bg-amber-500/10 border-amber-500/30', label: `${giorni}g`, critico: false }
-    if (giorni <= 30) return { color: 'text-salvia bg-salvia/10 border-salvia/30', label: `${giorni}g`, critico: false }
-    return { color: 'text-nebbia/50 bg-white/5 border-white/10', label: `${giorni}g`, critico: false }
+function badgeUrgenza(giorni, t) {
+    const giorniLabel = t('badge.giorni', { count: giorni })
+    if (giorni < 0) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: t('badge.scaduta'), critico: true }
+    if (giorni === 0) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: t('badge.oggi'), critico: true }
+    if (giorni <= 3) return { color: 'text-red-400 bg-red-500/10 border-red-500/30', label: giorniLabel, critico: true }
+    if (giorni <= 7) return { color: 'text-amber-400 bg-amber-500/10 border-amber-500/30', label: giorniLabel, critico: false }
+    if (giorni <= 30) return { color: 'text-salvia bg-salvia/10 border-salvia/30', label: giorniLabel, critico: false }
+    return { color: 'text-nebbia/50 bg-white/5 border-white/10', label: giorniLabel, critico: false }
 }
 
 // ─────────────────────────────────────────────────────────────
 // SEZIONE TERMINI
 // ─────────────────────────────────────────────────────────────
 function SezioneTermini({ termini, loading, onMarcaCompiuto, onElimina }) {
+    const { t, i18n } = useTranslation('comp_box_udienze_termini')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [filtroStato, setFiltroStato] = useState('in_corso')
 
-    const terminiInCorso = termini.filter(t => t.stato === 'in_corso')
-    const terminiStorico = termini.filter(t => t.stato !== 'in_corso')
+    const terminiInCorso = termini.filter(term => term.stato === 'in_corso')
+    const terminiStorico = termini.filter(term => term.stato !== 'in_corso')
     const terminiVisibili = filtroStato === 'in_corso' ? terminiInCorso : terminiStorico
 
     return (
@@ -60,7 +66,7 @@ function SezioneTermini({ termini, loading, onMarcaCompiuto, onElimina }) {
                 <div className="flex items-center gap-3">
                     <p className="font-body text-xs font-medium text-oro uppercase tracking-widest flex items-center gap-2">
                         <AlertTriangle size={11} className="text-oro/70" />
-                        Termini processuali ({terminiInCorso.length})
+                        {t('termini.titolo')} ({terminiInCorso.length})
                     </p>
                     {(terminiInCorso.length > 0 || terminiStorico.length > 0) && (
                         <div className="flex items-center gap-2">
@@ -71,7 +77,7 @@ function SezioneTermini({ termini, loading, onMarcaCompiuto, onElimina }) {
                                     : 'text-nebbia/30 hover:text-nebbia/60 border-b border-transparent'
                                     }`}
                             >
-                                In corso ({terminiInCorso.length})
+                                {t('termini.filtro.in_corso')} ({terminiInCorso.length})
                             </button>
                             <button
                                 onClick={() => setFiltroStato('storico')}
@@ -80,7 +86,7 @@ function SezioneTermini({ termini, loading, onMarcaCompiuto, onElimina }) {
                                     : 'text-nebbia/30 hover:text-nebbia/60 border-b border-transparent'
                                     }`}
                             >
-                                Storico ({terminiStorico.length})
+                                {t('termini.filtro.storico')} ({terminiStorico.length})
                             </button>
                         </div>
                     )}
@@ -95,30 +101,30 @@ function SezioneTermini({ termini, loading, onMarcaCompiuto, onElimina }) {
                 <div className="py-6 text-center">
                     <Calendar size={20} className="text-nebbia/20 mx-auto mb-2" />
                     <p className="font-body text-sm text-nebbia/30">
-                        {filtroStato === 'in_corso' ? 'Nessun termine in corso' : 'Nessun termine nello storico'}
+                        {filtroStato === 'in_corso' ? t('termini.vuoto.in_corso') : t('termini.vuoto.storico')}
                     </p>
                     {filtroStato === 'in_corso' && (
                         <p className="font-body text-xs text-nebbia/25 mt-1">
-                            Aggiungi un termine per calcolare automaticamente la scadenza
+                            {t('termini.vuoto.suggerimento')}
                         </p>
                     )}
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {terminiVisibili.map(t => {
-                        const giorni = giorniMancanti(t.data_scadenza)
-                        const badge = badgeUrgenza(giorni)
-                        const isAttivo = t.stato === 'in_corso'
+                    {terminiVisibili.map(term => {
+                        const giorni = giorniMancanti(term.data_scadenza)
+                        const badge = badgeUrgenza(giorni, t)
+                        const isAttivo = term.stato === 'in_corso'
 
                         let StatoIcon = Calendar
                         let statoColor = 'text-salvia'
-                        if (t.stato === 'compiuto') { StatoIcon = CheckCircle2; statoColor = 'text-salvia' }
-                        else if (t.stato === 'scaduto_non_compiuto') { StatoIcon = XCircle; statoColor = 'text-red-400' }
+                        if (term.stato === 'compiuto') { StatoIcon = CheckCircle2; statoColor = 'text-salvia' }
+                        else if (term.stato === 'scaduto_non_compiuto') { StatoIcon = XCircle; statoColor = 'text-red-400' }
                         else if (badge.critico) { StatoIcon = AlertTriangle; statoColor = 'text-red-400' }
 
                         return (
                             <div
-                                key={t.id}
+                                key={term.id}
                                 className={`group p-3 border transition-colors ${isAttivo && badge.critico
                                     ? 'bg-red-500/[0.03] border-red-500/20'
                                     : 'bg-petrolio border-white/5 hover:border-white/10'
@@ -128,55 +134,55 @@ function SezioneTermini({ termini, loading, onMarcaCompiuto, onElimina }) {
                                     <StatoIcon size={15} className={`${statoColor} mt-0.5 shrink-0`} />
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <p className="font-body text-sm text-nebbia font-medium">{t.tipo_label}</p>
+                                            <p className="font-body text-sm text-nebbia font-medium">{term.tipo_label}</p>
                                             {isAttivo && (
                                                 <span className={`font-body text-[10px] px-2 py-0.5 border ${badge.color}`}>
                                                     {badge.label}
                                                 </span>
                                             )}
-                                            {t.stato === 'compiuto' && (
+                                            {term.stato === 'compiuto' && (
                                                 <span className="font-body text-[10px] px-2 py-0.5 border text-salvia bg-salvia/10 border-salvia/30">
-                                                    Compiuto {fmtData(t.data_compimento)}
+                                                    {t('termini.stato.compiuto', { data: fmtData(term.data_compimento, dateLocale) })}
                                                 </span>
                                             )}
-                                            {t.stato === 'scaduto_non_compiuto' && (
+                                            {term.stato === 'scaduto_non_compiuto' && (
                                                 <span className="font-body text-[10px] px-2 py-0.5 border text-red-400 bg-red-500/10 border-red-500/30">
-                                                    Scaduto non compiuto
+                                                    {t('termini.stato.scaduto_non_compiuto')}
                                                 </span>
                                             )}
                                         </div>
 
                                         <div className="flex items-center gap-3 mt-1 flex-wrap">
                                             <p className="font-body text-xs text-nebbia/50">
-                                                Scadenza: <span className="text-nebbia/80">{fmtData(t.data_scadenza)}</span>
+                                                {t('termini.scadenza')}: <span className="text-nebbia/80">{fmtData(term.data_scadenza, dateLocale)}</span>
                                             </p>
-                                            {t.evento_descrizione && (
+                                            {term.evento_descrizione && (
                                                 <p className="font-body text-xs text-nebbia/40">
-                                                    Da: {t.evento_descrizione}
+                                                    {t('termini.da')}: {term.evento_descrizione}
                                                 </p>
                                             )}
                                         </div>
 
-                                        {t.note_calcolo && (
-                                            <p className="font-body text-[11px] text-nebbia/40 mt-1 italic">{t.note_calcolo}</p>
+                                        {term.note_calcolo && (
+                                            <p className="font-body text-[11px] text-nebbia/40 mt-1 italic">{term.note_calcolo}</p>
                                         )}
-                                        {t.note_avvocato && (
-                                            <p className="font-body text-xs text-nebbia/60 mt-1">{t.note_avvocato}</p>
+                                        {term.note_avvocato && (
+                                            <p className="font-body text-xs text-nebbia/60 mt-1">{term.note_avvocato}</p>
                                         )}
                                     </div>
 
                                     {isAttivo && (
                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                             <button
-                                                onClick={() => onMarcaCompiuto(t.id)}
-                                                title="Segna come compiuto"
+                                                onClick={() => onMarcaCompiuto(term.id)}
+                                                title={t('termini.azioni.segna_compiuto')}
                                                 className="p-1.5 hover:bg-salvia/10 border border-transparent hover:border-salvia/30 transition-colors"
                                             >
                                                 <Check size={13} className="text-salvia" />
                                             </button>
                                             <button
-                                                onClick={() => onElimina(t.id)}
-                                                title="Elimina termine"
+                                                onClick={() => onElimina(term.id)}
+                                                title={t('termini.azioni.elimina')}
                                                 className="p-1.5 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-colors"
                                             >
                                                 <Trash2 size={13} className="text-nebbia/40 hover:text-red-400" />
@@ -197,6 +203,8 @@ function SezioneTermini({ termini, loading, onMarcaCompiuto, onElimina }) {
 // SEZIONE UDIENZE
 // ─────────────────────────────────────────────────────────────
 function SezioneUdienze({ udienze, loading, onUdienzaClick }) {
+    const { t, i18n } = useTranslation('comp_box_udienze_termini')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const ora = new Date()
 
     return (
@@ -205,7 +213,7 @@ function SezioneUdienze({ udienze, loading, onUdienzaClick }) {
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                 <p className="font-body text-xs font-medium text-oro uppercase tracking-widest flex items-center gap-2">
                     <Gavel size={11} className="text-oro/70" />
-                    Udienze ed esiti ({udienze.length})
+                    {t('udienze.titolo')} ({udienze.length})
                 </p>
             </div>
 
@@ -216,7 +224,7 @@ function SezioneUdienze({ udienze, loading, onUdienzaClick }) {
             ) : udienze.length === 0 ? (
                 <div className="py-6 text-center">
                     <Gavel size={20} className="text-nebbia/20 mx-auto mb-2" />
-                    <p className="font-body text-sm text-nebbia/30">Nessuna udienza programmata</p>
+                    <p className="font-body text-sm text-nebbia/30">{t('udienze.vuoto')}</p>
                 </div>
             ) : (
                 <div className="space-y-2">
@@ -249,20 +257,20 @@ function SezioneUdienze({ udienze, loading, onUdienzaClick }) {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap mb-1">
                                             <span className={`font-body text-sm font-medium ${isProssima ? 'text-oro' : 'text-nebbia'}`}>
-                                                {fmtData(u.data_ora)}
+                                                {fmtData(u.data_ora, dateLocale)}
                                             </span>
                                             <span className="font-body text-xs text-nebbia/40 flex items-center gap-1">
                                                 <Clock size={10} />
-                                                {fmtOra(u.data_ora)}
+                                                {fmtOra(u.data_ora, dateLocale)}
                                             </span>
                                             {isProssima && (
                                                 <span className="font-body text-[10px] text-oro border border-oro/30 px-1.5 py-0.5 uppercase tracking-wider">
-                                                    Prossima
+                                                    {t('udienze.badge.prossima')}
                                                 </span>
                                             )}
                                             {isPassata && (
                                                 <span className="font-body text-[10px] text-amber-400 border border-amber-500/30 px-1.5 py-0.5 uppercase tracking-wider">
-                                                    Da aggiornare
+                                                    {t('udienze.badge.da_aggiornare')}
                                                 </span>
                                             )}
                                             {u.stato !== 'programmata' && (
@@ -270,7 +278,7 @@ function SezioneUdienze({ udienze, loading, onUdienzaClick }) {
                                                     u.stato === 'rinviata' ? 'border-amber-500/30 text-amber-400' :
                                                         'border-white/10 text-nebbia/40'
                                                     }`}>
-                                                    {u.stato}
+                                                    {t(`udienze.stato.${u.stato}`)}
                                                 </span>
                                             )}
                                         </div>
@@ -302,6 +310,8 @@ export default function BoxUdienzeETermini({
     praticaTitolo,
     onUdienzaSaved,
 }) {
+    const { t } = useTranslation('comp_box_udienze_termini')
+
     // Stato Termini
     const [termini, setTermini] = useState([])
     const [loadingTermini, setLoadingTermini] = useState(true)
@@ -356,17 +366,17 @@ export default function BoxUdienzeETermini({
             .from('termini_processuali')
             .update({ stato: 'compiuto', data_compimento: oggi })
             .eq('id', id)
-        if (error) return alert('Errore: ' + error.message)
+        if (error) return alert(t('errori.generico') + ': ' + error.message)
         caricaTermini()
     }
 
     async function eliminaTermine(id) {
-        if (!confirm('Annullare questo termine? L\'evento sul calendario verrà rimosso.')) return
+        if (!confirm(t('termini.conferma_elimina'))) return
         const { error } = await supabase
             .from('termini_processuali')
             .delete()
             .eq('id', id)
-        if (error) return alert('Errore: ' + error.message)
+        if (error) return alert(t('errori.generico') + ': ' + error.message)
         caricaTermini()
     }
 
@@ -380,19 +390,19 @@ export default function BoxUdienzeETermini({
         <div className="bg-slate border border-white/5 p-5">
             {/* Header con bottoni separati */}
             <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
-                <p className="section-label">Scadenze e udienze</p>
+                <p className="section-label">{t('header.titolo')}</p>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setModalTermineOpen(true)}
                         className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors"
                     >
-                        <Plus size={11} /> Termine
+                        <Plus size={11} /> {t('header.aggiungi_termine')}
                     </button>
                     <button
                         onClick={() => setUdienzaModale({})}
                         className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors"
                     >
-                        <Plus size={11} /> Udienza
+                        <Plus size={11} /> {t('header.aggiungi_udienza')}
                     </button>
                 </div>
             </div>

@@ -1,0 +1,87 @@
+{
+    "header": {
+        "titolo": "Gegenparteien ({{n}})"
+    },
+    "azioni": {
+        "aggiungi": "Gegenpartei hinzufügen",
+        "salva_modifiche": "Änderungen speichern",
+        "annulla": "Abbrechen",
+        "modifica": "Bearbeiten",
+        "elimina": "Löschen"
+    },
+    "vuoto": {
+        "titolo": "Keine Gegenpartei",
+        "sottotitolo": "Fügen Sie sie hinzu, um die Rechtsschriften korrekt zu erstellen"
+    },
+    "conferme": {
+        "elimina": "Gegenpartei \"{{nome}}\" löschen?"
+    },
+    "switcher": {
+        "persona_fisica": "Natürliche Person",
+        "persona_giuridica": "Juristische Person"
+    },
+    "form": {
+        "titolo_nuova": "Neue Gegenpartei",
+        "titolo_modifica": "Gegenpartei bearbeiten",
+        "ruolo_processuale": "Prozessuale Stellung"
+    },
+    "sezioni": {
+        "rappresentante_legale": "Gesetzlicher Vertreter",
+        "indirizzo": "Adresse",
+        "contatti": "Kontaktangaben",
+        "legale_avversario": "Gegenanwalt",
+        "legale_avversario_hint": "— falls bekannt"
+    },
+    "campi": {
+        "nome": "Vorname",
+        "cognome": "Nachname",
+        "nome_obbl": "Vorname *",
+        "cognome_obbl": "Nachname *",
+        "numero_avs": "AHV-Nr.",
+        "data_nascita": "Geburtsdatum",
+        "luogo_nascita": "Geburtsort",
+        "ragione_sociale_obbl": "Firma *",
+        "uid": "UID",
+        "sede_legale": "Sitz",
+        "numero_avs_rappresentante": "AHV-Nr. des Vertreters",
+        "carica": "Funktion",
+        "carica_placeholder": "Z. B. Einzelunterschrift",
+        "indirizzo": "Adresse",
+        "citta": "Ort",
+        "cantone": "Kanton",
+        "cap": "PLZ",
+        "email": "E-Mail",
+        "telefono": "Telefon",
+        "cantone_albo": "Kanton des Anwaltsregisters",
+        "numero_albo": "Registernr.",
+        "note": "Bemerkungen",
+        "note_placeholder": "Freie Bemerkungen zur Gegenpartei..."
+    },
+    "card": {
+        "rappresentante": "Vertr.:",
+        "avvocato_prefisso": "RA"
+    },
+    "errori": {
+        "nome_obbligatorio": "Vorname erforderlich",
+        "cognome_obbligatorio": "Nachname erforderlich",
+        "ragione_sociale_obbligatoria": "Firma erforderlich"
+    },
+    "ruoli": {
+        "placeholder": "— Stellung auswählen —",
+        "convenuto": "Beklagte Partei",
+        "co_convenuto": "Mitbeklagte Partei",
+        "attore": "Klagende Partei",
+        "co_attore": "Mitklagende Partei",
+        "imputato": "Beschuldigte Person",
+        "co_imputato": "Mitbeschuldigte Person",
+        "parte_civile": "Privatklägerschaft",
+        "persona_offesa": "Geschädigte Person",
+        "ricorrente": "Beschwerdeführende Partei",
+        "resistente": "Beschwerdegegnerische Partei",
+        "opponente": "Einsprechende Partei",
+        "opposto": "Einspruchsgegnerische Partei",
+        "terzo_chiamato": "Streitberufene Drittpartei",
+        "litisconsorte": "Streitgenosse",
+        "altro": "Andere"
+    }
+}

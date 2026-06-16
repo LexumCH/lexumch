@@ -1,0 +1,91 @@
+{
+  "scelta": {
+    "label": "Berufliche Verifizierung",
+    "titolo": "Welcher Berufsgruppe gehören Sie an?",
+    "intro": "Wählen Sie Ihren Weg. Je nach Beruf verlangen wir die passenden Dokumente und schalten die richtigen Werkzeuge für Sie frei.",
+    "avvocato": {
+      "titolo": "Anwalt",
+      "desc": "Verwaltung von Mandanten, Dossiers, juristischer Datenbank, Urteilen und Verfahrensfristen."
+    },
+    "fiduciario": {
+      "titolo": "Treuhänder",
+      "desc": "Verwaltung von Mandaten, Buchhaltung, Reporting, Rechnungsstellung und Tabellenkalkulations-Werkzeugen."
+    }
+  },
+  "set": {
+    "avvocato": {
+      "titolo": "Werden Sie Anwalt auf Lexum",
+      "intro": "Um als Anwalt auf die Plattform zuzugreifen, müssen Sie Ihre berufliche Identität verifizieren. Laden Sie die erforderlichen Dokumente hoch, unser Team prüft sie innerhalb von 24-48 Stunden.",
+      "documenti": {
+        "identita": {
+          "label": "Ausweisdokument",
+          "hint": "Gültige Identitätskarte oder gültiger Reisepass"
+        },
+        "albo": {
+          "label": "Eintrag im Anwaltsregister",
+          "hint": "Bescheinigung über die Eintragung im Anwaltsregister"
+        },
+        "laurea": {
+          "label": "Juristisches Hochschuldiplom",
+          "hint": "Optional — beschleunigt die Verifizierung"
+        }
+      }
+    },
+    "fiduciario": {
+      "titolo": "Werden Sie Treuhänder auf Lexum",
+      "intro": "Um als Treuhänder auf die Plattform zuzugreifen, müssen Sie Ihre berufliche Tätigkeit verifizieren. Laden Sie die erforderlichen Dokumente hoch, unser Team prüft sie innerhalb von 24-48 Stunden.",
+      "documenti": {
+        "identita": {
+          "label": "Ausweisdokument",
+          "hint": "Gültige Identitätskarte oder gültiger Reisepass"
+        },
+        "registro": {
+          "label": "Handelsregisterauszug",
+          "hint": "Handelsregisterauszug oder UID-Bescheinigung"
+        },
+        "affiliazione": {
+          "label": "Berufliche Mitgliedschaft",
+          "hint": "Optional — Branchenverband (TREUHAND|SUISSE, EXPERTsuisse) oder SRO. Beschleunigt die Verifizierung"
+        }
+      }
+    }
+  },
+  "upload": {
+    "label": "Identitätsprüfung",
+    "obbligatorio": "Obligatorisch",
+    "opzionale": "Optional",
+    "cambia": "Ändern",
+    "carica": "Hochladen",
+    "privacy": "Die Dokumente werden streng vertraulich behandelt und ausschliesslich zur Verifizierung der beruflichen Identität verwendet.",
+    "caricamento": "Wird hochgeladen…",
+    "invia": "Zur Verifizierung einreichen"
+  },
+  "inviato": {
+    "titolo": "Dokumente eingereicht",
+    "desc": "Das Lexum-Team prüft Ihre Dokumente und Sie erhalten innerhalb von 24-48 Stunden eine Antwort.",
+    "controlla_stato": "Status prüfen"
+  },
+  "stato": {
+    "pending": {
+      "title": "Verifizierung läuft",
+      "desc": "Das Lexum-Team prüft Ihre Dokumente. Sie erhalten innerhalb von 24-48 Stunden eine E-Mail-Benachrichtigung."
+    },
+    "approved": {
+      "title": "Verifizierung genehmigt!",
+      "desc": "Ausgezeichnet! Sie können nun das für Sie passende Abonnement wählen, um Ihr Konto zu aktivieren.",
+      "cta": "Abonnement wählen"
+    },
+    "rejected": {
+      "title": "Verifizierung nicht genehmigt",
+      "desc": "Ihre Identität konnte mit den eingereichten Dokumenten nicht verifiziert werden.",
+      "motivazione": "Begründung",
+      "motivazione_default": "Dokumente nicht lesbar oder unvollständig. Bitte laden Sie die Dateien in hoher Qualität erneut hoch.",
+      "ricarica": "Dokumente erneut hochladen"
+    }
+  },
+  "errori": {
+    "non_autenticato": "Benutzer nicht authentifiziert",
+    "upload": "Fehler beim Hochladen",
+    "file_grande": "Datei zu gross. Maximal 10 MB."
+  }
+}

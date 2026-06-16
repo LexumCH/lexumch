@@ -1,0 +1,41 @@
+{
+  "header": {
+    "titolo": "Dokument erstellen",
+    "badge_template_one": "{{count}} Vorlage",
+    "badge_template_other": "{{count}} Vorlagen"
+  },
+  "sottotitolo": "Lex erstellt die Rechtsschrift anhand der Daten des Dossiers, des Mandanten und der Gegenparteien.",
+  "vuoto": {
+    "titolo": "Keine Vorlage verfügbar",
+    "sottotitolo": "Die Vorlagen sind in Kürze verfügbar"
+  },
+  "errori": {
+    "caricamento": "Fehler beim Laden der Vorlagen"
+  },
+  "categorie": {
+    "stragiudiziale": {
+      "label": "Aussergerichtliche Schriften",
+      "desc": "Mahnungen, Inverzugsetzungen, Gutachten, Vereinbarungen, Vergleiche"
+    },
+    "introduttivo": {
+      "label": "Einleitende Rechtsschriften",
+      "desc": "Klage, Gesuch, Rechtsöffnungsbegehren, Einsprache"
+    },
+    "difensivo": {
+      "label": "Verteidigungsschriften",
+      "desc": "Klageantwort, Rechtsschrift, Verteidigungsnotizen, Replik, Schlussvortrag"
+    },
+    "istruttorio": {
+      "label": "Beweis- und Zwischenverfahrensschriften",
+      "desc": "Anträge, Beweisanträge, Zeugenliste, Bemerkungen zum Gutachten"
+    },
+    "esecutivo": {
+      "label": "Vollstreckungsschriften",
+      "desc": "Zahlungsbefehl, Pfändung, Verwertungs- oder Zuweisungsbegehren"
+    },
+    "impugnazione": {
+      "label": "Rechtsmittel",
+      "desc": "Berufung, Beschwerde, Beschwerde in Zivilsachen, Revision"
+    }
+  }
+}

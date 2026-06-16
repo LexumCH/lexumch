@@ -1,0 +1,22 @@
+{
+  "aria": {
+    "campanella": "Benachrichtigungen",
+    "elimina": "Benachrichtigung löschen"
+  },
+  "header": {
+    "titolo": "Benachrichtigungen",
+    "non_lette_one": "{{count}} ungelesen",
+    "non_lette_other": "{{count}} ungelesen",
+    "segna_tutte": "Alle als gelesen markieren"
+  },
+  "vuoto": {
+    "titolo": "Keine Benachrichtigungen",
+    "sottotitolo": "Sobald welche eintreffen, sehen Sie sie hier"
+  },
+  "tempo": {
+    "ora": "jetzt",
+    "min_fa": "vor {{count}} Min.",
+    "ore_fa": "vor {{count}} Std.",
+    "giorni_fa": "vor {{count}} T."
+  }
+}

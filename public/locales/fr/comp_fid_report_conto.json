@@ -1,0 +1,77 @@
+{
+  "titolo": "Rapport compte de résultat",
+  "anno": "Année",
+  "tabella_mancante": "Table <code>movimenti</code> non disponible.",
+  "nota_finale": "Uniquement les données effectives (réalisé). Les dépenses incluent les salaires calculés à partir des employés. Les budgets/prévisions se trouvent dans la section « Budget et écarts ».",
+  "export": {
+    "titolo": "Exporter en PDF",
+    "bottone": "Exporter PDF"
+  },
+  "legenda": {
+    "entrate": "Recettes",
+    "uscite": "Dépenses (coûts + salaires)"
+  },
+  "andamento": {
+    "titolo": "Évolution mensuelle {{anno}}",
+    "vuoto": "Aucune écriture effective en {{anno}}.",
+    "tooltip_entrate": "recettes {{valore}}",
+    "tooltip_uscite": "dépenses {{valore}}"
+  },
+  "composizione": {
+    "uscite": "Dépenses par catégorie",
+    "entrate": "Recettes par catégorie",
+    "vuoto": "Aucune donnée."
+  },
+  "pluriennale": {
+    "titolo": "Comparaison pluriannuelle",
+    "tooltip_entrate": "Recettes {{valore}}",
+    "tooltip_uscite": "Dépenses {{valore}}",
+    "colonne": [
+      "Année",
+      "Recettes",
+      "Dépenses",
+      "Solde"
+    ]
+  },
+  "categoria": {
+    "senza_categoria": "Sans catégorie",
+    "stipendi": "Salaires"
+  },
+  "print": {
+    "titolo": "Compte de résultat {{anno}}",
+    "consuntivo_generato": "Réalisé (données effectives) · généré le {{data}}",
+    "totale_entrate": "Total des recettes",
+    "totale_uscite": "Total des dépenses",
+    "saldo": "Solde",
+    "andamento_mensile": "Évolution mensuelle",
+    "uscite_per_categoria": "Dépenses par catégorie",
+    "entrate_per_categoria": "Recettes par catégorie",
+    "confronto_pluriennale": "Comparaison pluriannuelle",
+    "totale": "Total",
+    "nessun_dato": "Aucune donnée",
+    "nota_finale": "Les dépenses incluent les salaires calculés à partir des employés. Les budgets/prévisions ne sont pas inclus (réalisé).",
+    "col_mese": "Mois",
+    "col_entrate": "Recettes",
+    "col_uscite": "Dépenses",
+    "col_netto": "Net",
+    "col_categoria": "Catégorie",
+    "col_importo": "Montant",
+    "col_percentuale": "%",
+    "col_anno": "Année",
+    "col_saldo": "Solde"
+  },
+  "mesi_full": [
+    "Janvier",
+    "Février",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Août",
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "Décembre"
+  ]
+}

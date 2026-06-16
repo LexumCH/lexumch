@@ -1,0 +1,109 @@
+{
+  "header": {
+    "titolo_nuova": "Neue Verhandlung",
+    "titolo_modifica": "Verhandlung bearbeiten",
+    "badge_non_salvate": "Nicht gespeicherte Änderungen"
+  },
+  "stati": {
+    "label": "Status",
+    "programmata": "Geplant",
+    "svolta": "Durchgeführt",
+    "rinviata": "Verschoben",
+    "annullata": "Annulliert"
+  },
+  "campi": {
+    "data": "Datum *",
+    "ora": "Uhrzeit",
+    "durata": "Dauer (Min.)",
+    "tipo": "Art der Verhandlung *",
+    "oggetto": "Gegenstand",
+    "sede": "Ort",
+    "note_preparazione": "Vorbereitungsnotizen",
+    "esito": "Ergebnis",
+    "data_rinvio": "Verschiebungsdatum *"
+  },
+  "tipo": {
+    "seleziona": "— Art auswählen —",
+    "altro": "+ Andere (angeben)",
+    "placeholder_libero": "Art der Verhandlung angeben...",
+    "btn_lista": "Liste",
+    "gruppi": {
+      "civile": "Zivil (ZPO)",
+      "penale": "Straf (StPO)",
+      "amministrativo": "Verwaltung / Betreibung",
+      "famiglia": "Familie / Schutz",
+      "arbitrato": "Schiedsverfahren / ADR"
+    },
+    "valori": {
+      "Udienza di conciliazione": "Schlichtungsverhandlung",
+      "Dibattimento principale": "Hauptverhandlung",
+      "Udienza istruttoria": "Instruktionsverhandlung",
+      "Interrogatorio delle parti": "Parteibefragung",
+      "Audizione testimoni": "Zeugeneinvernahme",
+      "Discussione finale": "Schlussvorträge",
+      "Procedura sommaria": "Summarisches Verfahren",
+      "Dibattimento di primo grado": "Hauptverhandlung erster Instanz",
+      "Udienza dibattimentale d'appello": "Berufungsverhandlung",
+      "Interrogatorio dell'imputato": "Einvernahme der beschuldigten Person",
+      "Audizione testimoni / periti": "Einvernahme von Zeugen / Sachverständigen",
+      "Convalida della carcerazione": "Haftprüfung",
+      "Procedura del decreto d'accusa": "Strafbefehlsverfahren",
+      "Comunicazione della sentenza": "Urteilseröffnung",
+      "Udienza pubblica": "Öffentliche Verhandlung",
+      "Deliberazione (camera di consiglio)": "Beratung (Beratungszimmer)",
+      "Udienza cautelare (misure provvisionali)": "Verhandlung über vorsorgliche Massnahmen",
+      "Pignoramento / esecuzione (LEF)": "Pfändung / Betreibung (SchKG)",
+      "Udienza fallimentare (LEF)": "Konkursverhandlung (SchKG)",
+      "Audizione delle parti": "Anhörung der Parteien",
+      "Audizione del minore": "Anhörung des Kindes",
+      "Misure a protezione dell'unione coniugale": "Eheschutzmassnahmen",
+      "Mediazione": "Mediation",
+      "Arbitrato": "Schiedsverfahren",
+      "Conciliazione": "Schlichtung"
+    }
+  },
+  "placeholder": {
+    "oggetto": "Z. B. Zeugeneinvernahme, Parteibefragung...",
+    "tribunale": "Gericht / Bezirksgericht (z. B. Lugano)",
+    "sezione": "Abteilung / Kammer",
+    "aula": "Saal",
+    "giudice": "Richter / Einzelrichter",
+    "note_preparazione": "Was zu sagen ist, mitzubringende Unterlagen, zu behandelnde Punkte...",
+    "esito": "Notizen zum Ergebnis, getroffene Entscheide, nächste Schritte..."
+  },
+  "rinvio": {
+    "suggerimento": "Hinweis: Erstellen Sie nach dem Speichern eine neue Verhandlung für das Verschiebungsdatum."
+  },
+  "errori": {
+    "data_obbligatoria": "Das Datum ist erforderlich",
+    "tipo_obbligatorio": "Wählen Sie eine Art der Verhandlung aus oder geben Sie eine an",
+    "data_rinvio_obbligatoria": "Geben Sie bei verschobenen Verhandlungen das Verschiebungsdatum an",
+    "sync_fallita": "Verhandlung gespeichert, aber Kalendersynchronisation fehlgeschlagen: {{messaggio}}"
+  },
+  "sync": {
+    "titolo_appuntamento": "Verhandlung — {{tipo}}",
+    "titolo_appuntamento_pratica": "Verhandlung — {{tipo}} ({{pratica}})",
+    "label_sede": "Ort: {{valore}}",
+    "label_giudice": "Richter: {{valore}}",
+    "label_oggetto": "Gegenstand: {{valore}}",
+    "label_note": "Notizen: {{valore}}"
+  },
+  "footer": {
+    "elimina": "Verhandlung löschen",
+    "annulla": "Abbrechen",
+    "salva": "Verhandlung speichern",
+    "salvataggio": "Wird gespeichert..."
+  },
+  "conferma_uscita": {
+    "titolo": "Nicht gespeicherte Änderungen",
+    "testo": "Sie haben Änderungen an dieser Verhandlung vorgenommen. Wenn Sie jetzt schliessen, gehen sie verloren.",
+    "btn_continua": "Weiter bearbeiten",
+    "btn_esci": "Ohne Speichern schliessen"
+  },
+  "conferma_elimina": {
+    "titolo": "Verhandlung löschen?",
+    "testo": "Die Verhandlung und der allenfalls verknüpfte Termin im Kalender werden gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "btn_annulla": "Abbrechen",
+    "btn_elimina": "Löschen"
+  }
+}

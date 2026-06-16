@@ -1,0 +1,44 @@
+{
+  "header": {
+    "label": "Account",
+    "title": "Il mio profilo"
+  },
+  "stato": {
+    "titolo": "Stato account",
+    "ruolo": "Ruolo",
+    "ruolo_user": "User",
+    "email": "Email",
+    "verifica": "Verifica identità",
+    "approvata": "Approvata",
+    "non_approvata": "Non approvata",
+    "in_corso": "In corso",
+    "non_inviata": "Non inviata",
+    "motivo_rifiuto": "Motivo del rifiuto"
+  },
+  "dati": {
+    "titolo": "Dati personali",
+    "salvato": "Salvato",
+    "nome": "Nome",
+    "cognome": "Cognome",
+    "telefono": "Telefono",
+    "telefono_placeholder": "+41 22 123 45 67",
+    "annulla": "Annulla",
+    "salvataggio": "Salvataggio…",
+    "salva": "Salva modifiche",
+    "lingua": "Lingua"
+  },
+  "password": {
+    "titolo": "Cambia password",
+    "aggiornata": "Password aggiornata",
+    "modifica": "Modifica password",
+    "nuova": "Nuova password",
+    "nuova_placeholder": "Minimo 8 caratteri",
+    "conferma": "Conferma password",
+    "conferma_placeholder": "Ripeti la nuova password",
+    "annulla": "Annulla",
+    "aggiornamento": "Aggiornamento…",
+    "aggiorna": "Aggiorna password",
+    "err_min": "Minimo 8 caratteri",
+    "err_mismatch": "Le password non corrispondono"
+  }
+}

@@ -13,12 +13,14 @@
 //   anno       (number|null)  - anno iniziale
 
 import { useState, useEffect } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import { Target, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { fmtCHF } from '@/lib/calcoloSalari'
 import { espandiPrevisto } from '@/lib/calcoloLiquidita'
 
 export default function BudgetScostamenti({ clienteId, mandatoId = null, anno = null, refreshTrigger = 0 }) {
+    const { t } = useTranslation('comp_fid_budget_scostamenti')
     const annoCorr = new Date().getFullYear()
     const [annoSel, setAnnoSel] = useState(anno ?? annoCorr)
     const [movimenti, setMovimenti] = useState([])
@@ -50,7 +52,7 @@ export default function BudgetScostamenti({ clienteId, mandatoId = null, anno = 
         const map = new Map()
         const get = (cat) => {
             const key = (cat ?? '').trim().toLowerCase() || '—'
-            if (!map.has(key)) map.set(key, { categoria: (cat ?? '').trim() || 'Senza categoria', previsto: 0, effettivo: 0 })
+            if (!map.has(key)) map.set(key, { categoria: (cat ?? '').trim() || t('categoria.senza_categoria'), previsto: 0, effettivo: 0 })
             return map.get(key)
         }
         for (const m of movimenti) {
@@ -83,10 +85,10 @@ export default function BudgetScostamenti({ clienteId, mandatoId = null, anno = 
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-2">
                     <Target size={15} className="text-oro/60" />
-                    <h2 className="font-display text-lg text-nebbia">Budget e scostamenti</h2>
+                    <h2 className="font-display text-lg text-nebbia">{t('titolo')}</h2>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">Anno</span>
+                    <span className="font-body text-[10px] text-nebbia/30 uppercase tracking-widest">{t('anno')}</span>
                     <select value={annoSel} onChange={e => setAnnoSel(Number(e.target.value))}
                         className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-2.5 py-1.5 outline-none focus:border-oro/50">
                         {anniDisponibili.map(a => <option key={a} value={a}>{a}</option>)}
@@ -96,7 +98,8 @@ export default function BudgetScostamenti({ clienteId, mandatoId = null, anno = 
 
             {tabellaMancante && (
                 <div className="flex items-center gap-2 text-amber-400 text-xs font-body p-3 bg-amber-900/10 border border-amber-500/20">
-                    <AlertCircle size={14} className="shrink-0" /> Tabella <code className="font-mono">movimenti</code> non disponibile.
+                    <AlertCircle size={14} className="shrink-0" />{' '}
+                    <Trans i18nKey="tabella_mancante" t={t} components={{ code: <code className="font-mono" /> }} />
                 </div>
             )}
 
@@ -107,16 +110,16 @@ export default function BudgetScostamenti({ clienteId, mandatoId = null, anno = 
             ) : !haPrevisti ? (
                 <div className="bg-petrolio/40 border border-white/5 p-8 text-center flex flex-col items-center justify-center min-h-[200px]">
                     <Target size={26} className="text-nebbia/15 mx-auto mb-3" />
-                    <p className="font-body text-sm text-nebbia/40">Nessun budget impostato per il {annoSel}.</p>
+                    <p className="font-body text-sm text-nebbia/40">{t('vuoto.titolo', { anno: annoSel })}</p>
                     <p className="font-body text-xs text-nebbia/25 mt-1">
-                        Inserisci movimenti <span className="text-nebbia/40">previsti</span> (toggle “Previsto” in Entrate e uscite): diventano il budget da confrontare con l'effettivo.
+                        <Trans i18nKey="vuoto.descrizione" t={t} components={{ evid: <span className="text-nebbia/40" /> }} />
                     </p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 gap-5">
                     {/* lg: affiancate (full width) · xl: impilate (mezza larghezza, evita 4 colonnine) */}
-                    <SezioneBudget titolo="Entrate" tipo="entrata" righe={righeEntrate} />
-                    <SezioneBudget titolo="Uscite" tipo="uscita" righe={righeUscite} />
+                    <SezioneBudget titolo={t('sezione.entrate')} tipo="entrata" righe={righeEntrate} />
+                    <SezioneBudget titolo={t('sezione.uscite')} tipo="uscita" righe={righeUscite} />
                 </div>
             )}
         </div>
@@ -130,6 +133,7 @@ function scostClass(tipo, scost) {
 }
 
 function SezioneBudget({ titolo, tipo, righe }) {
+    const { t } = useTranslation('comp_fid_budget_scostamenti')
     const eEntrata = tipo === 'entrata'
     const totPrev = righe.reduce((t, r) => t + r.previsto, 0)
     const totEff = righe.reduce((t, r) => t + r.effettivo, 0)
@@ -144,14 +148,14 @@ function SezioneBudget({ titolo, tipo, righe }) {
 
             {righe.length === 0 ? (
                 <div className="bg-petrolio/40 border border-white/5 p-6 text-center font-body text-xs text-nebbia/30">
-                    Nessun movimento {eEntrata ? "d'entrata" : 'di costo'} per l'anno.
+                    {eEntrata ? t('sezione.vuoto_entrate') : t('sezione.vuoto_uscite')}
                 </div>
             ) : (
                 <div className="border border-white/5 overflow-x-auto">
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/5">
-                                {['Categoria', 'Previsto', 'Effettivo', 'Δ'].map((h, i) => (
+                                {t('colonne', { returnObjects: true }).map((h, i) => (
                                     <th key={h} className={`px-3 py-2 font-body text-[10px] font-medium text-nebbia/30 tracking-widest uppercase ${i === 0 ? 'text-left' : 'text-right'}`}>{h}</th>
                                 ))}
                             </tr>
@@ -174,7 +178,7 @@ function SezioneBudget({ titolo, tipo, righe }) {
                         </tbody>
                         <tfoot>
                             <tr className="border-t border-white/10 bg-petrolio/40">
-                                <td className="px-3 py-2 font-body text-[11px] text-nebbia/50 uppercase tracking-widest">Totale</td>
+                                <td className="px-3 py-2 font-body text-[11px] text-nebbia/50 uppercase tracking-widest">{t('totale')}</td>
                                 <td className="px-3 py-2 text-right font-display text-sm text-nebbia/70">{fmtCHF(totPrev)}</td>
                                 <td className="px-3 py-2 text-right font-display text-sm text-nebbia">{fmtCHF(totEff)}</td>
                                 <td className={`px-3 py-2 text-right font-display text-sm ${scostClass(tipo, totScost)}`}>

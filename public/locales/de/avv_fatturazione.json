@@ -1,0 +1,106 @@
+{
+  "stati": {
+    "pagata": "Bezahlt",
+    "in_attesa": "Ausstehend",
+    "scaduta": "Überfällig",
+    "annullata": "Storniert"
+  },
+  "header": {
+    "label": "Fakturierung",
+    "titolo": "Rechnungen der Kanzlei",
+    "sottotitolo": "{{count}} Rechnungen insgesamt",
+    "sottotitolo_one": "{{count}} Rechnung insgesamt",
+    "nuova_fattura": "Neue Rechnung"
+  },
+  "tabs": {
+    "panoramica": "Übersicht",
+    "fatture": "Rechnungen",
+    "scadenzario": "Fälligkeitsplan"
+  },
+  "panoramica": {
+    "kpi": {
+      "fatturato": "Umsatz {{anno}}",
+      "incassato": "Eingegangen {{anno}}",
+      "da_incassare": "Ausstehend",
+      "scaduto": "Überfällig",
+      "num_fatture": "{{count}} Rechnungen",
+      "num_fatture_one": "{{count}} Rechnung",
+      "perc_fatturato": "{{perc}}% des Umsatzes",
+      "non_scadute": "nicht überfällig",
+      "richiede_attenzione": "erfordert Aufmerksamkeit"
+    },
+    "grafico": {
+      "titolo": "Letzte 12 Monate",
+      "sottotitolo": "Ausgestellt vs. eingegangen pro Monat",
+      "emesso": "Ausgestellt",
+      "incassato": "Eingegangen",
+      "tooltip_emesso": "Ausgestellt: CHF {{valore}}",
+      "tooltip_incassato": "Eingegangen: CHF {{valore}}"
+    },
+    "top_clienti": {
+      "titolo": "Top-Kunden {{anno}}",
+      "vuoto": "Dieses Jahr wurde noch kein Kunde fakturiert",
+      "num_fatt": "{{count}} Rg.",
+      "num_fatt_one": "{{count}} Rg."
+    },
+    "urgenti": {
+      "titolo": "Fällig (7 Tage)",
+      "vuoto": "Alles in Ordnung",
+      "scaduta_da": "Vor {{giorni}} T. überfällig",
+      "oggi": "Heute",
+      "tra": "In {{giorni}} T."
+    }
+  },
+  "fatture": {
+    "ricerca_help": "Durchsuchen Sie die Rechnungen nach Nummer, Kunde oder Beschreibung. Nutzen Sie Lex für Fragen in natürlicher Sprache wie \"überfällige Rechnungen von Geschäftskunden\" oder \"wie viel habe ich dieses Jahr von Rossi erhalten\".",
+    "ricerca_placeholder": "Suchen oder Lex fragen...",
+    "cerca": "Suchen",
+    "cerca_con_lex": "Mit Lex suchen",
+    "lex_cercando": "Lex sucht...",
+    "lex": "Lex",
+    "errore_lex": "Lex-Fehler",
+    "analisi_lex": "Lex-Analyse",
+    "risultato": "<b>{{count}}</b> Ergebnis für \"{{query}}\"",
+    "risultati": "<b>{{count}}</b> Ergebnisse für \"{{query}}\"",
+    "azzera": "Zurücksetzen",
+    "elimina_fattura": "Rechnung löschen",
+    "filtri": {
+      "label": "Filter",
+      "tutti_stati": "Alle Status",
+      "in_attesa": "Ausstehend",
+      "pagate": "Bezahlt",
+      "scadute": "Überfällig",
+      "annullate": "Storniert",
+      "tutti_clienti": "Alle Kunden",
+      "tutti_anni": "Alle Jahre",
+      "da": "Von",
+      "a": "Bis",
+      "reset": "Filter zurücksetzen"
+    },
+    "tabella": {
+      "numero": "Nummer",
+      "cliente": "Kunde",
+      "pratica": "Dossier",
+      "totale": "Total",
+      "emessa_il": "Ausgestellt am",
+      "scadenza": "Fälligkeit",
+      "stato": "Status",
+      "pagata_il": "Bezahlt {{data}}",
+      "vuoto_nessuna": "Noch keine Rechnung. Erstellen Sie die erste.",
+      "vuoto_filtri": "Keine Rechnung gefunden"
+    }
+  },
+  "scadenzario": {
+    "vuoto_titolo": "Keine Fälligkeiten",
+    "vuoto_desc": "Sie haben keine ausstehenden Rechnungen mit gesetzter Fälligkeit",
+    "sez_scadute": "Überfällig",
+    "sez_7giorni": "Fällig (7 Tage)",
+    "sez_30giorni": "Demnächst (30 Tage)",
+    "sez_oltre": "Über 30 Tage",
+    "conteggio": "{{count}} Rechnungen",
+    "conteggio_one": "{{count}} Rechnung",
+    "giorni_fa": "vor {{giorni}} T.",
+    "oggi": "Heute",
+    "tra": "in {{giorni}} T."
+  }
+}

@@ -18,6 +18,7 @@
 //   onSaved()                            - callback dopo il salvataggio
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, TrendingUp, TrendingDown, Loader2, AlertCircle, Paperclip } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { contabilizzaMovimento } from '@/lib/generaScrittura'
@@ -42,6 +43,7 @@ async function contabilizzaSeMappato(mov, user, studioId) {
 }
 
 export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId = null, movimento = null, valoriIniziali = null, onClose, onSaved }) {
+    const { t } = useTranslation('comp_fid_form_movimento')
     const modifica = !!movimento
     const vi = valoriIniziali ?? {}
 
@@ -109,7 +111,7 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
 
     async function salva() {
         if (!puoSalvare) {
-            setErrore('Compila descrizione, importo e data.')
+            setErrore(t('errori.campi_obbligatori'))
             return
         }
         setSalvando(true)
@@ -117,7 +119,7 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-            setErrore('Sessione scaduta. Effettua nuovamente il login.')
+            setErrore(t('errori.sessione_scaduta'))
             setSalvando(false)
             return
         }
@@ -206,12 +208,12 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
                             : <TrendingDown size={16} className="text-oro" />}
                         <div>
                             <p className="font-display text-lg text-nebbia">
-                                {modifica ? 'Modifica movimento'
-                                    : ePrevisto ? (eEntrata ? 'Entrata prevista' : 'Costo previsto')
-                                    : (eEntrata ? 'Nuova entrata' : 'Nuovo costo')}
+                                {modifica ? t('header.modifica_movimento')
+                                    : ePrevisto ? (eEntrata ? t('header.entrata_prevista') : t('header.costo_previsto'))
+                                    : (eEntrata ? t('header.nuova_entrata') : t('header.nuovo_costo'))}
                             </p>
                             <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                L'importo entra nei contatori del {mandatoId ? 'mandato' : 'cliente'}
+                                {mandatoId ? t('header.sottotitolo_mandato') : t('header.sottotitolo_cliente')}
                             </p>
                         </div>
                     </div>
@@ -226,8 +228,8 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
                     {/* Toggle tipo */}
                     <div className="grid grid-cols-2 gap-2">
                         {[
-                            { v: 'entrata', label: 'Entrata', Icona: TrendingUp, attivoCls: 'bg-salvia/15 border-salvia/40 text-salvia' },
-                            { v: 'uscita', label: 'Uscita', Icona: TrendingDown, attivoCls: 'bg-oro/15 border-oro/40 text-oro' },
+                            { v: 'entrata', label: t('tipo.entrata'), Icona: TrendingUp, attivoCls: 'bg-salvia/15 border-salvia/40 text-salvia' },
+                            { v: 'uscita', label: t('tipo.uscita'), Icona: TrendingDown, attivoCls: 'bg-oro/15 border-oro/40 text-oro' },
                         ].map(({ v, label, Icona, attivoCls }) => (
                             <button key={v} type="button" onClick={() => setTipoSel(v)}
                                 className={`flex items-center justify-center gap-2 px-3 py-2.5 border font-body text-sm transition-colors ${tipoSel === v ? attivoCls : 'border-white/10 text-nebbia/40 hover:text-nebbia/70'}`}>
@@ -239,8 +241,8 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
                     {/* Toggle stato: effettivo (avvenuto) vs previsto (pianificato) */}
                     <div className="grid grid-cols-2 gap-2">
                         {[
-                            { v: 'effettivo', label: 'Effettivo', hint: 'già avvenuto' },
-                            { v: 'previsto', label: 'Previsto', hint: 'pianificato / budget' },
+                            { v: 'effettivo', label: t('stato.effettivo_label'), hint: t('stato.effettivo_hint') },
+                            { v: 'previsto', label: t('stato.previsto_label'), hint: t('stato.previsto_hint') },
                         ].map(({ v, label, hint }) => (
                             <button key={v} type="button" onClick={() => setStato(v)}
                                 className={`flex flex-col items-center justify-center px-3 py-1.5 border font-body text-sm transition-colors ${stato === v ? 'bg-oro/15 border-oro/40 text-oro' : 'border-white/10 text-nebbia/40 hover:text-nebbia/70'}`}>
@@ -251,11 +253,11 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
                     </div>
 
                     <div>
-                        <label className={labelCls}>Descrizione *</label>
+                        <label className={labelCls}>{t('campi.descrizione_label')}</label>
                         <input
                             value={descrizione}
                             onChange={e => setDescrizione(e.target.value)}
-                            placeholder={eEntrata ? 'es. Fattura cliente Rossi SA' : 'es. Affitto ufficio, fornitore...'}
+                            placeholder={eEntrata ? t('campi.descrizione_ph_entrata') : t('campi.descrizione_ph_uscita')}
                             className={inputCls}
                             autoFocus
                         />
@@ -263,7 +265,7 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className={labelCls}>Importo (CHF) *</label>
+                            <label className={labelCls}>{t('campi.importo_label')}</label>
                             <input
                                 value={importo}
                                 onChange={e => setImporto(e.target.value)}
@@ -273,7 +275,7 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
                             />
                         </div>
                         <div>
-                            <label className={labelCls}>{ePrevisto ? 'Data prevista *' : 'Data *'}</label>
+                            <label className={labelCls}>{ePrevisto ? t('campi.data_prevista_label') : t('campi.data_label')}</label>
                             <input
                                 type="date"
                                 value={data}
@@ -287,17 +289,17 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
                     {ePrevisto && (
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className={labelCls}>Ricorrenza</label>
+                                <label className={labelCls}>{t('ricorrenza.label')}</label>
                                 <select value={ricorrenza} onChange={e => setRicorrenza(e.target.value)} className={inputCls}>
-                                    <option value="una_tantum">Una tantum</option>
-                                    <option value="mensile">Mensile</option>
-                                    <option value="trimestrale">Trimestrale</option>
-                                    <option value="annuale">Annuale</option>
+                                    <option value="una_tantum">{t('ricorrenza.una_tantum')}</option>
+                                    <option value="mensile">{t('ricorrenza.mensile')}</option>
+                                    <option value="trimestrale">{t('ricorrenza.trimestrale')}</option>
+                                    <option value="annuale">{t('ricorrenza.annuale')}</option>
                                 </select>
                             </div>
                             {ricorrenza !== 'una_tantum' && (
                                 <div>
-                                    <label className={labelCls}>Fine <span className="text-nebbia/25 normal-case tracking-normal">(opz.)</span></label>
+                                    <label className={labelCls}>{t('ricorrenza.fine_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('ricorrenza.fine_opz')}</span></label>
                                     <input type="date" value={ricorrenzaFine} onChange={e => setRicorrenzaFine(e.target.value)} className={inputCls} />
                                 </div>
                             )}
@@ -305,11 +307,11 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
                     )}
 
                     <div>
-                        <label className={labelCls}>Categoria <span className="text-nebbia/25 normal-case tracking-normal">(opzionale)</span></label>
+                        <label className={labelCls}>{t('categoria.label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('categoria.opzionale')}</span></label>
                         <input
                             value={categoria}
                             onChange={e => setCategoria(e.target.value)}
-                            placeholder={eEntrata ? 'es. Vendite, Consulenze...' : 'es. Affitto, Fornitori, Utenze...'}
+                            placeholder={eEntrata ? t('categoria.ph_entrata') : t('categoria.ph_uscita')}
                             className={inputCls}
                             list="categorie-movimento"
                         />
@@ -320,21 +322,21 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
 
                     <div>
                         <label className={labelCls}>
-                            <span className="inline-flex items-center gap-1.5"><Paperclip size={11} /> Documento di supporto</span>
-                            <span className="text-nebbia/25 normal-case tracking-normal ml-1">(opzionale)</span>
+                            <span className="inline-flex items-center gap-1.5"><Paperclip size={11} /> {t('documento.label')}</span>
+                            <span className="text-nebbia/25 normal-case tracking-normal ml-1">{t('documento.opzionale')}</span>
                         </label>
                         <select
                             value={documentoId}
                             onChange={e => setDocumentoId(e.target.value)}
                             className={inputCls}
                         >
-                            <option value="">Nessun documento collegato</option>
+                            <option value="">{t('documento.nessuno')}</option>
                             {documenti.map(d => (
                                 <option key={d.id} value={d.id}>{d.titolo}</option>
                             ))}
                         </select>
                         <p className="font-body text-xs text-nebbia/30 mt-1.5">
-                            I documenti si caricano dall'archivio. Qui scegli quale collegare a questo movimento.
+                            {t('documento.hint')}
                         </p>
                     </div>
 
@@ -349,13 +351,13 @@ export default function FormMovimento({ tipo = 'entrata', clienteId, mandatoId =
                 <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/5 shrink-0">
                     <button onClick={onClose} disabled={salvando}
                         className="font-body text-sm text-nebbia/60 hover:text-nebbia px-4 py-2 transition-colors disabled:opacity-40">
-                        Annulla
+                        {t('footer.annulla')}
                     </button>
                     <button onClick={salva} disabled={!puoSalvare || salvando}
                         className="flex items-center gap-2 px-5 py-2 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                         {salvando
-                            ? <><Loader2 size={14} className="animate-spin" /> Salvataggio...</>
-                            : (modifica ? 'Salva modifiche' : 'Registra')}
+                            ? <><Loader2 size={14} className="animate-spin" /> {t('footer.salvataggio')}</>
+                            : (modifica ? t('footer.salva_modifiche') : t('footer.registra'))}
                     </button>
                 </div>
             </div>

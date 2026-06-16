@@ -7,56 +7,75 @@
 // Date di visualizzazione: il file usa slice ISO, neutro.
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import {
     X, Save, Calendar, MapPin, User as UserIcon, Gavel,
     AlertCircle, Loader2, Trash2, FileText
 } from 'lucide-react'
 
-// Tipi udienza raggruppati per area — terminologia federale CH (CPC/CPP)
-const TIPI_UDIENZA = {
-    'Civile (CPC)': [
-        'Udienza di conciliazione',
-        'Dibattimento principale',
-        'Udienza istruttoria',
-        'Interrogatorio delle parti',
-        'Audizione testimoni',
-        'Discussione finale',
-        'Procedura sommaria',
-    ],
-    'Penale (CPP)': [
-        'Dibattimento di primo grado',
-        'Udienza dibattimentale d\'appello',
-        'Interrogatorio dell\'imputato',
-        'Audizione testimoni / periti',
-        'Convalida della carcerazione',
-        'Procedura del decreto d\'accusa',
-        'Comunicazione della sentenza',
-    ],
-    'Amministrativo / Esecuzioni': [
-        'Udienza pubblica',
-        'Deliberazione (camera di consiglio)',
-        'Udienza cautelare (misure provvisionali)',
-        'Pignoramento / esecuzione (LEF)',
-        'Udienza fallimentare (LEF)',
-    ],
-    'Famiglia / Protezione': [
-        'Audizione delle parti',
-        'Audizione del minore',
-        'Misure a protezione dell\'unione coniugale',
-    ],
-    'Arbitrato / ADR': [
-        'Mediazione',
-        'Arbitrato',
-        'Conciliazione',
-    ],
-}
+// Tipi udienza raggruppati per area — terminologia federale CH (CPC/CPP).
+// Le chiavi di gruppo (gruppoKey) servono solo per la label tradotta;
+// i value restano i termini canonici salvati su DB (colonna `tipo`).
+const TIPI_UDIENZA = [
+    {
+        gruppoKey: 'civile',
+        tipi: [
+            'Udienza di conciliazione',
+            'Dibattimento principale',
+            'Udienza istruttoria',
+            'Interrogatorio delle parti',
+            'Audizione testimoni',
+            'Discussione finale',
+            'Procedura sommaria',
+        ],
+    },
+    {
+        gruppoKey: 'penale',
+        tipi: [
+            'Dibattimento di primo grado',
+            'Udienza dibattimentale d\'appello',
+            'Interrogatorio dell\'imputato',
+            'Audizione testimoni / periti',
+            'Convalida della carcerazione',
+            'Procedura del decreto d\'accusa',
+            'Comunicazione della sentenza',
+        ],
+    },
+    {
+        gruppoKey: 'amministrativo',
+        tipi: [
+            'Udienza pubblica',
+            'Deliberazione (camera di consiglio)',
+            'Udienza cautelare (misure provvisionali)',
+            'Pignoramento / esecuzione (LEF)',
+            'Udienza fallimentare (LEF)',
+        ],
+    },
+    {
+        gruppoKey: 'famiglia',
+        tipi: [
+            'Audizione delle parti',
+            'Audizione del minore',
+            'Misure a protezione dell\'unione coniugale',
+        ],
+    },
+    {
+        gruppoKey: 'arbitrato',
+        tipi: [
+            'Mediazione',
+            'Arbitrato',
+            'Conciliazione',
+        ],
+    },
+]
 
+// Stati udienza — il value è il valore enum salvato su DB; la label è tradotta via i18nKey
 const STATI = [
-    { value: 'programmata', label: 'Programmata', color: 'salvia' },
-    { value: 'svolta', label: 'Svolta', color: 'oro' },
-    { value: 'rinviata', label: 'Rinviata', color: 'amber' },
-    { value: 'annullata', label: 'Annullata', color: 'red' },
+    { value: 'programmata', i18nKey: 'programmata', color: 'salvia' },
+    { value: 'svolta', i18nKey: 'svolta', color: 'oro' },
+    { value: 'rinviata', i18nKey: 'rinviata', color: 'amber' },
+    { value: 'annullata', i18nKey: 'annullata', color: 'red' },
 ]
 
 const STATO_COLORS = {
@@ -82,7 +101,11 @@ export default function UdienzaModal({
     praticaId, praticaTitolo, clienteId,
     udienza, onClose, onSaved, onDeleted,
 }) {
+    const { t } = useTranslation('comp_udienza_modal')
     const isNew = !udienza?.id
+
+    // Etichetta tradotta per un tipo udienza (value canonico salvato su DB)
+    const tipoLabel = (val) => t(`tipo.valori.${val}`, { defaultValue: val })
 
     // ── Stato form ──
     const [form, setForm] = useState({
@@ -103,7 +126,7 @@ export default function UdienzaModal({
     })
 
     // Se il tipo esistente non è nella lista predefinita, è "Altro"
-    const tipiTutti = Object.values(TIPI_UDIENZA).flat()
+    const tipiTutti = TIPI_UDIENZA.flatMap(g => g.tipi)
     const tipoEAltro = udienza?.tipo && !tipiTutti.includes(udienza.tipo)
 
     const [usaTipoLibero, setUsaTipoLibero] = useState(tipoEAltro)
@@ -150,11 +173,11 @@ export default function UdienzaModal({
         setErrore('')
 
         // Validazioni base
-        if (!form.data) return setErrore('La data è obbligatoria')
+        if (!form.data) return setErrore(t('errori.data_obbligatoria'))
         const tipoFinale = usaTipoLibero ? form.tipo_libero.trim() : form.tipo
-        if (!tipoFinale) return setErrore('Seleziona o specifica un tipo di udienza')
+        if (!tipoFinale) return setErrore(t('errori.tipo_obbligatorio'))
         if (form.stato === 'rinviata' && !form.data_rinvio) {
-            return setErrore('Per le udienze rinviate, indica la data di rinvio')
+            return setErrore(t('errori.data_rinvio_obbligatoria'))
         }
 
         setSalvando(true)
@@ -206,16 +229,19 @@ export default function UdienzaModal({
             // Solo se stato = programmata (non sincronizziamo annullate/svolte)
             if (form.stato === 'programmata') {
                 const fineCalc = new Date(dataOra.getTime() + (parseInt(form.durata_minuti) || 120) * 60000)
-                const titoloApp = `Udienza — ${tipoFinale}${praticaTitolo ? ` (${praticaTitolo})` : ''}`
+                const tipoLabelApp = tipoLabel(tipoFinale)
+                const titoloApp = praticaTitolo
+                    ? t('sync.titolo_appuntamento_pratica', { tipo: tipoLabelApp, pratica: praticaTitolo })
+                    : t('sync.titolo_appuntamento', { tipo: tipoLabelApp })
 
                 // Mappa i campi udienza → appuntamento
                 // (appuntamenti ha note_interne, non "luogo"/"note")
                 const sede = [form.tribunale, form.sezione, form.aula].filter(Boolean).join(' - ')
                 const noteInterneApp = [
-                    sede ? `Sede: ${sede}` : null,
-                    form.giudice ? `Giudice: ${form.giudice}` : null,
-                    form.oggetto ? `Oggetto: ${form.oggetto}` : null,
-                    form.note_preparazione ? `Note: ${form.note_preparazione}` : null,
+                    sede ? t('sync.label_sede', { valore: sede }) : null,
+                    form.giudice ? t('sync.label_giudice', { valore: form.giudice }) : null,
+                    form.oggetto ? t('sync.label_oggetto', { valore: form.oggetto }) : null,
+                    form.note_preparazione ? t('sync.label_note', { valore: form.note_preparazione }) : null,
                 ].filter(Boolean).join('\n')
 
                 const appPayload = {
@@ -237,7 +263,7 @@ export default function UdienzaModal({
                         .eq('id', appuntamentoId)
                     if (errUpd) {
                         console.error('Errore sync appuntamento (update):', errUpd.message)
-                        throw new Error(`Udienza salvata ma sync calendario fallita: ${errUpd.message}`)
+                        throw new Error(t('errori.sync_fallita', { messaggio: errUpd.message }))
                     }
                 } else {
                     const { data: newApp, error: errIns } = await supabase
@@ -247,7 +273,7 @@ export default function UdienzaModal({
                         .single()
                     if (errIns) {
                         console.error('Errore sync appuntamento (insert):', errIns.message)
-                        throw new Error(`Udienza salvata ma sync calendario fallita: ${errIns.message}`)
+                        throw new Error(t('errori.sync_fallita', { messaggio: errIns.message }))
                     }
                     if (newApp) {
                         appuntamentoId = newApp.id
@@ -301,11 +327,11 @@ export default function UdienzaModal({
                     <div className="flex items-center gap-3">
                         <Gavel size={16} className="text-oro" />
                         <p className="font-display text-lg font-medium text-nebbia">
-                            {isNew ? 'Nuova udienza' : 'Modifica udienza'}
+                            {isNew ? t('header.titolo_nuova') : t('header.titolo_modifica')}
                         </p>
                         {dirty && (
                             <span className="font-body text-xs text-amber-400 border border-amber-500/30 px-2 py-0.5">
-                                Modifiche non salvate
+                                {t('header.badge_non_salvate')}
                             </span>
                         )}
                     </div>
@@ -319,7 +345,7 @@ export default function UdienzaModal({
 
                     {/* Stato udienza */}
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Stato</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('stati.label')}</label>
                         <div className="flex flex-wrap gap-2">
                             {STATI.map(s => (
                                 <button
@@ -331,7 +357,7 @@ export default function UdienzaModal({
                                         : 'border-white/10 text-nebbia/40 hover:border-white/20 hover:text-nebbia/60'
                                         }`}
                                 >
-                                    {s.label}
+                                    {t(`stati.${s.i18nKey}`)}
                                 </button>
                             ))}
                         </div>
@@ -340,7 +366,7 @@ export default function UdienzaModal({
                     {/* Data + ora + durata */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Data *</label>
+                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('campi.data')}</label>
                             <input
                                 type="date"
                                 value={form.data}
@@ -349,7 +375,7 @@ export default function UdienzaModal({
                             />
                         </div>
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Ora</label>
+                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('campi.ora')}</label>
                             <input
                                 type="time"
                                 value={form.ora}
@@ -358,7 +384,7 @@ export default function UdienzaModal({
                             />
                         </div>
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Durata (min)</label>
+                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('campi.durata')}</label>
                             <input
                                 type="number"
                                 min="15"
@@ -372,7 +398,7 @@ export default function UdienzaModal({
 
                     {/* Tipo udienza */}
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Tipo udienza *</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('campi.tipo')}</label>
                         {!usaTipoLibero ? (
                             <select
                                 value={form.tipo}
@@ -386,13 +412,13 @@ export default function UdienzaModal({
                                 }}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
                             >
-                                <option value="">— Seleziona tipo —</option>
-                                {Object.entries(TIPI_UDIENZA).map(([gruppo, tipi]) => (
-                                    <optgroup key={gruppo} label={gruppo}>
-                                        {tipi.map(t => <option key={t} value={t}>{t}</option>)}
+                                <option value="">{t('tipo.seleziona')}</option>
+                                {TIPI_UDIENZA.map(({ gruppoKey, tipi }) => (
+                                    <optgroup key={gruppoKey} label={t(`tipo.gruppi.${gruppoKey}`)}>
+                                        {tipi.map(tv => <option key={tv} value={tv}>{tipoLabel(tv)}</option>)}
                                     </optgroup>
                                 ))}
-                                <option value="__altro__">+ Altro (specifica)</option>
+                                <option value="__altro__">{t('tipo.altro')}</option>
                             </select>
                         ) : (
                             <div className="flex gap-2">
@@ -400,14 +426,14 @@ export default function UdienzaModal({
                                     type="text"
                                     value={form.tipo_libero}
                                     onChange={e => aggiorna('tipo_libero', e.target.value)}
-                                    placeholder="Specifica tipo udienza..."
+                                    placeholder={t('tipo.placeholder_libero')}
                                     className="flex-1 bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                                 />
                                 <button
                                     onClick={() => { setUsaTipoLibero(false); aggiorna('tipo_libero', '') }}
                                     className="px-3 py-2 border border-white/10 text-nebbia/40 font-body text-xs hover:text-nebbia transition-colors"
                                 >
-                                    Lista
+                                    {t('tipo.btn_lista')}
                                 </button>
                             </div>
                         )}
@@ -415,12 +441,12 @@ export default function UdienzaModal({
 
                     {/* Oggetto */}
                     <div>
-                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Oggetto</label>
+                        <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('campi.oggetto')}</label>
                         <input
                             type="text"
                             value={form.oggetto}
                             onChange={e => aggiorna('oggetto', e.target.value)}
-                            placeholder="Es. Audizione testimoni, interrogatorio delle parti..."
+                            placeholder={t('placeholder.oggetto')}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                         />
                     </div>
@@ -428,35 +454,35 @@ export default function UdienzaModal({
                     {/* Sede - tribunale + sezione + aula + giudice */}
                     <div>
                         <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                            <MapPin size={11} /> Sede
+                            <MapPin size={11} /> {t('campi.sede')}
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <input
                                 type="text"
                                 value={form.tribunale}
                                 onChange={e => aggiorna('tribunale', e.target.value)}
-                                placeholder="Tribunale / Pretura (es. Lugano)"
+                                placeholder={t('placeholder.tribunale')}
                                 className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                             <input
                                 type="text"
                                 value={form.sezione}
                                 onChange={e => aggiorna('sezione', e.target.value)}
-                                placeholder="Sezione / Camera"
+                                placeholder={t('placeholder.sezione')}
                                 className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                             <input
                                 type="text"
                                 value={form.aula}
                                 onChange={e => aggiorna('aula', e.target.value)}
-                                placeholder="Aula"
+                                placeholder={t('placeholder.aula')}
                                 className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                             <input
                                 type="text"
                                 value={form.giudice}
                                 onChange={e => aggiorna('giudice', e.target.value)}
-                                placeholder="Giudice / Pretore"
+                                placeholder={t('placeholder.giudice')}
                                 className="bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                         </div>
@@ -465,13 +491,13 @@ export default function UdienzaModal({
                     {/* Note preparazione */}
                     <div>
                         <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                            <FileText size={11} /> Note preparazione
+                            <FileText size={11} /> {t('campi.note_preparazione')}
                         </label>
                         <textarea
                             rows={3}
                             value={form.note_preparazione}
                             onChange={e => aggiorna('note_preparazione', e.target.value)}
-                            placeholder="Cosa dire, documenti da portare, punti da affrontare..."
+                            placeholder={t('placeholder.note_preparazione')}
                             className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
                         />
                     </div>
@@ -479,12 +505,12 @@ export default function UdienzaModal({
                     {/* Esito (solo se stato != programmata) */}
                     {form.stato !== 'programmata' && (
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Esito</label>
+                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('campi.esito')}</label>
                             <textarea
                                 rows={3}
                                 value={form.esito}
                                 onChange={e => aggiorna('esito', e.target.value)}
-                                placeholder="Note sull'esito, decisioni assunte, prossimi passi..."
+                                placeholder={t('placeholder.esito')}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
                             />
                         </div>
@@ -493,7 +519,7 @@ export default function UdienzaModal({
                     {/* Data di rinvio (solo se stato = rinviata) */}
                     {form.stato === 'rinviata' && (
                         <div>
-                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">Data di rinvio *</label>
+                            <label className="block font-body text-xs text-nebbia/40 uppercase tracking-widest mb-2">{t('campi.data_rinvio')}</label>
                             <input
                                 type="date"
                                 value={form.data_rinvio}
@@ -501,7 +527,7 @@ export default function UdienzaModal({
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50"
                             />
                             <p className="font-body text-xs text-nebbia/30 mt-2">
-                                Suggerimento: dopo aver salvato, crea una nuova udienza per la data di rinvio.
+                                {t('rinvio.suggerimento')}
                             </p>
                         </div>
                     )}
@@ -521,7 +547,7 @@ export default function UdienzaModal({
                             onClick={() => setConfermaElimina(true)}
                             className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors"
                         >
-                            <Trash2 size={11} /> Elimina udienza
+                            <Trash2 size={11} /> {t('footer.elimina')}
                         </button>
                     ) : <div />}
 
@@ -530,7 +556,7 @@ export default function UdienzaModal({
                             onClick={tentativoChiusura}
                             className="px-4 py-2 border border-white/10 text-nebbia/50 font-body text-sm hover:text-nebbia transition-colors"
                         >
-                            Annulla
+                            {t('footer.annulla')}
                         </button>
                         <button
                             onClick={salva}
@@ -538,8 +564,8 @@ export default function UdienzaModal({
                             className="flex items-center gap-2 px-4 py-2 bg-oro text-petrolio font-body text-sm hover:bg-oro/90 transition-colors disabled:opacity-40"
                         >
                             {salvando
-                                ? <><Loader2 size={13} className="animate-spin" /> Salvataggio...</>
-                                : <><Save size={13} /> Salva udienza</>
+                                ? <><Loader2 size={13} className="animate-spin" /> {t('footer.salvataggio')}</>
+                                : <><Save size={13} /> {t('footer.salva')}</>
                             }
                         </button>
                     </div>
@@ -554,19 +580,19 @@ export default function UdienzaModal({
                         onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-3">
                             <AlertCircle size={18} className="text-amber-400 shrink-0" />
-                            <p className="font-display text-base font-semibold text-nebbia">Modifiche non salvate</p>
+                            <p className="font-display text-base font-semibold text-nebbia">{t('conferma_uscita.titolo')}</p>
                         </div>
                         <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                            Hai apportato modifiche a questa udienza. Se esci ora le perderai.
+                            {t('conferma_uscita.testo')}
                         </p>
                         <div className="flex gap-2">
                             <button onClick={() => setConfermaUscita(false)}
                                 className="flex-1 px-4 py-2 border border-white/10 text-nebbia/60 font-body text-sm hover:text-nebbia transition-colors">
-                                Continua a modificare
+                                {t('conferma_uscita.btn_continua')}
                             </button>
                             <button onClick={() => { setConfermaUscita(false); onClose() }}
                                 className="flex-1 px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 font-body text-sm hover:bg-red-500/20 transition-colors">
-                                Esci senza salvare
+                                {t('conferma_uscita.btn_esci')}
                             </button>
                         </div>
                     </div>
@@ -581,15 +607,15 @@ export default function UdienzaModal({
                         onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-3">
                             <Trash2 size={18} className="text-red-400 shrink-0" />
-                            <p className="font-display text-base font-semibold text-nebbia">Eliminare l'udienza?</p>
+                            <p className="font-display text-base font-semibold text-nebbia">{t('conferma_elimina.titolo')}</p>
                         </div>
                         <p className="font-body text-sm text-nebbia/60 leading-relaxed">
-                            L'udienza e l'eventuale appuntamento collegato nel calendario verranno eliminati. Questa azione non può essere annullata.
+                            {t('conferma_elimina.testo')}
                         </p>
                         <div className="flex gap-2">
                             <button onClick={() => setConfermaElimina(false)}
                                 className="flex-1 px-4 py-2 border border-white/10 text-nebbia/60 font-body text-sm hover:text-nebbia transition-colors">
-                                Annulla
+                                {t('conferma_elimina.btn_annulla')}
                             </button>
                             <button
                                 onClick={elimina}
@@ -598,7 +624,7 @@ export default function UdienzaModal({
                             >
                                 {eliminando
                                     ? <Loader2 size={13} className="animate-spin" />
-                                    : <><Trash2 size={13} /> Elimina</>
+                                    : <><Trash2 size={13} /> {t('conferma_elimina.btn_elimina')}</>
                                 }
                             </button>
                         </div>

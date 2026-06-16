@@ -1,0 +1,23 @@
+{
+  "conteggio": {
+    "mandato_uno": "mandato",
+    "mandato_molti": "mandati",
+    "attivi": "{{count}} attivi"
+  },
+  "azioni": {
+    "nuovo_mandato": "Nuovo mandato"
+  },
+  "stati": {
+    "attivo": "Attivo",
+    "sospeso": "Sospeso",
+    "concluso": "Concluso",
+    "archiviato": "Archiviato"
+  },
+  "vuoto": {
+    "titolo": "Nessun mandato",
+    "descrizione": "Crea un mandato per organizzare il lavoro e le scadenze di questo cliente"
+  },
+  "riga": {
+    "dal": "dal {{data}}"
+  }
+}

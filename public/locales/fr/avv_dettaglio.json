@@ -1,0 +1,41 @@
+{
+  "back": "Base de données",
+  "id": "ID :",
+  "non_vigente": "Non en vigueur",
+  "oggetto": "Objet",
+  "testo": "Texte",
+  "documento_del": "Document du",
+  "atto_del": "Acte du",
+  "decisione_del": "Décision du",
+  "norma": {
+    "non_trovata": "Norme introuvable",
+    "fonte_federale": "Droit fédéral",
+    "fonte_cantonale": "Droit cantonal",
+    "fonte_ue": "Droit UE",
+    "art_prefix": "art.",
+    "note_storiche": "Notes historiques",
+    "testo_nd": "Texte non disponible."
+  },
+  "sentenza": {
+    "non_trovata": "Arrêt introuvable",
+    "giur_ch": "Jurisprudence suisse",
+    "giur_ue": "Jurisprudence UE",
+    "giur_cedu": "Jurisprudence CEDH",
+    "fonte_originale": "Ouvrir la source originale",
+    "principio": "Principe de droit",
+    "parti": "Parties",
+    "relatore": "Rapporteur",
+    "materia": "Matière",
+    "nessun_contenuto": "Aucun contenu textuel disponible pour cet arrêt."
+  },
+  "prassi": {
+    "non_trovato": "Document de pratique introuvable",
+    "label": "Pratique administrative",
+    "fisco_cantonale": "Fiscalité cantonale",
+    "n_prefix": "N°",
+    "emanato_il": "Promulgué le",
+    "classificazione": "Classification",
+    "sottotitolo": "Sous-titre",
+    "solo_metadati": "Seules les métadonnées sont disponibles pour ce document."
+  }
+}

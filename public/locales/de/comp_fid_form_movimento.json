@@ -1,0 +1,60 @@
+{
+    "header": {
+        "modifica_movimento": "Buchung bearbeiten",
+        "entrata_prevista": "Geplante Einnahme",
+        "costo_previsto": "Geplante Kosten",
+        "nuova_entrata": "Neue Einnahme",
+        "nuovo_costo": "Neue Kosten",
+        "sottotitolo_mandato": "Der Betrag fliesst in die Zähler des Mandats ein",
+        "sottotitolo_cliente": "Der Betrag fliesst in die Zähler des Kunden ein"
+    },
+    "tipo": {
+        "entrata": "Einnahme",
+        "uscita": "Ausgabe"
+    },
+    "stato": {
+        "effettivo_label": "Tatsächlich",
+        "effettivo_hint": "bereits erfolgt",
+        "previsto_label": "Geplant",
+        "previsto_hint": "geplant / Budget"
+    },
+    "campi": {
+        "descrizione_label": "Beschreibung *",
+        "descrizione_ph_entrata": "z. B. Rechnung Kunde Rossi AG",
+        "descrizione_ph_uscita": "z. B. Büromiete, Lieferant...",
+        "importo_label": "Betrag (CHF) *",
+        "data_label": "Datum *",
+        "data_prevista_label": "Geplantes Datum *"
+    },
+    "ricorrenza": {
+        "label": "Wiederholung",
+        "una_tantum": "Einmalig",
+        "mensile": "Monatlich",
+        "trimestrale": "Vierteljährlich",
+        "annuale": "Jährlich",
+        "fine_label": "Ende",
+        "fine_opz": "(opt.)"
+    },
+    "categoria": {
+        "label": "Kategorie",
+        "opzionale": "(optional)",
+        "ph_entrata": "z. B. Verkäufe, Beratung...",
+        "ph_uscita": "z. B. Miete, Lieferanten, Nebenkosten..."
+    },
+    "documento": {
+        "label": "Belegdokument",
+        "opzionale": "(optional)",
+        "nessuno": "Kein Dokument verknüpft",
+        "hint": "Dokumente werden über das Archiv hochgeladen. Hier wählen Sie aus, welches mit dieser Buchung verknüpft wird."
+    },
+    "footer": {
+        "annulla": "Abbrechen",
+        "salvataggio": "Speichern...",
+        "salva_modifiche": "Änderungen speichern",
+        "registra": "Erfassen"
+    },
+    "errori": {
+        "campi_obbligatori": "Bitte Beschreibung, Betrag und Datum ausfüllen.",
+        "sessione_scaduta": "Sitzung abgelaufen. Bitte melden Sie sich erneut an."
+    }
+}

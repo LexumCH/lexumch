@@ -10,12 +10,15 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useTranslation, Trans } from 'react-i18next'
 import { PageHeader, BackButton, InputField } from '@/components/shared'
 import {
     Plus, Trash2, AlertCircle, FileText, Building2, User,
     Loader2, Save, FileSignature, ChevronDown, Info
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 const ALIQUOTA_IVA_DEFAULT = 8.1 // IVA normale svizzera 2024+
 
@@ -56,43 +59,45 @@ function calcolaTotali({ righe, aliquotaIva, esente }) {
 // COMPONENTE PREVIEW (colonna destra, sticky)
 // ─────────────────────────────────────────────────────────────
 function PreviewFattura({ form, righe, totali, cliente, pratica }) {
-    const oggi = new Date().toLocaleDateString('it-CH')
+    const { t, i18n } = useTranslation('avv_fatturazione_nuova')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    const oggi = new Date().toLocaleDateString(dateLocale)
 
     return (
         <div className="bg-slate border border-white/5 p-5 space-y-4 sticky top-4">
-            <p className="section-label">Anteprima fattura</p>
+            <p className="section-label">{t('preview.titolo')}</p>
 
             <div className="space-y-1">
-                <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Destinatario</p>
+                <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('preview.destinatario')}</p>
                 {cliente ? (
                     <p className="font-body text-sm font-medium text-nebbia">{nomeCliente(cliente)}</p>
                 ) : (
-                    <p className="font-body text-sm text-nebbia/25 italic">Seleziona un cliente</p>
+                    <p className="font-body text-sm text-nebbia/25 italic">{t('preview.seleziona_cliente')}</p>
                 )}
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                    <p className="font-body text-nebbia/30 uppercase tracking-widest mb-1">Data emissione</p>
-                    <p className="font-body text-nebbia/70">{form.data_emissione ? new Date(form.data_emissione).toLocaleDateString('it-CH') : oggi}</p>
+                    <p className="font-body text-nebbia/30 uppercase tracking-widest mb-1">{t('preview.data_emissione')}</p>
+                    <p className="font-body text-nebbia/70">{form.data_emissione ? new Date(form.data_emissione).toLocaleDateString(dateLocale) : oggi}</p>
                 </div>
                 <div>
-                    <p className="font-body text-nebbia/30 uppercase tracking-widest mb-1">Scadenza</p>
-                    <p className="font-body text-nebbia/70">{form.data_scadenza ? new Date(form.data_scadenza).toLocaleDateString('it-CH') : '—'}</p>
+                    <p className="font-body text-nebbia/30 uppercase tracking-widest mb-1">{t('preview.scadenza')}</p>
+                    <p className="font-body text-nebbia/70">{form.data_scadenza ? new Date(form.data_scadenza).toLocaleDateString(dateLocale) : '—'}</p>
                 </div>
             </div>
 
             {pratica && (
                 <div>
-                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">Pratica collegata</p>
+                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">{t('preview.pratica_collegata')}</p>
                     <p className="font-body text-xs text-nebbia/60 truncate">{pratica.titolo}</p>
                 </div>
             )}
 
             <div className="border-t border-white/5 pt-3">
-                <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">Prestazioni</p>
+                <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">{t('preview.prestazioni')}</p>
                 {righe.length === 0 || righe.every(r => !r.descrizione?.trim()) ? (
-                    <p className="font-body text-sm text-nebbia/25 italic">Aggiungi almeno una riga</p>
+                    <p className="font-body text-sm text-nebbia/25 italic">{t('preview.aggiungi_riga_vuoto')}</p>
                 ) : (
                     <div className="space-y-1.5">
                         {righe.filter(r => r.descrizione?.trim()).map((r, i) => {
@@ -111,22 +116,22 @@ function PreviewFattura({ form, righe, totali, cliente, pratica }) {
 
             <div className="border-t border-white/5 pt-3 space-y-1.5">
                 <div className="flex justify-between text-xs font-body text-nebbia/60">
-                    <span>Imponibile</span>
+                    <span>{t('preview.imponibile')}</span>
                     <span>CHF {fmtCHF(totali.imponibile)}</span>
                 </div>
                 {form.esente_iva ? (
                     <div className="flex justify-between text-xs font-body text-nebbia/60">
-                        <span>IVA — esente</span>
+                        <span>{t('preview.iva_esente')}</span>
                         <span className="text-nebbia/40 italic truncate max-w-[160px]">{form.esente_iva_motivo || '—'}</span>
                     </div>
                 ) : (
                     <div className="flex justify-between text-xs font-body text-nebbia/60">
-                        <span>IVA {form.aliquota_iva}%</span>
+                        <span>{t('preview.iva_aliquota', { aliquota: form.aliquota_iva })}</span>
                         <span>CHF {fmtCHF(totali.iva)}</span>
                     </div>
                 )}
                 <div className="flex justify-between pt-2 border-t border-white/10">
-                    <span className="font-body text-sm font-medium text-nebbia">Totale fattura</span>
+                    <span className="font-body text-sm font-medium text-nebbia">{t('preview.totale_fattura')}</span>
                     <span className="font-body text-base font-semibold text-oro">CHF {fmtCHF(totali.totale)}</span>
                 </div>
             </div>
@@ -138,6 +143,8 @@ function PreviewFattura({ form, righe, totali, cliente, pratica }) {
 // PAGINA NUOVA FATTURA
 // ─────────────────────────────────────────────────────────────
 export default function AvvocatoFatturazioneNuova() {
+    const { t, i18n } = useTranslation('avv_fatturazione_nuova')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const clientePreselezionato = searchParams.get('cliente_id')
@@ -262,12 +269,12 @@ export default function AvvocatoFatturazioneNuova() {
 
     // ─── Validazione ────────────────────────────────────────────
     function valida() {
-        if (!form.cliente_id) return 'Seleziona un cliente'
-        if (!form.data_emissione) return 'Data emissione obbligatoria'
+        if (!form.cliente_id) return t('errori.cliente_obbligatorio')
+        if (!form.data_emissione) return t('errori.data_emissione_obbligatoria')
         const righeValide = righe.filter(r => r.descrizione?.trim() && Number(r.quantita) > 0)
-        if (righeValide.length === 0) return 'Almeno una riga con descrizione e quantità > 0'
+        if (righeValide.length === 0) return t('errori.almeno_una_riga')
         for (const r of righeValide) {
-            if (isNaN(Number(r.prezzo_unitario))) return 'Tutti i prezzi devono essere numerici'
+            if (isNaN(Number(r.prezzo_unitario))) return t('errori.prezzi_numerici')
         }
         return null
     }
@@ -308,7 +315,7 @@ export default function AvvocatoFatturazioneNuova() {
             })
 
             if (creaErr) throw new Error(creaErr.message)
-            if (!creaRes?.ok) throw new Error(creaRes?.error ?? 'Errore creazione fattura')
+            if (!creaRes?.ok) throw new Error(creaRes?.error ?? t('errori.creazione_fattura'))
 
             const fatturaId = creaRes.fattura.id
 
@@ -317,8 +324,8 @@ export default function AvvocatoFatturazioneNuova() {
                 const { data: pdfRes, error: pdfErr } = await supabase.functions.invoke('genera-fattura-pdf', {
                     body: { fattura_id: fatturaId }
                 })
-                if (pdfErr) throw new Error(`Fattura creata ma errore PDF: ${pdfErr.message}`)
-                if (!pdfRes?.ok) throw new Error(`Fattura creata ma errore PDF: ${pdfRes?.error}`)
+                if (pdfErr) throw new Error(`${t('errori.fattura_creata_ma_pdf')}: ${pdfErr.message}`)
+                if (!pdfRes?.ok) throw new Error(`${t('errori.fattura_creata_ma_pdf')}: ${pdfRes?.error}`)
             }
 
             // 3. Naviga al dettaglio
@@ -337,8 +344,8 @@ export default function AvvocatoFatturazioneNuova() {
 
     return (
         <div className="space-y-5">
-            <BackButton to="/fatturazione" label="Fatturazione" />
-            <PageHeader label="Fatturazione" title="Nuova fattura" />
+            <BackButton to="/fatturazione" label={t('back')} />
+            <PageHeader label={t('header.label')} title={t('header.title')} />
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5">
                 {/* COLONNA FORM */}
@@ -346,30 +353,30 @@ export default function AvvocatoFatturazioneNuova() {
 
                     {/* Step 1: Cliente + pratica */}
                     <div className="bg-slate border border-white/5 p-5 space-y-4">
-                        <p className="section-label">Destinatario</p>
+                        <p className="section-label">{t('destinatario.titolo')}</p>
 
                         <div>
-                            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Cliente *</label>
+                            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('destinatario.cliente_label')}</label>
                             <select
                                 value={form.cliente_id}
                                 onChange={e => setForm(p => ({ ...p, cliente_id: e.target.value }))}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                             >
-                                <option value="">Seleziona cliente...</option>
+                                <option value="">{t('destinatario.cliente_placeholder')}</option>
                                 {clienti.map(c => (
                                     <option key={c.id} value={c.id}>{nomeCliente(c)}</option>
                                 ))}
                             </select>
                             {clienti.length === 0 && (
                                 <p className="font-body text-xs text-amber-400/70 mt-2 flex items-center gap-1.5">
-                                    <Info size={11} /> Nessun cliente trovato. <Link to="/clienti/nuovo" className="underline">Crea il primo cliente</Link>.
+                                    <Info size={11} /> <Trans i18nKey="destinatario.nessun_cliente" t={t}>Nessun cliente trovato. <Link to="/clienti/nuovo" className="underline">Crea il primo cliente</Link>.</Trans>
                                 </p>
                             )}
                         </div>
 
                         <div>
                             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                                Pratica collegata <span className="text-nebbia/25 normal-case tracking-normal">— opzionale</span>
+                                {t('destinatario.pratica_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('destinatario.opzionale')}</span>
                             </label>
                             <select
                                 value={form.pratica_id}
@@ -377,23 +384,23 @@ export default function AvvocatoFatturazioneNuova() {
                                 disabled={!form.cliente_id}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 disabled:opacity-40"
                             >
-                                <option value="">Nessuna pratica</option>
+                                <option value="">{t('destinatario.nessuna_pratica')}</option>
                                 {praticheCliente.map(p => (
                                     <option key={p.id} value={p.id}>{p.titolo}</option>
                                 ))}
                             </select>
                             {form.cliente_id && praticheCliente.length === 0 && (
-                                <p className="font-body text-xs text-nebbia/40 mt-2">Questo cliente non ha pratiche aperte.</p>
+                                <p className="font-body text-xs text-nebbia/40 mt-2">{t('destinatario.nessuna_pratica_aperta')}</p>
                             )}
                         </div>
                     </div>
 
                     {/* Step 2: Date */}
                     <div className="bg-slate border border-white/5 p-5 space-y-4">
-                        <p className="section-label">Date</p>
+                        <p className="section-label">{t('date.titolo')}</p>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Data emissione *</label>
+                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('date.emissione_label')}</label>
                                 <input
                                     type="date"
                                     value={form.data_emissione}
@@ -403,7 +410,7 @@ export default function AvvocatoFatturazioneNuova() {
                             </div>
                             <div>
                                 <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                                    Scadenza pagamento <span className="text-nebbia/25 normal-case tracking-normal">— opzionale</span>
+                                    {t('date.scadenza_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('destinatario.opzionale')}</span>
                                 </label>
                                 <input
                                     type="date"
@@ -418,12 +425,12 @@ export default function AvvocatoFatturazioneNuova() {
                     {/* Step 3: Righe prestazioni */}
                     <div className="bg-slate border border-white/5 p-5 space-y-4">
                         <div className="flex items-center justify-between">
-                            <p className="section-label !m-0">Prestazioni</p>
+                            <p className="section-label !m-0">{t('prestazioni.titolo')}</p>
                             <button
                                 onClick={aggiungiRiga}
                                 className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors"
                             >
-                                <Plus size={12} /> Aggiungi riga
+                                <Plus size={12} /> {t('prestazioni.aggiungi_riga')}
                             </button>
                         </div>
 
@@ -435,12 +442,12 @@ export default function AvvocatoFatturazioneNuova() {
                                 return (
                                     <div key={i} className="bg-petrolio/40 border border-white/5 p-3 space-y-2">
                                         <div className="flex items-center justify-between">
-                                            <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Riga {i + 1}</span>
+                                            <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{t('prestazioni.riga', { numero: i + 1 })}</span>
                                             {righe.length > 1 && (
                                                 <button
                                                     onClick={() => rimuoviRiga(i)}
                                                     className="text-nebbia/30 hover:text-red-400 transition-colors p-1"
-                                                    title="Rimuovi riga"
+                                                    title={t('prestazioni.rimuovi_riga')}
                                                 >
                                                     <Trash2 size={12} />
                                                 </button>
@@ -448,7 +455,7 @@ export default function AvvocatoFatturazioneNuova() {
                                         </div>
 
                                         <input
-                                            placeholder="Descrizione prestazione (es. Consulenza legale)"
+                                            placeholder={t('prestazioni.descrizione_ph')}
                                             value={r.descrizione}
                                             onChange={e => aggiornaRiga(i, 'descrizione', e.target.value)}
                                             className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -456,7 +463,7 @@ export default function AvvocatoFatturazioneNuova() {
 
                                         <div className="grid grid-cols-3 gap-2">
                                             <div>
-                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">Quantità</label>
+                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">{t('prestazioni.quantita')}</label>
                                                 <input
                                                     type="number" min="0.01" step="0.01"
                                                     value={r.quantita}
@@ -465,7 +472,7 @@ export default function AvvocatoFatturazioneNuova() {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">Prezzo unit. (CHF)</label>
+                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">{t('prestazioni.prezzo_unitario')}</label>
                                                 <input
                                                     type="number" min="0" step="0.01" placeholder="0.00"
                                                     value={r.prezzo_unitario}
@@ -474,7 +481,7 @@ export default function AvvocatoFatturazioneNuova() {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">Totale riga</label>
+                                                <label className="block font-body text-[10px] text-nebbia/40 tracking-widest uppercase mb-1">{t('prestazioni.totale_riga')}</label>
                                                 <div className="bg-slate border border-white/5 px-3 py-2 font-body text-sm text-oro">
                                                     CHF {fmtCHF(tot)}
                                                 </div>
@@ -488,7 +495,7 @@ export default function AvvocatoFatturazioneNuova() {
 
                     {/* Step 4: IVA (modello CH) */}
                     <div className="bg-slate border border-white/5 p-5 space-y-4">
-                        <p className="section-label">IVA</p>
+                        <p className="section-label">{t('iva.titolo')}</p>
 
                         <label className="flex items-center gap-3 cursor-pointer group">
                             <input
@@ -498,18 +505,18 @@ export default function AvvocatoFatturazioneNuova() {
                                 className="w-4 h-4 accent-oro"
                             />
                             <div className="flex-1">
-                                <p className="font-body text-sm text-nebbia group-hover:text-oro transition-colors">Esente IVA</p>
-                                <p className="font-body text-xs text-nebbia/40 mt-0.5">Spunta se non sei assoggettato all'IVA (es. cifra d'affari sotto la soglia LIVA).</p>
+                                <p className="font-body text-sm text-nebbia group-hover:text-oro transition-colors">{t('iva.esente_label')}</p>
+                                <p className="font-body text-xs text-nebbia/40 mt-0.5">{t('iva.esente_desc')}</p>
                             </div>
                         </label>
 
                         {form.esente_iva ? (
                             <div className="pl-7">
                                 <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                                    Motivo esenzione <span className="text-nebbia/25 normal-case tracking-normal">— opzionale, compare in fattura</span>
+                                    {t('iva.motivo_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('iva.motivo_hint')}</span>
                                 </label>
                                 <input
-                                    placeholder="Es. Non assoggettato IVA (art. 10 cpv. 2 LIVA)"
+                                    placeholder={t('iva.motivo_ph')}
                                     value={form.esente_iva_motivo}
                                     onChange={e => setForm(p => ({ ...p, esente_iva_motivo: e.target.value }))}
                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
@@ -517,7 +524,7 @@ export default function AvvocatoFatturazioneNuova() {
                             </div>
                         ) : (
                             <div className="pl-7">
-                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Aliquota IVA %</label>
+                                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('iva.aliquota_label')}</label>
                                 <input
                                     type="number" min="0" max="100" step="0.1"
                                     value={form.aliquota_iva}
@@ -525,7 +532,7 @@ export default function AvvocatoFatturazioneNuova() {
                                     className="w-full max-w-[200px] bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                                 />
                                 <p className="font-body text-xs text-nebbia/40 mt-2">
-                                    Aliquote svizzere 2024: normale 8.1%, ridotta 2.6%, alloggio 3.8%.
+                                    {t('iva.aliquota_hint')}
                                 </p>
                             </div>
                         )}
@@ -533,25 +540,25 @@ export default function AvvocatoFatturazioneNuova() {
 
                     {/* Step 5: Pagamento */}
                     <div className="bg-slate border border-white/5 p-5 space-y-4">
-                        <p className="section-label">Modalità di pagamento</p>
+                        <p className="section-label">{t('pagamento.titolo')}</p>
 
                         <div>
-                            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">Metodo</label>
+                            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('pagamento.metodo_label')}</label>
                             <select
                                 value={form.metodo_pagamento}
                                 onChange={e => setForm(p => ({ ...p, metodo_pagamento: e.target.value }))}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                             >
-                                <option value="Bonifico bancario">Bonifico bancario</option>
-                                <option value="QR-fattura">QR-fattura</option>
-                                <option value="Contanti">Contanti</option>
-                                <option value="Carta / TWINT">Carta / TWINT</option>
-                                <option value="">Altro / Non specificato</option>
+                                <option value="Bonifico bancario">{t('pagamento.metodi.bonifico')}</option>
+                                <option value="QR-fattura">{t('pagamento.metodi.qr')}</option>
+                                <option value="Contanti">{t('pagamento.metodi.contanti')}</option>
+                                <option value="Carta / TWINT">{t('pagamento.metodi.carta_twint')}</option>
+                                <option value="">{t('pagamento.metodi.altro')}</option>
                             </select>
                         </div>
 
                         <InputField
-                            label="IBAN per pagamento"
+                            label={t('pagamento.iban_label')}
                             placeholder="CH93 0076 2011 6238 5295 7"
                             value={form.iban}
                             onChange={e => setForm(p => ({ ...p, iban: e.target.value }))}
@@ -562,25 +569,25 @@ export default function AvvocatoFatturazioneNuova() {
                                 onClick={() => setForm(p => ({ ...p, iban: profiloAvv.iban }))}
                                 className="font-body text-xs text-oro/60 hover:text-oro"
                             >
-                                Usa IBAN del profilo
+                                {t('pagamento.usa_iban_profilo')}
                             </button>
                         )}
                         <p className="font-body text-xs text-nebbia/40">
-                            L'IBAN e i tuoi dati di profilo (indirizzo, CAP, città) vengono usati per generare la QR-fattura svizzera nel PDF.
+                            {t('pagamento.iban_hint')}
                         </p>
                     </div>
 
                     {/* Step 6: Note */}
                     <div className="bg-slate border border-white/5 p-5 space-y-4">
-                        <p className="section-label">Note</p>
+                        <p className="section-label">{t('note.titolo')}</p>
 
                         <div>
                             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                                Note pubbliche <span className="text-nebbia/25 normal-case tracking-normal">— compariranno sul PDF</span>
+                                {t('note.pubbliche_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('note.pubbliche_hint')}</span>
                             </label>
                             <textarea
                                 rows={3}
-                                placeholder="Es. Pagamento entro 30 giorni dalla data di emissione."
+                                placeholder={t('note.pubbliche_ph')}
                                 value={form.note_pubbliche}
                                 onChange={e => setForm(p => ({ ...p, note_pubbliche: e.target.value }))}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
@@ -589,11 +596,11 @@ export default function AvvocatoFatturazioneNuova() {
 
                         <div>
                             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-                                Note interne <span className="text-nebbia/25 normal-case tracking-normal">— visibili solo a te</span>
+                                {t('note.interne_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('note.interne_hint')}</span>
                             </label>
                             <textarea
                                 rows={2}
-                                placeholder="Promemoria personale, non compare in fattura."
+                                placeholder={t('note.interne_ph')}
                                 value={form.note_interne}
                                 onChange={e => setForm(p => ({ ...p, note_interne: e.target.value }))}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
@@ -615,7 +622,7 @@ export default function AvvocatoFatturazioneNuova() {
                             disabled={salvando !== null}
                             className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40"
                         >
-                            Annulla
+                            {t('azioni.annulla')}
                         </button>
 
                         <div className="flex-1" />
@@ -626,8 +633,8 @@ export default function AvvocatoFatturazioneNuova() {
                             className="flex items-center gap-2 px-4 py-2.5 border border-white/15 text-nebbia/80 hover:border-oro/30 hover:text-oro transition-colors font-body text-sm disabled:opacity-40"
                         >
                             {salvando === 'bozza'
-                                ? <><Loader2 size={14} className="animate-spin" /> Salvando...</>
-                                : <><Save size={14} /> Salva bozza</>
+                                ? <><Loader2 size={14} className="animate-spin" /> {t('azioni.salvando')}</>
+                                : <><Save size={14} /> {t('azioni.salva_bozza')}</>
                             }
                         </button>
 
@@ -637,8 +644,8 @@ export default function AvvocatoFatturazioneNuova() {
                             className="btn-primary text-sm flex items-center gap-2 disabled:opacity-40"
                         >
                             {salvando === 'pdf'
-                                ? <><Loader2 size={14} className="animate-spin" /> Generando PDF...</>
-                                : <><FileSignature size={14} /> Salva e genera PDF</>
+                                ? <><Loader2 size={14} className="animate-spin" /> {t('azioni.generando_pdf')}</>
+                                : <><FileSignature size={14} /> {t('azioni.salva_genera_pdf')}</>
                             }
                         </button>
                     </div>
@@ -648,10 +655,10 @@ export default function AvvocatoFatturazioneNuova() {
                         <Info size={14} className="text-salvia/70 shrink-0 mt-0.5" />
                         <div className="space-y-1">
                             <p className="font-body text-xs text-nebbia/60">
-                                <span className="font-medium text-nebbia/80">Salva bozza</span> — la fattura viene creata con un numero progressivo definitivo, ma il PDF non viene generato. Puoi modificarla in seguito.
+                                <Trans i18nKey="workflow.bozza" t={t}><span className="font-medium text-nebbia/80">Salva bozza</span> — la fattura viene creata con un numero progressivo definitivo, ma il PDF non viene generato. Puoi modificarla in seguito.</Trans>
                             </p>
                             <p className="font-body text-xs text-nebbia/60">
-                                <span className="font-medium text-nebbia/80">Salva e genera PDF</span> — la fattura viene archiviata nell'archivio dello studio e il PDF con QR-fattura è pronto per il cliente.
+                                <Trans i18nKey="workflow.pdf" t={t}><span className="font-medium text-nebbia/80">Salva e genera PDF</span> — la fattura viene archiviata nell'archivio dello studio e il PDF con QR-fattura è pronto per il cliente.</Trans>
                             </p>
                         </div>
                     </div>

@@ -1,0 +1,49 @@
+{
+  "hero": {
+    "etichetta": "Treuhandbüro",
+    "titolo": "Gesamtübersicht",
+    "titolo_nome": "Gesamtübersicht, {{nome}}",
+    "sottotitolo_one": "Jahr {{anno}} · {{count}} Kunde",
+    "sottotitolo_other": "Jahr {{anno}} · {{count}} Kunden"
+  },
+  "kpi": {
+    "clienti": "Kunden",
+    "mandati_attivi": "Aktive Mandate",
+    "fatturato": "Umsatz {{anno}}",
+    "da_incassare": "Ausstehend"
+  },
+  "scadute": {
+    "titolo_one": "{{count}} überfällige Frist",
+    "titolo_other": "{{count}} überfällige Fristen"
+  },
+  "scadenze": {
+    "titolo": "Nächste Fristen",
+    "vuoto": "Keine bevorstehenden Fristen.",
+    "oggi": "heute",
+    "tra_giorni_one": "in {{count}} Tag",
+    "tra_giorni_other": "in {{count}} Tagen"
+  },
+  "appuntamenti": {
+    "titolo": "Nächste Termine",
+    "vuoto": "Keine Termine geplant.",
+    "senza_titolo": "(ohne Titel)",
+    "studio": "Büro"
+  },
+  "fatturazione": {
+    "titolo": "Büro — Fakturierung {{anno}}",
+    "fatturato": "Umsatz",
+    "incassato": "Eingegangen",
+    "da_incassare": "Ausstehend",
+    "scaduto": "Überfällig",
+    "nota": "Vom Büro an die Kunden gestellte Rechnungen (die Erträge des Büros). Hat nichts mit den Erfolgsrechnungen der einzelnen Kunden zu tun."
+  },
+  "ce": {
+    "titolo": "Erfolgsrechnung pro Kunde {{anno}}",
+    "nota": "— jeder Kunde wird einzeln betrachtet, nicht summiert",
+    "col_cliente": "Kunde",
+    "col_entrate": "Einnahmen",
+    "col_costi": "Kosten",
+    "col_stipendi": "Löhne",
+    "col_saldo": "Saldo"
+  }
+}

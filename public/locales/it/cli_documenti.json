@@ -1,0 +1,24 @@
+{
+  "header": {
+    "label": "Portale cliente",
+    "title": "Documenti"
+  },
+  "upload": {
+    "titolo": "Carica un documento",
+    "seleziona": "Seleziona un file",
+    "carica": "Carica",
+    "formati": "Formati accettati: PDF, JPG, PNG, DOC, DOCX"
+  },
+  "tabella": {
+    "intestazioni": ["Documento", "Caricato da", "Data", "Dimensione", ""]
+  },
+  "caricato_da": {
+    "studio": "Studio",
+    "tu": "Tu"
+  },
+  "lista": {
+    "vuoto": "Nessun documento disponibile",
+    "visualizza": "Visualizza",
+    "nota_privacy": "I documenti sono visualizzabili solo nel portale."
+  }
+}

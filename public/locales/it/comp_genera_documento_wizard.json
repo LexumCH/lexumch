@@ -1,0 +1,94 @@
+{
+  "header": {
+    "titolo": "Genera documento"
+  },
+  "caricamento": "Caricamento dati...",
+  "errore": "Errore",
+  "chiudi": "Chiudi",
+  "step": {
+    "verifica": "Verifica",
+    "controparti": "Controparti",
+    "dati_atto": "Dati atto",
+    "genera": "Genera"
+  },
+  "errori": {
+    "non_autenticato": "Utente non autenticato",
+    "sessione_scaduta": "Sessione scaduta. Ricarica la pagina."
+  },
+  "prerequisiti": {
+    "titolo": "Verifica prerequisiti",
+    "descrizione": "Per generare il documento devono essere disponibili tutti i dati essenziali.",
+    "tutti_presenti": "Tutti i dati essenziali sono presenti",
+    "mancano_dati": "Mancano alcuni dati essenziali",
+    "foro_mancante": "Foro mancante nel profilo avvocato",
+    "albo_mancante": "Numero albo mancante nel profilo avvocato",
+    "pec_mancante": "PEC mancante nel profilo avvocato",
+    "cliente_non_associato": "Cliente non associato alla pratica",
+    "nome_cognome_mancante": "Nome o cognome cliente mancante",
+    "ragione_sociale_mancante": "Ragione sociale cliente mancante",
+    "nessuna_controparte": "Nessuna controparte aggiunta alla pratica",
+    "vai_profilo": "Vai al profilo",
+    "apri_scheda_cliente": "Apri scheda cliente",
+    "checklist_titolo": "Checklist consigliata per questo atto",
+    "nota_placeholder": "Lex genererà comunque il documento; per i dati mancanti userà placeholder esplicito."
+  },
+  "controparti": {
+    "titolo_una": "Seleziona la controparte",
+    "titolo_multipla": "Seleziona le controparti",
+    "descrizione_una": "Questo atto si dirige verso una sola controparte.",
+    "descrizione_multipla": "Puoi selezionare una o più controparti.",
+    "vuoto": "Nessuna controparte presente. Aggiungile dalla pratica prima di procedere.",
+    "errore_una": "Seleziona esattamente 1 controparte",
+    "errore_multipla": "Seleziona almeno 1 controparte",
+    "partita_iva": "P.IVA",
+    "codice_fiscale": "CF"
+  },
+  "campo": {
+    "seleziona": "— Seleziona —",
+    "obbligatorio": "Campo obbligatorio",
+    "numero_non_valido": "Inserisci un numero valido",
+    "minimo": "Minimo: {{min}}",
+    "massimo": "Massimo: {{max}}"
+  },
+  "campi": {
+    "titolo": "Dati specifici dell'atto",
+    "descrizione": "Compila i campi richiesti dal template. I campi con * sono obbligatori."
+  },
+  "genera": {
+    "pronto": "Pronto a generare",
+    "descrizione": "Lex genererà il documento usando i dati della pratica, della controparte selezionata e i tuoi input. L'operazione consuma 1 credito AI.",
+    "btn_genera": "Genera documento",
+    "riprova": "Riprova",
+    "in_corso": "Lex sta generando il documento...",
+    "sezione_corrente": "Sezione corrente:",
+    "sezioni_completate": "Sezioni completate: {{count}}"
+  },
+  "anteprima": {
+    "tab_anteprima": "Anteprima",
+    "tab_modifica": "Modifica",
+    "tooltip_salvato": "Documento salvato, non più modificabile",
+    "suggerimento": "Modifica il testo nella tab \"Modifica\" se necessario, poi salva il PDF nella pratica."
+  },
+  "salva": {
+    "btn_salva": "Salva PDF nella pratica",
+    "salvataggio": "Salvataggio...",
+    "btn_scarica": "Scarica PDF",
+    "errore_nome_mancante": "Inserisci un nome per il file",
+    "errore_salvataggio": "Errore salvataggio PDF",
+    "successo": "PDF salvato nei <strong>Documenti pratica</strong>: <file>{{nomeFile}}</file>",
+    "nome_file_label": "Nome file",
+    "nota_estensione": "Estensione <ext>.pdf</ext> aggiunta automaticamente"
+  },
+  "chiusura": {
+    "in_corso": "La generazione è in corso. Chiudere comunque?",
+    "non_salvato": "Il documento è stato generato ma non salvato. Chiudere comunque?\n\nIl credito è già stato consumato."
+  },
+  "footer": {
+    "indietro": "Indietro",
+    "avanti": "Avanti",
+    "fine": "Fine",
+    "stato_generando": "Generazione in corso...",
+    "stato_completo": "Modifica e salva il PDF nella pratica",
+    "stato_iniziale": "Premi \"Genera documento\" per iniziare"
+  }
+}

@@ -1,0 +1,87 @@
+{
+    "header": {
+        "titolo": "Parties adverses ({{n}})"
+    },
+    "azioni": {
+        "aggiungi": "Ajouter une partie adverse",
+        "salva_modifiche": "Enregistrer les modifications",
+        "annulla": "Annuler",
+        "modifica": "Modifier",
+        "elimina": "Supprimer"
+    },
+    "vuoto": {
+        "titolo": "Aucune partie adverse",
+        "sottotitolo": "Ajoutez-les pour générer correctement les actes"
+    },
+    "conferme": {
+        "elimina": "Supprimer la partie adverse « {{nome}} » ?"
+    },
+    "switcher": {
+        "persona_fisica": "Personne physique",
+        "persona_giuridica": "Personne morale"
+    },
+    "form": {
+        "titolo_nuova": "Nouvelle partie adverse",
+        "titolo_modifica": "Modifier la partie adverse",
+        "ruolo_processuale": "Position procédurale"
+    },
+    "sezioni": {
+        "rappresentante_legale": "Représentant légal",
+        "indirizzo": "Adresse",
+        "contatti": "Coordonnées",
+        "legale_avversario": "Avocat de la partie adverse",
+        "legale_avversario_hint": "— si connu"
+    },
+    "campi": {
+        "nome": "Prénom",
+        "cognome": "Nom",
+        "nome_obbl": "Prénom *",
+        "cognome_obbl": "Nom *",
+        "numero_avs": "N° AVS",
+        "data_nascita": "Date de naissance",
+        "luogo_nascita": "Lieu de naissance",
+        "ragione_sociale_obbl": "Raison sociale *",
+        "uid": "IDE / UID",
+        "sede_legale": "Siège",
+        "numero_avs_rappresentante": "N° AVS du représentant",
+        "carica": "Fonction",
+        "carica_placeholder": "Ex. signature individuelle",
+        "indirizzo": "Adresse",
+        "citta": "Localité",
+        "cantone": "Canton",
+        "cap": "NPA",
+        "email": "E-mail",
+        "telefono": "Téléphone",
+        "cantone_albo": "Canton du registre",
+        "numero_albo": "N° de registre",
+        "note": "Remarques",
+        "note_placeholder": "Remarques libres sur la partie adverse..."
+    },
+    "card": {
+        "rappresentante": "Repr. :",
+        "avvocato_prefisso": "Me"
+    },
+    "errori": {
+        "nome_obbligatorio": "Prénom obligatoire",
+        "cognome_obbligatorio": "Nom obligatoire",
+        "ragione_sociale_obbligatoria": "Raison sociale obligatoire"
+    },
+    "ruoli": {
+        "placeholder": "— Sélectionner la position —",
+        "convenuto": "Partie défenderesse",
+        "co_convenuto": "Codéfendeur",
+        "attore": "Partie demanderesse",
+        "co_attore": "Codemandeur",
+        "imputato": "Prévenu",
+        "co_imputato": "Coprévenu",
+        "parte_civile": "Partie plaignante",
+        "persona_offesa": "Lésé",
+        "ricorrente": "Partie recourante",
+        "resistente": "Partie intimée",
+        "opponente": "Partie opposante",
+        "opposto": "Partie défenderesse à l'opposition",
+        "terzo_chiamato": "Tiers appelé en cause",
+        "litisconsorte": "Consort",
+        "altro": "Autre"
+    }
+}

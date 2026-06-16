@@ -1,6 +1,7 @@
 // src/pages/avvocato/PraticaDettaglio.jsx
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/shared'
 import {
     Plus, Search, FileText, Calendar, Sparkles, X, Save, AlertCircle,
@@ -14,9 +15,11 @@ import ChatPratica from '@/components/ChatPratica'
 import BoxUdienzeETermini from '@/components/avvocato/BoxUdienzeETermini'
 import ModalEliminaPratica from '@/components/avvocato/ModalEliminaPratica'
 
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
+
 const STATI = {
-    aperta: { label: 'Aperta', variant: 'salvia' },
-    chiusa: { label: 'Chiusa', variant: 'gray' },
+    aperta: { key: 'aperta', variant: 'salvia' },
+    chiusa: { key: 'chiusa', variant: 'gray' },
 }
 
 async function caricaContesto(userId) {
@@ -33,12 +36,13 @@ async function caricaContesto(userId) {
 }
 
 function BackToPratiche() {
+    const { t } = useTranslation('avv_pratica_dettaglio')
     return (
         <Link
             to="/pratiche"
             className="inline-flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors"
         >
-            <ArrowLeft size={11} /> Tutte le pratiche
+            <ArrowLeft size={11} /> {t('back.tutte_le_pratiche')}
         </Link>
     )
 }
@@ -47,6 +51,7 @@ function BackToPratiche() {
 // NOTE MODAL
 // ─────────────────────────────────────────────────────────────
 function NoteInterneModal({ note, setNote, onSalva, salvando, salvate, ultimaModifica, onClose }) {
+    const { t } = useTranslation('avv_pratica_dettaglio')
     useEffect(() => {
         const onKey = e => { if (e.key === 'Escape') onClose() }
         window.addEventListener('keydown', onKey)
@@ -65,8 +70,8 @@ function NoteInterneModal({ note, setNote, onSalva, salvando, salvate, ultimaMod
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
                     <div className="flex items-center gap-2">
                         <StickyNote size={14} className="text-oro" />
-                        <p className="font-body text-sm font-medium text-nebbia">Note interne</p>
-                        <span className="font-body text-xs text-nebbia/30">— solo di questa pratica</span>
+                        <p className="font-body text-sm font-medium text-nebbia">{t('note_modal.titolo')}</p>
+                        <span className="font-body text-xs text-nebbia/30">{t('note_modal.sottotitolo')}</span>
                     </div>
                     <button
                         onClick={onClose}
@@ -80,19 +85,19 @@ function NoteInterneModal({ note, setNote, onSalva, salvando, salvate, ultimaMod
                     <textarea
                         rows={12}
                         autoFocus
-                        placeholder="Note interne sulla pratica — strategia, promemoria, osservazioni..."
+                        placeholder={t('note_modal.placeholder')}
                         value={note}
                         onChange={e => setNote(e.target.value)}
                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
                     />
                     <p className="font-body text-xs text-nebbia/30 mt-2">
-                        Queste note sono visibili solo a te e ai collaboratori della pratica. Non vengono lette da Lex AI né dal generatore di documenti.
+                        {t('note_modal.disclaimer')}
                     </p>
 
                     {salvate && (
                         <div className="mt-3 p-2.5 bg-salvia/10 border border-salvia/30 flex items-center gap-2 animate-fade-in">
                             <Check size={13} className="text-salvia shrink-0" />
-                            <p className="font-body text-xs text-salvia">Note salvate</p>
+                            <p className="font-body text-xs text-salvia">{t('note_modal.salvate')}</p>
                         </div>
                     )}
                 </div>
@@ -100,15 +105,15 @@ function NoteInterneModal({ note, setNote, onSalva, salvando, salvate, ultimaMod
                 <div className="flex items-center justify-between gap-3 px-5 py-4 border-t border-white/5 shrink-0">
                     <p className="font-body text-xs text-nebbia/30">
                         {ultimaModifica
-                            ? `Ultima modifica: ${ultimaModifica.autore} · ${ultimaModifica.data}`
-                            : 'Mai modificate'}
+                            ? t('note_modal.ultima_modifica', { autore: ultimaModifica.autore, data: ultimaModifica.data })
+                            : t('note_modal.mai_modificate')}
                     </p>
                     <div className="flex gap-2">
                         <button
                             onClick={onClose}
                             className="px-4 py-2 border border-white/10 text-nebbia/50 font-body text-xs hover:text-nebbia transition-colors"
                         >
-                            Chiudi
+                            {t('common.chiudi')}
                         </button>
                         <button
                             onClick={onSalva}
@@ -117,7 +122,7 @@ function NoteInterneModal({ note, setNote, onSalva, salvando, salvate, ultimaMod
                         >
                             {salvando
                                 ? <span className="animate-spin w-3 h-3 border-2 border-petrolio border-t-transparent rounded-full" />
-                                : <><Save size={11} /> Salva note</>
+                                : <><Save size={11} /> {t('note_modal.salva_note')}</>
                             }
                         </button>
                     </div>
@@ -131,6 +136,7 @@ function NoteInterneModal({ note, setNote, onSalva, salvando, salvate, ultimaMod
 // RICERCA ESPANDIBILE
 // ─────────────────────────────────────────────────────────────
 function RicercaEspandibile({ contenuto, id, tipo, onSalva }) {
+    const { t } = useTranslation('avv_pratica_dettaglio')
     const [espansa, setEspansa] = useState(false)
     const [modifica, setModifica] = useState(false)
     const [contenutoEdit, setContenutoEdit] = useState(contenuto ?? '')
@@ -160,14 +166,14 @@ function RicercaEspandibile({ contenuto, id, tipo, onSalva }) {
                 >
                     {salvando
                         ? <span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" />
-                        : <><Save size={10} /> Salva</>
+                        : <><Save size={10} /> {t('common.salva')}</>
                     }
                 </button>
                 <button
                     onClick={() => { setModifica(false); setContenutoEdit(contenuto ?? '') }}
                     className="px-3 py-1.5 border border-white/10 text-nebbia/40 font-body text-xs hover:text-nebbia transition-colors"
                 >
-                    Annulla
+                    {t('common.annulla')}
                 </button>
             </div>
         </div>
@@ -201,14 +207,14 @@ function RicercaEspandibile({ contenuto, id, tipo, onSalva }) {
                     onClick={() => setEspansa(!espansa)}
                     className="font-body text-xs text-nebbia/25 hover:text-nebbia/50 transition-colors"
                 >
-                    {espansa ? '▲ Riduci' : '▼ Espandi'}
+                    {espansa ? t('ricerca_espandibile.riduci') : t('ricerca_espandibile.espandi')}
                 </button>
                 {tipo === 'ricerca_manuale' && (
                     <button
                         onClick={() => setModifica(true)}
                         className="font-body text-xs text-nebbia/25 hover:text-oro transition-colors"
                     >
-                        Modifica
+                        {t('common.modifica')}
                     </button>
                 )}
             </div>
@@ -220,6 +226,8 @@ function RicercaEspandibile({ contenuto, id, tipo, onSalva }) {
 // COMPONENTE PRINCIPALE
 // ─────────────────────────────────────────────────────────────
 export default function PraticaDettaglio() {
+    const { t, i18n } = useTranslation('avv_pratica_dettaglio')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const navigate = useNavigate()
 
@@ -366,7 +374,7 @@ export default function PraticaDettaglio() {
 
     async function eliminaDocumento(doc) {
         if (doc.fonte === 'archivio') {
-            if (!confirm(`Rimuovere "${doc.nome_file}" dalla pratica?\n\nIl documento resterà nell'Archivio dello studio, perderà solo il collegamento a questa pratica.`)) return
+            if (!confirm(t('documenti.conferma_rimuovi_archivio', { nome: doc.nome_file }))) return
             await supabase
                 .from('archivio_documenti')
                 .update({ pratica_id: null })
@@ -375,7 +383,7 @@ export default function PraticaDettaglio() {
             return
         }
 
-        if (!confirm(`Eliminare "${doc.nome_file}"?`)) return
+        if (!confirm(t('documenti.conferma_elimina', { nome: doc.nome_file }))) return
         const bucket = doc.bucket ?? 'documenti'
         await supabase.storage.from(bucket).remove([doc.storage_path])
         await supabase.from('documenti_pratiche').delete().eq('id', doc.id)
@@ -384,7 +392,7 @@ export default function PraticaDettaglio() {
 
     async function salvaRicercaManuale() {
         setErroreRicerca(null)
-        if (!nuovaRicerca.contenuto.trim()) return setErroreRicerca('Il contenuto è obbligatorio')
+        if (!nuovaRicerca.contenuto.trim()) return setErroreRicerca(t('ricerche.errore_contenuto_obbligatorio'))
         setSalvandoRicerca(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
@@ -393,7 +401,7 @@ export default function PraticaDettaglio() {
                 user_id: user.id,
                 autore_id: user.id,
                 tipo: 'ricerca_manuale',
-                titolo: nuovaRicerca.titolo.trim() || 'Ricerca manuale',
+                titolo: nuovaRicerca.titolo.trim() || t('ricerche.titolo_default'),
                 contenuto: nuovaRicerca.contenuto.trim(),
                 metadati: {
                     ts: new Date().toISOString(),
@@ -410,7 +418,7 @@ export default function PraticaDettaglio() {
     }
 
     async function eliminaRicerca(ricercaId) {
-        if (!confirm('Eliminare questa ricerca?')) return
+        if (!confirm(t('ricerche.conferma_elimina'))) return
         await supabase.from('ricerche').delete().eq('id', ricercaId)
         setRicerche(prev => prev.filter(r => r.id !== ricercaId))
     }
@@ -428,9 +436,9 @@ export default function PraticaDettaglio() {
     }
 
     function nomeClienteDisplay(c) {
-        if (!c) return '—'
-        if (c.tipo_soggetto === 'persona_giuridica') return c.ragione_sociale ?? '—'
-        return `${c.nome ?? ''} ${c.cognome ?? ''}`.trim() || '—'
+        if (!c) return t('common.trattino')
+        if (c.tipo_soggetto === 'persona_giuridica') return c.ragione_sociale ?? t('common.trattino')
+        return `${c.nome ?? ''} ${c.cognome ?? ''}`.trim() || t('common.trattino')
     }
 
     if (loading) return (
@@ -442,19 +450,19 @@ export default function PraticaDettaglio() {
     if (!pratica) return (
         <div className="space-y-5 px-6 pt-10 pb-24">
             <BackToPratiche />
-            <p className="font-body text-sm text-nebbia/40">Pratica non trovata.</p>
+            <p className="font-body text-sm text-nebbia/40">{t('loading.non_trovata')}</p>
         </div>
     )
 
     const sc = STATI[pratica.stato] ?? STATI.aperta
-    const nomeAvv = pratica.avvocato_id === meId ? 'Tu'
-        : (() => { const c = collabs.find(c => c.id === pratica.avvocato_id); return c ? `${c.nome} ${c.cognome}` : '—' })()
+    const nomeAvv = pratica.avvocato_id === meId ? t('common.tu')
+        : (() => { const c = collabs.find(c => c.id === pratica.avvocato_id); return c ? `${c.nome} ${c.cognome}` : t('common.trattino') })()
     const collabDisp = collabs.filter(c => c.id !== pratica.avvocato_id && !collabPratica.find(cp => cp.id === c.id))
     const haNote = note && note.trim().length > 0
     const ultimaModifica = pratica.aggiornatore
         ? {
             autore: `${pratica.aggiornatore.nome} ${pratica.aggiornatore.cognome}`,
-            data: new Date(pratica.updated_at).toLocaleDateString('it-CH')
+            data: new Date(pratica.updated_at).toLocaleDateString(dateLocale)
         }
         : null
 
@@ -463,10 +471,10 @@ export default function PraticaDettaglio() {
             {/* ═══════════════ Header ═══════════════ */}
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="section-label mb-2">Pratica</p>
+                    <p className="section-label mb-2">{t('header.label')}</p>
                     <h1 className="font-display text-4xl font-light text-nebbia">{pratica.titolo}</h1>
                     <p className="font-body text-sm text-nebbia/40 mt-1">
-                        {nomeClienteDisplay(pratica.cliente)} · {pratica.tipo ?? '—'}
+                        {nomeClienteDisplay(pratica.cliente)} · {pratica.tipo ?? t('common.trattino')}
                     </p>
                 </div>
                 <div className="flex flex-col items-end gap-3 shrink-0">
@@ -477,13 +485,13 @@ export default function PraticaDettaglio() {
                             className="relative flex items-center gap-1.5 font-body text-xs text-nebbia/60 border border-white/15 hover:border-oro/40 hover:text-oro hover:bg-oro/5 px-3 py-1.5 transition-colors"
                         >
                             <StickyNote size={11} />
-                            Note interne
+                            {t('header.note_interne')}
                             {haNote && (
                                 <span className="w-1.5 h-1.5 rounded-full bg-oro ml-0.5" />
                             )}
                         </button>
 
-                        <Badge label={sc.label} variant={sc.variant} />
+                        <Badge label={t(`stati.${sc.key}`)} variant={sc.variant} />
                         {pratica.stato === 'aperta' ? (
                             mostraEsito ? (
                                 <div className="flex items-center gap-2 bg-slate border border-white/10 p-2">
@@ -492,11 +500,11 @@ export default function PraticaDettaglio() {
                                         onChange={e => setEsito(e.target.value)}
                                         className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-3 py-1.5 outline-none focus:border-oro/50"
                                     >
-                                        <option value="">Seleziona esito</option>
-                                        <option value="vinta">Vinta</option>
-                                        <option value="persa">Persa</option>
-                                        <option value="transatta">Transatta</option>
-                                        <option value="archiviata">Archiviata</option>
+                                        <option value="">{t('header.seleziona_esito')}</option>
+                                        <option value="vinta">{t('esiti.vinta')}</option>
+                                        <option value="persa">{t('esiti.persa')}</option>
+                                        <option value="transatta">{t('esiti.transatta')}</option>
+                                        <option value="archiviata">{t('esiti.archiviata')}</option>
                                     </select>
                                     <button
                                         onClick={async () => {
@@ -507,13 +515,13 @@ export default function PraticaDettaglio() {
                                         }}
                                         className="font-body text-xs text-red-400 border border-red-500/30 px-3 py-1.5 hover:bg-red-500/10 transition-colors"
                                     >
-                                        Conferma chiusura
+                                        {t('header.conferma_chiusura')}
                                     </button>
                                     <button
                                         onClick={() => { setMostraEsito(false); setEsito('') }}
                                         className="font-body text-xs text-nebbia/30 hover:text-nebbia transition-colors px-2"
                                     >
-                                        Annulla
+                                        {t('common.annulla')}
                                     </button>
                                 </div>
                             ) : (
@@ -521,7 +529,7 @@ export default function PraticaDettaglio() {
                                     onClick={() => setMostraEsito(true)}
                                     className="font-body text-xs text-nebbia/50 hover:text-red-400 border border-white/15 hover:border-red-500/30 hover:bg-red-500/5 px-3 py-1.5 transition-colors"
                                 >
-                                    Chiudi pratica
+                                    {t('header.chiudi_pratica')}
                                 </button>
                             )
                         ) : (
@@ -532,7 +540,7 @@ export default function PraticaDettaglio() {
                                 }}
                                 className="font-body text-xs text-salvia/70 border border-salvia/30 bg-salvia/5 hover:bg-salvia/15 px-3 py-1.5 transition-colors"
                             >
-                                Riapri pratica
+                                {t('header.riapri_pratica')}
                             </button>
                         )}
                     </div>
@@ -550,21 +558,21 @@ export default function PraticaDettaglio() {
 
                         {/* Dettagli */}
                         <div className="bg-slate border border-white/5 p-5 space-y-3">
-                            <p className="section-label">Dettagli</p>
+                            <p className="section-label">{t('dettagli.titolo')}</p>
                             {[
-                                ['Cliente', nomeClienteDisplay(pratica.cliente)],
-                                ['Tipo', pratica.tipo ?? '—'],
-                                ['Creata il', new Date(pratica.created_at).toLocaleDateString('it-CH')],
-                                ...(pratica.esito ? [['Esito', (
+                                [t('dettagli.cliente'), nomeClienteDisplay(pratica.cliente)],
+                                [t('dettagli.tipo'), pratica.tipo ?? t('common.trattino')],
+                                [t('dettagli.creata_il'), new Date(pratica.created_at).toLocaleDateString(dateLocale)],
+                                ...(pratica.esito ? [[t('dettagli.esito'), (
                                     <span className={`inline-flex items-center px-2 py-0.5 text-xs font-body border ${pratica.esito === 'vinta' ? 'bg-salvia/15 text-salvia border-salvia/30' :
                                         pratica.esito === 'persa' ? 'bg-red-900/20 text-red-400 border-red-500/30' :
                                             pratica.esito === 'transatta' ? 'bg-amber-900/20 text-amber-400 border-amber-500/30' :
                                                 'bg-white/5 text-nebbia/40 border-white/10'
                                         }`}>
-                                        {pratica.esito.charAt(0).toUpperCase() + pratica.esito.slice(1)}
+                                        {t(`esiti.${pratica.esito}`)}
                                     </span>
                                 )]] : []),
-                                ...(isStudio ? [['Avvocato', nomeAvv]] : []),
+                                ...(isStudio ? [[t('dettagli.avvocato'), nomeAvv]] : []),
                             ].map(([l, v]) => (
                                 <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                     <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -573,10 +581,10 @@ export default function PraticaDettaglio() {
                             ))}
                             {isStudio && (
                                 <div>
-                                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">Collaboratori</p>
+                                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">{t('dettagli.collaboratori')}</p>
                                     <div className="flex flex-wrap gap-1.5 mb-2">
                                         {collabPratica.length === 0
-                                            ? <span className="font-body text-xs text-nebbia/25 italic">Nessun collaboratore</span>
+                                            ? <span className="font-body text-xs text-nebbia/25 italic">{t('dettagli.nessun_collaboratore')}</span>
                                             : collabPratica.map(c => (
                                                 <span key={c.id} className="flex items-center gap-1 font-body text-xs px-2 py-1 bg-salvia/10 border border-salvia/25 text-salvia">
                                                     {c.nome}
@@ -620,16 +628,16 @@ export default function PraticaDettaglio() {
                     {/* Riga 3: Documenti (full-width) */}
                     <div className="bg-slate border border-white/5 p-5">
                         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                            <p className="section-label">Documenti pratica ({documenti.length})</p>
+                            <p className="section-label">{t('documenti.titolo', { count: documenti.length })}</p>
                             <Link
                                 to="/archivio"
                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors"
                             >
-                                <Plus size={11} /> Aggiungi documento
+                                <Plus size={11} /> {t('documenti.aggiungi_documento')}
                             </Link>
                         </div>
                         <p className="font-body text-xs text-nebbia/30 mb-3">
-                            I documenti vengono salvati nell'archivio dello studio, indicizzati per la ricerca con Lex e collegati a questa pratica.
+                            {t('documenti.disclaimer')}
                         </p>
                         {loadingDocs ? (
                             <div className="flex justify-center py-6">
@@ -638,8 +646,8 @@ export default function PraticaDettaglio() {
                         ) : documenti.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-8 px-1 text-nebbia/30 text-center">
                                 <FileText size={20} className="mb-2 text-nebbia/20" />
-                                <span className="font-body text-xs">Nessun documento collegato a questa pratica</span>
-                                <span className="font-body text-xs text-nebbia/25 mt-1">Usa "Aggiungi documento" qui sopra per caricarlo</span>
+                                <span className="font-body text-xs">{t('documenti.vuoto_titolo')}</span>
+                                <span className="font-body text-xs text-nebbia/25 mt-1">{t('documenti.vuoto_sottotitolo')}</span>
                             </div>
                         ) : (
                             <div className={`space-y-2 ${documenti.length > 5 ? 'max-h-80 overflow-y-auto -mr-1 pr-1' : ''}`}>
@@ -652,7 +660,7 @@ export default function PraticaDettaglio() {
                                                     <p className="font-body text-sm text-nebbia truncate">{doc.nome_file}</p>
                                                     {doc.fonte === 'archivio' && (
                                                         <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/10 border border-salvia/25 text-salvia uppercase tracking-wider">
-                                                            Archivio
+                                                            {t('documenti.badge_archivio')}
                                                         </span>
                                                     )}
                                                 </div>
@@ -662,17 +670,17 @@ export default function PraticaDettaglio() {
                                                     </p>
                                                 )}
                                                 <p className="font-body text-xs text-nebbia/30 mt-0.5">
-                                                    {doc.autore ? `${doc.autore.nome} ${doc.autore.cognome}` : '—'} · {new Date(doc.created_at).toLocaleDateString('it-CH')}
+                                                    {doc.autore ? `${doc.autore.nome} ${doc.autore.cognome}` : t('common.trattino')} · {new Date(doc.created_at).toLocaleDateString(dateLocale)}
                                                     {doc.dimensione && ` · ${(doc.dimensione / 1024 / 1024).toFixed(1)} MB`}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 shrink-0">
-                                            <button onClick={() => scaricaDocumento(doc)} className="text-nebbia/30 hover:text-oro transition-colors" title="Scarica">
+                                            <button onClick={() => scaricaDocumento(doc)} className="text-nebbia/30 hover:text-oro transition-colors" title={t('documenti.scarica')}>
                                                 <Download size={13} />
                                             </button>
                                             <button onClick={() => eliminaDocumento(doc)} className="text-nebbia/30 hover:text-red-400 transition-colors"
-                                                title={doc.fonte === 'archivio' ? 'Rimuovi dalla pratica' : 'Elimina'}>
+                                                title={doc.fonte === 'archivio' ? t('documenti.rimuovi_dalla_pratica') : t('documenti.elimina')}>
                                                 <X size={13} />
                                             </button>
                                         </div>
@@ -687,19 +695,19 @@ export default function PraticaDettaglio() {
                 <div className="lg:col-span-2 bg-slate border border-white/5 flex flex-col h-[600px] lg:h-auto lg:min-h-0">
 
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 shrink-0">
-                        <p className="section-label">Ricerche e descrizione causa ({ricerche.length})</p>
+                        <p className="section-label">{t('ricerche.titolo', { count: ricerche.length })}</p>
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => navigate('/banca-dati')}
                                 className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors flex items-center gap-1"
                             >
-                                <Search size={11} /> Cerca in Banca Dati
+                                <Search size={11} /> {t('ricerche.cerca_banca_dati')}
                             </button>
                             <button
                                 onClick={() => setMostraForm(!mostraFormRicerca)}
                                 className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors"
                             >
-                                <Plus size={11} /> Aggiungi
+                                <Plus size={11} /> {t('ricerche.aggiungi')}
                             </button>
                         </div>
                     </div>
@@ -707,14 +715,14 @@ export default function PraticaDettaglio() {
                     {mostraFormRicerca && (
                         <div className="px-4 py-3 border-b border-white/5 bg-petrolio/30 shrink-0 space-y-3">
                             <input
-                                placeholder="Titolo ricerca (opzionale)..."
+                                placeholder={t('ricerche.placeholder_titolo')}
                                 value={nuovaRicerca.titolo}
                                 onChange={e => setNuovaRicerca(p => ({ ...p, titolo: e.target.value }))}
                                 className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
                             />
                             <textarea
                                 rows={4}
-                                placeholder="Scrivi il tuo ragionamento legale..."
+                                placeholder={t('ricerche.placeholder_contenuto')}
                                 value={nuovaRicerca.contenuto}
                                 onChange={e => setNuovaRicerca(p => ({ ...p, contenuto: e.target.value }))}
                                 className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
@@ -732,14 +740,14 @@ export default function PraticaDettaglio() {
                                 >
                                     {salvandoRicerca
                                         ? <span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" />
-                                        : <><Save size={11} /> Salva</>
+                                        : <><Save size={11} /> {t('common.salva')}</>
                                     }
                                 </button>
                                 <button
                                     onClick={() => { setMostraForm(false); setNuovaRicerca({ titolo: '', contenuto: '' }); setErroreRicerca(null) }}
                                     className="px-3 py-1.5 border border-white/10 text-nebbia/40 font-body text-xs hover:text-nebbia transition-colors"
                                 >
-                                    Annulla
+                                    {t('common.annulla')}
                                 </button>
                             </div>
                         </div>
@@ -753,9 +761,9 @@ export default function PraticaDettaglio() {
                         ) : ricerche.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full py-12 text-center px-4">
                                 <Sparkles size={20} className="text-nebbia/20 mb-2" />
-                                <p className="font-body text-sm text-nebbia/30">Nessuna ricerca</p>
+                                <p className="font-body text-sm text-nebbia/30">{t('ricerche.vuoto_titolo')}</p>
                                 <p className="font-body text-xs text-nebbia/20 mt-1">
-                                    Aggiungi una ricerca manuale o cerca in Banca Dati
+                                    {t('ricerche.vuoto_sottotitolo')}
                                 </p>
                             </div>
                         ) : ricerche.map(r => (
@@ -768,14 +776,14 @@ export default function PraticaDettaglio() {
                                         }
                                         <p className="font-body text-xs font-medium text-nebbia/70">
                                             {r.titolo ?? (
-                                                r.tipo === 'ricerca_ai' ? 'Ricerca AI' :
-                                                    r.tipo === 'chat_lex' ? 'Chat con Lex' : 'Ricerca manuale'
+                                                r.tipo === 'ricerca_ai' ? t('ricerche.tipo_ricerca_ai') :
+                                                    r.tipo === 'chat_lex' ? t('ricerche.tipo_chat_lex') : t('ricerche.tipo_ricerca_manuale')
                                             )}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
                                         <span className="font-body text-xs text-nebbia/25">
-                                            {r.autore ? `${r.autore.nome} ${r.autore.cognome}` : '—'} · {new Date(r.created_at).toLocaleDateString('it-CH')}
+                                            {r.autore ? `${r.autore.nome} ${r.autore.cognome}` : t('common.trattino')} · {new Date(r.created_at).toLocaleDateString(dateLocale)}
                                         </span>
                                         <button onClick={() => eliminaRicerca(r.id)} className="text-nebbia/20 hover:text-red-400 transition-colors">
                                             <X size={12} />
@@ -784,7 +792,7 @@ export default function PraticaDettaglio() {
                                 </div>
                                 <RicercaEspandibile contenuto={r.contenuto} id={r.id} tipo={r.tipo} onSalva={caricaRicerche} />
                                 {(r.tipo === 'ricerca_ai' || r.tipo === 'chat_lex') && r.metadati?.sentenze && (
-                                    <p className="font-body text-xs text-oro/50 ml-5">Giurisprudenza correlata disponibile</p>
+                                    <p className="font-body text-xs text-oro/50 ml-5">{t('ricerche.giurisprudenza_correlata')}</p>
                                 )}
                             </div>
                         ))}
@@ -795,13 +803,13 @@ export default function PraticaDettaglio() {
             {/* ═══════════════ Note esito (solo se chiusa) ═══════════════ */}
             {pratica.stato === 'chiusa' && pratica.esito && (
                 <div className="bg-slate border border-white/5 p-5">
-                    <p className="section-label mb-3">Note sull'esito</p>
+                    <p className="section-label mb-3">{t('note_esito.titolo')}</p>
                     <p className="font-body text-xs text-nebbia/30 leading-relaxed mb-3">
-                        Perché la pratica si è conclusa così? Cosa ha funzionato o non ha funzionato?
+                        {t('note_esito.descrizione')}
                     </p>
                     <textarea
                         rows={4}
-                        placeholder="Es. La strategia difensiva basata sull'alibi ha funzionato perché..."
+                        placeholder={t('note_esito.placeholder')}
                         value={noteEsito}
                         onChange={e => setNoteEsito(e.target.value)}
                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/25"
@@ -818,7 +826,7 @@ export default function PraticaDettaglio() {
                     >
                         {salvandoNoteEsito
                             ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
-                            : 'Salva note esito'
+                            : t('note_esito.salva')
                         }
                     </button>
                 </div>
@@ -833,17 +841,16 @@ export default function PraticaDettaglio() {
             <div className="pt-8 mt-8 border-t border-red-500/20">
                 <div className="flex items-start justify-between flex-wrap gap-3 bg-red-900/5 border border-red-500/20 p-5">
                     <div>
-                        <p className="font-body text-sm font-medium text-red-400 mb-1">Elimina pratica</p>
+                        <p className="font-body text-sm font-medium text-red-400 mb-1">{t('zona_pericolosa.titolo')}</p>
                         <p className="font-body text-xs text-nebbia/40 leading-relaxed max-w-xl">
-                            Rimuove definitivamente la pratica e i suoi dati (udienze, termini, controparti,
-                            ricerche, documenti). Le fatture collegate vanno scollegate prima.
+                            {t('zona_pericolosa.descrizione')}
                         </p>
                     </div>
                     <button
                         onClick={() => setMostraEliminaModal(true)}
                         className="flex items-center gap-2 px-4 py-2 border border-red-500/40 text-red-400 font-body text-sm hover:bg-red-500/10 transition-colors shrink-0"
                     >
-                        <Trash2 size={13} /> Elimina pratica
+                        <Trash2 size={13} /> {t('zona_pericolosa.bottone')}
                     </button>
                 </div>
             </div>

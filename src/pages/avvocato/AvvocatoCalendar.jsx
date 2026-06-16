@@ -3,11 +3,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { MapPin, Video, Phone, Calendar, ChevronLeft, ChevronRight, X, Check, Plus, Clock, Search, AlertTriangle } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 
-const MESI = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
-const GIORNI = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
+const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
+const toArray = (v) => Array.isArray(v) ? v : []
+
+// Icone per tipo evento — mai nel JSON, indicizzate per chiave tecnica (valori DB)
 const TIPO_ICON = {
   presenza: MapPin,
   videocall: Video,
@@ -15,18 +18,12 @@ const TIPO_ICON = {
   udienza: Calendar,
   scadenza: AlertTriangle,
 }
-const TIPO_LABEL = {
-  presenza: 'In presenza',
-  videocall: 'Videocall',
-  telefonico: 'Telefonico',
-  udienza: 'Udienza',
-  scadenza: 'Scadenza',
-}
 
-const STATO_CONFIG = {
-  programmato: { label: 'Programmato', bg: 'bg-oro/10', text: 'text-oro', border: 'border-oro/30' },
-  concluso: { label: 'Concluso', bg: 'bg-salvia/10', text: 'text-salvia', border: 'border-salvia/30' },
-  annullato: { label: 'Annullato', bg: 'bg-red-900/20', text: 'text-red-400', border: 'border-red-500/30' },
+// Stili per stato — le label arrivano da t() (chiavi tecniche = valori DB)
+const STATO_STYLE = {
+  programmato: { bg: 'bg-oro/10', text: 'text-oro', border: 'border-oro/30' },
+  concluso: { bg: 'bg-salvia/10', text: 'text-salvia', border: 'border-salvia/30' },
+  annullato: { bg: 'bg-red-900/20', text: 'text-red-400', border: 'border-red-500/30' },
 }
 
 const AVATAR_COLORS = [
@@ -37,7 +34,7 @@ const AVATAR_COLORS = [
 function dateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
-function oraDa(iso) { if (!iso) return ''; return new Date(iso).toLocaleTimeString('it-CH', { hour: '2-digit', minute: '2-digit' }) }
+function oraDa(iso, locale = 'it-CH') { if (!iso) return ''; return new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) }
 function dataDa(iso) { if (!iso) return ''; return new Date(iso).toISOString().slice(0, 10) }
 
 function StatBox({ label, value, colorClass = 'text-oro' }) {
@@ -50,15 +47,29 @@ function StatBox({ label, value, colorClass = 'text-oro' }) {
 }
 
 function BadgeStato({ stato }) {
-  const cfg = STATO_CONFIG[stato] ?? STATO_CONFIG.programmato
+  const { t } = useTranslation('avv_calendar')
+  const cfg = STATO_STYLE[stato] ?? STATO_STYLE.programmato
+  const label = t(`stati.${STATO_STYLE[stato] ? stato : 'programmato'}`)
   return (
     <span className={`inline-flex items-center px-2 py-0.5 text-xs font-body font-medium border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
-      {cfg.label}
+      {label}
     </span>
   )
 }
 
 export default function AvvocatoCalendar() {
+  const { t, i18n } = useTranslation('avv_calendar')
+  const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+  const MESI = toArray(t('mesi', { returnObjects: true }))
+  const GIORNI = toArray(t('giorni', { returnObjects: true }))
+  const TIPO_LABEL = {
+    presenza: t('tipi.presenza'),
+    videocall: t('tipi.videocall'),
+    telefonico: t('tipi.telefonico'),
+    udienza: t('tipi.udienza'),
+    scadenza: t('tipi.scadenza'),
+  }
+
   const today = new Date()
 
   const [meId, setMeId] = useState(null)
@@ -205,8 +216,8 @@ export default function AvvocatoCalendar() {
 
   async function handleSalva() {
     setErrore('')
-    if (!form.titolo.trim()) return setErrore('Il titolo è obbligatorio')
-    if (!form.data) return setErrore('La data è obbligatoria')
+    if (!form.titolo.trim()) return setErrore(t('errori.titolo_obbligatorio'))
+    if (!form.data) return setErrore(t('errori.data_obbligatoria'))
     setSalvando(true)
     try {
       const inizioIso = new Date(`${form.data}T${form.ora_inizio}:00`).toISOString()
@@ -257,15 +268,15 @@ export default function AvvocatoCalendar() {
     <div className="space-y-6">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <p className="section-label mb-2">Agenda</p>
-          <h1 className="font-display text-4xl font-light text-nebbia">Calendario <span className="text-oro-static italic">appuntamenti</span></h1>
+          <p className="section-label mb-2">{t('header.label')}</p>
+          <h1 className="font-display text-4xl font-light text-nebbia">{t('header.titolo')} <span className="text-oro-static italic">{t('header.titolo_evidenza')}</span></h1>
         </div>
         {isStudio && membri.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-body text-xs text-nebbia/30">Visualizza:</span>
+            <span className="font-body text-xs text-nebbia/30">{t('header.visualizza')}</span>
             <button onClick={() => setFiltroAvv('')}
               className={`font-body text-xs px-3 py-1.5 border transition-colors ${!filtroAvv ? 'bg-oro/15 border-oro/40 text-oro' : 'border-white/10 text-nebbia/40 hover:border-white/20'}`}>
-              Tutti
+              {t('header.tutti')}
             </button>
             {membri.map(m => (
               <button key={m.id} onClick={() => setFiltroAvv(filtroAvv === m.id ? '' : m.id)}
@@ -279,11 +290,11 @@ export default function AvvocatoCalendar() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <StatBox label="Programmati" value={loadingApp ? '—' : programmati} colorClass="text-oro" />
-        <StatBox label="Oggi" value={loadingApp ? '—' : oggiCount} colorClass="text-salvia" />
-        <StatBox label="Udienze future" value={loadingApp ? '—' : udienze} colorClass="text-red-400" />
-        <StatBox label="Scadenze future" value={loadingApp ? '—' : scadenze} colorClass="text-amber-400" />
-        <StatBox label="Conclusi" value={loadingApp ? '—' : conclusi} colorClass="text-nebbia/50" />
+        <StatBox label={t('stats.programmati')} value={loadingApp ? '—' : programmati} colorClass="text-oro" />
+        <StatBox label={t('stats.oggi')} value={loadingApp ? '—' : oggiCount} colorClass="text-salvia" />
+        <StatBox label={t('stats.udienze_future')} value={loadingApp ? '—' : udienze} colorClass="text-red-400" />
+        <StatBox label={t('stats.scadenze_future')} value={loadingApp ? '—' : scadenze} colorClass="text-amber-400" />
+        <StatBox label={t('stats.conclusi')} value={loadingApp ? '—' : conclusi} colorClass="text-nebbia/50" />
       </div>
 
       <div className="flex gap-5 items-start">
@@ -293,7 +304,7 @@ export default function AvvocatoCalendar() {
             <h2 className="font-display text-2xl font-semibold text-nebbia">{MESI[mese]} <span className="text-nebbia/40 font-light">{anno}</span></h2>
             <div className="flex items-center gap-1">
               <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))} className="p-2 text-nebbia/50 hover:text-oro transition-colors"><ChevronLeft size={18} /></button>
-              <button onClick={() => setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1))} className="btn-secondary text-xs px-3 py-1.5">Oggi</button>
+              <button onClick={() => setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1))} className="btn-secondary text-xs px-3 py-1.5">{t('griglia.oggi')}</button>
               <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))} className="p-2 text-nebbia/50 hover:text-oro transition-colors"><ChevronRight size={18} /></button>
             </div>
           </div>
@@ -320,7 +331,7 @@ export default function AvvocatoCalendar() {
                   <div className="flex flex-wrap gap-0.5 mt-auto">
                     {nUd > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-red-900/30 text-red-400 border border-red-500/40 font-body">⚖ {nUd}</span>}
                     {nScad > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-amber-900/30 text-amber-400 border border-amber-500/40 font-body">⏱ {nScad}</span>}
-                    {nApp > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-oro/15 text-oro border border-oro/30 font-body">{nApp} app.</span>}
+                    {nApp > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-oro/15 text-oro border border-oro/30 font-body">{t('griglia.badge_app', { count: nApp })}</span>}
                     {isStudio && !filtroAvv && avvIds.length > 0 && (
                       <div className="flex gap-0.5 mt-0.5">
                         {avvIds.slice(0, 3).map((id, idx) => {
@@ -336,9 +347,9 @@ export default function AvvocatoCalendar() {
           </div>
 
           <div className="flex items-center gap-5 mt-4 pt-3 border-t border-white/5 flex-wrap">
-            <div className="flex items-center gap-2"><span className="w-3 h-3 bg-oro/15 border border-oro/30 inline-block" /><span className="font-body text-xs text-nebbia/40">Appuntamento</span></div>
-            <div className="flex items-center gap-2"><span className="w-3 h-3 bg-red-900/30 border border-red-500/40 inline-block" /><span className="font-body text-xs text-nebbia/40">Udienza</span></div>
-            <div className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-900/30 border border-amber-500/40 inline-block" /><span className="font-body text-xs text-nebbia/40">Scadenza</span></div>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 bg-oro/15 border border-oro/30 inline-block" /><span className="font-body text-xs text-nebbia/40">{t('legenda.appuntamento')}</span></div>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 bg-red-900/30 border border-red-500/40 inline-block" /><span className="font-body text-xs text-nebbia/40">{t('legenda.udienza')}</span></div>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-900/30 border border-amber-500/40 inline-block" /><span className="font-body text-xs text-nebbia/40">{t('legenda.scadenza')}</span></div>
             {isStudio && membri.map(m => (
               <div key={m.id} className="flex items-center gap-1.5">
                 <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${m.color}`}>{m.nome[0]}</span>
@@ -357,9 +368,9 @@ export default function AvvocatoCalendar() {
                 <h3 className="font-display text-2xl font-semibold text-nebbia mt-0.5">{selectedDay.getDate()} {MESI[selectedDay.getMonth()]}</h3>
               </div>
               <div className="flex items-center gap-2">
-                <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">App.</p><p className="font-display text-lg font-semibold text-oro">{eventiGiorno.filter(e => e.tipo !== 'udienza' && e.tipo !== 'scadenza').length}</p></div>
-                <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">Ud.</p><p className="font-display text-lg font-semibold text-red-400">{eventiGiorno.filter(e => e.tipo === 'udienza').length}</p></div>
-                <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">Scad.</p><p className="font-display text-lg font-semibold text-amber-400">{eventiGiorno.filter(e => e.tipo === 'scadenza').length}</p></div>
+                <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">{t('pannello.app_abbr')}</p><p className="font-display text-lg font-semibold text-oro">{eventiGiorno.filter(e => e.tipo !== 'udienza' && e.tipo !== 'scadenza').length}</p></div>
+                <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">{t('pannello.ud_abbr')}</p><p className="font-display text-lg font-semibold text-red-400">{eventiGiorno.filter(e => e.tipo === 'udienza').length}</p></div>
+                <div className="text-right"><p className="font-body text-[10px] text-nebbia/30">{t('pannello.scad_abbr')}</p><p className="font-display text-lg font-semibold text-amber-400">{eventiGiorno.filter(e => e.tipo === 'scadenza').length}</p></div>
                 <button onClick={() => { setSelectedDay(null); setShowNew(false) }} className="text-nebbia/30 hover:text-nebbia ml-2"><X size={16} /></button>
               </div>
             </div>
@@ -367,33 +378,33 @@ export default function AvvocatoCalendar() {
             <div className="p-4 border-b border-white/5">
               <button onClick={() => { setShowNew(v => !v); setExpandedEvent(null); setForm({ ...formVuoto, data: dateKey(selectedDay), avvocato_id: meId ?? '' }) }}
                 className="btn-primary text-xs w-full justify-center py-2.5">
-                <Plus size={13} /> Nuovo appuntamento
+                <Plus size={13} /> {t('pannello.nuovo_appuntamento')}
               </button>
               <p className="font-body text-[10px] text-nebbia/30 text-center mt-2">
-                Le scadenze processuali si aggiungono dalla scheda pratica
+                {t('pannello.help_scadenze')}
               </p>
             </div>
 
             {showNew && (
               <div className="p-4 border-b border-white/5 space-y-3 bg-petrolio/40">
-                <input value={form.titolo} onChange={e => setForm(f => ({ ...f, titolo: e.target.value }))} placeholder="Titolo appuntamento *"
+                <input value={form.titolo} onChange={e => setForm(f => ({ ...f, titolo: e.target.value }))} placeholder={t('form.titolo_placeholder')}
                   className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
 
                 <select value={form.cliente_id} onChange={e => setForm(f => ({ ...f, cliente_id: e.target.value }))}
                   className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50">
-                  <option value="">Cliente (opzionale)</option>
+                  <option value="">{t('form.cliente_opzionale')}</option>
                   {clienti.map(c => <option key={c.id} value={c.id}>{c.nome} {c.cognome}</option>)}
                 </select>
 
                 <div className="grid grid-cols-4 gap-1">
-                  {['presenza', 'videocall', 'telefonico', 'udienza'].map(t => {
-                    const Icon = TIPO_ICON[t]; const isUd = t === 'udienza'
+                  {['presenza', 'videocall', 'telefonico', 'udienza'].map(tp => {
+                    const Icon = TIPO_ICON[tp]; const isUd = tp === 'udienza'
                     return (
-                      <button key={t} type="button" onClick={() => setForm(f => ({ ...f, tipo: t }))}
-                        className={`flex items-center justify-center gap-1 py-2 text-xs font-body border transition-all ${form.tipo === t
+                      <button key={tp} type="button" onClick={() => setForm(f => ({ ...f, tipo: tp }))}
+                        className={`flex items-center justify-center gap-1 py-2 text-xs font-body border transition-all ${form.tipo === tp
                           ? isUd ? 'bg-red-500/70 text-white border-red-500' : 'bg-oro text-petrolio border-oro'
                           : isUd ? 'text-red-400/60 border-red-500/25' : 'text-nebbia/50 border-white/10 hover:border-oro/30'}`}>
-                        <Icon size={10} /> {TIPO_LABEL[t].split(' ')[0]}
+                        <Icon size={10} /> {t(`tipi_breve.${tp}`)}
                       </button>
                     )
                   })}
@@ -401,12 +412,12 @@ export default function AvvocatoCalendar() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="font-body text-xs text-nebbia/40 block mb-1">Inizio</label>
+                    <label className="font-body text-xs text-nebbia/40 block mb-1">{t('form.inizio')}</label>
                     <input type="time" value={form.ora_inizio} onChange={e => setForm(f => ({ ...f, ora_inizio: e.target.value }))}
                       className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50" />
                   </div>
                   <div>
-                    <label className="font-body text-xs text-nebbia/40 block mb-1">Fine</label>
+                    <label className="font-body text-xs text-nebbia/40 block mb-1">{t('form.fine')}</label>
                     <input type="time" value={form.ora_fine} onChange={e => setForm(f => ({ ...f, ora_fine: e.target.value }))}
                       className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50" />
                   </div>
@@ -415,29 +426,29 @@ export default function AvvocatoCalendar() {
                 {isStudio && membri.length > 0 && (
                   <select value={form.avvocato_id} onChange={e => setForm(f => ({ ...f, avvocato_id: e.target.value }))}
                     className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50">
-                    <option value={meId}>Tu</option>
+                    <option value={meId}>{t('form.tu')}</option>
                     {membri.map(m => <option key={m.id} value={m.id}>{m.nome} {m.cognome}</option>)}
                   </select>
                 )}
 
                 {form.tipo === 'udienza' && (
-                  <input value={form.note_interne} onChange={e => setForm(f => ({ ...f, note_interne: e.target.value }))} placeholder="Tribunale / Aula"
+                  <input value={form.note_interne} onChange={e => setForm(f => ({ ...f, note_interne: e.target.value }))} placeholder={t('form.tribunale_aula')}
                     className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/20" />
                 )}
                 {form.tipo === 'videocall' && (
-                  <input value={form.link_videocall} onChange={e => setForm(f => ({ ...f, link_videocall: e.target.value }))} placeholder="Link videocall"
+                  <input value={form.link_videocall} onChange={e => setForm(f => ({ ...f, link_videocall: e.target.value }))} placeholder={t('form.link_videocall')}
                     className="w-full bg-slate border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/20" />
                 )}
 
-                <textarea rows={2} value={form.note_cliente} onChange={e => setForm(f => ({ ...f, note_cliente: e.target.value }))} placeholder="Note per il cliente (opzionale)"
+                <textarea rows={2} value={form.note_cliente} onChange={e => setForm(f => ({ ...f, note_cliente: e.target.value }))} placeholder={t('form.note_cliente_placeholder')}
                   className="w-full bg-slate border border-white/10 text-nebbia font-body text-xs px-3 py-2 outline-none focus:border-oro/50 resize-none placeholder:text-nebbia/20" />
 
                 {errore && <p className="font-body text-xs text-red-400">{errore}</p>}
 
                 <div className="flex gap-2">
-                  <button onClick={() => { setShowNew(false); setErrore('') }} className="btn-secondary text-xs flex-1 py-2">Annulla</button>
+                  <button onClick={() => { setShowNew(false); setErrore('') }} className="btn-secondary text-xs flex-1 py-2">{t('form.annulla')}</button>
                   <button onClick={handleSalva} disabled={salvando} className="btn-primary text-xs flex-1 py-2 justify-center disabled:opacity-40">
-                    {salvando ? <span className="animate-spin w-3 h-3 border border-petrolio border-t-transparent rounded-full" /> : 'Salva'}
+                    {salvando ? <span className="animate-spin w-3 h-3 border border-petrolio border-t-transparent rounded-full" /> : t('form.salva')}
                   </button>
                 </div>
               </div>
@@ -447,7 +458,7 @@ export default function AvvocatoCalendar() {
               {eventiGiorno.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
                   <Calendar size={28} className="text-nebbia/15 mb-3" />
-                  <p className="font-body text-sm text-nebbia/30">Nessun appuntamento</p>
+                  <p className="font-body text-sm text-nebbia/30">{t('pannello.nessun_appuntamento')}</p>
                 </div>
               ) : [...eventiGiorno].sort((a, b) => (a.data_ora_inizio ?? '').localeCompare(b.data_ora_inizio ?? '')).map(e => {
                 const isExp = expandedEvent === e.id
@@ -479,7 +490,7 @@ export default function AvvocatoCalendar() {
                         <p className="font-body text-sm font-medium text-nebbia truncate">{e.titolo}</p>
                         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                           <span className="font-body text-xs text-nebbia/40">
-                            {oraDa(e.data_ora_inizio)}{e.data_ora_fine ? ` – ${oraDa(e.data_ora_fine)}` : ''}
+                            {oraDa(e.data_ora_inizio, dateLocale)}{e.data_ora_fine ? ` – ${oraDa(e.data_ora_fine, dateLocale)}` : ''}
                           </span>
                           {e.cliente && <span className="font-body text-xs text-nebbia/40">· {e.cliente.nome} {e.cliente.cognome}</span>}
                           {isStudio && membre && <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${membre.color}`}>{membre.nome[0]}</span>}
@@ -494,24 +505,24 @@ export default function AvvocatoCalendar() {
                             to={`/pratiche/${e.pratica.id}`}
                             className="block bg-oro/5 border border-oro/15 p-2 hover:bg-oro/10 transition-colors"
                           >
-                            <p className="font-body text-[10px] text-oro uppercase tracking-widest mb-1">Pratica</p>
+                            <p className="font-body text-[10px] text-oro uppercase tracking-widest mb-1">{t('evento.pratica')}</p>
                             <p className="font-body text-xs text-nebbia">{e.pratica.titolo}</p>
                           </Link>
                         )}
-                        {e.note_interne && <div className="bg-oro/5 border border-oro/15 p-2"><p className="font-body text-[10px] text-oro uppercase tracking-widest mb-1">Note interne</p><p className="font-body text-xs text-nebbia/60">{e.note_interne}</p></div>}
-                        {e.note_cliente && <div className="bg-salvia/5 border border-salvia/15 p-2"><p className="font-body text-[10px] text-salvia uppercase tracking-widest mb-1">Note cliente</p><p className="font-body text-xs text-nebbia/60">{e.note_cliente}</p></div>}
+                        {e.note_interne && <div className="bg-oro/5 border border-oro/15 p-2"><p className="font-body text-[10px] text-oro uppercase tracking-widest mb-1">{t('evento.note_interne')}</p><p className="font-body text-xs text-nebbia/60">{e.note_interne}</p></div>}
+                        {e.note_cliente && <div className="bg-salvia/5 border border-salvia/15 p-2"><p className="font-body text-[10px] text-salvia uppercase tracking-widest mb-1">{t('evento.note_cliente')}</p><p className="font-body text-xs text-nebbia/60">{e.note_cliente}</p></div>}
                         {e.link_videocall && <a href={e.link_videocall} target="_blank" rel="noreferrer" className="font-body text-xs text-oro hover:underline block truncate">{e.link_videocall}</a>}
                         {isScad && (
                           <p className="font-body text-[10px] text-amber-400/80 italic">
-                            Questa scadenza è stata generata automaticamente. Per modificarla o segnarla come compiuta, vai sulla scheda pratica.
+                            {t('evento.scadenza_auto')}
                           </p>
                         )}
                         {e.stato === 'programmato' && !isScad && e.tipo !== 'udienza' && (
                           <div className="flex gap-2">
                             <button onClick={() => cambiaStato(e.id, 'concluso')} className="flex-1 font-body text-xs py-1.5 border border-salvia/30 text-salvia hover:bg-salvia/10 transition-colors flex items-center justify-center gap-1">
-                              <Check size={11} /> Concluso
+                              <Check size={11} /> {t('evento.azione_concludi')}
                             </button>
-                            <button onClick={() => cambiaStato(e.id, 'annullato')} className="font-body text-xs py-1.5 px-3 border border-red-500/30 text-red-400 hover:bg-red-900/10 transition-colors">Annulla</button>
+                            <button onClick={() => cambiaStato(e.id, 'annullato')} className="font-body text-xs py-1.5 px-3 border border-red-500/30 text-red-400 hover:bg-red-900/10 transition-colors">{t('evento.azione_annulla')}</button>
                           </div>
                         )}
                         {isUd && e.pratica && (
@@ -519,12 +530,12 @@ export default function AvvocatoCalendar() {
                             to={`/pratiche/${e.pratica.id}`}
                             className="block w-full text-center font-body text-xs py-2 border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors"
                           >
-                            ⚖ Gestisci nella pratica →
+                            {t('evento.gestisci_pratica')}
                           </Link>
                         )}
                         {isUd && !e.pratica && (
                           <p className="font-body text-[10px] text-nebbia/30 italic text-center">
-                            Le udienze si gestiscono dalla scheda della pratica collegata.
+                            {t('evento.udienze_da_pratica')}
                           </p>
                         )}
                       </div>
@@ -541,30 +552,30 @@ export default function AvvocatoCalendar() {
       <div className="bg-slate border border-white/5">
         <div className="p-5 border-b border-white/5 flex flex-col sm:flex-row sm:items-center gap-3">
           <div>
-            <h2 className="font-display text-xl font-semibold text-nebbia">Riepilogo agenda</h2>
-            <p className="font-body text-xs text-nebbia/40 mt-0.5">Tutti gli eventi: appuntamenti, udienze, scadenze</p>
+            <h2 className="font-display text-xl font-semibold text-nebbia">{t('tabella.titolo')}</h2>
+            <p className="font-body text-xs text-nebbia/40 mt-0.5">{t('tabella.sottotitolo')}</p>
           </div>
           <div className="sm:ml-auto flex flex-wrap gap-2">
             <div className="relative">
               <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-nebbia/30" />
-              <input placeholder="Cerca..." value={tabellaSearch} onChange={e => setTabellaSearch(e.target.value)}
+              <input placeholder={t('tabella.cerca_placeholder')} value={tabellaSearch} onChange={e => setTabellaSearch(e.target.value)}
                 className="bg-petrolio border border-white/10 text-nebbia font-body text-xs pl-8 pr-3 py-2 outline-none focus:border-oro/50 w-40 placeholder:text-nebbia/25" />
             </div>
             <input type="date" value={tabellaFrom} onChange={e => setTabellaFrom(e.target.value)} className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-3 py-2 outline-none focus:border-oro/50" />
             <input type="date" value={tabellaTo} onChange={e => setTabellaTo(e.target.value)} className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-3 py-2 outline-none focus:border-oro/50" />
             <select value={tabellaTipo} onChange={e => setTabellaTipo(e.target.value)} className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-3 py-2 outline-none focus:border-oro/50">
-              <option value="">Tutti i tipi</option>
-              <option value="presenza">In presenza</option>
-              <option value="videocall">Videocall</option>
-              <option value="telefonico">Telefonico</option>
-              <option value="udienza">Udienza</option>
-              <option value="scadenza">Scadenza</option>
+              <option value="">{t('tabella.tutti_tipi')}</option>
+              <option value="presenza">{t('tipi.presenza')}</option>
+              <option value="videocall">{t('tipi.videocall')}</option>
+              <option value="telefonico">{t('tipi.telefonico')}</option>
+              <option value="udienza">{t('tipi.udienza')}</option>
+              <option value="scadenza">{t('tipi.scadenza')}</option>
             </select>
             <select value={tabellaStato} onChange={e => setTabellaStato(e.target.value)} className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-3 py-2 outline-none focus:border-oro/50">
-              <option value="">Tutti gli stati</option>
-              <option value="programmato">Programmato</option>
-              <option value="concluso">Concluso</option>
-              <option value="annullato">Annullato</option>
+              <option value="">{t('tabella.tutti_stati')}</option>
+              <option value="programmato">{t('stati.programmato')}</option>
+              <option value="concluso">{t('stati.concluso')}</option>
+              <option value="annullato">{t('stati.annullato')}</option>
             </select>
             <button onClick={() => setTabellaSort(s => s === 'asc' ? 'desc' : 'asc')} className="btn-secondary text-xs px-3 py-2 flex items-center gap-1">
               <Clock size={12} /> {tabellaSort === 'asc' ? '↑' : '↓'}
@@ -575,12 +586,12 @@ export default function AvvocatoCalendar() {
           {loadingApp ? (
             <div className="flex items-center justify-center py-16"><span className="animate-spin w-5 h-5 border-2 border-oro border-t-transparent rounded-full" /></div>
           ) : righe.length === 0 ? (
-            <p className="text-center py-12 font-body text-sm text-nebbia/30">Nessun evento trovato</p>
+            <p className="text-center py-12 font-body text-sm text-nebbia/30">{t('tabella.nessun_evento')}</p>
           ) : (
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/5">
-                  {['Tipo', 'Titolo', 'Cliente', ...(isStudio ? ['Avvocato'] : []), 'Pratica', 'Data & Ora', 'Stato'].map(h => (
+                  {[t('tabella.intestazioni.tipo'), t('tabella.intestazioni.titolo'), t('tabella.intestazioni.cliente'), ...(isStudio ? [t('tabella.intestazioni.avvocato')] : []), t('tabella.intestazioni.pratica'), t('tabella.intestazioni.data_ora'), t('tabella.intestazioni.stato')].map(h => (
                     <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                   ))}
                 </tr>
@@ -591,7 +602,7 @@ export default function AvvocatoCalendar() {
                   const membre = membri.find(m => m.id === r.avvocato_id)
                   const isUd = r.tipo === 'udienza'
                   const isScad = r.tipo === 'scadenza'
-                  const dataOra = r.data_ora_inizio ? `${new Date(r.data_ora_inizio).toLocaleDateString('it-CH')} ${oraDa(r.data_ora_inizio)}` : '—'
+                  const dataOra = r.data_ora_inizio ? `${new Date(r.data_ora_inizio).toLocaleDateString(dateLocale)} ${oraDa(r.data_ora_inizio, dateLocale)}` : '—'
 
                   const tipoColor = isUd
                     ? 'border-red-500/30 text-red-400'

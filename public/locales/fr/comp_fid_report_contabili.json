@@ -1,0 +1,61 @@
+{
+  "anno": "Année",
+  "vuoto": "Aucune écriture : les rapports se remplissent à partir du journal.",
+  "nota_finale": "Compte de résultat = flux de l'année ; Bilan et Balance de vérification = soldes cumulés à fin {{anno}}. Tant que vous ne clôturez pas l'exercice, le résultat reste sur les comptes de résultat ; la clôture le porte au compte 2979.",
+  "tab": {
+    "ce": "Compte de résultat",
+    "bilancio": "Bilan",
+    "iva": "TVA",
+    "verifica": "Balance de vérification"
+  },
+  "sezione": {
+    "nessun_movimento": "Aucun mouvement.",
+    "totale": "Total {{sezione}}"
+  },
+  "ce": {
+    "ricavi": "Produits",
+    "costi": "Charges",
+    "risultato": "Résultat de l'exercice {{anno}}",
+    "nota_chiusura": "La clôture remet à zéro les comptes de résultat et porte le résultat au compte 2979.",
+    "chiudi_esercizio": "Clôturer l'exercice {{anno}}"
+  },
+  "bilancio": {
+    "attivo": "Actif",
+    "passivo": "Passif",
+    "risultato_cumulato": "Résultat de l'exercice (cumulé)",
+    "totale_passivo_risultato": "Total passif + résultat",
+    "quadrato": "Bilan équilibré : Actif {{attivo}} = Passif + Résultat {{passivoRisultato}}.",
+    "non_quadrato": "Bilan NON équilibré (différence {{differenza}}). Vérifiez les écritures / soldes d'ouverture."
+  },
+  "iva": {
+    "dovuta": "TVA due (à payer) {{anno}}",
+    "precedente": "Impôt préalable (à crédit)",
+    "da_versare": "TVA à verser",
+    "a_credito": "TVA en crédit",
+    "colonne": ["Trimestre", "Due", "Préalable", "Solde"],
+    "trimestre_riga": "{{q}}e trimestre {{anno}}",
+    "nota": "Solde = TVA due (compte 2200) − Impôt préalable (1170). Positif = à verser à l'AFC ; négatif = à crédit. Le versement s'enregistre manuellement (journal)."
+  },
+  "verifica": {
+    "colonne": ["Compte", "Débit", "Crédit", "Solde"],
+    "totali": "Totaux",
+    "quadra": "· équilibré ✓",
+    "non_quadra": "· NON équilibré"
+  },
+  "chiusura": {
+    "titolo": "Clôture de l'exercice {{anno}}",
+    "descrizione": "Je génère une écriture de clôture au 31.12.{{anno}} : elle remet à zéro les comptes de résultat (classes 3–8) et porte le résultat (<risultato>{{risultato}}</risultato>) au compte 2979. Il s'agit d'une écriture : pour l'annuler, supprimez-la du journal.",
+    "annulla": "Annuler",
+    "conferma": "Clôturer l'exercice",
+    "in_corso": "Clôture en cours...",
+    "descrizione_registrazione": "Clôture de l'exercice {{anno}}",
+    "esito_chiuso": "Exercice {{anno}} clôturé : {{tipo}} {{importo}} porté à 2979.",
+    "utile": "bénéfice",
+    "perdita": "perte",
+    "errori": {
+      "conto2979_assente": "Compte 2979 (Bénéfice/perte de l'exercice) absent du plan comptable.",
+      "gia_chiuso": "Exercice {{anno}} déjà clôturé.",
+      "nessun_conto": "Aucun compte de résultat à clôturer pour {{anno}}."
+    }
+  }
+}
