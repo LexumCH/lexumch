@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 import { labelFonteGiur, labelFontePrassi } from '@/lib/istituzioni'
-import { supabase, supabaseUrl } from '@/lib/supabase'
+import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import {
@@ -708,13 +708,13 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
         abortControllerRef.current = controller
 
         try {
-            const { data: { session } } = await supabase.auth.getSession()
+            const accessToken = await getAccessToken()
             const res = await fetch(
                 `${supabaseUrl}/functions/v1/lex-etichetta`,
                 {
                     method: 'POST',
                     headers: {
-                        Authorization: `Bearer ${session.access_token}`,
+                        Authorization: `Bearer ${accessToken}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({

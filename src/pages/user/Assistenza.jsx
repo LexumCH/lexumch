@@ -22,7 +22,7 @@ export function UserAssistenza() {
         async function carica() {
             setLoading(true)
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
+            if (!user) { setLoading(false); return }
 
             const { data, error } = await supabase
                 .from('ticket_assistenza')
@@ -148,15 +148,17 @@ export function UserAssistenzaNuovo() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error(t('nuovo.err_non_autenticato'))
 
-            const { data: admins } = await supabase
-                .from('profiles').select('id').eq('role', 'admin').limit(1)
-            const adminId = admins?.[0]?.id ?? null
+            // L'utente non può leggere i profili admin via RLS: uso la RPC
+            // SECURITY DEFINER get_supporto_admin_id() per ottenere il destinatario.
+            // Senza destinatario_id, il trigger notifica_nuovo_messaggio_ticket
+            // (destinatario IS NULL → RETURN) NON avviserebbe l'admin.
+            const { data: adminId } = await supabase.rpc('get_supporto_admin_id')
 
             const { data: ticket, error } = await supabase
                 .from('ticket_assistenza')
                 .insert({
                     mittente_id: user.id,
-                    destinatario_id: adminId,
+                    destinatario_id: adminId ?? null,
                     mittente_ruolo: 'user',
                     oggetto: titolo.trim(),
                     stato: 'aperto',
@@ -239,6 +241,7 @@ export function UserAssistenzaDettaglio() {
     useEffect(() => {
         async function init() {
             const { data: { user } } = await supabase.auth.getUser()
+            if (!user) { setLoading(false); return }
             setMeId(user.id)
 
             const [{ data: tk }, { data: msgs }] = await Promise.all([

@@ -5,7 +5,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { AlertCircle, Lock } from 'lucide-react'
-import { supabase, supabaseUrl } from '@/lib/supabase'
+import { supabaseUrl, getAccessToken } from '@/lib/supabase'
 
 export default function UserCheckout() {
     const { t } = useTranslation('user_checkout')
@@ -33,7 +33,7 @@ export default function UserCheckout() {
         setLoading(true)
 
         try {
-            const { data: { session } } = await supabase.auth.getSession()
+            const accessToken = await getAccessToken()
 
             const res = await fetch(
                 `${supabaseUrl}/functions/v1/stripe-checkout`,
@@ -41,7 +41,7 @@ export default function UserCheckout() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session.access_token}`,
+                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
                         prodotto_id: prodotto.id,
@@ -51,8 +51,8 @@ export default function UserCheckout() {
                 }
             )
 
-            const json = await res.json()
-            if (!json.ok) throw new Error(json.error)
+            const json = await res.json().catch(() => null)
+            if (!res.ok || !json?.ok) throw new Error(json?.error || `Errore checkout (HTTP ${res.status})`)
 
             // Redirect a Stripe Checkout
             window.location.href = json.url

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { PageHeader, InputField, Badge } from '@/components/shared'
-import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale } from 'lucide-react'
+import { Check, CheckCircle, AlertCircle, Scale, Clock, Loader2 } from 'lucide-react'
 import SelectLingua from '@/components/SelectLingua'
 
 export default function UserProfilo() {
@@ -60,13 +60,16 @@ export default function UserProfilo() {
         setSalvandoDati(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Sessione scaduta. Effettua di nuovo il login.')
+            // clamp lingua al CHECK profiles_lingua_check (it/de/fr)
+            const linguaOk = ['it', 'de', 'fr'].includes(form.lingua) ? form.lingua : 'it'
             const { error } = await supabase
                 .from('profiles')
                 .update({
                     nome: form.nome.trim(),
                     cognome: form.cognome.trim(),
                     telefono: form.telefono.trim() || null,
-                    lingua: form.lingua || 'it',
+                    lingua: linguaOk,
                 })
                 .eq('id', user.id)
             if (error) throw new Error(error.message)

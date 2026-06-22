@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
-import { supabase, supabaseUrl } from '@/lib/supabase'
+import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import {
     Sparkles, ShoppingBag, CreditCard, ArrowRight, CheckCircle,
     AlertCircle, Loader2, Info, Shield, Zap, X, Tag
@@ -54,11 +54,12 @@ export default function Acquista() {
     async function caricaCrediti() {
         setLoadingCrediti(true)
         const now = new Date().toISOString()
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from('crediti_ai')
             .select('crediti_totali, crediti_usati, tipo, periodo_fine')
             .eq('user_id', profile.id)
             .or(`periodo_fine.is.null,periodo_fine.gte.${now}`)
+        if (error) console.error('caricaCrediti:', error)
 
         const map = { benvenuto: 0, piano: 0, topup: 0 }
         let pianoScad = null
@@ -129,14 +130,14 @@ export default function Acquista() {
         setAcquistando(prodottoId)
         setErrore('')
         try {
-            const { data: { session } } = await supabase.auth.getSession()
+            const accessToken = await getAccessToken()
             const res = await fetch(
                 `${supabaseUrl}/functions/v1/stripe-checkout`,
                 {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session.access_token}`,
+                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
                         prodotto_id: prodottoId,
@@ -145,8 +146,8 @@ export default function Acquista() {
                     }),
                 }
             )
-            const json = await res.json()
-            if (!json.ok) throw new Error(json.error)
+            const json = await res.json().catch(() => null)
+            if (!res.ok || !json?.ok) throw new Error(json?.error || `Errore checkout (HTTP ${res.status})`)
             window.location.href = json.url
         } catch (err) {
             setErrore(err.message)
@@ -397,7 +398,7 @@ function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista }) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {pacchetti.map(p => {
                 const isLoading = acquistando === p.id
-                const prezzoPerCredito = (p.prezzo / p.crediti_ai_mensili).toFixed(2)
+                const prezzoPerCredito = p.crediti_ai_mensili > 0 ? (p.prezzo / p.crediti_ai_mensili).toFixed(2) : '—'
                 return (
                     <div key={p.id} className="bg-slate border border-white/5 hover:border-salvia/30 p-5 flex flex-col transition-colors">
                         <div className="flex items-center gap-2 mb-2">

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
 import { labelFonteGiur, labelFontePrassi } from '@/lib/istituzioni'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
-import { supabase, supabaseUrl } from '@/lib/supabase'
+import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import ReactMarkdown from 'react-markdown'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
@@ -482,13 +482,13 @@ export default function Ricerche() {
         setRisultatiLexChiavi(null)
         setParoleChiaveLex([])
         try {
-            const { data: { session } } = await supabase.auth.getSession()
+            const accessToken = await getAccessToken()
             const res = await fetch(
                 `${supabaseUrl}/functions/v1/lex-search-pensiero`,
                 {
                     method: 'POST',
                     headers: {
-                        Authorization: `Bearer ${session.access_token}`,
+                        Authorization: `Bearer ${accessToken}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
@@ -1050,15 +1050,18 @@ function CardElemento({
         if (TIPI_RICERCA.includes(el.kind)) {
             if (!confirm(t('card.conferma_elimina_ricerca'))) return
             setEliminando(true)
-            await supabase.from('ricerche').delete().eq('id', el.id)
+            const { error } = await supabase.from('ricerche').delete().eq('id', el.id)
+            if (error) { console.error('elimina ricerca:', error); alert(error.message) }
             if (onAggiornata) await onAggiornata()
         } else {
             if (!confirm(t('card.conferma_rimuovi_tag', { tipo: label.toLowerCase() }))) return
             setEliminando(true)
-            await supabase.from('elementi_etichette')
+            // elemento_id è TEXT a DB: normalizzo sempre a stringa (UUID o id numerico)
+            const { error } = await supabase.from('elementi_etichette')
                 .delete()
-                .eq('elemento_id', el.id)
+                .eq('elemento_id', String(el.id))
                 .eq('tipo', el.kind)
+            if (error) { console.error('rimuovi tag:', error); alert(error.message) }
             if (onAggiornata) await onAggiornata()
         }
     }
@@ -1066,19 +1069,22 @@ function CardElemento({
     async function toggleEtichetta(etichettaId) {
         const giaPresente = etichetteElemento.some(e => e.id === etichettaId)
         if (giaPresente) {
-            await supabase.from('elementi_etichette')
+            const { error } = await supabase.from('elementi_etichette')
                 .delete()
-                .eq('elemento_id', el.id)
+                .eq('elemento_id', String(el.id))
                 .eq('etichetta_id', etichettaId)
                 .eq('tipo', el.kind)
+            if (error) { console.error('toggle off etichetta:', error); alert(error.message) }
         } else {
             const { data: { user } } = await supabase.auth.getUser()
-            await supabase.from('elementi_etichette').insert({
+            if (!user) { alert('Sessione scaduta. Effettua di nuovo il login.'); return }
+            const { error } = await supabase.from('elementi_etichette').insert({
                 etichetta_id: etichettaId,
-                elemento_id: el.id,
+                elemento_id: String(el.id),
                 tipo: el.kind,
                 user_id: user.id,
             })
+            if (error) { console.error('toggle on etichetta:', error); alert(error.message) }
         }
         if (onAggiornata) await onAggiornata()
     }
@@ -1484,13 +1490,13 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
         abortControllerRef.current = controller
 
         try {
-            const { data: { session } } = await supabase.auth.getSession()
+            const accessToken = await getAccessToken()
             const res = await fetch(
                 `${supabaseUrl}/functions/v1/lex-confronta`,
                 {
                     method: 'POST',
                     headers: {
-                        Authorization: `Bearer ${session.access_token}`,
+                        Authorization: `Bearer ${accessToken}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({

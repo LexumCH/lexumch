@@ -23,6 +23,18 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient(supabaseUrl ?? '', supabaseKey ?? '')
 
+/* ─── Helper: token di accesso con guardia sessione ────────────
+   Evita il crash "Cannot read properties of null (reading 'access_token')"
+   quando la sessione è scaduta/assente: lancia un errore leggibile invece
+   di mandare "Bearer undefined" alle Edge Function. */
+export async function getAccessToken() {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) {
+    throw new Error('Sessione scaduta. Effettua di nuovo il login.')
+  }
+  return session.access_token
+}
+
 /* ─── Helper: chiama una Edge Function ─────────────────────────
    Uso:
      const res = await callEdgeFunction('contact-form', payload)

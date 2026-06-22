@@ -46,6 +46,9 @@ export default function Registrati() {
         email: form.email.trim().toLowerCase(),
         password: form.password,
         options: {
+          // Atterraggio dopo il click sul link di conferma (deve essere in Auth → Redirect URLs).
+          // window.location.origin → funziona sia su lexum.ch sia in locale.
+          emailRedirectTo: `${window.location.origin}/email-verificata`,
           data: {
             nome: form.nome.trim(),
             cognome: form.cognome.trim(),
