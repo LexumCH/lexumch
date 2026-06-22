@@ -161,6 +161,17 @@
       "articolo": "Articolo",
       "considerando": "Considerando",
       "allegato": "Allegato"
+    },
+    "sezione_cedu": "Corte EDU"
+  },
+  "cedu": {
+    "tipo": {
+      "tutti": "Tutti",
+      "sentenza_cedu": "Sentenze",
+      "decisione_cedu": "Decisioni",
+      "grande_camera": "Grande Camera",
+      "parere_cedu": "Pareri",
+      "altro_cedu": "Altro"
     }
   }
 }

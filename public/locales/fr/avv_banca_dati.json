@@ -161,6 +161,17 @@
       "articolo": "Article",
       "considerando": "Considérant",
       "allegato": "Annexe"
+    },
+    "sezione_cedu": "Cour EDH"
+  },
+  "cedu": {
+    "tipo": {
+      "tutti": "Tous",
+      "sentenza_cedu": "Arrêts",
+      "decisione_cedu": "Décisions",
+      "grande_camera": "Grande Chambre",
+      "parere_cedu": "Avis",
+      "altro_cedu": "Autres"
     }
   }
 }

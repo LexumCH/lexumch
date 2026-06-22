@@ -161,6 +161,17 @@
       "articolo": "Artikel",
       "considerando": "Erwägungsgrund",
       "allegato": "Anhang"
+    },
+    "sezione_cedu": "EGMR"
+  },
+  "cedu": {
+    "tipo": {
+      "tutti": "Alle",
+      "sentenza_cedu": "Urteile",
+      "decisione_cedu": "Entscheidungen",
+      "grande_camera": "Große Kammer",
+      "parere_cedu": "Gutachten",
+      "altro_cedu": "Andere"
     }
   }
 }
