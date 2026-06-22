@@ -58,7 +58,7 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
         } catch { return 'it' }
     })()
 
-    useEffect(() => { carica() }, [id])
+    useEffect(() => { carica() }, [id, fonteProp])
 
     async function carica() {
         setLoading(true)
@@ -69,29 +69,34 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
             // Se la rotta indica gia' la fonte, niente cascata
             const provaGiur = fonteProp !== 'ue'
             const provaUe = fonteProp !== 'ch'
+            let errGiur = null, errUe = null
 
             if (provaGiur) {
-                const { data } = await supabase
+                const { data, error } = await supabase
                     .from('giurisprudenza_ch')
                     .select('id, fonte, signature, reference, anno_deposito, data_decisione, camera_codice, hierarchy, lingua, titolo_de, titolo_fr, titolo_it, testo, is_dtf, dtf_riferimento, principio_diritto, oggetto')
                     .eq('id', id)
                     .maybeSingle()
+                errGiur = error
                 if (data) {
-                    setSentenza(data); setTipoFonte('giurisprudenza'); setLoading(false); return
+                    setSentenza(data); setTipoFonte('giurisprudenza'); return
                 }
             }
 
             if (provaUe) {
-                const { data } = await supabase
+                const { data, error } = await supabase
                     .from('eur_lex')
                     .select('id, celex_id, ecli, tipo, numero_caso, organo, data_decisione, data_pubblicazione, oggetto, parti, relatore, materia, vigente, rilevanza, testo_integrale, url_originale')
                     .eq('id', id)
                     .maybeSingle()
+                errUe = error
                 if (data) {
-                    setSentenza(data); setTipoFonte('sentenza_ue'); setLoading(false); return
+                    setSentenza(data); setTipoFonte('sentenza_ue'); return
                 }
             }
 
+            // Nessun dato: se c'è stato un errore reale (RLS/rete) mostralo invece di "non trovata"
+            if (errGiur || errUe) { setErrore((errGiur || errUe).message); return }
             setErrore(t('sentenza.non_trovata'))
         } catch (e) {
             setErrore(e.message)
@@ -167,7 +172,7 @@ export function SentenzaDettaglio({ fonte: fonteProp }) {
     const cfgColor = tipoFonte === 'giurisprudenza' ? 'text-salvia' : 'text-nebbia'
 
     const titoloPerSalvataggio = [riferimento, titolo].filter(Boolean).join(' — ').slice(0, 300)
-    const testoPerSalvataggio = corpo.map(c => `${c.titolo}: ${c.testo}`).join('\n\n')
+    const testoPerSalvataggio = corpo.map(c => `${c.titolo}: ${c.testo}`).join('\n\n') || titolo
 
     return (
         <div className="space-y-5">

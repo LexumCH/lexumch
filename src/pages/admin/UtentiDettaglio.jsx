@@ -6,7 +6,7 @@ import { BackButton, Badge, StatCard } from '@/components/shared'
 import {
   ShieldOff, Lock, Clock, FileText,
   FolderOpen, User, KeyRound, Mail, X, Eye, EyeOff, Copy, Check,
-  CheckCircle, XCircle, AlertCircle, ArrowRight, RefreshCw
+  CheckCircle, XCircle, AlertCircle, ArrowRight, RefreshCw, Download
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'

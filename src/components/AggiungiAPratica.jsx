@@ -82,13 +82,15 @@ export default function AggiungiAPratica({
             setLoading(true)
             try {
                 const { data: { user } } = await supabase.auth.getUser()
-                const { data } = await supabase
+                if (!user) { setErrore('Sessione scaduta. Effettua di nuovo il login.'); return }
+                const { data, error } = await supabase
                     .from(cfg.tabella)
                     .select('id, titolo, cliente:cliente_id(nome, cognome, ragione_sociale, tipo_soggetto)')
                     .eq('avvocato_id', user.id)
                     .eq(cfg.filtroStato.campo, cfg.filtroStato.valore)
                     .order('updated_at', { ascending: false })
                     .limit(50)
+                if (error) { setErrore(error.message); setItems([]); return }
                 setItems(data ?? [])
             } finally {
                 setLoading(false)
@@ -108,6 +110,7 @@ export default function AggiungiAPratica({
         setErrore(null)
         try {
             const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Sessione scaduta. Effettua di nuovo il login.')
 
             if (ricercaSalvataId) {
                 // Riga già esistente: aggiorna solo la FK (pratica_id o mandato_id)

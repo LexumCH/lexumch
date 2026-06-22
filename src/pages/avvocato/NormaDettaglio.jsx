@@ -69,19 +69,18 @@ export function NormaDettaglio() {
 
             // ── UE: id numerico (bigint) ──
             if (idNumerico) {
-                const { data } = await supabase
+                const { data, error } = await supabase
                     .from('norme_ue')
                     .select('*')
                     .eq('id', id)
                     .maybeSingle()
-                if (data) {
-                    setNorma(data); setTipoFonte('norma_ue'); setLoading(false); return
-                }
-                setErrore(t('norma.non_trovata')); setLoading(false); return
+                if (error) { setErrore(error.message); return }
+                if (data) { setNorma(data); setTipoFonte('norma_ue'); return }
+                setErrore(t('norma.non_trovata')); return
             }
 
             // ── Federale: norme_ch_articoli (uuid) ──
-            const { data: artFed } = await supabase
+            const { data: artFed, error: errFed } = await supabase
                 .from('norme_ch_articoli')
                 .select('id, norma_id, articolo_label, articolo_num, rubrica_articolo, rubrica_completa, parte_titolo, titolo_titolo, capo_titolo, testo, lingua, abrogato')
                 .eq('id', id)
@@ -94,11 +93,11 @@ export function NormaDettaglio() {
                     .eq('id', artFed.norma_id)
                     .maybeSingle()
                 setAtto(padre ?? null)
-                setLoading(false); return
+                return
             }
 
             // ── Cantonale: norme_cantonali_ch_articoli (uuid) ──
-            const { data: artCant } = await supabase
+            const { data: artCant, error: errCant } = await supabase
                 .from('norme_cantonali_ch_articoli')
                 .select('id, norma_id, article_num, article_suffix, rubrica, testo, capoversi, gerarchia, note_storiche, lingua, is_abrogato')
                 .eq('id', id)
@@ -111,9 +110,11 @@ export function NormaDettaglio() {
                     .eq('id', artCant.norma_id)
                     .maybeSingle()
                 setAtto(padre ?? null)
-                setLoading(false); return
+                return
             }
 
+            // Nessun dato: se un errore reale (RLS/rete) ha impedito la lettura, mostralo
+            if (errFed || errCant) { setErrore((errFed || errCant).message); return }
             setErrore(t('norma.non_trovata'))
         } catch (e) {
             setErrore(e.message)

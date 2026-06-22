@@ -46,12 +46,13 @@ export function PrassiDettaglio() {
         setPrassi(null)
         setRicercaSalvataId(null)
         try {
-            const { data } = await supabase
+            const { data, error } = await supabase
                 .from('prassi_ch')
                 .select('id, fonte, tipo_documento, numero, anno, data_emanazione, stato, lingua, lingua_originale, titolo, sottotitolo, oggetto, materia, parole_chiave, testo, cantone, emittente_nome, giurisdizione')
                 .eq('id', id)
                 .maybeSingle()
-            if (data) { setPrassi(data); setLoading(false); return }
+            if (error) { setErrore(error.message); return }
+            if (data) { setPrassi(data); return }
             setErrore(t('prassi.non_trovato'))
         } catch (e) {
             setErrore(e.message)
@@ -136,6 +137,11 @@ export function PrassiDettaglio() {
                             ricercaSalvataId={ricercaSalvataId}
                             setRicercaSalvataId={setRicercaSalvataId}
                             variant="default"
+                        />
+                        {/* AggiungiAEtichetta è condivisa: avvocato + fiduciario. */}
+                        <AggiungiAEtichetta
+                            elemento={{ tipo: 'prassi', id: prassi.id }}
+                            onCambio={() => setRefreshEtichette(k => k + 1)}
                         />
                     </div>
                 )}

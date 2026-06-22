@@ -1,10 +1,33 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { CheckCircle, ArrowRight } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 import logo from '@/assets/logo.png'
+
+// Mappa ruolo → area riservata (coerente con ROLE_HOME in Login.jsx)
+const ROLE_HOME = {
+    admin: '/admin/dashboard',
+    avvocato: '/dashboard',
+    fiduciario: '/dashboard',
+    cliente: '/portale',
+    user: '/area',
+}
 
 export default function EmailVerificata() {
     const { t } = useTranslation('auth')
+    const { user, profile, loading } = useAuth()
+    const navigate = useNavigate()
+
+    // Dopo il click sul link di conferma l'utente è GIÀ loggato (flow implicit):
+    // lo portiamo nella sua area. Se il link è già stato usato/scaduto e non
+    // c'è sessione, lo mandiamo al login.
+    const destinazione = user ? (ROLE_HOME[profile?.role] ?? '/area') : '/login'
+
+    useEffect(() => {
+        if (!loading && !user) navigate('/login', { replace: true })
+    }, [loading, user, navigate])
+
     const steps = Array.isArray(t('email_verificata.steps', { returnObjects: true }))
         ? t('email_verificata.steps', { returnObjects: true })
         : []
@@ -32,7 +55,7 @@ export default function EmailVerificata() {
                     ))}
                 </div>
 
-                <Link to="/login" className="btn-primary justify-center w-full">
+                <Link to={destinazione} className="btn-primary justify-center w-full">
                     <ArrowRight size={16} /> {t('email_verificata.cta')}
                 </Link>
             </div>

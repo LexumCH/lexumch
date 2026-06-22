@@ -21,20 +21,22 @@ export default function EtichetteAssegnate({ elemento, refreshKey = 0 }) {
    
     useEffect(() => {
         if (!elemento?.id || !elemento?.tipo) return
+        let attivo = true
 
         async function carica() {
             setLoading(true)
             try {
                 const { data: { user } } = await supabase.auth.getUser()
-                if (!user) return
+                if (!user || !attivo) return
 
                 const { data } = await supabase
                     .from('elementi_etichette')
                     .select('etichetta:etichetta_id(id, nome, colore)')
-                    .eq('elemento_id', elemento.id)
+                    .eq('elemento_id', String(elemento.id))
                     .eq('tipo', elemento.tipo)
                     .eq('user_id', user.id)
 
+                if (!attivo) return
                 const list = (data ?? [])
                     .map(r => r.etichetta)
                     .filter(Boolean)
@@ -42,10 +44,11 @@ export default function EtichetteAssegnate({ elemento, refreshKey = 0 }) {
             } catch (e) {
                 console.warn('EtichetteAssegnate:', e.message)
             } finally {
-                setLoading(false)
+                if (attivo) setLoading(false)
             }
         }
         carica()
+        return () => { attivo = false }
     }, [elemento?.id, elemento?.tipo, refreshKey])
 
     if (loading || etichette.length === 0) return null

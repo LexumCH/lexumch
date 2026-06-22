@@ -542,8 +542,8 @@ const TABS = [
     { key: 'federale', icon: Landmark },
     { key: 'cantonale', icon: MapPin },
     { key: 'giurisprudenza', icon: Scale },
-    { key: 'prassi', icon: ScrollText },
     { key: 'ue', icon: Globe },
+    { key: 'cedu', icon: ScrollText },
 ]
 
 // ═══════════════════════════════════════════════════════════════
@@ -591,8 +591,8 @@ export function BancaDati() {
                 {tabAttivo === 'federale' && <TabFederale />}
                 {tabAttivo === 'cantonale' && <TabCantonale />}
                 {tabAttivo === 'giurisprudenza' && <TabGiurisprudenza />}
-                {tabAttivo === 'prassi' && <TabPrassi />}
                 {tabAttivo === 'ue' && <TabUE />}
+                {tabAttivo === 'cedu' && <TabUE modalita="cedu" />}
             </div>
         </div>
     )
@@ -2075,8 +2075,9 @@ function SelettoreLinguaUE({ lingua }) {
     )
 }
 
-function TabUE() {
+function TabUE({ modalita } = {}) {
     const { t, i18n } = useTranslation('avv_banca_dati')
+    const isCedu = modalita === 'cedu'
     const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const navigate = useNavigate()
@@ -2084,7 +2085,7 @@ function TabUE() {
     const elementoUeLabel = (k) => ORDINE_ELEMENTO_UE.includes(k) ? t(`ue.elemento.${k}`) : k
 
     // sezione attiva: 'norme' | 'sentenze'
-    const [sezione, setSezione] = useState('norme')
+    const [sezione, setSezione] = useState(isCedu ? 'sentenze' : 'norme')
     // lingua (per ora fissa IT, ma predisposta)
     const [lingua] = useState('it')
 
@@ -2114,8 +2115,8 @@ function TabUE() {
 
     // ─── SENTENZE ───
     // vista sentenze: 'catalogo' | 'lista'
-    const [vistaS, setVistaS] = useState('catalogo')
-    const [organoSel, setOrganoSel] = useState(null)
+    const [vistaS, setVistaS] = useState(isCedu ? 'lista' : 'catalogo')
+    const [organoSel, setOrganoSel] = useState(isCedu ? 'CEDU' : null)
     const [sentUe, setSentUe] = useState([])
     const [totaleSentUe, setTotaleSentUe] = useState(0)
     const [loadingSentUe, setLoadingSentUe] = useState(false)
@@ -2141,7 +2142,7 @@ function TabUE() {
         .map(t => conteggi.find(c => c.sezione === 'norme' && c.chiave === t))
         .filter(Boolean)
     const organiSentenze = conteggi
-        .filter(c => c.sezione === 'sentenze')
+        .filter(c => c.sezione === 'sentenze' && c.chiave !== 'CEDU')
         .sort((a, b) => Number(b.totale) - Number(a.totale))
 
     // ── NORME L2: atti per tipo (raggruppati per celex) ──
@@ -2262,7 +2263,8 @@ function TabUE() {
     return (
         <div className="space-y-5">
 
-            {/* Switch sezione + selettore lingua */}
+            {/* Switch sezione + selettore lingua (nascosto in modalità CEDU) */}
+            {!isCedu && (
             <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div className="flex gap-1 bg-slate border border-white/5 p-1">
                     <button onClick={() => setSezione('norme')}
@@ -2276,6 +2278,7 @@ function TabUE() {
                 </div>
                 <SelettoreLinguaUE lingua={lingua} />
             </div>
+            )}
 
             {/* ════════════ SEZIONE NORME ════════════ */}
             {sezione === 'norme' && (
@@ -2509,9 +2512,11 @@ function TabUE() {
                     {vistaS === 'lista' && organoSel && (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between gap-3 flex-wrap">
+                                {!isCedu && (
                                 <button onClick={tornaCatalogoS} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
                                     <ChevronLeft size={13} /> {t('ue.tutti_organi')}
                                 </button>
+                                )}
                                 <p className="font-display text-lg text-nebbia text-right">{organoSel}</p>
                             </div>
 

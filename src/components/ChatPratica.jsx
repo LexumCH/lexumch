@@ -7,11 +7,12 @@
 // - Testi svizzerizzati (diritto svizzero, niente atti italiani).
 // - Tutto il resto identico all'IT: streaming SSE, foglio A4, bolla PDF, crediti.
 //
-// CONTRATTO SSE (da lex-pratica CH):
-//   event: fase   -> { fase }
-//   event: chunk  -> { text }
-//   event: done   -> { crediti_rimasti, documento_markdown?, tipo_documento?, tipo_nome? }
-//   event: error  -> { error }
+// CONTRATTO SSE — lex-pratica fa da pass-through a due sorgenti:
+//   chat (lex-lead):        event: fase  -> { fase, descrizione }
+//   documento (genera-doc): event: stato -> { messaggio }
+//   entrambe:               event: chunk -> { text }
+//                           event: done  -> { crediti_rimasti, documento_markdown?, tipo_documento?, tipo_nome? }
+//                           event: error -> { error }
 
 import { useState, useEffect, useRef, cloneElement, isValidElement, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -677,10 +678,12 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
         async function caricaCrediti() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
-            const { data } = await supabase
+            const { data, error } = await supabase
                 .from('crediti_ai')
                 .select('crediti_totali, crediti_usati, periodo_fine, tipo')
                 .eq('user_id', user.id)
+            // Errore (rete/RLS): non equiparare a 0 crediti (bloccherebbe l'input); lascia lo stato com'è
+            if (error) { console.error('caricaCrediti:', error); return }
             if (!data || data.length === 0) { setCrediti(0); return }
             const now = new Date()
             const totale = data.reduce((acc, row) => {
@@ -774,6 +777,7 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
             let documentoMarkdown = null
             let tipoDocumento = null
             let tipoNome = null
+            let streamError = null
 
             while (true) {
                 const { value, done } = await reader.read()
@@ -801,6 +805,12 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
                                 setIsDocumentoStreaming(true)
                             }
 
+                            // Path chat (lex-lead) usa 'fase' con {descrizione};
+                            // path documento (lex-genera-documento) usa 'stato' con {messaggio}.
+                            if (eventoCorrente === 'fase') {
+                                setStatoGenerazione(data.descrizione ?? '')
+                            }
+
                             if (eventoCorrente === 'chunk') {
                                 testoAccumulato += data.text ?? ''
                                 setStreamingTesto(testoAccumulato)
@@ -816,11 +826,21 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
                             }
 
                             if (eventoCorrente === 'error') {
-                                setErrore(data.error ?? t('errori.streaming'))
+                                streamError = data.error ?? t('errori.streaming')
+                                setErrore(streamError)
                             }
                         } catch { /* ignore */ }
                     }
                 }
+            }
+
+            // Errore arrivato a metà stream: non appendere un messaggio Lex vuoto/parziale
+            if (streamError) {
+                setConversazione(conversazione)
+                setStreamingTesto('')
+                setStatoGenerazione('')
+                setIsDocumentoStreaming(false)
+                return
             }
 
             let messaggioFinale
@@ -870,6 +890,7 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
         setErrore('')
         try {
             const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Sessione scaduta. Effettua di nuovo il login.')
             const trascrizione = trascriviConversazione(conversazione, t, dateLocale)
             const { error } = await supabase.from('ricerche').insert({
                 pratica_id: praticaId,

@@ -163,21 +163,23 @@ export default function AggiungiAEtichetta({
                 if (!user) throw new Error('Non autenticato')
 
                 // Carica tutte le etichette dell'utente
-                const { data: tags } = await supabase
+                const { data: tags, error: errTags } = await supabase
                     .from('etichette')
                     .select('id, nome, colore')
                     .eq('user_id', user.id)
                     .order('nome')
+                if (errTags) throw new Error(errTags.message)
 
                 setEtichette(tags ?? [])
 
                 // Se l'elemento ha già un id, carica le assegnazioni esistenti
                 if (elementoId) {
-                    const { data: ass } = await supabase
+                    const { data: ass, error: errAss } = await supabase
                         .from('elementi_etichette')
                         .select('etichetta_id')
                         .eq('tipo', elemento.tipo)
-                        .eq('elemento_id', elementoId)
+                        .eq('elemento_id', String(elementoId))
+                    if (errAss) throw new Error(errAss.message)
                     setAssegnate(new Set((ass ?? []).map(a => a.etichetta_id)))
                 }
             } catch (err) {
@@ -199,6 +201,7 @@ export default function AggiungiAEtichetta({
             throw new Error('domanda e risposta richieste per creare ricerca_ai')
         }
         const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Non autenticato')
         const { data, error } = await supabase
             .from('ricerche')
             .insert({
