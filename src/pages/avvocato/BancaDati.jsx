@@ -546,7 +546,7 @@ const TABS = [
 ]
 
 // Tipi di atto CEDU per il filtro della sezione "Corte EDU" (dentro la tab UE)
-const TIPI_CEDU = ['tutti', 'sentenza_cedu', 'decisione_cedu', 'grande_camera', 'parere_cedu', 'altro_cedu']
+const TIPI_CEDU = ['sentenza_cedu', 'decisione_cedu', 'grande_camera', 'parere_cedu', 'altro_cedu']
 
 // ═══════════════════════════════════════════════════════════════
 // COMPONENTE PRINCIPALE
@@ -2117,7 +2117,7 @@ function TabUE() {
     // vista sentenze: 'catalogo' | 'lista'
     const [vistaS, setVistaS] = useState('catalogo')
     const [organoSel, setOrganoSel] = useState(null)
-    const [tipoCeduSel, setTipoCeduSel] = useState('tutti')  // filtro tipo nella sezione Corte EDU
+    const [tipoCeduSel, setTipoCeduSel] = useState(null)  // tipo selezionato nella sezione Corte EDU
     const [sentUe, setSentUe] = useState([])
     const [totaleSentUe, setTotaleSentUe] = useState(0)
     const [loadingSentUe, setLoadingSentUe] = useState(false)
@@ -2212,7 +2212,7 @@ function TabUE() {
                 .from('eur_lex')
                 .select('id, celex_id, ecli, tipo, numero_caso, organo, data_decisione, oggetto, parti, relatore, materia, vigente', { count: 'exact' })
                 .eq('organo', organoSel)
-            if (sezione === 'cedu' && tipoCeduSel !== 'tutti') {
+            if (sezione === 'cedu' && tipoCeduSel) {
                 q = q.eq('tipo', tipoCeduSel)
             }
             if (cercaSentUe.trim()) {
@@ -2251,15 +2251,16 @@ function TabUE() {
     }
     function tornaCatalogoS() { setVistaS('catalogo'); setOrganoSel(null) }
 
-    // ── navigazione CORTE EDU (sezione 'cedu') ── entra dritto nella lista (organo fisso) con filtro per tipo
+    // ── navigazione CORTE EDU (sezione 'cedu') ── catalogo per tipo (card) → lista
     function entraCedu() {
-        setOrganoSel('CEDU'); setVistaS('lista'); setTipoCeduSel('tutti')
+        setOrganoSel('CEDU'); setVistaS('catalogo'); setTipoCeduSel(null)
         setPaginaSentUe(0); setInputSentUe(''); setCercaSentUe(''); setSentUeAperta(null)
     }
-    function cambiaTipoCedu(tp) {
-        if (tp === tipoCeduSel) return
-        setTipoCeduSel(tp); setPaginaSentUe(0); setSentUeAperta(null)
+    function apriTipoCedu(tp) {
+        setTipoCeduSel(tp); setVistaS('lista'); setPaginaSentUe(0)
+        setInputSentUe(''); setCercaSentUe(''); setSentUeAperta(null)
     }
+    function tornaCatalogoCedu() { setVistaS('catalogo'); setTipoCeduSel(null) }
 
     function evidenzia(testo, cerca) {
         if (!cerca?.trim() || !testo) return testo
@@ -2503,13 +2504,16 @@ function TabUE() {
             {/* ════════════ SEZIONE SENTENZE CGUE + CORTE EDU (lista eur_lex condivisa) ════════════ */}
             {(sezione === 'sentenze' || sezione === 'cedu') && (
                 <>
-                    {/* Chip filtro per tipo — solo Corte EDU */}
-                    {sezione === 'cedu' && (
-                        <div className="flex gap-1 bg-slate border border-white/5 p-1 flex-wrap">
+                    {/* L1 catalogo CEDU per tipo — card come gli organi CGUE */}
+                    {sezione === 'cedu' && vistaS === 'catalogo' && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {TIPI_CEDU.map(tp => (
-                                <button key={tp} onClick={() => cambiaTipoCedu(tp)}
-                                    className={`px-3 py-1.5 font-body text-xs transition-colors ${tipoCeduSel === tp ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia border border-transparent'}`}>
-                                    {t(`cedu.tipo.${tp}`)}
+                                <button key={tp} onClick={() => apriTipoCedu(tp)}
+                                    className="bg-slate border border-white/5 p-5 text-left hover:border-oro/30 hover:bg-petrolio/60 transition-all group">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors leading-snug">{t(`cedu.tipo.${tp}`)}</p>
+                                        <ChevronRight size={16} className="text-nebbia/20 group-hover:text-oro/60 transition-colors shrink-0" />
+                                    </div>
                                 </button>
                             ))}
                         </div>
@@ -2540,12 +2544,16 @@ function TabUE() {
                     {vistaS === 'lista' && organoSel && (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between gap-3 flex-wrap">
-                                {sezione === 'sentenze' ? (
+                                {sezione === 'cedu' ? (
+                                <button onClick={tornaCatalogoCedu} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
+                                    <ChevronLeft size={13} /> {t('ue.tutti_tipi')}
+                                </button>
+                                ) : (
                                 <button onClick={tornaCatalogoS} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors">
                                     <ChevronLeft size={13} /> {t('ue.tutti_organi')}
                                 </button>
-                                ) : <span />}
-                                <p className="font-display text-lg text-nebbia text-right">{sezione === 'cedu' ? t('ue.sezione_cedu') : organoSel}</p>
+                                )}
+                                <p className="font-display text-lg text-nebbia text-right">{sezione === 'cedu' ? t(`cedu.tipo.${tipoCeduSel}`) : organoSel}</p>
                             </div>
 
                             <div className="flex gap-2">
