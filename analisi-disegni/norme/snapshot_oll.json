@@ -1,0 +1,47 @@
+{
+  "_nota": "Snapshot dal DB Lexum CH (norme_ch / norme_cantonali_ch) per il prototipo. In produzione il modulo interroga direttamente il database.",
+  "articoli": [
+    {
+      "fonte": "RS 822.114 (OLL 4)",
+      "articolo": "6",
+      "titolo": "Larghezza dei passaggi",
+      "testo": "I passaggi principali all'interno degli edifici devono avere una larghezza minima di 1,20 metri."
+    },
+    {
+      "fonte": "RS 822.114 (OLL 4)",
+      "articolo": "7",
+      "titolo": "Vie d'evacuazione",
+      "testo": "1 Le rampe di scale devono essere dotate di uscite che danno direttamente sull'esterno.\n2 Devono essere predisposte le vie d'evacuazione seguenti: a. almeno una rampa di scale o un'uscita che dia direttamente sull'esterno per i piani con superfici massime fino a 900 m2; b. almeno due rampe di scale per i piani con superfici oltre i 900 m2."
+    },
+    {
+      "fonte": "RS 822.114 (OLL 4)",
+      "articolo": "9",
+      "titolo": "Scale e corridoi",
+      "testo": "1 [...] La larghezza utile delle scale e dei corridoi dev'essere di almeno 1,20 metri.\n2 La larghezza utile di scale e passerelle di servizio che danno accesso agli impianti tecnici dev'essere di almeno 0,80 metri.\n4 Scale, passerelle e pianerottoli che non toccano la parete devono essere provvisti di ringhiera sui due lati. [...]"
+    },
+    {
+      "fonte": "RS 822.114 (OLL 4)",
+      "articolo": "10",
+      "titolo": "Porte sulle vie d'evacuazione",
+      "testo": "1 Le porte sulle vie d'evacuazione devono sempre poter essere riconosciute come tali, essere aperte rapidamente nella direzione d'uscita senza ricorrere a strumenti ausiliari [...].\n2 [...] La larghezza utile delle porte a un solo battente deve essere di almeno 0,90 metri. Nelle porte a due battenti, che si aprono in una sola direzione, un battente deve avere una larghezza utile di almeno 0,90 metri. [...]\n3 La larghezza di porte, scale e corridoi con accesso a vie d'evacuazione non può essere ridotta al di sotto della dimensione minima prescritta [...]."
+    },
+    {
+      "fonte": "RS 822.113 (OLL 3)",
+      "articolo": "32",
+      "titolo": "Gabinetti",
+      "testo": "1 Un numero sufficiente di gabinetti dev'essere messo a disposizione dei lavoratori in vicinanza dei posti di lavoro, dei locali di riposo, degli spogliatoi e delle docce o dei lavabi.\n2 Il numero di gabinetti è fissato in funzione del numero di lavoratori occupati simultaneamente nell'azienda.\n3 I gabinetti devono essere sufficientemente ventilati e separati dai locali di lavoro mediante atri aerati."
+    },
+    {
+      "fonte": "UR 40.1111 (PBG)",
+      "articolo": "17",
+      "titolo": "Bauordnung comunale",
+      "testo": "1 Im Rahmen dieses Gesetzes und der darauf gestützten Vorschriften erlassen die Gemeinden eine Bauordnung für das ganze Gemeindegebiet und besondere Bau- und Nutzungsvorschriften für einzelne Zonen."
+    },
+    {
+      "fonte": "UR 40.1117 (IVHB)",
+      "articolo": "-",
+      "titolo": "Definizioni edilizie armonizzate",
+      "testo": "Accordo intercantonale sull'armonizzazione dei concetti edilizi: definisce come si misurano altezze, distanze e superfici richiamate dal PBG/RPBG."
+    }
+  ]
+}
