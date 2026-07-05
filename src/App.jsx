@@ -13,6 +13,7 @@ import RootRedirect from './components/RootRedirect'
 import AdminLayout from './components/layouts/AdminLayout'
 import AvvocatoLayout from './components/layouts/AvvocatoLayout'
 import FiduciarioLayout from './components/layouts/FiduciarioLayout'
+import ProgettistaLayout from './components/layouts/ProgettistaLayout'
 import ClienteLayout from './components/layouts/ClienteLayout'
 import UserLayout from './components/layouts/UserLayout'
 import Navbar from './components/Navbar'
@@ -62,6 +63,9 @@ import AvvocatoFatturazioneDettaglio from './pages/avvocato/FatturazioneDettagli
 import AvvocatoCalendar from './pages/avvocato/AvvocatoCalendar'
 import { BancaDati } from './pages/avvocato/BancaDati'
 import MandatoDettaglio from './pages/fiduciario/MandatoDettaglio'
+import ProgettistaDashboard from './pages/progettista/Dashboard'
+import Progetti from './pages/progettista/Progetti'
+import ProgettoDettaglio from './pages/progettista/ProgettoDettaglio'
 import Archivio from '@/pages/avvocato/Archivio'
 import ArchivioDettaglio from '@/pages/avvocato/ArchivioDettaglio'
 import SentenzaDettaglio from './pages/avvocato/SentenzaDettaglio'
@@ -126,18 +130,24 @@ function Usr({ children }) { return <ProtectedRoute roles={['user']}><UserLayout
 // ─── Layout dinamico professionista: sceglie il guscio in base al ruolo ───
 function ProLayout({ children }) {
   const { role } = useAuth()
-  const Layout = role === 'fiduciario' ? FiduciarioLayout : AvvocatoLayout
+  const Layout = role === 'fiduciario' ? FiduciarioLayout
+    : role === 'progettista' ? ProgettistaLayout
+      : AvvocatoLayout
   return <Layout>{children}</Layout>
 }
-// Dashboard giusta per ruolo: il fiduciario ha il suo quadro generale
+// Dashboard giusta per ruolo: fiduciario e progettista hanno il loro quadro generale
 function DashboardRuolo() {
   const { role } = useAuth()
-  return role === 'fiduciario' ? <FiduciarioDashboard /> : <AvvocatoDashboard />
+  if (role === 'fiduciario') return <FiduciarioDashboard />
+  if (role === 'progettista') return <ProgettistaDashboard />
+  return <AvvocatoDashboard />
 }
-// Rotte condivise avvocato + fiduciario (pagine adattate/condivise)
-function Pro({ children }) { return <ProtectedRoute roles={['avvocato', 'fiduciario']}><ProLayout>{children}</ProLayout></ProtectedRoute> }
+// Rotte condivise avvocato + fiduciario + progettista (pagine adattate/condivise)
+function Pro({ children }) { return <ProtectedRoute roles={['avvocato', 'fiduciario', 'progettista']}><ProLayout>{children}</ProLayout></ProtectedRoute> }
 // Rotte solo fiduciario (banco di lavoro)
 function Fid({ children }) { return <ProtectedRoute roles={['fiduciario']}><FiduciarioLayout>{children}</FiduciarioLayout></ProtectedRoute> }
+// Rotte solo progettista (progetti)
+function Prg({ children }) { return <ProtectedRoute roles={['progettista']}><ProgettistaLayout>{children}</ProgettistaLayout></ProtectedRoute> }
 
 // ─── Banca dati condivisa user + avvocato ───
 // Il componente BancaDati gestisce internamente la differenza di ruolo
@@ -146,7 +156,7 @@ function BancaDatiSharedUser({ children }) {
   return <ProtectedRoute roles={['user']}><UserLayout>{children}</UserLayout></ProtectedRoute>
 }
 function BancaDatiSharedAvv({ children }) {
-  return <ProtectedRoute roles={['avvocato', 'fiduciario']}><ProLayout>{children}</ProLayout></ProtectedRoute>
+  return <ProtectedRoute roles={['avvocato', 'fiduciario', 'progettista']}><ProLayout>{children}</ProLayout></ProtectedRoute>
 }
 
 // Wrapper vetrina con prefisso :lang
@@ -255,6 +265,10 @@ export default function App() {
               <Route path="/banco-lavoro/:id" element={<Fid><MandatoDettaglio /></Fid>} />
               <Route path="/banco-lavoro" element={<Fid><BancoLavoro /></Fid>} />
 
+              {/* Progetti (solo progettista) */}
+              <Route path="/progetti" element={<Prg><Progetti /></Prg>} />
+              <Route path="/progetti/:id" element={<Prg><ProgettoDettaglio /></Prg>} />
+
               {/* Banca dati avvocato (con pannello pratiche attivo) */}
               <Route path="/banca-dati" element={<BancaDatiSharedAvv><BancaDati /></BancaDatiSharedAvv>} />
               <Route path="/banca-dati/norma-federale/:id" element={<BancaDatiSharedAvv><NormaDettaglio /></BancaDatiSharedAvv>} />
@@ -264,9 +278,9 @@ export default function App() {
               <Route path="/banca-dati/sentenza-ue/:id" element={<BancaDatiSharedAvv><SentenzaDettaglio fonte="ue" /></BancaDatiSharedAvv>} />
               <Route path="/banca-dati/prassi-ch/:id" element={<BancaDatiSharedAvv><PrassiDettaglio /></BancaDatiSharedAvv>} />
 
-              {/* Studio condiviso avvocato + fiduciario + user */}
+              {/* Studio condiviso avvocato + fiduciario + progettista + user */}
               <Route path="/studio" element={
-                <ProtectedRoute roles={['avvocato', 'fiduciario', 'user']}>
+                <ProtectedRoute roles={['avvocato', 'fiduciario', 'progettista', 'user']}>
                   <AvvocatoLayoutOrUser><AvvocatoStudio /></AvvocatoLayoutOrUser>
                 </ProtectedRoute>
               } />
@@ -348,7 +362,9 @@ function AvvocatoLayoutOrUser({ children }) {
     ? UserLayout
     : profile?.role === 'fiduciario'
       ? FiduciarioLayout
-      : AvvocatoLayout
+      : profile?.role === 'progettista'
+        ? ProgettistaLayout
+        : AvvocatoLayout
   return <Layout>{children}</Layout>
 }
 

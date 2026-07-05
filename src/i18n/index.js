@@ -18,7 +18,7 @@ i18n
         // I namespace delle singole pagine/componenti dell'app si caricano on-demand via useTranslation(ns).
         ns: [
             'common', 'home', 'archivio_demo', 'lex_demo', 'per_avvocati', 'contatti', 'lex_ai', 'per_fiduciari', 'privacy', 'termini', 'auth',
-            'comp_layout_avvocato', 'comp_layout_user', 'comp_layout_fiduciario', 'comp_layout_cliente', 'comp_shared', 'comp_notifiche', 'comp_footer',
+            'comp_layout_avvocato', 'comp_layout_user', 'comp_layout_fiduciario', 'comp_layout_progettista', 'comp_layout_cliente', 'comp_shared', 'comp_notifiche', 'comp_footer',
             'istituzioni',
         ],
         defaultNS: 'common',

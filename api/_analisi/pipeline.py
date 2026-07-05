@@ -1,18 +1,11 @@
-"""CLI del prototipo: python3 -m src.main <pdf> [outdir]
+"""Pipeline completa: PDF -> gemello digitale -> findings -> report testuale."""
 
-Produce:
-- <outdir>/gemello.json   — il gemello digitale estratto
-- <outdir>/report.md      — report leggibile con i finding
-"""
-
-import json
-import sys
 from pathlib import Path
 
 from . import extractor, checks
 
 
-def build_twin(pdf_path):
+def build_twin(pdf_path, nome_file=None):
     doc, page = extractor.load_page(pdf_path)
     meta = extractor.extract_metadata(page)
     scala = meta["scala_dichiarata"] or 50
@@ -20,7 +13,7 @@ def build_twin(pdf_path):
     meta["layer_quote"] = layer_bem
     meta["layer_timbri"] = layer_rs
     twin = {
-        "file": str(pdf_path),
+        "file": nome_file or Path(pdf_path).name,
         "metadata": meta,
         "quote": extractor.extract_dimensions(page, scala, layer_bem),
         "locali": extractor.extract_rooms(page, layer_rs),
@@ -43,7 +36,7 @@ def render_report(twin, findings):
     tot_bf = sum(r["superficie_bf_m2"] or 0 for r in twin["locali"])
 
     lines = [
-        f"# Analisi disegno — {Path(twin['file']).name}",
+        f"# Analisi disegno — {twin['file']}",
         "",
         f"- Formato: {m['formato_cm'][0]}×{m['formato_cm'][1]} cm, "
         f"scala dichiarata 1:{m['scala_dichiarata']}, "
@@ -84,24 +77,3 @@ def render_report(twin, findings):
         fin = ", ".join(f"{k}: {v}" for k, v in r["finiture"].items())
         lines.append(f"- **{r['nome']}** — {sup}" + (f" ({fin})" if fin else ""))
     return "\n".join(lines) + "\n"
-
-
-def main():
-    if len(sys.argv) < 2:
-        sys.exit("uso: python3 -m src.main <pdf> [outdir]")
-    pdf = Path(sys.argv[1])
-    outdir = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("out")
-    outdir.mkdir(parents=True, exist_ok=True)
-
-    twin = build_twin(pdf)
-    findings = checks.run_all(twin)
-
-    (outdir / "gemello.json").write_text(
-        json.dumps({"twin": twin, "findings": findings}, indent=1, ensure_ascii=False))
-    report = render_report(twin, findings)
-    (outdir / "report.md").write_text(report)
-    print(report)
-
-
-if __name__ == "__main__":
-    main()

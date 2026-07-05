@@ -1,7 +1,5 @@
 """Analisi normativa: incrocia il gemello digitale con le norme applicabili.
 
-Uso: python3 -m src.normativa <gemello.json> [outdir]
-
 Per un edificio commerciale/artigianale (Gewerbe) i requisiti quantificabili
 in pianta vengono dal diritto federale del lavoro (OLL 3 e OLL 4). Le regole
 urbanistiche cantonali (PBG/RPBG UR) riguardano zone, distanze e altezze:
@@ -14,7 +12,6 @@ Ogni esito cita l'articolo esatto (snapshot dal DB Lexum CH).
 
 import json
 import re
-import sys
 from pathlib import Path
 
 SOGLIA_DUE_SCALE_M2 = 900.0   # OLL 4 art. 7 cpv. 2
@@ -23,6 +20,10 @@ LARGHEZZA_CORRIDOIO_M = 1.20  # OLL 4 art. 6 e 9
 
 NOMI_SCALE = re.compile(r"trepp|scala|stair", re.IGNORECASE)
 NOMI_WC = re.compile(r"\bwc\b|gabinett|toilett", re.IGNORECASE)
+
+
+def carica_norme():
+    return json.loads((Path(__file__).parent / "snapshot_oll.json").read_text())
 
 
 def _parse_valore(testo):
@@ -40,7 +41,8 @@ def _articolo(norme, fonte, num):
     raise KeyError(f"{fonte} art. {num} non nello snapshot")
 
 
-def analizza(twin, norme):
+def analizza(twin, norme=None):
+    norme = norme or carica_norme()
     esiti = []
     locali = twin["locali"]
     quote = twin["quote"]["testi"]
@@ -120,57 +122,15 @@ def analizza(twin, norme):
     art17 = _articolo(norme, "UR 40.1111 (PBG)", 17)
     esiti.append({
         "esito": "non_verificabile",
-        "riferimento": "UR 40.1111 (PBG) art. 17 + Bauordnung Altdorf",
+        "riferimento": "UR 40.1111 (PBG) art. 17 + Bauordnung comunale",
         "verifica": (
             "Distanze dai confini, altezze e indici di sfruttamento sono "
-            "fissati dalla Bauordnung comunale di Altdorf (non ancora nel DB) "
-            "e si verificano sulla planimetria di situazione, non sulla "
-            "pianta del piano. Le definizioni di misura sono quelle IVHB "
+            "fissati dalla Bauordnung comunale (non ancora nel DB) e si "
+            "verificano sulla planimetria di situazione, non sulla pianta "
+            "del piano. Le definizioni di misura sono quelle IVHB "
             "(UR 40.1117)."
         ),
         "testo_norma": art17["testo"],
     })
 
     return esiti
-
-
-def render(twin, esiti):
-    icone = {"conforme": "✅", "non_conforme": "❌",
-             "da_verificare": "⚠️", "non_verificabile": "ℹ️"}
-    lines = [
-        f"# Analisi normativa — {Path(twin['file']).name}",
-        "",
-        "Edificio commerciale/artigianale (Gewerbe), Altdorf (UR). "
-        "Norme citate dallo snapshot del DB Lexum CH.",
-        "",
-    ]
-    for e in esiti:
-        lines += [
-            f"## {icone[e['esito']]} {e['riferimento']} — {e['esito'].replace('_', ' ')}",
-            "",
-            e["verifica"],
-            "",
-            f"> {e['testo_norma']}",
-            "",
-        ]
-    return "\n".join(lines)
-
-
-def main():
-    if len(sys.argv) < 2:
-        sys.exit("uso: python3 -m src.normativa <gemello.json> [outdir]")
-    data = json.loads(Path(sys.argv[1]).read_text())
-    twin = data["twin"]
-    outdir = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("out")
-    norme = json.loads((Path(__file__).parent.parent / "norme" / "snapshot_oll.json").read_text())
-
-    esiti = analizza(twin, norme)
-    report = render(twin, esiti)
-    (outdir / "report_normativa.md").write_text(report)
-    (outdir / "esiti_normativa.json").write_text(
-        json.dumps(esiti, indent=1, ensure_ascii=False))
-    print(report)
-
-
-if __name__ == "__main__":
-    main()
