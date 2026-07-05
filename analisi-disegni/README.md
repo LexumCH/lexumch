@@ -8,10 +8,13 @@ nessuna AI di visione.
 
 ## Uso
 
+Il motore canonico vive in `../api/_analisi/` (bundlato nella funzione
+Vercel `/api/analizza_disegno`); questo CLI lo importa per i test locali.
+
 ```bash
 pip3 install pymupdf
-python3 -m src.main <disegno.pdf> [outdir]        # analisi del disegno
-python3 -m src.normativa out/gemello.json [outdir] # analisi normativa
+python3 cli.py <disegno.pdf> [outdir]              # analisi del disegno
+python3 cli.py --normativa out/gemello.json [outdir]
 ```
 
 Output: `out/gemello.json`, `out/report.md` (disegno),
@@ -19,7 +22,7 @@ Output: `out/gemello.json`, `out/report.md` (disegno),
 
 ## Cosa fa
 
-1. **Estrazione per layer** (`src/extractor.py`)
+1. **Estrazione per layer** (`api/_analisi/extractor.py`)
    - metadata dal cartiglio (formato, scala dichiarata)
    - dal layer `105 Bemassung`: linee di quota, tick a 45°, testi con
      convenzione svizzera (`3.40` = metri, `28` = cm, apice = mezzo cm)
@@ -63,7 +66,7 @@ tavola, 7 in zona dettaglio, **0 senza riscontro** (il disegno è corretto).
 Controprova di sensibilità: alterando di +5 cm i valori di 5 quote, le 3
 misurabili in pianta vengono tutte segnalate.
 
-## Analisi normativa (`src/normativa.py`)
+## Analisi normativa (`api/_analisi/normativa.py`)
 
 Incrocia il gemello digitale con le norme applicabili a un edificio Gewerbe:
 OLL 4 (RS 822.114: scale in funzione della superficie del piano, larghezza
@@ -71,7 +74,7 @@ porte su vie di fuga, corridoi) e OLL 3 (RS 822.113: gabinetti). Ogni esito
 (`conforme` / `non_conforme` / `da_verificare` / `non_verificabile`) cita
 l'articolo esatto. Le regole cantonali/comunali (PBG UR, Bauordnung) vengono
 dichiarate non verificabili dalla pianta — mai inventate. Le norme sono in
-`norme/snapshot_oll.json` (snapshot dal DB Lexum CH: in produzione il modulo
+`api/_analisi/snapshot_oll.json` (snapshot dal DB Lexum CH: in produzione il modulo
 interrogherà direttamente `norme_ch`/`norme_cantonali_ch`).
 
 Sul piano di riferimento ha prodotto un finding reale: due porte da 0,88 m
