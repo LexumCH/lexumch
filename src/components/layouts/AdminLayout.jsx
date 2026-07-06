@@ -22,6 +22,7 @@ export default function AdminLayout({ children }) {
     { path: '/admin/pagamenti', label: 'Pagamenti', icon: CreditCard },
     { path: '/admin/mail-log', label: 'Mail Log', icon: Mail },
     { path: '/admin/lex-logs', label: 'Lex Logs', icon: Activity },
+    { path: '/admin/normativa', label: 'Normativa', icon: BookOpen },
     { path: '/admin/assistenza', label: 'Assistenza', icon: Headphones },
     { path: '/admin/profilo', label: 'Profilo', icon: UserCircle },
   ]

@@ -39,7 +39,9 @@ export default function ProgettoDettaglio() {
     queryKey: ['progetto', id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('progetti').select('*').eq('id', id).single()
+        .from('progetti')
+        .select('*, cliente:cliente_id(id, nome, cognome, ragione_sociale, tipo_soggetto)')
+        .eq('id', id).single()
       if (error) throw error
       return data
     },
@@ -135,9 +137,21 @@ export default function ProgettoDettaglio() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <Link to="/progetti" className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-nebbia mb-3 transition-colors">
-          <ArrowLeft size={13} /> Tutti i progetti
-        </Link>
+        {(() => {
+          const c = progetto.cliente
+          const nomeC = c
+            ? (c.tipo_soggetto === 'persona_giuridica'
+              ? (c.ragione_sociale ?? '—')
+              : `${c.nome ?? ''} ${c.cognome ?? ''}`.trim() || '—')
+            : null
+          return c
+            ? <Link to={`/clienti/${c.id}`} className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-nebbia mb-3 transition-colors">
+                <ArrowLeft size={13} /> {nomeC}
+              </Link>
+            : <Link to="/progetti" className="flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-nebbia mb-3 transition-colors">
+                <ArrowLeft size={13} /> Tutti i progetti
+              </Link>
+        })()}
         <h1 className="font-display text-2xl text-nebbia">{progetto.nome}</h1>
         <p className="font-body text-sm text-nebbia/50 mt-1">
           {[progetto.committente, progetto.indirizzo, progetto.comune, progetto.cantone, progetto.destinazione]

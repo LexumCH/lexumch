@@ -21,12 +21,14 @@ import {
     CreditCard, StickyNote, User, FolderOpen, ArrowRight, Sparkles,
     Edit2, Check, X, Calendar, Clock, AlertCircle, Trash2, Building2,
     ExternalLink, Eye, Upload, KeyRound, Mail, Eye as EyeIcon, EyeOff,
-    Copy, RefreshCw, CheckCircle, ShieldOff, Wallet, Users, BookOpen
+    Copy, RefreshCw, CheckCircle, ShieldOff, Wallet, Users, BookOpen,
+    DraftingCompass
 } from 'lucide-react'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
 import GestioneMandati from '@/components/fiduciario/GestioneMandati'
+import GestioneProgetti from '@/components/progettista/GestioneProgetti'
 import EntrateUscite from '@/components/fiduciario/EntrateUscite'
 import PianificazioneLiquidita from '@/components/fiduciario/PianificazioneLiquidita'
 import BudgetScostamenti from '@/components/fiduciario/BudgetScostamenti'
@@ -1404,12 +1406,22 @@ export default function AvvocatoClientiDettaglio() {
     const { id } = useParams()
     const { role } = useAuth()
     const isFiduciario = role === 'fiduciario'
+    const isProgettista = role === 'progettista'
     const TABS = isFiduciario
         ? [
             { id: 'panoramica', label: t('tabs.panoramica'), icon: User },
             { id: 'mandati', label: t('tabs.mandati'), icon: FolderOpen },
             { id: 'dipendenti', label: t('tabs.dipendenti'), icon: Users },
             { id: 'contabilita', label: t('tabs.contabilita'), icon: BookOpen },
+            { id: 'documenti', label: t('tabs.documenti'), icon: FileText },
+            { id: 'comunicazioni', label: t('tabs.comunicazioni'), icon: MessageSquare },
+            { id: 'note_interne', label: t('tabs.note_interne'), icon: Lock },
+            { id: 'pagamenti', label: t('tabs.pagamenti'), icon: CreditCard },
+        ]
+        : isProgettista
+        ? [
+            { id: 'panoramica', label: t('tabs.panoramica'), icon: User },
+            { id: 'progetti', label: t('tabs.progetti'), icon: DraftingCompass },
             { id: 'documenti', label: t('tabs.documenti'), icon: FileText },
             { id: 'comunicazioni', label: t('tabs.comunicazioni'), icon: MessageSquare },
             { id: 'note_interne', label: t('tabs.note_interne'), icon: Lock },
@@ -1791,6 +1803,7 @@ export default function AvvocatoClientiDettaglio() {
             )}
 
             {tab === 'mandati' && <GestioneMandati clienteId={id} />}
+            {tab === 'progetti' && <GestioneProgetti clienteId={id} />}
             {tab === 'dipendenti' && (
                 <div className="space-y-6">
                     <EntrateUscite clienteId={id} onMovimentiChange={() => setRefreshMovimenti(k => k + 1)} />
