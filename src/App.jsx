@@ -214,7 +214,7 @@ export default function App() {
               <Route path="/reset-password" element={<AuthLayout><ResetPassword /></AuthLayout>} />
               <Route path="/email-verificata" element={<AuthLayout><EmailVerificata /></AuthLayout>} />
               <Route path="/verifica-2fa" element={
-                <ProtectedRoute roles={['admin', 'avvocato', 'cliente', 'user']}>
+                <ProtectedRoute roles={['admin', 'avvocato', 'fiduciario', 'progettista', 'cliente', 'user']}>
                   <Verifica2FA />
                 </ProtectedRoute>
               } />
