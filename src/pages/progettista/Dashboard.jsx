@@ -5,10 +5,10 @@
 //   - portfolio: committenti, progetti attivi/totali, disegni in analisi
 //   - lavorazioni: disegni in analisi / in errore (alert), ultime analisi completate
 //   - ultimi progetti (con committente, comune, cantone) come scorciatoia
+//   - scadenze: termini della domanda di costruzione (progetti.scadenza_licenza)
 //   - snapshot PER COMMITTENTE (n. progetti attivi/totali per cliente), mai sommato
 //
 // VINCOLO: solo tabelle/colonne reali (progetti, progetto_disegni, profiles).
-// Niente fatturato / scadenze / appuntamenti: non esistono per il progettista.
 // RLS: progetti e progetto_disegni filtrano già per progettista_id = auth.uid()
 // (+ studio_id), quindi una SELECT semplice torna solo le proprie righe.
 
@@ -18,7 +18,7 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import {
   Users, DraftingCompass, FolderOpen, FileStack, ChevronRight,
-  CheckCircle2, Loader2, AlertTriangle, ScrollText,
+  CheckCircle2, Loader2, AlertTriangle, ScrollText, CalendarClock,
 } from 'lucide-react'
 
 const STATO_CONFIG = {
@@ -61,6 +61,20 @@ function esitoDisegno(d) {
   return 'non_verificabile'
 }
 
+// Giorni (interi) da oggi alla data; negativo = scaduta.
+function giorniA(dateStr) {
+  const d = new Date(dateStr); d.setHours(0, 0, 0, 0)
+  const o = new Date(); o.setHours(0, 0, 0, 0)
+  return Math.round((d - o) / 86400000)
+}
+function badgeScadenza(gg) {
+  if (gg < 0) return { label: `${Math.abs(gg)}g fa`, cls: 'text-red-400 border-red-400/30 bg-red-500/10' }
+  if (gg === 0) return { label: 'oggi', cls: 'text-red-400 border-red-400/30 bg-red-500/10' }
+  if (gg <= 7) return { label: `${gg}g`, cls: 'text-oro border-oro/30 bg-oro/10' }
+  if (gg <= 30) return { label: `${gg}g`, cls: 'text-salvia border-salvia/30 bg-salvia/10' }
+  return { label: `${gg}g`, cls: 'text-nebbia/50 border-white/10 bg-petrolio/40' }
+}
+
 export default function ProgettistaDashboard() {
   const { profile } = useAuth()
 
@@ -71,7 +85,7 @@ export default function ProgettistaDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('progetti')
-        .select('id, nome, comune, cantone, destinazione, committente, stato, created_at, cliente_id, cliente:cliente_id(id, nome, cognome, ragione_sociale, tipo_soggetto)')
+        .select('id, nome, comune, cantone, destinazione, committente, stato, scadenza_licenza, created_at, cliente_id, cliente:cliente_id(id, nome, cognome, ragione_sociale, tipo_soggetto)')
         .order('created_at', { ascending: false })
       if (error) throw error
       return data ?? []
@@ -118,6 +132,15 @@ export default function ProgettistaDashboard() {
   const nonConformi = completati.filter(d => esitoDisegno(d) === 'non_conforme').length
 
   const ultimiProgetti = progetti.slice(0, 6)
+
+  // ── Scadenze domanda di costruzione (termini) ──
+  // Progetti attivi con scadenza_licenza: scadute + entro ~4 mesi, più urgenti prima.
+  const scadenze = progetti
+    .filter(p => p.scadenza_licenza && !['chiuso', 'archiviato'].includes(p.stato))
+    .map(p => ({ ...p, gg: giorniA(p.scadenza_licenza) }))
+    .filter(p => p.gg <= 120)
+    .sort((a, b) => a.gg - b.gg)
+    .slice(0, 8)
 
   // ── Snapshot PER COMMITTENTE (per-cliente, mai sommato) ──
   // n. progetti totali/attivi + n. disegni per ogni committente distinto.
@@ -188,6 +211,36 @@ export default function ProgettistaDashboard() {
                   <span className={`font-body text-xs shrink-0 ${isErr ? 'text-red-400/80' : 'text-oro/80'}`}>
                     {isErr ? 'errore' : 'in corso'}
                   </span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Scadenze domanda di costruzione */}
+      {scadenze.length > 0 && (
+        <div className="bg-slate border border-white/5">
+          <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
+            <CalendarClock size={14} className="text-oro/60" />
+            <p className="section-label !m-0">Scadenze domanda di costruzione</p>
+          </div>
+          <div className="divide-y divide-white/5">
+            {scadenze.map(p => {
+              const b = badgeScadenza(p.gg)
+              const committente = committenteProgetto(p)
+              return (
+                <Link key={p.id} to={`/progetti/${p.id}`}
+                  className="flex items-center gap-3 px-5 py-3 hover:bg-petrolio/40 transition-colors group">
+                  <CalendarClock size={14} className={`shrink-0 ${p.gg < 0 ? 'text-red-400' : 'text-nebbia/30'}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-sm text-nebbia truncate">{p.nome}</p>
+                    <p className="font-body text-xs text-nebbia/40 truncate">
+                      {[committente, new Date(p.scadenza_licenza).toLocaleDateString('it-CH')].filter(Boolean).join(' · ')}
+                    </p>
+                  </div>
+                  <span className={`font-body text-[11px] px-2 py-0.5 border shrink-0 ${b.cls}`}>{b.label}</span>
+                  <ChevronRight size={14} className="text-nebbia/20 group-hover:text-oro transition-colors shrink-0" />
                 </Link>
               )
             })}
