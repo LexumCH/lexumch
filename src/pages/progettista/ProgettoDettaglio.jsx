@@ -15,6 +15,23 @@ const STATO_ANALISI = {
   errore: { label: 'Errore analisi', icon: XCircle, cls: 'text-red-400' },
 }
 
+// Badge di stato compatto, stessa grammatica dei badge stato di pratiche/mandati
+const STATO_BADGE = {
+  caricato: { label: 'Da analizzare', cls: 'border-white/15 text-nebbia/50' },
+  in_analisi: { label: 'In analisi', cls: 'border-oro/40 text-oro' },
+  completata: { label: 'Completato', cls: 'border-salvia/40 text-salvia' },
+  errore: { label: 'Errore', cls: 'border-red-400/40 text-red-400' },
+}
+
+// Filtri per stato d'analisi (come i filtri delle liste pratiche/mandati)
+const FILTRI = [
+  { id: 'tutti', label: 'Tutti' },
+  { id: 'caricato', label: 'Da analizzare' },
+  { id: 'in_analisi', label: 'In analisi' },
+  { id: 'completata', label: 'Completati' },
+  { id: 'errore', label: 'Errori' },
+]
+
 const ESITO_NORMATIVA = {
   conforme: { icon: CheckCircle2, cls: 'text-salvia', label: 'Conforme' },
   non_conforme: { icon: XCircle, cls: 'text-red-400', label: 'Non conforme' },
@@ -34,6 +51,7 @@ export default function ProgettoDettaglio() {
   const [uploading, setUploading] = useState(false)
   const [errore, setErrore] = useState(null)
   const [aperto, setAperto] = useState(null) // id disegno con risultati espansi
+  const [filtro, setFiltro] = useState('tutti')
 
   const { data: progetto } = useQuery({
     queryKey: ['progetto', id],
@@ -180,42 +198,83 @@ export default function ProgettoDettaglio() {
         {errore && <p className="font-body text-xs text-red-400 mt-3">{errore}</p>}
       </div>
 
+      {/* Barra conteggi + filtri per stato (stile liste pratiche/mandati) */}
+      {disegni.length > 0 && (() => {
+        const counts = {
+          caricato: disegni.filter(d => d.stato_analisi === 'caricato').length,
+          in_analisi: disegni.filter(d => d.stato_analisi === 'in_analisi').length,
+          completata: disegni.filter(d => d.stato_analisi === 'completata').length,
+          errore: disegni.filter(d => d.stato_analisi === 'errore').length,
+        }
+        return (
+          <div className="flex items-center gap-3 flex-wrap">
+            <p className="font-body text-sm text-nebbia/40">
+              {disegni.length} {disegni.length === 1 ? 'disegno' : 'disegni'}
+              {counts.completata > 0 && <span className="ml-1 text-nebbia/25">· {counts.completata} analizzati</span>}
+            </p>
+            <div className="ml-auto flex items-center gap-1.5 flex-wrap">
+              {FILTRI.map(f => {
+                const n = f.id === 'tutti' ? disegni.length : counts[f.id]
+                const active = filtro === f.id
+                return (
+                  <button key={f.id} onClick={() => setFiltro(f.id)}
+                    className={`font-body text-xs px-2.5 py-1 border transition-colors ${active
+                      ? 'bg-oro/10 border-oro/40 text-oro'
+                      : 'bg-slate border-white/10 text-nebbia/50 hover:border-oro/20 hover:text-nebbia/80'}`}>
+                    {f.label}
+                    {n > 0 && <span className="ml-1 opacity-60">{n}</span>}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Lista disegni */}
       <div className="space-y-2">
-        {disegni.map(d => {
+        {(filtro === 'tutti' ? disegni : disegni.filter(d => d.stato_analisi === filtro)).map(d => {
           const stato = STATO_ANALISI[d.stato_analisi] ?? STATO_ANALISI.caricato
+          const badge = STATO_BADGE[d.stato_analisi] ?? STATO_BADGE.caricato
           const StatoIcon = stato.icon
           const espanso = aperto === d.id
           const testi = d.gemello?.quote?.testi ?? []
           const quoteOk = testi.filter(t => ['ok', 'ok_dettaglio'].includes(t.stato)).length
+          const riepilogo = d.stato_analisi === 'completata' && d.gemello
+            ? `${quoteOk}/${testi.length} quote · ${(d.findings ?? []).length} segnalazioni · ${(d.gemello.locali ?? []).length} locali`
+            : d.stato_analisi === 'errore'
+              ? (d.errore || 'Errore durante l\'analisi')
+              : d.stato_analisi === 'in_analisi'
+                ? 'Analisi in corso…'
+                : 'In attesa di analisi'
           return (
             <div key={d.id} className="bg-slate border border-white/5">
               <div className="flex items-center gap-3 px-4 py-3">
                 <StatoIcon size={16}
-                  className={`${stato.cls} ${d.stato_analisi === 'in_analisi' ? 'animate-spin' : ''}`} />
+                  className={`${stato.cls} shrink-0 ${d.stato_analisi === 'in_analisi' ? 'animate-spin' : ''}`} />
                 <div className="flex-1 min-w-0">
                   <p className="font-body text-sm text-nebbia truncate">{d.nome_file}</p>
-                  <p className={`font-body text-xs ${stato.cls}`}>
-                    {stato.label}
-                    {d.stato_analisi === 'completata' && d.gemello &&
-                      ` — ${quoteOk}/${testi.length} quote verificate, ${(d.findings ?? []).length} segnalazioni, ${(d.gemello.locali ?? []).length} locali`}
-                    {d.stato_analisi === 'errore' && d.errore && ` — ${d.errore}`}
+                  <p className={`font-body text-xs truncate ${d.stato_analisi === 'errore' ? 'text-red-400/80' : 'text-nebbia/40'}`}>
+                    {riepilogo}
                   </p>
                 </div>
+                <span className={`font-body text-[10px] px-2 py-0.5 border uppercase tracking-wider shrink-0 ${badge.cls}`}>
+                  {badge.label}
+                </span>
                 {['caricato', 'errore'].includes(d.stato_analisi) && (
                   <button onClick={() => analizza.mutate(d.id)} disabled={analizza.isPending}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-salvia/10 border border-salvia/30 text-salvia font-body text-xs hover:bg-salvia/20 disabled:opacity-50 transition-colors">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-salvia/10 border border-salvia/30 text-salvia font-body text-xs hover:bg-salvia/20 disabled:opacity-50 transition-colors shrink-0">
                     <Play size={12} /> Analizza
                   </button>
                 )}
                 {d.stato_analisi === 'completata' && (
                   <button onClick={() => setAperto(espanso ? null : d.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/70 font-body text-xs hover:border-oro/30 transition-colors">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/70 font-body text-xs hover:border-oro/30 transition-colors shrink-0">
                     Risultati {espanso ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                   </button>
                 )}
                 <button onClick={() => { if (confirm(`Eliminare "${d.nome_file}"?`)) elimina.mutate(d) }}
-                  className="p-1.5 text-nebbia/30 hover:text-red-400 transition-colors">
+                  className="p-1.5 text-nebbia/30 hover:text-red-400 transition-colors shrink-0">
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -299,9 +358,16 @@ export default function ProgettoDettaglio() {
             </div>
           )
         })}
-        {disegni.length === 0 && (
+        {disegni.length === 0 ? (
           <div className="border border-white/5 bg-slate p-8 text-center">
-            <p className="font-body text-sm text-nebbia/50">Nessun disegno caricato.</p>
+            <FileText size={26} className="mx-auto text-nebbia/20 mb-3" />
+            <p className="font-body text-sm text-nebbia/50">
+              Nessun disegno caricato. Carica un PDF vettoriale per avviare l'analisi.
+            </p>
+          </div>
+        ) : (filtro !== 'tutti' && disegni.filter(d => d.stato_analisi === filtro).length === 0) && (
+          <div className="border border-white/5 bg-slate p-6 text-center">
+            <p className="font-body text-sm text-nebbia/40">Nessun disegno in questo stato.</p>
           </div>
         )}
       </div>
