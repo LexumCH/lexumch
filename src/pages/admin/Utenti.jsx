@@ -12,6 +12,8 @@ import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 const ROLE_BADGE = {
   admin: { label: 'Admin', variant: 'red' },
   avvocato: { label: 'Avvocato', variant: 'oro' },
+  fiduciario: { label: 'Fiduciario', variant: 'salvia' },
+  progettista: { label: 'Progettista', variant: 'sky' },
   cliente: { label: 'Cliente', variant: 'salvia' },
   user: { label: 'User', variant: 'gray' },
 }
@@ -415,6 +417,8 @@ function TabellaUtenti({ data, loading }) {
           className="bg-slate border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50">
           <option value="">Tutti i ruoli</option>
           <option value="avvocato">Avvocato</option>
+          <option value="fiduciario">Fiduciario</option>
+          <option value="progettista">Progettista</option>
           <option value="cliente">Cliente</option>
           <option value="user">User</option>
           <option value="admin">Admin</option>

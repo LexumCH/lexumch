@@ -52,6 +52,7 @@ export function StatCard({ label, value, sub, colorClass = 'text-oro', icon: Ico
 const BADGE_VARIANTS = {
   oro:     'bg-oro/15 text-oro border-oro/30',
   salvia:  'bg-salvia/15 text-salvia border-salvia/30',
+  sky:     'bg-sky-900/20 text-sky-400 border-sky-500/30',
   red:     'bg-red-900/20 text-red-400 border-red-500/30',
   gray:    'bg-white/5 text-nebbia/40 border-white/10',
   warning: 'bg-amber-900/20 text-amber-400 border-amber-500/30',
