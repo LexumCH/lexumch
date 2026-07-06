@@ -10,6 +10,10 @@
     "fiduciario": {
       "titolo": "Treuhänder",
       "desc": "Verwaltung von Mandaten, Buchhaltung, Reporting, Rechnungsstellung und Tabellenkalkulations-Werkzeugen."
+    },
+    "progettista": {
+      "titolo": "Planer",
+      "desc": "Projektverwaltung, Plananalyse und baurechtliche Prüfung für Architekten, Ingenieure und Zeichner."
     }
   },
   "set": {
@@ -46,6 +50,24 @@
         "affiliazione": {
           "label": "Berufliche Mitgliedschaft",
           "hint": "Optional — Branchenverband (TREUHAND|SUISSE, EXPERTsuisse) oder SRO. Beschleunigt die Verifizierung"
+        }
+      }
+    },
+    "progettista": {
+      "titolo": "Werden Sie Planer auf Lexum",
+      "intro": "Um als Planer (Architekt, Ingenieur oder Zeichner) auf die Plattform zuzugreifen, müssen Sie Ihre berufliche Identität verifizieren. Laden Sie die erforderlichen Dokumente hoch; unser Team prüft sie innert 24-48 Stunden.",
+      "documenti": {
+        "identita": {
+          "label": "Identitätsdokument",
+          "hint": "Gültige Identitätskarte oder Reisepass"
+        },
+        "reg": {
+          "label": "REG-Eintrag / OTIA oder Berufsdiplom",
+          "hint": "REG-Nachweis (Schweizer Register der Ingenieure, Architekten und Techniker), OTIA-Eintrag oder gleichwertiger Titel"
+        },
+        "diploma": {
+          "label": "Studiendiplom",
+          "hint": "Optional — beschleunigt die Verifizierung"
         }
       }
     }

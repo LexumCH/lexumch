@@ -10,6 +10,10 @@
     "fiduciario": {
       "titolo": "Fiduciario",
       "desc": "Gestione mandati, contabilità, reportistica, fatturazione e strumenti per fogli di calcolo."
+    },
+    "progettista": {
+      "titolo": "Progettista",
+      "desc": "Gestione progetti, analisi dei disegni e verifica normativa edilizia per architetti, ingegneri e disegnatori."
     }
   },
   "set": {
@@ -46,6 +50,24 @@
         "affiliazione": {
           "label": "Affiliazione professionale",
           "hint": "Opzionale — associazione di categoria (TREUHAND|SUISSE, EXPERTsuisse) o OAD. Accelera la verifica"
+        }
+      }
+    },
+    "progettista": {
+      "titolo": "Diventa progettista su Lexum",
+      "intro": "Per accedere alla piattaforma come progettista (architetto, ingegnere o disegnatore) devi verificare la tua identità professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.",
+      "documenti": {
+        "identita": {
+          "label": "Documento di identità",
+          "hint": "Carta d'identità o passaporto valido"
+        },
+        "reg": {
+          "label": "Iscrizione REG / OTIA o diploma professionale",
+          "hint": "Attestato REG (Registro svizzero degli ingegneri, architetti e tecnici), iscrizione OTIA o titolo equivalente"
+        },
+        "diploma": {
+          "label": "Diploma di studio",
+          "hint": "Opzionale — accelera la verifica"
         }
       }
     }

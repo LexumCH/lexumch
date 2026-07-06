@@ -317,10 +317,11 @@ export function AdminProdottiForm() {
         {(isAbb || isGratuito) && (
           <div>
             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-3">Professione di destinazione *</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {[
                 { v: 'avvocato', l: 'Avvocato', desc: 'Assegna il ruolo avvocato e abilita il layout legale' },
                 { v: 'fiduciario', l: 'Fiduciario', desc: 'Assegna il ruolo fiduciario e abilita il layout fiduciario' },
+                { v: 'progettista', l: 'Progettista', desc: 'Assegna il ruolo progettista e abilita progetti e analisi disegni' },
               ].map(({ v, l, desc }) => (
                 <button key={v} type="button" onClick={() => setForm(p => ({ ...p, target_role: v }))}
                   className={`p-3 text-left border transition-all ${form.target_role === v

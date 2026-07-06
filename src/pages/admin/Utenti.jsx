@@ -618,7 +618,9 @@ function TabVerifiche({ data, loading, onDecision }) {
                     ? <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">Fiduciario</span>
                     : u.tipo_richiesta === 'avvocato'
                       ? <span className="font-body text-[10px] px-1.5 py-0.5 border border-oro/30 text-oro">Avvocato</span>
-                      : null}
+                      : u.tipo_richiesta === 'progettista'
+                        ? <span className="font-body text-[10px] px-1.5 py-0.5 border border-sky-500/30 text-sky-400">Progettista</span>
+                        : null}
                 </div>
                 {u.studio && <p className="font-body text-xs text-nebbia/30">{u.studio}</p>}
                 <p className="font-body text-xs text-nebbia/40 truncate">{u.email}</p>
@@ -640,7 +642,9 @@ function TabVerifiche({ data, loading, onDecision }) {
                 ? <span className="font-body text-[10px] px-2 py-0.5 border border-salvia/30 text-salvia uppercase tracking-wider">Fiduciario</span>
                 : selected.tipo_richiesta === 'avvocato'
                   ? <span className="font-body text-[10px] px-2 py-0.5 border border-oro/30 text-oro uppercase tracking-wider">Avvocato</span>
-                  : null}
+                  : selected.tipo_richiesta === 'progettista'
+                    ? <span className="font-body text-[10px] px-2 py-0.5 border border-sky-500/30 text-sky-400 uppercase tracking-wider">Progettista</span>
+                    : null}
             </div>
             {selected.studio && <p className="font-body text-sm text-nebbia/40">{selected.studio}</p>}
             <p className="font-body text-sm text-nebbia/40">{selected.email}</p>

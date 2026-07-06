@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { Upload, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2, Scale, Calculator } from 'lucide-react'
+import { Upload, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2, Scale, Calculator, DraftingCompass } from 'lucide-react'
 
 const toArray = (v) => Array.isArray(v) ? v : []
 
@@ -24,6 +24,13 @@ const SET_DOCUMENTALE = {
             { key: 'affiliazione', req: false },
         ],
     },
+    progettista: {
+        documenti: [
+            { key: 'identita', req: true },
+            { key: 'reg', req: true },
+            { key: 'diploma', req: false },
+        ],
+    },
 }
 
 // ── SCELTA DIREZIONE (se tipo_richiesta non ancora impostato) ──
@@ -39,7 +46,7 @@ function SceltaDirezione({ onScelta, loading }) {
                 </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <button
                     disabled={loading}
                     onClick={() => onScelta('avvocato')}
@@ -61,6 +68,18 @@ function SceltaDirezione({ onScelta, loading }) {
                     <p className="font-display text-xl text-nebbia mb-2">{t('scelta.fiduciario.titolo')}</p>
                     <p className="font-body text-xs text-nebbia/50 leading-relaxed">
                         {t('scelta.fiduciario.desc')}
+                    </p>
+                </button>
+
+                <button
+                    disabled={loading}
+                    onClick={() => onScelta('progettista')}
+                    className="bg-slate border border-white/5 hover:border-oro/40 p-6 text-left transition-colors group disabled:opacity-40"
+                >
+                    <DraftingCompass size={28} className="text-oro mb-4" />
+                    <p className="font-display text-xl text-nebbia mb-2">{t('scelta.progettista.titolo')}</p>
+                    <p className="font-body text-xs text-nebbia/50 leading-relaxed">
+                        {t('scelta.progettista.desc')}
                     </p>
                 </button>
             </div>

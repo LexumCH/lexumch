@@ -10,6 +10,10 @@
     "fiduciario": {
       "titolo": "Fiduciaire",
       "desc": "Gestion des mandats, comptabilité, reporting, facturation et outils de tableur."
+    },
+    "progettista": {
+      "titolo": "Projeteur",
+      "desc": "Gestion de projets, analyse des plans et vérification réglementaire pour architectes, ingénieurs et dessinateurs."
     }
   },
   "set": {
@@ -46,6 +50,24 @@
         "affiliazione": {
           "label": "Affiliation professionnelle",
           "hint": "Facultatif — association professionnelle (TREUHAND|SUISSE, EXPERTsuisse) ou OAR. Accélère la vérification"
+        }
+      }
+    },
+    "progettista": {
+      "titolo": "Devenez projeteur sur Lexum",
+      "intro": "Pour accéder à la plateforme comme projeteur (architecte, ingénieur ou dessinateur), vous devez vérifier votre identité professionnelle. Téléversez les documents requis; notre équipe les examinera sous 24-48 heures.",
+      "documenti": {
+        "identita": {
+          "label": "Document d'identité",
+          "hint": "Carte d'identité ou passeport valide"
+        },
+        "reg": {
+          "label": "Inscription REG / OTIA ou diplôme professionnel",
+          "hint": "Attestation REG (Registre suisse des ingénieurs, des architectes et des techniciens), inscription OTIA ou titre équivalent"
+        },
+        "diploma": {
+          "label": "Diplôme d'études",
+          "hint": "Facultatif — accélère la vérification"
         }
       }
     }
