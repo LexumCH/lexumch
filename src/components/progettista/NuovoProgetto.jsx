@@ -5,7 +5,9 @@
 // Speculare a fiduciario/NuovoMandato.
 //
 // Props:
-//   clienteId  (string)  - cliente/committente a cui appartiene il progetto (obbligatorio)
+//   clienteId  (string, opzionale)  - committente a cui appartiene il progetto.
+//                                      Se assente, il modal mostra un selettore
+//                                      committente (apertura dalla lista globale).
 //   onClose()  - chiusura modal
 //   onSaved(nuovoId) - callback dopo la creazione; riceve l'id del nuovo progetto
 
@@ -15,6 +17,12 @@ import { supabase } from '@/lib/supabase'
 
 const CANTONI = ['TI', 'ZH', 'GE', 'VD', 'BE', 'BS', 'BL', 'LU', 'ZG', 'FR', 'SO', 'SH', 'AR', 'AI', 'SG', 'GR', 'AG', 'TG', 'VS', 'NE', 'JU', 'OW', 'NW', 'UR', 'SZ', 'GL']
 const DESTINAZIONI = ['residenziale', 'commerciale', 'industriale', 'misto', 'pubblico']
+
+function nomeCliente(c) {
+  if (!c) return null
+  if (c.tipo_soggetto === 'persona_giuridica') return c.ragione_sociale ?? null
+  return `${c.nome ?? ''} ${c.cognome ?? ''}`.trim() || null
+}
 
 export default function NuovoProgetto({ clienteId, onClose, onSaved }) {
   const [nome, setNome] = useState('')
@@ -26,16 +34,38 @@ export default function NuovoProgetto({ clienteId, onClose, onSaved }) {
   const [salvando, setSalvando] = useState(false)
   const [errore, setErrore] = useState(null)
 
+  // Selettore committente: attivo solo quando il modal è aperto SENZA un
+  // committente predeterminato (es. dalla lista globale /progetti).
+  const serveSelettore = !clienteId
+  const [committenteSel, setCommittenteSel] = useState('')
+  const [clienti, setClienti] = useState([])
+
   useEffect(() => {
     const onKey = e => { if (e.key === 'Escape' && !salvando) onClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose, salvando])
 
-  const puoSalvare = nome.trim().length > 0
+  useEffect(() => {
+    if (!serveSelettore) return
+    let attivo = true
+    ;(async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, nome, cognome, ragione_sociale, tipo_soggetto')
+        .eq('role', 'cliente')
+        .order('cognome')
+      if (attivo) setClienti(data ?? [])
+    })()
+    return () => { attivo = false }
+  }, [serveSelettore])
+
+  const clienteIdEffettivo = clienteId ?? (committenteSel || null)
+  const puoSalvare = nome.trim().length > 0 && !!clienteIdEffettivo
 
   async function salva() {
     if (!nome.trim()) { setErrore('Il nome del progetto è obbligatorio'); return }
+    if (!clienteIdEffettivo) { setErrore('Seleziona il committente'); return }
     setSalvando(true)
     setErrore(null)
 
@@ -44,13 +74,9 @@ export default function NuovoProgetto({ clienteId, onClose, onSaved }) {
 
     const [{ data: profilo }, { data: cliente }] = await Promise.all([
       supabase.from('profiles').select('studio_id').eq('id', user.id).single(),
-      supabase.from('profiles').select('nome, cognome, ragione_sociale, tipo_soggetto').eq('id', clienteId).single(),
+      supabase.from('profiles').select('nome, cognome, ragione_sociale, tipo_soggetto').eq('id', clienteIdEffettivo).single(),
     ])
-    const committente = cliente
-      ? (cliente.tipo_soggetto === 'persona_giuridica'
-        ? (cliente.ragione_sociale ?? null)
-        : `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`.trim() || null)
-      : null
+    const committente = nomeCliente(cliente)
 
     const txt = v => (v?.toString().trim() ? v.toString().trim() : null)
 
@@ -58,7 +84,7 @@ export default function NuovoProgetto({ clienteId, onClose, onSaved }) {
       .from('progetti')
       .insert({
         progettista_id: user.id,
-        cliente_id: clienteId,
+        cliente_id: clienteIdEffettivo,
         studio_id: profilo?.studio_id ?? null,
         nome: nome.trim(),
         committente,
@@ -101,6 +127,17 @@ export default function NuovoProgetto({ clienteId, onClose, onSaved }) {
 
         {/* Body */}
         <div className="p-6 space-y-4 overflow-y-auto flex-1">
+          {serveSelettore && (
+            <div>
+              <label className={labelCls}>Committente *</label>
+              <select value={committenteSel} onChange={e => setCommittenteSel(e.target.value)} className={inputCls}>
+                <option value="">Seleziona committente…</option>
+                {clienti.map(c => (
+                  <option key={c.id} value={c.id}>{nomeCliente(c) ?? '—'}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
             <label className={labelCls}>Nome progetto *</label>
             <input value={nome} onChange={e => setNome(e.target.value)} autoFocus
