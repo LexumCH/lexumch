@@ -190,9 +190,14 @@ export default function ProgettoDisegni({ progettoId }) {
           const StatoIcon = stato.icon
           const espanso = aperto === d.id
           const testi = d.gemello?.quote?.testi ?? []
-          const quoteOk = testi.filter(t => ['ok', 'ok_dettaglio'].includes(t.stato)).length
+          // Ogni quota è "spiegata": verificata, o classificata (altezza apertura,
+          // fuori tavola, zona dettaglio). Le incoerenze VERE sono i finding gravi.
+          const cQ = testi.reduce((a, t) => { a[t.stato] = (a[t.stato] || 0) + 1; return a }, {})
+          const verificate = (cQ.ok || 0) + (cQ.ok_dettaglio || 0)
+          const incoerenze = (d.findings ?? []).filter(f => f.severita === 'errore')
+          const note = (d.findings ?? []).filter(f => f.severita !== 'errore')
           const riepilogo = d.stato_analisi === 'completata' && d.gemello
-            ? `${quoteOk}/${testi.length} quote · ${(d.findings ?? []).length} segnalazioni · ${(d.gemello.locali ?? []).length} locali`
+            ? `${testi.length} quote · ${incoerenze.length} ${incoerenze.length === 1 ? 'incoerenza' : 'incoerenze'} · ${(d.gemello.locali ?? []).length} locali`
             : d.stato_analisi === 'errore'
               ? (d.errore || 'Errore durante l\'analisi')
               : d.stato_analisi === 'in_analisi'
@@ -234,21 +239,55 @@ export default function ProgettoDisegni({ progettoId }) {
                 <div className="border-t border-white/5 px-4 py-4 space-y-5">
                   <section>
                     <h3 className="font-display text-xs uppercase tracking-wider text-nebbia/40 mb-2">Analisi del disegno</h3>
-                    {(d.findings ?? []).length === 0 ? (
+
+                    {/* Breakdown quote: ogni quota è spiegata, non "fallita" */}
+                    <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                      {[
+                        ['verificate', verificate, 'salvia'],
+                        ['altezze aperture', cQ.altezza_apertura || 0, 'nebbia'],
+                        ['fuori tavola', cQ.fuori_tavola || 0, 'nebbia'],
+                        ['zona dettaglio', cQ.zona_non_verificata || 0, 'amber'],
+                        ['senza riscontro', cQ.senza_riscontro || 0, 'red'],
+                      ].filter(([, n]) => n > 0).map(([label, n, col]) => (
+                        <span key={label} className={`font-body text-[11px] px-2 py-0.5 border ${col === 'salvia' ? 'border-salvia/30 text-salvia'
+                          : col === 'amber' ? 'border-amber-400/30 text-amber-400'
+                            : col === 'red' ? 'border-red-400/30 text-red-400'
+                              : 'border-white/10 text-nebbia/45'}`}>
+                          {n} {label}
+                        </span>
+                      ))}
+                      <span className="font-body text-[11px] text-nebbia/25 ml-0.5">su {testi.length} quote lette</span>
+                    </div>
+
+                    {/* Incoerenze reali (finding gravi) */}
+                    {incoerenze.length === 0 ? (
                       <p className="font-body text-sm text-salvia flex items-center gap-2">
                         <CheckCircle2 size={14} /> Nessuna incoerenza: ogni quota corrisponde alla geometria disegnata.
                       </p>
                     ) : (
                       <ul className="space-y-1.5">
-                        {(d.findings ?? []).map((f, i) => (
+                        {incoerenze.map((f, i) => (
                           <li key={i} className="flex items-start gap-2 font-body text-sm text-nebbia/80">
-                            {f.severita === 'errore'
-                              ? <XCircle size={14} className="text-red-400 mt-0.5 shrink-0" />
-                              : <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />}
+                            <XCircle size={14} className="text-red-400 mt-0.5 shrink-0" />
                             {f.messaggio}
                           </li>
                         ))}
                       </ul>
+                    )}
+
+                    {/* Zone non verificate (note, non errori del disegno) */}
+                    {note.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-white/5">
+                        <p className="font-body text-[11px] uppercase tracking-wider text-nebbia/30 mb-1.5">Zone non verificate dal tool</p>
+                        <ul className="space-y-1.5">
+                          {note.map((f, i) => (
+                            <li key={i} className="flex items-start gap-2 font-body text-sm text-nebbia/70">
+                              <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />
+                              {f.messaggio}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </section>
 
