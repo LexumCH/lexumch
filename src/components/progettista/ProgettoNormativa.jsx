@@ -12,6 +12,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
+import { NORME_EDILIZIA_CANTONALE } from '@/lib/normativa-edilizia-cantonale'
 import {
   Scale, MapPin, ChevronRight, BookOpen, ShieldCheck,
   CheckCircle2, XCircle, AlertTriangle, Info, FileText
@@ -25,8 +26,8 @@ const ESITO_CONFIG = {
   non_verificabile: { label: 'Non verificabile', icon: Info,         cls: 'text-nebbia/50',  badge: 'border-white/15 text-nebbia/50' },
 }
 
-// Filtro parole chiave per identificare le norme edilizie/di pianificazione rilevanti
-// (DE / FR / IT) + abbreviazioni note dei principali atti cantonali.
+// Filtro parole chiave di FALLBACK (usato solo per cantoni non ancora nella
+// mappa curata): identifica norme edilizie/di pianificazione (DE/FR/IT).
 const FILTRO_NORME =
   'title.ilike.%baugesetz%,' +
   'title.ilike.%planungs- und bau%,' +
@@ -38,21 +39,38 @@ const FILTRO_NORME =
   'title.ilike.%aménagement du territoire%,' +
   'title.ilike.%constructions%,' +
   'title.ilike.%pianificazione del territorio%,' +
-  'title.ilike.%edilizia%,' +
-  'abbreviation.in.(PBG,RPBG,IVHB,BauG,BauV,LE,RLE,LC,LCAT,LALPT,LPT)'
+  'title.ilike.%edilizia%'
+
+// Rumore da escludere dal fallback (atti col nome che contiene "…bau" ma non
+// edilizi: opere idrauliche/stradali, promozione alloggi, funivie, ecc.).
+const RUMORE = /wasserbau|strassenbau|nationalstrasse|wohnungsbau|seilbahn|kunst und bau|baurechtsvertrag|ausbildungsbeitr|expropriation|sur les communes|laïcit|pflege- und betreuung/i
 
 function titoloNorma(n) {
-  return n.title_by_lang?.de ?? n.title_by_lang?.it ?? n.title ?? '—'
+  return n.title_by_lang?.de ?? n.title_by_lang?.fr ?? n.title_by_lang?.it ?? n.title ?? '—'
 }
 
 export default function ProgettoNormativa({ progetto }) {
   const cantone = progetto?.cantone ?? ''
+  const curata = NORME_EDILIZIA_CANTONALE[cantone] ?? null
 
-  // (A) Normativa cantonale applicabile
+  // (A) Normativa cantonale applicabile — elenco CURATO se il cantone è in mappa,
+  // altrimenti fallback per parole chiave ripulito dal rumore.
   const { data: norme = [], isLoading: normeLoading, error: normeError } = useQuery({
-    queryKey: ['norme_cantonali', cantone],
+    queryKey: ['norme_cantonali', cantone, curata ? 'curata' : 'auto'],
     enabled: !!cantone,
     queryFn: async () => {
+      if (curata) {
+        const { data, error } = await supabase
+          .from('norme_cantonali_ch')
+          .select('id, systematic_number, abbreviation, title, title_by_lang, is_active')
+          .eq('canton', cantone)
+          .in('systematic_number', curata)
+        if (error) throw error
+        // Ordina secondo l'ordine curato (legge → regolamento → IVHB → …).
+        return (data ?? []).sort(
+          (a, b) => curata.indexOf(a.systematic_number) - curata.indexOf(b.systematic_number)
+        )
+      }
       const { data, error } = await supabase
         .from('norme_cantonali_ch')
         .select('id, systematic_number, abbreviation, title, title_by_lang, is_active')
@@ -61,7 +79,7 @@ export default function ProgettoNormativa({ progetto }) {
         .order('is_active', { ascending: false })
         .limit(30)
       if (error) throw error
-      return data ?? []
+      return (data ?? []).filter(n => !RUMORE.test(`${n.title ?? ''} ${titoloNorma(n)}`))
     },
   })
 
@@ -108,6 +126,9 @@ export default function ProgettoNormativa({ progetto }) {
             <h2 className="font-display text-sm text-nebbia">Normativa edilizia applicabile</h2>
             <p className="font-body text-xs text-nebbia/40 mt-0.5">
               Atti cantonali di edilizia e pianificazione del territorio rilevanti per il progetto.
+              {cantone && (curata
+                ? <span className="text-salvia/70"> · elenco curato per {cantone}</span>
+                : <span className="text-amber-400/70"> · risultati automatici per parole chiave</span>)}
             </p>
           </div>
         </div>
