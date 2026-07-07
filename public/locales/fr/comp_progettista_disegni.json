@@ -1,0 +1,58 @@
+{
+  "titolo": "Plans",
+  "helper": "Chargez les PDF vectoriels exportés depuis ArchiCAD : Lexum vérifie les cotes par rapport à la géométrie ainsi que la conformité réglementaire (OLT, PBG).",
+  "carica_pdf": "Charger un PDF",
+  "solo_pdf": "Seuls les fichiers PDF sont acceptés (export vectoriel depuis ArchiCAD).",
+  "analizza": "Analyser",
+  "risultati": "Résultats",
+  "disegni_one": "{{count}} plan",
+  "disegni_other": "{{count}} plans",
+  "analizzati": "{{count}} analysés",
+  "stato": {
+    "caricato": "À analyser",
+    "in_analisi": "Analyse en cours…",
+    "completata": "Analyse terminée",
+    "errore": "Erreur d'analyse"
+  },
+  "badge": {
+    "caricato": "À analyser",
+    "in_analisi": "En analyse",
+    "completata": "Terminé",
+    "errore": "Erreur"
+  },
+  "filtri": {
+    "tutti": "Tous",
+    "caricato": "À analyser",
+    "in_analisi": "En analyse",
+    "completata": "Terminés",
+    "errore": "Erreurs"
+  },
+  "esito": {
+    "conforme": "Conforme",
+    "non_conforme": "Non conforme",
+    "da_verificare": "À vérifier",
+    "non_verificabile": "Non vérifiable depuis le plan"
+  },
+  "riepilogo_quote": "{{count}} cotes",
+  "riepilogo_incoerenze_one": "{{count}} incohérence",
+  "riepilogo_incoerenze_other": "{{count}} incohérences",
+  "riepilogo_locali": "{{count}} locaux",
+  "riepilogo_errore": "Erreur pendant l'analyse",
+  "riepilogo_in_analisi": "Analyse en cours…",
+  "riepilogo_in_attesa": "En attente d'analyse",
+  "sez_analisi": "Analyse du plan",
+  "sez_normativa": "Analyse réglementaire",
+  "sez_locali": "Locaux reconnus ({{count}} — {{bf}} m² BF)",
+  "chip_verificate": "vérifiées",
+  "chip_altezze": "hauteurs des ouvertures",
+  "chip_fuori": "hors plan",
+  "chip_zona": "zone de détail",
+  "chip_senza": "sans correspondance",
+  "chip_su_quote": "sur {{count}} cotes lues",
+  "nessuna_incoerenza": "Aucune incohérence : chaque cote correspond à la géométrie dessinée.",
+  "zone_non_verificate": "Zones non vérifiées par l'outil",
+  "vuoto_nessun_disegno": "Aucun plan chargé. Chargez un PDF vectoriel pour lancer l'analyse.",
+  "vuoto_stato": "Aucun plan dans cet état.",
+  "conferma_elimina": "Supprimer « {{nome}} » ?",
+  "sommario_label": "En synthèse"
+}

@@ -1,0 +1,58 @@
+{
+  "titolo": "Disegni",
+  "helper": "Carica i PDF vettoriali esportati da ArchiCAD: Lexum verifica le quote contro la geometria e la conformità normativa (OLL, PBG).",
+  "carica_pdf": "Carica PDF",
+  "solo_pdf": "Sono accettati solo file PDF (export vettoriale da ArchiCAD).",
+  "analizza": "Analizza",
+  "risultati": "Risultati",
+  "disegni_one": "{{count}} disegno",
+  "disegni_other": "{{count}} disegni",
+  "analizzati": "{{count}} analizzati",
+  "stato": {
+    "caricato": "Da analizzare",
+    "in_analisi": "Analisi in corso…",
+    "completata": "Analisi completata",
+    "errore": "Errore analisi"
+  },
+  "badge": {
+    "caricato": "Da analizzare",
+    "in_analisi": "In analisi",
+    "completata": "Completato",
+    "errore": "Errore"
+  },
+  "filtri": {
+    "tutti": "Tutti",
+    "caricato": "Da analizzare",
+    "in_analisi": "In analisi",
+    "completata": "Completati",
+    "errore": "Errori"
+  },
+  "esito": {
+    "conforme": "Conforme",
+    "non_conforme": "Non conforme",
+    "da_verificare": "Da verificare",
+    "non_verificabile": "Non verificabile dalla tavola"
+  },
+  "riepilogo_quote": "{{count}} quote",
+  "riepilogo_incoerenze_one": "{{count}} incoerenza",
+  "riepilogo_incoerenze_other": "{{count}} incoerenze",
+  "riepilogo_locali": "{{count}} locali",
+  "riepilogo_errore": "Errore durante l'analisi",
+  "riepilogo_in_analisi": "Analisi in corso…",
+  "riepilogo_in_attesa": "In attesa di analisi",
+  "sez_analisi": "Analisi del disegno",
+  "sez_normativa": "Analisi normativa",
+  "sez_locali": "Locali riconosciuti ({{count}} — {{bf}} m² BF)",
+  "chip_verificate": "verificate",
+  "chip_altezze": "altezze aperture",
+  "chip_fuori": "fuori tavola",
+  "chip_zona": "zona dettaglio",
+  "chip_senza": "senza riscontro",
+  "chip_su_quote": "su {{count}} quote lette",
+  "nessuna_incoerenza": "Nessuna incoerenza: ogni quota corrisponde alla geometria disegnata.",
+  "zone_non_verificate": "Zone non verificate dal tool",
+  "vuoto_nessun_disegno": "Nessun disegno caricato. Carica un PDF vettoriale per avviare l'analisi.",
+  "vuoto_stato": "Nessun disegno in questo stato.",
+  "conferma_elimina": "Eliminare \"{{nome}}\"?",
+  "sommario_label": "In sintesi"
+}

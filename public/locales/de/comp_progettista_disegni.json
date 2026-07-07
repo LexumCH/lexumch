@@ -1,0 +1,58 @@
+{
+  "titolo": "Pläne",
+  "helper": "Laden Sie die aus ArchiCAD exportierten Vektor-PDF hoch: Lexum prüft die Masse gegen die Geometrie sowie die Normkonformität (ArGV, PBG).",
+  "carica_pdf": "PDF hochladen",
+  "solo_pdf": "Es werden nur PDF-Dateien akzeptiert (Vektor-Export aus ArchiCAD).",
+  "analizza": "Analysieren",
+  "risultati": "Ergebnisse",
+  "disegni_one": "{{count}} Plan",
+  "disegni_other": "{{count}} Pläne",
+  "analizzati": "{{count}} analysiert",
+  "stato": {
+    "caricato": "Zu analysieren",
+    "in_analisi": "Analyse läuft…",
+    "completata": "Analyse abgeschlossen",
+    "errore": "Analysefehler"
+  },
+  "badge": {
+    "caricato": "Zu analysieren",
+    "in_analisi": "In Analyse",
+    "completata": "Abgeschlossen",
+    "errore": "Fehler"
+  },
+  "filtri": {
+    "tutti": "Alle",
+    "caricato": "Zu analysieren",
+    "in_analisi": "In Analyse",
+    "completata": "Abgeschlossen",
+    "errore": "Fehler"
+  },
+  "esito": {
+    "conforme": "Konform",
+    "non_conforme": "Nicht konform",
+    "da_verificare": "Zu prüfen",
+    "non_verificabile": "Aus dem Plan nicht prüfbar"
+  },
+  "riepilogo_quote": "{{count}} Masse",
+  "riepilogo_incoerenze_one": "{{count}} Inkonsistenz",
+  "riepilogo_incoerenze_other": "{{count}} Inkonsistenzen",
+  "riepilogo_locali": "{{count}} Räume",
+  "riepilogo_errore": "Fehler während der Analyse",
+  "riepilogo_in_analisi": "Analyse läuft…",
+  "riepilogo_in_attesa": "Warten auf Analyse",
+  "sez_analisi": "Plananalyse",
+  "sez_normativa": "Normanalyse",
+  "sez_locali": "Erkannte Räume ({{count}} — {{bf}} m² BF)",
+  "chip_verificate": "geprüft",
+  "chip_altezze": "Höhen der Öffnungen",
+  "chip_fuori": "ausserhalb des Plans",
+  "chip_zona": "Detailbereich",
+  "chip_senza": "ohne Entsprechung",
+  "chip_su_quote": "von {{count}} gelesenen Massen",
+  "nessuna_incoerenza": "Keine Inkonsistenz: Jedes Mass entspricht der gezeichneten Geometrie.",
+  "zone_non_verificate": "Vom Tool nicht geprüfte Bereiche",
+  "vuoto_nessun_disegno": "Kein Plan hochgeladen. Laden Sie ein Vektor-PDF hoch, um die Analyse zu starten.",
+  "vuoto_stato": "Kein Plan in diesem Status.",
+  "conferma_elimina": "\"{{nome}}\" löschen?",
+  "sommario_label": "Zusammengefasst"
+}
