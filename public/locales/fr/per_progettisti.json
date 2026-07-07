@@ -1,0 +1,150 @@
+{
+  "meta": {
+    "title": "Lexum CH — Le logiciel de gestion pour bureaux d'études avec IA",
+    "description": "Lexum vérifie vos plans : contrôle des cotes, conformité à la réglementation cantonale, gestion de projets et phases SIA. Conçu pour les architectes, ingénieurs et dessinateurs suisses.",
+    "og_title": "Lexum CH pour concepteurs — l'IA qui vérifie les plans",
+    "og_description": "Analyse du plan, conformité à la police des constructions cantonale et gestion de projets dans un seul environnement pour les bureaux d'études suisses.",
+    "twitter_description": "L'IA qui vérifie les cotes et la conformité de vos plans. Pour les architectes, ingénieurs et dessinateurs."
+  },
+  "hero": {
+    "badge": "Pour les architectes, ingénieurs et dessinateurs",
+    "title_part1": "Le logiciel de gestion pour bureaux d'études",
+    "title_highlight": "avec l'IA qui vérifie les plans",
+    "subtitle": "Chargez un plan PDF et Lexum contrôle les cotes par rapport à la géométrie ainsi que la conformité à la police des constructions cantonale. Gestion de projets, phases SIA et base de données du droit de la construction suisse, dans un seul environnement.",
+    "cta_primary": "Commencer gratuitement",
+    "cta_secondary": "Essayer la base de données",
+    "no_card": "Aucune carte de crédit requise. La base de données du droit de la construction suisse est toujours gratuite."
+  },
+  "analisi": {
+    "label": "Analyse du plan",
+    "title_part1": "L'IA qui",
+    "title_highlight": "contrôle vos plans",
+    "subtitle": "Pas une interprétation à l'œil : un contrôle déterministe, cote par cote, sur la géométrie réelle du plan vectoriel.",
+    "feature_title": "Chaque cote, vérifiée sur la géométrie",
+    "feature_text": "Lexum lit les PDF vectoriels exportés depuis ArchiCAD, reconstruit le jumeau numérique du plan et vérifie que chaque cote inscrite correspond à la distance réellement dessinée — selon les conventions suisses (mesure brute et finie, chaînes de cotes, étiquettes des portes et fenêtres).",
+    "points": [
+      "Cotes inscrites comparées à la géométrie (tolérance au millimètre)",
+      "Détecte les cotes incohérentes, les chaînes qui ne bouclent pas, les mesures manquantes",
+      "Surfaces des locaux et références altimétriques extraites automatiquement",
+      "Calques ArchiCAD reconnus : murs, cotes, tampons de locaux"
+    ],
+    "visual_label": "Analyse du plan",
+    "visual_file": "Grundriss Erdgeschoss.pdf",
+    "visual_stato": "Analysé",
+    "stat_quote_v": "561",
+    "stat_quote_l": "cotes lues",
+    "stat_segnal_v": "2",
+    "stat_segnal_l": "signalements",
+    "stat_locali_v": "23",
+    "stat_locali_l": "locaux",
+    "findings": [
+      { "t": "Porte EI30 à côté des WC : largeur 0,88 m sous le seuil de 0,90 m pour les voies d'évacuation (OLT 4 art. 10).", "sev": "avviso" },
+      { "t": "Chaîne de cotes sur le côté est : la somme des partiels coïncide avec le total (aucune incohérence).", "sev": "avviso" }
+    ]
+  },
+  "conformita": {
+    "label": "Conformité réglementaire",
+    "title_part1": "Conformité à la police des constructions,",
+    "title_highlight": "vérifiée par la loi",
+    "subtitle": "Le seul outil qui relie votre plan à la base de données du droit de la construction suisse : chaque vérification cite l'article exact.",
+    "feature_title": "Le plan rencontre la norme",
+    "feature_text": "Selon le canton du projet, Lexum affiche la police des constructions applicable et résume la conformité de tous les plans analysés en un seul feu tricolore — avec les points à résoudre et la référence réglementaire précise, issue de notre base de données juridique.",
+    "points": [
+      "Police des constructions cantonale, règlement et définitions AIHC pour votre canton",
+      "Feu de conformité agrégé sur tous les plans du projet",
+      "Chaque vérification cite l'article de loi, avec lien vers la base de données",
+      "Exigences quantifiables : largeurs, surfaces, aération, escaliers"
+    ],
+    "visual_label": "Conformité du projet",
+    "semaforo": [
+      { "l": "Conformes", "v": "18", "col": "conforme" },
+      { "l": "À vérifier", "v": "3", "col": "da_verificare" },
+      { "l": "Non conformes", "v": "0", "col": "non_conforme" }
+    ],
+    "norme_label": "Réglementation applicable · Uri",
+    "norme": [
+      { "abbr": "PBG", "t": "Planungs- und Baugesetz" },
+      { "abbr": "RPBG", "t": "Reglement zum Planungs- und Baugesetz" },
+      { "abbr": "IVHB", "t": "Harmonisierung der Baubegriffe (définitions de mesure)" }
+    ],
+    "msg": "Liste des actes législatifs sur la construction tenue à jour canton par canton : uniquement les bonnes normes, pas une correspondance au hasard."
+  },
+  "progetti": {
+    "feature_title": "Les projets, de A à la demande de permis de construire",
+    "feature_text": "Chaque projet est lié à son maître d'ouvrage, avec les données suisses (parcelle, zone à bâtir, numéro de mandat), plans, documents et notes au même endroit. Suivez l'avancement par phases SIA et ne manquez jamais un délai.",
+    "points": [
+      "Projets organisés par maître d'ouvrage, comme les mandats d'un fiduciaire",
+      "Suivi des phases SIA 102, de l'idée à l'exécution",
+      "Délai de la demande de permis de construire toujours à l'agenda",
+      "Documents, permis et notes de projet toujours à portée de main"
+    ],
+    "visual_label": "Phases du projet",
+    "fasi": [
+      { "t": "Études préliminaires", "stato": "completata" },
+      { "t": "Avant-projet", "stato": "completata" },
+      { "t": "Projet définitif", "stato": "completata" },
+      { "t": "Demande de permis de construire", "stato": "in_corso" },
+      { "t": "Projet d'exécution", "stato": "da_iniziare" },
+      { "t": "Exécution", "stato": "da_iniziare" }
+    ],
+    "in_corso_badge": "en cours",
+    "scadenza_label": "Demande de permis de construire — Commune d'Altdorf",
+    "scadenza_v": "dans 12 j"
+  },
+  "banca": {
+    "feature_title": "Tout le droit de la construction suisse",
+    "feature_text": "Lois sur les constructions et l'aménagement des 26 cantons, droit fédéral et jurisprudence du Tribunal fédéral en matière de construction : consultables et cités directement dans vos projets. Gratuit, pour toujours.",
+    "points": [
+      "Normes cantonales et fédérales toujours à jour",
+      "Jurisprudence du Tribunal fédéral en matière de construction",
+      "Recherche par canton, matière et mot-clé",
+      "Enregistrez les normes dont vous avez besoin dans les projets"
+    ],
+    "visual_label": "Base de données de la construction",
+    "categorie": [
+      { "v": "26", "l": "cantons avec loi sur les constructions" },
+      { "v": "17.861", "l": "normes cantonales" },
+      { "v": "5.046", "l": "normes fédérales" },
+      { "v": "6.700+", "l": "arrêts du TF en matière de construction" }
+    ],
+    "msg": "La base de données du droit de la construction suisse est toujours gratuite, même sans abonnement."
+  },
+  "lexai": {
+    "label": "Lex AI",
+    "title_part1": "Votre assistant en",
+    "title_highlight": "droit de la construction",
+    "subtitle": "Posez vos questions en langage naturel : Lex AI répond en citant les normes cantonales et fédérales, avec les références exactes.",
+    "features": [
+      { "t": "Distances et hauteurs", "d": "Distances aux limites, hauteurs de façade, indices d'utilisation selon la loi de votre canton." },
+      { "t": "Définitions AIHC", "d": "Comment se mesure une hauteur, une distance, un étage : les définitions harmonisées, expliquées." },
+      { "t": "Procédure d'autorisation", "d": "Déroulement de la demande de permis de construire, mise à l'enquête, oppositions et délais." },
+      { "t": "Toujours avec la source", "d": "Chaque réponse cite l'article exact, avec lien vers la base de données. Jamais d'affirmation sans source." }
+    ],
+    "visual_label": "Lex AI · construction",
+    "demo_user": "Quelle est la distance minimale à la limite pour un bâtiment d'habitation dans le canton d'Uri ?",
+    "demo_risposta": "Selon la Planungs- und Baugesetz d'Uri, la distance à la limite dépend de la hauteur du bâtiment et de la zone ; les définitions de mesure suivent l'AIHC. Voici les articles applicables :",
+    "demo_tags": ["PBG Uri", "IVHB", "Distances aux limites"],
+    "demo_note": "Lex AI cite toujours la source cantonale : vérifiez et ouvrez la norme dans la base de données en un clic."
+  },
+  "sicurezza": {
+    "label": "Sécurité et confidentialité",
+    "title_part1": "Vos projets,",
+    "title_highlight": "en sécurité en Suisse",
+    "subtitle": "Plans, documents et données des maîtres d'ouvrage protégés, avec la confidentialité qu'exige un bureau professionnel.",
+    "cards": [
+      { "t": "Données en Suisse", "d": "Infrastructure et archivage conformes à la protection des données suisse. Vos plans ne quittent pas le périmètre." },
+      { "t": "Chaque bureau isolé", "d": "Les projets d'un bureau ne sont jamais visibles par les autres. Cloisonnement total pour le titulaire et les collaborateurs." },
+      { "t": "Analyse tracée", "d": "Chaque vérification reste liée à son plan et à son projet : vous savez toujours ce qui a été contrôlé et quand." },
+      { "t": "Accès contrôlés", "d": "Authentification à deux facteurs et permissions par collaborateur : seul qui doit voir le projet le voit." }
+    ]
+  },
+  "cta": {
+    "label": "Commencez aujourd'hui",
+    "title_part1": "Faites vérifier votre",
+    "title_highlight": "prochain plan",
+    "subtitle": "Créez votre bureau sur Lexum, chargez un plan et voyez l'analyse en quelques secondes. La base de données de la construction est gratuite, pour toujours.",
+    "cta_primary": "Créez votre bureau",
+    "cta_secondary": "Explorer la base de données",
+    "no_card": "Aucune carte de crédit requise."
+  }
+}

@@ -1,0 +1,235 @@
+{
+  "meta": {
+    "title": "Lexum CH — Die Bürosoftware für Planungsbüros mit KI",
+    "description": "Lexum prüft Ihre Pläne: Kontrolle der Masse, Konformität mit dem kantonalen Baurecht, Projektmanagement und SIA-Phasen. Entwickelt für Schweizer Architekten, Ingenieure und Zeichner.",
+    "og_title": "Lexum CH für Planer — die KI, die Ihre Pläne prüft",
+    "og_description": "Plananalyse, kantonale Baukonformität und Projektmanagement in einer einzigen Umgebung für Schweizer Planungsbüros.",
+    "twitter_description": "Die KI, die Masse und Konformität Ihrer Pläne prüft. Für Architekten, Ingenieure und Zeichner."
+  },
+  "hero": {
+    "badge": "Für Architekten, Ingenieure und Zeichner",
+    "title_part1": "Die Bürosoftware für Planungsbüros",
+    "title_highlight": "mit der KI, die Ihre Pläne prüft",
+    "subtitle": "Laden Sie eine PDF-Planzeichnung hoch, und Lexum prüft die Masse gegen die Geometrie sowie die Konformität mit dem kantonalen Baurecht. Projektmanagement, SIA-Phasen und Datenbank des Schweizer Baurechts in einer einzigen Umgebung.",
+    "cta_primary": "Kostenlos starten",
+    "cta_secondary": "Datenbank testen",
+    "no_card": "Keine Kreditkarte erforderlich. Die Datenbank des Schweizer Baurechts ist immer kostenlos."
+  },
+  "analisi": {
+    "label": "Plananalyse",
+    "title_part1": "Die KI, die",
+    "title_highlight": "Ihre Pläne kontrolliert",
+    "subtitle": "Keine Interpretation nach Augenmass: eine deterministische Kontrolle, Mass für Mass, auf der realen Geometrie der Vektorzeichnung.",
+    "feature_title": "Jedes Mass, an der Geometrie geprüft",
+    "feature_text": "Lexum liest die aus ArchiCAD exportierten Vektor-PDF, rekonstruiert den digitalen Zwilling des Plans und prüft, ob jedes eingetragene Mass der tatsächlich gezeichneten Distanz entspricht — mit den Schweizer Konventionen (Roh- und Fertigmass, Masketten, Beschriftungen von Türen und Fenstern).",
+    "points": [
+      "Eingetragene Masse mit der Geometrie verglichen (Toleranz im Millimeterbereich)",
+      "Erkennt inkonsistente Masse, Masketten, die nicht aufgehen, fehlende Masse",
+      "Raumflächen und Höhenkoten automatisch extrahiert",
+      "ArchiCAD-Layer erkannt: Wände, Masse, Raumstempel"
+    ],
+    "visual_label": "Plananalyse",
+    "visual_file": "Grundriss Erdgeschoss.pdf",
+    "visual_stato": "Analysiert",
+    "stat_quote_v": "561",
+    "stat_quote_l": "gelesene Masse",
+    "stat_segnal_v": "2",
+    "stat_segnal_l": "Meldungen",
+    "stat_locali_v": "23",
+    "stat_locali_l": "Räume",
+    "findings": [
+      {
+        "t": "Tür EI30 neben dem WC: Breite 0,88 m unter der Schwelle von 0,90 m für Fluchtwege (ArGV 4 Art. 10).",
+        "sev": "avviso"
+      },
+      {
+        "t": "Maskette auf der Ostseite: Die Summe der Teilmasse stimmt mit dem Gesamtmass überein (keine Inkonsistenz).",
+        "sev": "avviso"
+      }
+    ]
+  },
+  "conformita": {
+    "label": "Normkonformität",
+    "title_part1": "Baukonformität,",
+    "title_highlight": "vom Gesetz geprüft",
+    "subtitle": "Das einzige Werkzeug, das Ihren Plan mit der Datenbank des Schweizer Baurechts verbindet: Jede Prüfung zitiert den genauen Artikel.",
+    "feature_title": "Der Plan trifft auf die Norm",
+    "feature_text": "Anhand des Projektkantons zeigt Lexum das anwendbare Baugesetz und fasst die Konformität aller analysierten Pläne in einer einzigen Ampel zusammen — mit den zu lösenden Punkten und dem präzisen Normverweis, aus unserer Rechtsdatenbank.",
+    "points": [
+      "Kantonales Baugesetz, Reglement und IVHB-Definitionen für Ihren Kanton",
+      "Aggregierte Konformitätsampel über alle Pläne des Projekts",
+      "Jede Prüfung zitiert den Gesetzesartikel, mit Link zur Datenbank",
+      "Quantifizierbare Anforderungen: Breiten, Flächen, Belüftung, Treppen"
+    ],
+    "visual_label": "Projektkonformität",
+    "semaforo": [
+      {
+        "l": "Konform",
+        "v": "18",
+        "col": "conforme"
+      },
+      {
+        "l": "Zu prüfen",
+        "v": "3",
+        "col": "da_verificare"
+      },
+      {
+        "l": "Nicht konform",
+        "v": "0",
+        "col": "non_conforme"
+      }
+    ],
+    "norme_label": "Anwendbare Rechtsgrundlagen · Uri",
+    "norme": [
+      {
+        "abbr": "PBG",
+        "t": "Planungs- und Baugesetz"
+      },
+      {
+        "abbr": "RPBG",
+        "t": "Reglement zum Planungs- und Baugesetz"
+      },
+      {
+        "abbr": "IVHB",
+        "t": "Harmonisierung der Baubegriffe (Messweisen)"
+      }
+    ],
+    "msg": "Verzeichnis der Bauerlasse kantonsweise gepflegt: nur die richtigen Normen, kein Zufallstreffer."
+  },
+  "progetti": {
+    "feature_title": "Die Projekte, vom Anfang bis zum Baugesuch",
+    "feature_text": "Jedes Projekt ist mit seinem Bauherrn verknüpft, mit Schweizer Stammdaten (Parzelle, Bauzone, Auftragsnummer), Plänen, Dokumenten und Notizen an einem Ort. Verfolgen Sie den Fortschritt nach SIA-Phasen und verpassen Sie nie eine Frist.",
+    "points": [
+      "Projekte nach Bauherr organisiert, wie die Mandate eines Treuhänders",
+      "Tracker der SIA-102-Phasen, von der Idee bis zur Ausführung",
+      "Frist des Baugesuchs immer in der Agenda",
+      "Dokumente, Bewilligungen und Projektnotizen stets griffbereit"
+    ],
+    "visual_label": "Projektphasen",
+    "fasi": [
+      {
+        "t": "Vorstudien",
+        "stato": "completata"
+      },
+      {
+        "t": "Vorprojekt",
+        "stato": "completata"
+      },
+      {
+        "t": "Bauprojekt",
+        "stato": "completata"
+      },
+      {
+        "t": "Baugesuch",
+        "stato": "in_corso"
+      },
+      {
+        "t": "Ausführungsprojekt",
+        "stato": "da_iniziare"
+      },
+      {
+        "t": "Ausführung",
+        "stato": "da_iniziare"
+      }
+    ],
+    "in_corso_badge": "in Bearbeitung",
+    "scadenza_label": "Baugesuch — Gemeinde Altdorf",
+    "scadenza_v": "in 12 Tagen"
+  },
+  "banca": {
+    "feature_title": "Das gesamte Schweizer Baurecht",
+    "feature_text": "Bau- und Planungsgesetze aller 26 Kantone, Bundesrecht und Rechtsprechung des Bundesgerichts im Baubereich: konsultierbar und direkt in Ihren Projekten zitiert. Kostenlos, für immer.",
+    "points": [
+      "Kantonale und eidgenössische Normen stets aktuell",
+      "Rechtsprechung des Bundesgerichts im Baubereich",
+      "Suche nach Kanton, Sachgebiet und Stichwort",
+      "Speichern Sie die benötigten Normen in Ihren Projekten"
+    ],
+    "visual_label": "Baurechtsdatenbank",
+    "categorie": [
+      {
+        "v": "26",
+        "l": "Kantone mit Baugesetz"
+      },
+      {
+        "v": "17'861",
+        "l": "kantonale Normen"
+      },
+      {
+        "v": "5'046",
+        "l": "eidgenössische Normen"
+      },
+      {
+        "v": "6'700+",
+        "l": "Bauentscheide des BGer"
+      }
+    ],
+    "msg": "Die Datenbank des Schweizer Baurechts ist immer kostenlos, auch ohne Abonnement."
+  },
+  "lexai": {
+    "label": "Lex AI",
+    "title_part1": "Ihr Assistent für",
+    "title_highlight": "Baurecht",
+    "subtitle": "Fragen Sie in natürlicher Sprache: Lex AI antwortet unter Nennung der kantonalen und eidgenössischen Normen, mit den genauen Verweisen.",
+    "features": [
+      {
+        "t": "Abstände und Höhen",
+        "d": "Grenzabstände, Fassadenhöhen, Ausnützungsziffern nach dem Gesetz Ihres Kantons."
+      },
+      {
+        "t": "IVHB-Definitionen",
+        "d": "Wie eine Höhe, ein Abstand, ein Geschoss gemessen wird: die harmonisierten Definitionen, erklärt."
+      },
+      {
+        "t": "Bewilligungsverfahren",
+        "d": "Ablauf des Baugesuchs, Publikation, Einsprachen und Fristen."
+      },
+      {
+        "t": "Immer mit Quelle",
+        "d": "Jede Antwort zitiert den genauen Artikel, mit Link zur Datenbank. Nie eine Aussage ohne Quelle."
+      }
+    ],
+    "visual_label": "Lex AI · Baurecht",
+    "demo_user": "Wie gross ist der Mindestgrenzabstand für ein Wohngebäude im Kanton Uri?",
+    "demo_risposta": "Gemäss dem Planungs- und Baugesetz von Uri hängt der Grenzabstand von der Höhe des Gebäudes und der Zone ab; die Messweisen richten sich nach der IVHB. Hier sind die anwendbaren Artikel:",
+    "demo_tags": [
+      "PBG Uri",
+      "IVHB",
+      "Grenzabstände"
+    ],
+    "demo_note": "Lex AI nennt stets die kantonale Quelle: prüfen und öffnen Sie die Norm mit einem Klick in der Datenbank."
+  },
+  "sicurezza": {
+    "label": "Sicherheit und Vertraulichkeit",
+    "title_part1": "Ihre Projekte,",
+    "title_highlight": "sicher in der Schweiz",
+    "subtitle": "Pläne, Dokumente und Bauherrendaten geschützt, mit der Vertraulichkeit, die ein Planungsbüro verlangt.",
+    "cards": [
+      {
+        "t": "Daten in der Schweiz",
+        "d": "Infrastruktur und Speicherung konform mit dem Schweizer Datenschutz. Ihre Pläne verlassen den Perimeter nicht."
+      },
+      {
+        "t": "Jedes Büro isoliert",
+        "d": "Die Projekte eines Büros sind für andere nie sichtbar. Vollständige Abschottung nach Inhaber und Mitarbeitenden."
+      },
+      {
+        "t": "Nachverfolgte Analyse",
+        "d": "Jede Prüfung bleibt mit ihrem Plan und ihrem Projekt verknüpft: Sie wissen stets, was wann geprüft wurde."
+      },
+      {
+        "t": "Kontrollierte Zugriffe",
+        "d": "Zwei-Faktor-Authentifizierung und Berechtigungen pro Mitarbeitenden: Nur wer muss, sieht das Projekt."
+      }
+    ]
+  },
+  "cta": {
+    "label": "Heute starten",
+    "title_part1": "Lassen Sie Ihren",
+    "title_highlight": "nächsten Plan prüfen",
+    "subtitle": "Erstellen Sie Ihr Büro auf Lexum, laden Sie eine Planzeichnung hoch und sehen Sie die Analyse in wenigen Sekunden. Die Baurechtsdatenbank ist kostenlos, für immer.",
+    "cta_primary": "Ihr Büro erstellen",
+    "cta_secondary": "Datenbank erkunden",
+    "no_card": "Keine Kreditkarte erforderlich."
+  }
+}

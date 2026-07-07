@@ -1,29 +1,30 @@
 {
-    "navbar": {
-        "home": "Home",
-        "avvocati": "Anwaltskanzleien",
-        "fiduciari": "Treuhänder",
-        "lex_ai": "Lex AI",
-        "contatti": "Kontakt",
-        "accedi": "Anmelden",
-        "registrati": "Registrieren",
-        "inizia_ora": "Jetzt starten",
-        "la_mia_area": "Mein Bereich"
-    },
-    "footer": {
-        "tagline": "Die erste All-in-one-Plattform für Schweizer Anwaltskanzleien und Treuhänder mit integrierter KI.",
-        "diritti": "Alle Rechte vorbehalten",
-        "privacy": "Datenschutz",
-        "termini": "Nutzungsbedingungen"
-    },
-    "azioni": {
-        "salva": "Speichern",
-        "annulla": "Abbrechen",
-        "elimina": "Löschen",
-        "modifica": "Bearbeiten",
-        "conferma": "Bestätigen",
-        "indietro": "Zurück",
-        "avanti": "Weiter",
-        "chiudi": "Schliessen"
-    }
+  "navbar": {
+    "home": "Home",
+    "avvocati": "Anwaltskanzleien",
+    "fiduciari": "Treuhänder",
+    "lex_ai": "Lex AI",
+    "contatti": "Kontakt",
+    "accedi": "Anmelden",
+    "registrati": "Registrieren",
+    "inizia_ora": "Jetzt starten",
+    "la_mia_area": "Mein Bereich",
+    "progettisti": "Planer"
+  },
+  "footer": {
+    "tagline": "Die erste All-in-one-Plattform für Schweizer Anwaltskanzleien und Treuhänder mit integrierter KI.",
+    "diritti": "Alle Rechte vorbehalten",
+    "privacy": "Datenschutz",
+    "termini": "Nutzungsbedingungen"
+  },
+  "azioni": {
+    "salva": "Speichern",
+    "annulla": "Abbrechen",
+    "elimina": "Löschen",
+    "modifica": "Bearbeiten",
+    "conferma": "Bestätigen",
+    "indietro": "Zurück",
+    "avanti": "Weiter",
+    "chiudi": "Schliessen"
+  }
 }

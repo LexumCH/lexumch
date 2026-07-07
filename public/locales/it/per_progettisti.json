@@ -1,0 +1,150 @@
+{
+  "meta": {
+    "title": "Lexum CH — Il gestionale per studi di progettazione con AI",
+    "description": "Lexum verifica i tuoi disegni: controllo quote, conformità normativa cantonale, gestione progetti e fasi SIA. Pensato per architetti, ingegneri e disegnatori svizzeri.",
+    "og_title": "Lexum CH per progettisti — l'AI che verifica i disegni",
+    "og_description": "Analisi del disegno, conformità edilizia cantonale e gestione progetti in un unico ambiente per studi di progettazione svizzeri.",
+    "twitter_description": "L'AI che verifica quote e conformità dei tuoi disegni. Per architetti, ingegneri e disegnatori."
+  },
+  "hero": {
+    "badge": "Per architetti, ingegneri e disegnatori",
+    "title_part1": "Il gestionale per studi di progettazione",
+    "title_highlight": "con l'AI che verifica i disegni",
+    "subtitle": "Carica una tavola PDF e Lexum controlla le quote contro la geometria e la conformità alla normativa edilizia cantonale. Gestione progetti, fasi SIA e banca dati del diritto edilizio svizzero, in un unico ambiente.",
+    "cta_primary": "Inizia gratis",
+    "cta_secondary": "Prova la banca dati",
+    "no_card": "Nessuna carta di credito richiesta. La banca dati del diritto edilizio svizzero è sempre gratuita."
+  },
+  "analisi": {
+    "label": "Analisi del disegno",
+    "title_part1": "L'AI che",
+    "title_highlight": "controlla le tue tavole",
+    "subtitle": "Non un'interpretazione a occhio: un controllo deterministico, quota per quota, sulla geometria reale del disegno vettoriale.",
+    "feature_title": "Ogni quota, verificata sulla geometria",
+    "feature_text": "Lexum legge i PDF vettoriali esportati da ArchiCAD, ricostruisce il gemello digitale del piano e verifica che ogni quota scritta corrisponda alla distanza realmente disegnata — con le convenzioni svizzere (misura grezza e finita, catene di quote, etichette di porte e finestre).",
+    "points": [
+      "Quote scritte confrontate con la geometria (tolleranza al millimetro)",
+      "Rileva quote incoerenti, catene che non tornano, misure mancanti",
+      "Superfici dei locali e riferimenti altimetrici estratti automaticamente",
+      "Layer di ArchiCAD riconosciuti: muri, quote, timbri locali"
+    ],
+    "visual_label": "Analisi tavola",
+    "visual_file": "Grundriss Erdgeschoss.pdf",
+    "visual_stato": "Analizzata",
+    "stat_quote_v": "561",
+    "stat_quote_l": "quote lette",
+    "stat_segnal_v": "2",
+    "stat_segnal_l": "segnalazioni",
+    "stat_locali_v": "23",
+    "stat_locali_l": "locali",
+    "findings": [
+      { "t": "Porta EI30 accanto al WC: larghezza 0,88 m sotto la soglia di 0,90 m per le vie d'evacuazione (OLL 4 art. 10).", "sev": "avviso" },
+      { "t": "Catena di quote sul lato est: la somma dei parziali coincide con il totale (nessuna incoerenza).", "sev": "avviso" }
+    ]
+  },
+  "conformita": {
+    "label": "Conformità normativa",
+    "title_part1": "Conformità edilizia,",
+    "title_highlight": "verificata dalla legge",
+    "subtitle": "L'unico strumento che unisce il tuo disegno alla banca dati del diritto edilizio svizzero: ogni verifica cita l'articolo esatto.",
+    "feature_title": "Il disegno incontra la norma",
+    "feature_text": "Dato il cantone del progetto, Lexum mostra la legge edilizia applicabile e riassume la conformità di tutti i disegni analizzati in un unico semaforo — con i punti da risolvere e il riferimento normativo puntuale, dalla nostra banca dati legale.",
+    "points": [
+      "Legge edilizia cantonale, regolamento e definizioni IVHB per il tuo cantone",
+      "Semaforo di conformità aggregato su tutti i disegni del progetto",
+      "Ogni verifica cita l'articolo di legge, con link alla banca dati",
+      "Requisiti quantificabili: larghezze, superfici, aerazione, scale"
+    ],
+    "visual_label": "Conformità del progetto",
+    "semaforo": [
+      { "l": "Conformi", "v": "18", "col": "conforme" },
+      { "l": "Da verificare", "v": "3", "col": "da_verificare" },
+      { "l": "Non conformi", "v": "0", "col": "non_conforme" }
+    ],
+    "norme_label": "Normativa applicabile · Uri",
+    "norme": [
+      { "abbr": "PBG", "t": "Planungs- und Baugesetz" },
+      { "abbr": "RPBG", "t": "Reglement zum Planungs- und Baugesetz" },
+      { "abbr": "IVHB", "t": "Harmonisierung der Baubegriffe (definizioni di misura)" }
+    ],
+    "msg": "Elenco degli atti edilizi curato cantone per cantone: solo le norme giuste, non un match a caso."
+  },
+  "progetti": {
+    "feature_title": "I progetti, dalla A alla domanda di costruzione",
+    "feature_text": "Ogni progetto è legato al suo committente, con anagrafica svizzera (mappale, zona edificatoria, numero di commessa), disegni, documenti e note in un unico posto. Segui l'avanzamento per fasi SIA e non perdere mai un termine.",
+    "points": [
+      "Progetti organizzati per committente, come i mandati di un fiduciario",
+      "Tracker delle fasi SIA 102, dall'idea all'esecuzione",
+      "Scadenza della domanda di costruzione sempre in agenda",
+      "Documenti, permessi e note di progetto sempre a portata"
+    ],
+    "visual_label": "Fasi del progetto",
+    "fasi": [
+      { "t": "Studi preliminari", "stato": "completata" },
+      { "t": "Progetto di massima", "stato": "completata" },
+      { "t": "Progetto definitivo", "stato": "completata" },
+      { "t": "Domanda di costruzione", "stato": "in_corso" },
+      { "t": "Progetto esecutivo", "stato": "da_iniziare" },
+      { "t": "Esecuzione", "stato": "da_iniziare" }
+    ],
+    "in_corso_badge": "in corso",
+    "scadenza_label": "Domanda di costruzione — Comune di Altdorf",
+    "scadenza_v": "tra 12 g"
+  },
+  "banca": {
+    "feature_title": "Tutto il diritto edilizio svizzero",
+    "feature_text": "Leggi edilizie e di pianificazione di tutti i 26 cantoni, diritto federale e giurisprudenza del Tribunale federale in materia di costruzione: consultabili e citati direttamente nei tuoi progetti. Gratis, per sempre.",
+    "points": [
+      "Norme cantonali e federali sempre aggiornate",
+      "Giurisprudenza del Tribunale federale in materia edilizia",
+      "Ricerca per cantone, materia e parola chiave",
+      "Salva le norme che ti servono nei progetti"
+    ],
+    "visual_label": "Banca dati edilizia",
+    "categorie": [
+      { "v": "26", "l": "cantoni con legge edilizia" },
+      { "v": "17.861", "l": "norme cantonali" },
+      { "v": "5.046", "l": "norme federali" },
+      { "v": "6.700+", "l": "sentenze edilizie TF" }
+    ],
+    "msg": "La banca dati del diritto edilizio svizzero è sempre gratuita, anche senza abbonamento."
+  },
+  "lexai": {
+    "label": "Lex AI",
+    "title_part1": "Il tuo assistente di",
+    "title_highlight": "diritto edilizio",
+    "subtitle": "Chiedi in linguaggio naturale: Lex AI risponde citando le norme cantonali e federali, con i riferimenti esatti.",
+    "features": [
+      { "t": "Distanze e altezze", "d": "Distanze dai confini, altezze di facciata, indici di sfruttamento secondo la legge del tuo cantone." },
+      { "t": "Definizioni IVHB", "d": "Come si misura un'altezza, una distanza, un piano: le definizioni armonizzate, spiegate." },
+      { "t": "Procedura di autorizzazione", "d": "Iter della domanda di costruzione, pubblicazione, opposizioni e termini." },
+      { "t": "Sempre con la fonte", "d": "Ogni risposta cita l'articolo esatto, con link alla banca dati. Mai un'affermazione senza fonte." }
+    ],
+    "visual_label": "Lex AI · edilizia",
+    "demo_user": "Qual è la distanza minima dal confine per un edificio residenziale nel Canton Uri?",
+    "demo_risposta": "Secondo il Planungs- und Baugesetz di Uri la distanza dal confine dipende dall'altezza dell'edificio e dalla zona; le definizioni di misura seguono l'IVHB. Ecco gli articoli applicabili:",
+    "demo_tags": ["PBG Uri", "IVHB", "Distanze dai confini"],
+    "demo_note": "Lex AI cita sempre la fonte cantonale: verifica e apri la norma nella banca dati con un clic."
+  },
+  "sicurezza": {
+    "label": "Sicurezza e riservatezza",
+    "title_part1": "I tuoi progetti,",
+    "title_highlight": "al sicuro in Svizzera",
+    "subtitle": "Disegni, documenti e dati dei committenti protetti, con la riservatezza che uno studio professionale richiede.",
+    "cards": [
+      { "t": "Dati in Svizzera", "d": "Infrastruttura e archiviazione conformi alla protezione dei dati svizzera. I tuoi disegni non lasciano il perimetro." },
+      { "t": "Ogni studio isolato", "d": "I progetti di uno studio non sono mai visibili ad altri. Compartimentazione totale per titolare e collaboratori." },
+      { "t": "Analisi tracciata", "d": "Ogni verifica resta legata al suo disegno e al suo progetto: sai sempre cosa è stato controllato e quando." },
+      { "t": "Accessi controllati", "d": "Autenticazione a due fattori e permessi per collaboratore: solo chi deve vede il progetto." }
+    ]
+  },
+  "cta": {
+    "label": "Inizia oggi",
+    "title_part1": "Fai verificare il tuo",
+    "title_highlight": "prossimo disegno",
+    "subtitle": "Crea il tuo studio su Lexum, carica una tavola e guarda l'analisi in pochi secondi. La banca dati edilizia è gratuita, per sempre.",
+    "cta_primary": "Crea il tuo studio",
+    "cta_secondary": "Esplora la banca dati",
+    "no_card": "Nessuna carta di credito richiesta."
+  }
+}

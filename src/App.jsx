@@ -23,6 +23,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import PerAvvocati from '@/pages/PerAvvocati'
 import PerFiduciari from './pages/PerFiduciari'
+import PerProgettisti from './pages/PerProgettisti'
 import LexAI from '@/pages/LexAI'
 import Contatti from './pages/Contatti'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
@@ -189,6 +190,7 @@ export default function App() {
               <Route path="/:lang" element={<Vet><Home /></Vet>} />
               <Route path="/:lang/avvocati" element={<Vet><PerAvvocati /></Vet>} />
               <Route path="/:lang/fiduciari" element={<Vet><PerFiduciari /></Vet>} />
+              <Route path="/:lang/progettisti" element={<Vet><PerProgettisti /></Vet>} />
               <Route path="/:lang/lex-ai" element={<Vet><LexAI /></Vet>} />
               <Route path="/:lang/contatti" element={<Vet><Contatti /></Vet>} />
               <Route path="/:lang/privacy" element={<Vet><PrivacyPolicy /></Vet>} />
@@ -197,6 +199,7 @@ export default function App() {
               {/* Retrocompat: vecchie rotte senza prefisso → redirect alla lingua giusta */}
               <Route path="/avvocati" element={<RootRedirect to="/avvocati" />} />
               <Route path="/fiduciari" element={<RootRedirect to="/fiduciari" />} />
+              <Route path="/progettisti" element={<RootRedirect to="/progettisti" />} />
               <Route path="/lex-ai" element={<RootRedirect to="/lex-ai" />} />
               <Route path="/contatti" element={<RootRedirect to="/contatti" />} />
               <Route path="/privacy" element={<RootRedirect to="/privacy" />} />
@@ -205,6 +208,7 @@ export default function App() {
               {/* Retrocompat vecchie URL "per-avvocati" / "per-fiduciari" senza prefisso */}
               <Route path="/per-avvocati" element={<RootRedirect to="/avvocati" />} />
               <Route path="/per-fiduciari" element={<RootRedirect to="/fiduciari" />} />
+              <Route path="/per-progettisti" element={<RootRedirect to="/progettisti" />} />
 
               {/* ═══════════════════════════════════════════════════════
                 AUTH (tracciato da Vercel Analytics per misurare il funnel)

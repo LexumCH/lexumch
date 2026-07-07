@@ -43,6 +43,7 @@ export default function Navbar() {
     { path: `/${langAttiva}`, label: t('navbar.home'), exact: true },
     { path: `/${langAttiva}/avvocati`, label: t('navbar.avvocati') },
     { path: `/${langAttiva}/fiduciari`, label: t('navbar.fiduciari') },
+    { path: `/${langAttiva}/progettisti`, label: t('navbar.progettisti') },
     { path: `/${langAttiva}/lex-ai`, label: t('navbar.lex_ai') },
     { path: `/${langAttiva}/contatti`, label: t('navbar.contatti') },
   ]
