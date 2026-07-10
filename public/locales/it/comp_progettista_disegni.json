@@ -68,5 +68,22 @@
     "planimetria": "richiede planimetria di situazione",
     "regolamento_comunale": "richiede regolamento comunale",
     "documentazione": "richiede documentazione"
+  },
+  "zona_ai_btn": "Interpreta con l'AI (vision)",
+  "zona_ai_in_corso": "Interpretazione in corso…",
+  "zona_ai_errore": "Interpretazione non riuscita. Riprova.",
+  "zona_ai_badge": "Interpretazione AI — non misurata",
+  "zona_ai_scala": "scala indicata {{s}}",
+  "zona_ai_illeggibile": "Ritaglio non interpretabile con sicurezza: verifica manuale.",
+  "zona_ai_aggiorna": "Aggiorna",
+  "zona_tipo": {
+    "dettaglio_costruttivo": "dettaglio costruttivo",
+    "scala": "scala/rampa",
+    "serramento": "serramento",
+    "locale_tecnico": "locale tecnico",
+    "bagno": "bagno/sanitari",
+    "legenda": "legenda/timbro",
+    "sezione": "sezione",
+    "altro": "altro"
   }
 }

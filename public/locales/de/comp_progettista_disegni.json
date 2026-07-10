@@ -68,5 +68,22 @@
     "planimetria": "erfordert Situationsplan",
     "regolamento_comunale": "erfordert kommunale Bauordnung",
     "documentazione": "erfordert weitere Unterlagen"
+  },
+  "zona_ai_btn": "Mit KI interpretieren (Vision)",
+  "zona_ai_in_corso": "Interpretation läuft…",
+  "zona_ai_errore": "Interpretation fehlgeschlagen. Erneut versuchen.",
+  "zona_ai_badge": "KI-Interpretation — nicht vermessen",
+  "zona_ai_scala": "angegebener Massstab {{s}}",
+  "zona_ai_illeggibile": "Ausschnitt nicht sicher interpretierbar: manuelle Prüfung.",
+  "zona_ai_aggiorna": "Aktualisieren",
+  "zona_tipo": {
+    "dettaglio_costruttivo": "Konstruktionsdetail",
+    "scala": "Treppe/Rampe",
+    "serramento": "Fenster/Türen",
+    "locale_tecnico": "Technikraum",
+    "bagno": "Bad/Sanitär",
+    "legenda": "Legende/Plankopf",
+    "sezione": "Schnitt",
+    "altro": "Sonstiges"
   }
 }

@@ -20,7 +20,7 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, supabaseKey, getAccessToken } from '@/lib/supabase'
 import {
   Upload, FileText, Play, Loader2, CheckCircle2, AlertTriangle, XCircle,
-  Info, ChevronDown, ChevronUp, Trash2, Languages, Landmark, RefreshCw
+  Info, ChevronDown, ChevronUp, Trash2, Languages, Landmark, RefreshCw, ScanSearch
 } from 'lucide-react'
 
 const STATO_META = {
@@ -375,6 +375,9 @@ function RisultatiDisegno({ disegno: d, t, cantone }) {
                 </li>
               ))}
             </ul>
+            {note.some(f => f.tipo === 'zona_non_verificata') && (
+              <ZoneVision disegno={d} t={t} lingua={lingua} />
+            )}
           </div>
         )}
       </section>
@@ -428,6 +431,108 @@ function RisultatiDisegno({ disegno: d, t, cantone }) {
         </section>
       )}
     </div>
+  )
+}
+
+// ─── Vision zone-dettaglio (corsia in quarantena: descrive, non misura) ──
+// Flusso: /api/rendi_zone (Vercel, ritaglio PNG deterministico, idempotente)
+// → lex-vision-zone (Opus vision, descrizione guardata) → cache per lingua.
+function ZoneVision({ disegno: d, t, lingua }) {
+  const queryClient = useQueryClient()
+  const crops = d.zone_dettaglio?.crops ?? null
+  const interp = d.zone_dettaglio?.interpretazioni?.[lingua] ?? null
+  const fresh = interp && interp.fonte_updated_at === d.updated_at
+  const cropByIdx = {}
+  for (const c of (crops?.items ?? [])) cropByIdx[c.idx] = c
+
+  const interpreta = useMutation({
+    mutationFn: async ({ forza = false } = {}) => {
+      const token = await getAccessToken()
+      const res = await fetch('/api/rendi_zone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ disegno_id: d.id, supabase_url: supabaseUrl, supabase_anon_key: supabaseKey }),
+      })
+      const out = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(out.errore ?? `Errore ${res.status}`)
+      if (out.zone === 0) return { vuoto: true }
+      const { data, error } = await supabase.functions.invoke('lex-vision-zone', {
+        body: { disegno_id: d.id, lingua, forza },
+      })
+      if (error) throw error
+      if (!data?.ok) throw new Error(data?.error ?? 'errore')
+      return data
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni'] }),
+  })
+
+  if (!fresh) {
+    return (
+      <div className="mt-2.5">
+        <button onClick={() => interpreta.mutate({})} disabled={interpreta.isPending}
+          className="flex items-center gap-2 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 disabled:opacity-50 transition-colors">
+          {interpreta.isPending ? <Loader2 size={13} className="animate-spin" /> : <ScanSearch size={13} />}
+          {interpreta.isPending ? t('zona_ai_in_corso') : t('zona_ai_btn')}
+        </button>
+        {interpreta.isError && <p className="font-body text-xs text-red-400 mt-2">{t('zona_ai_errore')}</p>}
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-2.5 space-y-2">
+      {(interp.items ?? []).map((z) => {
+        const crop = cropByIdx[z.idx]
+        return (
+          <div key={z.idx} className="bg-petrolio border border-white/5 p-3 flex gap-3 items-start">
+            {crop?.path && <CropImg path={crop.path} />}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <ScanSearch size={13} className="text-oro/70 shrink-0" />
+                {z.titolo
+                  ? <span className="font-body text-sm text-nebbia">{z.titolo}</span>
+                  : <span className="font-body text-sm text-nebbia/50">{t('zona_ai_illeggibile')}</span>}
+                {z.tipo && z.titolo && (
+                  <span className="font-body text-[10px] px-1.5 py-0.5 border border-white/10 text-nebbia/40">
+                    {t(`zona_tipo.${z.tipo}`, { defaultValue: z.tipo })}
+                  </span>
+                )}
+                {z.scala_indicata && (
+                  <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">
+                    {t('zona_ai_scala', { s: z.scala_indicata })}
+                  </span>
+                )}
+              </div>
+              {z.descrizione && <p className="font-body text-sm text-nebbia/70">{z.descrizione}</p>}
+              <p className="font-body text-[10px] uppercase tracking-wider text-oro/50 mt-1.5">{t('zona_ai_badge')}</p>
+            </div>
+          </div>
+        )
+      })}
+      <button onClick={() => interpreta.mutate({ forza: true })} disabled={interpreta.isPending}
+        className="flex items-center gap-1.5 px-2.5 py-1 border border-white/10 text-nebbia/50 font-body text-[11px] hover:border-oro/30 hover:text-nebbia/80 disabled:opacity-50 transition-colors">
+        <RefreshCw size={11} className={interpreta.isPending ? 'animate-spin' : ''} /> {t('zona_ai_aggiorna')}
+      </button>
+    </div>
+  )
+}
+
+// Miniatura del ritaglio (bucket privato → signed URL con il JWT dell'utente)
+function CropImg({ path }) {
+  const { data: url } = useQuery({
+    queryKey: ['crop_url', path],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from('disegni').createSignedUrl(path, 3600)
+      if (error) throw error
+      return data.signedUrl
+    },
+    staleTime: 30 * 60 * 1000,
+  })
+  if (!url) return <div className="w-32 h-24 bg-slate border border-white/5 animate-pulse shrink-0" />
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="shrink-0">
+      <img src={url} alt="" className="w-32 max-h-32 object-contain border border-white/10 bg-white" />
+    </a>
   )
 }
 

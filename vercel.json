@@ -1,6 +1,7 @@
 {
   "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }],
   "functions": {
-    "api/analizza_disegno.py": { "maxDuration": 60, "memory": 1024 }
+    "api/analizza_disegno.py": { "maxDuration": 60, "memory": 1024 },
+    "api/rendi_zone.py": { "maxDuration": 60, "memory": 1024 }
   }
 }

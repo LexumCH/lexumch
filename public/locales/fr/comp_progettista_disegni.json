@@ -68,5 +68,22 @@
     "planimetria": "nécessite le plan de situation",
     "regolamento_comunale": "nécessite le règlement communal",
     "documentazione": "nécessite des documents complémentaires"
+  },
+  "zona_ai_btn": "Interpréter avec l'IA (vision)",
+  "zona_ai_in_corso": "Interprétation en cours…",
+  "zona_ai_errore": "Échec de l'interprétation. Réessayez.",
+  "zona_ai_badge": "Interprétation IA — non mesurée",
+  "zona_ai_scala": "échelle indiquée {{s}}",
+  "zona_ai_illeggibile": "Extrait non interprétable avec certitude : vérification manuelle.",
+  "zona_ai_aggiorna": "Actualiser",
+  "zona_tipo": {
+    "dettaglio_costruttivo": "détail constructif",
+    "scala": "escalier/rampe",
+    "serramento": "menuiserie",
+    "locale_tecnico": "local technique",
+    "bagno": "sanitaires",
+    "legenda": "légende/cartouche",
+    "sezione": "coupe",
+    "altro": "autre"
   }
 }
