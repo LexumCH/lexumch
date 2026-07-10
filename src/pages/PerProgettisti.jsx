@@ -111,6 +111,8 @@ export default function PerProgettisti() {
     const conformitaNorme = toArray(t('conformita.norme', { returnObjects: true }))
     const progettiPoints = toArray(t('progetti.points', { returnObjects: true }))
     const progettiFasi = toArray(t('progetti.fasi', { returnObjects: true }))
+    const documentiPoints = toArray(t('documenti.points', { returnObjects: true }))
+    const documentiDocs = toArray(t('documenti.docs', { returnObjects: true }))
     const bancaPoints = toArray(t('banca.points', { returnObjects: true }))
     const bancaCategorie = toArray(t('banca.categorie', { returnObjects: true }))
     const lexaiFeatures = toArray(t('lexai.features', { returnObjects: true }))
@@ -324,6 +326,44 @@ export default function PerProgettisti() {
                                     <CalendarClock size={11} className="text-oro shrink-0" />
                                     <span className="font-body text-[11px] text-nebbia/60 flex-1">{t('progetti.scadenza_label')}</span>
                                     <span className="font-body text-[11px] text-oro shrink-0">{t('progetti.scadenza_v')}</span>
+                                </div>
+                            </div>
+                        </VisualBlock>
+                    </FeatureRow>
+                </div>
+            </section>
+
+            {/* 4b. REDAZIONE DOCUMENTI */}
+            <section className="py-24 px-6 border-t border-white/5">
+                <div className="max-w-5xl mx-auto">
+                    <FadeIn className="text-center mb-16 max-w-2xl mx-auto">
+                        <SectionLabel>{t('documenti.label')}</SectionLabel>
+                        <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia mb-4">
+                            {t('documenti.title_part1')}{' '}<span className="text-oro">{t('documenti.title_highlight')}</span>
+                        </h2>
+                        <p className="font-body text-base text-nebbia/40 leading-relaxed">{t('documenti.subtitle')}</p>
+                    </FadeIn>
+
+                    <FeatureRow
+                        icon={FileText}
+                        title={t('documenti.feature_title')}
+                        text={t('documenti.feature_text')}
+                        points={documentiPoints}
+                    >
+                        <VisualBlock label={t('documenti.visual_label')}>
+                            <div className="space-y-3">
+                                <div className="space-y-1.5">
+                                    {documentiDocs.map((d, idx) => (
+                                        <div key={idx} className="flex items-center gap-2.5 p-2 bg-petrolio/50 border border-white/5">
+                                            <FileText size={12} className="text-oro/70 shrink-0" />
+                                            <span className="font-body text-[11px] text-nebbia/65 flex-1 truncate">{d.n}</span>
+                                            <span className="font-body text-[9px] px-1.5 py-0.5 border border-salvia/25 text-salvia/80 shrink-0">{d.badge}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="flex items-start gap-2 p-2.5 bg-oro/5 border border-oro/15">
+                                    <ScrollText size={11} className="text-oro shrink-0 mt-0.5" />
+                                    <p className="font-body text-[11px] text-nebbia/55 leading-snug">{t('documenti.msg')}</p>
                                 </div>
                             </div>
                         </VisualBlock>

@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
-import { supabase, supabaseUrl, supabaseKey, getAccessToken } from '@/lib/supabase'
+import { supabase, supabaseUrl, supabaseKey, getAccessToken, invocaLex } from '@/lib/supabase'
 import {
   Upload, FileText, Play, Loader2, CheckCircle2, AlertTriangle, XCircle,
   Info, ChevronDown, ChevronUp, Trash2, Languages, Landmark, RefreshCw, ScanSearch
@@ -54,20 +54,6 @@ function useLingua() {
   const { i18n } = useTranslation()
   const raw = (i18n.resolvedLanguage || i18n.language || 'it').slice(0, 2)
   return ['it', 'de', 'fr'].includes(raw) ? raw : 'it'
-}
-
-// Chiamata edge Lex col pattern collaudato dell'app (fetch diretta con soli
-// Authorization+Content-Type: supabase.functions.invoke aggiunge header che
-// complicano il preflight CORS — vedi Ricerche.jsx).
-async function invocaLex(nome, body) {
-  const token = await getAccessToken()
-  const res = await fetch(`${supabaseUrl}/functions/v1/${nome}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-  const json = await res.json().catch(() => ({}))
-  return { status: res.status, json }
 }
 
 // Fasi mostrate nella barra di avanzamento del flusso unico.

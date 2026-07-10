@@ -38,8 +38,14 @@
     "stat_locali_v": "23",
     "stat_locali_l": "locaux",
     "findings": [
-      { "t": "Porte EI30 à côté des WC : largeur 0,88 m sous le seuil de 0,90 m pour les voies d'évacuation (OLT 4 art. 10).", "sev": "avviso" },
-      { "t": "Chaîne de cotes sur le côté est : la somme des partiels coïncide avec le total (aucune incohérence).", "sev": "avviso" }
+      {
+        "t": "Porte EI30 à côté des WC : largeur 0,88 m sous le seuil de 0,90 m pour les voies d'évacuation (OLT 4 art. 10).",
+        "sev": "avviso"
+      },
+      {
+        "t": "Chaîne de cotes sur le côté est : la somme des partiels coïncide avec le total (aucune incohérence).",
+        "sev": "avviso"
+      }
     ]
   },
   "conformita": {
@@ -57,15 +63,36 @@
     ],
     "visual_label": "Conformité du projet",
     "semaforo": [
-      { "l": "Conformes", "v": "18", "col": "conforme" },
-      { "l": "À vérifier", "v": "3", "col": "da_verificare" },
-      { "l": "Non conformes", "v": "0", "col": "non_conforme" }
+      {
+        "l": "Conformes",
+        "v": "18",
+        "col": "conforme"
+      },
+      {
+        "l": "À vérifier",
+        "v": "3",
+        "col": "da_verificare"
+      },
+      {
+        "l": "Non conformes",
+        "v": "0",
+        "col": "non_conforme"
+      }
     ],
     "norme_label": "Réglementation applicable · Uri",
     "norme": [
-      { "abbr": "PBG", "t": "Planungs- und Baugesetz" },
-      { "abbr": "RPBG", "t": "Reglement zum Planungs- und Baugesetz" },
-      { "abbr": "IVHB", "t": "Harmonisierung der Baubegriffe (définitions de mesure)" }
+      {
+        "abbr": "PBG",
+        "t": "Planungs- und Baugesetz"
+      },
+      {
+        "abbr": "RPBG",
+        "t": "Reglement zum Planungs- und Baugesetz"
+      },
+      {
+        "abbr": "IVHB",
+        "t": "Harmonisierung der Baubegriffe (définitions de mesure)"
+      }
     ],
     "msg": "Liste des actes législatifs sur la construction tenue à jour canton par canton : uniquement les bonnes normes, pas une correspondance au hasard."
   },
@@ -80,12 +107,30 @@
     ],
     "visual_label": "Phases du projet",
     "fasi": [
-      { "t": "Études préliminaires", "stato": "completata" },
-      { "t": "Avant-projet", "stato": "completata" },
-      { "t": "Projet définitif", "stato": "completata" },
-      { "t": "Demande de permis de construire", "stato": "in_corso" },
-      { "t": "Projet d'exécution", "stato": "da_iniziare" },
-      { "t": "Exécution", "stato": "da_iniziare" }
+      {
+        "t": "Études préliminaires",
+        "stato": "completata"
+      },
+      {
+        "t": "Avant-projet",
+        "stato": "completata"
+      },
+      {
+        "t": "Projet définitif",
+        "stato": "completata"
+      },
+      {
+        "t": "Demande de permis de construire",
+        "stato": "in_corso"
+      },
+      {
+        "t": "Projet d'exécution",
+        "stato": "da_iniziare"
+      },
+      {
+        "t": "Exécution",
+        "stato": "da_iniziare"
+      }
     ],
     "in_corso_badge": "en cours",
     "scadenza_label": "Demande de permis de construire — Commune d'Altdorf",
@@ -102,10 +147,22 @@
     ],
     "visual_label": "Base de données de la construction",
     "categorie": [
-      { "v": "26", "l": "cantons avec loi sur les constructions" },
-      { "v": "17.861", "l": "normes cantonales" },
-      { "v": "5.046", "l": "normes fédérales" },
-      { "v": "6.700+", "l": "arrêts du TF en matière de construction" }
+      {
+        "v": "26",
+        "l": "cantons avec loi sur les constructions"
+      },
+      {
+        "v": "17.861",
+        "l": "normes cantonales"
+      },
+      {
+        "v": "5.046",
+        "l": "normes fédérales"
+      },
+      {
+        "v": "6.700+",
+        "l": "arrêts du TF en matière de construction"
+      }
     ],
     "msg": "La base de données du droit de la construction suisse est toujours gratuite, même sans abonnement."
   },
@@ -115,15 +172,31 @@
     "title_highlight": "droit de la construction",
     "subtitle": "Posez vos questions en langage naturel : Lex AI répond en citant les normes cantonales et fédérales, avec les références exactes.",
     "features": [
-      { "t": "Distances et hauteurs", "d": "Distances aux limites, hauteurs de façade, indices d'utilisation selon la loi de votre canton." },
-      { "t": "Définitions AIHC", "d": "Comment se mesure une hauteur, une distance, un étage : les définitions harmonisées, expliquées." },
-      { "t": "Procédure d'autorisation", "d": "Déroulement de la demande de permis de construire, mise à l'enquête, oppositions et délais." },
-      { "t": "Toujours avec la source", "d": "Chaque réponse cite l'article exact, avec lien vers la base de données. Jamais d'affirmation sans source." }
+      {
+        "t": "Distances et hauteurs",
+        "d": "Distances aux limites, hauteurs de façade, indices d'utilisation selon la loi de votre canton."
+      },
+      {
+        "t": "Définitions AIHC",
+        "d": "Comment se mesure une hauteur, une distance, un étage : les définitions harmonisées, expliquées."
+      },
+      {
+        "t": "Procédure d'autorisation",
+        "d": "Déroulement de la demande de permis de construire, mise à l'enquête, oppositions et délais."
+      },
+      {
+        "t": "Toujours avec la source",
+        "d": "Chaque réponse cite l'article exact, avec lien vers la base de données. Jamais d'affirmation sans source."
+      }
     ],
     "visual_label": "Lex AI · construction",
     "demo_user": "Quelle est la distance minimale à la limite pour un bâtiment d'habitation dans le canton d'Uri ?",
     "demo_risposta": "Selon la Planungs- und Baugesetz d'Uri, la distance à la limite dépend de la hauteur du bâtiment et de la zone ; les définitions de mesure suivent l'AIHC. Voici les articles applicables :",
-    "demo_tags": ["PBG Uri", "IVHB", "Distances aux limites"],
+    "demo_tags": [
+      "PBG Uri",
+      "IVHB",
+      "Distances aux limites"
+    ],
     "demo_note": "Lex AI cite toujours la source cantonale : vérifiez et ouvrez la norme dans la base de données en un clic."
   },
   "sicurezza": {
@@ -132,10 +205,22 @@
     "title_highlight": "en sécurité en Suisse",
     "subtitle": "Plans, documents et données des maîtres d'ouvrage protégés, avec la confidentialité qu'exige un bureau professionnel.",
     "cards": [
-      { "t": "Données en Suisse", "d": "Infrastructure et archivage conformes à la protection des données suisse. Vos plans ne quittent pas le périmètre." },
-      { "t": "Chaque bureau isolé", "d": "Les projets d'un bureau ne sont jamais visibles par les autres. Cloisonnement total pour le titulaire et les collaborateurs." },
-      { "t": "Analyse tracée", "d": "Chaque vérification reste liée à son plan et à son projet : vous savez toujours ce qui a été contrôlé et quand." },
-      { "t": "Accès contrôlés", "d": "Authentification à deux facteurs et permissions par collaborateur : seul qui doit voir le projet le voit." }
+      {
+        "t": "Données en Suisse",
+        "d": "Infrastructure et archivage conformes à la protection des données suisse. Vos plans ne quittent pas le périmètre."
+      },
+      {
+        "t": "Chaque bureau isolé",
+        "d": "Les projets d'un bureau ne sont jamais visibles par les autres. Cloisonnement total pour le titulaire et les collaborateurs."
+      },
+      {
+        "t": "Analyse tracée",
+        "d": "Chaque vérification reste liée à son plan et à son projet : vous savez toujours ce qui a été contrôlé et quand."
+      },
+      {
+        "t": "Accès contrôlés",
+        "d": "Authentification à deux facteurs et permissions par collaborateur : seul qui doit voir le projet le voit."
+      }
     ]
   },
   "cta": {
@@ -146,5 +231,44 @@
     "cta_primary": "Créez votre bureau",
     "cta_secondary": "Explorer la base de données",
     "no_card": "Aucune carte de crédit requise."
+  },
+  "documenti": {
+    "label": "Rédaction de documents",
+    "title_part1": "De l'analyse aux",
+    "title_highlight": "documents de la demande",
+    "subtitle": "Les documents que le bureau doit de toute façon rédiger, préparés par Lexum à partir des plans analysés : les chiffres viennent du plan, jamais inventés.",
+    "feature_title": "Cinq documents, à un clic du plan",
+    "feature_text": "À partir du plan analysé, Lexum rédige l'ébauche des documents techniques : l'attestation de conformité cite les articles exacts de la base de données juridique, le procès-verbal d'analyse documente la diligence du bureau, le descriptif de construction arrive prérempli avec les locaux, surfaces et données du projet. Vous complétez et signez.",
+    "points": [
+      "Attestation de conformité avec les articles cités de la base juridique",
+      "Procès-verbal d'analyse du plan : la preuve de diligence pour le dossier",
+      "Descriptif de construction prérempli avec les données du projet",
+      "Calcul des surfaces et programme des locaux à partir des plans",
+      "Dans la langue de la commune : français, allemand ou italien"
+    ],
+    "visual_label": "Documents du projet",
+    "docs": [
+      {
+        "n": "Attestation de conformité",
+        "badge": "PDF"
+      },
+      {
+        "n": "Procès-verbal d'analyse",
+        "badge": "PDF"
+      },
+      {
+        "n": "Descriptif de construction",
+        "badge": "ébauche"
+      },
+      {
+        "n": "Calcul des surfaces",
+        "badge": "PDF"
+      },
+      {
+        "n": "Programme des locaux",
+        "badge": "PDF"
+      }
+    ],
+    "msg": "Chaque chiffre du document vient du plan analysé ou de la base de données : ce qui n'est pas vérifiable reste un champ à compléter, jamais une invention."
   }
 }

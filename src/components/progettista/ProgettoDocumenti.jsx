@@ -12,6 +12,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { Upload, FileText, Loader2, ExternalLink, Trash2, FolderOpen } from 'lucide-react'
+import GeneraDocumentoProgetto from './GeneraDocumentoProgetto'
 
 const CATEGORIE = [
   { id: 'permesso', label: 'Permesso' },
@@ -131,11 +132,12 @@ export default function ProgettoDocumenti({ progettoId }) {
           <div className="min-w-0">
             <h2 className="font-display text-sm text-nebbia">Documenti</h2>
             <p className="font-body text-xs text-nebbia/40 mt-0.5">
-              Carica permessi, rapporti, corrispondenza e contratti legati al progetto.
-              Ogni documento è privato e visibile solo a te.
+              Carica permessi, rapporti, corrispondenza e contratti — oppure genera i
+              documenti tecnici (relazioni, verbali, superfici) dalle tavole analizzate.
             </p>
           </div>
           <div className="flex items-end gap-3 shrink-0">
+            <GeneraDocumentoProgetto progettoId={progettoId} />
             <div>
               <label className="font-body text-xs text-nebbia/50 block mb-1">Categoria</label>
               <select

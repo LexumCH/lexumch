@@ -35,6 +35,24 @@ export async function getAccessToken() {
   return session.access_token
 }
 
+/* ─── Helper: chiama una Edge Function AUTENTICATA (JWT utente) ──
+   Pattern collaudato dell'app (fetch diretta, soli header Authorization +
+   Content-Type). Ritorna { status, json } senza lanciare su non-2xx:
+   il chiamante decide come trattare 402/409/422.
+   Uso:
+     const { status, json } = await invocaLex('lex-crediti-gate', { consuma: true })
+──────────────────────────────────────────────────────────────── */
+export async function invocaLex(nome, body) {
+  const token = await getAccessToken()
+  const res = await fetch(`${supabaseUrl}/functions/v1/${nome}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  const json = await res.json().catch(() => ({}))
+  return { status: res.status, json }
+}
+
 /* ─── Helper: chiama una Edge Function ─────────────────────────
    Uso:
      const res = await callEdgeFunction('contact-form', payload)

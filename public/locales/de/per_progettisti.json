@@ -231,5 +231,44 @@
     "cta_primary": "Ihr Büro erstellen",
     "cta_secondary": "Datenbank erkunden",
     "no_card": "Keine Kreditkarte erforderlich."
+  },
+  "documenti": {
+    "label": "Dokumente erstellen",
+    "title_part1": "Von der Analyse zu den",
+    "title_highlight": "Unterlagen der Baueingabe",
+    "subtitle": "Die Dokumente, die das Büro ohnehin schreiben muss — von Lexum aus den analysierten Plänen erstellt: Die Zahlen stammen aus dem Plan, nie erfunden.",
+    "feature_title": "Fünf Dokumente, einen Klick vom Plan entfernt",
+    "feature_text": "Aus dem analysierten Plan erstellt Lexum den Entwurf der technischen Unterlagen: Der Konformitätsnachweis zitiert die exakten Artikel aus der Rechtsdatenbank, das Prüfprotokoll dokumentiert die Sorgfalt des Büros, der Baubeschrieb kommt mit Räumen, Flächen und Projektdaten vorausgefüllt. Sie ergänzen und unterschreiben.",
+    "points": [
+      "Konformitätsnachweis mit zitierten Artikeln aus der Rechtsdatenbank",
+      "Prüfprotokoll des Plans: der Sorgfaltsnachweis fürs Dossier",
+      "Baubeschrieb, vorausgefüllt mit den Projektdaten",
+      "Flächenberechnung und Raumprogramm aus den Plänen",
+      "In der Sprache der Gemeinde: Deutsch, Italienisch oder Französisch"
+    ],
+    "visual_label": "Projektdokumente",
+    "docs": [
+      {
+        "n": "Konformitätsnachweis",
+        "badge": "PDF"
+      },
+      {
+        "n": "Prüfprotokoll des Plans",
+        "badge": "PDF"
+      },
+      {
+        "n": "Baubeschrieb",
+        "badge": "Entwurf"
+      },
+      {
+        "n": "Flächenberechnung",
+        "badge": "PDF"
+      },
+      {
+        "n": "Raumprogramm",
+        "badge": "PDF"
+      }
+    ],
+    "msg": "Jede Zahl im Dokument stammt aus dem analysierten Plan oder aus der Datenbank: Was nicht prüfbar ist, bleibt ein auszufüllendes Feld — nie eine Erfindung."
   }
 }

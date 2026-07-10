@@ -38,8 +38,14 @@
     "stat_locali_v": "23",
     "stat_locali_l": "locali",
     "findings": [
-      { "t": "Porta EI30 accanto al WC: larghezza 0,88 m sotto la soglia di 0,90 m per le vie d'evacuazione (OLL 4 art. 10).", "sev": "avviso" },
-      { "t": "Catena di quote sul lato est: la somma dei parziali coincide con il totale (nessuna incoerenza).", "sev": "avviso" }
+      {
+        "t": "Porta EI30 accanto al WC: larghezza 0,88 m sotto la soglia di 0,90 m per le vie d'evacuazione (OLL 4 art. 10).",
+        "sev": "avviso"
+      },
+      {
+        "t": "Catena di quote sul lato est: la somma dei parziali coincide con il totale (nessuna incoerenza).",
+        "sev": "avviso"
+      }
     ]
   },
   "conformita": {
@@ -57,15 +63,36 @@
     ],
     "visual_label": "Conformità del progetto",
     "semaforo": [
-      { "l": "Conformi", "v": "18", "col": "conforme" },
-      { "l": "Da verificare", "v": "3", "col": "da_verificare" },
-      { "l": "Non conformi", "v": "0", "col": "non_conforme" }
+      {
+        "l": "Conformi",
+        "v": "18",
+        "col": "conforme"
+      },
+      {
+        "l": "Da verificare",
+        "v": "3",
+        "col": "da_verificare"
+      },
+      {
+        "l": "Non conformi",
+        "v": "0",
+        "col": "non_conforme"
+      }
     ],
     "norme_label": "Normativa applicabile · Uri",
     "norme": [
-      { "abbr": "PBG", "t": "Planungs- und Baugesetz" },
-      { "abbr": "RPBG", "t": "Reglement zum Planungs- und Baugesetz" },
-      { "abbr": "IVHB", "t": "Harmonisierung der Baubegriffe (definizioni di misura)" }
+      {
+        "abbr": "PBG",
+        "t": "Planungs- und Baugesetz"
+      },
+      {
+        "abbr": "RPBG",
+        "t": "Reglement zum Planungs- und Baugesetz"
+      },
+      {
+        "abbr": "IVHB",
+        "t": "Harmonisierung der Baubegriffe (definizioni di misura)"
+      }
     ],
     "msg": "Elenco degli atti edilizi curato cantone per cantone: solo le norme giuste, non un match a caso."
   },
@@ -80,12 +107,30 @@
     ],
     "visual_label": "Fasi del progetto",
     "fasi": [
-      { "t": "Studi preliminari", "stato": "completata" },
-      { "t": "Progetto di massima", "stato": "completata" },
-      { "t": "Progetto definitivo", "stato": "completata" },
-      { "t": "Domanda di costruzione", "stato": "in_corso" },
-      { "t": "Progetto esecutivo", "stato": "da_iniziare" },
-      { "t": "Esecuzione", "stato": "da_iniziare" }
+      {
+        "t": "Studi preliminari",
+        "stato": "completata"
+      },
+      {
+        "t": "Progetto di massima",
+        "stato": "completata"
+      },
+      {
+        "t": "Progetto definitivo",
+        "stato": "completata"
+      },
+      {
+        "t": "Domanda di costruzione",
+        "stato": "in_corso"
+      },
+      {
+        "t": "Progetto esecutivo",
+        "stato": "da_iniziare"
+      },
+      {
+        "t": "Esecuzione",
+        "stato": "da_iniziare"
+      }
     ],
     "in_corso_badge": "in corso",
     "scadenza_label": "Domanda di costruzione — Comune di Altdorf",
@@ -102,10 +147,22 @@
     ],
     "visual_label": "Banca dati edilizia",
     "categorie": [
-      { "v": "26", "l": "cantoni con legge edilizia" },
-      { "v": "17.861", "l": "norme cantonali" },
-      { "v": "5.046", "l": "norme federali" },
-      { "v": "6.700+", "l": "sentenze edilizie TF" }
+      {
+        "v": "26",
+        "l": "cantoni con legge edilizia"
+      },
+      {
+        "v": "17.861",
+        "l": "norme cantonali"
+      },
+      {
+        "v": "5.046",
+        "l": "norme federali"
+      },
+      {
+        "v": "6.700+",
+        "l": "sentenze edilizie TF"
+      }
     ],
     "msg": "La banca dati del diritto edilizio svizzero è sempre gratuita, anche senza abbonamento."
   },
@@ -115,15 +172,31 @@
     "title_highlight": "diritto edilizio",
     "subtitle": "Chiedi in linguaggio naturale: Lex AI risponde citando le norme cantonali e federali, con i riferimenti esatti.",
     "features": [
-      { "t": "Distanze e altezze", "d": "Distanze dai confini, altezze di facciata, indici di sfruttamento secondo la legge del tuo cantone." },
-      { "t": "Definizioni IVHB", "d": "Come si misura un'altezza, una distanza, un piano: le definizioni armonizzate, spiegate." },
-      { "t": "Procedura di autorizzazione", "d": "Iter della domanda di costruzione, pubblicazione, opposizioni e termini." },
-      { "t": "Sempre con la fonte", "d": "Ogni risposta cita l'articolo esatto, con link alla banca dati. Mai un'affermazione senza fonte." }
+      {
+        "t": "Distanze e altezze",
+        "d": "Distanze dai confini, altezze di facciata, indici di sfruttamento secondo la legge del tuo cantone."
+      },
+      {
+        "t": "Definizioni IVHB",
+        "d": "Come si misura un'altezza, una distanza, un piano: le definizioni armonizzate, spiegate."
+      },
+      {
+        "t": "Procedura di autorizzazione",
+        "d": "Iter della domanda di costruzione, pubblicazione, opposizioni e termini."
+      },
+      {
+        "t": "Sempre con la fonte",
+        "d": "Ogni risposta cita l'articolo esatto, con link alla banca dati. Mai un'affermazione senza fonte."
+      }
     ],
     "visual_label": "Lex AI · edilizia",
     "demo_user": "Qual è la distanza minima dal confine per un edificio residenziale nel Canton Uri?",
     "demo_risposta": "Secondo il Planungs- und Baugesetz di Uri la distanza dal confine dipende dall'altezza dell'edificio e dalla zona; le definizioni di misura seguono l'IVHB. Ecco gli articoli applicabili:",
-    "demo_tags": ["PBG Uri", "IVHB", "Distanze dai confini"],
+    "demo_tags": [
+      "PBG Uri",
+      "IVHB",
+      "Distanze dai confini"
+    ],
     "demo_note": "Lex AI cita sempre la fonte cantonale: verifica e apri la norma nella banca dati con un clic."
   },
   "sicurezza": {
@@ -132,10 +205,22 @@
     "title_highlight": "al sicuro in Svizzera",
     "subtitle": "Disegni, documenti e dati dei committenti protetti, con la riservatezza che uno studio professionale richiede.",
     "cards": [
-      { "t": "Dati in Svizzera", "d": "Infrastruttura e archiviazione conformi alla protezione dei dati svizzera. I tuoi disegni non lasciano il perimetro." },
-      { "t": "Ogni studio isolato", "d": "I progetti di uno studio non sono mai visibili ad altri. Compartimentazione totale per titolare e collaboratori." },
-      { "t": "Analisi tracciata", "d": "Ogni verifica resta legata al suo disegno e al suo progetto: sai sempre cosa è stato controllato e quando." },
-      { "t": "Accessi controllati", "d": "Autenticazione a due fattori e permessi per collaboratore: solo chi deve vede il progetto." }
+      {
+        "t": "Dati in Svizzera",
+        "d": "Infrastruttura e archiviazione conformi alla protezione dei dati svizzera. I tuoi disegni non lasciano il perimetro."
+      },
+      {
+        "t": "Ogni studio isolato",
+        "d": "I progetti di uno studio non sono mai visibili ad altri. Compartimentazione totale per titolare e collaboratori."
+      },
+      {
+        "t": "Analisi tracciata",
+        "d": "Ogni verifica resta legata al suo disegno e al suo progetto: sai sempre cosa è stato controllato e quando."
+      },
+      {
+        "t": "Accessi controllati",
+        "d": "Autenticazione a due fattori e permessi per collaboratore: solo chi deve vede il progetto."
+      }
     ]
   },
   "cta": {
@@ -146,5 +231,44 @@
     "cta_primary": "Crea il tuo studio",
     "cta_secondary": "Esplora la banca dati",
     "no_card": "Nessuna carta di credito richiesta."
+  },
+  "documenti": {
+    "label": "Redazione documenti",
+    "title_part1": "Dall'analisi ai",
+    "title_highlight": "documenti della domanda",
+    "subtitle": "I documenti che lo studio deve comunque scrivere, redatti da Lexum a partire dai disegni analizzati: i numeri vengono dal disegno, mai inventati.",
+    "feature_title": "Cinque documenti, un clic dal disegno",
+    "feature_text": "Dalla tavola analizzata Lexum redige la bozza dei documenti tecnici: la relazione di conformità cita gli articoli esatti dalla banca dati legale, il verbale d'analisi documenta la diligenza dello studio, la relazione tecnica arriva precompilata con locali, superfici e dati del progetto. Tu completi e firmi.",
+    "points": [
+      "Relazione di conformità normativa con gli articoli citati dalla banca dati",
+      "Verbale d'analisi del disegno: la prova di diligenza per il fascicolo",
+      "Relazione tecnica (Baubeschrieb) precompilata dai dati del progetto",
+      "Calcolo delle superfici e programma dei locali dalle tavole",
+      "Nella lingua del Comune: italiano, tedesco o francese"
+    ],
+    "visual_label": "Documenti del progetto",
+    "docs": [
+      {
+        "n": "Relazione di conformità normativa",
+        "badge": "PDF"
+      },
+      {
+        "n": "Verbale d'analisi del disegno",
+        "badge": "PDF"
+      },
+      {
+        "n": "Relazione tecnica (Baubeschrieb)",
+        "badge": "bozza"
+      },
+      {
+        "n": "Calcolo delle superfici",
+        "badge": "PDF"
+      },
+      {
+        "n": "Programma dei locali",
+        "badge": "PDF"
+      }
+    ],
+    "msg": "Ogni numero nel documento viene dal disegno analizzato o dalla banca dati: quello che non è verificabile resta un campo da completare, mai un'invenzione."
   }
 }
