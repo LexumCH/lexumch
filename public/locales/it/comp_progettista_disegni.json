@@ -54,5 +54,19 @@
   "vuoto_nessun_disegno": "Nessun disegno caricato. Carica un PDF vettoriale per avviare l'analisi.",
   "vuoto_stato": "Nessun disegno in questo stato.",
   "conferma_elimina": "Eliminare \"{{nome}}\"?",
-  "sommario_label": "In sintesi"
+  "sommario_label": "In sintesi",
+  "sez_cantonale": "Normativa cantonale · {{cantone}}",
+  "cant_badge_ai": "Selezione AI",
+  "cant_analizza": "Analizza normativa cantonale",
+  "cant_aggiorna": "Aggiorna",
+  "cant_in_corso": "Analisi cantonale in corso…",
+  "cant_errore": "Analisi cantonale non riuscita. Riprova.",
+  "cant_hint_no_cantone": "Imposta il cantone nella Panoramica del progetto per attivare l'analisi cantonale.",
+  "cant_vuoto": "Nessun articolo cantonale pertinente individuato per questa tavola.",
+  "verificabilita": {
+    "pianta": "verificabile dalla pianta",
+    "planimetria": "richiede planimetria di situazione",
+    "regolamento_comunale": "richiede regolamento comunale",
+    "documentazione": "richiede documentazione"
+  }
 }

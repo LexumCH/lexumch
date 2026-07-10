@@ -43,23 +43,17 @@ function linguaSicura(l: any): Lingua {
 
 // ─── GUARD ANTI-INVENZIONE (il motore è la fonte di verità) ─────
 // Estrae i valori numerici da un testo, normalizzati a un token canonico.
-// Gestisce separatore decimale . o , ; separatori di migliaia CH ' ’ . ; spazi;
-// unità attaccate. Così "3.40", "3,40 m", "0,88 m", "1'250", "822.114" sono confrontabili.
+// Un token per numero: niente spazi/virgole-elenco dentro il token, così
+// "90, 120 e 140" dà tre numeri distinti e "cpv. 2 0.90" non li fonde.
+// "3.40", "3,40 m", "0,88 m", "1'250.50", "822.114" restano confrontabili.
 function estraiNumeri(s: string): Set<string> {
   const out = new Set<string>()
   if (!s) return out
-  const m = s.match(/\d[\d'’.,\s]*\d|\d/g) ?? []
+  const m = s.match(/\d+(?:['’]\d{3})*(?:[.,]\d+)?/g) ?? []
   for (let tok of m) {
-    tok = tok.replace(/[\s'’]/g, '')
-    const lastDot = tok.lastIndexOf('.'), lastCom = tok.lastIndexOf(',')
-    if (lastDot >= 0 && lastCom >= 0) {
-      const dec = Math.max(lastDot, lastCom)
-      tok = tok.slice(0, dec).replace(/[.,]/g, '') + '.' + tok.slice(dec + 1)
-    } else {
-      tok = tok.replace(',', '.')
-    }
+    tok = tok.replace(/['’]/g, '').replace(',', '.')
     if (tok.includes('.')) tok = tok.replace(/0+$/, '').replace(/\.$/, '')
-    if (tok !== '' && tok !== '.') out.add(tok)
+    if (tok) out.add(tok)
   }
   return out
 }
@@ -68,7 +62,7 @@ function estraiNumeri(s: string): Set<string> {
 // da citazione legale. Se fallisce → si scarta la prosa AI e si torna al motore.
 function prosaValida(aiText: string, fonte: string): boolean {
   if (!aiText) return false
-  if (/[«»“”„]/.test(aiText)) return false
+  if (/[«»“”„"]/.test(aiText)) return false
   const src = estraiNumeri(fonte)
   for (const n of estraiNumeri(aiText)) if (!src.has(n)) return false
   return true

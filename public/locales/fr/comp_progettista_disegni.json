@@ -54,5 +54,19 @@
   "vuoto_nessun_disegno": "Aucun plan chargé. Chargez un PDF vectoriel pour lancer l'analyse.",
   "vuoto_stato": "Aucun plan dans cet état.",
   "conferma_elimina": "Supprimer « {{nome}} » ?",
-  "sommario_label": "En synthèse"
+  "sommario_label": "En synthèse",
+  "sez_cantonale": "Réglementation cantonale · {{cantone}}",
+  "cant_badge_ai": "Sélection IA",
+  "cant_analizza": "Analyser la réglementation cantonale",
+  "cant_aggiorna": "Actualiser",
+  "cant_in_corso": "Analyse cantonale en cours…",
+  "cant_errore": "Échec de l'analyse cantonale. Veuillez réessayer.",
+  "cant_hint_no_cantone": "Définissez le canton dans l'aperçu du projet pour activer l'analyse cantonale.",
+  "cant_vuoto": "Aucun article cantonal pertinent identifié pour ce plan.",
+  "verificabilita": {
+    "pianta": "vérifiable sur le plan",
+    "planimetria": "nécessite le plan de situation",
+    "regolamento_comunale": "nécessite le règlement communal",
+    "documentazione": "nécessite des documents complémentaires"
+  }
 }

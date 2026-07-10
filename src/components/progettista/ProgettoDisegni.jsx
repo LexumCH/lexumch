@@ -13,13 +13,14 @@
 // Props: progettoId (string)
 
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, supabaseKey, getAccessToken } from '@/lib/supabase'
 import {
-  Upload, FileText, Play, Loader2, CheckCircle2,
-  AlertTriangle, XCircle, Info, ChevronDown, ChevronUp, Trash2, Languages
+  Upload, FileText, Play, Loader2, CheckCircle2, AlertTriangle, XCircle,
+  Info, ChevronDown, ChevronUp, Trash2, Languages, Landmark, RefreshCw
 } from 'lucide-react'
 
 const STATO_META = {
@@ -64,6 +65,16 @@ export default function ProgettoDisegni({ progettoId }) {
   const [errore, setErrore] = useState(null)
   const [aperto, setAperto] = useState(null)
   const [filtro, setFiltro] = useState('tutti')
+
+  const { data: progetto } = useQuery({
+    queryKey: ['progetto_cantone', progettoId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('progetti').select('cantone').eq('id', progettoId).single()
+      if (error) throw error
+      return data
+    },
+  })
 
   const { data: disegni = [] } = useQuery({
     queryKey: ['progetto_disegni', progettoId],
@@ -240,7 +251,7 @@ export default function ProgettoDisegni({ progettoId }) {
               </div>
 
               {espanso && d.stato_analisi === 'completata' && (
-                <RisultatiDisegno disegno={d} t={t} />
+                <RisultatiDisegno disegno={d} t={t} cantone={progetto?.cantone ?? null} />
               )}
             </div>
           )
@@ -261,7 +272,7 @@ export default function ProgettoDisegni({ progettoId }) {
 }
 
 // ─── Pannello risultati (con narrazione localizzata IT/DE/FR) ────────
-function RisultatiDisegno({ disegno: d, t }) {
+function RisultatiDisegno({ disegno: d, t, cantone }) {
   const lingua = useLingua()
   const testi = d.gemello?.quote?.testi ?? []
   const cQ = testi.reduce((a, x) => { a[x.stato] = (a[x.stato] || 0) + 1; return a }, {})
@@ -392,6 +403,8 @@ function RisultatiDisegno({ disegno: d, t }) {
         </div>
       </section>
 
+      <SezioneCantonale disegno={d} cantone={cantone} t={t} lingua={lingua} />
+
       {(d.gemello?.locali ?? []).length > 0 && (
         <section>
           <h3 className="font-display text-xs uppercase tracking-wider text-nebbia/40 mb-2">
@@ -415,5 +428,93 @@ function RisultatiDisegno({ disegno: d, t }) {
         </section>
       )}
     </div>
+  )
+}
+
+// ─── Normativa cantonale (ponte AI: selezione articoli + testo dal DB) ──
+// Corsia separata dal motore federale: gli articoli sono SELEZIONATI dall'AI
+// (badge "Selezione AI"); i verdetti conforme/non conforme vengono solo dal
+// codice della edge function; il testo di legge sempre dal DB cantonale.
+function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
+  const queryClient = useQueryClient()
+  const cache = d.esiti_cantonali ?? null
+  const esiti = cache?.esiti ?? []
+  const stale = cache && (cache.fonte_updated_at !== d.updated_at || cache.cantone !== cantone || cache.lingua !== lingua)
+
+  const genera = useMutation({
+    // forza=true bypassa la cache lato server (es. dopo un cambio modello che
+    // il client non può rilevare).
+    mutationFn: async ({ forza = false } = {}) => {
+      const { data, error } = await supabase.functions.invoke('lex-normativa-cantonale', {
+        body: { disegno_id: d.id, lingua, forza },
+      })
+      if (error) throw error
+      if (!data?.ok) throw new Error(data?.error ?? 'errore')
+      return data
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni'] }),
+  })
+
+  return (
+    <section>
+      <h3 className="font-display text-xs uppercase tracking-wider text-nebbia/40 mb-2 flex items-center gap-2">
+        <Landmark size={12} className="text-nebbia/30" />
+        {t('sez_cantonale', { cantone: cantone ?? '—' })}
+        <span className="font-body text-[10px] normal-case tracking-normal px-1.5 py-0.5 border border-oro/30 text-oro/80">
+          {t('cant_badge_ai')}
+        </span>
+      </h3>
+
+      {!cantone ? (
+        <p className="font-body text-xs text-nebbia/40">{t('cant_hint_no_cantone')}</p>
+      ) : !cache ? (
+        <div>
+          <button onClick={() => genera.mutate({})} disabled={genera.isPending}
+            className="flex items-center gap-2 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 disabled:opacity-50 transition-colors">
+            {genera.isPending ? <Loader2 size={13} className="animate-spin" /> : <Landmark size={13} />}
+            {genera.isPending ? t('cant_in_corso') : t('cant_analizza')}
+          </button>
+          {genera.isError && <p className="font-body text-xs text-red-400 mt-2">{t('cant_errore')}</p>}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <button onClick={() => genera.mutate({ forza: !stale })} disabled={genera.isPending}
+            className={`flex items-center gap-1.5 px-2.5 py-1 border font-body text-[11px] disabled:opacity-50 transition-colors ${stale
+              ? 'border-oro/30 text-oro hover:bg-oro/10'
+              : 'border-white/10 text-nebbia/50 hover:border-oro/30 hover:text-nebbia/80'}`}>
+            <RefreshCw size={11} className={genera.isPending ? 'animate-spin' : ''} /> {t('cant_aggiorna')}
+          </button>
+          {esiti.length === 0 && (
+            <p className="font-body text-xs text-nebbia/40">{t('cant_vuoto')}</p>
+          )}
+          {esiti.map((e, i) => {
+            const es = ESITO_META[e.esito] ?? ESITO_META.non_verificabile
+            const EsIcon = es.icon
+            return (
+              <div key={i} className="bg-petrolio border border-white/5 p-3">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <EsIcon size={14} className={es.cls} />
+                  <span className={`font-body text-xs font-medium ${es.cls}`}>{t(`esito.${e.esito}`)}</span>
+                  <span className="font-body text-xs text-nebbia/40">
+                    — {e.norma_id
+                      ? <Link to={`/banca-dati/norma-cantonale/${e.norma_id}`} className="hover:text-oro transition-colors underline decoration-white/20 underline-offset-2">{e.riferimento}</Link>
+                      : e.riferimento}
+                  </span>
+                  <span className="font-body text-[10px] px-1.5 py-0.5 border border-white/10 text-nebbia/40 ml-auto shrink-0">
+                    {t(`verificabilita.${e.verificabilita}`, { defaultValue: e.verificabilita })}
+                  </span>
+                </div>
+                {e.rubrica && <p className="font-body text-xs text-nebbia/50 mb-1">{e.rubrica}</p>}
+                <p className="font-body text-sm text-nebbia/80">{e.verifica}</p>
+                {e.testo_norma && (
+                  <p className="font-body text-xs text-nebbia/40 mt-1.5 border-l-2 border-white/10 pl-2">{e.testo_norma}</p>
+                )}
+              </div>
+            )
+          })}
+          {genera.isError && <p className="font-body text-xs text-red-400">{t('cant_errore')}</p>}
+        </div>
+      )}
+    </section>
   )
 }

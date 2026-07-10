@@ -54,5 +54,19 @@
   "vuoto_nessun_disegno": "Kein Plan hochgeladen. Laden Sie ein Vektor-PDF hoch, um die Analyse zu starten.",
   "vuoto_stato": "Kein Plan in diesem Status.",
   "conferma_elimina": "\"{{nome}}\" löschen?",
-  "sommario_label": "Zusammengefasst"
+  "sommario_label": "Zusammengefasst",
+  "sez_cantonale": "Kantonale Vorschriften · {{cantone}}",
+  "cant_badge_ai": "KI-Auswahl",
+  "cant_analizza": "Kantonale Vorschriften prüfen",
+  "cant_aggiorna": "Aktualisieren",
+  "cant_in_corso": "Kantonale Prüfung läuft…",
+  "cant_errore": "Kantonale Prüfung fehlgeschlagen. Bitte erneut versuchen.",
+  "cant_hint_no_cantone": "Legen Sie den Kanton in der Projektübersicht fest, um die kantonale Prüfung zu aktivieren.",
+  "cant_vuoto": "Keine relevanten kantonalen Artikel für diesen Plan gefunden.",
+  "verificabilita": {
+    "pianta": "anhand des Plans prüfbar",
+    "planimetria": "erfordert Situationsplan",
+    "regolamento_comunale": "erfordert kommunale Bauordnung",
+    "documentazione": "erfordert weitere Unterlagen"
+  }
 }
