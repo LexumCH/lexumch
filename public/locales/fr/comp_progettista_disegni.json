@@ -104,5 +104,10 @@
   "raster_quote": "~{{count}} cotes visibles",
   "raster_locali": "Locaux lus ({{count}})",
   "raster_illeggibile": "Plan non lisible avec une certitude suffisante.",
-  "raster_aggiorna": "Actualiser (1 crédit)"
+  "raster_aggiorna": "Actualiser (1 crédit)",
+  "fase_ai": {
+    "motore": "Analyse géométrique",
+    "ricerca": "Réglementation et zones",
+    "sintesi": "Checklist et synthèse"
+  }
 }

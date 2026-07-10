@@ -104,5 +104,10 @@
   "raster_quote": "~{{count}} sichtbare Masse",
   "raster_locali": "Gelesene Räume ({{count}})",
   "raster_illeggibile": "Plan nicht mit ausreichender Sicherheit lesbar.",
-  "raster_aggiorna": "Aktualisieren (1 Guthaben)"
+  "raster_aggiorna": "Aktualisieren (1 Guthaben)",
+  "fase_ai": {
+    "motore": "Geometrische Analyse",
+    "ricerca": "Vorschriften und Zonen",
+    "sintesi": "Checkliste und Synthese"
+  }
 }

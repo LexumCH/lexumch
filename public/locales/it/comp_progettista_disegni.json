@@ -104,5 +104,10 @@
   "raster_quote": "~{{count}} quote visibili",
   "raster_locali": "Locali letti ({{count}})",
   "raster_illeggibile": "Tavola non leggibile con sufficiente sicurezza.",
-  "raster_aggiorna": "Aggiorna (1 credito)"
+  "raster_aggiorna": "Aggiorna (1 credito)",
+  "fase_ai": {
+    "motore": "Analisi geometrica",
+    "ricerca": "Normativa e zone",
+    "sintesi": "Checklist e sintesi"
+  }
 }

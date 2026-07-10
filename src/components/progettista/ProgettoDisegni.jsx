@@ -56,16 +56,31 @@ function useLingua() {
   return ['it', 'de', 'fr'].includes(raw) ? raw : 'it'
 }
 
+// Chiamata edge Lex col pattern collaudato dell'app (fetch diretta con soli
+// Authorization+Content-Type: supabase.functions.invoke aggiunge header che
+// complicano il preflight CORS — vedi Ricerche.jsx).
+async function invocaLex(nome, body) {
+  const token = await getAccessToken()
+  const res = await fetch(`${supabaseUrl}/functions/v1/${nome}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  const json = await res.json().catch(() => ({}))
+  return { status: res.status, json }
+}
+
+// Fasi mostrate nella barra di avanzamento del flusso unico.
+const FASI_AI = ['motore', 'ricerca', 'sintesi']
+
 // ─── Bundle "Analisi AI" = 1 credito ─────────────────────────────────
 // Gate crediti → in parallelo [normativa cantonale] + [ritagli → vision zone]
 // → narrazione+checklist per ULTIMA (la checklist deve vedere il cantonale).
 // I ritagli deterministici (ancore visive) non bloccano il resto se falliscono.
-async function eseguiBundleAi({ disegnoId, lingua }) {
-  const { data: gate, error: gErr } = await supabase.functions.invoke('lex-crediti-gate', {
-    body: { consuma: true },
-  })
-  if (gErr) throw new Error(gErr.context?.status === 402 ? 'crediti_esauriti' : 'bundle_errore')
-  if (!gate?.ok) throw new Error(gate?.error === 'crediti_esauriti' ? 'crediti_esauriti' : 'bundle_errore')
+async function eseguiBundleAi({ disegnoId, lingua, onFase }) {
+  const gate = await invocaLex('lex-crediti-gate', { consuma: true })
+  if (gate.status === 402) throw new Error('crediti_esauriti')
+  if (gate.status !== 200 || !gate.json?.ok) throw new Error('bundle_errore')
 
   // Cantone letto dal DB (non dalla prop, che può non essere ancora caricata):
   // se mancasse, il ramo cantonale salterebbe in silenzio pur avendo pagato.
@@ -77,6 +92,7 @@ async function eseguiBundleAi({ disegnoId, lingua }) {
     cantone = pd?.progetti?.cantone ?? null
   } catch { /* senza cantone il ramo cantonale si salta */ }
 
+  onFase?.('ricerca')
   const token = await getAccessToken()
   const pRitagli = fetch('/api/rendi_zone', {
     method: 'POST',
@@ -85,18 +101,17 @@ async function eseguiBundleAi({ disegnoId, lingua }) {
   }).then(r => r.json()).then(async (out) => {
     const items = out?.crops?.items ?? []
     if (items.some(it => (it.tipo ?? 'zona') === 'zona')) {
-      await supabase.functions.invoke('lex-vision-zone', { body: { disegno_id: disegnoId, lingua } })
+      await invocaLex('lex-vision-zone', { disegno_id: disegnoId, lingua })
     }
   }).catch(() => {})
   const pCantonale = cantone
-    ? supabase.functions.invoke('lex-normativa-cantonale', { body: { disegno_id: disegnoId, lingua } }).catch(() => {})
+    ? invocaLex('lex-normativa-cantonale', { disegno_id: disegnoId, lingua }).catch(() => {})
     : Promise.resolve()
   await Promise.all([pRitagli, pCantonale])
 
-  const { data: nOut, error: nErr } = await supabase.functions.invoke('lex-narra-disegno', {
-    body: { disegno_id: disegnoId, lingua },
-  })
-  if (nErr || !nOut?.ok) throw new Error('bundle_errore')
+  onFase?.('sintesi')
+  const narra = await invocaLex('lex-narra-disegno', { disegno_id: disegnoId, lingua })
+  if (narra.status !== 200 || !narra.json?.ok) throw new Error('bundle_errore')
 }
 
 export default function ProgettoDisegni({ progettoId }) {
@@ -169,9 +184,14 @@ export default function ProgettoDisegni({ progettoId }) {
       : e.message === 'bundle_errore' ? t('bundle_errore')
         : e.message
 
+  // Barra di avanzamento del flusso unico: disegnoId → fase corrente.
+  const [fasiAi, setFasiAi] = useState({})
+  const setFase = (id, fase) => setFasiAi(prev => ({ ...prev, [id]: fase }))
+
   // "Analizza" = UN gesto: motore deterministico + pacchetto AI (1 credito).
   const analizza = useMutation({
     mutationFn: async (disegnoId) => {
+      setFase(disegnoId, 'motore')
       const token = await getAccessToken()
       const res = await fetch('/api/analizza_disegno', {
         method: 'POST',
@@ -183,22 +203,12 @@ export default function ProgettoDisegni({ progettoId }) {
       // Il risultato deterministico è subito visibile...
       queryClient.invalidateQueries({ queryKey: ['progetto_disegni', progettoId] })
       // ...poi il pacchetto AI. Se fallisce, l'analisi deterministica resta valida.
-      await eseguiBundleAi({ disegnoId, lingua })
+      await eseguiBundleAi({ disegnoId, lingua, onFase: (f) => setFase(disegnoId, f) })
       return out
     },
     onMutate: () => setErrore(null),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['progetto_disegni', progettoId] })
-      queryClient.invalidateQueries({ queryKey: ['narrazione_disegno'] })
-    },
-    onError: (e) => setErrore(messaggioBundle(e)),
-  })
-
-  // Pacchetto AI per disegni già analizzati (senza rifare il motore): 1 credito.
-  const bundleAi = useMutation({
-    mutationFn: async (disegnoId) => eseguiBundleAi({ disegnoId, lingua }),
-    onMutate: () => setErrore(null),
-    onSettled: () => {
+    onSettled: (_data, _err, disegnoId) => {
+      setFase(disegnoId, null)
       queryClient.invalidateQueries({ queryKey: ['progetto_disegni', progettoId] })
       queryClient.invalidateQueries({ queryKey: ['narrazione_disegno'] })
     },
@@ -285,6 +295,14 @@ export default function ProgettoDisegni({ progettoId }) {
           const candidatoRaster = d.stato_analisi === 'errore' ||
             (d.stato_analisi === 'completata' && testi.length === 0)
           const incoerenze = (d.findings ?? []).filter(f => f.severita === 'errore')
+          const faseCorrente = fasiAi[d.id] ?? null
+          // Un solo gesto "Analizza" (motore + AI, 1 credito): riappare anche
+          // sui disegni completati la cui parte AI manca o è stantia.
+          const aiFrescaRow = d.narrazione?.[lingua]?.fonte_updated_at === d.updated_at
+          const mostraAnalizza = !faseCorrente && (
+            ['caricato', 'errore'].includes(d.stato_analisi) ||
+            (d.stato_analisi === 'completata' && !candidatoRaster && !aiFrescaRow)
+          )
           const riepilogo = d.stato_analisi === 'completata' && d.gemello
             ? [
                 t('riepilogo_quote', { count: testi.length }),
@@ -310,8 +328,9 @@ export default function ProgettoDisegni({ progettoId }) {
                 <span className={`font-body text-[10px] px-2 py-0.5 border uppercase tracking-wider shrink-0 ${BADGE_CLS[d.stato_analisi] ?? BADGE_CLS.caricato}`}>
                   {t(`badge.${d.stato_analisi}`)}
                 </span>
-                {['caricato', 'errore'].includes(d.stato_analisi) && (
+                {mostraAnalizza && (
                   <button onClick={() => analizza.mutate(d.id)} disabled={analizza.isPending}
+                    title={t('analisi_ai_hint')}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-salvia/10 border border-salvia/30 text-salvia font-body text-xs hover:bg-salvia/20 disabled:opacity-50 transition-colors shrink-0">
                     <Play size={12} /> {t('analizza')}
                   </button>
@@ -328,12 +347,29 @@ export default function ProgettoDisegni({ progettoId }) {
                 </button>
               </div>
 
+              {/* Barra di avanzamento del flusso unico (motore → ricerca → sintesi) */}
+              {faseCorrente && (
+                <div className="border-t border-white/5 px-4 py-2.5 flex items-center gap-3 flex-wrap">
+                  {FASI_AI.map((f, i) => {
+                    const idxCorr = FASI_AI.indexOf(faseCorrente)
+                    const stato = i < idxCorr ? 'fatta' : i === idxCorr ? 'attiva' : 'attesa'
+                    return (
+                      <span key={f} className={`flex items-center gap-1.5 font-body text-[11px] ${
+                        stato === 'attiva' ? 'text-oro' : stato === 'fatta' ? 'text-salvia' : 'text-nebbia/30'}`}>
+                        {stato === 'attiva' ? <Loader2 size={11} className="animate-spin" />
+                          : stato === 'fatta' ? <CheckCircle2 size={11} />
+                            : <span className="w-[11px] h-[11px] rounded-full border border-white/15 inline-block" />}
+                        {t(`fase_ai.${f}`)}
+                        {i < FASI_AI.length - 1 && <span className="text-nebbia/20 ml-1.5">→</span>}
+                      </span>
+                    )
+                  })}
+                </div>
+              )}
+
               {espanso && (d.stato_analisi === 'completata' || candidatoRaster) && (
                 <RisultatiDisegno disegno={d} t={t} cantone={progetto?.cantone ?? null}
-                  candidatoRaster={candidatoRaster}
-                  onAnalisiAi={() => bundleAi.mutate(d.id)}
-                  aiPending={(bundleAi.isPending && bundleAi.variables === d.id) ||
-                    (analizza.isPending && analizza.variables === d.id)} />
+                  candidatoRaster={candidatoRaster} />
               )}
             </div>
           )
@@ -354,7 +390,7 @@ export default function ProgettoDisegni({ progettoId }) {
 }
 
 // ─── Pannello risultati (con narrazione localizzata IT/DE/FR) ────────
-function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false, onAnalisiAi, aiPending = false }) {
+function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
   const lingua = useLingua()
   const testi = d.gemello?.quote?.testi ?? []
   const cQ = testi.reduce((a, x) => { a[x.stato] = (a[x.stato] || 0) + 1; return a }, {})
@@ -371,11 +407,9 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false, onA
     staleTime: Infinity,
     retry: false,
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('lex-narra-disegno', {
-        body: { disegno_id: d.id, lingua, solo_cache: true },
-      })
-      if (error) throw error
-      return data?.narrazione ?? null
+      const out = await invocaLex('lex-narra-disegno', { disegno_id: d.id, lingua, solo_cache: true })
+      if (out.status !== 200) throw new Error('narrazione non disponibile')
+      return out.json?.narrazione ?? null
     },
   })
   const narrFresca = !!(narr && narr.fonte_updated_at === d.updated_at)
@@ -419,18 +453,6 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false, onA
 
   return (
     <div className="border-t border-white/5 px-4 py-4 space-y-5">
-      {/* Analisi AI mancante/stantia → un solo bottone, un solo credito */}
-      {!narrFresca && (
-        <div className="flex items-center gap-3 flex-wrap">
-          <button onClick={onAnalisiAi} disabled={aiPending}
-            className="flex items-center gap-2 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 disabled:opacity-50 transition-colors">
-            {aiPending ? <Loader2 size={13} className="animate-spin" /> : <ScanSearch size={13} />}
-            {aiPending ? t('analisi_ai_in_corso') : t('analisi_ai_btn')}
-          </button>
-          <span className="font-body text-[11px] text-nebbia/35">{t('analisi_ai_hint')}</span>
-        </div>
-      )}
-
       {/* Checklist operativa: cosa fare prima del deposito */}
       {narrFresca && (narr?.checklist ?? []).length > 0 && (
         <section className="bg-petrolio border-l-2 border-oro/60 p-3">
@@ -593,11 +615,9 @@ function ZoneVision({ disegno: d, t, lingua }) {
   const interpreta = useMutation({
     mutationFn: async ({ forza = false } = {}) => {
       // Rigenerare la vision è una chiamata AI: passa dal gate (1 credito).
-      const { data: gate, error: gErr } = await supabase.functions.invoke('lex-crediti-gate', {
-        body: { consuma: true },
-      })
-      if (gErr) throw new Error(gErr.context?.status === 402 ? 'crediti_esauriti' : 'errore')
-      if (!gate?.ok) throw new Error(gate?.error === 'crediti_esauriti' ? 'crediti_esauriti' : 'errore')
+      const gate = await invocaLex('lex-crediti-gate', { consuma: true })
+      if (gate.status === 402) throw new Error('crediti_esauriti')
+      if (!gate.json?.ok) throw new Error('errore')
       const token = await getAccessToken()
       const res = await fetch('/api/rendi_zone', {
         method: 'POST',
@@ -607,12 +627,9 @@ function ZoneVision({ disegno: d, t, lingua }) {
       const out = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(out.errore ?? `Errore ${res.status}`)
       if (out.zone === 0) return { vuoto: true }
-      const { data, error } = await supabase.functions.invoke('lex-vision-zone', {
-        body: { disegno_id: d.id, lingua, forza },
-      })
-      if (error) throw error
-      if (!data?.ok) throw new Error(data?.error ?? 'errore')
-      return data
+      const vz = await invocaLex('lex-vision-zone', { disegno_id: d.id, lingua, forza })
+      if (!vz.json?.ok) throw new Error(vz.json?.error ?? 'errore')
+      return vz.json
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni'] }),
   })
@@ -681,11 +698,9 @@ function LetturaRaster({ disegno: d, t, lingua }) {
   const leggi = useMutation({
     mutationFn: async ({ forza = false } = {}) => {
       // La lettura da immagine è un'analisi AI a sé: 1 credito (gate 402).
-      const { data: gate, error: gErr } = await supabase.functions.invoke('lex-crediti-gate', {
-        body: { consuma: true },
-      })
-      if (gErr) throw new Error(gErr.context?.status === 402 ? 'crediti_esauriti' : 'errore')
-      if (!gate?.ok) throw new Error(gate?.error === 'crediti_esauriti' ? 'crediti_esauriti' : 'errore')
+      const gate = await invocaLex('lex-crediti-gate', { consuma: true })
+      if (gate.status === 402) throw new Error('crediti_esauriti')
+      if (!gate.json?.ok) throw new Error('errore')
       const token = await getAccessToken()
       const res = await fetch('/api/rendi_pagina', {
         method: 'POST',
@@ -694,12 +709,9 @@ function LetturaRaster({ disegno: d, t, lingua }) {
       })
       const out = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(out.errore ?? `Errore ${res.status}`)
-      const { data, error } = await supabase.functions.invoke('lex-vision-raster', {
-        body: { disegno_id: d.id, lingua, forza },
-      })
-      if (error) throw error
-      if (!data?.ok) throw new Error(data?.error ?? 'errore')
-      return data
+      const vr = await invocaLex('lex-vision-raster', { disegno_id: d.id, lingua, forza })
+      if (!vr.json?.ok) throw new Error(vr.json?.error ?? 'errore')
+      return vr.json
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni'] }),
   })
@@ -806,17 +818,12 @@ function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
     // forza=true bypassa la cache lato server (es. dopo un cambio modello che
     // il client non può rilevare). Rigenerare è una chiamata AI: gate (1 credito).
     mutationFn: async ({ forza = false } = {}) => {
-      const { data: gate, error: gErr } = await supabase.functions.invoke('lex-crediti-gate', {
-        body: { consuma: true },
-      })
-      if (gErr) throw new Error(gErr.context?.status === 402 ? 'crediti_esauriti' : 'errore')
-      if (!gate?.ok) throw new Error(gate?.error === 'crediti_esauriti' ? 'crediti_esauriti' : 'errore')
-      const { data, error } = await supabase.functions.invoke('lex-normativa-cantonale', {
-        body: { disegno_id: d.id, lingua, forza },
-      })
-      if (error) throw error
-      if (!data?.ok) throw new Error(data?.error ?? 'errore')
-      return data
+      const gate = await invocaLex('lex-crediti-gate', { consuma: true })
+      if (gate.status === 402) throw new Error('crediti_esauriti')
+      if (!gate.json?.ok) throw new Error('errore')
+      const out = await invocaLex('lex-normativa-cantonale', { disegno_id: d.id, lingua, forza })
+      if (!out.json?.ok) throw new Error(out.json?.error ?? 'errore')
+      return out.json
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni'] }),
   })
