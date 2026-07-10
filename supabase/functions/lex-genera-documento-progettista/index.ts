@@ -315,16 +315,21 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Generazione + guard numerico (retry una volta: il credito non va sprecato)
+    // Generazione + guard numerico (retry una volta: il credito non va sprecato).
+    // La fonte del guard include le istruzioni di struttura (numeri di sezione,
+    // "SIA 416") e i piccoli interi 0-30 per numerazioni di elenchi/pagine:
+    // senza, ogni documento strutturato verrebbe respinto per un "3." di elenco.
+    const interiStruttura = Array.from({ length: 31 }, (_, i) => String(i)).join(' ')
+    const fonteGuard = `${dati} ${dataDoc} ${TIPI[tipo].istruzioni} ${interiStruttura}`
     let tokIn = 0, tokOut = 0, iterazioni = 1
     let r = await chiamaAi()
     tokIn += r.tokIn; tokOut += r.tokOut
-    let controllo = numeriAmmessi(r.md, dati + ' ' + dataDoc)
+    let controllo = numeriAmmessi(r.md, fonteGuard)
     if (!r.md || !controllo.ok) {
       iterazioni = 2
       r = await chiamaAi()
       tokIn += r.tokIn; tokOut += r.tokOut
-      controllo = numeriAmmessi(r.md, dati + ' ' + dataDoc)
+      controllo = numeriAmmessi(r.md, fonteGuard)
     }
     if (!r.md || !controllo.ok) {
       await logLexCall({
