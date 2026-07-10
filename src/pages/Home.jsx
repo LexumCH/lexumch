@@ -593,6 +593,41 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 5b. LEX PER I PROGETTISTI — l'AI che verifica i disegni */}
+      <section id="progettisti" className="py-24 px-6 border-t border-white/5 scroll-mt-28">
+        <div className="max-w-5xl mx-auto">
+          <FadeIn className="text-center mb-12 max-w-3xl mx-auto">
+            <SectionLabel>{t('progettisti.label')}</SectionLabel>
+            <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia mb-6">
+              {t('progettisti.title_part1')}{' '}
+              <span className="text-oro">{t('progettisti.title_highlight')}</span>
+            </h2>
+            <p className="font-body text-base text-nebbia/50 leading-relaxed">
+              {t('progettisti.text')}
+            </p>
+          </FadeIn>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {(Array.isArray(t('progettisti.items', { returnObjects: true })) ? t('progettisti.items', { returnObjects: true }) : []).map((item, i) => (
+              <FadeIn key={i} delay={0.1 * (i + 1)}>
+                <div className="bg-slate border border-white/5 p-6 h-full hover:border-oro/20 transition-colors">
+                  <h3 className="font-display text-lg text-nebbia mb-2">{item.t}</h3>
+                  <p className="font-body text-sm text-nebbia/45 leading-relaxed">{item.d}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+
+          <FadeIn delay={0.4}>
+            <div className="mt-8 text-center">
+              <Link to={`/${langAttiva}/progettisti`} className="inline-flex items-center gap-1.5 font-body text-sm text-oro/70 hover:text-oro transition-colors">
+                {t('progettisti.cta')} <ArrowRight size={13} />
+              </Link>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* 6. LA PIATTAFORMA — gestione studio */}
       <section id="features" className="py-24 px-6 border-t border-white/5 scroll-mt-28">
         <div className="max-w-5xl mx-auto space-y-24">
@@ -868,6 +903,9 @@ export default function Home() {
               </Link>
               <Link to={`/${langAttiva}/fiduciari`} className="flex items-center gap-1.5 font-body text-xs text-salvia/60 hover:text-salvia transition-colors">
                 {t('cta_finale.fiduciari_link')} <ArrowRight size={11} />
+              </Link>
+              <Link to={`/${langAttiva}/progettisti`} className="flex items-center gap-1.5 font-body text-xs text-nebbia/45 hover:text-nebbia/80 transition-colors">
+                {t('cta_finale.progettisti_link')} <ArrowRight size={11} />
               </Link>
             </div>
           </FadeIn>
