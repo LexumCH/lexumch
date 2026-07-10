@@ -65,6 +65,24 @@ function estraiJson(raw: string): any | null {
   try { return JSON.parse(raw.slice(i, j + 1)) } catch { return null }
 }
 
+// Le funzioni AI del bundle esigono un CONSUMO pagato loggato server-side
+// (lex_logs è scritto solo dal service role): senza questo lasciapassare,
+// chiunque col proprio JWT otterrebbe il lavoro AI gratis. Fail-closed.
+async function consumoRecente(userId: string, disegnoId: string): Promise<'ok' | 'assente' | 'errore'> {
+  const { data, error } = await supabase
+    .from('lex_logs')
+    .select('id')
+    .eq('endpoint', 'analisi_disegno_ai')
+    .eq('azione', 'consumo')
+    .eq('user_id', userId)
+    .eq('credito_scalato', true)
+    .gte('created_at', new Date(Date.now() - 15 * 60 * 1000).toISOString())
+    .contains('metadati', { disegno_id: disegnoId })
+    .limit(1)
+  if (error) return 'errore'
+  return (data ?? []).length > 0 ? 'ok' : 'assente'
+}
+
 // Anti-verdetto (stessi pattern ancorati di lex-vision-zone): la lettura è
 // trascrizione, mai giudizio di conformità.
 const RE_VERDETTO = new RegExp([
@@ -146,6 +164,13 @@ Deno.serve(async (req) => {
     if (!forza && cache && cache.fonte_updated_at === disegno.updated_at && cache.modello === MODEL_RASTER) {
       return new Response(JSON.stringify({ ok: true, cached: true, lettura: cache }),
         { headers: { ...CORS, 'Content-Type': 'application/json' } })
+    }
+
+    // Lavoro AI solo dopo un consumo pagato (gate) negli ultimi 15 minuti.
+    const cons = await consumoRecente(user.id, disegno_id)
+    if (cons !== 'ok') {
+      return new Response(JSON.stringify({ ok: false, error: cons === 'assente' ? 'consumo_mancante' : 'gate non disponibile' }),
+        { status: cons === 'assente' ? 402 : 500, headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 
     // Scarica panoramica + tessere (path confinati al prefisso utente:

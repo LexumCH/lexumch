@@ -109,5 +109,9 @@
     "motore": "Geometrische Analyse",
     "ricerca": "Vorschriften und Zonen",
     "sintesi": "Checkliste und Synthese"
-  }
+  },
+  "opinione_label": "KI-Zweitmeinung",
+  "opinione_fp": "möglicher Fehlalarm, am Ausschnitt prüfen",
+  "opinione_coerente": "mit dem Ausschnitt vereinbar",
+  "bundle_errore_rimborsato": "KI-Analyse fehlgeschlagen: Guthaben erstattet. Erneut versuchen."
 }

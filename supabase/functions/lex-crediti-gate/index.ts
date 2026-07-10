@@ -29,6 +29,10 @@ const CORS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
+function linguaSicura(l: any): string {
+  return (l === 'de' || l === 'fr' || l === 'it') ? l : 'it'
+}
+
 async function logLexCall(p: Record<string, any>): Promise<void> {
   try {
     await supabase.rpc('lex_logs_insert', {
@@ -82,6 +86,7 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}))
     const consuma = body.consuma === true
+    const rimborsa = body.rimborsa === true
 
     const jwt = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '').trim()
     const { data: userData } = jwt ? await supabase.auth.getUser(jwt) : { data: { user: null } }
@@ -89,6 +94,106 @@ Deno.serve(async (req) => {
     if (!user) {
       return new Response(JSON.stringify({ ok: false, error: 'utente non autenticato' }),
         { status: 401, headers: { ...CORS, 'Content-Type': 'application/json' } })
+    }
+
+    // ── RIMBORSO — ANCORATO AI LOG (lex_logs è scritto SOLO dal service role:
+    // le colonne di progetto_disegni sono client-writable e NON fidabili per il
+    // denaro). Si rimborsa solo se: (1) esiste un CONSUMO loggato recente per
+    // questo disegno; (2) NESSUN narra riuscito dopo quel consumo (= il bundle
+    // ha davvero fallito); (3) nessun rimborso già emesso dopo quel consumo.
+    // Il riaccredito va sulla STESSA riga di crediti_ai del consumo.
+    if (rimborsa) {
+      const disegnoId = String(body.disegno_id ?? '')
+      const lingua = linguaSicura(body.lingua)
+      if (!disegnoId) {
+        return new Response(JSON.stringify({ ok: false, error: 'disegno_id obbligatorio' }),
+          { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } })
+      }
+      // (1) consumo pagato negli ultimi 30 minuti per questo disegno
+      const { data: consumi, error: cErr } = await supabase
+        .from('lex_logs')
+        .select('id, created_at, metadati')
+        .eq('endpoint', 'analisi_disegno_ai')
+        .eq('azione', 'consumo')
+        .eq('user_id', user.id)
+        .eq('credito_scalato', true)
+        .gte('created_at', new Date(Date.now() - 30 * 60 * 1000).toISOString())
+        .contains('metadati', { disegno_id: disegnoId })
+        .order('created_at', { ascending: false })
+        .limit(1)
+      if (cErr) {
+        // fail-closed: su un guard di denaro un errore di query non apre nulla
+        return new Response(JSON.stringify({ ok: false, error: 'gate non disponibile' }),
+          { status: 500, headers: { ...CORS, 'Content-Type': 'application/json' } })
+      }
+      const consumo = (consumi ?? [])[0]
+      if (!consumo) {
+        return new Response(JSON.stringify({ ok: false, error: 'consumo_mancante' }),
+          { status: 409, headers: { ...CORS, 'Content-Type': 'application/json' } })
+      }
+      // (2) il bundle NON deve essere riuscito: nessun narra ok dopo il consumo
+      const { data: successi, error: nErr } = await supabase
+        .from('lex_logs')
+        .select('id')
+        .eq('endpoint', 'narra_disegno')
+        .eq('esito', 'ok')
+        .eq('user_id', user.id)
+        .gte('created_at', consumo.created_at)
+        .contains('metadati', { disegno_id: disegnoId })
+        .limit(1)
+      if (nErr) {
+        return new Response(JSON.stringify({ ok: false, error: 'gate non disponibile' }),
+          { status: 500, headers: { ...CORS, 'Content-Type': 'application/json' } })
+      }
+      if ((successi ?? []).length > 0) {
+        return new Response(JSON.stringify({ ok: false, error: 'analisi_presente' }),
+          { status: 409, headers: { ...CORS, 'Content-Type': 'application/json' } })
+      }
+      // (3) idempotenza: un solo rimborso per consumo
+      const { data: rimborsi, error: rErr } = await supabase
+        .from('lex_logs')
+        .select('id')
+        .eq('endpoint', 'analisi_disegno_ai')
+        .eq('azione', 'rimborso')
+        .eq('user_id', user.id)
+        .gte('created_at', consumo.created_at)
+        .contains('metadati', { disegno_id: disegnoId })
+        .limit(1)
+      if (rErr) {
+        return new Response(JSON.stringify({ ok: false, error: 'gate non disponibile' }),
+          { status: 500, headers: { ...CORS, 'Content-Type': 'application/json' } })
+      }
+      if ((rimborsi ?? []).length > 0) {
+        return new Response(JSON.stringify({ ok: false, error: 'rimborso_recente' }),
+          { status: 429, headers: { ...CORS, 'Content-Type': 'application/json' } })
+      }
+      // (4) riaccredito sulla riga del consumo, con esito verificato
+      const rowId = consumo.metadati?.crediti_row_id ?? null
+      let rimborsato = false
+      if (rowId) {
+        const { data: r } = await supabase
+          .from('crediti_ai')
+          .select('id, crediti_usati')
+          .eq('id', rowId)
+          .eq('user_id', user.id)
+          .maybeSingle()
+        if (r && r.crediti_usati > 0) {
+          const { data: upd } = await supabase
+            .from('crediti_ai')
+            .update({ crediti_usati: r.crediti_usati - 1 })
+            .eq('id', r.id)
+            .eq('crediti_usati', r.crediti_usati)
+            .select('id')
+          rimborsato = (upd ?? []).length > 0
+        }
+      }
+      await logLexCall({
+        user_id: user.id, request_id: requestId, azione: 'rimborso',
+        esito: 'ok', credito_scalato: false, durata_ms: Date.now() - t0,
+        metadati: { disegno_id: disegnoId, lingua, riaccreditato: rimborsato },
+      })
+      return new Response(JSON.stringify({ ok: true, rimborsato }),
+        { headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 
     const info = await verificaCrediti(user.id)
@@ -138,7 +243,13 @@ Deno.serve(async (req) => {
       await logLexCall({
         user_id: user.id, request_id: requestId, azione: 'consumo',
         esito: 'ok', credito_scalato: scalato, durata_ms: Date.now() - t0,
-        metadati: { crediti_rimasti: rimasti },
+        // disegno_id + crediti_row_id sono l'ANCORA del rimborso e il lasciapassare
+        // delle funzioni AI (consumoRecente): senza, il bundle non parte.
+        metadati: {
+          crediti_rimasti: rimasti,
+          disegno_id: String(body.disegno_id ?? '') || null,
+          crediti_row_id: (corrente as any)?.crediti_row_id ?? null,
+        },
       })
     }
 

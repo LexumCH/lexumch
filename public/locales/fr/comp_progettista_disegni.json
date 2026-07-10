@@ -109,5 +109,9 @@
     "motore": "Analyse géométrique",
     "ricerca": "Réglementation et zones",
     "sintesi": "Checklist et synthèse"
-  }
+  },
+  "opinione_label": "Second avis IA",
+  "opinione_fp": "possible faux positif, vérifier sur l'extrait",
+  "opinione_coerente": "cohérent avec l'extrait",
+  "bundle_errore_rimborsato": "Analyse IA échouée : crédit remboursé. Réessayez."
 }

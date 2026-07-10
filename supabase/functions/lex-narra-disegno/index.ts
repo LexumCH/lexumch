@@ -61,11 +61,36 @@ function estraiNumeri(s: string): Set<string> {
 // (sottoinsieme: l'AI può ometterne, mai inventarne) e non contiene virgolette
 // da citazione legale. Se fallisce → si scarta la prosa AI e si torna al motore.
 function prosaValida(aiText: string, fonte: string): boolean {
-  if (!aiText) return false
+  if (typeof aiText !== 'string' || !aiText) return false
   if (/[«»“”„"]/.test(aiText)) return false
   const src = estraiNumeri(fonte)
   for (const n of estraiNumeri(aiText)) if (!src.has(n)) return false
   return true
+}
+
+// Campi che finiscono nel prompt: anche quelli "del motore" possono essere stati
+// riscritti dal client (le colonne di progetto_disegni sono owner-writable senza
+// restrizione di colonna) → si sanitizzano SEMPRE prima di entrare nel messaggio.
+function sanTesto(v: any, max: number): string {
+  return String(v ?? '').replace(/[`\r\n]/g, ' ').slice(0, max)
+}
+
+// Le funzioni AI del bundle esigono un CONSUMO pagato loggato server-side
+// (lex_logs è scritto solo dal service role): senza questo lasciapassare,
+// chiunque col proprio JWT otterrebbe il lavoro AI gratis. Fail-closed.
+async function consumoRecente(userId: string, disegnoId: string): Promise<'ok' | 'assente' | 'errore'> {
+  const { data, error } = await supabase
+    .from('lex_logs')
+    .select('id')
+    .eq('endpoint', 'analisi_disegno_ai')
+    .eq('azione', 'consumo')
+    .eq('user_id', userId)
+    .eq('credito_scalato', true)
+    .gte('created_at', new Date(Date.now() - 15 * 60 * 1000).toISOString())
+    .contains('metadati', { disegno_id: disegnoId })
+    .limit(1)
+  if (error) return 'errore'
+  return (data ?? []).length > 0 ? 'ok' : 'assente'
 }
 // Estrae il primo oggetto JSON bilanciato da una risposta AI (fence, prosa extra…).
 function estraiJson(raw: string): any | null {
@@ -190,6 +215,11 @@ Nella "spiegazione" NON usare virgolette di citazione (« » “ ” „) e NON 
 
 # CHECKLIST OPERATIVA
 Produci anche "checklist": massimo 6 azioni concrete, nella lingua richiesta, che il progettista deve fare prima di depositare la domanda di costruzione, ordinate per importanza. Ogni azione discende ESCLUSIVAMENTE dai finding e dagli esiti forniti (federali e cantonali): copia i numeri verbatim, indica quale documento serve quando la verifica non si fa sulla pianta (planimetria di situazione, regolamento comunale, piano di evacuazione). Se non c'è nulla da fare su un fronte, non inventare azioni. Frasi imperative brevi ("Verifica se…", "Porta a…", "Conferma…").
+Cross-check dei nomi: se nell'elenco LOCALI noti nomi che potrebbero essere scale o servizi igienici NON riconosciuti dalle verifiche (nomi non standard), aggiungi una voce di verifica prudente — senza affermare che il motore ha sbagliato.
+Se una segnalazione ha una SECONDA OPINIONE di possibile falso positivo, la relativa voce di checklist deve dirlo ("verifica sul ritaglio: possibile falso positivo").
+
+# SOMMARIO UNIFICATO
+"sommario" è il VERDETTO D'APERTURA del report (2-4 frasi nella lingua richiesta): unifica in un solo discorso l'esito delle misure (quote e catene verificate, incoerenze), i punti aperti federali e cantonali, le zone interpretate dalla vision e le eventuali seconde opinioni. Niente elenco: prosa compatta. Solo dati forniti, numeri verbatim.
 
 # OUTPUT
 Rispondi con UN SOLO oggetto JSON valido, senza testo prima o dopo, di questa forma esatta:
@@ -209,6 +239,7 @@ function costruisciMessaggio(
   norme: Record<string, { sigla: string | null; testo: string | null; rubrica: string | null }>,
   cantEsiti: any[] = [],
   soloChecklist = false,
+  extra: { visioni?: any[]; opinioni?: any[]; locali?: any[]; catene?: number } = {},
 ): string {
   let m = `LINGUA RICHIESTA: ${NOME_LINGUA[lingua]} — scrivi TUTTO in questa lingua.\n`
   if (soloChecklist) {
@@ -219,26 +250,51 @@ function costruisciMessaggio(
   m += `## FINDINGS (${findings.length})\n`
   if (findings.length === 0) m += `Nessun finding: nessuna incoerenza rilevata dal motore.\n`
   findings.forEach((f, i) => {
-    m += `- idx ${i} · severità "${f.severita}" · tipo "${f.tipo}"\n  testo di partenza: "${f.messaggio}"\n`
+    m += `- idx ${i} · severità "${sanTesto(f.severita, 20)}" · tipo "${sanTesto(f.tipo, 40)}"\n  testo di partenza: "${sanTesto(f.messaggio, 400)}"\n`
   })
 
   m += `\n## ESITI NORMATIVI (${esiti.length})\n`
   esiti.forEach((e, i) => {
     const n = norme[e.riferimento] || { sigla: null, testo: null }
-    m += `- idx ${i} · esito "${e.esito}" · riferimento "${e.riferimento}"\n`
-    m += `  verifica di partenza: "${e.verifica}"\n`
+    m += `- idx ${i} · esito "${sanTesto(e.esito, 20)}" · riferimento "${sanTesto(e.riferimento, 120)}"\n`
+    m += `  verifica di partenza: "${sanTesto(e.verifica, 500)}"\n`
     if (n.testo) {
       m += `  (testo di legge ufficiale già in lingua — NON riscriverlo, lo mostra il sistema)\n`
     } else if (e.testo_norma) {
-      m += `  testo descrittivo da localizzare: "${e.testo_norma}"\n`
+      m += `  testo descrittivo da localizzare: "${sanTesto(e.testo_norma, 600)}"\n`
     }
   })
 
   if (cantEsiti.length > 0) {
     m += `\n## ESITI NORMATIVA CANTONALE (${cantEsiti.length}) — entrano nella checklist\n`
     cantEsiti.forEach((e: any) => {
-      m += `- esito "${e.esito}" · ${e.riferimento}${e.verificabilita ? ` · ${e.verificabilita}` : ''}\n  ${e.verifica}\n`
+      m += `- esito "${sanTesto(e.esito, 20)}" · ${sanTesto(e.riferimento, 120)}${e.verificabilita ? ` · ${sanTesto(e.verificabilita, 30)}` : ''}\n  ${sanTesto(e.verifica, 500)}\n`
     })
+  }
+
+  const visioni = extra.visioni ?? []
+  if (visioni.length > 0) {
+    m += `\n## ZONE INTERPRETATE DALLA VISION AI (non misurate)\n`
+    visioni.forEach((z: any) => {
+      m += `- ${sanTesto(z.titolo, 90)}${z.scala_indicata ? ` (${sanTesto(z.scala_indicata, 10)})` : ''}${z.descrizione ? ` — ${sanTesto(z.descrizione, 400)}` : ''}\n`
+    })
+  }
+  const opinioni = extra.opinioni ?? []
+  const fp = opinioni.filter((o: any) => o.giudizio === 'possibile_falso_positivo')
+  if (fp.length > 0) {
+    m += `\n## SECONDE OPINIONI (controperizia vision sui finding del motore)\n`
+    m += `${fp.length} segnalazione/i del motore hanno indizi di possibile falso positivo:\n`
+    fp.forEach((o: any) => { if (o.motivo) m += `- finding ${o.ref}: ${sanTesto(o.motivo, 240)}\n` })
+  }
+  const locali = extra.locali ?? []
+  if (locali.length > 0) {
+    m += `\n## LOCALI RICONOSCIUTI (nome · m² BF) — per il cross-check dei nomi\n`
+    locali.slice(0, 40).forEach((r: any) => {
+      m += `- ${String(r.nome ?? '(senza nome)').replace(/[\`\r\n]/g, ' ').slice(0, 60)}${r.superficie_bf_m2 ? ` · ${r.superficie_bf_m2} m²` : ''}\n`
+    })
+  }
+  if (typeof extra.catene === 'number' && extra.catene > 0) {
+    m += `\nCatene di quote verificate per doppia corroborazione (Σ parziali = totale): ${extra.catene}\n`
   }
 
   m += `\nProduci l'oggetto JSON come da istruzioni.${soloChecklist ? '' : ' Un elemento per ogni idx sopra.'}`
@@ -315,7 +371,7 @@ Deno.serve(async (req) => {
     // Disegno di proprietà dell'utente, già analizzato
     const { data: disegno, error: dErr } = await supabase
       .from('progetto_disegni')
-      .select('id, nome_file, stato_analisi, findings, esiti_normativa, esiti_cantonali, narrazione, updated_at, progettista_id')
+      .select('id, nome_file, stato_analisi, findings, esiti_normativa, esiti_cantonali, zone_dettaglio, narrazione, updated_at, progettista_id, gemello->locali, gemello->metadata->catene_verificate')
       .eq('id', disegno_id)
       .eq('progettista_id', user.id)
       .maybeSingle()
@@ -337,6 +393,17 @@ Deno.serve(async (req) => {
     const cantEsiti: any[] = (cant && cant.fonte_updated_at === disegno.updated_at)
       ? (cant.esiti ?? []) : []
 
+    // Contesto extra per la SINTESI UNIFICATA: interpretazioni vision delle zone,
+    // seconde opinioni sui finding, nomi dei locali (cross-check euristiche),
+    // catene verificate. Tutto già prodotto a monte nel bundle (narra va per ultima).
+    const interp = disegno.zone_dettaglio?.interpretazioni?.[lingua]
+    const visioni: any[] = (interp && interp.fonte_updated_at === disegno.updated_at)
+      ? (interp.items ?? []).filter((z: any) => z.titolo) : []
+    const opinioni: any[] = (interp && interp.fonte_updated_at === disegno.updated_at)
+      ? (interp.opinioni ?? []) : []
+    const locali: any[] = Array.isArray(disegno.locali) ? disegno.locali : []
+    const catene: number = typeof disegno.catene_verificate === 'number' ? disegno.catene_verificate : 0
+
     // Cache valida? (stessa fonte, stessa lingua, stesso modello, stessa
     // disponibilità cantonale — se il cantonale arriva dopo, la checklist va rifatta)
     const cache = (disegno.narrazione && disegno.narrazione[lingua]) || null
@@ -353,6 +420,13 @@ Deno.serve(async (req) => {
         { headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 
+    // Lavoro AI solo dopo un consumo pagato (gate) negli ultimi 15 minuti.
+    const cons = await consumoRecente(user.id, disegno_id)
+    if (cons !== 'ok') {
+      return new Response(JSON.stringify({ ok: false, error: cons === 'assente' ? 'consumo_mancante' : 'gate non disponibile' }),
+        { status: cons === 'assente' ? 402 : 500, headers: { ...CORS, 'Content-Type': 'application/json' } })
+    }
+
     let narr: any
     const modelloUsato = MODEL_NARRA
     let tokIn = 0, tokOut = 0
@@ -367,6 +441,12 @@ Deno.serve(async (req) => {
       // che il guard scarti la voce per i numeri dell'articolo
       ...esiti.map((e: any) => `${e.verifica ?? ''} ${e.riferimento ?? ''}`),
       ...cantEsiti.map((e: any) => `${e.verifica ?? ''} ${e.riferimento ?? ''}`),
+      // contesto extra della sintesi unificata: anche questi numeri sono citabili
+      ...visioni.map((z: any) => `${z.titolo ?? ''} ${z.scala_indicata ?? ''} ${z.descrizione ?? ''}`),
+      ...opinioni.map((o: any) => o.motivo ?? ''),
+      ...locali.map((r: any) => `${r.nome ?? ''} ${r.superficie_bf_m2 ?? ''}`),
+      `${catene}`,
+      `${(disegno.locali ?? []).length} ${findings.length} ${esiti.length}`,
     ].join(' ')
     const estraiChecklist = (parsed: any) =>
       (Array.isArray(parsed?.checklist) ? parsed.checklist : [])
@@ -379,7 +459,8 @@ Deno.serve(async (req) => {
       // Prosa nativa dal motore (passthrough); l'AI produce SOLO sommario+checklist.
       narr = { ...narrazioneIt(findings, esiti), checklist: [] }
       if (!nienteDaNarrare) {
-        const userMsg = costruisciMessaggio(lingua, nomeSafe, findings, esiti, {}, cantEsiti, true)
+        const userMsg = costruisciMessaggio(lingua, nomeSafe, findings, esiti, {}, cantEsiti, true,
+          { visioni, opinioni, locali, catene })
         let r = await chiamaNarraAi(userMsg)
         tokIn += r.tokIn; tokOut += r.tokOut
         if (!r.parsed) {
@@ -401,7 +482,8 @@ Deno.serve(async (req) => {
       if (nienteDaNarrare) {
         narr = { findings: [], esiti: [], sommario: null, checklist: [] }
       } else {
-        const userMsg = costruisciMessaggio(lingua, nomeSafe, findings, esiti, norme, cantEsiti, false)
+        const userMsg = costruisciMessaggio(lingua, nomeSafe, findings, esiti, norme, cantEsiti, false,
+          { visioni, opinioni, locali, catene })
         let r = await chiamaNarraAi(userMsg)
         tokIn += r.tokIn; tokOut += r.tokOut
         if (!r.parsed) {

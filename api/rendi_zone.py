@@ -107,7 +107,7 @@ class handler(BaseHTTPRequestHandler):
 
         n_f = 0
         for i, f in enumerate(findings):
-            if f.get("tipo") != "quota_senza_riscontro":
+            if f.get("tipo") not in ("quota_senza_riscontro", "catena_incoerente"):
                 continue
             p = f.get("posizione_pt")
             if not (isinstance(p, list) and len(p) == 2) or n_f >= MAX_FINDING:

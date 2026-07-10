@@ -4,10 +4,15 @@ from pathlib import Path
 
 from . import extractor, checks
 
+# Versione del motore, stampata nei risultati: ogni analisi è tracciabile
+# alla versione di codice che l'ha prodotta.
+VERSIONE_MOTORE = "1.1.0"
+
 
 def build_twin(pdf_path, nome_file=None):
     doc, page = extractor.load_page(pdf_path)
     meta = extractor.extract_metadata(page)
+    meta["versione_motore"] = VERSIONE_MOTORE
     scala = meta["scala_dichiarata"] or 50
     layer_bem, layer_rs = extractor.detect_layers(page)
     meta["layer_quote"] = layer_bem

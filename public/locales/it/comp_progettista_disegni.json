@@ -109,5 +109,9 @@
     "motore": "Analisi geometrica",
     "ricerca": "Normativa e zone",
     "sintesi": "Checklist e sintesi"
-  }
+  },
+  "opinione_label": "Seconda opinione AI",
+  "opinione_fp": "possibile falso positivo, verifica sul ritaglio",
+  "opinione_coerente": "coerente col ritaglio",
+  "bundle_errore_rimborsato": "Analisi AI non riuscita: credito rimborsato. Riprova."
 }

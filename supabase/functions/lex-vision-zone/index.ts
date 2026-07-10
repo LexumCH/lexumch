@@ -27,7 +27,7 @@ const supabase = createClient(
 // Default Opus 4.8: il compito è vision su disegni tecnici, il valore sta
 // nella qualità dell'interpretazione. Overridabile per A/B (es. claude-sonnet-5).
 const MODEL_VISION = Deno.env.get('VISION_ZONE_MODEL') ?? 'claude-opus-4-8'
-const MAX_TOKENS = 1200
+const MAX_TOKENS = 1600
 
 type Lingua = 'it' | 'de' | 'fr'
 function linguaSicura(l: any): Lingua {
@@ -71,6 +71,25 @@ function estraiJson(raw: string): any | null {
   try { return JSON.parse(raw.slice(i, j + 1)) } catch { return null }
 }
 
+// Le funzioni AI del bundle esigono un CONSUMO pagato loggato server-side
+// (lex_logs è scritto solo dal service role): senza questo lasciapassare,
+// chiunque col proprio JWT otterrebbe il lavoro AI gratis chiamando le edge
+// direttamente. Fail-closed sugli errori di query.
+async function consumoRecente(userId: string, disegnoId: string): Promise<'ok' | 'assente' | 'errore'> {
+  const { data, error } = await supabase
+    .from('lex_logs')
+    .select('id')
+    .eq('endpoint', 'analisi_disegno_ai')
+    .eq('azione', 'consumo')
+    .eq('user_id', userId)
+    .eq('credito_scalato', true)
+    .gte('created_at', new Date(Date.now() - 15 * 60 * 1000).toISOString())
+    .contains('metadati', { disegno_id: disegnoId })
+    .limit(1)
+  if (error) return 'errore'
+  return (data ?? []).length > 0 ? 'ok' : 'assente'
+}
+
 // Guard: l'interpretazione è DESCRITTIVA. Linguaggio di conformità/verdetto
 // (it/de/fr) → scarto dell'item (fail-closed), mai mostrato. Pattern ancorati
 // per non colpire parole legittime (conformazione, autorisation, conformément).
@@ -102,9 +121,20 @@ REGOLE FERREE:
 4. Se il ritaglio è illeggibile o ambiguo, dillo ("leggibile": false) invece di tirare a indovinare.
 5. Niente virgolette di citazione nel testo.
 
-Per OGNI immagine ricevuta (nell'ordine), un elemento in "zone".
+Il MANIFESTO nel messaggio ti dice il ruolo di ogni immagine (numerate da 0):
+- "ZONA": descrivila secondo le regole sopra → un elemento in "zone".
+- "SEGNALAZIONE": è la CONTROPERIZIA di un punto che il motore deterministico ha segnalato (il manifesto riporta il messaggio del motore) → un elemento in "opinioni".
+
+# CONTROPERIZIA SULLE SEGNALAZIONI DEL MOTORE
+Il motore lavora sul disegno vettoriale ed è di norma PIÙ preciso di te sulle misure: NON ricalcolare, NON contraddire i numeri. Dal ritaglio valuta solo se emergono indizi di una LETTURA errata del motore (quota di una serie/layer diverso, annotazione scambiata per quota, timbro sovrapposto, testo troncato). "giudizio":
+- "coerente": il ritaglio è compatibile con la segnalazione del motore
+- "possibile_falso_positivo": indizi visivi che la segnalazione derivi da una lettura errata — spiega in "motivo" (max 2 frasi, SENZA introdurre numeri nuovi)
+- "non_chiaro": il ritaglio non basta per esprimersi
+La tua opinione NON cancella mai la segnalazione: è una seconda voce, decide il progettista.
+
 Rispondi con UN SOLO oggetto JSON:
-{"zone":[{"idx":<indice immagine da 0>,"tipo":"dettaglio_costruttivo|scala|serramento|locale_tecnico|bagno|legenda|sezione|altro","scala_indicata":"1:N o null","titolo":"<max 8 parole nella lingua richiesta>","descrizione":"<2-3 frasi nella lingua richiesta: cosa si vede e cosa dovrebbe controllare a mano il progettista>","leggibile":true|false}]}`
+{"zone":[{"img":<numero immagine>,"tipo":"dettaglio_costruttivo|scala|serramento|locale_tecnico|bagno|legenda|sezione|altro","scala_indicata":"1:N o null","titolo":"<max 8 parole nella lingua richiesta>","descrizione":"<2-3 frasi nella lingua richiesta: cosa si vede e cosa dovrebbe controllare a mano il progettista>","leggibile":true|false}],
+ "opinioni":[{"img":<numero immagine>,"giudizio":"coerente|possibile_falso_positivo|non_chiaro","motivo":"<max 2 frasi nella lingua richiesta, o null>"}]}`
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
@@ -134,7 +164,7 @@ Deno.serve(async (req) => {
 
     const { data: disegno, error: dErr } = await supabase
       .from('progetto_disegni')
-      .select('id, stato_analisi, zone_dettaglio, updated_at')
+      .select('id, stato_analisi, zone_dettaglio, findings, updated_at')
       .eq('id', disegno_id)
       .eq('progettista_id', user.id)
       .maybeSingle()
@@ -145,28 +175,44 @@ Deno.serve(async (req) => {
     }
 
     const crops = disegno.zone_dettaglio?.crops
-    // Solo i ritagli 'zona' vanno interpretati dall'AI: quelli 'finding'/'porta'
-    // sono ancore visive deterministiche mostrate direttamente in UI.
+    // Due mestieri sulla stessa chiamata: i ritagli 'zona' vengono INTERPRETATI,
+    // i ritagli 'finding' ricevono la CONTROPERIZIA (seconda opinione sulla
+    // segnalazione del motore). I 'porta' restano solo ancore visive in UI.
     const itemsZona = ((crops?.items ?? []) as any[]).filter(it => (it.tipo ?? 'zona') === 'zona')
-    if (!crops || crops.fonte_updated_at !== disegno.updated_at || !itemsZona.length) {
+    const itemsFinding = ((crops?.items ?? []) as any[]).filter(it => it.tipo === 'finding')
+    if (!crops || crops.fonte_updated_at !== disegno.updated_at || (!itemsZona.length && !itemsFinding.length)) {
       // I ritagli vanno generati prima da /api/rendi_zone (deterministico).
       return new Response(JSON.stringify({ ok: false, error: 'crops_mancanti' }),
         { status: 409, headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 
-    // Cache
+    // Cache (valida solo se copre anche le opinioni quando ci sono finding-crop)
     const cache = disegno.zone_dettaglio?.interpretazioni?.[lingua] ?? null
-    if (!forza && cache && cache.fonte_updated_at === disegno.updated_at && cache.modello === MODEL_VISION) {
+    if (!forza && cache && cache.fonte_updated_at === disegno.updated_at && cache.modello === MODEL_VISION &&
+        (itemsFinding.length === 0 || Array.isArray(cache.opinioni))) {
       return new Response(JSON.stringify({ ok: true, cached: true, interpretazione: cache }),
         { headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 
+    // Lavoro AI solo dopo un consumo pagato (gate) negli ultimi 15 minuti.
+    const cons = await consumoRecente(user.id, disegno_id)
+    if (cons !== 'ok') {
+      return new Response(JSON.stringify({ ok: false, error: cons === 'assente' ? 'consumo_mancante' : 'gate non disponibile' }),
+        { status: cons === 'assente' ? 402 : 500, headers: { ...CORS, 'Content-Type': 'application/json' } })
+    }
+
     // Scarica i ritagli (service role) e componi il messaggio vision.
     // Cap numerico e dimensionale: il jsonb è manipolabile dal client.
-    const items = itemsZona.slice(0, 6)
+    const findings: any[] = disegno.findings ?? []
+    const tutti = [
+      ...itemsZona.slice(0, 4).map((it: any) => ({ ...it, ruolo: 'zona' })),
+      ...itemsFinding.slice(0, 6).map((it: any) => ({ ...it, ruolo: 'finding' })),
+    ]
     const MAX_BLOB = 4 * 1024 * 1024
     const contenuto: any[] = []
-    for (const it of items) {
+    let manifesto = ''
+    for (let k = 0; k < tutti.length; k++) {
+      const it = tutti[k]
       const path = String(it.path ?? '')
       // SICUREZZA: il path arriva da un jsonb scrivibile dal client, ma il download
       // usa il service role → confinare al prefisso dell'utente (anti cross-tenant).
@@ -184,12 +230,18 @@ Deno.serve(async (req) => {
         type: 'image',
         source: { type: 'base64', media_type: 'image/png', data: btoa(bin) },
       })
+      if (it.ruolo === 'zona') {
+        manifesto += `Immagine ${k}: ZONA non verificata dal motore (cluster di quote a scala non riconosciuta).\n`
+      } else {
+        const msg = String(findings[it.ref]?.messaggio ?? '').replace(/[`\r\n]/g, ' ').slice(0, 240)
+        manifesto += `Immagine ${k}: SEGNALAZIONE del motore — "${msg}"\n`
+      }
     }
     contenuto.push({
       type: 'text',
-      text: `LINGUA RICHIESTA per titolo e descrizione: ${NOME_LINGUA[lingua]}.\n` +
-        `Ricevi ${items.length} ritaglio/i di zone che il motore non ha potuto verificare ` +
-        `(cluster di quote a scala non riconosciuta). Descrivi cosa contengono secondo le regole.`,
+      text: `LINGUA RICHIESTA per titolo, descrizione e motivo: ${NOME_LINGUA[lingua]}.\n\n` +
+        `# MANIFESTO IMMAGINI\n${manifesto}\n` +
+        `Per ogni ZONA un elemento in "zone"; per ogni SEGNALAZIONE un elemento in "opinioni". Segui le regole.`,
     })
 
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -209,25 +261,50 @@ Deno.serve(async (req) => {
     const j = await resp.json()
     const parsed = estraiJson(j.content?.[0]?.text ?? '')
 
-    // Guard + normalizzazione (enum chiuso, formato scala, lunghezze, anti-verdetto)
-    const zoneAi: any[] = parsed?.zone ?? []
-    const byIdx: Record<number, any> = {}
-    for (const z of zoneAi) if (typeof z?.idx === 'number') byIdx[z.idx] = z
-    const interpretati = items.map((it: any) => {
-      const z = byIdx[it.idx] ?? {}
-      const tipo = TIPI_AMMESSI.has(z.tipo) ? z.tipo : 'altro'
-      const scala = (typeof z.scala_indicata === 'string' && /^1:\d{1,4}$/.test(z.scala_indicata.trim()))
-        ? z.scala_indicata.trim() : null
-      const titolo = String(z.titolo ?? '').slice(0, 80)
-      const descrizione = String(z.descrizione ?? '').slice(0, 500)
-      const ok = descrizioneAmmessa(descrizione) && titolo.length > 0
-      return {
-        idx: it.idx,
-        tipo: ok ? tipo : 'altro',
-        scala_indicata: ok ? scala : null,
-        titolo: ok ? titolo : null,
-        descrizione: ok ? descrizione : null,
-        leggibile: ok ? (z.leggibile !== false) : false,
+    // Guard + normalizzazione (enum chiuso, formato scala, lunghezze, anti-verdetto).
+    // Il modello risponde per numero di IMMAGINE (ordine di invio): si rimappa
+    // sull'item originale tramite l'array `tutti`.
+    const byImgZona: Record<number, any> = {}
+    for (const z of (parsed?.zone ?? [])) {
+      // solo la chiave 'img' (ordine di invio): un fallback su 'idx' potrebbe
+      // mis-associare descrizioni tra ritagli
+      if (typeof z?.img === 'number') byImgZona[z.img] = z
+    }
+    const byImgOp: Record<number, any> = {}
+    for (const o of (parsed?.opinioni ?? [])) if (typeof o?.img === 'number') byImgOp[o.img] = o
+
+    const interpretati: any[] = []
+    const opinioni: any[] = []
+    const GIUDIZI = new Set(['coerente', 'possibile_falso_positivo', 'non_chiaro'])
+    tutti.forEach((it: any, k: number) => {
+      if (it.ruolo === 'zona') {
+        const z = byImgZona[k] ?? {}
+        const tipo = TIPI_AMMESSI.has(z.tipo) ? z.tipo : 'altro'
+        const scala = (typeof z.scala_indicata === 'string' && /^1:\d{1,4}$/.test(z.scala_indicata.trim()))
+          ? z.scala_indicata.trim() : null
+        const titolo = String(z.titolo ?? '').slice(0, 80)
+        const descrizione = String(z.descrizione ?? '').slice(0, 500)
+        // anche il titolo passa dal guard anti-verdetto (finisce in UI e in narra)
+        const ok = descrizioneAmmessa(descrizione) && descrizioneAmmessa(titolo)
+        interpretati.push({
+          idx: it.idx,
+          tipo: ok ? tipo : 'altro',
+          scala_indicata: ok ? scala : null,
+          titolo: ok ? titolo : null,
+          descrizione: ok ? descrizione : null,
+          leggibile: ok ? (z.leggibile !== false) : false,
+        })
+      } else {
+        const o = byImgOp[k] ?? {}
+        const giudizio = GIUDIZI.has(o.giudizio) ? o.giudizio : 'non_chiaro'
+        const motivo = String(o.motivo ?? '').slice(0, 220)
+        opinioni.push({
+          ref: it.ref,
+          giudizio,
+          // la controperizia non cancella mai la segnalazione: il motivo passa
+          // solo se rispetta il guard descrittivo (niente verdetti/citazioni)
+          motivo: motivo && descrizioneAmmessa(motivo) ? motivo : null,
+        })
       }
     })
 
@@ -237,6 +314,7 @@ Deno.serve(async (req) => {
       generato_il: new Date().toISOString(),
       fonte_updated_at: disegno.updated_at,
       items: interpretati,
+      opinioni,
     }
 
     // Merge su lettura FRESCA (riduce a ~ms la finestra di race con rendi_zone
@@ -257,7 +335,7 @@ Deno.serve(async (req) => {
       modello: MODEL_VISION,
       token_input: j.usage?.input_tokens ?? 0, token_output: j.usage?.output_tokens ?? 0,
       durata_ms: Date.now() - t0, esito: 'ok', principali_count: interpretati.length,
-      metadati: { disegno_id, lingua, zone: items.length },
+      metadati: { disegno_id, lingua, zone: interpretati.length, opinioni: opinioni.length },
     })
 
     return new Response(JSON.stringify({ ok: true, cached: false, interpretazione: record }),

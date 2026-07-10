@@ -78,40 +78,53 @@ const FASI_AI = ['motore', 'ricerca', 'sintesi']
 // → narrazione+checklist per ULTIMA (la checklist deve vedere il cantonale).
 // I ritagli deterministici (ancore visive) non bloccano il resto se falliscono.
 async function eseguiBundleAi({ disegnoId, lingua, onFase }) {
-  const gate = await invocaLex('lex-crediti-gate', { consuma: true })
+  const gate = await invocaLex('lex-crediti-gate', { consuma: true, disegno_id: disegnoId })
   if (gate.status === 402) throw new Error('crediti_esauriti')
   if (gate.status !== 200 || !gate.json?.ok) throw new Error('bundle_errore')
 
-  // Cantone letto dal DB (non dalla prop, che può non essere ancora caricata):
-  // se mancasse, il ramo cantonale salterebbe in silenzio pur avendo pagato.
-  let cantone = null
   try {
-    const { data: pd } = await supabase
-      .from('progetto_disegni').select('progetto_id, progetti(cantone)')
-      .eq('id', disegnoId).single()
-    cantone = pd?.progetti?.cantone ?? null
-  } catch { /* senza cantone il ramo cantonale si salta */ }
+    // Cantone letto dal DB (non dalla prop, che può non essere ancora caricata):
+    // se mancasse, il ramo cantonale salterebbe in silenzio pur avendo pagato.
+    let cantone = null
+    try {
+      const { data: pd } = await supabase
+        .from('progetto_disegni').select('progetto_id, progetti(cantone)')
+        .eq('id', disegnoId).single()
+      cantone = pd?.progetti?.cantone ?? null
+    } catch { /* senza cantone il ramo cantonale si salta */ }
 
-  onFase?.('ricerca')
-  const token = await getAccessToken()
-  const pRitagli = fetch('/api/rendi_zone', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body: JSON.stringify({ disegno_id: disegnoId, supabase_url: supabaseUrl, supabase_anon_key: supabaseKey }),
-  }).then(r => r.json()).then(async (out) => {
-    const items = out?.crops?.items ?? []
-    if (items.some(it => (it.tipo ?? 'zona') === 'zona')) {
-      await invocaLex('lex-vision-zone', { disegno_id: disegnoId, lingua })
-    }
-  }).catch(() => {})
-  const pCantonale = cantone
-    ? invocaLex('lex-normativa-cantonale', { disegno_id: disegnoId, lingua }).catch(() => {})
-    : Promise.resolve()
-  await Promise.all([pRitagli, pCantonale])
+    onFase?.('ricerca')
+    const token = await getAccessToken()
+    const pRitagli = fetch('/api/rendi_zone', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ disegno_id: disegnoId, supabase_url: supabaseUrl, supabase_anon_key: supabaseKey }),
+    }).then(r => r.json()).then(async (out) => {
+      const items = out?.crops?.items ?? []
+      // vision se c'è QUALCOSA da interpretare o contro-periziare
+      if (items.some(it => (it.tipo ?? 'zona') === 'zona' || it.tipo === 'finding')) {
+        await invocaLex('lex-vision-zone', { disegno_id: disegnoId, lingua })
+      }
+    }).catch(() => {})
+    const pCantonale = cantone
+      ? invocaLex('lex-normativa-cantonale', { disegno_id: disegnoId, lingua }).catch(() => {})
+      : Promise.resolve()
+    await Promise.all([pRitagli, pCantonale])
 
-  onFase?.('sintesi')
-  const narra = await invocaLex('lex-narra-disegno', { disegno_id: disegnoId, lingua })
-  if (narra.status !== 200 || !narra.json?.ok) throw new Error('bundle_errore')
+    onFase?.('sintesi')
+    const narra = await invocaLex('lex-narra-disegno', { disegno_id: disegnoId, lingua })
+    if (narra.status !== 200 || !narra.json?.ok) throw new Error('bundle_errore')
+  } catch (e) {
+    // Bundle fallito DOPO il consumo: rimborso best-effort (il server verifica
+    // che l'analisi non sia in realtà riuscita, poi riaccredita 1).
+    let rimborsato = false
+    try {
+      const r = await invocaLex('lex-crediti-gate', { rimborsa: true, disegno_id: disegnoId, lingua })
+      rimborsato = r.json?.rimborsato === true
+    } catch { /* il rimborso non deve mascherare l'errore originale */ }
+    throw new Error(e.message === 'crediti_esauriti' ? 'crediti_esauriti'
+      : rimborsato ? 'bundle_errore_rimborsato' : 'bundle_errore')
+  }
 }
 
 export default function ProgettoDisegni({ progettoId }) {
@@ -181,8 +194,9 @@ export default function ProgettoDisegni({ progettoId }) {
 
   const messaggioBundle = (e) =>
     e.message === 'crediti_esauriti' ? t('crediti_esauriti')
-      : e.message === 'bundle_errore' ? t('bundle_errore')
-        : e.message
+      : e.message === 'bundle_errore_rimborsato' ? t('bundle_errore_rimborsato')
+        : e.message === 'bundle_errore' ? t('bundle_errore')
+          : e.message
 
   // Barra di avanzamento del flusso unico: disegnoId → fase corrente.
   const [fasiAi, setFasiAi] = useState({})
@@ -420,6 +434,12 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
   const cropPerFinding = (fIdx) => cropItems.find(it => it.tipo === 'finding' && it.ref === fIdx)
   const cropsPorte = cropItems.filter(it => it.tipo === 'porta')
 
+  // Seconde opinioni (controperizia vision sulle segnalazioni del motore).
+  const interpZone = d.zone_dettaglio?.interpretazioni?.[lingua]
+  const opinioni = (interpZone && interpZone.fonte_updated_at === d.updated_at)
+    ? (interpZone.opinioni ?? []) : []
+  const opinionePerFinding = (fIdx) => opinioni.find(o => o.ref === fIdx)
+
   // PDF non leggibile dal motore vettoriale → solo la corsia "lettura da immagine".
   if (d.stato_analisi !== 'completata') {
     return (
@@ -503,11 +523,26 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
         ) : (
           <ul className="space-y-2">
             {incoerenze.map((f, i) => {
-              const crop = cropPerFinding(idxOf(f))
+              const fIdx = idxOf(f)
+              const crop = cropPerFinding(fIdx)
+              const op = opinionePerFinding(fIdx)
               return (
                 <li key={i} className="flex items-start gap-3 font-body text-sm text-nebbia/80">
                   <XCircle size={14} className="text-red-400 mt-0.5 shrink-0" />
-                  <span className="flex-1 min-w-0">{testoFinding(f, idxOf(f))}</span>
+                  <span className="flex-1 min-w-0">
+                    {testoFinding(f, fIdx)}
+                    {/* Controperizia: seconda voce, la segnalazione resta sempre */}
+                    {op?.giudizio === 'possibile_falso_positivo' && (
+                      <span className="block mt-1 font-body text-xs text-amber-400/90">
+                        ⚠ {t('opinione_label')}: {t('opinione_fp')}{op.motivo ? ` — ${op.motivo}` : ''}
+                      </span>
+                    )}
+                    {op?.giudizio === 'coerente' && (
+                      <span className="block mt-1 font-body text-xs text-nebbia/40">
+                        {t('opinione_label')}: {t('opinione_coerente')}
+                      </span>
+                    )}
+                  </span>
                   {crop && <CropImg path={crop.path} />}
                 </li>
               )
@@ -615,7 +650,7 @@ function ZoneVision({ disegno: d, t, lingua }) {
   const interpreta = useMutation({
     mutationFn: async ({ forza = false } = {}) => {
       // Rigenerare la vision è una chiamata AI: passa dal gate (1 credito).
-      const gate = await invocaLex('lex-crediti-gate', { consuma: true })
+      const gate = await invocaLex('lex-crediti-gate', { consuma: true, disegno_id: d.id })
       if (gate.status === 402) throw new Error('crediti_esauriti')
       if (!gate.json?.ok) throw new Error('errore')
       const token = await getAccessToken()
@@ -698,7 +733,7 @@ function LetturaRaster({ disegno: d, t, lingua }) {
   const leggi = useMutation({
     mutationFn: async ({ forza = false } = {}) => {
       // La lettura da immagine è un'analisi AI a sé: 1 credito (gate 402).
-      const gate = await invocaLex('lex-crediti-gate', { consuma: true })
+      const gate = await invocaLex('lex-crediti-gate', { consuma: true, disegno_id: d.id })
       if (gate.status === 402) throw new Error('crediti_esauriti')
       if (!gate.json?.ok) throw new Error('errore')
       const token = await getAccessToken()
@@ -818,7 +853,7 @@ function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
     // forza=true bypassa la cache lato server (es. dopo un cambio modello che
     // il client non può rilevare). Rigenerare è una chiamata AI: gate (1 credito).
     mutationFn: async ({ forza = false } = {}) => {
-      const gate = await invocaLex('lex-crediti-gate', { consuma: true })
+      const gate = await invocaLex('lex-crediti-gate', { consuma: true, disegno_id: d.id })
       if (gate.status === 402) throw new Error('crediti_esauriti')
       if (!gate.json?.ok) throw new Error('errore')
       const out = await invocaLex('lex-normativa-cantonale', { disegno_id: d.id, lingua, forza })

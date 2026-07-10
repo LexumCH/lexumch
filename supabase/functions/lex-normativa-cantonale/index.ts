@@ -139,6 +139,24 @@ function estraiJson(raw: string): any | null {
   try { return JSON.parse(raw.slice(i, j + 1)) } catch { return null }
 }
 
+// Le funzioni AI del bundle esigono un CONSUMO pagato loggato server-side
+// (lex_logs è scritto solo dal service role): senza questo lasciapassare,
+// chiunque col proprio JWT otterrebbe il lavoro AI gratis. Fail-closed.
+async function consumoRecente(userId: string, disegnoId: string): Promise<'ok' | 'assente' | 'errore'> {
+  const { data, error } = await supabase
+    .from('lex_logs')
+    .select('id')
+    .eq('endpoint', 'analisi_disegno_ai')
+    .eq('azione', 'consumo')
+    .eq('user_id', userId)
+    .eq('credito_scalato', true)
+    .gte('created_at', new Date(Date.now() - 15 * 60 * 1000).toISOString())
+    .contains('metadati', { disegno_id: disegnoId })
+    .limit(1)
+  if (error) return 'errore'
+  return (data ?? []).length > 0 ? 'ok' : 'assente'
+}
+
 // ─── Dati misurati dal gemello (stesse convenzioni del motore) ──
 // '1.60' = metri, '90' = centimetri (convenzione svizzera dei disegni).
 function parseValore(t: any): number | null {
@@ -285,6 +303,13 @@ Deno.serve(async (req) => {
         { headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 
+    // Lavoro AI solo dopo un consumo pagato (gate) negli ultimi 15 minuti.
+    const cons = await consumoRecente(user.id, disegno_id)
+    if (cons !== 'ok') {
+      return new Response(JSON.stringify({ ok: false, error: cons === 'assente' ? 'consumo_mancante' : 'gate non disponibile' }),
+        { status: cons === 'assente' ? 402 : 500, headers: { ...CORS, 'Content-Type': 'application/json' } })
+    }
+
     // ── Leggi edilizie del cantone (allowlist) + indice articoli ──
     const { data: leggi, error: lErr } = await supabase
       .from('norme_cantonali_ch')
@@ -371,20 +396,44 @@ Deno.serve(async (req) => {
       `# PROFILO PROGETTO\n${profilo}\n# INDICE ARTICOLI (uniche selezioni ammesse)\n${indiceTxt}\n\nSeleziona gli articoli pertinenti (max ${MAX_SELEZIONI}).`,
       1200,
     )
-    const selezioniRaw: any[] = (sel.parsed?.selezioni ?? [])
-    // GUARD: solo combinazioni esistenti nell'indice, dedup, cap.
-    // La selezione viene rimappata sull'article_num canonico del DB.
+    const stage1Raw: any[] = (sel.parsed?.selezioni ?? [])
+
+    // guard + dedup con cap PER STADIO (enforced qui, non nel prompt):
+    // stage 1 fino a MAX_SELEZIONI; il critico di completezza fino a +4.
     const viste = new Set<string>()
     const selezioni: { sys: string; art: string }[] = []
-    for (const s of selezioniRaw) {
-      const k = chiave(String(s.sys ?? ''), String(s.art ?? ''))
-      const canon = indiceByKey[k]
-      if (!canon || viste.has(k)) continue
-      viste.add(k)
-      selezioni.push({ sys: canon.sys, art: canon.article_num })
-      if (selezioni.length >= MAX_SELEZIONI) break
+    const aggiungi = (raw: any[], cap: number) => {
+      for (const s of raw) {
+        if (selezioni.length >= cap) break
+        const k = chiave(String(s.sys ?? ''), String(s.art ?? ''))
+        const canon = indiceByKey[k]
+        if (!canon || viste.has(k)) continue
+        viste.add(k)
+        selezioni.push({ sys: canon.sys, art: canon.article_num })
+      }
     }
+    aggiungi(stage1Raw, MAX_SELEZIONI)
 
+    // PASSO DI COMPLETEZZA (recall): l'articolo pertinente NON selezionato è il
+    // rischio peggiore. Gira SEMPRE — anche a selezione vuota, che è proprio il
+    // caso in cui il recall serve di più. Aggiunte solo dall'elenco chiuso.
+    let completezza = { tokIn: 0, tokOut: 0 }
+    {
+      const giaSelezionati = selezioni.length
+        ? selezioni.map((s) => `${s.sys} art. ${s.art}`).join(', ')
+        : '(nessuna)'
+      const comp = await chiamaSonnet(
+        SYSTEM_SELEZIONE.replace('${MAX}', '4'),
+        `# PROFILO PROGETTO\n${profilo}\n# INDICE ARTICOLI (uniche selezioni ammesse)\n${indiceTxt}\n` +
+        `\n# SELEZIONE GIÀ FATTA\n${giaSelezionati}\n` +
+        `\nSei il critico di completezza: c'è un articolo PERTINENTE per questo progetto che manca alla selezione ` +
+        `e che il progettista rimpiangerebbe di non aver controllato? Aggiungine al massimo 4 (solo dall'indice, ` +
+        `NON ripetere quelli già selezionati). Se non manca nulla, rispondi {"selezioni":[]}.`,
+        600,
+      )
+      completezza = { tokIn: comp.tokIn, tokOut: comp.tokOut }
+      aggiungi((comp.parsed?.selezioni ?? []).slice(0, 8), selezioni.length + 4)
+    }
     if (selezioni.length === 0) {
       // Nessuna selezione valida: risposta onesta, MA cachiamo il record vuoto
       // (altrimenti ogni bundle ripaga la selezione e la UI resta al placeholder).
@@ -397,9 +446,11 @@ Deno.serve(async (req) => {
       await supabase.from('progetto_disegni').update({ esiti_cantonali: recordVuoto }).eq('id', disegno.id)
       await logLexCall({
         user_id: user.id, request_id: requestId, azione: `cantone_${cantone}`,
-        modello: MODEL_CANT, token_input: sel.tokIn, token_output: sel.tokOut,
+        modello: MODEL_CANT,
+        token_input: sel.tokIn + completezza.tokIn,
+        token_output: sel.tokOut + completezza.tokOut,
         durata_ms: Date.now() - t0, esito: 'ok', principali_count: 0,
-        metadati: { cantone, lingua, disegno_id, fase: 'selezione_vuota', scartate: selezioniRaw.length },
+        metadati: { cantone, lingua, disegno_id, fase: 'selezione_vuota', scartate: stage1Raw.length },
       })
       return new Response(JSON.stringify({ ok: true, cached: false, esiti_cantonali: recordVuoto }),
         { headers: { ...CORS, 'Content-Type': 'application/json' } })
@@ -490,8 +541,9 @@ Deno.serve(async (req) => {
     await logLexCall({
       user_id: user.id, request_id: requestId, azione: `cantone_${cantone}`,
       modello: MODEL_CANT,
-      token_input: sel.tokIn + ana.tokIn, token_output: sel.tokOut + ana.tokOut,
-      durata_ms: Date.now() - t0, esito: 'ok', iterazioni: 2,
+      token_input: sel.tokIn + completezza.tokIn + ana.tokIn,
+      token_output: sel.tokOut + completezza.tokOut + ana.tokOut,
+      durata_ms: Date.now() - t0, esito: 'ok', iterazioni: 3,
       principali_count: esiti.length,
       metadati: { cantone, lingua, disegno_id, leggi: leggi.length, indice: indice.length, selezioni: selezioni.length },
     })
