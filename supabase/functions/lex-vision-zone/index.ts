@@ -78,16 +78,22 @@ function estraiJson(raw: string): any | null {
 async function consumoRecente(userId: string, disegnoId: string): Promise<'ok' | 'assente' | 'errore'> {
   const { data, error } = await supabase
     .from('lex_logs')
-    .select('id')
+    .select('metadati')
     .eq('endpoint', 'analisi_disegno_ai')
     .eq('azione', 'consumo')
     .eq('user_id', userId)
     .eq('credito_scalato', true)
     .gte('created_at', new Date(Date.now() - 15 * 60 * 1000).toISOString())
-    .contains('metadati', { disegno_id: disegnoId })
-    .limit(1)
+    .order('created_at', { ascending: false })
+    .limit(25)
   if (error) return 'errore'
-  return (data ?? []).length > 0 ? 'ok' : 'assente'
+  for (const r of (data ?? [])) {
+    const d = (r as any).metadati?.disegno_id
+    // null/assente = frontend PRE-tagging (build vecchia in transizione): accettato
+    // finche' il nuovo frontend che tagga disegno_id non e' ovunque in produzione.
+    if (!d || d === disegnoId) return 'ok'
+  }
+  return 'assente'
 }
 
 // Guard: l'interpretazione è DESCRITTIVA. Linguaggio di conformità/verdetto
