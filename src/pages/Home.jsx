@@ -7,7 +7,7 @@ import ClientiLexAnimatedDemo from '@/components/ClientiLexAnimatedDemo'
 import LexAnimatedDemo from '@/components/LexAnimatedDemo'
 import {
   ArrowRight, Sparkles, Users, FileText,
-  BookOpen, ChevronDown, Check, Scale,
+  BookOpen, ChevronDown, ChevronLeft, ChevronRight, Check, Scale,
   Search, Brain, FileSignature, Library, Bookmark,
   Briefcase, Globe2, RefreshCw, X
 } from 'lucide-react'
@@ -152,6 +152,39 @@ function HeroDatabaseCard({ t }) {
   )
 }
 
+// Le tre sessioni Lex dell'hero, in ordine di colonna/slide
+const DEMO_VARIANTS = ['avvocato', 'fiduciario', 'progettista']
+
+// Etichette ruolo del badge: hardcoded per lingua (nessuna dipendenza dai JSON
+// remoti → mai chiavi grezze a schermo, anche con locales in cache).
+const ROLE_LABELS = {
+  it: { avvocato: 'Avvocato', fiduciario: 'Fiduciario', progettista: 'Progettista' },
+  de: { avvocato: 'Anwalt', fiduciario: 'Treuhänder', progettista: 'Planer' },
+  fr: { avvocato: 'Avocat', fiduciario: 'Fiduciaire', progettista: 'Concepteur' },
+}
+
+// Box di una sessione Lex: header (Lex AI + ruolo) + animazione della professione
+function LexDemoBox({ variant, startDelay = 0 }) {
+  const { i18n } = useTranslation()
+  const lang = LINGUE_SUPPORTATE.includes(i18n.language) ? i18n.language : LINGUA_DEFAULT
+  const roleLabel = ROLE_LABELS[lang]?.[variant] ?? variant
+  return (
+    <div className="bg-slate border border-oro/20 overflow-hidden shadow-2xl shadow-oro/5 h-full">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-petrolio/60">
+        <div className="flex items-center gap-2">
+          <Sparkles size={13} className="text-salvia" />
+          <span className="font-body text-xs text-salvia">Lex AI</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-salvia animate-pulse ml-1" />
+        </div>
+        <span className="font-body text-[11px] uppercase tracking-widest text-oro/70">{roleLabel}</span>
+      </div>
+      <div className="p-5">
+        <LexAnimatedDemo variant={variant} startDelay={startDelay} />
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const { t, i18n } = useTranslation('home')
 
@@ -177,6 +210,14 @@ export default function Home() {
   const clientePoints = toArray(t('cliente.feature_points', { returnObjects: true }))
 
   const heroTitlePart2 = t('hero.title_part2')
+
+  // Carosello del trio Lex (il cambio slide fa ripartire l'animazione via key)
+  const [demoIdx, setDemoIdx] = useState(0)
+  const [demoDir, setDemoDir] = useState('next')
+  const cambiaDemo = (dir) => {
+    setDemoDir(dir)
+    setDemoIdx(i => (i + (dir === 'next' ? 1 : DEMO_VARIANTS.length - 1)) % DEMO_VARIANTS.length)
+  }
 
   return (
     <div className="min-h-screen bg-petrolio text-nebbia overflow-x-hidden">
@@ -227,22 +268,48 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Box demo Lex animato (replica del wrapper di LexAI) */}
+          {/* Carosello Lex: una sessione alla volta (avvocato → fiduciario → progettista).
+              Le frecce cambiano professione e rimontano il box: l'animazione riparte da capo. */}
           <FadeIn delay={0.1}>
-            <div className="bg-slate border border-oro/20 overflow-hidden shadow-2xl shadow-oro/5 mb-10">
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/5 bg-petrolio/60">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={13} className="text-salvia" />
-                  <span className="font-body text-xs text-salvia">Lex AI</span>
-                  <div className="flex items-center gap-1.5 ml-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-salvia animate-pulse" />
-                    <span className="font-body text-xs text-nebbia/25">{t('hero.box_status')}</span>
-                  </div>
+            <div className="mb-10">
+              <div className="relative">
+                {/* Slide con transizione direzionale: il remount (key) fa ripartire l'animazione */}
+                <div
+                  key={DEMO_VARIANTS[demoIdx]}
+                  style={{ animation: `${demoDir === 'next' ? 'demoSlideNext' : 'demoSlidePrev'} 450ms cubic-bezier(.4,0,.2,1) both` }}
+                >
+                  <LexDemoBox variant={DEMO_VARIANTS[demoIdx]} />
                 </div>
-                <span className="font-body text-xs text-nebbia/25">{t('hero.box_session')}</span>
+
+                {/* Frecce laterali: grandi, a cavallo del bordo, con invito al click */}
+                <button
+                  onClick={() => cambiaDemo('prev')}
+                  aria-label="Sessione precedente"
+                  className="absolute top-1/2 -translate-y-1/2 left-1 md:-left-6 w-11 h-11 flex items-center justify-center rounded-full bg-slate border border-oro/40 text-oro shadow-lg shadow-black/30 hover:bg-oro hover:text-petrolio transition-colors"
+                  style={{ animation: 'arrowNudgeLeft 2.2s ease-in-out infinite' }}
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => cambiaDemo('next')}
+                  aria-label="Sessione successiva"
+                  className="absolute top-1/2 -translate-y-1/2 right-1 md:-right-6 w-11 h-11 flex items-center justify-center rounded-full bg-slate border border-oro/40 text-oro shadow-lg shadow-black/30 hover:bg-oro hover:text-petrolio transition-colors"
+                  style={{ animation: 'arrowNudgeRight 2.2s ease-in-out infinite' }}
+                >
+                  <ChevronRight size={20} />
+                </button>
               </div>
-              <div className="p-6">
-                <LexAnimatedDemo />
+
+              {/* Puntini */}
+              <div className="flex items-center justify-center gap-2.5 mt-5">
+                {DEMO_VARIANTS.map((v, i) => (
+                  <button
+                    key={v}
+                    onClick={() => { setDemoDir(i > demoIdx ? 'next' : 'prev'); setDemoIdx(i) }}
+                    aria-label={v}
+                    className={`h-2 rounded-full transition-all ${i === demoIdx ? 'bg-oro w-6' : 'bg-white/15 w-2 hover:bg-white/30'}`}
+                  />
+                ))}
               </div>
             </div>
           </FadeIn>
@@ -916,6 +983,22 @@ export default function Home() {
         @keyframes heroIn {
           from { opacity: 0; transform: translateY(40px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes demoSlideNext {
+          from { opacity: 0; transform: translateX(32px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes demoSlidePrev {
+          from { opacity: 0; transform: translateX(-32px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes arrowNudgeRight {
+          0%, 100% { transform: translateY(-50%) translateX(0); }
+          50%      { transform: translateY(-50%) translateX(4px); }
+        }
+        @keyframes arrowNudgeLeft {
+          0%, 100% { transform: translateY(-50%) translateX(0); }
+          50%      { transform: translateY(-50%) translateX(-4px); }
         }
       `}</style>
     </div>

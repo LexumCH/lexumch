@@ -9,19 +9,52 @@
       "Je compose une réponse structurée"
     ],
     "risposta": [
-      { "type": "h2", "text": "Base légale" },
-      { "type": "p", "text": "La légitime défense est régie par l'art. 15 CP : quiconque est attaqué sans droit ou menacé d'une attaque imminente a le droit de repousser l'attaque par des moyens proportionnés aux circonstances." },
-      { "type": "p", "text": "Dans le cas du cambrioleur qui entre dans la maison, il faut une attaque actuelle ou imminente et illicite ; la défense doit être proportionnée et dirigée contre l'agresseur. Le droit suisse ne prévoit pas de présomption automatique de proportionnalité : chaque cas s'apprécie concrètement." },
-      { "type": "h2", "text": "Conditions qui restent nécessaires" },
-      { "type": "p", "text": "Le Tribunal fédéral exige toujours de vérifier :" },
-      { "type": "list", "items": [
-        "Actualité du danger : l'attaque doit être en cours ou imminente. Si le cambrioleur est en fuite, la condition disparaît.",
-        "Nécessité et proportionnalité de la réaction par rapport à l'attaque.",
-        "Hiérarchie des valeurs : la vie et l'intégrité priment sur l'intérêt patrimonial."
-      ] },
-      { "type": "h2", "text": "Excès de légitime défense" },
-      { "type": "p", "text": "L'art. 16 CP atténue la peine en cas d'excès ; si l'excès provient d'un état d'émotion ou de saisissement causé par l'attaque, l'auteur n'agit pas de manière coupable. Clause pensée pour qui, surpris par une intrusion nocturne, réagit de façon disproportionnée par panique... SUITE..." },
-      { "type": "chips", "items": ["Art. 15 CP", "Art. 16 CP", "Art. 17 CP", "Art. 13 CP", "TF 6B_810/2021"] }
+      {
+        "type": "h2",
+        "text": "Base légale"
+      },
+      {
+        "type": "p",
+        "text": "La légitime défense est régie par l'art. 15 CP : quiconque est attaqué sans droit ou menacé d'une attaque imminente a le droit de repousser l'attaque par des moyens proportionnés aux circonstances."
+      },
+      {
+        "type": "p",
+        "text": "Dans le cas du cambrioleur qui entre dans la maison, il faut une attaque actuelle ou imminente et illicite ; la défense doit être proportionnée et dirigée contre l'agresseur. Le droit suisse ne prévoit pas de présomption automatique de proportionnalité : chaque cas s'apprécie concrètement."
+      },
+      {
+        "type": "h2",
+        "text": "Conditions qui restent nécessaires"
+      },
+      {
+        "type": "p",
+        "text": "Le Tribunal fédéral exige toujours de vérifier :"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Actualité du danger : l'attaque doit être en cours ou imminente. Si le cambrioleur est en fuite, la condition disparaît.",
+          "Nécessité et proportionnalité de la réaction par rapport à l'attaque.",
+          "Hiérarchie des valeurs : la vie et l'intégrité priment sur l'intérêt patrimonial."
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Excès de légitime défense"
+      },
+      {
+        "type": "p",
+        "text": "L'art. 16 CP atténue la peine en cas d'excès ; si l'excès provient d'un état d'émotion ou de saisissement causé par l'attaque, l'auteur n'agit pas de manière coupable. Clause pensée pour qui, surpris par une intrusion nocturne, réagit de façon disproportionnée par panique... SUITE..."
+      },
+      {
+        "type": "chips",
+        "items": [
+          "Art. 15 CP",
+          "Art. 16 CP",
+          "Art. 17 CP",
+          "Art. 13 CP",
+          "TF 6B_810/2021"
+        ]
+      }
     ],
     "input_hint": "Posez une question juridique ou fiscale, ou chargez un document à analyser.",
     "input_placeholder": "Ex. Déductibilité des frais de représentation pour une SA...",
@@ -29,7 +62,8 @@
     "user_label": "Vous",
     "lex_label": "Lex AI",
     "action_pratica": "Ajouter au dossier",
-    "action_etichetta": "Ajouter à une étiquette"
+    "action_etichetta": "Ajouter à une étiquette",
+    "action": "Ajouter au dossier"
   },
   "meta": {
     "title": "Lex AI — La recherche juridique et fiscale sur sources vérifiées",
@@ -39,7 +73,7 @@
     "twitter_description": "Recherche juridique et fiscale, analyse de documents et raisonnement structuré sur sources vérifiées."
   },
   "hero": {
-    "badge": "Intelligence artificielle juridique et fiscale V. 1.3",
+    "badge": "Intelligence artificielle juridique et fiscale V2",
     "title_part1": "Lex AI, la recherche juridique et fiscale",
     "title_highlight": "sur sources vérifiées.",
     "subtitle": "Un outil pensé pour celles et ceux qui font de la recherche juridique et fiscale sérieuse, rapide et fiable. Pour avocats et fiduciaires. Il travaille sur des sources vérifiées, sans bruit inutile.",
@@ -52,10 +86,22 @@
     "title_highlight": "Lex AI.",
     "intro": "Une version accessible pensée pour la recherche juridique et fiscale. Quatre façons concrètes dont Lex vous aide à mieux travailler, que vous soyez avocat ou fiduciaire.",
     "items": [
-      { "t": "Chercher des références juridiques et fiscales", "d": "Trouvez les normes, jugements et pratiques pertinents sur un thème — de droit ou de fiscalité — avec le raisonnement déjà structuré." },
-      { "t": "Analyser des documents", "d": "Chargez une écriture, un contrat, un bilan ou un décompte. Lex met en évidence les points pertinents et les nœuds à approfondir." },
-      { "t": "Conversation continue", "d": "Approfondissez, changez d'angle, posez des questions de suivi. La conversation se développe dans le temps, elle ne se réinitialise pas à chaque question." },
-      { "t": "Clarifie les doutes d'interprétation", "d": "Lorsqu'une norme, une circulaire ou un arrêt n'est pas clair, Lex explique de manière structurée et cite les sources." }
+      {
+        "t": "Chercher des références juridiques et fiscales",
+        "d": "Trouvez les normes, jugements et pratiques pertinents sur un thème — de droit ou de fiscalité — avec le raisonnement déjà structuré."
+      },
+      {
+        "t": "Analyser des documents",
+        "d": "Chargez une écriture, un contrat, un bilan ou un décompte. Lex met en évidence les points pertinents et les nœuds à approfondir."
+      },
+      {
+        "t": "Conversation continue",
+        "d": "Approfondissez, changez d'angle, posez des questions de suivi. La conversation se développe dans le temps, elle ne se réinitialise pas à chaque question."
+      },
+      {
+        "t": "Clarifie les doutes d'interprétation",
+        "d": "Lorsqu'une norme, une circulaire ou un arrêt n'est pas clair, Lex explique de manière structurée et cite les sources."
+      }
     ],
     "demo_user": "Vous",
     "demo_question": "\"Je cherche des références sur la déductibilité des frais de représentation pour une SA.\"",
@@ -73,10 +119,22 @@
     "title_highlight": "en expansion continue.",
     "subtitle": "Lex AI consulte plus de 1,6 million de documents vérifiés, répartis entre jurisprudence, législation, pratique des autorités et contributions professionnelles. Aucune recherche web aléatoire, aucune source généraliste.",
     "cards": [
-      { "t": "Jurisprudence suisse", "d": "Tribunal fédéral, TAF, TPF et tribunaux cantonaux. Décisions en matière civile, pénale, administrative et fiscale, en acquisition continue." },
-      { "t": "Droit fédéral et cantonal", "d": "CO, CC, CP, LIFD, LTVA et lois fiscales cantonales, ordonnances et règlements, toujours à jour avec les dernières modifications." },
-      { "t": "Droit UE", "d": "Traités, règlements, directives et jurisprudence de la Cour de justice de l'UE, pertinents pour les relations entre la Suisse et l'Union européenne." },
-      { "t": "Pratique et corpus partagé", "d": "Circulaires et pratique de l'AFC et de l'AFD, pratique cantonale et matériaux chargés par les professionnels vérifiés, avocats et fiduciaires." }
+      {
+        "t": "Jurisprudence suisse",
+        "d": "Tribunal fédéral, TAF, TPF et tribunaux cantonaux. Décisions en matière civile, pénale, administrative et fiscale, en acquisition continue."
+      },
+      {
+        "t": "Droit fédéral et cantonal",
+        "d": "CO, CC, CP, LIFD, LTVA et lois fiscales cantonales, ordonnances et règlements, toujours à jour avec les dernières modifications."
+      },
+      {
+        "t": "Droit UE",
+        "d": "Traités, règlements, directives et jurisprudence de la Cour de justice de l'UE, pertinents pour les relations entre la Suisse et l'Union européenne."
+      },
+      {
+        "t": "Pratique et corpus partagé",
+        "d": "Circulaires et pratique de l'AFC et de l'AFD, pratique cantonale et matériaux chargés par les professionnels vérifiés, avocats et fiduciaires."
+      }
     ],
     "highlight_strong": "Plus de 1,6 million de documents juridiques et fiscaux",
     "highlight_text": ". Nous travaillons en continu pour élargir la base de données et la maintenir à jour."
@@ -87,21 +145,55 @@
     "title_highlight": "Il structure le raisonnement.",
     "subtitle": "Une bonne réponse n'est pas une liste d'articles. C'est un raisonnement qui identifie les sources, clarifie les conditions, signale les exceptions et suggère ce qu'il faut vérifier. Lex AI est construit pour faire exactement cela, sur une question de droit comme sur une question fiscale.",
     "steps": [
-      { "n": "01", "t": "Identifie les normes", "d": "Cite les articles applicables au cas concret." },
-      { "n": "02", "t": "Clarifie les conditions", "d": "Explique ce qu'il faut pour que la norme s'applique." },
-      { "n": "03", "t": "Signale les exceptions", "d": "Indique les limites et les hypothèses d'exclusion." },
-      { "n": "04", "t": "Suggère des vérifications", "d": "Pose les bonnes questions pour aller plus en profondeur." }
+      {
+        "n": "01",
+        "t": "Identifie les normes",
+        "d": "Cite les articles applicables au cas concret."
+      },
+      {
+        "n": "02",
+        "t": "Clarifie les conditions",
+        "d": "Explique ce qu'il faut pour que la norme s'applique."
+      },
+      {
+        "n": "03",
+        "t": "Signale les exceptions",
+        "d": "Indique les limites et les hypothèses d'exclusion."
+      },
+      {
+        "n": "04",
+        "t": "Suggère des vérifications",
+        "d": "Pose les bonnes questions pour aller plus en profondeur."
+      }
     ],
     "demo_label": "Lex AI — anatomie d'une réponse",
     "demo_user": "Vous",
     "demo_question": "\"Quand la légitime défense s'applique-t-elle selon le droit suisse ?\"",
     "blocks": [
-      { "tag": "01 · Identifie les normes", "text": "La matière est régie par l'art. 15 CP (légitime défense). L'art. 16 CP régit l'excès de légitime défense." },
-      { "tag": "02 · Clarifie les conditions", "text": "Le fait justificatif s'applique si : il y a une attaque actuelle ou imminente, l'attaque est illicite, et la défense est proportionnée et dirigée contre l'agresseur." },
-      { "tag": "03 · Signale les exceptions", "text": "En cas d'excès (art. 16 CP), la peine est atténuée ; si l'excès provient d'un état d'émotion ou de saisissement causé par l'attaque, l'auteur n'agit pas de manière coupable. Le Tribunal fédéral apprécie toujours l'actualité du danger et la nécessité de la réaction." },
-      { "tag": "04 · Suggère des vérifications", "text": "Souhaitez-vous que j'approfondisse l'excès par négligence (art. 16 al. 2 CP), l'état de nécessité (art. 17 CP) ou la légitime défense putative pour erreur sur les faits (art. 13 CP) ?" }
+      {
+        "tag": "01 · Identifie les normes",
+        "text": "La matière est régie par l'art. 15 CP (légitime défense). L'art. 16 CP régit l'excès de légitime défense."
+      },
+      {
+        "tag": "02 · Clarifie les conditions",
+        "text": "Le fait justificatif s'applique si : il y a une attaque actuelle ou imminente, l'attaque est illicite, et la défense est proportionnée et dirigée contre l'agresseur."
+      },
+      {
+        "tag": "03 · Signale les exceptions",
+        "text": "En cas d'excès (art. 16 CP), la peine est atténuée ; si l'excès provient d'un état d'émotion ou de saisissement causé par l'attaque, l'auteur n'agit pas de manière coupable. Le Tribunal fédéral apprécie toujours l'actualité du danger et la nécessité de la réaction."
+      },
+      {
+        "tag": "04 · Suggère des vérifications",
+        "text": "Souhaitez-vous que j'approfondisse l'excès par négligence (art. 16 al. 2 CP), l'état de nécessité (art. 17 CP) ou la légitime défense putative pour erreur sur les faits (art. 13 CP) ?"
+      }
     ],
-    "chips": ["Art. 15 CP", "Art. 16 CP", "Art. 17 CP", "Art. 13 CP", "TF 6B_810/2021"]
+    "chips": [
+      "Art. 15 CP",
+      "Art. 16 CP",
+      "Art. 17 CP",
+      "Art. 13 CP",
+      "TF 6B_810/2021"
+    ]
   },
   "diversa": {
     "generica_label": "IA générique",
@@ -167,10 +259,70 @@
     "fiduciari_cta": "Découvrir Lexum pour fiduciaires"
   },
   "cta": {
-    "title": "Activez Lex AI (V. 1.3)",
+    "title": "Activez Lex AI (V2)",
     "subtitle": "Utilisez Lex AI pour faire de la recherche juridique et fiscale sur sources vérifiées, analyser des documents et travailler sur une base plus fiable.",
     "cta_primary": "Essayer gratuitement — 3 recherches",
     "secondary_link": "Avocat ou fiduciaire ? Essayez Lexum gratuitement pendant une semaine →",
     "footnote": "Pour des fonctionnalités avancées, des stratégies et un accès professionnel complet, rejoignez Lexum en tant qu'avocat ou fiduciaire vérifié."
+  },
+  "anim_fiduciario": {
+    "domanda": "Un employé démissionne en milieu de mois : comment calculer le solde de vacances et le décompte final ?",
+    "action": "Ajouter au mandat",
+    "risposta": [
+      {
+        "type": "h2",
+        "text": "Base légale"
+      },
+      {
+        "type": "p",
+        "text": "Les vacances non prises sont payées avec le dernier salaire (art. 329d CO) : le droit court pro rata jusqu'à la fin des rapports de travail."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Pro rata : 25 jours ÷ 12 × mois travaillés, moins les jours déjà pris",
+          "Supplément sur le salaire horaire : 10,64 % (4 semaines) ou 13,04 % (5 semaines)",
+          "Dernier décompte : régularisation AVS/AI/APG et LPP jusqu'à la sortie"
+        ]
+      },
+      {
+        "type": "chips",
+        "items": [
+          "art. 329d CO",
+          "AVS/LPP",
+          "Décompte final"
+        ]
+      }
+    ]
+  },
+  "anim_progettista": {
+    "domanda": "La villa respecte-t-elle les distances à la limite exigées dans le canton du Tessin ? Analyse la planche.",
+    "action": "Ajouter au projet",
+    "risposta": [
+      {
+        "type": "h2",
+        "text": "Vérification sur la planche"
+      },
+      {
+        "type": "p",
+        "text": "Selon le plan, la distance minimale à la limite est de 3,20 m côté est. Pour un bâtiment de cette hauteur, le droit tessinois exige en règle générale 3,00 m : le projet est conforme."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Distance relevée sur le dessin : 3,20 m (côté est)",
+          "Minimum exigé : 3,00 m",
+          "À vérifier : règlement communal des constructions et plan d'affectation"
+        ]
+      },
+      {
+        "type": "chips",
+        "items": [
+          "LST TI",
+          "Plan d'affectation",
+          "IA vision"
+        ]
+      }
+    ]
   }
 }

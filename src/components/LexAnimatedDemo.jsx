@@ -1,11 +1,11 @@
 // LexAnimatedDemo.jsx
-// Animazione one-shot (no loop): scrittura domanda -> ricerca Lex -> risposta che si scrive -> azioni
+// Animazione one-shot (no loop): scrittura domanda -> risposta che si scrive -> azioni
 // Transizioni morbide via CSS transition + fade incrociato
 // Contenuti testuali via i18n (namespace 'lex_ai', chiave 'anim')
 
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Sparkles, Bookmark, FolderOpen, Check } from 'lucide-react'
+import { Sparkles, FolderOpen } from 'lucide-react'
 
 const toArray = (val) => Array.isArray(val) ? val : []
 
@@ -15,137 +15,12 @@ const PAUSE_BETWEEN_BLOCKS = 200
 
 const FADE_DURATION = 400  // durata delle transizioni di stato (ms)
 
-// ─── Animazione libreria Lex ───
-function LexLibraryAnimation() {
-    const { t } = useTranslation('lex_ai')
-    const frasi = toArray(t('anim.frasi', { returnObjects: true }))
-    const [indiceFrase, setIndiceFrase] = useState(0)
-
-    useEffect(() => {
-        if (frasi.length === 0) return
-        const interval = setInterval(() => {
-            setIndiceFrase((i) => (i + 1) % frasi.length)
-        }, 1600)
-        return () => clearInterval(interval)
-    }, [frasi.length])
-
-    return (
-        <div className="px-3 py-6">
-            <style>{`
-        .lex-mini-stage {
-          position: relative;
-          width: 100%;
-          aspect-ratio: 16 / 6;
-          margin: 0 auto;
-        }
-        .lex-mini-stage svg { width: 100%; height: 100%; display: block; }
-
-        .lex-mini-ray {
-          animation: lexMiniRayCycle 8s ease-in-out infinite;
-        }
-        @keyframes lexMiniRayCycle {
-          0%   { transform: translateX(-30px); opacity: 0; }
-          5%   { opacity: 0.8; }
-          25%  { transform: translateX(120px); opacity: 0.9; }
-          30%  { opacity: 0; }
-          40%  { transform: translateX(-30px); opacity: 0; }
-          45%  { opacity: 0.8; }
-          65%  { transform: translateX(240px); opacity: 0.9; }
-          70%  { opacity: 0; }
-          80%  { transform: translateX(-30px); opacity: 0; }
-          85%  { opacity: 0.8; }
-          100% { transform: translateX(360px); opacity: 0; }
-        }
-
-        .lex-mini-fade {
-          animation: lexMiniFade 0.5s ease-out;
-        }
-        @keyframes lexMiniFade {
-          from { opacity: 0; transform: translateY(4px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .lex-mini-dot {
-          display: inline-block;
-          width: 3px;
-          height: 3px;
-          border-radius: 50%;
-          background: #7FA39A;
-          opacity: 0.4;
-          animation: lexMiniDotPulse 1.4s ease-in-out infinite;
-        }
-        .lex-mini-dot:nth-child(1) { animation-delay: 0s; }
-        .lex-mini-dot:nth-child(2) { animation-delay: 0.2s; }
-        .lex-mini-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes lexMiniDotPulse {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.3); }
-        }
-      `}</style>
-
-            <div className="lex-mini-stage">
-                <svg viewBox="60 80 380 130" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="60" y1="172" x2="440" y2="172" stroke="rgba(127, 163, 154, 0.4)" strokeWidth="0.8" />
-
-                    {[
-                        { x: 80, w: 22, h: 72, y: 100, fill: '#243447' },
-                        { x: 105, w: 20, h: 80, y: 92, fill: '#1d2c3a' },
-                        { x: 128, w: 24, h: 67, y: 105, fill: '#2a3b4f' },
-                        { x: 155, w: 22, h: 76, y: 96, fill: '#243447' },
-                        { x: 180, w: 20, h: 64, y: 108, fill: '#1d2c3a' },
-                        { x: 203, w: 22, h: 74, y: 98, fill: '#2a3b4f' },
-                        { x: 228, w: 24, h: 69, y: 103, fill: '#243447' },
-                        { x: 255, w: 26, h: 82, y: 90, fill: '#243447' },
-                        { x: 284, w: 22, h: 75, y: 97, fill: '#1d2c3a' },
-                        { x: 309, w: 24, h: 68, y: 104, fill: '#2a3b4f' },
-                        { x: 336, w: 22, h: 79, y: 93, fill: '#243447' },
-                        { x: 361, w: 20, h: 66, y: 106, fill: '#1d2c3a' },
-                        { x: 384, w: 22, h: 72, y: 100, fill: '#2a3b4f' },
-                        { x: 409, w: 24, h: 77, y: 95, fill: '#243447' },
-                    ].map((b, i) => (
-                        <rect
-                            key={i}
-                            x={b.x} y={b.y} width={b.w} height={b.h} rx="1"
-                            fill={b.fill}
-                            stroke="rgba(127, 163, 154, 0.2)"
-                            strokeWidth="1"
-                        />
-                    ))}
-
-                    <g className="lex-mini-ray">
-                        <ellipse cx="80" cy="135" rx="22" ry="55" fill="#7FA39A" opacity="0.18" />
-                        <ellipse cx="80" cy="135" rx="14" ry="45" fill="#7FA39A" opacity="0.25" />
-                        <ellipse cx="80" cy="135" rx="6" ry="35" fill="#7FA39A" opacity="0.4" />
-                        <line x1="80" y1="80" x2="80" y2="180" stroke="#7FA39A" strokeWidth="0.5" opacity="0.6" />
-                    </g>
-                </svg>
-            </div>
-
-            <div className="text-center mt-3 min-h-[24px]">
-                <span
-                    key={indiceFrase}
-                    className="lex-mini-fade font-body text-sm text-nebbia/70 tracking-wide inline-flex items-center"
-                >
-                    {frasi[indiceFrase]}
-                    <span className="inline-flex gap-[3px] ml-1.5 items-center">
-                        <span className="lex-mini-dot" />
-                        <span className="lex-mini-dot" />
-                        <span className="lex-mini-dot" />
-                    </span>
-                </span>
-            </div>
-        </div>
-    )
-}
-
 // ─── Stati ───
 const PHASE = {
     IDLE: 'idle',
     TYPING_DOMANDA: 'typing_domanda',
     PRESS_SEND: 'press_send',
     TRANSITION_TO_SEARCH: 'transition_to_search',
-    LEX_SEARCHING: 'lex_searching',
-    TRANSITION_TO_RESPONSE: 'transition_to_response',
     TYPING_RISPOSTA: 'typing_risposta',
     ACTIONS: 'actions',
     DONE: 'done',
@@ -155,15 +30,17 @@ const DUR = {
     IDLE: 1500,
     PRESS_SEND: 800,
     TRANSITION: FADE_DURATION,
-    LEX_SEARCHING: 7000,
     ACTIONS_APPEAR: 600,
 }
 
 // ─── Componente principale ───
-export default function LexAnimatedDemo() {
+export default function LexAnimatedDemo({ variant = 'avvocato', startDelay = 0 }) {
     const { t, ready } = useTranslation('lex_ai')
-    const DOMANDA = t('anim.domanda')
-    const RISPOSTA = toArray(t('anim.risposta', { returnObjects: true }))
+    // Ogni professione ha il suo set domanda/risposta/azione (anim, anim_fiduciario, anim_progettista)
+    const prefix = variant === 'avvocato' ? 'anim' : `anim_${variant}`
+    const DOMANDA = t(`${prefix}.domanda`)
+    const RISPOSTA = toArray(t(`${prefix}.risposta`, { returnObjects: true }))
+    const ACTION = t(`${prefix}.action`)
 
     const [phase, setPhase] = useState(PHASE.IDLE)
     const [domandaText, setDomandaText] = useState('')
@@ -185,8 +62,8 @@ export default function LexAnimatedDemo() {
         let isMounted = true
 
         const run = async () => {
-            // IDLE
-            await wait(DUR.IDLE)
+            // IDLE (+ scaglionamento del trio)
+            await wait(DUR.IDLE + startDelay)
             if (!isMounted) return
 
             // TYPING DOMANDA
@@ -202,18 +79,8 @@ export default function LexAnimatedDemo() {
             await wait(DUR.PRESS_SEND)
             if (!isMounted) return
 
-            // TRANSITION TO SEARCH (fade out input, fade in conversation)
+            // TRANSITION (fade out input, fade in conversazione) → subito la risposta
             setPhase(PHASE.TRANSITION_TO_SEARCH)
-            await wait(DUR.TRANSITION)
-            if (!isMounted) return
-
-            // LEX SEARCHING
-            setPhase(PHASE.LEX_SEARCHING)
-            await wait(DUR.LEX_SEARCHING)
-            if (!isMounted) return
-
-            // TRANSITION TO RESPONSE (fade out lex animation, fade in response)
-            setPhase(PHASE.TRANSITION_TO_RESPONSE)
             await wait(DUR.TRANSITION)
             if (!isMounted) return
 
@@ -261,7 +128,7 @@ export default function LexAnimatedDemo() {
             timeoutsRef.current.forEach(clearTimeout)
             timeoutsRef.current = []
         }
-    }, [ready])
+    }, [ready, variant])
 
     const isInputPhase = phase === PHASE.IDLE || phase === PHASE.TYPING_DOMANDA || phase === PHASE.PRESS_SEND || phase === PHASE.TRANSITION_TO_SEARCH
     const isPressing = phase === PHASE.PRESS_SEND
@@ -269,8 +136,7 @@ export default function LexAnimatedDemo() {
 
     // Visibilità con fade incrociato
     const inputOpacity = (phase === PHASE.IDLE || phase === PHASE.TYPING_DOMANDA || phase === PHASE.PRESS_SEND) ? 1 : 0
-    const conversationOpacity = (phase === PHASE.LEX_SEARCHING || phase === PHASE.TRANSITION_TO_RESPONSE || phase === PHASE.TYPING_RISPOSTA || phase === PHASE.ACTIONS || phase === PHASE.DONE) ? 1 : 0
-    const lexSearchOpacity = phase === PHASE.LEX_SEARCHING ? 1 : 0
+    const conversationOpacity = (phase === PHASE.TYPING_RISPOSTA || phase === PHASE.ACTIONS || phase === PHASE.DONE) ? 1 : 0
     const responseOpacity = (phase === PHASE.TYPING_RISPOSTA || phase === PHASE.ACTIONS || phase === PHASE.DONE) ? 1 : 0
     const actionsOpacity = (phase === PHASE.ACTIONS || phase === PHASE.DONE) ? 1 : 0
 
@@ -315,6 +181,10 @@ export default function LexAnimatedDemo() {
                     opacity: conversationOpacity,
                     transitionDuration: `${FADE_DURATION}ms`,
                     pointerEvents: conversationOpacity === 0 ? 'none' : 'auto',
+                    position: conversationOpacity === 0 ? 'absolute' : 'relative',
+                    width: '100%',
+                    top: 0,
+                    left: 0,
                 }}
             >
                 {/* Bubble utente */}
@@ -325,34 +195,7 @@ export default function LexAnimatedDemo() {
                     </div>
                 </div>
 
-                {/* Container con altezza che cresce in modo fluido */}
-                <div
-                    className="relative transition-all"
-                    style={{
-                        transitionDuration: `${FADE_DURATION}ms`,
-                        transitionProperty: 'min-height',
-                        minHeight: phase === PHASE.LEX_SEARCHING || phase === PHASE.TRANSITION_TO_RESPONSE
-                            ? '200px'
-                            : (responseOpacity ? 'auto' : '0px'),
-                    }}
-                >
-                    {/* Lex sta cercando — sovrapposto in absolute, fade out quando arriva la risposta */}
-                    <div
-                        className="bg-salvia/5 border border-salvia/15 px-4 py-2 transition-opacity"
-                        style={{
-                            opacity: lexSearchOpacity,
-                            transitionDuration: `${FADE_DURATION}ms`,
-                            position: lexSearchOpacity === 0 ? 'absolute' : 'relative',
-                            width: '100%',
-                            top: 0,
-                            left: 0,
-                            pointerEvents: lexSearchOpacity === 0 ? 'none' : 'auto',
-                        }}
-                    >
-                        <LexLibraryAnimation />
-                    </div>
-
-                    {/* Risposta — fade in quando termina la ricerca */}
+                {/* Risposta — si scrive subito dopo l'invio */}
                     <div
                         className="transition-opacity"
                         style={{
@@ -408,7 +251,6 @@ export default function LexAnimatedDemo() {
                             </>
                         )}
                     </div>
-                </div>
 
                 {/* Azioni — fade in alla fine */}
                 <div
@@ -420,10 +262,7 @@ export default function LexAnimatedDemo() {
                     }}
                 >
                     <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-petrolio border border-oro/25 text-oro/80 font-body text-xs hover:bg-oro/5 transition-colors">
-                        <FolderOpen size={12} /> {t('anim.action_pratica')}
-                    </button>
-                    <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-petrolio border border-salvia/25 text-salvia/80 font-body text-xs hover:bg-salvia/5 transition-colors">
-                        <Bookmark size={12} /> {t('anim.action_etichetta')}
+                        <FolderOpen size={12} /> {ACTION}
                     </button>
                 </div>
             </div>

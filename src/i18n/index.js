@@ -38,6 +38,9 @@ i18n
 
         backend: {
             loadPath: '/locales/{{lng}}/{{ns}}.json',
+            // Cache-busting: cambia a ogni build, così i JSON aggiornati
+            // vengono riscaricati invece di arrivare dalla cache del browser.
+            queryStringParams: { v: typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev' },
         },
 
         interpolation: {

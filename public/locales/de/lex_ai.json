@@ -9,19 +9,52 @@
       "Ich verfasse eine strukturierte Antwort"
     ],
     "risposta": [
-      { "type": "h2", "text": "Gesetzliche Grundlage" },
-      { "type": "p", "text": "Die Notwehr ist in Art. 15 StGB geregelt: Wer ohne Recht angegriffen oder unmittelbar mit einem Angriff bedroht wird, ist berechtigt, den Angriff in einer den Umständen angemessenen Weise abzuwehren." },
-      { "type": "p", "text": "Beim Einbrecher, der ins Haus eindringt, braucht es einen gegenwärtigen oder unmittelbar drohenden und rechtswidrigen Angriff; die Abwehr muss verhältnismässig und gegen den Angreifer gerichtet sein. Das Schweizer Recht kennt keine automatische Vermutung der Verhältnismässigkeit: jeder Fall wird konkret beurteilt." },
-      { "type": "h2", "text": "Weiterhin notwendige Voraussetzungen" },
-      { "type": "p", "text": "Das Bundesgericht verlangt stets die Prüfung von:" },
-      { "type": "list", "items": [
-        "Gegenwärtigkeit der Gefahr: Der Angriff muss laufend oder unmittelbar bevorstehend sein. Ist der Einbrecher auf der Flucht, entfällt die Voraussetzung.",
-        "Notwendigkeit und Verhältnismässigkeit der Reaktion im Verhältnis zum Angriff.",
-        "Wertehierarchie: Leben und körperliche Unversehrtheit gehen dem Vermögensinteresse vor."
-      ] },
-      { "type": "h2", "text": "Notwehrexzess" },
-      { "type": "p", "text": "Art. 16 StGB mildert die Strafe beim Exzess; geht der Exzess auf eine entschuldbare Aufregung oder Bestürzung über den Angriff zurück, handelt der Täter nicht schuldhaft. Eine Klausel für jene, die — von einem nächtlichen Einbruch überrascht — aus Panik unverhältnismässig reagieren... WEITER..." },
-      { "type": "chips", "items": ["Art. 15 StGB", "Art. 16 StGB", "Art. 17 StGB", "Art. 13 StGB", "BGer 6B_810/2021"] }
+      {
+        "type": "h2",
+        "text": "Gesetzliche Grundlage"
+      },
+      {
+        "type": "p",
+        "text": "Die Notwehr ist in Art. 15 StGB geregelt: Wer ohne Recht angegriffen oder unmittelbar mit einem Angriff bedroht wird, ist berechtigt, den Angriff in einer den Umständen angemessenen Weise abzuwehren."
+      },
+      {
+        "type": "p",
+        "text": "Beim Einbrecher, der ins Haus eindringt, braucht es einen gegenwärtigen oder unmittelbar drohenden und rechtswidrigen Angriff; die Abwehr muss verhältnismässig und gegen den Angreifer gerichtet sein. Das Schweizer Recht kennt keine automatische Vermutung der Verhältnismässigkeit: jeder Fall wird konkret beurteilt."
+      },
+      {
+        "type": "h2",
+        "text": "Weiterhin notwendige Voraussetzungen"
+      },
+      {
+        "type": "p",
+        "text": "Das Bundesgericht verlangt stets die Prüfung von:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Gegenwärtigkeit der Gefahr: Der Angriff muss laufend oder unmittelbar bevorstehend sein. Ist der Einbrecher auf der Flucht, entfällt die Voraussetzung.",
+          "Notwendigkeit und Verhältnismässigkeit der Reaktion im Verhältnis zum Angriff.",
+          "Wertehierarchie: Leben und körperliche Unversehrtheit gehen dem Vermögensinteresse vor."
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Notwehrexzess"
+      },
+      {
+        "type": "p",
+        "text": "Art. 16 StGB mildert die Strafe beim Exzess; geht der Exzess auf eine entschuldbare Aufregung oder Bestürzung über den Angriff zurück, handelt der Täter nicht schuldhaft. Eine Klausel für jene, die — von einem nächtlichen Einbruch überrascht — aus Panik unverhältnismässig reagieren... WEITER..."
+      },
+      {
+        "type": "chips",
+        "items": [
+          "Art. 15 StGB",
+          "Art. 16 StGB",
+          "Art. 17 StGB",
+          "Art. 13 StGB",
+          "BGer 6B_810/2021"
+        ]
+      }
     ],
     "input_hint": "Stellen Sie eine rechtliche oder steuerliche Frage oder laden Sie ein Dokument zur Analyse hoch.",
     "input_placeholder": "Z. B. Abzugsfähigkeit von Repräsentationsspesen für eine AG...",
@@ -29,7 +62,8 @@
     "user_label": "Sie",
     "lex_label": "Lex AI",
     "action_pratica": "Zu Dossier hinzufügen",
-    "action_etichetta": "Zu Etikett hinzufügen"
+    "action_etichetta": "Zu Etikett hinzufügen",
+    "action": "Zu Dossier hinzufügen"
   },
   "meta": {
     "title": "Lex AI — Rechts- und Steuerrecherche auf geprüften Quellen",
@@ -39,7 +73,7 @@
     "twitter_description": "Rechts- und Steuerrecherche, Dokumentenanalyse und strukturierte Argumentation auf geprüften Quellen."
   },
   "hero": {
-    "badge": "Künstliche Intelligenz für Recht und Steuern V. 1.3",
+    "badge": "Künstliche Intelligenz für Recht und Steuern V2",
     "title_part1": "Lex AI, die Rechts- und Steuerrecherche",
     "title_highlight": "auf geprüften Quellen.",
     "subtitle": "Ein Werkzeug für alle, die seriöse, schnelle und zuverlässige Rechts- und Steuerrecherche betreiben. Für Anwälte und Treuhänder. Arbeitet auf geprüften Quellen, ohne unnötiges Rauschen.",
@@ -52,10 +86,22 @@
     "title_highlight": "Lex AI tun können.",
     "intro": "Eine zugängliche Version für Rechts- und Steuerrecherche. Vier konkrete Wege, wie Lex Ihnen hilft, besser zu arbeiten — ob Sie Anwalt oder Treuhänder sind.",
     "items": [
-      { "t": "Rechts- und Steuerverweise suchen", "d": "Finden Sie relevante Normen, Urteile und Praxis zu einem Thema — rechtlich oder steuerlich — mit bereits strukturierter Argumentation." },
-      { "t": "Dokumente analysieren", "d": "Laden Sie eine Eingabe, einen Vertrag, eine Bilanz oder eine Abrechnung hoch. Lex hebt die relevanten Punkte und die zu vertiefenden Knoten hervor." },
-      { "t": "Fortlaufendes Gespräch", "d": "Vertiefen Sie, wechseln Sie die Perspektive, stellen Sie Folgefragen. Das Gespräch entwickelt sich über die Zeit, es setzt sich nicht bei jeder Frage zurück." },
-      { "t": "Klärt Auslegungsfragen", "d": "Wenn eine Norm, ein Kreisschreiben oder ein Entscheid unklar ist, erklärt Lex strukturiert und zitiert die Quellen." }
+      {
+        "t": "Rechts- und Steuerverweise suchen",
+        "d": "Finden Sie relevante Normen, Urteile und Praxis zu einem Thema — rechtlich oder steuerlich — mit bereits strukturierter Argumentation."
+      },
+      {
+        "t": "Dokumente analysieren",
+        "d": "Laden Sie eine Eingabe, einen Vertrag, eine Bilanz oder eine Abrechnung hoch. Lex hebt die relevanten Punkte und die zu vertiefenden Knoten hervor."
+      },
+      {
+        "t": "Fortlaufendes Gespräch",
+        "d": "Vertiefen Sie, wechseln Sie die Perspektive, stellen Sie Folgefragen. Das Gespräch entwickelt sich über die Zeit, es setzt sich nicht bei jeder Frage zurück."
+      },
+      {
+        "t": "Klärt Auslegungsfragen",
+        "d": "Wenn eine Norm, ein Kreisschreiben oder ein Entscheid unklar ist, erklärt Lex strukturiert und zitiert die Quellen."
+      }
     ],
     "demo_user": "Sie",
     "demo_question": "\"Ich suche Verweise zur Abzugsfähigkeit von Repräsentationsspesen für eine AG.\"",
@@ -73,10 +119,22 @@
     "title_highlight": "in stetiger Erweiterung.",
     "subtitle": "Lex AI durchsucht über 1,6 Millionen geprüfte Dokumente, aufgeteilt in Rechtsprechung, Gesetzgebung, Praxis der Behörden und fachliche Beiträge. Keine zufällige Websuche, keine generischen Quellen.",
     "cards": [
-      { "t": "Schweizer Rechtsprechung", "d": "Bundesgericht, BVGer, BStGer und kantonale Gerichte. Entscheide in Zivil-, Straf-, Verwaltungs- und Steuersachen, laufend erfasst." },
-      { "t": "Bundes- und kantonales Recht", "d": "OR, ZGB, StGB, DBG, MWSTG und kantonale Steuergesetze, Verordnungen und Reglemente, stets mit den letzten Änderungen aktualisiert." },
-      { "t": "EU-Recht", "d": "Verträge, Verordnungen, Richtlinien und Rechtsprechung des EuGH, relevant für die Beziehungen zwischen der Schweiz und der Europäischen Union." },
-      { "t": "Praxis und geteiltes Korpus", "d": "Kreisschreiben und Praxis von ESTV und EZV, kantonale Praxis und von verifizierten Fachpersonen — Anwälten und Treuhändern — hochgeladene Materialien." }
+      {
+        "t": "Schweizer Rechtsprechung",
+        "d": "Bundesgericht, BVGer, BStGer und kantonale Gerichte. Entscheide in Zivil-, Straf-, Verwaltungs- und Steuersachen, laufend erfasst."
+      },
+      {
+        "t": "Bundes- und kantonales Recht",
+        "d": "OR, ZGB, StGB, DBG, MWSTG und kantonale Steuergesetze, Verordnungen und Reglemente, stets mit den letzten Änderungen aktualisiert."
+      },
+      {
+        "t": "EU-Recht",
+        "d": "Verträge, Verordnungen, Richtlinien und Rechtsprechung des EuGH, relevant für die Beziehungen zwischen der Schweiz und der Europäischen Union."
+      },
+      {
+        "t": "Praxis und geteiltes Korpus",
+        "d": "Kreisschreiben und Praxis von ESTV und EZV, kantonale Praxis und von verifizierten Fachpersonen — Anwälten und Treuhändern — hochgeladene Materialien."
+      }
     ],
     "highlight_strong": "Über 1,6 Millionen rechtliche und steuerliche Dokumente",
     "highlight_text": ". Wir arbeiten laufend daran, die Datenbank zu erweitern und aktuell zu halten."
@@ -87,21 +145,55 @@
     "title_highlight": "Es strukturiert die Argumentation.",
     "subtitle": "Eine gute Antwort ist keine Liste von Artikeln. Es ist eine Argumentation, die die Quellen identifiziert, die Voraussetzungen klärt, die Ausnahmen aufzeigt und vorschlägt, was zu prüfen ist. Lex AI ist genau dafür gebaut, bei einer Rechtsfrage wie bei einer Steuerfrage.",
     "steps": [
-      { "n": "01", "t": "Identifiziert die Normen", "d": "Zitiert die auf den konkreten Fall anwendbaren Artikel." },
-      { "n": "02", "t": "Klärt die Voraussetzungen", "d": "Erklärt, was nötig ist, damit die Norm greift." },
-      { "n": "03", "t": "Zeigt die Ausnahmen auf", "d": "Nennt die Grenzen und die Ausschlussfälle." },
-      { "n": "04", "t": "Schlägt Prüfungen vor", "d": "Stellt die richtigen Fragen, um tiefer zu gehen." }
+      {
+        "n": "01",
+        "t": "Identifiziert die Normen",
+        "d": "Zitiert die auf den konkreten Fall anwendbaren Artikel."
+      },
+      {
+        "n": "02",
+        "t": "Klärt die Voraussetzungen",
+        "d": "Erklärt, was nötig ist, damit die Norm greift."
+      },
+      {
+        "n": "03",
+        "t": "Zeigt die Ausnahmen auf",
+        "d": "Nennt die Grenzen und die Ausschlussfälle."
+      },
+      {
+        "n": "04",
+        "t": "Schlägt Prüfungen vor",
+        "d": "Stellt die richtigen Fragen, um tiefer zu gehen."
+      }
     ],
     "demo_label": "Lex AI — Anatomie einer Antwort",
     "demo_user": "Sie",
     "demo_question": "\"Wann greift die Notwehr nach Schweizer Recht?\"",
     "blocks": [
-      { "tag": "01 · Identifiziert die Normen", "text": "Die Materie ist in Art. 15 StGB (Notwehr) geregelt. Art. 16 StGB regelt den Notwehrexzess." },
-      { "tag": "02 · Klärt die Voraussetzungen", "text": "Der Rechtfertigungsgrund greift, wenn: ein gegenwärtiger oder unmittelbar drohender Angriff vorliegt, der Angriff rechtswidrig ist und die Abwehr verhältnismässig und gegen den Angreifer gerichtet ist." },
-      { "tag": "03 · Zeigt die Ausnahmen auf", "text": "Beim Exzess (Art. 16 StGB) wird die Strafe gemildert; geht der Exzess auf eine entschuldbare Aufregung oder Bestürzung über den Angriff zurück, handelt der Täter nicht schuldhaft. Das Bundesgericht prüft stets die Gegenwärtigkeit der Gefahr und die Notwendigkeit der Reaktion." },
-      { "tag": "04 · Schlägt Prüfungen vor", "text": "Soll ich den fahrlässigen Exzess (Art. 16 Abs. 2 StGB), den Notstand (Art. 17 StGB) oder die Putativnotwehr aufgrund Sachverhaltsirrtums (Art. 13 StGB) vertiefen?" }
+      {
+        "tag": "01 · Identifiziert die Normen",
+        "text": "Die Materie ist in Art. 15 StGB (Notwehr) geregelt. Art. 16 StGB regelt den Notwehrexzess."
+      },
+      {
+        "tag": "02 · Klärt die Voraussetzungen",
+        "text": "Der Rechtfertigungsgrund greift, wenn: ein gegenwärtiger oder unmittelbar drohender Angriff vorliegt, der Angriff rechtswidrig ist und die Abwehr verhältnismässig und gegen den Angreifer gerichtet ist."
+      },
+      {
+        "tag": "03 · Zeigt die Ausnahmen auf",
+        "text": "Beim Exzess (Art. 16 StGB) wird die Strafe gemildert; geht der Exzess auf eine entschuldbare Aufregung oder Bestürzung über den Angriff zurück, handelt der Täter nicht schuldhaft. Das Bundesgericht prüft stets die Gegenwärtigkeit der Gefahr und die Notwendigkeit der Reaktion."
+      },
+      {
+        "tag": "04 · Schlägt Prüfungen vor",
+        "text": "Soll ich den fahrlässigen Exzess (Art. 16 Abs. 2 StGB), den Notstand (Art. 17 StGB) oder die Putativnotwehr aufgrund Sachverhaltsirrtums (Art. 13 StGB) vertiefen?"
+      }
     ],
-    "chips": ["Art. 15 StGB", "Art. 16 StGB", "Art. 17 StGB", "Art. 13 StGB", "BGer 6B_810/2021"]
+    "chips": [
+      "Art. 15 StGB",
+      "Art. 16 StGB",
+      "Art. 17 StGB",
+      "Art. 13 StGB",
+      "BGer 6B_810/2021"
+    ]
   },
   "diversa": {
     "generica_label": "Generische KI",
@@ -167,10 +259,70 @@
     "fiduciari_cta": "Lexum für Treuhänder entdecken"
   },
   "cta": {
-    "title": "Lex AI aktivieren (V. 1.3)",
+    "title": "Lex AI aktivieren (V2)",
     "subtitle": "Nutzen Sie Lex AI für Rechts- und Steuerrecherche auf geprüften Quellen, zur Analyse von Dokumenten und für eine zuverlässigere Arbeitsgrundlage.",
     "cta_primary": "Kostenlos testen — 3 Recherchen",
     "secondary_link": "Anwalt oder Treuhänder? Lexum eine Woche kostenlos testen →",
     "footnote": "Für erweiterte Funktionen, Strategien und vollständigen professionellen Zugang treten Sie Lexum als verifizierter Anwalt oder Treuhänder bei."
+  },
+  "anim_fiduciario": {
+    "domanda": "Ein Mitarbeiter kündigt Mitte Monat: Wie berechne ich Feriensaldo und Schlussabrechnung?",
+    "action": "Zum Mandat hinzufügen",
+    "risposta": [
+      {
+        "type": "h2",
+        "text": "Rechtsgrundlage"
+      },
+      {
+        "type": "p",
+        "text": "Nicht bezogene Ferien sind mit dem letzten Lohn auszuzahlen (Art. 329d OR): Der Anspruch entsteht pro rata bis zum Ende des Arbeitsverhältnisses."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Pro rata: 25 Tage ÷ 12 × gearbeitete Monate, abzüglich bezogener Tage",
+          "Zuschlag auf den Stundenlohn: 10,64 % (4 Wochen) bzw. 13,04 % (5 Wochen)",
+          "Letzte Abrechnung: AHV/IV/EO- und BVG-Ausgleich bis zum Austrittsdatum"
+        ]
+      },
+      {
+        "type": "chips",
+        "items": [
+          "Art. 329d OR",
+          "AHV/BVG",
+          "Schlussabrechnung"
+        ]
+      }
+    ]
+  },
+  "anim_progettista": {
+    "domanda": "Hält die Villa die im Kanton Tessin verlangten Grenzabstände ein? Analysiere den Plan.",
+    "action": "Zum Projekt hinzufügen",
+    "risposta": [
+      {
+        "type": "h2",
+        "text": "Prüfung auf dem Plan"
+      },
+      {
+        "type": "p",
+        "text": "Gemäss Grundriss beträgt der minimale Grenzabstand 3,20 m auf der Ostseite. Für ein Gebäude dieser Höhe verlangt das Tessiner Recht in der Regel 3,00 m: Das Projekt ist konform."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Gemessener Abstand: 3,20 m (Ostseite)",
+          "Verlangtes Minimum: 3,00 m",
+          "Zu prüfen: kommunales Baureglement und Nutzungsplan"
+        ]
+      },
+      {
+        "type": "chips",
+        "items": [
+          "LST TI",
+          "Nutzungsplan",
+          "Vision-KI"
+        ]
+      }
+    ]
   }
 }

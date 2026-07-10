@@ -9,19 +9,52 @@
       "Compongo una risposta strutturata"
     ],
     "risposta": [
-      { "type": "h2", "text": "Normativa" },
-      { "type": "p", "text": "La legittima difesa è disciplinata dall'art. 15 CP: chi è aggredito ingiustamente o minacciato di un'aggressione imminente ha il diritto di respingere l'aggressione con mezzi proporzionati alle circostanze." },
-      { "type": "p", "text": "Nel caso del ladro che entra in casa servono un'aggressione attuale o imminente e illecita; la difesa dev'essere proporzionata e diretta contro l'aggressore. Il diritto svizzero non prevede una presunzione automatica di proporzionalità: ogni caso va valutato in concreto." },
-      { "type": "h2", "text": "Presupposti che restano necessari" },
-      { "type": "p", "text": "Il Tribunale federale richiede sempre di accertare:" },
-      { "type": "list", "items": [
-        "Attualità del pericolo: l'aggressione dev'essere in corso o imminente. Se il ladro è in fuga, viene meno il presupposto.",
-        "Necessità e proporzionalità della reazione rispetto all'aggressione.",
-        "Gerarchia dei valori: vita e incolumità prevalgono sull'interesse patrimoniale."
-      ] },
-      { "type": "h2", "text": "Eccesso di legittima difesa" },
-      { "type": "p", "text": "L'art. 16 CP attenua la pena in caso di eccesso; se l'eccesso deriva da uno stato di turbamento o di sgomento causato dall'aggressione, l'autore non agisce in modo colpevole. Clausola pensata per chi, sorpreso da un'intrusione notturna, reagisce in modo sproporzionato per il panico... CONTINUA..." },
-      { "type": "chips", "items": ["Art. 15 CP", "Art. 16 CP", "Art. 17 CP", "Art. 13 CP", "TF 6B_810/2021"] }
+      {
+        "type": "h2",
+        "text": "Normativa"
+      },
+      {
+        "type": "p",
+        "text": "La legittima difesa è disciplinata dall'art. 15 CP: chi è aggredito ingiustamente o minacciato di un'aggressione imminente ha il diritto di respingere l'aggressione con mezzi proporzionati alle circostanze."
+      },
+      {
+        "type": "p",
+        "text": "Nel caso del ladro che entra in casa servono un'aggressione attuale o imminente e illecita; la difesa dev'essere proporzionata e diretta contro l'aggressore. Il diritto svizzero non prevede una presunzione automatica di proporzionalità: ogni caso va valutato in concreto."
+      },
+      {
+        "type": "h2",
+        "text": "Presupposti che restano necessari"
+      },
+      {
+        "type": "p",
+        "text": "Il Tribunale federale richiede sempre di accertare:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Attualità del pericolo: l'aggressione dev'essere in corso o imminente. Se il ladro è in fuga, viene meno il presupposto.",
+          "Necessità e proporzionalità della reazione rispetto all'aggressione.",
+          "Gerarchia dei valori: vita e incolumità prevalgono sull'interesse patrimoniale."
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Eccesso di legittima difesa"
+      },
+      {
+        "type": "p",
+        "text": "L'art. 16 CP attenua la pena in caso di eccesso; se l'eccesso deriva da uno stato di turbamento o di sgomento causato dall'aggressione, l'autore non agisce in modo colpevole. Clausola pensata per chi, sorpreso da un'intrusione notturna, reagisce in modo sproporzionato per il panico... CONTINUA..."
+      },
+      {
+        "type": "chips",
+        "items": [
+          "Art. 15 CP",
+          "Art. 16 CP",
+          "Art. 17 CP",
+          "Art. 13 CP",
+          "TF 6B_810/2021"
+        ]
+      }
     ],
     "input_hint": "Fai una domanda su una questione legale o fiscale, oppure carica un documento da analizzare.",
     "input_placeholder": "Es. Deducibilità delle spese di rappresentanza per una SA...",
@@ -29,7 +62,8 @@
     "user_label": "Tu",
     "lex_label": "Lex AI",
     "action_pratica": "Aggiungi a pratica",
-    "action_etichetta": "Aggiungi a etichetta"
+    "action_etichetta": "Aggiungi a etichetta",
+    "action": "Aggiungi a pratica"
   },
   "meta": {
     "title": "Lex AI — La ricerca legale e fiscale su fonti verificate",
@@ -39,7 +73,7 @@
     "twitter_description": "Ricerca legale e fiscale, analisi documenti e ragionamento strutturato su fonti verificate."
   },
   "hero": {
-    "badge": "Intelligenza artificiale legale e fiscale V. 1.3",
+    "badge": "Intelligenza artificiale legale e fiscale V2",
     "title_part1": "Lex AI, la ricerca legale e fiscale",
     "title_highlight": "su fonti verificate.",
     "subtitle": "Uno strumento pensato per chi fa ricerca giuridica e fiscale seria, rapida e affidabile. Per avvocati e fiduciari. Lavora su fonti verificate, senza rumore inutile.",
@@ -52,10 +86,22 @@
     "title_highlight": "Lex AI.",
     "intro": "Una versione accessibile pensata per la ricerca legale e fiscale. Quattro modi concreti in cui Lex ti aiuta a lavorare meglio, che tu sia avvocato o fiduciario.",
     "items": [
-      { "t": "Cerca riferimenti legali e fiscali", "d": "Trova norme, sentenze e prassi rilevanti su un tema — di diritto o di fiscalità — con il ragionamento già strutturato." },
-      { "t": "Analizza documenti", "d": "Carica un atto, un contratto, un bilancio o un conteggio. Lex evidenzia i punti rilevanti e i nodi da approfondire." },
-      { "t": "Conversazione continua", "d": "Approfondisci, cambia angolazione, chiedi follow-up. La conversazione si sviluppa nel tempo, non si resetta a ogni domanda." },
-      { "t": "Chiarisce dubbi interpretativi", "d": "Quando una norma, una circolare o una pronuncia non è chiara, Lex spiega in modo strutturato e cita le fonti." }
+      {
+        "t": "Cerca riferimenti legali e fiscali",
+        "d": "Trova norme, sentenze e prassi rilevanti su un tema — di diritto o di fiscalità — con il ragionamento già strutturato."
+      },
+      {
+        "t": "Analizza documenti",
+        "d": "Carica un atto, un contratto, un bilancio o un conteggio. Lex evidenzia i punti rilevanti e i nodi da approfondire."
+      },
+      {
+        "t": "Conversazione continua",
+        "d": "Approfondisci, cambia angolazione, chiedi follow-up. La conversazione si sviluppa nel tempo, non si resetta a ogni domanda."
+      },
+      {
+        "t": "Chiarisce dubbi interpretativi",
+        "d": "Quando una norma, una circolare o una pronuncia non è chiara, Lex spiega in modo strutturato e cita le fonti."
+      }
     ],
     "demo_user": "Tu",
     "demo_question": "\"Cerco riferimenti sulla deducibilità delle spese di rappresentanza per una SA.\"",
@@ -73,10 +119,22 @@
     "title_highlight": "in continua espansione.",
     "subtitle": "Lex AI consulta oltre 1,6 milioni di documenti verificati, suddivisi tra giurisprudenza, normativa, prassi delle autorità e contributi professionali. Niente ricerca web casuale, niente fonti generaliste.",
     "cards": [
-      { "t": "Giurisprudenza svizzera", "d": "Tribunale federale, TAF, TPF e tribunali cantonali. Decisioni in materia civile, penale, amministrativa e tributaria, in continua acquisizione." },
-      { "t": "Normativa federale e cantonale", "d": "CO, CC, CP, LIFD, LIVA e leggi tributarie cantonali, ordinanze e regolamenti, sempre aggiornati con le ultime modifiche." },
-      { "t": "Diritto UE", "d": "Trattati, regolamenti, direttive e giurisprudenza della Corte di Giustizia UE, rilevanti per i rapporti tra Svizzera e Unione Europea." },
-      { "t": "Prassi e corpus condiviso", "d": "Circolari e prassi di AFC e AFD, prassi cantonali e materiali caricati dai professionisti verificati, avvocati e fiduciari." }
+      {
+        "t": "Giurisprudenza svizzera",
+        "d": "Tribunale federale, TAF, TPF e tribunali cantonali. Decisioni in materia civile, penale, amministrativa e tributaria, in continua acquisizione."
+      },
+      {
+        "t": "Normativa federale e cantonale",
+        "d": "CO, CC, CP, LIFD, LIVA e leggi tributarie cantonali, ordinanze e regolamenti, sempre aggiornati con le ultime modifiche."
+      },
+      {
+        "t": "Diritto UE",
+        "d": "Trattati, regolamenti, direttive e giurisprudenza della Corte di Giustizia UE, rilevanti per i rapporti tra Svizzera e Unione Europea."
+      },
+      {
+        "t": "Prassi e corpus condiviso",
+        "d": "Circolari e prassi di AFC e AFD, prassi cantonali e materiali caricati dai professionisti verificati, avvocati e fiduciari."
+      }
     ],
     "highlight_strong": "Oltre 1,6 milioni di documenti legali e fiscali",
     "highlight_text": ". Lavoriamo in modo continuo per ampliare la banca dati e tenerla aggiornata."
@@ -87,21 +145,55 @@
     "title_highlight": "Struttura il ragionamento.",
     "subtitle": "Una buona risposta non è una lista di articoli. È un ragionamento che identifica le fonti, chiarisce i presupposti, segnala le eccezioni e suggerisce cosa verificare. Lex AI è costruita per fare proprio questo, sia su una questione di diritto sia su una questione fiscale.",
     "steps": [
-      { "n": "01", "t": "Identifica le norme", "d": "Cita gli articoli applicabili al caso concreto." },
-      { "n": "02", "t": "Chiarisce i presupposti", "d": "Spiega cosa serve perché la norma operi." },
-      { "n": "03", "t": "Segnala le eccezioni", "d": "Indica i limiti e le ipotesi di esclusione." },
-      { "n": "04", "t": "Suggerisce verifiche", "d": "Pone le domande giuste per andare più a fondo." }
+      {
+        "n": "01",
+        "t": "Identifica le norme",
+        "d": "Cita gli articoli applicabili al caso concreto."
+      },
+      {
+        "n": "02",
+        "t": "Chiarisce i presupposti",
+        "d": "Spiega cosa serve perché la norma operi."
+      },
+      {
+        "n": "03",
+        "t": "Segnala le eccezioni",
+        "d": "Indica i limiti e le ipotesi di esclusione."
+      },
+      {
+        "n": "04",
+        "t": "Suggerisce verifiche",
+        "d": "Pone le domande giuste per andare più a fondo."
+      }
     ],
     "demo_label": "Lex AI — anatomia di una risposta",
     "demo_user": "Tu",
     "demo_question": "\"Quando opera la legittima difesa secondo il diritto svizzero?\"",
     "blocks": [
-      { "tag": "01 · Identifica le norme", "text": "La materia è disciplinata dall'art. 15 CP (legittima difesa). L'art. 16 CP regola l'eccesso di legittima difesa." },
-      { "tag": "02 · Chiarisce i presupposti", "text": "La scriminante opera se: vi è un'aggressione attuale o imminente, l'aggressione è illecita, e la difesa è proporzionata e diretta contro l'aggressore." },
-      { "tag": "03 · Segnala le eccezioni", "text": "In caso di eccesso (art. 16 CP) la pena è attenuata; se l'eccesso deriva da stato di turbamento o paura per l'aggressione, l'autore non è punibile. Il Tribunale federale valuta sempre attualità del pericolo e necessità della reazione." },
-      { "tag": "04 · Suggerisce verifiche", "text": "Vuoi che approfondisca l'eccesso colposo (art. 16 cpv. 2 CP), lo stato di necessità (art. 17 CP) o la legittima difesa putativa per errore sui fatti (art. 13 CP)?" }
+      {
+        "tag": "01 · Identifica le norme",
+        "text": "La materia è disciplinata dall'art. 15 CP (legittima difesa). L'art. 16 CP regola l'eccesso di legittima difesa."
+      },
+      {
+        "tag": "02 · Chiarisce i presupposti",
+        "text": "La scriminante opera se: vi è un'aggressione attuale o imminente, l'aggressione è illecita, e la difesa è proporzionata e diretta contro l'aggressore."
+      },
+      {
+        "tag": "03 · Segnala le eccezioni",
+        "text": "In caso di eccesso (art. 16 CP) la pena è attenuata; se l'eccesso deriva da stato di turbamento o paura per l'aggressione, l'autore non è punibile. Il Tribunale federale valuta sempre attualità del pericolo e necessità della reazione."
+      },
+      {
+        "tag": "04 · Suggerisce verifiche",
+        "text": "Vuoi che approfondisca l'eccesso colposo (art. 16 cpv. 2 CP), lo stato di necessità (art. 17 CP) o la legittima difesa putativa per errore sui fatti (art. 13 CP)?"
+      }
     ],
-    "chips": ["Art. 15 CP", "Art. 16 CP", "Art. 17 CP", "Art. 13 CP", "TF 6B_810/2021"]
+    "chips": [
+      "Art. 15 CP",
+      "Art. 16 CP",
+      "Art. 17 CP",
+      "Art. 13 CP",
+      "TF 6B_810/2021"
+    ]
   },
   "diversa": {
     "generica_label": "AI generica",
@@ -167,10 +259,70 @@
     "fiduciari_cta": "Scopri Lexum per fiduciari"
   },
   "cta": {
-    "title": "Attiva Lex AI (V. 1.3)",
+    "title": "Attiva Lex AI (V2)",
     "subtitle": "Usa Lex AI per fare ricerca legale e fiscale su fonti verificate, analizzare documenti e lavorare con una base più affidabile.",
     "cta_primary": "Prova gratis — 3 ricerche",
     "secondary_link": "Avvocato o fiduciario? Prova Lexum gratis per una settimana →",
     "footnote": "Per funzionalità avanzate, strategie e accesso professionale completo, entra in Lexum come avvocato o fiduciario verificato."
+  },
+  "anim_fiduciario": {
+    "domanda": "Un dipendente si licenzia a metà mese: come calcolo il saldo vacanze e i conteggi finali?",
+    "action": "Aggiungi al mandato",
+    "risposta": [
+      {
+        "type": "h2",
+        "text": "Base legale"
+      },
+      {
+        "type": "p",
+        "text": "Le vacanze non godute vanno pagate con l'ultimo salario (art. 329d CO): il diritto matura pro rata fino alla fine del rapporto di lavoro."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Pro rata: 25 giorni ÷ 12 × mesi lavorati, meno i giorni già goduti",
+          "Supplemento sul salario orario: 10,64% (4 settimane) o 13,04% (5 settimane)",
+          "Ultimo cedolino: conguaglio AVS/AI/IPG e LPP fino alla data d'uscita"
+        ]
+      },
+      {
+        "type": "chips",
+        "items": [
+          "art. 329d CO",
+          "AVS/LPP",
+          "Cedolino finale"
+        ]
+      }
+    ]
+  },
+  "anim_progettista": {
+    "domanda": "La villa rispetta le distanze dal confine richieste nel Canton Ticino? Analizza la tavola.",
+    "action": "Aggiungi al progetto",
+    "risposta": [
+      {
+        "type": "h2",
+        "text": "Verifica sulla tavola"
+      },
+      {
+        "type": "p",
+        "text": "Dalla planimetria la distanza minima dal confine è 3,20 m sul lato est. Per un edificio di questa altezza la normativa ticinese richiede di regola 3,00 m: il progetto risulta conforme."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Distanza rilevata dal disegno: 3,20 m (lato est)",
+          "Minimo richiesto: 3,00 m",
+          "Da verificare: regolamento edilizio comunale e piano regolatore"
+        ]
+      },
+      {
+        "type": "chips",
+        "items": [
+          "LST TI",
+          "Piano regolatore",
+          "Vision AI"
+        ]
+      }
+    ]
   }
 }
