@@ -85,5 +85,16 @@
     "legenda": "legenda/timbro",
     "sezione": "sezione",
     "altro": "altro"
-  }
+  },
+  "raster_titolo_sez": "Lettura da immagine (AI)",
+  "raster_hint": "Questo PDF non contiene geometria vettoriale leggibile: l'AI può trascrivere ciò che vede sulla tavola.",
+  "raster_btn": "Leggi da immagine (AI)",
+  "raster_in_corso": "Lettura in corso…",
+  "raster_errore": "Lettura non riuscita. Riprova.",
+  "raster_badge": "Lettura da immagine — minor affidabilità, non verificata",
+  "raster_scala": "scala indicata {{s}}",
+  "raster_quote": "~{{count}} quote visibili",
+  "raster_locali": "Locali letti ({{count}})",
+  "raster_illeggibile": "Tavola non leggibile con sufficiente sicurezza.",
+  "raster_aggiorna": "Aggiorna"
 }

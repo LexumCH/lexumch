@@ -158,8 +158,10 @@ Deno.serve(async (req) => {
         { headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 
-    // Scarica i ritagli (service role) e componi il messaggio vision
-    const items = crops.items as any[]
+    // Scarica i ritagli (service role) e componi il messaggio vision.
+    // Cap numerico e dimensionale: il jsonb è manipolabile dal client.
+    const items = (crops.items as any[]).slice(0, 6)
+    const MAX_BLOB = 4 * 1024 * 1024
     const contenuto: any[] = []
     for (const it of items) {
       const path = String(it.path ?? '')
@@ -168,6 +170,7 @@ Deno.serve(async (req) => {
       if (!path.startsWith(`${user.id}/`)) throw new Error('path ritaglio fuori dal prefisso utente')
       const { data: blob, error: sErr } = await supabase.storage.from('disegni').download(path)
       if (sErr || !blob) throw new Error(`download ritaglio: ${sErr?.message ?? 'vuoto'}`)
+      if (blob.size > MAX_BLOB) throw new Error('ritaglio oltre il limite dimensionale')
       const buf = new Uint8Array(await blob.arrayBuffer())
       let bin = ''
       const CHUNK = 32768

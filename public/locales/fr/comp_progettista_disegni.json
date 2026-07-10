@@ -85,5 +85,16 @@
     "legenda": "légende/cartouche",
     "sezione": "coupe",
     "altro": "autre"
-  }
+  },
+  "raster_titolo_sez": "Lu depuis l'image (IA)",
+  "raster_hint": "Ce PDF ne contient pas de géométrie vectorielle lisible : l'IA peut transcrire ce qui est visible sur le plan.",
+  "raster_btn": "Lire depuis l'image (IA)",
+  "raster_in_corso": "Lecture en cours…",
+  "raster_errore": "Échec de la lecture. Réessayez.",
+  "raster_badge": "Lu depuis l'image — fiabilité moindre, non vérifié",
+  "raster_scala": "échelle indiquée {{s}}",
+  "raster_quote": "~{{count}} cotes visibles",
+  "raster_locali": "Locaux lus ({{count}})",
+  "raster_illeggibile": "Plan non lisible avec une certitude suffisante.",
+  "raster_aggiorna": "Actualiser"
 }

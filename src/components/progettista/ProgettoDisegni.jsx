@@ -139,7 +139,13 @@ export default function ProgettoDisegni({ progettoId }) {
 
   const elimina = useMutation({
     mutationFn: async (disegno) => {
-      await supabase.storage.from('disegni').remove([disegno.storage_path])
+      // Rimuovi anche i file derivati (ritagli zone + tessere raster), non solo il PDF.
+      const derivati = [
+        ...(disegno.zone_dettaglio?.crops?.items ?? []).map(x => x.path),
+        disegno.lettura_raster?.tiles?.overview_path,
+        ...(disegno.lettura_raster?.tiles?.items ?? []).map(x => x.path),
+      ].filter(Boolean)
+      await supabase.storage.from('disegni').remove([disegno.storage_path, ...derivati])
       const { error } = await supabase.from('progetto_disegni').delete().eq('id', disegno.id)
       if (error) throw error
     },
@@ -206,6 +212,10 @@ export default function ProgettoDisegni({ progettoId }) {
           const StatoIcon = meta.icon
           const espanso = aperto === d.id
           const testi = d.gemello?.quote?.testi ?? []
+          // PDF probabilmente raster/scansionato: il motore vettoriale non ha
+          // potuto leggerlo → si offre la lettura da immagine (corsia AI).
+          const candidatoRaster = d.stato_analisi === 'errore' ||
+            (d.stato_analisi === 'completata' && testi.length === 0)
           const incoerenze = (d.findings ?? []).filter(f => f.severita === 'errore')
           const riepilogo = d.stato_analisi === 'completata' && d.gemello
             ? [
@@ -238,7 +248,7 @@ export default function ProgettoDisegni({ progettoId }) {
                     <Play size={12} /> {t('analizza')}
                   </button>
                 )}
-                {d.stato_analisi === 'completata' && (
+                {(d.stato_analisi === 'completata' || candidatoRaster) && (
                   <button onClick={() => setAperto(espanso ? null : d.id)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/70 font-body text-xs hover:border-oro/30 transition-colors shrink-0">
                     {t('risultati')} {espanso ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -250,8 +260,9 @@ export default function ProgettoDisegni({ progettoId }) {
                 </button>
               </div>
 
-              {espanso && d.stato_analisi === 'completata' && (
-                <RisultatiDisegno disegno={d} t={t} cantone={progetto?.cantone ?? null} />
+              {espanso && (d.stato_analisi === 'completata' || candidatoRaster) && (
+                <RisultatiDisegno disegno={d} t={t} cantone={progetto?.cantone ?? null}
+                  candidatoRaster={candidatoRaster} />
               )}
             </div>
           )
@@ -272,7 +283,7 @@ export default function ProgettoDisegni({ progettoId }) {
 }
 
 // ─── Pannello risultati (con narrazione localizzata IT/DE/FR) ────────
-function RisultatiDisegno({ disegno: d, t, cantone }) {
+function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
   const lingua = useLingua()
   const testi = d.gemello?.quote?.testi ?? []
   const cQ = testi.reduce((a, x) => { a[x.stato] = (a[x.stato] || 0) + 1; return a }, {})
@@ -284,7 +295,7 @@ function RisultatiDisegno({ disegno: d, t, cantone }) {
   // Narrazione DE/FR dal layer AI; IT = passthrough (stringhe del motore).
   const { data: narr, isFetching: narrLoading } = useQuery({
     queryKey: ['narrazione_disegno', d.id, lingua, d.updated_at],
-    enabled: lingua !== 'it',
+    enabled: lingua !== 'it' && d.stato_analisi === 'completata',
     staleTime: Infinity,
     retry: false,
     queryFn: async () => {
@@ -295,6 +306,15 @@ function RisultatiDisegno({ disegno: d, t, cantone }) {
       return data?.narrazione ?? null
     },
   })
+
+  // PDF non leggibile dal motore vettoriale → solo la corsia "lettura da immagine".
+  if (d.stato_analisi !== 'completata') {
+    return (
+      <div className="border-t border-white/5 px-4 py-4">
+        <LetturaRaster disegno={d} t={t} lingua={lingua} />
+      </div>
+    )
+  }
 
   // Indice per idx; fallback SEMPRE alla stringa del motore (mai vuoto)
   const findIdx = (arr, i) => (arr ?? []).find(x => x.idx === i)
@@ -408,6 +428,12 @@ function RisultatiDisegno({ disegno: d, t, cantone }) {
 
       <SezioneCantonale disegno={d} cantone={cantone} t={t} lingua={lingua} />
 
+      {candidatoRaster && (
+        <section>
+          <LetturaRaster disegno={d} t={t} lingua={lingua} />
+        </section>
+      )}
+
       {(d.gemello?.locali ?? []).length > 0 && (
         <section>
           <h3 className="font-display text-xs uppercase tracking-wider text-nebbia/40 mb-2">
@@ -512,6 +538,100 @@ function ZoneVision({ disegno: d, t, lingua }) {
       <button onClick={() => interpreta.mutate({ forza: true })} disabled={interpreta.isPending}
         className="flex items-center gap-1.5 px-2.5 py-1 border border-white/10 text-nebbia/50 font-body text-[11px] hover:border-oro/30 hover:text-nebbia/80 disabled:opacity-50 transition-colors">
         <RefreshCw size={11} className={interpreta.isPending ? 'animate-spin' : ''} /> {t('zona_ai_aggiorna')}
+      </button>
+    </div>
+  )
+}
+
+// ─── Lettura da immagine per PDF raster (quarantena dura: trascrive, basta) ──
+// Flusso: /api/rendi_pagina (Vercel, panoramica+tessere PNG deterministiche)
+// → lex-vision-raster (Opus vision, trascrizione guardata) → cache per lingua.
+function LetturaRaster({ disegno: d, t, lingua }) {
+  const queryClient = useQueryClient()
+  const lettura = d.lettura_raster?.letture?.[lingua] ?? null
+  const fresh = lettura && lettura.fonte_updated_at === d.updated_at
+  const overviewPath = d.lettura_raster?.tiles?.overview_path ?? null
+
+  const leggi = useMutation({
+    mutationFn: async ({ forza = false } = {}) => {
+      const token = await getAccessToken()
+      const res = await fetch('/api/rendi_pagina', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ disegno_id: d.id, supabase_url: supabaseUrl, supabase_anon_key: supabaseKey }),
+      })
+      const out = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(out.errore ?? `Errore ${res.status}`)
+      const { data, error } = await supabase.functions.invoke('lex-vision-raster', {
+        body: { disegno_id: d.id, lingua, forza },
+      })
+      if (error) throw error
+      if (!data?.ok) throw new Error(data?.error ?? 'errore')
+      return data
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni'] }),
+  })
+
+  if (!fresh) {
+    return (
+      <div>
+        <h3 className="font-display text-xs uppercase tracking-wider text-nebbia/40 mb-1.5">{t('raster_titolo_sez')}</h3>
+        <p className="font-body text-xs text-nebbia/40 mb-2.5">{t('raster_hint')}</p>
+        <button onClick={() => leggi.mutate({})} disabled={leggi.isPending}
+          className="flex items-center gap-2 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 disabled:opacity-50 transition-colors">
+          {leggi.isPending ? <Loader2 size={13} className="animate-spin" /> : <ScanSearch size={13} />}
+          {leggi.isPending ? t('raster_in_corso') : t('raster_btn')}
+        </button>
+        {leggi.isError && <p className="font-body text-xs text-red-400 mt-2">{t('raster_errore')}</p>}
+      </div>
+    )
+  }
+
+  const dati = lettura.dati ?? {}
+  return (
+    <div>
+      <h3 className="font-display text-xs uppercase tracking-wider text-nebbia/40 mb-2">{t('raster_titolo_sez')}</h3>
+      <div className="bg-petrolio border border-white/5 p-3 flex gap-3 items-start">
+        {overviewPath && <CropImg path={overviewPath} />}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <ScanSearch size={13} className="text-oro/70 shrink-0" />
+            {dati.titolo_tavola
+              ? <span className="font-body text-sm text-nebbia">{dati.titolo_tavola}</span>
+              : !dati.leggibile && <span className="font-body text-sm text-nebbia/50">{t('raster_illeggibile')}</span>}
+            {dati.scala_indicata && (
+              <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">
+                {t('raster_scala', { s: dati.scala_indicata })}
+              </span>
+            )}
+            {dati.quote_visibili != null && (
+              <span className="font-body text-[10px] px-1.5 py-0.5 border border-white/10 text-nebbia/40">
+                {t('raster_quote', { count: dati.quote_visibili })}
+              </span>
+            )}
+          </div>
+          {dati.descrizione && <p className="font-body text-sm text-nebbia/70">{dati.descrizione}</p>}
+          {(dati.locali ?? []).length > 0 && (
+            <div className="mt-2">
+              <p className="font-body text-[11px] uppercase tracking-wider text-nebbia/30 mb-1">
+                {t('raster_locali', { count: dati.locali.length })}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                {dati.locali.map((l, i) => (
+                  <div key={i} className="flex items-center justify-between px-2 py-1 bg-slate border border-white/5">
+                    <span className="font-body text-xs text-nebbia/70 truncate">{l.nome}</span>
+                    {l.superficie && <span className="font-body text-[11px] text-nebbia/40 shrink-0 ml-2">{l.superficie}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="font-body text-[10px] uppercase tracking-wider text-oro/50 mt-2">{t('raster_badge')}</p>
+        </div>
+      </div>
+      <button onClick={() => leggi.mutate({ forza: true })} disabled={leggi.isPending}
+        className="mt-2 flex items-center gap-1.5 px-2.5 py-1 border border-white/10 text-nebbia/50 font-body text-[11px] hover:border-oro/30 hover:text-nebbia/80 disabled:opacity-50 transition-colors">
+        <RefreshCw size={11} className={leggi.isPending ? 'animate-spin' : ''} /> {t('raster_aggiorna')}
       </button>
     </div>
   )
