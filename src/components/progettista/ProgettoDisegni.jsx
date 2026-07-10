@@ -189,6 +189,9 @@ export default function ProgettoDisegni({ progettoId }) {
   const setFase = (id, fase) => setFasiAi(prev => ({ ...prev, [id]: fase }))
 
   // "Analizza" = UN gesto: motore deterministico + pacchetto AI (1 credito).
+  // Il risultato esce in modo CONTESTUALE: durante la corsa solo la barra di
+  // progresso, nessun risultato parziale; a fine corsa il pannello si apre da
+  // solo con TUTTO dentro (checklist, esiti, cantonale, vision).
   const analizza = useMutation({
     mutationFn: async (disegnoId) => {
       setFase(disegnoId, 'motore')
@@ -200,13 +203,16 @@ export default function ProgettoDisegni({ progettoId }) {
       })
       const out = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(out.errore ?? `Errore ${res.status}`)
-      // Il risultato deterministico è subito visibile...
-      queryClient.invalidateQueries({ queryKey: ['progetto_disegni', progettoId] })
-      // ...poi il pacchetto AI. Se fallisce, l'analisi deterministica resta valida.
+      // niente refresh qui: il report appare tutto insieme al termine
       await eseguiBundleAi({ disegnoId, lingua, onFase: (f) => setFase(disegnoId, f) })
       return out
     },
-    onMutate: () => setErrore(null),
+    onMutate: (disegnoId) => {
+      setErrore(null)
+      // se il pannello di questo disegno era aperto, chiudilo durante la corsa
+      setAperto(cur => (cur === disegnoId ? null : cur))
+    },
+    onSuccess: (_data, disegnoId) => setAperto(disegnoId),  // si apre con tutto dentro
     onSettled: (_data, _err, disegnoId) => {
       setFase(disegnoId, null)
       queryClient.invalidateQueries({ queryKey: ['progetto_disegni', progettoId] })
@@ -335,7 +341,7 @@ export default function ProgettoDisegni({ progettoId }) {
                     <Play size={12} /> {t('analizza')}
                   </button>
                 )}
-                {(d.stato_analisi === 'completata' || candidatoRaster) && (
+                {!faseCorrente && (d.stato_analisi === 'completata' || candidatoRaster) && (
                   <button onClick={() => setAperto(espanso ? null : d.id)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-petrolio border border-white/10 text-nebbia/70 font-body text-xs hover:border-oro/30 transition-colors shrink-0">
                     {t('risultati')} {espanso ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -347,27 +353,26 @@ export default function ProgettoDisegni({ progettoId }) {
                 </button>
               </div>
 
-              {/* Barra di avanzamento del flusso unico (motore → ricerca → sintesi) */}
+              {/* Barra di progresso del flusso unico: il report NON appare a pezzi —
+                  si apre completo (pannello auto-aperto) quando tutto è pronto. */}
               {faseCorrente && (
-                <div className="border-t border-white/5 px-4 py-2.5 flex items-center gap-3 flex-wrap">
-                  {FASI_AI.map((f, i) => {
-                    const idxCorr = FASI_AI.indexOf(faseCorrente)
-                    const stato = i < idxCorr ? 'fatta' : i === idxCorr ? 'attiva' : 'attesa'
-                    return (
-                      <span key={f} className={`flex items-center gap-1.5 font-body text-[11px] ${
-                        stato === 'attiva' ? 'text-oro' : stato === 'fatta' ? 'text-salvia' : 'text-nebbia/30'}`}>
-                        {stato === 'attiva' ? <Loader2 size={11} className="animate-spin" />
-                          : stato === 'fatta' ? <CheckCircle2 size={11} />
-                            : <span className="w-[11px] h-[11px] rounded-full border border-white/15 inline-block" />}
-                        {t(`fase_ai.${f}`)}
-                        {i < FASI_AI.length - 1 && <span className="text-nebbia/20 ml-1.5">→</span>}
-                      </span>
-                    )
-                  })}
+                <div className="border-t border-white/5 px-4 py-3 space-y-2">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <span className="font-body text-[11px] text-oro flex items-center gap-1.5">
+                      <Loader2 size={11} className="animate-spin" /> {t(`fase_ai.${faseCorrente}`)}
+                    </span>
+                    <span className="font-body text-[10px] text-nebbia/30">{t('analisi_attesa_hint')}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-oro/50 via-oro to-oro/80 transition-all duration-700 ease-out animate-pulse"
+                      style={{ width: `${Math.round(((FASI_AI.indexOf(faseCorrente) + 0.65) / FASI_AI.length) * 100)}%` }}
+                    />
+                  </div>
                 </div>
               )}
 
-              {espanso && (d.stato_analisi === 'completata' || candidatoRaster) && (
+              {espanso && !faseCorrente && (d.stato_analisi === 'completata' || candidatoRaster) && (
                 <RisultatiDisegno disegno={d} t={t} cantone={progetto?.cantone ?? null}
                   candidatoRaster={candidatoRaster} />
               )}
