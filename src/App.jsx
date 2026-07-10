@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
+import { LINGUE_SUPPORTATE, LINGUA_DEFAULT } from '@/i18n'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -24,7 +25,6 @@ import Home from './pages/Home'
 import PerAvvocati from '@/pages/PerAvvocati'
 import PerFiduciari from './pages/PerFiduciari'
 import PerProgettisti from './pages/PerProgettisti'
-import LexAI from '@/pages/LexAI'
 import Contatti from './pages/Contatti'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import TerminiServizio from '@/pages/TerminiServizio'
@@ -191,7 +191,8 @@ export default function App() {
               <Route path="/:lang/avvocati" element={<Vet><PerAvvocati /></Vet>} />
               <Route path="/:lang/fiduciari" element={<Vet><PerFiduciari /></Vet>} />
               <Route path="/:lang/progettisti" element={<Vet><PerProgettisti /></Vet>} />
-              <Route path="/:lang/lex-ai" element={<Vet><LexAI /></Vet>} />
+              {/* La vecchia pagina Lex AI è stata fusa nella Home: redirect alla home della stessa lingua */}
+              <Route path="/:lang/lex-ai" element={<RedirectLang />} />
               <Route path="/:lang/contatti" element={<Vet><Contatti /></Vet>} />
               <Route path="/:lang/privacy" element={<Vet><PrivacyPolicy /></Vet>} />
               <Route path="/:lang/termini" element={<Vet><TerminiServizio /></Vet>} />
@@ -200,7 +201,7 @@ export default function App() {
               <Route path="/avvocati" element={<RootRedirect to="/avvocati" />} />
               <Route path="/fiduciari" element={<RootRedirect to="/fiduciari" />} />
               <Route path="/progettisti" element={<RootRedirect to="/progettisti" />} />
-              <Route path="/lex-ai" element={<RootRedirect to="/lex-ai" />} />
+              <Route path="/lex-ai" element={<RootRedirect />} />
               <Route path="/contatti" element={<RootRedirect to="/contatti" />} />
               <Route path="/privacy" element={<RootRedirect to="/privacy" />} />
               <Route path="/termini" element={<RootRedirect to="/termini" />} />
@@ -372,6 +373,13 @@ function AvvocatoLayoutOrUser({ children }) {
         ? ProgettistaLayout
         : AvvocatoLayout
   return <Layout>{children}</Layout>
+}
+
+// ─── Redirect con param lingua: /:lang/lex-ai → /:lang (Lex AI è fusa nella Home) ───
+function RedirectLang({ to = '' }) {
+  const { lang } = useParams()
+  const lingua = LINGUE_SUPPORTATE.includes(lang) ? lang : LINGUA_DEFAULT
+  return <Navigate to={`/${lingua}${to}`} replace />
 }
 
 // ─── Redirect dinamico per /user/assistenza/:id → /area/assistenza/:id ───

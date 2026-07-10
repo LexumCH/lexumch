@@ -1,18 +1,21 @@
 {
     "meta": {
-        "title": "Lexum — Die Plattform für Schweizer Anwaltskanzleien und Treuhänder",
-        "description": "Die erste All-in-One-Plattform für Schweizer Anwaltskanzleien und Treuhänder mit integrierter KI. Kostenlose Datenbank: Bundesrecht, kantonales Recht, BG-Entscheide, Praxis der Behörden. Lex AI für die Recherche.",
-        "og_title": "Lexum — Für Schweizer Anwaltskanzleien und Treuhänder",
-        "og_description": "Kostenlose Schweizer Datenbank, Lex AI, Kanzleimanagement für Anwaltskanzleien und Treuhänder. Bundesrecht, kantonales Recht und EU-Recht.",
-        "twitter_description": "Erste All-in-One-Plattform CH mit integrierter KI. Anwälte, Treuhänder, kostenlose Datenbank."
+        "title": "Lex AI — Die Schweizer KI, die das gesamte Schweizer Recht durchdenkt | Lexum",
+        "description": "Lex AI: die Schweizer künstliche Intelligenz, die auf über 1,6 Millionen geprüften Dokumenten argumentiert — Bundesrecht, kantonales Recht, Rechtsprechung, Praxis der Behörden und EU-Recht — in einer vollständigen Plattform für Anwälte und Treuhänder. Kostenlose Datenbank.",
+        "og_title": "Lex AI — Die Schweizer KI, die das gesamte Schweizer Recht durchdenkt",
+        "og_description": "Rechtliche und steuerliche Argumentation auf geprüften Quellen, kostenlose Schweizer Datenbank, Kanzleimanagement und Mandantenportal. Für Anwälte und Treuhänder.",
+        "twitter_description": "Die Schweizer KI, die das gesamte Schweizer Recht durchdenkt. Geprüfte Quellen, vollständige Plattform für Anwälte und Treuhänder."
     },
     "hero": {
-        "badge": "Für Schweizer Treuhänder und Anwaltskanzleien",
-        "title_part1": "Plattform für Treuhänder und Anwaltskanzleien",
-        "title_highlight": "mit integrierter KI",
-        "subtitle": "Schweizer Rechtsdatenbank, Kanzleimanagement, intelligentes Archiv und Lex AI in einer einzigen Umgebung. Gedacht für Anwälte und Treuhänder, die besser arbeiten wollen.",
+        "badge": "Lex AI · Künstliche Intelligenz für Recht und Steuern · V. 1.3",
+        "title_part1": "Die Schweizer KI, die",
+        "title_highlight": "das gesamte Schweizer Recht",
+        "title_part2": "durchdenkt",
+        "subtitle": "Geprüfte Quellen, über 1,6 Millionen juristische und steuerliche Dokumente, strukturierte Argumentation. In einer vollständigen Plattform für Schweizer Anwälte und Treuhänder.",
+        "box_status": "Aktiv",
+        "box_session": "Beispielsitzung",
         "cta_primary": "Gratis starten mit der Datenbank",
-        "cta_secondary": "Funktionen entdecken",
+        "cta_secondary": "Den Unterschied entdecken",
         "no_card": "Die Schweizer Datenbank ist immer kostenlos."
     },
     "database_hero": {
@@ -22,6 +25,8 @@
         "headline": "Schweizer und europäische Rechtsdokumente.",
         "description": "Bundesrecht, kantonales Recht, Entscheide des Bundesgerichts und der Verwaltungsbehörden, Praxis der Behörden.",
         "open_access": "Offen für alle, gratis. Ohne Abonnements pro Rechtsgebiet, ohne Konsultationsgrenzen.",
+        "weekly_badge": "Bundes- und kantonales Recht (26 Kantone) wöchentlich auf dem geltenden Stand.",
+        "anti_noise": "Lex AI durchsucht über 1,6 Millionen geprüfte Dokumente, aufgeteilt in Rechtsprechung, Gesetzgebung, Praxis der Behörden und fachliche Beiträge. Keine zufällige Websuche, keine generischen Quellen.",
         "items": [
             {
                 "t": "Bundesrecht (Fedlex)",
@@ -49,61 +54,137 @@
             }
         ]
     },
-    "corpus_it_card": {
-        "title": "Italienisches Corpus zur Konsultation verfügbar",
-        "badge": "Auf Italienisch",
-        "description": "Haben Sie Mandanten mit Sitz in Italien oder grenzüberschreitende Fälle? Greifen Sie auch auf das italienische Rechtskorpus zu: <span>über 4 Millionen Dokumente</span> zwischen Kassationshof, Gesetzgebung, Praxis und EU-Recht. Verfügbar auf Italienisch zur Konsultation und für Rechtsvergleichung."
+    "differenza": {
+        "label": "Der Unterschied",
+        "title_part1": "Das Problem generischer KI ist der Kontext.",
+        "title_highlight": "Lex hat ihn.",
+        "intro": "Generische KI antwortet im leeren Raum: sie kennt weder den Fall noch die Dokumente noch die Fristen. Lex lebt in der Kanzleisoftware der Kanzlei.",
+        "intro2": "Lex AI sucht nicht überall und versucht nicht, alles zu tun. Sie wurde entwickelt, um in einem kontrollierteren Rahmen besser zu arbeiten: geprüfte Quellen, Schweizer rechtlicher und steuerlicher Kontext und konkrete Materialien.",
+        "libera_badge": "Ohne Kontext",
+        "libera_title": "Freie Recherche",
+        "libera_text": "Fragen zum gesamten Schweizer Recht, mit begründeter Antwort auf über 1,6 Millionen geprüften Quellen. Zum Erkunden, Prüfen, Vertiefen.",
+        "contesto_badge": "Mit Kontext",
+        "contesto_title": "Lex im Dossier und im Mandat",
+        "contesto_text": "Im Dossier des Anwalts oder im Mandat des Treuhänders liest Lex Eingaben, Dokumente, Fristen, Recherchen und Falldaten: Analysen und Strategien zu Ihrem Fall — und generierte Akten und Dokumente, bereits mit den echten Daten ausgefüllt.",
+        "tagline": "Derselbe Motor, zwei Modi: frei, wenn Sie erkunden — mit Kontext, wenn Sie arbeiten."
     },
-    "mini_cards": [
-        {
-            "title": "Juristische Recherche",
-            "text": "Finden Sie Artikel, Entscheide und Praxis. Lex AI versteht natürliche Sprache: fragen Sie auf Italienisch, Deutsch oder Französisch."
+    "lexai": {
+        "label": "Künstliche Intelligenz",
+        "title_part1": "Ein persönlicher Assistent",
+        "title_highlight": "für die schweizerische juristische Arbeit.",
+        "subtitle": "Es ist kein generischer Chat geöffnet in einem separaten Fenster. Es ist ein Werkzeug gedacht für den Kontext des schweizerischen Rechts.",
+        "features": [
+            {
+                "t": "Normanalyse",
+                "d": "Sucht im geltenden Bundes- und kantonalen Recht, erklärt welche Artikel auf den Fall anwendbar sind, mit vollständiger Begründung."
+            },
+            {
+                "t": "Verfahrensstrategien",
+                "d": "Schlägt konkrete Strategien vor, einzulegende Einreden und in der Verhandlung zu entwickelnde Argumente nach der schweizerischen ZPO."
+            },
+            {
+                "t": "Verwandte Rechtsprechung",
+                "d": "Schlägt vor welche Entscheide des Bundesgerichts oder der kantonalen Gerichte zu konsultieren sind, basierend auf dem Fall."
+            },
+            {
+                "t": "Bereits ausgefüllte Akten",
+                "d": "Liest die Daten des Dossiers und produziert Beschwerden, Schriftsätze, Eingaben und andere Akten bereit für den Export."
+            },
+            {
+                "t": "Fortlaufendes Gespräch",
+                "d": "Vertiefen Sie, wechseln Sie den Blickwinkel, fragen Sie nach. Das Gespräch entwickelt sich mit der Zeit."
+            },
+            {
+                "t": "Massgeschneiderte Strategie",
+                "d": "Liest alle Recherchen des Dossiers und generiert eine personalisierte Verfahrensstrategie."
+            }
+        ],
+        "quote": "\"Das Ziel ist nicht den Fachmann zu ersetzen. Es ist ihm echte Zeit zu sparen.\"",
+        "chat1": {
+            "label": "Lex AI - Miete",
+            "domanda": "Mein Mandant erleidet Wassereintritt in der Wohnung und der Vermieter greift nicht ein. Was kann ich tun?",
+            "risposta": "Auf der Grundlage der Art. 259a-259d OR und des BGE 142 III 557 hat der Mieter das Recht, die Reparatur, die Herabsetzung des Mietzinses oder, in schweren Fällen, den Schadenersatz nach Art. 259e OR zu verlangen. Ich rate Ihnen, formell die Reparatur zu verlangen...",
+            "tag1": "BGE 142 III 557",
+            "tag2": "Art. 259d OR"
         },
-        {
-            "title": "Speichern Sie Ihre Recherchen",
-            "text": "Organisieren Sie sie mit persönlichen Etiketten, vergleichen Sie sie, verbinden Sie sie mit einem Dossier oder einem Treuhandmandat."
-        },
-        {
-            "title": "Intelligentes Archiv",
-            "text": "Laden Sie Ihre Dokumente hoch. Lex AI hilft Ihnen zu finden, was Sie brauchen, wenn Sie es brauchen."
-        },
-        {
-            "title": "Fallanalyse",
-            "text": "Lex liest die Recherchen des Dossiers, prüft was fehlt, schlägt Verfahrensstrategien und anwendbare Normen vor."
-        },
-        {
-            "title": "Erstellung von Akten",
-            "text": "Akten, Schriftsätze, Verträge und Erklärungen, generiert von Lex AI ausgehend von den Daten des Dossiers."
-        },
-        {
-            "title": "Mandantenportal",
-            "text": "Der Mandant greift auf Dokumente, Verhandlungen, Steuerfristen zu. Sie arbeiten, er bleibt informiert."
+        "chat2": {
+            "label": "Lex AI - Arbeit",
+            "domanda": "Der Angestellte wurde während der Krankheit entlassen. Ist die Kündigungsfrist gültig?",
+            "risposta": "Art. 336c OR sieht den Schutz gegen die Kündigung während der Arbeitsverhinderung wegen Krankheit vor: die Frist ist nichtig wenn sie während der Schutzperiode mitgeteilt wird. Die Schutzdauer variiert je nach Dienstjahren (30/90/180 Tage)...",
+            "tag1": "Art. 336c OR",
+            "tag2": "BGE 128 III 271"
         }
-    ],
-    "problema": {
-        "label": "Das Problem",
-        "title_part1": "Das Problem ist nicht nur die Arbeitsbelastung.",
-        "title_highlight": "Es ist die Fragmentierung.",
-        "oggi_label": "Heute",
-        "oggi_text": "Anwälte und Treuhänder arbeiten zwischen Kanzleisoftware, Archiven, Dokumenten, E-Mails, Notizen, Datenbanken und separaten KI-Tools. Jede Tätigkeit erfordert zusätzliche Schritte, wiederholte Recherchen und Zeitverlust beim Kontextwechsel.",
-        "oggi_tags": [
-            "Kanzleisoftware",
-            "Archiv",
-            "E-Mail",
-            "Notizen",
-            "Datenbanken",
-            "Externe KI"
+    },
+    "ragiona": {
+        "label": "Argumentation",
+        "title_part1": "Es liefert nicht nur Normen.",
+        "title_highlight": "Es strukturiert die Argumentation.",
+        "subtitle": "Eine gute Antwort ist keine Liste von Artikeln. Es ist eine Argumentation, die die Quellen identifiziert, die Voraussetzungen klärt, die Ausnahmen aufzeigt und vorschlägt, was zu prüfen ist. Lex AI ist genau dafür gebaut, bei einer Rechtsfrage wie bei einer Steuerfrage.",
+        "steps": [
+            {
+                "n": "01",
+                "t": "Identifiziert die Normen",
+                "d": "Zitiert die auf den konkreten Fall anwendbaren Artikel."
+            },
+            {
+                "n": "02",
+                "t": "Klärt die Voraussetzungen",
+                "d": "Erklärt, was nötig ist, damit die Norm greift."
+            },
+            {
+                "n": "03",
+                "t": "Zeigt die Ausnahmen auf",
+                "d": "Nennt die Grenzen und die Ausschlussfälle."
+            },
+            {
+                "n": "04",
+                "t": "Schlägt Prüfungen vor",
+                "d": "Stellt die richtigen Fragen, um tiefer zu gehen."
+            }
         ],
-        "lexum_label": "Mit Lexum",
-        "lexum_text": "Alles bleibt verbunden und an den Fall oder das Mandat geknüpft. Die Recherchen fliessen in die Dossiers ein, die Dokumente sind dort wo sie gebraucht werden, die KI arbeitet mit Ihren Materialien und auf verifizierten Quellen.",
-        "lexum_tags": [
-            "Kanzleisoftware",
-            "Archiv",
-            "Mandantenbereich",
-            "Datenbank",
-            "Lex AI"
+        "demo_label": "Lex AI — Anatomie einer Antwort",
+        "demo_user": "Sie",
+        "demo_question": "\"Wann greift die Notwehr nach Schweizer Recht?\"",
+        "blocks": [
+            {
+                "tag": "01 · Identifiziert die Normen",
+                "text": "Die Materie ist in Art. 15 StGB (Notwehr) geregelt. Art. 16 StGB regelt den Notwehrexzess."
+            },
+            {
+                "tag": "02 · Klärt die Voraussetzungen",
+                "text": "Der Rechtfertigungsgrund greift, wenn: ein gegenwärtiger oder unmittelbar drohender Angriff vorliegt, der Angriff rechtswidrig ist und die Abwehr verhältnismässig und gegen den Angreifer gerichtet ist."
+            },
+            {
+                "tag": "03 · Zeigt die Ausnahmen auf",
+                "text": "Beim Exzess (Art. 16 StGB) wird die Strafe gemildert; geht der Exzess auf eine entschuldbare Aufregung oder Bestürzung über den Angriff zurück, handelt der Täter nicht schuldhaft. Das Bundesgericht prüft stets die Gegenwärtigkeit der Gefahr und die Notwendigkeit der Reaktion."
+            },
+            {
+                "tag": "04 · Schlägt Prüfungen vor",
+                "text": "Soll ich den fahrlässigen Exzess (Art. 16 Abs. 2 StGB), den Notstand (Art. 17 StGB) oder die Putativnotwehr aufgrund Sachverhaltsirrtums (Art. 13 StGB) vertiefen?"
+            }
         ],
-        "lexum_footer": "Eine kohärente Umgebung, nicht eine Summe von Werkzeugen."
+        "chips": [
+            "Art. 15 StGB",
+            "Art. 16 StGB",
+            "Art. 17 StGB",
+            "Art. 13 StGB",
+            "BGer 6B_810/2021"
+        ],
+        "puo_label": "Transparenz",
+        "puo_title": "Was sie kann und was nicht.",
+        "puo_subtitle": "Ehrlichkeit auf beiden Seiten. Was Lex gut macht, und was sie bewusst nicht macht. Ohne übertriebene Versprechen.",
+        "fa_label": "Was Lex AI tut",
+        "fa_items": [
+            "Recherche auf geprüften rechtlichen und steuerlichen Quellen",
+            "Analysiert hochgeladene Dokumente (Eingaben, Verträge, Bilanzen)",
+            "Strukturiert die rechtliche und steuerliche Argumentation",
+            "Zitiert die Quellen und zeigt die Ausnahmen auf"
+        ],
+        "nonfa_label": "Was Lex AI nicht tut",
+        "nonfa_items": [
+            "Ersetzt nicht das Urteil des Anwalts oder Treuhänders",
+            "Sucht nicht auf generischen oder ungeprüften Webquellen"
+        ]
     },
     "gestionale": {
         "title_part1": "Die geführte Kanzlei,",
@@ -178,53 +259,6 @@
         "title_highlight": "immer zur Hand.",
         "subtitle": "Sie laden hoch, finden wieder, teilen. Verwaltung und Suche im Archiv in einem einzigen Fluss, ohne je den Kontext des Dossiers zu verlassen."
     },
-    "lexai": {
-        "label": "Künstliche Intelligenz",
-        "title_part1": "Ein persönlicher Assistent",
-        "title_highlight": "für die schweizerische juristische Arbeit.",
-        "subtitle": "Es ist kein generischer Chat geöffnet in einem separaten Fenster. Es ist ein Werkzeug gedacht für den Kontext des schweizerischen Rechts.",
-        "features": [
-            {
-                "t": "Normanalyse",
-                "d": "Sucht im geltenden Bundes- und kantonalen Recht, erklärt welche Artikel auf den Fall anwendbar sind, mit vollständiger Begründung."
-            },
-            {
-                "t": "Verfahrensstrategien",
-                "d": "Schlägt konkrete Strategien vor, einzulegende Einreden und in der Verhandlung zu entwickelnde Argumente nach der schweizerischen ZPO."
-            },
-            {
-                "t": "Fortlaufendes Gespräch",
-                "d": "Vertiefen Sie, wechseln Sie den Blickwinkel, fragen Sie nach. Das Gespräch entwickelt sich mit der Zeit."
-            },
-            {
-                "t": "Massgeschneiderte Strategie",
-                "d": "Liest alle Recherchen des Dossiers und generiert eine personalisierte Verfahrensstrategie."
-            },
-            {
-                "t": "Verwandte Rechtsprechung",
-                "d": "Schlägt vor welche Entscheide des Bundesgerichts oder der kantonalen Gerichte zu konsultieren sind, basierend auf dem Fall."
-            },
-            {
-                "t": "Bereits ausgefüllte Akten",
-                "d": "Liest die Daten des Dossiers und produziert Beschwerden, Schriftsätze, Eingaben und andere Akten bereit für den Export."
-            }
-        ],
-        "quote": "\"Das Ziel ist nicht den Fachmann zu ersetzen. Es ist ihm echte Zeit zu sparen.\"",
-        "chat1": {
-            "label": "Lex AI - Miete",
-            "domanda": "Mein Mandant erleidet Wassereintritt in der Wohnung und der Vermieter greift nicht ein. Was kann ich tun?",
-            "risposta": "Auf der Grundlage der Art. 259a-259d OR und des BGE 142 III 557 hat der Mieter das Recht, die Reparatur, die Herabsetzung des Mietzinses oder, in schweren Fällen, den Schadenersatz nach Art. 259e OR zu verlangen. Ich rate Ihnen, formell die Reparatur zu verlangen...",
-            "tag1": "BGE 142 III 557",
-            "tag2": "Art. 259d OR"
-        },
-        "chat2": {
-            "label": "Lex AI - Arbeit",
-            "domanda": "Der Angestellte wurde während der Krankheit entlassen. Ist die Kündigungsfrist gültig?",
-            "risposta": "Art. 336c OR sieht den Schutz gegen die Kündigung während der Arbeitsverhinderung wegen Krankheit vor: die Frist ist nichtig wenn sie während der Schutzperiode mitgeteilt wird. Die Schutzdauer variiert je nach Dienstjahren (30/90/180 Tage)...",
-            "tag1": "Art. 336c OR",
-            "tag2": "BGE 128 III 271"
-        }
-    },
     "corpus_italiano_section": {
         "label": "Für wer über die Grenze hinaus arbeitet",
         "title_part1": "Auch das italienische Recht,",
@@ -282,6 +316,8 @@
         "title_highlight": "Machen Sie Ihre erste Recherche.",
         "subtitle": "Registrieren Sie sich und beginnen Sie sofort. Über 1,6 Millionen Schweizer Dokumente, EU-Recht und Zugang zum italienischen Corpus. Lex AI mit Willkommens-Credits. Kanzleimanagement und Mandantenportal bereit.",
         "cta_primary": "Gratis starten",
-        "login_link": "Haben Sie bereits ein Konto? Anmelden"
+        "login_link": "Haben Sie bereits ein Konto? Anmelden",
+        "avvocati_link": "Lexum für Anwälte entdecken",
+        "fiduciari_link": "Lexum für Treuhänder entdecken"
     }
 }

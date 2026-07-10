@@ -1,18 +1,21 @@
 {
     "meta": {
-        "title": "Lexum — La piattaforma per studi legali e fiduciari svizzeri",
-        "description": "La prima piattaforma all-in-one per studi legali e fiduciari svizzeri con AI integrata. Banca dati gratuita: diritto federale, cantonale, sentenze TF, prassi delle autorità. Lex AI per la consultazione.",
-        "og_title": "Lexum — Per studi legali e fiduciari svizzeri",
-        "og_description": "Banca dati svizzera gratuita, Lex AI, gestionale per studi legali e fiduciari. Diritto federale, cantonale e UE.",
-        "twitter_description": "Prima piattaforma all-in-one CH con AI integrata. Avvocati, fiduciari, banca dati gratuita."
+        "title": "Lex AI — L'AI svizzera che ragiona su tutto il diritto svizzero | Lexum",
+        "description": "Lex AI: l'intelligenza artificiale svizzera che ragiona su oltre 1,6 milioni di documenti verificati — diritto federale, cantonale, giurisprudenza, prassi delle autorità e diritto UE — dentro una piattaforma completa per avvocati e fiduciari. Banca dati gratuita.",
+        "og_title": "Lex AI — L'AI svizzera che ragiona su tutto il diritto svizzero",
+        "og_description": "Ragionamento giuridico e fiscale su fonti verificate, banca dati svizzera gratuita, gestionale e portale clienti. Per avvocati e fiduciari.",
+        "twitter_description": "L'AI svizzera che ragiona su tutto il diritto svizzero. Fonti verificate, piattaforma completa per avvocati e fiduciari."
     },
     "hero": {
-        "badge": "Per fiduciari e studi legali svizzeri",
-        "title_part1": "Piattaforma per fiduciari e studi legali",
-        "title_highlight": "con AI integrata",
-        "subtitle": "Banca dati giuridica svizzera, gestione studio, archivio intelligente e Lex AI in un unico ambiente. Pensato per avvocati e fiduciari che vogliono lavorare meglio.",
+        "badge": "Lex AI · Intelligenza artificiale legale e fiscale · V. 1.3",
+        "title_part1": "L'AI svizzera che ragiona su",
+        "title_highlight": "tutto il diritto svizzero",
+        "title_part2": "",
+        "subtitle": "Fonti verificate, oltre 1,6 milioni di documenti giuridici e fiscali, ragionamento strutturato. Dentro una piattaforma completa per avvocati e fiduciari svizzeri.",
+        "box_status": "Attivo",
+        "box_session": "Esempio di sessione",
         "cta_primary": "Inizia gratis con la banca dati",
-        "cta_secondary": "Scopri le funzionalità",
+        "cta_secondary": "Scopri la differenza",
         "no_card": "La banca dati svizzera è sempre gratuita."
     },
     "database_hero": {
@@ -22,6 +25,8 @@
         "headline": "documenti giuridici svizzeri ed europei.",
         "description": "Diritto federale, cantonale, sentenze del Tribunale federale e degli organi amministrativi, prassi delle autorità.",
         "open_access": "Aperta a chiunque, gratis. Senza abbonamenti per area, senza limiti di consultazione.",
+        "weekly_badge": "Normativa federale e dei 26 cantoni allineata al testo vigente ogni settimana.",
+        "anti_noise": "Lex AI consulta oltre 1,6 milioni di documenti verificati, suddivisi tra giurisprudenza, normativa, prassi delle autorità e contributi professionali. Niente ricerca web casuale, niente fonti generaliste.",
         "items": [
             {
                 "t": "Diritto federale (Fedlex)",
@@ -49,61 +54,137 @@
             }
         ]
     },
-    "corpus_it_card": {
-        "title": "Corpus italiano disponibile in consultazione",
-        "badge": "In italiano",
-        "description": "Hai clienti con sede in Italia o cause transfrontaliere? Accedi anche al corpus giuridico italiano: <span>oltre 4 milioni di documenti</span> tra Giurisprudenza, normativa, prassi e diritto UE. Disponibile in italiano per consultazione e diritto comparato."
+    "differenza": {
+        "label": "La differenza",
+        "title_part1": "Il problema delle AI generiche è il contesto.",
+        "title_highlight": "Lex ce l'ha.",
+        "intro": "Le AI generiche rispondono nel vuoto: non conoscono il caso, i documenti, le scadenze. Lex vive dentro il gestionale dello studio.",
+        "intro2": "Lex AI non cerca ovunque e non prova a fare tutto. È stata progettata per lavorare meglio in un perimetro più controllato: fonti verificate, contesto giuridico e fiscale svizzero e materiali concreti.",
+        "libera_badge": "Senza contesto",
+        "libera_title": "Ricerca libera",
+        "libera_text": "Domande su tutto il diritto svizzero, con risposta ragionata su oltre 1,6 milioni di fonti verificate. Per esplorare, verificare, approfondire.",
+        "contesto_badge": "Con contesto",
+        "contesto_title": "Lex nella pratica e nel mandato",
+        "contesto_text": "Dentro la pratica dell'avvocato o il mandato del fiduciario, Lex legge atti, documenti, scadenze, ricerche e dati del caso: analisi e strategie sul tuo caso, e atti e documenti generati già compilati con i dati reali.",
+        "tagline": "Stesso motore, due modalità: libera quando esplori, con contesto quando lavori."
     },
-    "mini_cards": [
-        {
-            "title": "Ricerca giuridica",
-            "text": "Trova articoli, sentenze e prassi. Lex AI capisce il linguaggio naturale: chiedi in italiano, tedesco o francese."
+    "lexai": {
+        "label": "Intelligenza artificiale",
+        "title_part1": "Un assistente personale",
+        "title_highlight": "per il lavoro giuridico svizzero.",
+        "subtitle": "Non è una chat generica aperta in una finestra a parte. È uno strumento pensato per il contesto del diritto svizzero.",
+        "features": [
+            {
+                "t": "Analisi normativa",
+                "d": "Cerca nel diritto federale e cantonale vigente, spiega quali articoli si applicano al caso, con ragionamento completo."
+            },
+            {
+                "t": "Strategie processuali",
+                "d": "Suggerisce strategie concrete, eccezioni da sollevare e argomenti da sviluppare in udienza secondo il CPC svizzero."
+            },
+            {
+                "t": "Giurisprudenza correlata",
+                "d": "Suggerisce quali sentenze del Tribunale federale o cantonali consultare, basandosi sul caso."
+            },
+            {
+                "t": "Atti già compilati",
+                "d": "Legge i dati della pratica e produce ricorsi, memorie, istanze e altri atti pronti per l'esportazione."
+            },
+            {
+                "t": "Conversazione continua",
+                "d": "Approfondisci, cambia angolazione, chiedi follow-up. La conversazione si sviluppa nel tempo."
+            },
+            {
+                "t": "Strategia su misura",
+                "d": "Legge tutte le ricerche della pratica e genera una strategia processuale personalizzata."
+            }
+        ],
+        "quote": "\"L'obiettivo non è sostituire il professionista. È fargli risparmiare tempo vero.\"",
+        "chat1": {
+            "label": "Lex AI - Locazione",
+            "domanda": "Il mio cliente subisce infiltrazioni nell'appartamento e il locatore non interviene. Cosa posso fare?",
+            "risposta": "Sulla base degli artt. 259a-259d CO e della DTF 142 III 557, il conduttore ha diritto a richiedere la riparazione, la riduzione del corrispettivo o, nei casi gravi, il risarcimento danni ex art. 259e CO. Ti consiglio di intimare formalmente la riparazione...",
+            "tag1": "DTF 142 III 557",
+            "tag2": "Art. 259d CO"
         },
-        {
-            "title": "Salva le tue ricerche",
-            "text": "Organizzale con etichette personali, confrontale, collegale a una pratica o a un mandato fiduciario."
-        },
-        {
-            "title": "Archivio intelligente",
-            "text": "Carica i tuoi documenti. Lex AI ti aiuta a trovare quello che ti serve quando ti serve."
-        },
-        {
-            "title": "Analisi del caso",
-            "text": "Lex legge le ricerche della pratica, verifica cosa manca, suggerisce strategie processuali e norme applicabili."
-        },
-        {
-            "title": "Generazione atti",
-            "text": "Atti, memorie, contratti e dichiarazioni generati da Lex AI a partire dai dati della pratica."
-        },
-        {
-            "title": "Portale clienti",
-            "text": "Il cliente accede a documenti, udienze, scadenze fiscali. Tu lavori, lui resta informato."
+        "chat2": {
+            "label": "Lex AI - Lavoro",
+            "domanda": "Il dipendente è stato licenziato durante la malattia. Il termine di disdetta è valido?",
+            "risposta": "L'art. 336c CO prevede la protezione contro la disdetta durante l'impedimento al lavoro per malattia: il termine è nullo se notificato durante il periodo di protezione. La durata di protezione varia in base agli anni di servizio (30/90/180 giorni)...",
+            "tag1": "Art. 336c CO",
+            "tag2": "DTF 128 III 271"
         }
-    ],
-    "problema": {
-        "label": "Il problema",
-        "title_part1": "Il problema non è solo il carico di lavoro.",
-        "title_highlight": "È la frammentazione.",
-        "oggi_label": "Oggi",
-        "oggi_text": "Avvocati e fiduciari lavorano tra gestionale, archivi, documenti, email, note, banche dati e strumenti AI separati. Ogni attività richiede passaggi in più, ricerche ripetute e tempo perso nel cambiare contesto.",
-        "oggi_tags": [
-            "Gestionale",
-            "Archivio",
-            "Email",
-            "Note",
-            "Banche dati",
-            "AI esterno"
+    },
+    "ragiona": {
+        "label": "Ragionamento",
+        "title_part1": "Non ti dà solo norme.",
+        "title_highlight": "Struttura il ragionamento.",
+        "subtitle": "Una buona risposta non è una lista di articoli. È un ragionamento che identifica le fonti, chiarisce i presupposti, segnala le eccezioni e suggerisce cosa verificare. Lex AI è costruita per fare proprio questo, sia su una questione di diritto sia su una questione fiscale.",
+        "steps": [
+            {
+                "n": "01",
+                "t": "Identifica le norme",
+                "d": "Cita gli articoli applicabili al caso concreto."
+            },
+            {
+                "n": "02",
+                "t": "Chiarisce i presupposti",
+                "d": "Spiega cosa serve perché la norma operi."
+            },
+            {
+                "n": "03",
+                "t": "Segnala le eccezioni",
+                "d": "Indica i limiti e le ipotesi di esclusione."
+            },
+            {
+                "n": "04",
+                "t": "Suggerisce verifiche",
+                "d": "Pone le domande giuste per andare più a fondo."
+            }
         ],
-        "lexum_label": "Con Lexum",
-        "lexum_text": "Tutto resta connesso e collegato al caso o al mandato. Le ricerche entrano nelle pratiche, i documenti si trovano dove servono, l'AI lavora su materiali tuoi e su fonti verificate.",
-        "lexum_tags": [
-            "Gestionale",
-            "Archivio",
-            "Area cliente",
-            "Banca dati",
-            "Lex AI"
+        "demo_label": "Lex AI — anatomia di una risposta",
+        "demo_user": "Tu",
+        "demo_question": "\"Quando opera la legittima difesa secondo il diritto svizzero?\"",
+        "blocks": [
+            {
+                "tag": "01 · Identifica le norme",
+                "text": "La materia è disciplinata dall'art. 15 CP (legittima difesa). L'art. 16 CP regola l'eccesso di legittima difesa."
+            },
+            {
+                "tag": "02 · Chiarisce i presupposti",
+                "text": "La scriminante opera se: vi è un'aggressione attuale o imminente, l'aggressione è illecita, e la difesa è proporzionata e diretta contro l'aggressore."
+            },
+            {
+                "tag": "03 · Segnala le eccezioni",
+                "text": "In caso di eccesso (art. 16 CP) la pena è attenuata; se l'eccesso deriva da stato di turbamento o paura per l'aggressione, l'autore non è punibile. Il Tribunale federale valuta sempre attualità del pericolo e necessità della reazione."
+            },
+            {
+                "tag": "04 · Suggerisce verifiche",
+                "text": "Vuoi che approfondisca l'eccesso colposo (art. 16 cpv. 2 CP), lo stato di necessità (art. 17 CP) o la legittima difesa putativa per errore sui fatti (art. 13 CP)?"
+            }
         ],
-        "lexum_footer": "Un ambiente coerente, non una somma di strumenti."
+        "chips": [
+            "Art. 15 CP",
+            "Art. 16 CP",
+            "Art. 17 CP",
+            "Art. 13 CP",
+            "TF 6B_810/2021"
+        ],
+        "puo_label": "Trasparenza",
+        "puo_title": "Cosa può e cosa non può.",
+        "puo_subtitle": "Onestà su entrambi i fronti. Quello che Lex fa bene, e quello che non fa di proposito. Senza promesse esagerate.",
+        "fa_label": "Quello che Lex AI fa",
+        "fa_items": [
+            "Ricerca su fonti legali e fiscali verificate",
+            "Analizza documenti caricati (atti, contratti, bilanci)",
+            "Struttura il ragionamento giuridico e fiscale",
+            "Cita le fonti e segnala le eccezioni"
+        ],
+        "nonfa_label": "Quello che Lex AI non fa",
+        "nonfa_items": [
+            "Non sostituisce il parere dell'avvocato o del fiduciario",
+            "Non cerca su fonti web generaliste o non verificate"
+        ]
     },
     "gestionale": {
         "title_part1": "Lo studio gestito,",
@@ -178,53 +259,6 @@
         "title_highlight": "sempre a portata.",
         "subtitle": "Carichi, ritrovi, condividi. La gestione e la ricerca dell'archivio in un flusso unico, senza mai uscire dal contesto della pratica."
     },
-    "lexai": {
-        "label": "Intelligenza artificiale",
-        "title_part1": "Un assistente personale",
-        "title_highlight": "per il lavoro giuridico svizzero.",
-        "subtitle": "Non è una chat generica aperta in una finestra a parte. È uno strumento pensato per il contesto del diritto svizzero.",
-        "features": [
-            {
-                "t": "Analisi normativa",
-                "d": "Cerca nel diritto federale e cantonale vigente, spiega quali articoli si applicano al caso, con ragionamento completo."
-            },
-            {
-                "t": "Strategie processuali",
-                "d": "Suggerisce strategie concrete, eccezioni da sollevare e argomenti da sviluppare in udienza secondo il CPC svizzero."
-            },
-            {
-                "t": "Conversazione continua",
-                "d": "Approfondisci, cambia angolazione, chiedi follow-up. La conversazione si sviluppa nel tempo."
-            },
-            {
-                "t": "Strategia su misura",
-                "d": "Legge tutte le ricerche della pratica e genera una strategia processuale personalizzata."
-            },
-            {
-                "t": "Giurisprudenza correlata",
-                "d": "Suggerisce quali sentenze del Tribunale federale o cantonali consultare, basandosi sul caso."
-            },
-            {
-                "t": "Atti già compilati",
-                "d": "Legge i dati della pratica e produce ricorsi, memorie, istanze e altri atti pronti per l'esportazione."
-            }
-        ],
-        "quote": "\"L'obiettivo non è sostituire il professionista. È fargli risparmiare tempo vero.\"",
-        "chat1": {
-            "label": "Lex AI - Locazione",
-            "domanda": "Il mio cliente subisce infiltrazioni nell'appartamento e il locatore non interviene. Cosa posso fare?",
-            "risposta": "Sulla base degli artt. 259a-259d CO e della DTF 142 III 557, il conduttore ha diritto a richiedere la riparazione, la riduzione del corrispettivo o, nei casi gravi, il risarcimento danni ex art. 259e CO. Ti consiglio di intimare formalmente la riparazione...",
-            "tag1": "DTF 142 III 557",
-            "tag2": "Art. 259d CO"
-        },
-        "chat2": {
-            "label": "Lex AI - Lavoro",
-            "domanda": "Il dipendente è stato licenziato durante la malattia. Il termine di disdetta è valido?",
-            "risposta": "L'art. 336c CO prevede la protezione contro la disdetta durante l'impedimento al lavoro per malattia: il termine è nullo se notificato durante il periodo di protezione. La durata di protezione varia in base agli anni di servizio (30/90/180 giorni)...",
-            "tag1": "Art. 336c CO",
-            "tag2": "DTF 128 III 271"
-        }
-    },
     "corpus_italiano_section": {
         "label": "Per chi lavora oltre confine",
         "title_part1": "Anche il diritto italiano,",
@@ -282,6 +316,8 @@
         "title_highlight": "Fai la tua prima ricerca.",
         "subtitle": "Registrati e inizia subito. Oltre 1,6 milioni di documenti svizzeri, diritto UE e accesso al corpus italiano. Lex AI con crediti di benvenuto. Gestionale e portale clienti pronti.",
         "cta_primary": "Inizia gratis",
-        "login_link": "Hai già un account? Accedi"
+        "login_link": "Hai già un account? Accedi",
+        "avvocati_link": "Scopri Lexum per avvocati",
+        "fiduciari_link": "Scopri Lexum per fiduciari"
     }
 }

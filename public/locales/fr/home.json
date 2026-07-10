@@ -1,18 +1,21 @@
 {
     "meta": {
-        "title": "Lexum — La plateforme pour cabinets d'avocats et fiduciaires suisses",
-        "description": "La première plateforme tout-en-un pour cabinets d'avocats et fiduciaires suisses avec IA intégrée. Base de données gratuite : droit fédéral, cantonal, arrêts TF, pratique des autorités. Lex AI pour la consultation.",
-        "og_title": "Lexum — Pour cabinets d'avocats et fiduciaires suisses",
-        "og_description": "Base de données suisse gratuite, Lex AI, logiciel de gestion pour cabinets d'avocats et fiduciaires. Droit fédéral, cantonal et UE.",
-        "twitter_description": "Première plateforme tout-en-un CH avec IA intégrée. Avocats, fiduciaires, base de données gratuite."
+        "title": "Lex AI — L'IA suisse qui raisonne sur tout le droit suisse | Lexum",
+        "description": "Lex AI : l'intelligence artificielle suisse qui raisonne sur plus de 1,6 million de documents vérifiés — droit fédéral, cantonal, jurisprudence, pratique des autorités et droit UE — dans une plateforme complète pour avocats et fiduciaires. Base de données gratuite.",
+        "og_title": "Lex AI — L'IA suisse qui raisonne sur tout le droit suisse",
+        "og_description": "Raisonnement juridique et fiscal sur sources vérifiées, base de données suisse gratuite, gestion de cabinet et portail clients. Pour avocats et fiduciaires.",
+        "twitter_description": "L'IA suisse qui raisonne sur tout le droit suisse. Sources vérifiées, plateforme complète pour avocats et fiduciaires."
     },
     "hero": {
-        "badge": "Pour fiduciaires et cabinets d'avocats suisses",
-        "title_part1": "Plateforme pour avocats et fiduciaires",
-        "title_highlight": "avec IA intégrée",
-        "subtitle": "Base de données juridique suisse, gestion de cabinet, archive intelligente et Lex AI dans un seul environnement. Pensé pour les avocats et fiduciaires qui veulent mieux travailler.",
+        "badge": "Lex AI · Intelligence artificielle juridique et fiscale · V. 1.3",
+        "title_part1": "L'IA suisse qui raisonne sur",
+        "title_highlight": "tout le droit suisse",
+        "title_part2": "",
+        "subtitle": "Sources vérifiées, plus de 1,6 million de documents juridiques et fiscaux, raisonnement structuré. Dans une plateforme complète pour avocats et fiduciaires suisses.",
+        "box_status": "Actif",
+        "box_session": "Exemple de session",
         "cta_primary": "Commencer gratuitement avec la base de données",
-        "cta_secondary": "Découvrir les fonctionnalités",
+        "cta_secondary": "Découvrir la différence",
         "no_card": "La base de données suisse est toujours gratuite."
     },
     "database_hero": {
@@ -22,6 +25,8 @@
         "headline": "documents juridiques suisses et européens.",
         "description": "Droit fédéral, cantonal, arrêts du Tribunal fédéral et des organes administratifs, pratique des autorités.",
         "open_access": "Ouverte à tous, gratuitement. Sans abonnements par domaine, sans limites de consultation.",
+        "weekly_badge": "Droit fédéral et des 26 cantons aligné chaque semaine sur le texte en vigueur.",
+        "anti_noise": "Lex AI consulte plus de 1,6 million de documents vérifiés, répartis entre jurisprudence, législation, pratique des autorités et contributions professionnelles. Aucune recherche web aléatoire, aucune source généraliste.",
         "items": [
             {
                 "t": "Droit fédéral (Fedlex)",
@@ -49,61 +54,137 @@
             }
         ]
     },
-    "corpus_it_card": {
-        "title": "Corpus italien disponible en consultation",
-        "badge": "En italien",
-        "description": "Avez-vous des clients basés en Italie ou des causes transfrontalières ? Accédez aussi au corpus juridique italien : <span>plus de 4 millions de documents</span> entre Cassation, législation, pratique et droit UE. Disponible en italien pour consultation et droit comparé."
+    "differenza": {
+        "label": "La différence",
+        "title_part1": "Le problème des IA génériques, c'est le contexte.",
+        "title_highlight": "Lex l'a.",
+        "intro": "Les IA génériques répondent dans le vide : elles ne connaissent ni le cas, ni les documents, ni les échéances. Lex vit dans le logiciel de gestion du cabinet.",
+        "intro2": "Lex AI ne cherche pas partout et n'essaie pas de tout faire. Il a été conçu pour mieux travailler dans un périmètre plus contrôlé : sources vérifiées, contexte juridique et fiscal suisse et matériaux concrets.",
+        "libera_badge": "Sans contexte",
+        "libera_title": "Recherche libre",
+        "libera_text": "Des questions sur tout le droit suisse, avec une réponse raisonnée sur plus de 1,6 million de sources vérifiées. Pour explorer, vérifier, approfondir.",
+        "contesto_badge": "Avec contexte",
+        "contesto_title": "Lex dans le dossier et le mandat",
+        "contesto_text": "Dans le dossier de l'avocat ou le mandat du fiduciaire, Lex lit les actes, documents, échéances, recherches et données du cas : analyses et stratégies sur votre cas — et des actes et documents générés, déjà remplis avec les données réelles.",
+        "tagline": "Le même moteur, deux modes : libre quand vous explorez, avec contexte quand vous travaillez."
     },
-    "mini_cards": [
-        {
-            "title": "Recherche juridique",
-            "text": "Trouvez articles, arrêts et pratique. Lex AI comprend le langage naturel : demandez en italien, allemand ou français."
+    "lexai": {
+        "label": "Intelligence artificielle",
+        "title_part1": "Un assistant personnel",
+        "title_highlight": "pour le travail juridique suisse.",
+        "subtitle": "Ce n'est pas un chat générique ouvert dans une fenêtre à part. C'est un outil pensé pour le contexte du droit suisse.",
+        "features": [
+            {
+                "t": "Analyse normative",
+                "d": "Cherche dans le droit fédéral et cantonal en vigueur, explique quels articles s'appliquent au cas, avec raisonnement complet."
+            },
+            {
+                "t": "Stratégies procédurales",
+                "d": "Suggère des stratégies concrètes, des exceptions à soulever et des arguments à développer en audience selon le CPC suisse."
+            },
+            {
+                "t": "Jurisprudence corrélée",
+                "d": "Suggère quels arrêts du Tribunal fédéral ou cantonaux consulter, en se basant sur le cas."
+            },
+            {
+                "t": "Actes déjà rédigés",
+                "d": "Lit les données du dossier et produit recours, mémoires, requêtes et autres actes prêts pour l'exportation."
+            },
+            {
+                "t": "Conversation continue",
+                "d": "Approfondissez, changez d'angle, demandez des suivis. La conversation se développe dans le temps."
+            },
+            {
+                "t": "Stratégie sur mesure",
+                "d": "Lit toutes les recherches du dossier et génère une stratégie procédurale personnalisée."
+            }
+        ],
+        "quote": "\"L'objectif n'est pas de remplacer le professionnel. C'est de lui faire gagner du vrai temps.\"",
+        "chat1": {
+            "label": "Lex AI - Bail",
+            "domanda": "Mon client subit des infiltrations dans l'appartement et le bailleur n'intervient pas. Que puis-je faire ?",
+            "risposta": "Sur la base des art. 259a-259d CO et de l'ATF 142 III 557, le locataire a le droit de demander la réparation, la réduction du loyer ou, dans les cas graves, des dommages-intérêts selon l'art. 259e CO. Je vous conseille de mettre formellement en demeure la réparation...",
+            "tag1": "ATF 142 III 557",
+            "tag2": "Art. 259d CO"
         },
-        {
-            "title": "Sauvegardez vos recherches",
-            "text": "Organisez-les avec des étiquettes personnelles, comparez-les, reliez-les à un dossier ou à un mandat fiduciaire."
-        },
-        {
-            "title": "Archive intelligente",
-            "text": "Téléchargez vos documents. Lex AI vous aide à trouver ce qu'il vous faut quand il vous le faut."
-        },
-        {
-            "title": "Analyse du cas",
-            "text": "Lex lit les recherches du dossier, vérifie ce qui manque, suggère des stratégies procédurales et des normes applicables."
-        },
-        {
-            "title": "Génération d'actes",
-            "text": "Actes, mémoires, contrats et déclarations générés par Lex AI à partir des données du dossier."
-        },
-        {
-            "title": "Portail clients",
-            "text": "Le client accède aux documents, audiences, échéances fiscales. Vous travaillez, lui reste informé."
+        "chat2": {
+            "label": "Lex AI - Travail",
+            "domanda": "L'employé a été licencié pendant la maladie. Le délai de congé est-il valable ?",
+            "risposta": "L'art. 336c CO prévoit la protection contre le congé pendant l'empêchement de travailler pour maladie : le délai est nul s'il est notifié pendant la période de protection. La durée de protection varie selon les années de service (30/90/180 jours)...",
+            "tag1": "Art. 336c CO",
+            "tag2": "ATF 128 III 271"
         }
-    ],
-    "problema": {
-        "label": "Le problème",
-        "title_part1": "Le problème n'est pas seulement la charge de travail.",
-        "title_highlight": "C'est la fragmentation.",
-        "oggi_label": "Aujourd'hui",
-        "oggi_text": "Avocats et fiduciaires travaillent entre logiciel de gestion, archives, documents, e-mails, notes, bases de données et outils IA séparés. Chaque activité demande des étapes supplémentaires, des recherches répétées et du temps perdu à changer de contexte.",
-        "oggi_tags": [
-            "Logiciel de gestion",
-            "Archive",
-            "E-mail",
-            "Notes",
-            "Bases de données",
-            "IA externe"
+    },
+    "ragiona": {
+        "label": "Raisonnement",
+        "title_part1": "Il ne vous donne pas que des normes.",
+        "title_highlight": "Il structure le raisonnement.",
+        "subtitle": "Une bonne réponse n'est pas une liste d'articles. C'est un raisonnement qui identifie les sources, clarifie les conditions, signale les exceptions et suggère ce qu'il faut vérifier. Lex AI est construit pour faire exactement cela, sur une question de droit comme sur une question fiscale.",
+        "steps": [
+            {
+                "n": "01",
+                "t": "Identifie les normes",
+                "d": "Cite les articles applicables au cas concret."
+            },
+            {
+                "n": "02",
+                "t": "Clarifie les conditions",
+                "d": "Explique ce qu'il faut pour que la norme s'applique."
+            },
+            {
+                "n": "03",
+                "t": "Signale les exceptions",
+                "d": "Indique les limites et les hypothèses d'exclusion."
+            },
+            {
+                "n": "04",
+                "t": "Suggère des vérifications",
+                "d": "Pose les bonnes questions pour aller plus en profondeur."
+            }
         ],
-        "lexum_label": "Avec Lexum",
-        "lexum_text": "Tout reste connecté et lié au cas ou au mandat. Les recherches entrent dans les dossiers, les documents se trouvent où ils servent, l'IA travaille sur vos matériaux et sur des sources vérifiées.",
-        "lexum_tags": [
-            "Logiciel de gestion",
-            "Archive",
-            "Espace client",
-            "Base de données",
-            "Lex AI"
+        "demo_label": "Lex AI — anatomie d'une réponse",
+        "demo_user": "Vous",
+        "demo_question": "\"Quand la légitime défense s'applique-t-elle selon le droit suisse ?\"",
+        "blocks": [
+            {
+                "tag": "01 · Identifie les normes",
+                "text": "La matière est régie par l'art. 15 CP (légitime défense). L'art. 16 CP régit l'excès de légitime défense."
+            },
+            {
+                "tag": "02 · Clarifie les conditions",
+                "text": "Le fait justificatif s'applique si : il y a une attaque actuelle ou imminente, l'attaque est illicite, et la défense est proportionnée et dirigée contre l'agresseur."
+            },
+            {
+                "tag": "03 · Signale les exceptions",
+                "text": "En cas d'excès (art. 16 CP), la peine est atténuée ; si l'excès provient d'un état d'émotion ou de saisissement causé par l'attaque, l'auteur n'agit pas de manière coupable. Le Tribunal fédéral apprécie toujours l'actualité du danger et la nécessité de la réaction."
+            },
+            {
+                "tag": "04 · Suggère des vérifications",
+                "text": "Souhaitez-vous que j'approfondisse l'excès par négligence (art. 16 al. 2 CP), l'état de nécessité (art. 17 CP) ou la légitime défense putative pour erreur sur les faits (art. 13 CP) ?"
+            }
         ],
-        "lexum_footer": "Un environnement cohérent, pas une somme d'outils."
+        "chips": [
+            "Art. 15 CP",
+            "Art. 16 CP",
+            "Art. 17 CP",
+            "Art. 13 CP",
+            "TF 6B_810/2021"
+        ],
+        "puo_label": "Transparence",
+        "puo_title": "Ce qu'il peut et ne peut pas.",
+        "puo_subtitle": "Honnêteté des deux côtés. Ce que Lex fait bien, et ce qu'il ne fait pas volontairement. Sans promesses exagérées.",
+        "fa_label": "Ce que Lex AI fait",
+        "fa_items": [
+            "Recherche sur des sources juridiques et fiscales vérifiées",
+            "Analyse les documents chargés (écritures, contrats, bilans)",
+            "Structure le raisonnement juridique et fiscal",
+            "Cite les sources et signale les exceptions"
+        ],
+        "nonfa_label": "Ce que Lex AI ne fait pas",
+        "nonfa_items": [
+            "Ne remplace pas l'avis de l'avocat ou du fiduciaire",
+            "Ne cherche pas sur des sources web généralistes ou non vérifiées"
+        ]
     },
     "gestionale": {
         "title_part1": "Le cabinet géré,",
@@ -178,53 +259,6 @@
         "title_highlight": "toujours à portée.",
         "subtitle": "Vous téléchargez, retrouvez, partagez. La gestion et la recherche de l'archive dans un flux unique, sans jamais sortir du contexte du dossier."
     },
-    "lexai": {
-        "label": "Intelligence artificielle",
-        "title_part1": "Un assistant personnel",
-        "title_highlight": "pour le travail juridique suisse.",
-        "subtitle": "Ce n'est pas un chat générique ouvert dans une fenêtre à part. C'est un outil pensé pour le contexte du droit suisse.",
-        "features": [
-            {
-                "t": "Analyse normative",
-                "d": "Cherche dans le droit fédéral et cantonal en vigueur, explique quels articles s'appliquent au cas, avec raisonnement complet."
-            },
-            {
-                "t": "Stratégies procédurales",
-                "d": "Suggère des stratégies concrètes, des exceptions à soulever et des arguments à développer en audience selon le CPC suisse."
-            },
-            {
-                "t": "Conversation continue",
-                "d": "Approfondissez, changez d'angle, demandez des suivis. La conversation se développe dans le temps."
-            },
-            {
-                "t": "Stratégie sur mesure",
-                "d": "Lit toutes les recherches du dossier et génère une stratégie procédurale personnalisée."
-            },
-            {
-                "t": "Jurisprudence corrélée",
-                "d": "Suggère quels arrêts du Tribunal fédéral ou cantonaux consulter, en se basant sur le cas."
-            },
-            {
-                "t": "Actes déjà rédigés",
-                "d": "Lit les données du dossier et produit recours, mémoires, requêtes et autres actes prêts pour l'exportation."
-            }
-        ],
-        "quote": "\"L'objectif n'est pas de remplacer le professionnel. C'est de lui faire gagner du vrai temps.\"",
-        "chat1": {
-            "label": "Lex AI - Bail",
-            "domanda": "Mon client subit des infiltrations dans l'appartement et le bailleur n'intervient pas. Que puis-je faire ?",
-            "risposta": "Sur la base des art. 259a-259d CO et de l'ATF 142 III 557, le locataire a le droit de demander la réparation, la réduction du loyer ou, dans les cas graves, des dommages-intérêts selon l'art. 259e CO. Je vous conseille de mettre formellement en demeure la réparation...",
-            "tag1": "ATF 142 III 557",
-            "tag2": "Art. 259d CO"
-        },
-        "chat2": {
-            "label": "Lex AI - Travail",
-            "domanda": "L'employé a été licencié pendant la maladie. Le délai de congé est-il valable ?",
-            "risposta": "L'art. 336c CO prévoit la protection contre le congé pendant l'empêchement de travailler pour maladie : le délai est nul s'il est notifié pendant la période de protection. La durée de protection varie selon les années de service (30/90/180 jours)...",
-            "tag1": "Art. 336c CO",
-            "tag2": "ATF 128 III 271"
-        }
-    },
     "corpus_italiano_section": {
         "label": "Pour qui travaille au-delà des frontières",
         "title_part1": "Aussi le droit italien,",
@@ -282,6 +316,8 @@
         "title_highlight": "Faites votre première recherche.",
         "subtitle": "Inscrivez-vous et commencez immédiatement. Plus de 1,6 million de documents suisses, droit UE et accès au corpus italien. Lex AI avec crédits de bienvenue. Logiciel de gestion et portail clients prêts.",
         "cta_primary": "Commencer gratuitement",
-        "login_link": "Avez-vous déjà un compte ? Connectez-vous"
+        "login_link": "Avez-vous déjà un compte ? Connectez-vous",
+        "avvocati_link": "Découvrir Lexum pour avocats",
+        "fiduciari_link": "Découvrir Lexum pour fiduciaires"
     }
 }

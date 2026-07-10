@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { PageHeader, StatCard } from '@/components/shared'
-import { Loader2, Play, History, Flag, Landmark, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Loader2, Flag, Landmark, CheckCircle2, AlertTriangle } from 'lucide-react'
 
 const PAGINA = 25
 
@@ -21,6 +21,7 @@ export default function NormativaAggiornamentiCH() {
     const [pagina, setPagina] = useState(0)
     const [stats, setStats] = useState({ ultimo: null, aggiornati: 0, invariati: 0, errori: 0 })
     const [richiestaPendente, setRichiestaPendente] = useState(null)
+    const [richiestaCantonale, setRichiestaCantonale] = useState(null)
     const [inviando, setInviando] = useState(false)
     const [msg, setMsg] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -59,6 +60,12 @@ export default function NormativaAggiornamentiCH() {
                 .in('stato', ['in_attesa', 'in_corso'])
                 .order('richiesta_il', { ascending: false }).limit(1)
             setRichiestaPendente(rich?.[0] ?? null)
+
+            const { data: richC } = await supabase.from('norme_cantonali_ch_update_richieste')
+                .select('id, stato, richiesta_il, fase, progresso, aggiornato_il')
+                .in('stato', ['in_attesa', 'in_corso'])
+                .order('richiesta_il', { ascending: false }).limit(1)
+            setRichiestaCantonale(richC?.[0] ?? null)
         } finally {
             setLoading(false)
         }
@@ -68,19 +75,19 @@ export default function NormativaAggiornamentiCH() {
 
     // avanzamento in diretta mentre un aggiornamento e' in coda/in corso
     useEffect(() => {
-        if (!richiestaPendente) return
+        if (!richiestaPendente && !richiestaCantonale) return
         const t = setInterval(() => { caricaTutto() }, 5000)
         return () => clearInterval(t)
-    }, [richiestaPendente?.id])
+    }, [richiestaPendente?.id, richiestaCantonale?.id])
 
-    async function richiediAggiornamento() {
+    async function richiedi(tabella, etichetta) {
         setInviando(true); setMsg(null)
         try {
             const { data: { user } } = await supabase.auth.getUser()
-            const { error } = await supabase.from('norme_ch_update_richieste')
-                .insert({ richiesta_da: user?.id, nota: 'richiesta dal pannello admin' })
+            const { error } = await supabase.from(tabella)
+                .insert({ richiesta_da: user?.id, nota: `richiesta dal pannello admin (${etichetta})` })
             if (error) throw error
-            setMsg({ ok: true, testo: 'Richiesta inviata: l\'aggiornamento partirà al prossimo controllo (entro ~30 minuti).' })
+            setMsg({ ok: true, testo: `Richiesta ${etichetta} inviata: l'aggiornamento partirà al prossimo controllo (entro ~30 minuti).` })
             await caricaTutto()
         } catch (e) {
             setMsg({ ok: false, testo: `Errore: ${e.message}` })
@@ -88,6 +95,29 @@ export default function NormativaAggiornamentiCH() {
             setInviando(false)
         }
     }
+
+    const RigaRichiesta = ({ pend, tabella, etichetta, Icona }) => (
+        pend ? (
+            <div className="flex flex-col gap-1 text-oro font-body text-sm">
+                <div className="flex items-center gap-2">
+                    <Loader2 size={15} className="animate-spin" />
+                    <Icona size={13} /> {etichetta}: aggiornamento {pend.stato === 'in_corso' ? 'in corso' : 'in coda'}
+                    <span className="text-nebbia/40">(richiesto il {fmtData(pend.richiesta_il)})</span>
+                </div>
+                {pend.stato === 'in_corso' && pend.fase && (
+                    <div className="pl-6 text-xs text-nebbia/60">
+                        {pend.fase}{pend.progresso ? ` — ${pend.progresso}` : ''}
+                    </div>
+                )}
+            </div>
+        ) : (
+            <button onClick={() => richiedi(tabella, etichetta)} disabled={inviando}
+                className="flex items-center gap-2 px-4 py-2 font-body text-sm bg-oro/10 text-oro border border-oro/30 hover:bg-oro/20 transition-colors disabled:opacity-50">
+                {inviando ? <Loader2 size={14} className="animate-spin" /> : <Icona size={14} />}
+                Aggiorna {etichetta}
+            </button>
+        )
+    )
 
     const fmtData = (iso) => iso ? new Date(iso).toLocaleString('it-CH', {
         day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -99,7 +129,7 @@ export default function NormativaAggiornamentiCH() {
     return (
         <div className="space-y-5">
             <PageHeader label="Admin" title="Aggiornamenti normativa"
-                subtitle="Registro delle sincronizzazioni con Fedlex: cosa è cambiato e quando" />
+                subtitle="Registro delle sincronizzazioni: federale (Fedlex) e cantonale (26 cantoni) — cosa è cambiato e quando" />
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <StatCard label="Ultimo aggiornamento" value={fmtData(stats.ultimo)} colorClass="text-oro" />
@@ -109,28 +139,11 @@ export default function NormativaAggiornamentiCH() {
                     colorClass={stats.errori > 0 ? 'text-red-400' : 'text-salvia'} />
             </div>
 
-            <div className="flex items-center gap-4 bg-slate border border-white/5 p-4">
-                {richiestaPendente ? (
-                    <div className="flex flex-col gap-1 text-oro font-body text-sm">
-                        <div className="flex items-center gap-2">
-                            <Loader2 size={15} className="animate-spin" />
-                            Aggiornamento {richiestaPendente.stato === 'in_corso' ? 'in corso' : 'in coda'}
-                            <span className="text-nebbia/40">(richiesto il {fmtData(richiestaPendente.richiesta_il)})</span>
-                        </div>
-                        {richiestaPendente.stato === 'in_corso' && richiestaPendente.fase && (
-                            <div className="pl-6 text-xs text-nebbia/60">
-                                {richiestaPendente.fase}
-                                {richiestaPendente.progresso ? ` — ${richiestaPendente.progresso}` : ''}
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <button onClick={richiediAggiornamento} disabled={inviando}
-                        className="flex items-center gap-2 px-4 py-2 font-body text-sm bg-oro/10 text-oro border border-oro/30 hover:bg-oro/20 transition-colors disabled:opacity-50">
-                        {inviando ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-                        Lancia aggiornamento
-                    </button>
-                )}
+            <div className="flex flex-col gap-3 bg-slate border border-white/5 p-4">
+                <div className="flex flex-wrap items-center gap-4">
+                    <RigaRichiesta pend={richiestaPendente} tabella="norme_ch_update_richieste" etichetta="Federale" Icona={Flag} />
+                    <RigaRichiesta pend={richiestaCantonale} tabella="norme_cantonali_ch_update_richieste" etichetta="Cantonale" Icona={Landmark} />
+                </div>
                 {msg && (
                     <span className={`font-body text-xs ${msg.ok ? 'text-salvia' : 'text-red-400'}`}>{msg.testo}</span>
                 )}

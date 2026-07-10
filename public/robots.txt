@@ -6,7 +6,6 @@ User-agent: *
 # Pagine vetrina pubbliche (esplicitamente consentite)
 Allow: /$
 Allow: /per-avvocati
-Allow: /lex-ai
 Allow: /contatti
 Allow: /privacy
 Allow: /termini
