@@ -1,16 +1,18 @@
-"""POST /api/rendi_zone — ritaglia in PNG le zone di dettaglio non verificate.
+"""POST /api/rendi_zone — ritaglia in PNG i punti notevoli di una tavola analizzata.
 
 Body JSON: { "disegno_id": "<uuid>" }
 Header:    Authorization: Bearer <jwt utente>
 
-Renderer DETERMINISTICO (zero AI): usa lo stesso riquadro di checks.py
-(bbox min/max delle quote con stato 'zona_non_verificata', più padding),
-renderizza il ritaglio ad alto zoom con PyMuPDF e lo carica nel bucket
-'disegni' sotto il prefisso dell'utente (le RLS valgono come nel browser).
-Il risultato va in progetto_disegni.zone_dettaglio.crops; le interpretazioni
-AI (lex-vision-zone su Supabase) vivono accanto, in .interpretazioni.
+Renderer DETERMINISTICO (zero AI). Produce tre famiglie di ritagli:
+  - 'zona'    → il riquadro delle quote non verificabili (stesso bbox di checks.py);
+                è l'unico ritaglio che viene poi interpretato dalla vision AI.
+  - 'finding' → un ritaglio per ogni quota senza riscontro (ancora visiva:
+                il progettista VEDE la quota incriminata, non coordinate in pt).
+  - 'porta'   → un ritaglio per ogni apertura sotto soglia (esiti_normativa
+                art. 10, campo strutturato posizioni_pt).
 
-NB: NON tocca updated_at — le cache (narrazione, esiti_cantonali) restano valide.
+Upload nel bucket 'disegni' sotto il prefisso dell'utente (RLS come nel browser).
+Metadati in progetto_disegni.zone_dettaglio.crops. NON tocca updated_at.
 """
 
 import datetime
@@ -23,11 +25,14 @@ from http.server import BaseHTTPRequestHandler
 
 import fitz  # PyMuPDF
 
-PAD_FRAZIONE = 0.35   # padding attorno al bbox delle quote (il disegno eccede i testi)
+PAD_FRAZIONE = 0.35   # padding attorno al bbox della zona
 PAD_MIN_PT = 60.0
+RAGGIO_PUNTO_PT = 110.0   # semilato del ritaglio attorno a un punto (quota/porta)
 PX_TARGET = 1400      # lato massimo desiderato del PNG
-PX_MAX = 2500.0       # tetto assoluto in pixel (limiti vision + costi)
+PX_MAX = 2500.0       # tetto assoluto in pixel
 ZOOM_MIN, ZOOM_MAX = 2.0, 6.0
+MAX_FINDING = 8       # tetto ritagli per famiglia (costi storage/UI)
+MAX_PORTE = 8
 
 
 def _req(url, method="GET", headers=None, data=None):
@@ -67,7 +72,8 @@ class handler(BaseHTTPRequestHandler):
         try:
             _, data = _req(
                 f"{base}/rest/v1/progetto_disegni?id=eq.{disegno_id}"
-                f"&select=id,storage_path,gemello,zone_dettaglio,updated_at", headers=rest)
+                f"&select=id,storage_path,gemello,findings,esiti_normativa,"
+                f"zone_dettaglio,updated_at", headers=rest)
         except urllib.error.HTTPError as e:
             return self._json(e.code, {"errore": f"lettura disegno: {e.reason}"})
         rows = json.loads(data)
@@ -75,6 +81,8 @@ class handler(BaseHTTPRequestHandler):
             return self._json(404, {"errore": "disegno non trovato o non accessibile"})
         riga = rows[0]
         gemello = riga.get("gemello") or {}
+        findings = riga.get("findings") or []
+        esiti = riga.get("esiti_normativa") or []
         zone_dett = riga.get("zone_dettaglio") or {}
 
         # Idempotente: crops già freschi → non rifare il lavoro.
@@ -82,19 +90,50 @@ class handler(BaseHTTPRequestHandler):
         if crops and crops.get("fonte_updated_at") == riga.get("updated_at"):
             return self._json(200, {"stato": "ok", "cached": True, "crops": crops})
 
-        # 2) bbox della zona: STESSO riquadro di checks.py (min/max delle quote zona)
+        # 2) specifiche dei ritagli (deterministiche, dalle stesse fonti dei report)
+        specs = []  # {tipo, ref, rect(x0,y0,x1,y1), quote?}
+
         testi = (gemello.get("quote") or {}).get("testi") or []
         zona = [t for t in testi if t.get("stato") == "zona_non_verificata"
                 and isinstance(t.get("posizione_pt"), list) and len(t["posizione_pt"]) == 2]
-        if not zona:
-            return self._json(200, {"stato": "ok", "zone": 0,
-                                    "messaggio": "nessuna zona non verificata su questa tavola"})
-        xs = [t["posizione_pt"][0] for t in zona]
-        ys = [t["posizione_pt"][1] for t in zona]
-        pad = max(PAD_MIN_PT, (max(xs) - min(xs)) * PAD_FRAZIONE,
-                  (max(ys) - min(ys)) * PAD_FRAZIONE)
+        if zona:
+            xs = [t["posizione_pt"][0] for t in zona]
+            ys = [t["posizione_pt"][1] for t in zona]
+            pad = max(PAD_MIN_PT, (max(xs) - min(xs)) * PAD_FRAZIONE,
+                      (max(ys) - min(ys)) * PAD_FRAZIONE)
+            specs.append({"tipo": "zona", "ref": 0,
+                          "rect": (min(xs) - pad, min(ys) - pad, max(xs) + pad, max(ys) + pad),
+                          "quote": [t.get("testo") for t in zona]})
 
-        # 3) scarica il PDF e renderizza il ritaglio
+        n_f = 0
+        for i, f in enumerate(findings):
+            if f.get("tipo") != "quota_senza_riscontro":
+                continue
+            p = f.get("posizione_pt")
+            if not (isinstance(p, list) and len(p) == 2) or n_f >= MAX_FINDING:
+                continue
+            specs.append({"tipo": "finding", "ref": i,
+                          "rect": (p[0] - RAGGIO_PUNTO_PT, p[1] - RAGGIO_PUNTO_PT,
+                                   p[0] + RAGGIO_PUNTO_PT, p[1] + RAGGIO_PUNTO_PT)})
+            n_f += 1
+
+        n_p = 0
+        for i_e, e in enumerate(esiti):
+            for pos in (e.get("posizioni_pt") or []):
+                if not (isinstance(pos, list) and len(pos) == 2) or n_p >= MAX_PORTE:
+                    continue
+                # esito_ref lega il ritaglio al SUO esito: se in futuro più esiti
+                # avranno posizioni, la UI non mescola i ritagli tra le card.
+                specs.append({"tipo": "porta", "ref": n_p, "esito_ref": i_e,
+                              "rect": (pos[0] - RAGGIO_PUNTO_PT, pos[1] - RAGGIO_PUNTO_PT,
+                                       pos[0] + RAGGIO_PUNTO_PT, pos[1] + RAGGIO_PUNTO_PT)})
+                n_p += 1
+
+        if not specs:
+            return self._json(200, {"stato": "ok", "zone": 0,
+                                    "messaggio": "nessun punto da ritagliare su questa tavola"})
+
+        # 3) scarica il PDF e renderizza i ritagli (PDF vettoriale: clip economici)
         try:
             _, pdf = _req(f"{base}/storage/v1/object/disegni/{riga['storage_path']}",
                           headers={"apikey": anon, "Authorization": f"Bearer {token}"})
@@ -103,31 +142,35 @@ class handler(BaseHTTPRequestHandler):
                 tmp = f.name
             doc = fitz.open(tmp)
             page = doc[0]
-            clip = fitz.Rect(min(xs) - pad, min(ys) - pad,
-                             max(xs) + pad, max(ys) + pad) & page.rect
-            if clip.is_empty:
-                doc.close()
-                os.unlink(tmp)
-                return self._json(422, {"errore": "zona fuori dalla pagina del PDF"})
-            lato = max(clip.width, clip.height) or 1.0
-            zoom = max(ZOOM_MIN, min(ZOOM_MAX, PX_TARGET / lato))
-            zoom = min(zoom, PX_MAX / lato)  # il tetto assoluto vince su ZOOM_MIN
-            pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), clip=clip)
-            png = pix.tobytes("png")
+
+            cartella = os.path.dirname(riga["storage_path"])
+            items = []
+            for k, spec in enumerate(specs):
+                clip = fitz.Rect(*spec["rect"]) & page.rect
+                if clip.is_empty:
+                    continue
+                lato = max(clip.width, clip.height) or 1.0
+                zoom = max(ZOOM_MIN, min(ZOOM_MAX, PX_TARGET / lato))
+                zoom = min(zoom, PX_MAX / lato)
+                pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), clip=clip)
+                path = f"{cartella}/zone_{disegno_id}_{spec['tipo']}{spec['ref']}.png"
+                _req(f"{base}/storage/v1/object/disegni/{path}",
+                     method="POST",
+                     headers={"apikey": anon, "Authorization": f"Bearer {token}",
+                              "Content-Type": "image/png", "x-upsert": "true"},
+                     data=pix.tobytes("png"))
+                item = {"idx": k, "tipo": spec["tipo"], "ref": spec["ref"], "path": path,
+                        "bbox_pt": list(spec["rect"])}
+                if "esito_ref" in spec:
+                    item["esito_ref"] = spec["esito_ref"]
+                if spec.get("quote"):
+                    item["quote"] = spec["quote"]
+                    item["n_quote"] = len(spec["quote"])
+                items.append(item)
             doc.close()
             os.unlink(tmp)
 
-            # 4) upload nel bucket sotto il prefisso dell'utente (RLS come da browser)
-            cartella = os.path.dirname(riga["storage_path"])
-            crop_path = f"{cartella}/zone_{disegno_id}_0.png"
-            _req(f"{base}/storage/v1/object/disegni/{crop_path}",
-                 method="POST",
-                 headers={"apikey": anon, "Authorization": f"Bearer {token}",
-                          "Content-Type": "image/png", "x-upsert": "true"},
-                 data=png)
-
-            # 5) salva i metadati (merge su lettura FRESCA: riduce la race con la
-            #    vision/altre scritture; NON toccare .interpretazioni, NON updated_at)
+            # 4) salva i metadati (merge su lettura FRESCA; MAI updated_at)
             try:
                 _, zd_data = _req(
                     f"{base}/rest/v1/progetto_disegni?id=eq.{disegno_id}"
@@ -136,20 +179,13 @@ class handler(BaseHTTPRequestHandler):
                 if zd_rows:
                     zone_dett = zd_rows[0].get("zone_dettaglio") or {}
             except Exception:
-                pass  # in caso di errore si merge sul valore letto all'inizio
+                pass
             nuovo = dict(zone_dett)
             nuovo["crops"] = {
                 "generato_il": datetime.datetime.now(datetime.timezone.utc)
                                .isoformat(timespec="seconds"),
                 "fonte_updated_at": riga.get("updated_at"),
-                "items": [{
-                    "idx": 0,
-                    "path": crop_path,
-                    "bbox_pt": [min(xs), min(ys), max(xs), max(ys)],
-                    "quote": [t.get("testo") for t in zona],
-                    "n_quote": len(zona),
-                    "zoom": round(zoom, 2),
-                }],
+                "items": items,
             }
             _req(f"{base}/rest/v1/progetto_disegni?id=eq.{disegno_id}",
                  method="PATCH",

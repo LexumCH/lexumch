@@ -58,7 +58,7 @@
   "sez_cantonale": "Réglementation cantonale · {{cantone}}",
   "cant_badge_ai": "Sélection IA",
   "cant_analizza": "Analyser la réglementation cantonale",
-  "cant_aggiorna": "Actualiser",
+  "cant_aggiorna": "Actualiser (1 crédit)",
   "cant_in_corso": "Analyse cantonale en cours…",
   "cant_errore": "Échec de l'analyse cantonale. Veuillez réessayer.",
   "cant_hint_no_cantone": "Définissez le canton dans l'aperçu du projet pour activer l'analyse cantonale.",
@@ -69,13 +69,21 @@
     "regolamento_comunale": "nécessite le règlement communal",
     "documentazione": "nécessite des documents complémentaires"
   },
+  "analisi_ai_btn": "Analyse IA (1 crédit)",
+  "analisi_ai_in_corso": "Analyse IA en cours…",
+  "analisi_ai_hint": "Checklist opérationnelle, réglementation cantonale et interprétation des zones.",
+  "checklist_titolo": "Avant le dépôt",
+  "crediti_esauriti": "Crédits IA épuisés : rechargez depuis votre plan.",
+  "bundle_errore": "Analyse IA échouée. Réessayez avec « Analyse IA ».",
+  "cant_in_attesa": "Générée avec l'Analyse IA.",
+  "zona_in_attesa": "L'interprétation des zones arrive avec l'Analyse IA.",
   "zona_ai_btn": "Interpréter avec l'IA (vision)",
   "zona_ai_in_corso": "Interprétation en cours…",
   "zona_ai_errore": "Échec de l'interprétation. Réessayez.",
   "zona_ai_badge": "Interprétation IA — non mesurée",
   "zona_ai_scala": "échelle indiquée {{s}}",
   "zona_ai_illeggibile": "Extrait non interprétable avec certitude : vérification manuelle.",
-  "zona_ai_aggiorna": "Actualiser",
+  "zona_ai_aggiorna": "Actualiser (1 crédit)",
   "zona_tipo": {
     "dettaglio_costruttivo": "détail constructif",
     "scala": "escalier/rampe",
@@ -88,7 +96,7 @@
   },
   "raster_titolo_sez": "Lu depuis l'image (IA)",
   "raster_hint": "Ce PDF ne contient pas de géométrie vectorielle lisible : l'IA peut transcrire ce qui est visible sur le plan.",
-  "raster_btn": "Lire depuis l'image (IA)",
+  "raster_btn": "Lire depuis l'image (IA, 1 crédit)",
   "raster_in_corso": "Lecture en cours…",
   "raster_errore": "Échec de la lecture. Réessayez.",
   "raster_badge": "Lu depuis l'image — fiabilité moindre, non vérifié",
@@ -96,5 +104,5 @@
   "raster_quote": "~{{count}} cotes visibles",
   "raster_locali": "Locaux lus ({{count}})",
   "raster_illeggibile": "Plan non lisible avec une certitude suffisante.",
-  "raster_aggiorna": "Actualiser"
+  "raster_aggiorna": "Actualiser (1 crédit)"
 }

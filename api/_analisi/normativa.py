@@ -87,6 +87,9 @@ def analizza(twin, norme=None):
                   "rispetto al piano di evacuazione."
             ),
             "testo_norma": art10["testo"],
+            # posizioni strutturate delle aperture sotto soglia: servono ai
+            # ritagli visivi (il progettista deve VEDERE la porta, non x/y in pt)
+            "posizioni_pt": [[p[0], p[1]] for _, p in strette],
         })
 
     # --- OLL 4 art. 6 e 9: passaggi e corridoi >= 1.20 m

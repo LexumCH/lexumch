@@ -386,14 +386,22 @@ Deno.serve(async (req) => {
     }
 
     if (selezioni.length === 0) {
-      // Nessuna selezione valida: risposta onesta, non cachiamo.
+      // Nessuna selezione valida: risposta onesta, MA cachiamo il record vuoto
+      // (altrimenti ogni bundle ripaga la selezione e la UI resta al placeholder).
+      const recordVuoto = {
+        cantone, lingua, modello: MODEL_CANT,
+        generato_il: new Date().toISOString(),
+        fonte_updated_at: disegno.updated_at,
+        esiti: [],
+      }
+      await supabase.from('progetto_disegni').update({ esiti_cantonali: recordVuoto }).eq('id', disegno.id)
       await logLexCall({
         user_id: user.id, request_id: requestId, azione: `cantone_${cantone}`,
         modello: MODEL_CANT, token_input: sel.tokIn, token_output: sel.tokOut,
         durata_ms: Date.now() - t0, esito: 'ok', principali_count: 0,
         metadati: { cantone, lingua, disegno_id, fase: 'selezione_vuota', scartate: selezioniRaw.length },
       })
-      return new Response(JSON.stringify({ ok: true, cached: false, esiti_cantonali: { cantone, lingua, esiti: [] } }),
+      return new Response(JSON.stringify({ ok: true, cached: false, esiti_cantonali: recordVuoto }),
         { headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 

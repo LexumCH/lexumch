@@ -58,7 +58,7 @@
   "sez_cantonale": "Normativa cantonale · {{cantone}}",
   "cant_badge_ai": "Selezione AI",
   "cant_analizza": "Analizza normativa cantonale",
-  "cant_aggiorna": "Aggiorna",
+  "cant_aggiorna": "Aggiorna (1 credito)",
   "cant_in_corso": "Analisi cantonale in corso…",
   "cant_errore": "Analisi cantonale non riuscita. Riprova.",
   "cant_hint_no_cantone": "Imposta il cantone nella Panoramica del progetto per attivare l'analisi cantonale.",
@@ -69,13 +69,21 @@
     "regolamento_comunale": "richiede regolamento comunale",
     "documentazione": "richiede documentazione"
   },
+  "analisi_ai_btn": "Analisi AI (1 credito)",
+  "analisi_ai_in_corso": "Analisi AI in corso…",
+  "analisi_ai_hint": "Checklist operativa, normativa cantonale e interpretazione delle zone.",
+  "checklist_titolo": "Prima del deposito",
+  "crediti_esauriti": "Crediti AI esauriti: ricaricali dal tuo piano.",
+  "bundle_errore": "Analisi AI non riuscita. Riprova con \"Analisi AI\".",
+  "cant_in_attesa": "Generata con l'Analisi AI.",
+  "zona_in_attesa": "L'interpretazione delle zone arriva con l'Analisi AI.",
   "zona_ai_btn": "Interpreta con l'AI (vision)",
   "zona_ai_in_corso": "Interpretazione in corso…",
   "zona_ai_errore": "Interpretazione non riuscita. Riprova.",
   "zona_ai_badge": "Interpretazione AI — non misurata",
   "zona_ai_scala": "scala indicata {{s}}",
   "zona_ai_illeggibile": "Ritaglio non interpretabile con sicurezza: verifica manuale.",
-  "zona_ai_aggiorna": "Aggiorna",
+  "zona_ai_aggiorna": "Aggiorna (1 credito)",
   "zona_tipo": {
     "dettaglio_costruttivo": "dettaglio costruttivo",
     "scala": "scala/rampa",
@@ -88,7 +96,7 @@
   },
   "raster_titolo_sez": "Lettura da immagine (AI)",
   "raster_hint": "Questo PDF non contiene geometria vettoriale leggibile: l'AI può trascrivere ciò che vede sulla tavola.",
-  "raster_btn": "Leggi da immagine (AI)",
+  "raster_btn": "Leggi da immagine (AI, 1 credito)",
   "raster_in_corso": "Lettura in corso…",
   "raster_errore": "Lettura non riuscita. Riprova.",
   "raster_badge": "Lettura da immagine — minor affidabilità, non verificata",
@@ -96,5 +104,5 @@
   "raster_quote": "~{{count}} quote visibili",
   "raster_locali": "Locali letti ({{count}})",
   "raster_illeggibile": "Tavola non leggibile con sufficiente sicurezza.",
-  "raster_aggiorna": "Aggiorna"
+  "raster_aggiorna": "Aggiorna (1 credito)"
 }

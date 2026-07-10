@@ -56,10 +56,54 @@ function useLingua() {
   return ['it', 'de', 'fr'].includes(raw) ? raw : 'it'
 }
 
+// ─── Bundle "Analisi AI" = 1 credito ─────────────────────────────────
+// Gate crediti → in parallelo [normativa cantonale] + [ritagli → vision zone]
+// → narrazione+checklist per ULTIMA (la checklist deve vedere il cantonale).
+// I ritagli deterministici (ancore visive) non bloccano il resto se falliscono.
+async function eseguiBundleAi({ disegnoId, lingua }) {
+  const { data: gate, error: gErr } = await supabase.functions.invoke('lex-crediti-gate', {
+    body: { consuma: true },
+  })
+  if (gErr) throw new Error(gErr.context?.status === 402 ? 'crediti_esauriti' : 'bundle_errore')
+  if (!gate?.ok) throw new Error(gate?.error === 'crediti_esauriti' ? 'crediti_esauriti' : 'bundle_errore')
+
+  // Cantone letto dal DB (non dalla prop, che può non essere ancora caricata):
+  // se mancasse, il ramo cantonale salterebbe in silenzio pur avendo pagato.
+  let cantone = null
+  try {
+    const { data: pd } = await supabase
+      .from('progetto_disegni').select('progetto_id, progetti(cantone)')
+      .eq('id', disegnoId).single()
+    cantone = pd?.progetti?.cantone ?? null
+  } catch { /* senza cantone il ramo cantonale si salta */ }
+
+  const token = await getAccessToken()
+  const pRitagli = fetch('/api/rendi_zone', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ disegno_id: disegnoId, supabase_url: supabaseUrl, supabase_anon_key: supabaseKey }),
+  }).then(r => r.json()).then(async (out) => {
+    const items = out?.crops?.items ?? []
+    if (items.some(it => (it.tipo ?? 'zona') === 'zona')) {
+      await supabase.functions.invoke('lex-vision-zone', { body: { disegno_id: disegnoId, lingua } })
+    }
+  }).catch(() => {})
+  const pCantonale = cantone
+    ? supabase.functions.invoke('lex-normativa-cantonale', { body: { disegno_id: disegnoId, lingua } }).catch(() => {})
+    : Promise.resolve()
+  await Promise.all([pRitagli, pCantonale])
+
+  const { data: nOut, error: nErr } = await supabase.functions.invoke('lex-narra-disegno', {
+    body: { disegno_id: disegnoId, lingua },
+  })
+  if (nErr || !nOut?.ok) throw new Error('bundle_errore')
+}
+
 export default function ProgettoDisegni({ progettoId }) {
   const { profile } = useAuth()
   const queryClient = useQueryClient()
   const { t } = useTranslation('comp_progettista_disegni')
+  const lingua = useLingua()
   const fileInput = useRef(null)
   const [uploading, setUploading] = useState(false)
   const [errore, setErrore] = useState(null)
@@ -120,6 +164,12 @@ export default function ProgettoDisegni({ progettoId }) {
     }
   }
 
+  const messaggioBundle = (e) =>
+    e.message === 'crediti_esauriti' ? t('crediti_esauriti')
+      : e.message === 'bundle_errore' ? t('bundle_errore')
+        : e.message
+
+  // "Analizza" = UN gesto: motore deterministico + pacchetto AI (1 credito).
   const analizza = useMutation({
     mutationFn: async (disegnoId) => {
       const token = await getAccessToken()
@@ -130,11 +180,29 @@ export default function ProgettoDisegni({ progettoId }) {
       })
       const out = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(out.errore ?? `Errore ${res.status}`)
+      // Il risultato deterministico è subito visibile...
+      queryClient.invalidateQueries({ queryKey: ['progetto_disegni', progettoId] })
+      // ...poi il pacchetto AI. Se fallisce, l'analisi deterministica resta valida.
+      await eseguiBundleAi({ disegnoId, lingua })
       return out
     },
     onMutate: () => setErrore(null),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni', progettoId] }),
-    onError: (e) => setErrore(e.message),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['progetto_disegni', progettoId] })
+      queryClient.invalidateQueries({ queryKey: ['narrazione_disegno'] })
+    },
+    onError: (e) => setErrore(messaggioBundle(e)),
+  })
+
+  // Pacchetto AI per disegni già analizzati (senza rifare il motore): 1 credito.
+  const bundleAi = useMutation({
+    mutationFn: async (disegnoId) => eseguiBundleAi({ disegnoId, lingua }),
+    onMutate: () => setErrore(null),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['progetto_disegni', progettoId] })
+      queryClient.invalidateQueries({ queryKey: ['narrazione_disegno'] })
+    },
+    onError: (e) => setErrore(messaggioBundle(e)),
   })
 
   const elimina = useMutation({
@@ -262,7 +330,10 @@ export default function ProgettoDisegni({ progettoId }) {
 
               {espanso && (d.stato_analisi === 'completata' || candidatoRaster) && (
                 <RisultatiDisegno disegno={d} t={t} cantone={progetto?.cantone ?? null}
-                  candidatoRaster={candidatoRaster} />
+                  candidatoRaster={candidatoRaster}
+                  onAnalisiAi={() => bundleAi.mutate(d.id)}
+                  aiPending={(bundleAi.isPending && bundleAi.variables === d.id) ||
+                    (analizza.isPending && analizza.variables === d.id)} />
               )}
             </div>
           )
@@ -283,7 +354,7 @@ export default function ProgettoDisegni({ progettoId }) {
 }
 
 // ─── Pannello risultati (con narrazione localizzata IT/DE/FR) ────────
-function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
+function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false, onAnalisiAi, aiPending = false }) {
   const lingua = useLingua()
   const testi = d.gemello?.quote?.testi ?? []
   const cQ = testi.reduce((a, x) => { a[x.stato] = (a[x.stato] || 0) + 1; return a }, {})
@@ -292,20 +363,28 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
   const note = (d.findings ?? []).filter(f => f.severita !== 'errore')
   const esiti = d.esiti_normativa ?? []
 
-  // Narrazione DE/FR dal layer AI; IT = passthrough (stringhe del motore).
+  // Narrazione+checklist dal layer AI, in SOLA LETTURA (solo_cache): la
+  // generazione avviene esclusivamente nel bundle "Analisi AI" (1 credito).
   const { data: narr, isFetching: narrLoading } = useQuery({
     queryKey: ['narrazione_disegno', d.id, lingua, d.updated_at],
-    enabled: lingua !== 'it' && d.stato_analisi === 'completata',
+    enabled: d.stato_analisi === 'completata',
     staleTime: Infinity,
     retry: false,
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('lex-narra-disegno', {
-        body: { disegno_id: d.id, lingua },
+        body: { disegno_id: d.id, lingua, solo_cache: true },
       })
       if (error) throw error
       return data?.narrazione ?? null
     },
   })
+  const narrFresca = !!(narr && narr.fonte_updated_at === d.updated_at)
+
+  // Ritagli deterministici (ancore visive): per finding e per porte sotto soglia.
+  const cropsFreschi = d.zone_dettaglio?.crops?.fonte_updated_at === d.updated_at
+  const cropItems = cropsFreschi ? (d.zone_dettaglio?.crops?.items ?? []) : []
+  const cropPerFinding = (fIdx) => cropItems.find(it => it.tipo === 'finding' && it.ref === fIdx)
+  const cropsPorte = cropItems.filter(it => it.tipo === 'porta')
 
   // PDF non leggibile dal motore vettoriale → solo la corsia "lettura da immagine".
   if (d.stato_analisi !== 'completata') {
@@ -340,8 +419,35 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
 
   return (
     <div className="border-t border-white/5 px-4 py-4 space-y-5">
+      {/* Analisi AI mancante/stantia → un solo bottone, un solo credito */}
+      {!narrFresca && (
+        <div className="flex items-center gap-3 flex-wrap">
+          <button onClick={onAnalisiAi} disabled={aiPending}
+            className="flex items-center gap-2 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 disabled:opacity-50 transition-colors">
+            {aiPending ? <Loader2 size={13} className="animate-spin" /> : <ScanSearch size={13} />}
+            {aiPending ? t('analisi_ai_in_corso') : t('analisi_ai_btn')}
+          </button>
+          <span className="font-body text-[11px] text-nebbia/35">{t('analisi_ai_hint')}</span>
+        </div>
+      )}
+
+      {/* Checklist operativa: cosa fare prima del deposito */}
+      {narrFresca && (narr?.checklist ?? []).length > 0 && (
+        <section className="bg-petrolio border-l-2 border-oro/60 p-3">
+          <h3 className="font-display text-xs uppercase tracking-wider text-oro/80 mb-2">{t('checklist_titolo')}</h3>
+          <ol className="space-y-1.5">
+            {narr.checklist.map((voce, i) => (
+              <li key={i} className="flex items-start gap-2.5 font-body text-sm text-nebbia/85">
+                <span className="font-display text-xs text-oro/70 mt-0.5 shrink-0">{i + 1}.</span>
+                {voce}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
       {/* Sintesi localizzata (solo se il layer AI l'ha prodotta) */}
-      {narr?.sommario && (
+      {narrFresca && narr?.sommario && (
         <p className="font-body text-sm text-nebbia/80 bg-petrolio border-l-2 border-oro/40 pl-3 py-2">
           <span className="text-nebbia/40 uppercase text-[10px] tracking-wider mr-2">{t('sommario_label')}</span>
           {narr.sommario}
@@ -373,13 +479,17 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
             <CheckCircle2 size={14} /> {t('nessuna_incoerenza')}
           </p>
         ) : (
-          <ul className="space-y-1.5">
-            {incoerenze.map((f, i) => (
-              <li key={i} className="flex items-start gap-2 font-body text-sm text-nebbia/80">
-                <XCircle size={14} className="text-red-400 mt-0.5 shrink-0" />
-                {testoFinding(f, idxOf(f))}
-              </li>
-            ))}
+          <ul className="space-y-2">
+            {incoerenze.map((f, i) => {
+              const crop = cropPerFinding(idxOf(f))
+              return (
+                <li key={i} className="flex items-start gap-3 font-body text-sm text-nebbia/80">
+                  <XCircle size={14} className="text-red-400 mt-0.5 shrink-0" />
+                  <span className="flex-1 min-w-0">{testoFinding(f, idxOf(f))}</span>
+                  {crop && <CropImg path={crop.path} />}
+                </li>
+              )
+            })}
           </ul>
         )}
 
@@ -417,6 +527,15 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
                   <span className="font-body text-xs text-nebbia/40">— {dati.riferimento}</span>
                 </div>
                 <p className="font-body text-sm text-nebbia/80">{dati.spiegazione}</p>
+                {/* Ancore visive: le porte sotto soglia, viste (non coordinate).
+                    esito_ref lega ogni ritaglio al suo esito (fallback: tutti). */}
+                {(e.posizioni_pt ?? []).length > 0 && cropsPorte.length > 0 && (
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    {cropsPorte
+                      .filter(c => c.esito_ref == null || c.esito_ref === i)
+                      .map(c => <CropImg key={c.ref} path={c.path} />)}
+                  </div>
+                )}
                 {dati.testo_norma && (
                   <p className="font-body text-xs text-nebbia/40 mt-1.5 border-l-2 border-white/10 pl-2">{dati.testo_norma}</p>
                 )}
@@ -473,6 +592,12 @@ function ZoneVision({ disegno: d, t, lingua }) {
 
   const interpreta = useMutation({
     mutationFn: async ({ forza = false } = {}) => {
+      // Rigenerare la vision è una chiamata AI: passa dal gate (1 credito).
+      const { data: gate, error: gErr } = await supabase.functions.invoke('lex-crediti-gate', {
+        body: { consuma: true },
+      })
+      if (gErr) throw new Error(gErr.context?.status === 402 ? 'crediti_esauriti' : 'errore')
+      if (!gate?.ok) throw new Error(gate?.error === 'crediti_esauriti' ? 'crediti_esauriti' : 'errore')
       const token = await getAccessToken()
       const res = await fetch('/api/rendi_zone', {
         method: 'POST',
@@ -492,16 +617,12 @@ function ZoneVision({ disegno: d, t, lingua }) {
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni'] }),
   })
 
+  // La generazione avviene nel bundle "Analisi AI" (1 credito): qui solo lettura.
   if (!fresh) {
     return (
-      <div className="mt-2.5">
-        <button onClick={() => interpreta.mutate({})} disabled={interpreta.isPending}
-          className="flex items-center gap-2 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 disabled:opacity-50 transition-colors">
-          {interpreta.isPending ? <Loader2 size={13} className="animate-spin" /> : <ScanSearch size={13} />}
-          {interpreta.isPending ? t('zona_ai_in_corso') : t('zona_ai_btn')}
-        </button>
-        {interpreta.isError && <p className="font-body text-xs text-red-400 mt-2">{t('zona_ai_errore')}</p>}
-      </div>
+      <p className="mt-2.5 font-body text-[11px] text-nebbia/35 flex items-center gap-1.5">
+        <ScanSearch size={11} className="text-nebbia/25" /> {t('zona_in_attesa')}
+      </p>
     )
   }
 
@@ -539,6 +660,11 @@ function ZoneVision({ disegno: d, t, lingua }) {
         className="flex items-center gap-1.5 px-2.5 py-1 border border-white/10 text-nebbia/50 font-body text-[11px] hover:border-oro/30 hover:text-nebbia/80 disabled:opacity-50 transition-colors">
         <RefreshCw size={11} className={interpreta.isPending ? 'animate-spin' : ''} /> {t('zona_ai_aggiorna')}
       </button>
+      {interpreta.isError && (
+        <p className="font-body text-xs text-red-400">
+          {interpreta.error?.message === 'crediti_esauriti' ? t('crediti_esauriti') : t('zona_ai_errore')}
+        </p>
+      )}
     </div>
   )
 }
@@ -554,6 +680,12 @@ function LetturaRaster({ disegno: d, t, lingua }) {
 
   const leggi = useMutation({
     mutationFn: async ({ forza = false } = {}) => {
+      // La lettura da immagine è un'analisi AI a sé: 1 credito (gate 402).
+      const { data: gate, error: gErr } = await supabase.functions.invoke('lex-crediti-gate', {
+        body: { consuma: true },
+      })
+      if (gErr) throw new Error(gErr.context?.status === 402 ? 'crediti_esauriti' : 'errore')
+      if (!gate?.ok) throw new Error(gate?.error === 'crediti_esauriti' ? 'crediti_esauriti' : 'errore')
       const token = await getAccessToken()
       const res = await fetch('/api/rendi_pagina', {
         method: 'POST',
@@ -582,7 +714,11 @@ function LetturaRaster({ disegno: d, t, lingua }) {
           {leggi.isPending ? <Loader2 size={13} className="animate-spin" /> : <ScanSearch size={13} />}
           {leggi.isPending ? t('raster_in_corso') : t('raster_btn')}
         </button>
-        {leggi.isError && <p className="font-body text-xs text-red-400 mt-2">{t('raster_errore')}</p>}
+        {leggi.isError && (
+          <p className="font-body text-xs text-red-400 mt-2">
+            {leggi.error?.message === 'crediti_esauriti' ? t('crediti_esauriti') : t('raster_errore')}
+          </p>
+        )}
       </div>
     )
   }
@@ -668,8 +804,13 @@ function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
 
   const genera = useMutation({
     // forza=true bypassa la cache lato server (es. dopo un cambio modello che
-    // il client non può rilevare).
+    // il client non può rilevare). Rigenerare è una chiamata AI: gate (1 credito).
     mutationFn: async ({ forza = false } = {}) => {
+      const { data: gate, error: gErr } = await supabase.functions.invoke('lex-crediti-gate', {
+        body: { consuma: true },
+      })
+      if (gErr) throw new Error(gErr.context?.status === 402 ? 'crediti_esauriti' : 'errore')
+      if (!gate?.ok) throw new Error(gate?.error === 'crediti_esauriti' ? 'crediti_esauriti' : 'errore')
       const { data, error } = await supabase.functions.invoke('lex-normativa-cantonale', {
         body: { disegno_id: d.id, lingua, forza },
       })
@@ -693,13 +834,19 @@ function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
       {!cantone ? (
         <p className="font-body text-xs text-nebbia/40">{t('cant_hint_no_cantone')}</p>
       ) : !cache ? (
-        <div>
-          <button onClick={() => genera.mutate({})} disabled={genera.isPending}
-            className="flex items-center gap-2 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 disabled:opacity-50 transition-colors">
-            {genera.isPending ? <Loader2 size={13} className="animate-spin" /> : <Landmark size={13} />}
-            {genera.isPending ? t('cant_in_corso') : t('cant_analizza')}
+        // La generazione avviene nel bundle "Analisi AI"; il bottone gated è il
+        // percorso di recupero se il ramo cantonale del bundle è fallito.
+        <div className="flex items-center gap-3 flex-wrap">
+          <p className="font-body text-[11px] text-nebbia/35">{t('cant_in_attesa')}</p>
+          <button onClick={() => genera.mutate({ forza: true })} disabled={genera.isPending}
+            className="flex items-center gap-1.5 px-2.5 py-1 border border-white/10 text-nebbia/50 font-body text-[11px] hover:border-oro/30 hover:text-nebbia/80 disabled:opacity-50 transition-colors">
+            <RefreshCw size={11} className={genera.isPending ? 'animate-spin' : ''} /> {t('cant_aggiorna')}
           </button>
-          {genera.isError && <p className="font-body text-xs text-red-400 mt-2">{t('cant_errore')}</p>}
+          {genera.isError && (
+            <p className="font-body text-xs text-red-400">
+              {genera.error?.message === 'crediti_esauriti' ? t('crediti_esauriti') : t('cant_errore')}
+            </p>
+          )}
         </div>
       ) : (
         <div className="space-y-2">
@@ -737,7 +884,11 @@ function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
               </div>
             )
           })}
-          {genera.isError && <p className="font-body text-xs text-red-400">{t('cant_errore')}</p>}
+          {genera.isError && (
+            <p className="font-body text-xs text-red-400">
+              {genera.error?.message === 'crediti_esauriti' ? t('crediti_esauriti') : t('cant_errore')}
+            </p>
+          )}
         </div>
       )}
     </section>

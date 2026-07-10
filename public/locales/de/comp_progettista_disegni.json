@@ -58,7 +58,7 @@
   "sez_cantonale": "Kantonale Vorschriften · {{cantone}}",
   "cant_badge_ai": "KI-Auswahl",
   "cant_analizza": "Kantonale Vorschriften prüfen",
-  "cant_aggiorna": "Aktualisieren",
+  "cant_aggiorna": "Aktualisieren (1 Guthaben)",
   "cant_in_corso": "Kantonale Prüfung läuft…",
   "cant_errore": "Kantonale Prüfung fehlgeschlagen. Bitte erneut versuchen.",
   "cant_hint_no_cantone": "Legen Sie den Kanton in der Projektübersicht fest, um die kantonale Prüfung zu aktivieren.",
@@ -69,13 +69,21 @@
     "regolamento_comunale": "erfordert kommunale Bauordnung",
     "documentazione": "erfordert weitere Unterlagen"
   },
+  "analisi_ai_btn": "KI-Analyse (1 Guthaben)",
+  "analisi_ai_in_corso": "KI-Analyse läuft…",
+  "analisi_ai_hint": "Operative Checkliste, kantonale Vorschriften und Zonen-Interpretation.",
+  "checklist_titolo": "Vor der Baueingabe",
+  "crediti_esauriti": "KI-Guthaben aufgebraucht: über Ihren Plan aufladen.",
+  "bundle_errore": "KI-Analyse fehlgeschlagen. Mit \"KI-Analyse\" erneut versuchen.",
+  "cant_in_attesa": "Wird mit der KI-Analyse erstellt.",
+  "zona_in_attesa": "Die Zonen-Interpretation folgt mit der KI-Analyse.",
   "zona_ai_btn": "Mit KI interpretieren (Vision)",
   "zona_ai_in_corso": "Interpretation läuft…",
   "zona_ai_errore": "Interpretation fehlgeschlagen. Erneut versuchen.",
   "zona_ai_badge": "KI-Interpretation — nicht vermessen",
   "zona_ai_scala": "angegebener Massstab {{s}}",
   "zona_ai_illeggibile": "Ausschnitt nicht sicher interpretierbar: manuelle Prüfung.",
-  "zona_ai_aggiorna": "Aktualisieren",
+  "zona_ai_aggiorna": "Aktualisieren (1 Guthaben)",
   "zona_tipo": {
     "dettaglio_costruttivo": "Konstruktionsdetail",
     "scala": "Treppe/Rampe",
@@ -88,7 +96,7 @@
   },
   "raster_titolo_sez": "Aus Bild gelesen (KI)",
   "raster_hint": "Dieses PDF enthält keine lesbare Vektorgeometrie: Die KI kann transkribieren, was auf dem Plan sichtbar ist.",
-  "raster_btn": "Aus Bild lesen (KI)",
+  "raster_btn": "Aus Bild lesen (KI, 1 Guthaben)",
   "raster_in_corso": "Lesen läuft…",
   "raster_errore": "Lesen fehlgeschlagen. Erneut versuchen.",
   "raster_badge": "Aus Bild gelesen — geringere Zuverlässigkeit, nicht geprüft",
@@ -96,5 +104,5 @@
   "raster_quote": "~{{count}} sichtbare Masse",
   "raster_locali": "Gelesene Räume ({{count}})",
   "raster_illeggibile": "Plan nicht mit ausreichender Sicherheit lesbar.",
-  "raster_aggiorna": "Aktualisieren"
+  "raster_aggiorna": "Aktualisieren (1 Guthaben)"
 }

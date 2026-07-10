@@ -145,7 +145,10 @@ Deno.serve(async (req) => {
     }
 
     const crops = disegno.zone_dettaglio?.crops
-    if (!crops || crops.fonte_updated_at !== disegno.updated_at || !(crops.items ?? []).length) {
+    // Solo i ritagli 'zona' vanno interpretati dall'AI: quelli 'finding'/'porta'
+    // sono ancore visive deterministiche mostrate direttamente in UI.
+    const itemsZona = ((crops?.items ?? []) as any[]).filter(it => (it.tipo ?? 'zona') === 'zona')
+    if (!crops || crops.fonte_updated_at !== disegno.updated_at || !itemsZona.length) {
       // I ritagli vanno generati prima da /api/rendi_zone (deterministico).
       return new Response(JSON.stringify({ ok: false, error: 'crops_mancanti' }),
         { status: 409, headers: { ...CORS, 'Content-Type': 'application/json' } })
@@ -160,7 +163,7 @@ Deno.serve(async (req) => {
 
     // Scarica i ritagli (service role) e componi il messaggio vision.
     // Cap numerico e dimensionale: il jsonb è manipolabile dal client.
-    const items = (crops.items as any[]).slice(0, 6)
+    const items = itemsZona.slice(0, 6)
     const MAX_BLOB = 4 * 1024 * 1024
     const contenuto: any[] = []
     for (const it of items) {

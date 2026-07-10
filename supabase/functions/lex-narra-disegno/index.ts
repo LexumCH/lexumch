@@ -185,16 +185,21 @@ Sei Lex, assistente di uno studio di progettazione svizzero. Ricevi il RISULTATO
 
 # COMPITO
 Per ogni "finding" e ogni "esito normativo" fornito, riscrivi la frase nella lingua richiesta preservando ogni numero. Per gli esiti, se ti è dato un TESTO DI LEGGE UFFICIALE nella lingua, NON riscriverlo (lo mostra il sistema): produci solo la spiegazione.
+Se il messaggio indica MODALITÀ SOLO CHECKLIST, NON riscrivere findings/esiti (sono già nella lingua giusta): produci solo "sommario" e "checklist" e lascia gli array findings/esiti vuoti.
 Nella "spiegazione" NON usare virgolette di citazione (« » “ ” „) e NON introdurre numeri di articolo, RS o capoverso che non compaiano già nella verifica di partenza o nel riferimento.
+
+# CHECKLIST OPERATIVA
+Produci anche "checklist": massimo 6 azioni concrete, nella lingua richiesta, che il progettista deve fare prima di depositare la domanda di costruzione, ordinate per importanza. Ogni azione discende ESCLUSIVAMENTE dai finding e dagli esiti forniti (federali e cantonali): copia i numeri verbatim, indica quale documento serve quando la verifica non si fa sulla pianta (planimetria di situazione, regolamento comunale, piano di evacuazione). Se non c'è nulla da fare su un fronte, non inventare azioni. Frasi imperative brevi ("Verifica se…", "Porta a…", "Conferma…").
 
 # OUTPUT
 Rispondi con UN SOLO oggetto JSON valido, senza testo prima o dopo, di questa forma esatta:
 {
   "findings": [ { "idx": <numero>, "testo": "<frase localizzata con i numeri verbatim>" } ],
   "esiti":    [ { "idx": <numero>, "spiegazione": "<spiegazione localizzata della verifica, numeri verbatim>" } ],
-  "sommario": "<1-2 frasi nella lingua richiesta che riassumono l'esito complessivo del disegno, senza inventare numeri>"
+  "sommario": "<1-2 frasi nella lingua richiesta che riassumono l'esito complessivo del disegno, senza inventare numeri>",
+  "checklist": [ "<azione operativa>", ... ]
 }
-Includi un elemento per OGNI finding e OGNI esito ricevuto, con lo stesso idx.`
+Includi un elemento per OGNI finding e OGNI esito ricevuto, con lo stesso idx (salvo modalità solo checklist).`
 
 function costruisciMessaggio(
   lingua: Lingua,
@@ -202,8 +207,13 @@ function costruisciMessaggio(
   findings: any[],
   esiti: any[],
   norme: Record<string, { sigla: string | null; testo: string | null; rubrica: string | null }>,
+  cantEsiti: any[] = [],
+  soloChecklist = false,
 ): string {
   let m = `LINGUA RICHIESTA: ${NOME_LINGUA[lingua]} — scrivi TUTTO in questa lingua.\n`
+  if (soloChecklist) {
+    m += `MODALITÀ SOLO CHECKLIST: findings ed esiti sono già nella lingua giusta, NON riscriverli (lascia gli array findings/esiti vuoti). Produci solo "sommario" e "checklist".\n`
+  }
   m += `Disegno: ${nomeFile}\n\n`
 
   m += `## FINDINGS (${findings.length})\n`
@@ -224,8 +234,40 @@ function costruisciMessaggio(
     }
   })
 
-  m += `\nProduci l'oggetto JSON come da istruzioni. Un elemento per ogni idx sopra.`
+  if (cantEsiti.length > 0) {
+    m += `\n## ESITI NORMATIVA CANTONALE (${cantEsiti.length}) — entrano nella checklist\n`
+    cantEsiti.forEach((e: any) => {
+      m += `- esito "${e.esito}" · ${e.riferimento}${e.verificabilita ? ` · ${e.verificabilita}` : ''}\n  ${e.verifica}\n`
+    })
+  }
+
+  m += `\nProduci l'oggetto JSON come da istruzioni.${soloChecklist ? '' : ' Un elemento per ogni idx sopra.'}`
   return m
+}
+
+// ─── Chiamata AI condivisa (rami IT-solo-checklist e DE/FR completi) ──
+async function chiamaNarraAi(userMsg: string): Promise<{ parsed: any; tokIn: number; tokOut: number }> {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': Deno.env.get('ANTHROPIC_API_KEY')!,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: MODEL_NARRA,
+      max_tokens: MAX_TOKENS,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userMsg }],
+    }),
+  })
+  if (!resp.ok) throw new Error(`Anthropic ${resp.status}: ${await resp.text()}`)
+  const j = await resp.json()
+  return {
+    parsed: estraiJson(j.content?.[0]?.text ?? ''),
+    tokIn: j.usage?.input_tokens ?? 0,
+    tokOut: j.usage?.output_tokens ?? 0,
+  }
 }
 
 // ─── Costruzione narrazione IT (passthrough, zero AI) ───────────
@@ -273,7 +315,7 @@ Deno.serve(async (req) => {
     // Disegno di proprietà dell'utente, già analizzato
     const { data: disegno, error: dErr } = await supabase
       .from('progetto_disegni')
-      .select('id, nome_file, stato_analisi, findings, esiti_normativa, narrazione, updated_at, progettista_id')
+      .select('id, nome_file, stato_analisi, findings, esiti_normativa, esiti_cantonali, narrazione, updated_at, progettista_id')
       .eq('id', disegno_id)
       .eq('progettista_id', user.id)
       .maybeSingle()
@@ -289,52 +331,85 @@ Deno.serve(async (req) => {
 
     const findings: any[] = disegno.findings ?? []
     const esiti: any[] = disegno.esiti_normativa ?? []
+    // Esiti cantonali (se già generati): entrano nella checklist operativa.
+    // La cache cantonale è per-disegno: la si usa solo se fresca.
+    const cant = disegno.esiti_cantonali
+    const cantEsiti: any[] = (cant && cant.fonte_updated_at === disegno.updated_at)
+      ? (cant.esiti ?? []) : []
 
-    // Cache valida? (stessa fonte, stessa lingua, stesso modello)
-    const modelloAtteso = lingua === 'it' ? 'passthrough' : MODEL_NARRA
+    // Cache valida? (stessa fonte, stessa lingua, stesso modello, stessa
+    // disponibilità cantonale — se il cantonale arriva dopo, la checklist va rifatta)
     const cache = (disegno.narrazione && disegno.narrazione[lingua]) || null
-    if (!forza && cache && cache.fonte_updated_at === disegno.updated_at && cache.modello === modelloAtteso) {
+    if (!forza && cache && cache.fonte_updated_at === disegno.updated_at &&
+        cache.modello === MODEL_NARRA && (cache.con_cantonale === (cantEsiti.length > 0))) {
       return new Response(JSON.stringify({ ok: true, lingua, cached: true, narrazione: cache }),
         { headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 
+    // solo_cache: il frontend legge senza mai generare — la generazione avviene
+    // esclusivamente nel bundle "Analisi AI" (che scala il credito).
+    if (body.solo_cache === true) {
+      return new Response(JSON.stringify({ ok: true, lingua, cached: false, narrazione: null }),
+        { headers: { ...CORS, 'Content-Type': 'application/json' } })
+    }
+
     let narr: any
-    let modelloUsato = 'passthrough'
+    const modelloUsato = MODEL_NARRA
     let tokIn = 0, tokOut = 0
     let skipCache = false
 
+    const nomeSafe = (disegno.nome_file || '').replace(/[`\r\n]/g, ' ').slice(0, 120)
+    // Fonte per il guard di sommario e checklist: TUTTE le stringhe del motore
+    // (federali + cantonali) — la checklist non può introdurre numeri nuovi.
+    const fonteTot = [
+      ...findings.map((f: any) => f.messaggio),
+      // riferimento incluso: la checklist può citare "art. 10 OLL 4" senza
+      // che il guard scarti la voce per i numeri dell'articolo
+      ...esiti.map((e: any) => `${e.verifica ?? ''} ${e.riferimento ?? ''}`),
+      ...cantEsiti.map((e: any) => `${e.verifica ?? ''} ${e.riferimento ?? ''}`),
+    ].join(' ')
+    const estraiChecklist = (parsed: any) =>
+      (Array.isArray(parsed?.checklist) ? parsed.checklist : [])
+        .map((x: any) => String(x ?? '').slice(0, 240))
+        .filter((x: string) => prosaValida(x, fonteTot))
+        .slice(0, 6)
+    const nienteDaNarrare = findings.length === 0 && esiti.length === 0 && cantEsiti.length === 0
+
     if (lingua === 'it') {
-      // Nativo: nessuna AI.
-      narr = narrazioneIt(findings, esiti)
+      // Prosa nativa dal motore (passthrough); l'AI produce SOLO sommario+checklist.
+      narr = { ...narrazioneIt(findings, esiti), checklist: [] }
+      if (!nienteDaNarrare) {
+        const userMsg = costruisciMessaggio(lingua, nomeSafe, findings, esiti, {}, cantEsiti, true)
+        let r = await chiamaNarraAi(userMsg)
+        tokIn += r.tokIn; tokOut += r.tokOut
+        if (!r.parsed) {
+          // un retry interno: il credito è già stato speso, non va sprecato
+          r = await chiamaNarraAi(userMsg)
+          tokIn += r.tokIn; tokOut += r.tokOut
+        }
+        if (!r.parsed) {
+          skipCache = true  // retry successivo potrà rigenerare la checklist
+        } else {
+          narr.sommario = prosaValida(r.parsed.sommario, fonteTot) ? r.parsed.sommario : null
+          narr.checklist = estraiChecklist(r.parsed)
+        }
+      }
     } else {
       // Testo di legge + sigla dal DB nella lingua richiesta.
       const norme = await risolviNorme(esiti.map((e: any) => e.riferimento).filter(Boolean), lingua)
 
-      if (findings.length === 0 && esiti.length === 0) {
-        narr = { findings: [], esiti: [], sommario: null }
+      if (nienteDaNarrare) {
+        narr = { findings: [], esiti: [], sommario: null, checklist: [] }
       } else {
-        const nomeSafe = (disegno.nome_file || '').replace(/[`\r\n]/g, ' ').slice(0, 120)
-        const userMsg = costruisciMessaggio(lingua, nomeSafe, findings, esiti, norme)
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': Deno.env.get('ANTHROPIC_API_KEY')!,
-            'anthropic-version': '2023-06-01',
-          },
-          body: JSON.stringify({
-            model: MODEL_NARRA,
-            max_tokens: MAX_TOKENS,
-            system: SYSTEM_PROMPT,
-            messages: [{ role: 'user', content: userMsg }],
-          }),
-        })
-        if (!resp.ok) throw new Error(`Anthropic ${resp.status}: ${await resp.text()}`)
-        const j = await resp.json()
-        modelloUsato = MODEL_NARRA
-        tokIn = j.usage?.input_tokens ?? 0
-        tokOut = j.usage?.output_tokens ?? 0
-        const parsed = estraiJson(j.content?.[0]?.text ?? '')
+        const userMsg = costruisciMessaggio(lingua, nomeSafe, findings, esiti, norme, cantEsiti, false)
+        let r = await chiamaNarraAi(userMsg)
+        tokIn += r.tokIn; tokOut += r.tokOut
+        if (!r.parsed) {
+          // un retry interno: il credito è già stato speso, non va sprecato
+          r = await chiamaNarraAi(userMsg)
+          tokIn += r.tokIn; tokOut += r.tokOut
+        }
+        const parsed = r.parsed
 
         // riferimento localizzato (deterministico) + testo di legge dal DB: MAI dall'AI.
         const esitiBase = esiti.map((e: any) => {
@@ -354,6 +429,7 @@ Deno.serve(async (req) => {
               idx: i, riferimento: esitiBase[i].riferimento, testo_norma: esitiBase[i].testo_norma, spiegazione: e.verifica,
             })),
             sommario: null,
+            checklist: [],
           }
           skipCache = true
         } else {
@@ -364,8 +440,8 @@ Deno.serve(async (req) => {
 
           // GUARD: la prosa AI passa solo se non introduce numeri assenti nella fonte
           // e non contiene virgolette da citazione; altrimenti fallback alla stringa motore.
-          const fonteTot = [...findings.map((f: any) => f.messaggio), ...esiti.map((e: any) => e.verifica)].join(' ')
           narr = {
+            checklist: estraiChecklist(parsed),
             findings: findings.map((f: any, i: number) => ({
               idx: i, testo: prosaValida(fMap[i], f.messaggio) ? fMap[i] : f.messaggio,
             })),
@@ -389,6 +465,7 @@ Deno.serve(async (req) => {
       generata_il: new Date().toISOString(),
       modello: modelloUsato,
       fonte_updated_at: disegno.updated_at,
+      con_cantonale: cantEsiti.length > 0,
     }
 
     // Scrivi la cache: merge nella colonna narrazione senza toccare le altre lingue.
