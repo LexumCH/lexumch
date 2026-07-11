@@ -6,7 +6,7 @@ from . import extractor, checks
 
 # Versione del motore, stampata nei risultati: ogni analisi è tracciabile
 # alla versione di codice che l'ha prodotta.
-VERSIONE_MOTORE = "1.1.0"
+VERSIONE_MOTORE = "1.2.0"
 
 
 def build_twin(pdf_path, nome_file=None):

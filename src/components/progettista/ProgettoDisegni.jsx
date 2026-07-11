@@ -404,7 +404,8 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
   const cQ = testi.reduce((a, x) => { a[x.stato] = (a[x.stato] || 0) + 1; return a }, {})
   const verificate = (cQ.ok || 0) + (cQ.ok_dettaglio || 0)
   const incoerenze = (d.findings ?? []).filter(f => f.severita === 'errore')
-  const note = (d.findings ?? []).filter(f => f.severita !== 'errore')
+  const note = (d.findings ?? []).filter(f => f.severita !== 'errore' && !String(f.tipo).startsWith('completezza_'))
+  const completezza = (d.findings ?? []).filter(f => String(f.tipo).startsWith('completezza_'))
   const esiti = d.esiti_normativa ?? []
 
   // Narrazione+checklist dal layer AI, in SOLA LETTURA (solo_cache): la
@@ -559,6 +560,21 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
             {note.some(f => f.tipo === 'zona_non_verificata') && (
               <ZoneVision disegno={d} t={t} lingua={lingua} />
             )}
+          </div>
+        )}
+
+        {/* Completezza del disegno: cosa MANCA (deterministico, da completare) */}
+        {completezza.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-white/5">
+            <p className="font-body text-[11px] uppercase tracking-wider text-nebbia/30 mb-1.5">{t('completezza_titolo')}</p>
+            <ul className="space-y-1.5">
+              {completezza.map((f, i) => (
+                <li key={i} className="flex items-start gap-2 font-body text-sm text-nebbia/70">
+                  <Info size={14} className="text-sky-400 mt-0.5 shrink-0" />
+                  {testoFinding(f, idxOf(f))}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </section>

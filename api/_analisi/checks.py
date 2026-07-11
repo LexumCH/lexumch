@@ -157,6 +157,82 @@ def check_catene(quote):
     return findings, verificate
 
 
+def check_completezza(twin):
+    """QA di COMPLETEZZA del disegno (deterministico): non verifica se le quote
+    sono giuste (lo fa check_dimensions), ma segnala ciò che MANCA. Conservativo,
+    per non produrre falsi positivi: severità 'avviso' (cose da completare prima
+    del deposito, non errori del disegno).
+    """
+    findings = []
+    locali = twin["locali"]
+    testi = twin["quote"]["testi"]
+    linee = twin["quote"]["linee"]
+
+    # A) Timbro locale CON finiture (B/W/D) ma SENZA superficie BF → manca la BF.
+    #    Le finiture rendono certo che è un timbro locale (non una nota qualsiasi).
+    for r in locali:
+        if r.get("superficie_bf_m2") is None and (r.get("finiture") or {}):
+            nome = r.get("nome") or "(senza nome)"
+            findings.append({
+                "tipo": "completezza_locale_senza_superficie",
+                "severita": "avviso",
+                "messaggio": (
+                    f"Il locale «{nome}» ha il timbro con le finiture ma nessuna "
+                    f"superficie BF indicata: aggiungi la superficie."
+                ),
+                "posizione_pt": r.get("posizione_pt"),
+            })
+
+    # B) Locale con superficie ma SENZA denominazione → manca il nome.
+    for r in locali:
+        if r.get("superficie_bf_m2") is not None and not (r.get("nome") or "").strip():
+            findings.append({
+                "tipo": "completezza_locale_senza_nome",
+                "severita": "avviso",
+                "messaggio": (
+                    f"Un locale di {r['superficie_bf_m2']:.2f} m² è quotato ma senza "
+                    f"denominazione nel timbro."
+                ),
+                "posizione_pt": r.get("posizione_pt"),
+            })
+
+    # C) Quota d'ingombro complessiva mancante su un asse: se nessuna quota
+    #    riscontrata copre ~l'intera estensione disegnata dell'asse, la dimensione
+    #    totale del fabbricato probabilmente non è quotata.
+    xs, ys = [], []
+    for ln in linee:
+        a, b = ln["estensione_pt"]
+        if ln["orientamento"] == "orizzontale":
+            xs += [a, b]; ys.append(ln["posizione_pt"])
+        else:
+            ys += [a, b]; xs.append(ln["posizione_pt"])
+    if xs and ys:
+        cw, ch = max(xs) - min(xs), max(ys) - min(ys)
+
+        def max_span(orient):
+            s = [ln["estensione_pt"][1] - ln["estensione_pt"][0]
+                 for ln in linee if ln["orientamento"] == orient]
+            s += [t["span_pt"] for t in testi
+                  if t["orientamento"] == orient
+                  and t["stato"] in ("ok", "ok_dettaglio") and t.get("span_pt")]
+            return max(s) if s else 0.0
+
+        for orient, lato, ext in (("orizzontale", "orizzontale (larghezza)", cw),
+                                  ("verticale", "verticale (profondità)", ch)):
+            if ext > 200 and max_span(orient) < ext * 0.70:
+                findings.append({
+                    "tipo": "completezza_ingombro_mancante",
+                    "severita": "avviso",
+                    "messaggio": (
+                        f"Nessuna quota d'ingombro complessiva sul lato {lato}: "
+                        f"la dimensione totale del fabbricato non risulta quotata "
+                        f"da una singola catena che copre l'intera estensione."
+                    ),
+                    "posizione_pt": None,
+                })
+    return findings
+
+
 def check_scale_calibration(quote, scala_dichiarata):
     """Verifica la scala: rapporto mediano pt/m sulle quote riscontrate."""
     import statistics
@@ -187,6 +263,7 @@ def run_all(twin):
     findings += check_dimensions(twin["quote"])
     catene_findings, catene_ok = check_catene(twin["quote"])
     findings += catene_findings
+    findings += check_completezza(twin)
     twin["metadata"]["scala_rilevata"] = scala_rilevata
     twin["metadata"]["catene_verificate"] = catene_ok
     return findings

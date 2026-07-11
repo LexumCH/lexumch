@@ -115,5 +115,6 @@
   "opinione_fp": "possibile falso positivo, verifica sul ritaglio",
   "opinione_coerente": "coerente col ritaglio",
   "bundle_errore_rimborsato": "Analisi AI non riuscita: credito rimborsato. Riprova.",
-  "analisi_attesa_hint": "Il report si apre completo al termine"
+  "analisi_attesa_hint": "Il report si apre completo al termine",
+  "completezza_titolo": "Completezza del disegno"
 }

@@ -115,5 +115,6 @@
   "opinione_fp": "possible faux positif, vérifier sur l'extrait",
   "opinione_coerente": "cohérent avec l'extrait",
   "bundle_errore_rimborsato": "Analyse IA échouée : crédit remboursé. Réessayez.",
-  "analisi_attesa_hint": "Le rapport s'ouvre complet à la fin"
+  "analisi_attesa_hint": "Le rapport s'ouvre complet à la fin",
+  "completezza_titolo": "Complétude du plan"
 }
