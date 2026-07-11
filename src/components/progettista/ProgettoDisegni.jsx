@@ -20,7 +20,7 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, supabaseKey, getAccessToken, invocaLex } from '@/lib/supabase'
 import {
   Upload, FileText, Play, Loader2, CheckCircle2, AlertTriangle, XCircle,
-  Info, ChevronDown, ChevronUp, Trash2, Languages, Landmark, RefreshCw, ScanSearch
+  Info, ChevronDown, ChevronUp, Trash2, Languages, Landmark, ScanSearch
 } from 'lucide-react'
 
 const STATO_META = {
@@ -303,8 +303,11 @@ export default function ProgettoDisegni({ progettoId }) {
           const incoerenze = (d.findings ?? []).filter(f => f.severita === 'errore')
           const faseCorrente = fasiAi[d.id] ?? null
           // Un solo gesto "Analizza" (motore + AI, 1 credito): riappare anche
-          // sui disegni completati la cui parte AI manca o è stantia.
-          const aiFrescaRow = d.narrazione?.[lingua]?.fonte_updated_at === d.updated_at
+          // sui disegni completati la cui parte AI manca o è stantia — incluso il
+          // ramo cantonale (se il cantone è impostato), così il recupero di una
+          // parte fallita del bundle passa dall'unico bottone, non da refresh a pagamento.
+          const cantOk = !progetto?.cantone || d.esiti_cantonali?.fonte_updated_at === d.updated_at
+          const aiFrescaRow = (d.narrazione?.[lingua]?.fonte_updated_at === d.updated_at) && cantOk
           const mostraAnalizza = !faseCorrente && (
             ['caricato', 'errore'].includes(d.stato_analisi) ||
             (d.stato_analisi === 'completata' && !candidatoRaster && !aiFrescaRow)
@@ -638,29 +641,8 @@ function ZoneVision({ disegno: d, t, lingua }) {
   const cropByIdx = {}
   for (const c of (crops?.items ?? [])) cropByIdx[c.idx] = c
 
-  const interpreta = useMutation({
-    mutationFn: async ({ forza = false } = {}) => {
-      // Rigenerare la vision è una chiamata AI: passa dal gate (1 credito).
-      const gate = await invocaLex('lex-crediti-gate', { consuma: true, disegno_id: d.id })
-      if (gate.status === 402) throw new Error('crediti_esauriti')
-      if (!gate.json?.ok) throw new Error('errore')
-      const token = await getAccessToken()
-      const res = await fetch('/api/rendi_zone', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ disegno_id: d.id, supabase_url: supabaseUrl, supabase_anon_key: supabaseKey }),
-      })
-      const out = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(out.errore ?? `Errore ${res.status}`)
-      if (out.zone === 0) return { vuoto: true }
-      const vz = await invocaLex('lex-vision-zone', { disegno_id: d.id, lingua, forza })
-      if (!vz.json?.ok) throw new Error(vz.json?.error ?? 'errore')
-      return vz.json
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni'] }),
-  })
-
-  // La generazione avviene nel bundle "Analisi AI" (1 credito): qui solo lettura.
+  // Sezione in SOLA LETTURA: l'interpretazione è prodotta dal bundle "Analisi AI"
+  // (1 credito). Nessun ri-genera per-sezione — per rifarla si usa "Analizza".
   if (!fresh) {
     return (
       <p className="mt-2.5 font-body text-[11px] text-nebbia/35 flex items-center gap-1.5">
@@ -699,15 +681,6 @@ function ZoneVision({ disegno: d, t, lingua }) {
           </div>
         )
       })}
-      <button onClick={() => interpreta.mutate({ forza: true })} disabled={interpreta.isPending}
-        className="flex items-center gap-1.5 px-2.5 py-1 border border-white/10 text-nebbia/50 font-body text-[11px] hover:border-oro/30 hover:text-nebbia/80 disabled:opacity-50 transition-colors">
-        <RefreshCw size={11} className={interpreta.isPending ? 'animate-spin' : ''} /> {t('zona_ai_aggiorna')}
-      </button>
-      {interpreta.isError && (
-        <p className="font-body text-xs text-red-400">
-          {interpreta.error?.message === 'crediti_esauriti' ? t('crediti_esauriti') : t('zona_ai_errore')}
-        </p>
-      )}
     </div>
   )
 }
@@ -803,10 +776,6 @@ function LetturaRaster({ disegno: d, t, lingua }) {
           <p className="font-body text-[10px] uppercase tracking-wider text-oro/50 mt-2">{t('raster_badge')}</p>
         </div>
       </div>
-      <button onClick={() => leggi.mutate({ forza: true })} disabled={leggi.isPending}
-        className="mt-2 flex items-center gap-1.5 px-2.5 py-1 border border-white/10 text-nebbia/50 font-body text-[11px] hover:border-oro/30 hover:text-nebbia/80 disabled:opacity-50 transition-colors">
-        <RefreshCw size={11} className={leggi.isPending ? 'animate-spin' : ''} /> {t('raster_aggiorna')}
-      </button>
     </div>
   )
 }
@@ -840,20 +809,8 @@ function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
   const esiti = cache?.esiti ?? []
   const stale = cache && (cache.fonte_updated_at !== d.updated_at || cache.cantone !== cantone || cache.lingua !== lingua)
 
-  const genera = useMutation({
-    // forza=true bypassa la cache lato server (es. dopo un cambio modello che
-    // il client non può rilevare). Rigenerare è una chiamata AI: gate (1 credito).
-    mutationFn: async ({ forza = false } = {}) => {
-      const gate = await invocaLex('lex-crediti-gate', { consuma: true, disegno_id: d.id })
-      if (gate.status === 402) throw new Error('crediti_esauriti')
-      if (!gate.json?.ok) throw new Error('errore')
-      const out = await invocaLex('lex-normativa-cantonale', { disegno_id: d.id, lingua, forza })
-      if (!out.json?.ok) throw new Error(out.json?.error ?? 'errore')
-      return out.json
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['progetto_disegni'] }),
-  })
-
+  // Sezione in SOLA LETTURA: gli esiti cantonali sono prodotti dal bundle
+  // "Analisi AI" (1 credito). Nessun ri-genera per-sezione.
   return (
     <section>
       <h3 className="font-display text-xs uppercase tracking-wider text-nebbia/40 mb-2 flex items-center gap-2">
@@ -866,29 +823,11 @@ function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
 
       {!cantone ? (
         <p className="font-body text-xs text-nebbia/40">{t('cant_hint_no_cantone')}</p>
-      ) : !cache ? (
-        // La generazione avviene nel bundle "Analisi AI"; il bottone gated è il
-        // percorso di recupero se il ramo cantonale del bundle è fallito.
-        <div className="flex items-center gap-3 flex-wrap">
-          <p className="font-body text-[11px] text-nebbia/35">{t('cant_in_attesa')}</p>
-          <button onClick={() => genera.mutate({ forza: true })} disabled={genera.isPending}
-            className="flex items-center gap-1.5 px-2.5 py-1 border border-white/10 text-nebbia/50 font-body text-[11px] hover:border-oro/30 hover:text-nebbia/80 disabled:opacity-50 transition-colors">
-            <RefreshCw size={11} className={genera.isPending ? 'animate-spin' : ''} /> {t('cant_aggiorna')}
-          </button>
-          {genera.isError && (
-            <p className="font-body text-xs text-red-400">
-              {genera.error?.message === 'crediti_esauriti' ? t('crediti_esauriti') : t('cant_errore')}
-            </p>
-          )}
-        </div>
+      ) : (!cache || stale) ? (
+        // Manca o è stantia → si rigenera con "Analizza" (che ricompare in alto).
+        <p className="font-body text-[11px] text-nebbia/35">{t('cant_in_attesa')}</p>
       ) : (
         <div className="space-y-2">
-          <button onClick={() => genera.mutate({ forza: !stale })} disabled={genera.isPending}
-            className={`flex items-center gap-1.5 px-2.5 py-1 border font-body text-[11px] disabled:opacity-50 transition-colors ${stale
-              ? 'border-oro/30 text-oro hover:bg-oro/10'
-              : 'border-white/10 text-nebbia/50 hover:border-oro/30 hover:text-nebbia/80'}`}>
-            <RefreshCw size={11} className={genera.isPending ? 'animate-spin' : ''} /> {t('cant_aggiorna')}
-          </button>
           {esiti.length === 0 && (
             <p className="font-body text-xs text-nebbia/40">{t('cant_vuoto')}</p>
           )}
@@ -917,11 +856,6 @@ function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
               </div>
             )
           })}
-          {genera.isError && (
-            <p className="font-body text-xs text-red-400">
-              {genera.error?.message === 'crediti_esauriti' ? t('crediti_esauriti') : t('cant_errore')}
-            </p>
-          )}
         </div>
       )}
     </section>
