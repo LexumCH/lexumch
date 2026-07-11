@@ -218,12 +218,12 @@ REGOLE FERREE:
 1. NON inventare numeri: ogni numero nella tua prosa deve comparire nel testo dell'articolo o nel profilo del progetto. Non arrotondare, non convertire.
 2. NON citare testualmente la legge (niente virgolette «» “”): il testo ufficiale lo mostra il sistema.
 3. NON esprimere verdetti di conformità (mai "conforme"/"non conforme"): la verifica la fa il sistema o il progettista.
-4. "verificabilita" ∈ "pianta" (controllabile sulla pianta di piano: locali, superfici, aperture), "planimetria" (serve la planimetria di situazione: distanze, altezze, indici), "regolamento_comunale" (serve la Bauordnung/regolamento comunale), "documentazione" (serve altra documentazione: calcoli, concetti, autorizzazioni).
+4. "verificabilita" — DOVE si verifica il requisito; scegli il bucket PIÙ PRECISO, mai il generico se ne esiste uno specifico: "pianta" (sulla pianta di piano: locali, superfici, larghezze delle aperture), "planimetria" (serve la planimetria di situazione: distanze dai confini e tra edifici, posteggi, aree di gioco, indici di sfruttamento), "sezione" (serve la sezione o il prospetto: altezza di piano, altezza libera dei locali, altezza dell'edificio), "regolamento_comunale" (serve la Bauordnung del comune: valori specifici di zona), "documentazione" (serve altra documentazione: concetto antincendio, procedura di autorizzazione, calcoli). Esempi: distanza dai confini → "planimetria"; altezza libera dei locali → "sezione"; procedura di autorizzazione → "documentazione".
 5. "soglia_larghezza_m": SOLO se l'articolo fissa esplicitamente una larghezza minima in metri o centimetri per porte/uscite/passaggi, riporta il valore in metri copiato dal testo (es. 0.90). Altrimenti null. Mai dedurla da altre grandezze.
 
 Rispondi con UN SOLO oggetto JSON:
-{"analisi":[{"sys":"...","art":"...","verifica":"<prosa nella lingua richiesta>","verificabilita":"pianta|planimetria|regolamento_comunale|documentazione","soglia_larghezza_m":<numero o null>}]}
-Includi un elemento per OGNI articolo ricevuto.`
+{"analisi":[{"idx":<il numero [n] dell'articolo>,"verifica":"<prosa nella lingua richiesta>","verificabilita":"pianta|planimetria|sezione|regolamento_comunale|documentazione","soglia_larghezza_m":<numero o null>}]}
+Includi un elemento per OGNI articolo [idx] ricevuto, con lo stesso idx.`
 
 async function chiamaSonnet(system: string, user: string, maxTokens: number) {
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -481,23 +481,29 @@ Deno.serve(async (req) => {
 
     // ── Stage 2: spiegazione + verificabilità + eventuale soglia ──
     let corpoAnalisi = `LINGUA RICHIESTA per "verifica": ${NOME_LINGUA[lingua]}\n\n# PROFILO PROGETTO\n${profilo}\n# ARTICOLI SELEZIONATI\n`
-    for (const a of articoliPieni) {
-      corpoAnalisi += `\n--- sys ${a.sys} · art ${a.article_num} · ${a.rubrica ?? ''}\n${(a.testo ?? '').slice(0, 3000)}\n`
-    }
-    const ana = await chiamaSonnet(SYSTEM_ANALISI, corpoAnalisi, 3000)
+    articoliPieni.forEach((a, i) => {
+      corpoAnalisi += `\n--- [${i}] art. ${a.article_num} · ${a.rubrica ?? ''}\n${(a.testo ?? '').slice(0, 3000)}\n`
+    })
+    // max_tokens ampio: con molti articoli l'output andava in troncamento →
+    // JSON tagliato → analisi vuota → OGNI articolo cadeva sul fallback generico
+    // ("vedi il testo della norma" + bucket 'documentazione'). Retry sul parse.
+    let ana = await chiamaSonnet(SYSTEM_ANALISI, corpoAnalisi, 8000)
+    if (!ana.parsed) ana = await chiamaSonnet(SYSTEM_ANALISI, corpoAnalisi, 8000)
     const analisi: any[] = (ana.parsed?.analisi ?? [])
-    const anaByKey: Record<string, any> = {}
-    for (const x of analisi) anaByKey[chiave(String(x.sys ?? ''), String(x.art ?? ''))] = x
+    // Match per INDICE esplicito: robusto, niente dipendenza dal formato di
+    // sys/art echeggiato dal modello (es. "A1-18" vs "18").
+    const anaByIdx: Record<number, any> = {}
+    for (const x of analisi) if (typeof x?.idx === 'number') anaByIdx[x.idx] = x
 
     // ── Composizione esiti: guard su prosa e soglia, verdetti SOLO dal codice ──
     const F = FRASI[lingua]
     const minAp = aperture.length ? Math.min(...aperture) : null
-    const esiti = articoliPieni.map(a => {
+    const esiti = articoliPieni.map((a, i) => {
       const l = sysToLegge[a.sys]
-      const x = anaByKey[chiave(a.sys, a.article_num)] ?? {}
+      const x = anaByIdx[i] ?? {}
       const fonteGuard = `${a.testo ?? ''} ${a.rubrica ?? ''} ${profilo}`
       const verificaAi = prosaValida(String(x.verifica ?? ''), fonteGuard) ? String(x.verifica) : F.fallback(0, '', '')
-      const vb = ['pianta', 'planimetria', 'regolamento_comunale', 'documentazione'].includes(x.verificabilita)
+      const vb = ['pianta', 'planimetria', 'sezione', 'regolamento_comunale', 'documentazione'].includes(x.verificabilita)
         ? x.verificabilita : 'documentazione'
 
       // Soglia larghezza: valida SOLO se compare nel testo di legge COME MISURA

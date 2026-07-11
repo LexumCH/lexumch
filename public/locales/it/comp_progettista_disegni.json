@@ -67,7 +67,8 @@
     "pianta": "verificabile dalla pianta",
     "planimetria": "richiede planimetria di situazione",
     "regolamento_comunale": "richiede regolamento comunale",
-    "documentazione": "richiede documentazione"
+    "documentazione": "richiede documentazione",
+    "sezione": "richiede sezione o prospetto"
   },
   "analisi_ai_btn": "Analisi AI (1 credito)",
   "analisi_ai_in_corso": "Analisi AI in corso…",

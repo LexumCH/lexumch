@@ -67,7 +67,8 @@
     "pianta": "anhand des Plans prüfbar",
     "planimetria": "erfordert Situationsplan",
     "regolamento_comunale": "erfordert kommunale Bauordnung",
-    "documentazione": "erfordert weitere Unterlagen"
+    "documentazione": "erfordert weitere Unterlagen",
+    "sezione": "erfordert Schnitt oder Ansicht"
   },
   "analisi_ai_btn": "KI-Analyse (1 Guthaben)",
   "analisi_ai_in_corso": "KI-Analyse läuft…",

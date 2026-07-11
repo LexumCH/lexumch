@@ -67,7 +67,8 @@
     "pianta": "vérifiable sur le plan",
     "planimetria": "nécessite le plan de situation",
     "regolamento_comunale": "nécessite le règlement communal",
-    "documentazione": "nécessite des documents complémentaires"
+    "documentazione": "nécessite des documents complémentaires",
+    "sezione": "nécessite coupe ou façade"
   },
   "analisi_ai_btn": "Analyse IA (1 crédit)",
   "analisi_ai_in_corso": "Analyse IA en cours…",
