@@ -8,5 +8,10 @@
   "badge_in_corso": "Indexierung…",
   "badge_errore": "Fehler",
   "conferma_elimina": "\"{{nome}}\" aus Ihren Normen entfernen?",
-  "privacy": "Ihre Lizenz · privates Archiv, nie geteilt"
+  "privacy": "Ihre Lizenz · privates Archiv, nie geteilt",
+  "badge_fonte": "Von der Analyse gelesen",
+  "sottotitolo": "Der zentrale Ort für Ihre SIA-Normen — gültig für alle Ihre Projekte.",
+  "aggiungi": "Hinzufügen",
+  "cta_vuoto": "Ziehen Sie Ihre SIA-Normen hierher (PDF)",
+  "cta_hint": "oder klicken zum Auswählen — sie bleiben in Ihrem privaten Archiv"
 }

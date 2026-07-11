@@ -40,6 +40,7 @@ export default function NormeSiaLibreria() {
   const fileInput = useRef(null)
   const [errore, setErrore] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
 
   // Categoria SIA + suoi documenti (una sola query, poll durante l'indicizzazione).
   const { data } = useQuery({
@@ -150,34 +151,66 @@ export default function NormeSiaLibreria() {
       : s === 'failed' ? { txt: t('badge_errore'), cls: 'border-red-400/40 text-red-400', Icon: AlertTriangle }
         : { txt: t('badge_in_corso'), cls: 'border-oro/40 text-oro', Icon: Loader2 }
 
+  // Drag-and-drop: trascinare i PDF dentro il box è il modo più intuitivo di
+  // "metterli lì". Il click resta come alternativa.
+  const onDrop = (e) => {
+    e.preventDefault(); setDragOver(false)
+    if (!uploading && titolareId) carica(e.dataTransfer.files)
+  }
+
   return (
-    <div className="bg-slate border border-white/5 p-5">
+    // Contenitore DEDICATO, distinto dagli altri: accento oro + etichetta
+    // "l'analisi legge da qui". È il posto unico e riconoscibile delle norme SIA.
+    <div className="border border-oro/25 bg-gradient-to-b from-oro/[0.05] to-transparent p-5">
       <div className="flex items-start justify-between gap-4 mb-4">
-        <div className="flex items-start gap-2 min-w-0">
-          <BookMarked size={16} className="text-oro shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 min-w-0">
+          <span className="w-9 h-9 shrink-0 grid place-items-center bg-oro/10 border border-oro/30 rounded">
+            <BookMarked size={17} className="text-oro" />
+          </span>
           <div className="min-w-0">
-            <h2 className="font-display text-sm text-nebbia">{t('titolo')}</h2>
-            <p className="font-body text-xs text-nebbia/40 mt-0.5">{t('helper')}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="font-display text-sm text-nebbia">{t('titolo')}</h2>
+              <span className="font-body text-[10px] px-1.5 py-0.5 border border-oro/30 text-oro/80 uppercase tracking-wider">
+                {t('badge_fonte')}
+              </span>
+            </div>
+            <p className="font-body text-xs text-oro/70 mt-0.5">{t('sottotitolo')}</p>
+            <p className="font-body text-xs text-nebbia/40 mt-1">{t('helper')}</p>
           </div>
         </div>
-        <button onClick={() => fileInput.current?.click()} disabled={uploading || !titolareId}
-          className="flex items-center gap-2 px-4 py-2 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 disabled:opacity-50 transition-colors shrink-0">
-          {uploading ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
-          {t('carica')}
-        </button>
-        <input ref={fileInput} type="file" accept="application/pdf" multiple className="hidden"
-          onChange={e => carica(e.target.files)} />
+        {docs.length > 0 && (
+          <button onClick={() => fileInput.current?.click()} disabled={uploading || !titolareId}
+            className="flex items-center gap-2 px-3 py-2 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 disabled:opacity-50 transition-colors shrink-0">
+            {uploading ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
+            {t('aggiungi')}
+          </button>
+        )}
       </div>
 
       {errore && <p className="font-body text-xs text-red-400 mb-3">{errore}</p>}
 
       {docs.length === 0 ? (
-        <div className="p-6 text-center border border-white/5 bg-petrolio">
-          <FileText size={22} className="mx-auto text-nebbia/20 mb-2" />
-          <p className="font-body text-sm text-nebbia/50">{t('vuoto')}</p>
-        </div>
+        // CTA grande e inequivocabile: drop-zone tratteggiata (trascina o clicca).
+        <button
+          onClick={() => fileInput.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={onDrop}
+          disabled={uploading || !titolareId}
+          className={`w-full flex flex-col items-center gap-2 py-9 px-4 border-2 border-dashed transition-colors disabled:opacity-50 ${
+            dragOver ? 'border-oro/60 bg-oro/[0.10]' : 'border-oro/30 bg-oro/[0.03] hover:bg-oro/[0.07]'}`}
+        >
+          {uploading ? <Loader2 size={24} className="animate-spin text-oro" /> : <Upload size={24} className="text-oro/80" />}
+          <span className="font-body text-sm text-nebbia">{t('cta_vuoto')}</span>
+          <span className="font-body text-xs text-nebbia/40">{t('cta_hint')}</span>
+        </button>
       ) : (
-        <div className="space-y-2">
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={onDrop}
+          className={`space-y-2 ${dragOver ? 'outline-dashed outline-2 outline-oro/40 outline-offset-4' : ''}`}
+        >
           {docs.map(d => {
             const b = statoBadge(d.ocr_status)
             return (
@@ -200,6 +233,8 @@ export default function NormeSiaLibreria() {
           </p>
         </div>
       )}
+      <input ref={fileInput} type="file" accept="application/pdf" multiple className="hidden"
+        onChange={e => carica(e.target.files)} />
     </div>
   )
 }

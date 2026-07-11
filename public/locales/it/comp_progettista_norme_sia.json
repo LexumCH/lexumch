@@ -8,5 +8,10 @@
   "badge_in_corso": "Indicizzazione…",
   "badge_errore": "Errore",
   "conferma_elimina": "Rimuovere \"{{nome}}\" dalle tue norme?",
-  "privacy": "Licenza tua · archivio privato, mai condivisa"
+  "privacy": "Licenza tua · archivio privato, mai condivisa",
+  "badge_fonte": "L'analisi legge qui",
+  "sottotitolo": "Il posto unico delle tue norme SIA — valgono per tutti i tuoi progetti.",
+  "aggiungi": "Aggiungi",
+  "cta_vuoto": "Trascina qui le tue norme SIA (PDF)",
+  "cta_hint": "oppure clicca per sceglierle — restano nel tuo archivio privato"
 }

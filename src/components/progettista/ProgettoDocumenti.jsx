@@ -11,7 +11,7 @@ import { useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { Upload, FileText, Loader2, ExternalLink, Trash2, FolderOpen } from 'lucide-react'
+import { Upload, FileText, Loader2, ExternalLink, Trash2, FolderOpen, ChevronDown } from 'lucide-react'
 import GeneraDocumentoProgetto from './GeneraDocumentoProgetto'
 
 const CATEGORIE = [
@@ -57,7 +57,10 @@ export default function ProgettoDocumenti({ progettoId }) {
   const fileInput = useRef(null)
   const [uploading, setUploading] = useState(false)
   const [errore, setErrore] = useState(null)
-  const [categoria, setCategoria] = useState('altro')
+  const [menuCat, setMenuCat] = useState(false)
+  // La categoria scelta guida SUBITO il file picker: ref (sincrono) invece di
+  // stato, così caricaFile la legge già corretta anche prima del re-render.
+  const categoriaRef = useRef('altro')
 
   const { data: documenti = [] } = useQuery({
     queryKey: ['progetto_documenti', progettoId, profile?.id],
@@ -88,7 +91,7 @@ export default function ProgettoDocumenti({ progettoId }) {
         nome_file: file.name,
         storage_path: path,
         dimensione: file.size,
-        categoria,
+        categoria: categoriaRef.current,
       })
       if (insErr) throw insErr
       queryClient.invalidateQueries({ queryKey: ['progetto_documenti', progettoId] })
@@ -138,27 +141,38 @@ export default function ProgettoDocumenti({ progettoId }) {
           </div>
           <div className="flex items-end gap-3 shrink-0">
             <GeneraDocumentoProgetto progettoId={progettoId} />
-            <div>
-              <label className="font-body text-xs text-nebbia/50 block mb-1">Categoria</label>
-              <select
-                value={categoria}
-                onChange={e => setCategoria(e.target.value)}
+            {/* Carica documento: prima scegli il TIPO (menù), poi si apre il file
+                picker con quella categoria — niente tendina sempre visibile. */}
+            <div className="relative">
+              <button
+                onClick={() => setMenuCat(v => !v)}
                 disabled={uploading}
-                className="w-full bg-petrolio border border-white/10 px-3 py-2 font-body text-sm text-nebbia focus:border-oro/50 focus:outline-none disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 disabled:opacity-50 transition-colors shrink-0"
               >
-                {CATEGORIE.map(c => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
-                ))}
-              </select>
+                {uploading ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
+                Carica documento
+                <ChevronDown size={14} className={`transition-transform ${menuCat ? 'rotate-180' : ''}`} />
+              </button>
+              {menuCat && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setMenuCat(false)} />
+                  <div className="absolute right-0 mt-1 z-20 min-w-[190px] bg-slate border border-white/10 shadow-xl shadow-black/40">
+                    <p className="px-3 py-2 font-body text-[10px] uppercase tracking-wider text-nebbia/40 border-b border-white/5">
+                      Tipo di documento
+                    </p>
+                    {CATEGORIE.map(c => (
+                      <button
+                        key={c.id}
+                        onClick={() => { categoriaRef.current = c.id; setMenuCat(false); fileInput.current?.click() }}
+                        className="w-full text-left px-3 py-2 font-body text-sm text-nebbia/80 hover:bg-oro/10 hover:text-oro transition-colors"
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
-            <button
-              onClick={() => fileInput.current?.click()}
-              disabled={uploading}
-              className="flex items-center gap-2 px-4 py-2 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 disabled:opacity-50 transition-colors shrink-0"
-            >
-              {uploading ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
-              Carica documento
-            </button>
             <input
               ref={fileInput}
               type="file"

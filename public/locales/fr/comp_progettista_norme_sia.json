@@ -8,5 +8,10 @@
   "badge_in_corso": "Indexation…",
   "badge_errore": "Erreur",
   "conferma_elimina": "Retirer \"{{nome}}\" de vos normes ?",
-  "privacy": "Votre licence · archive privée, jamais partagée"
+  "privacy": "Votre licence · archive privée, jamais partagée",
+  "badge_fonte": "Lu par l'analyse",
+  "sottotitolo": "L'unique emplacement de vos normes SIA — valables pour tous vos projets.",
+  "aggiungi": "Ajouter",
+  "cta_vuoto": "Glissez ici vos normes SIA (PDF)",
+  "cta_hint": "ou cliquez pour les choisir — elles restent dans votre archive privée"
 }
