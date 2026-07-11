@@ -1,0 +1,12 @@
+{
+  "titolo": "Vos normes techniques · SIA",
+  "helper": "Les normes SIA sont votre licence. Chargez-les ici une fois : Lexum les utilise pour vérifier vos plans dans tous vos projets. Elles restent dans votre archive privée et ne sont jamais partagées.",
+  "carica": "Charger une norme (PDF)",
+  "solo_pdf": "Seuls les fichiers PDF sont acceptés.",
+  "vuoto": "Aucune norme chargée. Chargez les PDF de vos normes SIA sous licence.",
+  "badge_pronta": "Indexée",
+  "badge_in_corso": "Indexation…",
+  "badge_errore": "Erreur",
+  "conferma_elimina": "Retirer \"{{nome}}\" de vos normes ?",
+  "privacy": "Votre licence · archive privée, jamais partagée"
+}

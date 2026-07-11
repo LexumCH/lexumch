@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { NORME_EDILIZIA_CANTONALE } from '@/lib/normativa-edilizia-cantonale'
+import NormeSiaLibreria from './NormeSiaLibreria'
 import {
   Scale, MapPin, ChevronRight, BookOpen, ShieldCheck,
   CheckCircle2, XCircle, AlertTriangle, Info, FileText
@@ -180,6 +181,9 @@ export default function ProgettoNormativa({ progetto }) {
           </div>
         )}
       </div>
+
+      {/* ── (A-bis) Le tue norme tecniche SIA (BYO-license) ─────────── */}
+      <NormeSiaLibreria />
 
       {/* ── (B) Semaforo di conformità ──────────────────────────────── */}
       <div className="bg-slate border border-white/5 p-5">

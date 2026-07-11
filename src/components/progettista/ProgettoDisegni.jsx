@@ -20,7 +20,7 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, supabaseKey, getAccessToken, invocaLex } from '@/lib/supabase'
 import {
   Upload, FileText, Play, Loader2, CheckCircle2, AlertTriangle, XCircle,
-  Info, ChevronDown, ChevronUp, Trash2, Languages, Landmark, ScanSearch
+  Info, ChevronDown, ChevronUp, Trash2, Languages, Landmark, ScanSearch, BookMarked
 } from 'lucide-react'
 
 const STATO_META = {
@@ -95,7 +95,11 @@ async function eseguiBundleAi({ disegnoId, lingua, onFase }) {
     const pCantonale = cantone
       ? invocaLex('lex-normativa-cantonale', { disegno_id: disegnoId, lingua }).catch(() => {})
       : Promise.resolve()
-    await Promise.all([pRitagli, pCantonale])
+    // Norme tecniche SIA (BYO-license): retrieval sulle norme che il progettista
+    // ha caricato nel suo archivio. Lato server fa short-circuit GRATIS se non ne
+    // ha (nessun credito, nessun embedding) → sempre sicuro da chiamare nel bundle.
+    const pSia = invocaLex('lex-norme-sia-disegno', { disegno_id: disegnoId, lingua }).catch(() => {})
+    await Promise.all([pRitagli, pCantonale, pSia])
 
     onFase?.('sintesi')
     const narra = await invocaLex('lex-narra-disegno', { disegno_id: disegnoId, lingua })
@@ -614,6 +618,8 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
 
       <SezioneCantonale disegno={d} cantone={cantone} t={t} lingua={lingua} />
 
+      <SezioneSia disegno={d} t={t} lingua={lingua} />
+
       {candidatoRaster && (
         <section>
           <LetturaRaster disegno={d} t={t} lingua={lingua} />
@@ -872,6 +878,66 @@ function SezioneCantonale({ disegno: d, cantone, t, lingua }) {
               </div>
             )
           })}
+        </div>
+      )}
+    </section>
+  )
+}
+
+// ─── Norme tecniche SIA (BYO-license: fonte = archivio del progettista) ──
+// Le norme SIA sono sotto licenza: Lexum non le possiede. È il progettista che
+// carica le SUE norme nel proprio archivio; l'edge le recupera e le fa collidere
+// col disegno (verdetti solo dal codice, testo solo dai suoi documenti). Sezione
+// in SOLA LETTURA: gli esiti sono prodotti dal bundle "Analisi AI" (1 credito).
+function SezioneSia({ disegno: d, t, lingua }) {
+  const sia = d.esiti_sia ?? null
+  const disponibile = !!sia?.disponibile
+  const fresh = disponibile && sia.fonte_updated_at === d.updated_at && sia.lingua === lingua
+  const norme = fresh ? (sia.norme ?? []) : []
+
+  return (
+    <section>
+      <h3 className="font-display text-xs uppercase tracking-wider text-nebbia/40 mb-2 flex items-center gap-2">
+        <BookMarked size={12} className="text-nebbia/30" />
+        {t('sez_sia')}
+        <span className="font-body text-[10px] normal-case tracking-normal px-1.5 py-0.5 border border-oro/30 text-oro/80">
+          {t('sia_badge')}
+        </span>
+      </h3>
+
+      {!sia ? (
+        // Analisi precedente alla feature (o non ancora rieseguita per questa lingua).
+        <p className="font-body text-[11px] text-nebbia/35">{t('sia_in_attesa')}</p>
+      ) : !disponibile ? (
+        // Nessuna norma SIA caricata: invito BYO-license (non un errore).
+        <p className="font-body text-xs text-nebbia/40 border-l-2 border-oro/20 pl-2 py-0.5">{t('sia_non_disponibile')}</p>
+      ) : !fresh ? (
+        <p className="font-body text-[11px] text-nebbia/35">{t('sia_in_attesa')}</p>
+      ) : norme.length === 0 ? (
+        <p className="font-body text-xs text-nebbia/40">{t('sia_vuoto')}</p>
+      ) : (
+        <div className="space-y-2">
+          {norme.map((e, i) => {
+            const es = ESITO_META[e.esito] ?? ESITO_META.non_verificabile
+            const EsIcon = es.icon
+            return (
+              <div key={i} className="bg-petrolio border border-white/5 p-3">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <EsIcon size={14} className={es.cls} />
+                  <span className={`font-body text-xs font-medium ${es.cls}`}>{t(`esito.${e.esito}`)}</span>
+                  <span className="font-body text-xs text-nebbia/40">— {e.titolo}</span>
+                  <span className="font-body text-[10px] px-1.5 py-0.5 border border-white/10 text-nebbia/40 ml-auto shrink-0">
+                    {t(`verificabilita.${e.verificabilita}`, { defaultValue: e.verificabilita })}
+                  </span>
+                </div>
+                <p className="font-body text-sm text-nebbia/80">{e.verifica}</p>
+                {e.fonte && (
+                  <p className="font-body text-[11px] text-oro/50 mt-1.5">{t('sia_fonte')}: {e.fonte}</p>
+                )}
+              </div>
+            )
+          })}
+          <p className="font-body text-[10px] uppercase tracking-wider text-nebbia/25 mt-1">{t('sia_disclaimer')}</p>
         </div>
       )}
     </section>

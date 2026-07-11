@@ -1,0 +1,12 @@
+{
+  "titolo": "Ihre technischen Normen · SIA",
+  "helper": "Die SIA-Normen sind Ihre Lizenz. Laden Sie sie hier einmal hoch: Lexum nutzt sie zur Prüfung Ihrer Pläne in allen Projekten. Sie bleiben in Ihrem privaten Archiv und werden nie geteilt.",
+  "carica": "Norm hochladen (PDF)",
+  "solo_pdf": "Es werden nur PDF-Dateien akzeptiert.",
+  "vuoto": "Keine Norm hochgeladen. Laden Sie die PDF Ihrer lizenzierten SIA-Normen hoch.",
+  "badge_pronta": "Indexiert",
+  "badge_in_corso": "Indexierung…",
+  "badge_errore": "Fehler",
+  "conferma_elimina": "\"{{nome}}\" aus Ihren Normen entfernen?",
+  "privacy": "Ihre Lizenz · privates Archiv, nie geteilt"
+}

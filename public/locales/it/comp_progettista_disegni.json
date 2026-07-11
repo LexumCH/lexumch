@@ -116,5 +116,12 @@
   "opinione_coerente": "coerente col ritaglio",
   "bundle_errore_rimborsato": "Analisi AI non riuscita: credito rimborsato. Riprova.",
   "analisi_attesa_hint": "Il report si apre completo al termine",
-  "completezza_titolo": "Completezza del disegno"
+  "completezza_titolo": "Completezza del disegno",
+  "sez_sia": "Norme tecniche · SIA",
+  "sia_badge": "Le tue norme",
+  "sia_in_attesa": "Generata con l'Analisi AI.",
+  "sia_non_disponibile": "Carica le tue norme SIA (licenza tua) dalla scheda Normativa: verranno incluse nell'analisi di tutti i tuoi progetti.",
+  "sia_vuoto": "Nessun requisito pertinente trovato nelle tue norme SIA per questa tavola.",
+  "sia_fonte": "dalla tua norma",
+  "sia_disclaimer": "Basato sulle norme che hai caricato — verifica sempre sul testo originale."
 }

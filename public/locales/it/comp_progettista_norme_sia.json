@@ -1,0 +1,12 @@
+{
+  "titolo": "Le tue norme tecniche · SIA",
+  "helper": "Le norme SIA sono la tua licenza. Caricale qui una volta: Lexum le usa per verificare i tuoi disegni in tutti i progetti. Restano nel tuo archivio privato, non le condividiamo.",
+  "carica": "Carica norma (PDF)",
+  "solo_pdf": "Sono accettati solo file PDF.",
+  "vuoto": "Nessuna norma caricata. Carica i PDF delle norme SIA che hai in licenza.",
+  "badge_pronta": "Indicizzata",
+  "badge_in_corso": "Indicizzazione…",
+  "badge_errore": "Errore",
+  "conferma_elimina": "Rimuovere \"{{nome}}\" dalle tue norme?",
+  "privacy": "Licenza tua · archivio privato, mai condivisa"
+}

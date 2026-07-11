@@ -116,5 +116,12 @@
   "opinione_coerente": "mit dem Ausschnitt vereinbar",
   "bundle_errore_rimborsato": "KI-Analyse fehlgeschlagen: Guthaben erstattet. Erneut versuchen.",
   "analisi_attesa_hint": "Der Bericht öffnet sich vollständig am Ende",
-  "completezza_titolo": "Vollständigkeit des Plans"
+  "completezza_titolo": "Vollständigkeit des Plans",
+  "sez_sia": "Technische Normen · SIA",
+  "sia_badge": "Ihre Normen",
+  "sia_in_attesa": "Wird mit der KI-Analyse erstellt.",
+  "sia_non_disponibile": "Laden Sie Ihre SIA-Normen (Ihre Lizenz) im Reiter Vorschriften hoch: Sie fliessen in die Analyse all Ihrer Projekte ein.",
+  "sia_vuoto": "Keine relevante Anforderung in Ihren SIA-Normen für diesen Plan gefunden.",
+  "sia_fonte": "aus Ihrer Norm",
+  "sia_disclaimer": "Basierend auf Ihren hochgeladenen Normen — prüfen Sie stets den Originaltext."
 }
