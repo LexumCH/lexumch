@@ -101,6 +101,11 @@ export default function GeneraDocumentoProgetto({ progettoId }) {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['progetto_documenti', progettoId] })
+      // Deposita il PDF anche nell'archivio privato (cercabile + classificato
+      // Haiku), senza bloccare la UI: fire-and-forget, idempotente lato server.
+      if (data.documento_id) {
+        invocaLex('lex-archivia-documento-progetto', { documento_id: data.documento_id }).catch(() => {})
+      }
       chiudi()
       if (data.url) window.open(data.url, '_blank', 'noreferrer')
     },
