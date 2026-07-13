@@ -18,7 +18,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase, invocaLex } from '@/lib/supabase'
-import { BookMarked, Upload, Loader2, CheckCircle2, AlertTriangle, Trash2, FileText, ShieldCheck } from 'lucide-react'
+import { BookMarked, Upload, Loader2, CheckCircle2, AlertTriangle, Trash2, FileText, ShieldCheck, RefreshCw } from 'lucide-react'
 
 const CHIAVE_SIA = 'norme_sia'
 const COLORE_SIA = '#c9a24b' // oro, coerente con la palette
@@ -41,6 +41,7 @@ export default function NormeSiaLibreria() {
   const [errore, setErrore] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
+  const [riprovandoTutti, setRiprovandoTutti] = useState(false)
 
   // Categoria SIA + suoi documenti (una sola query, poll durante l'indicizzazione).
   const { data } = useQuery({
@@ -56,7 +57,7 @@ export default function NormeSiaLibreria() {
       if (!cat?.id) return { catId: null, docs: [] }
       const { data: docs } = await supabase
         .from('archivio_documenti')
-        .select('id, titolo, ocr_status, dimensione, created_at')
+        .select('id, titolo, ocr_status, dimensione, created_at, metadati')
         .eq('categoria_id', cat.id)
         .order('created_at', { ascending: false })
       return { catId: cat.id, docs: docs ?? [] }
@@ -65,6 +66,7 @@ export default function NormeSiaLibreria() {
       (query.state.data?.docs ?? []).some(d => ['pending', 'processing'].includes(d.ocr_status)) ? 3000 : false,
   })
   const docs = data?.docs ?? []
+  const docsFalliti = docs.filter(d => d.ocr_status === 'failed')
 
   // Risolvi-o-crea la categoria SIA (idempotente: l'unique index (titolare,chiave)
   // protegge da doppioni concorrenti).
@@ -146,6 +148,36 @@ export default function NormeSiaLibreria() {
     onError: (e) => setErrore(e.message),
   })
 
+  // Ottimistico → 'processing' così il poll della lista segue lo stato reale.
+  const segnaInCorso = (predicato) =>
+    queryClient.setQueryData(['norme_sia_lista', titolareId], (old) =>
+      old ? { ...old, docs: old.docs.map(d => predicato(d) ? { ...d, ocr_status: 'processing' } : d) } : old)
+
+  // Ri-lancia process-archivio (ora con fallback OCR) su un documento in errore.
+  const riprova = useMutation({
+    mutationFn: async (doc) => { await invocaLex('process-archivio', { documento_id: doc.id }) },
+    onMutate: (doc) => segnaInCorso(d => d.id === doc.id),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['norme_sia_lista', titolareId] }),
+    onError: (e) => setErrore(e.message),
+  })
+
+  async function riprovaTutti() {
+    const falliti = docs.filter(d => d.ocr_status === 'failed')
+    if (falliti.length === 0 || riprovandoTutti) return
+    setRiprovandoTutti(true)
+    setErrore(null)
+    segnaInCorso(d => d.ocr_status === 'failed')
+    // Batch throttled: invocaLex attende la fine di ogni OCR → max BATCH concorrenti.
+    const BATCH = 4
+    for (let i = 0; i < falliti.length; i += BATCH) {
+      await Promise.all(falliti.slice(i, i + BATCH).map(d =>
+        invocaLex('process-archivio', { documento_id: d.id }).catch(() => {})))
+      if (i + BATCH < falliti.length) await new Promise(r => setTimeout(r, 1500))
+    }
+    setRiprovandoTutti(false)
+    queryClient.invalidateQueries({ queryKey: ['norme_sia_lista', titolareId] })
+  }
+
   const statoBadge = (s) =>
     s === 'completed' ? { txt: t('badge_pronta'), cls: 'border-salvia/40 text-salvia', Icon: CheckCircle2 }
       : s === 'failed' ? { txt: t('badge_errore'), cls: 'border-red-400/40 text-red-400', Icon: AlertTriangle }
@@ -211,16 +243,37 @@ export default function NormeSiaLibreria() {
           onDrop={onDrop}
           className={`space-y-2 ${dragOver ? 'outline-dashed outline-2 outline-oro/40 outline-offset-4' : ''}`}
         >
+          {docsFalliti.length > 0 && (
+            <div className="flex items-center justify-between gap-3 px-3 py-2 bg-red-500/5 border border-red-400/20">
+              <span className="font-body text-[11px] text-nebbia/55 flex items-center gap-1.5 min-w-0">
+                <AlertTriangle size={12} className="text-red-400/70 shrink-0" />
+                <span className="truncate">{t('falliti_info', { count: docsFalliti.length })}</span>
+              </span>
+              <button onClick={riprovaTutti} disabled={riprovandoTutti}
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-oro/10 border border-oro/30 text-oro font-body text-[11px] hover:bg-oro/20 disabled:opacity-50 transition-colors shrink-0">
+                {riprovandoTutti ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                {t('riprova_tutti')}
+              </button>
+            </div>
+          )}
           {docs.map(d => {
             const b = statoBadge(d.ocr_status)
             return (
               <div key={d.id} className="flex items-center gap-3 px-4 py-3 bg-petrolio border border-white/5">
                 <FileText size={15} className="text-nebbia/40 shrink-0" />
                 <p className="font-body text-sm text-nebbia truncate flex-1 min-w-0">{d.titolo}</p>
-                <span className={`font-body text-[10px] px-2 py-0.5 border uppercase tracking-wider shrink-0 flex items-center gap-1 ${b.cls}`}>
+                <span title={d.ocr_status === 'failed' ? (d.metadati?.errore || '') : undefined}
+                  className={`font-body text-[10px] px-2 py-0.5 border uppercase tracking-wider shrink-0 flex items-center gap-1 ${b.cls}`}>
                   <b.Icon size={11} className={['pending', 'processing'].includes(d.ocr_status) ? 'animate-spin' : ''} />
                   {b.txt}
                 </span>
+                {d.ocr_status === 'failed' && (
+                  <button onClick={() => riprova.mutate(d)} disabled={riprova.isPending}
+                    title={t('riprova')}
+                    className="p-1.5 text-nebbia/30 hover:text-oro transition-colors shrink-0 disabled:opacity-40">
+                    <RefreshCw size={14} />
+                  </button>
+                )}
                 <button onClick={() => { if (confirm(t('conferma_elimina', { nome: d.titolo }))) elimina.mutate(d) }}
                   className="p-1.5 text-nebbia/30 hover:text-red-400 transition-colors shrink-0">
                   <Trash2 size={14} />

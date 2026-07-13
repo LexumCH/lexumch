@@ -13,5 +13,9 @@
   "sottotitolo": "Il posto unico delle tue norme SIA — valgono per tutti i tuoi progetti.",
   "aggiungi": "Aggiungi",
   "cta_vuoto": "Trascina qui le tue norme SIA (PDF)",
-  "cta_hint": "oppure clicca per sceglierle — restano nel tuo archivio privato"
+  "cta_hint": "oppure clicca per sceglierle — restano nel tuo archivio privato",
+  "riprova": "Riprova indicizzazione",
+  "riprova_tutti": "Riprova i falliti",
+  "falliti_info_one": "{{count}} norma non indicizzata",
+  "falliti_info_other": "{{count}} norme non indicizzate"
 }

@@ -13,5 +13,9 @@
   "sottotitolo": "L'unique emplacement de vos normes SIA — valables pour tous vos projets.",
   "aggiungi": "Ajouter",
   "cta_vuoto": "Glissez ici vos normes SIA (PDF)",
-  "cta_hint": "ou cliquez pour les choisir — elles restent dans votre archive privée"
+  "cta_hint": "ou cliquez pour les choisir — elles restent dans votre archive privée",
+  "riprova": "Réindexer",
+  "riprova_tutti": "Réessayer les échecs",
+  "falliti_info_one": "{{count}} norme non indexée",
+  "falliti_info_other": "{{count}} normes non indexées"
 }

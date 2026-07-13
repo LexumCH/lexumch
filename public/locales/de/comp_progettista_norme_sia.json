@@ -13,5 +13,9 @@
   "sottotitolo": "Der zentrale Ort für Ihre SIA-Normen — gültig für alle Ihre Projekte.",
   "aggiungi": "Hinzufügen",
   "cta_vuoto": "Ziehen Sie Ihre SIA-Normen hierher (PDF)",
-  "cta_hint": "oder klicken zum Auswählen — sie bleiben in Ihrem privaten Archiv"
+  "cta_hint": "oder klicken zum Auswählen — sie bleiben in Ihrem privaten Archiv",
+  "riprova": "Erneut indexieren",
+  "riprova_tutti": "Fehlgeschlagene erneut",
+  "falliti_info_one": "{{count}} Norm nicht indexiert",
+  "falliti_info_other": "{{count}} Normen nicht indexiert"
 }
