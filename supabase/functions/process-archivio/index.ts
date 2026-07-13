@@ -9,7 +9,9 @@
 // Trigger: chiamata fire-and-forget dal frontend Archivio.jsx dopo upload.
 // Polling: il frontend monitora ocr_status ogni 3s.
 //
-// Versione: 1.2.0
+// Versione: 1.3.0
+//   - v1.3: PDF grandi (> MAX_DOWNLOAD_BYTES) → OCR diretto senza caricarli in
+//           funzione (evita OOM/kill della edge → documento orfano in 'processing').
 //   - v1.2: fallback OCR (Mistral) per PDF senza layer di testo o con font
 //           ritagliati senza ToUnicode (glifi-spazzatura, tipico dei PDF SIA
 //           protetti); guard testoUsabile (niente indicizzazione di spazzatura);
@@ -39,6 +41,10 @@ const EMBED_BATCH_SIZE = 5;
 const EMBED_BATCH_DELAY_MS = 200;
 const MAX_EMBED_INPUT_CHARS = 8000;
 const MAX_EXCEL_CHARS = 400000; // cap testo estratto da Excel: evita esplosione embedding su export enormi
+// Oltre questa dimensione un PDF non viene caricato in-funzione (unpdf su file
+// enormi satura la RAM della edge → kill, documento orfano in 'processing'):
+// si va diretti all'OCR, che scarica il file lato Mistral.
+const MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024;
 
 // Caratteri "invisibili" da rimuovere (soft hyphen, zero-width space/joiner/
 // non-joiner, word joiner, BOM, mongolian vowel separator). Codepoint espliciti:
@@ -471,48 +477,62 @@ Deno.serve(async (req) => {
       })
     );
 
-    const { data: fileBlob, error: dlErr } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .download(doc.storage_path);
-
-    if (dlErr || !fileBlob) {
-      throw new Error(`Download fallito: ${dlErr?.message ?? "blob nullo"}`);
-    }
-
     const fileName = doc.storage_path.split("/").pop() ?? doc.titolo ?? "file";
-    const { testo: testoRaw, pagine, tabellare } = await estraiTestoDaFile(fileBlob, fileName);
+    const isPdf = fileName.toLowerCase().endsWith(".pdf");
+    const hasKey = !!Deno.env.get("MISTRAL_API_KEY");
 
-    // Pulizia regex SOLO per prosa (PDF/TXT). Sui tabellari (Excel) collasserebbe
-    // i newline distruggendo la struttura righe/colonne → si salta. sanificaTesto
-    // (caratteri illegali/invisibili) gira in entrambi i rami.
-    let testoEstratto = sanificaTesto(
-      tabellare ? testoRaw.trim() : pulisciTestoEstratto(testoRaw)
-    );
+    // File grande: scaricarlo e aprirlo con unpdf DENTRO la funzione satura la RAM
+    // della edge (→ kill, documento orfano). Se è un PDF grande e l'OCR c'è, si
+    // salta il caricamento in-funzione e si va diretti all'OCR — è Mistral a
+    // scaricare il PDF via signed URL, la funzione non lo tiene mai in memoria.
+    const ocrDiretto = isPdf && hasKey && (doc.dimensione ?? 0) > MAX_DOWNLOAD_BYTES;
+
+    let testoEstratto = "";
+    let pagine: number | null = null;
+    let tabellare = false;
     let viaOcr = false;
 
-    // Fallback OCR: se il PDF non ha testo estraibile (0 caratteri) o produce
-    // glifi-spazzatura (font ritagliati senza ToUnicode, tipico dei PDF SIA
-    // protetti), lo trascriviamo con l'OCR dedicato. Solo se MISTRAL_API_KEY è
-    // configurata; altrimenti il comportamento resta identico a prima.
-    const isPdf = fileName.toLowerCase().endsWith(".pdf");
-    if (!tabellare && isPdf && !testoUsabile(testoEstratto) && Deno.env.get("MISTRAL_API_KEY")) {
-      console.log(
-        JSON.stringify({
-          evento: "ocr_fallback_start",
-          documento_id: documentoId,
-          chars_estratti: testoEstratto.length,
-        })
-      );
+    if (ocrDiretto) {
+      console.log(JSON.stringify({
+        evento: "ocr_diretto_grande",
+        documento_id: documentoId,
+        mb: Math.round((doc.dimensione ?? 0) / 1048576),
+      }));
       const ocrTxt = await ocrPdfConMistral(doc.storage_path);
       testoEstratto = sanificaTesto(pulisciTestoEstratto(ocrTxt));
       viaOcr = true;
-      console.log(
-        JSON.stringify({
+    } else {
+      const { data: fileBlob, error: dlErr } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .download(doc.storage_path);
+      if (dlErr || !fileBlob) {
+        throw new Error(`Download fallito: ${dlErr?.message ?? "blob nullo"}`);
+      }
+      const estratto = await estraiTestoDaFile(fileBlob, fileName);
+      pagine = estratto.pagine;
+      tabellare = estratto.tabellare;
+      // Pulizia regex SOLO per prosa (PDF/TXT); Excel salta (romperebbe le colonne).
+      testoEstratto = sanificaTesto(
+        tabellare ? estratto.testo.trim() : pulisciTestoEstratto(estratto.testo)
+      );
+
+      // Fallback OCR: PDF senza testo estraibile (0 caratteri) o glifi-spazzatura
+      // (font ritagliati senza ToUnicode, tipico dei PDF SIA protetti).
+      if (!tabellare && isPdf && !testoUsabile(testoEstratto) && hasKey) {
+        console.log(JSON.stringify({
+          evento: "ocr_fallback_start",
+          documento_id: documentoId,
+          chars_estratti: testoEstratto.length,
+        }));
+        const ocrTxt = await ocrPdfConMistral(doc.storage_path);
+        testoEstratto = sanificaTesto(pulisciTestoEstratto(ocrTxt));
+        viaOcr = true;
+        console.log(JSON.stringify({
           evento: "ocr_fallback_done",
           documento_id: documentoId,
           chars_ocr: testoEstratto.length,
-        })
-      );
+        }));
+      }
     }
 
     if (testoEstratto.length < MIN_CHARS_PER_VERIFY) {
