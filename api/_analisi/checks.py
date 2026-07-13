@@ -41,19 +41,36 @@ def check_dimensions(quote):
     if zona:
         xs = [t["posizione_pt"][0] for t in zona]
         ys = [t["posizione_pt"][1] for t in zona]
-        valori = ", ".join(t["testo"] for t in zona)
-        findings.append({
-            "tipo": "zona_non_verificata",
-            "severita": "avviso",
-            "messaggio": (
-                f"Zona di dettaglio non verificabile: {len(zona)} quote "
-                f"({valori}) raggruppate in un riquadro della tavola "
-                f"(x {min(xs):.0f}–{max(xs):.0f}, y {min(ys):.0f}–{max(ys):.0f} pt), "
-                f"probabilmente un dettaglio costruttivo a scala non "
-                f"riconosciuta o con marcatori diversi"
-            ),
-            "posizione_pt": [min(xs), min(ys)],
-        })
+        spread = max(max(xs) - min(xs), max(ys) - min(ys))
+        if len(zona) >= 20 or spread >= 600:
+            # tavola INTERA di quote non verificate = sezione/dettaglio: le quote
+            # si ancorano agli spigoli della geometria, non a coppie di tick.
+            findings.append({
+                "tipo": "stile_non_verificabile",
+                "severita": "avviso",
+                "messaggio": (
+                    f"{len(zona)} quote non verificabili con questo metodo: la "
+                    f"tavola sembra una sezione o un dettaglio, dove le quote si "
+                    f"ancorano agli spigoli della geometria e non a coppie di tick "
+                    f"sulla linea. Il motore oggi verifica la quotatura di pianta: "
+                    f"queste quote non sono validate (né sono errori)."
+                ),
+                "posizione_pt": [min(xs), min(ys)],
+            })
+        else:
+            valori = ", ".join(t["testo"] for t in zona[:12]) + (" …" if len(zona) > 12 else "")
+            findings.append({
+                "tipo": "zona_non_verificata",
+                "severita": "avviso",
+                "messaggio": (
+                    f"Zona di dettaglio non verificabile: {len(zona)} quote "
+                    f"({valori}) raggruppate in un riquadro della tavola "
+                    f"(x {min(xs):.0f}–{max(xs):.0f}, y {min(ys):.0f}–{max(ys):.0f} pt), "
+                    f"probabilmente un dettaglio costruttivo a scala non "
+                    f"riconosciuta o con marcatori diversi"
+                ),
+                "posizione_pt": [min(xs), min(ys)],
+            })
     return findings
 
 

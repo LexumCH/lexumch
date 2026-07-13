@@ -318,11 +318,20 @@ def extract_dimensions(page, scale, layer=None):
                 r["scala_dettaglio"] = best_alt
                 r["span_pt"] = round(m[1], 2)
 
-    # quote irrisolte che formano un cluster compatto = zona di dettaglio
-    # non verificabile (scala ignota), da segnalare come zona e non come
-    # errori singoli
+    # quote irrisolte da declassare da errore ad avviso — NON sono errori del
+    # disegno, ma quote che il motore non verifica con questo metodo:
+    #  - cluster compatto  = zona di dettaglio a scala/marcatori ignoti;
+    #  - insieme AMPIO e diffuso su tutta la tavola = quasi certamente una
+    #    SEZIONE/tavola di dettaglio, dove le quote si ancorano agli spigoli
+    #    della geometria (Vektorpunkte) invece che a coppie di tick sulla linea:
+    #    il tick-matching di pianta non gestisce quello stile → avvisi, non
+    #    342 "errori" (che gonfiano anche il costo della narrazione AI).
+    # Le quote irrisolte isolate (pochi KO sparsi) restano invece errori reali.
     ko = [r for r in results if r["stato"] == "senza_riscontro"]
-    if len(ko) >= 3 and _spread(ko) < 600:
+    n_tot = len(results)
+    compatto = len(ko) >= 3 and _spread(ko) < 600
+    sistematico = len(ko) >= max(12, int(0.30 * n_tot))
+    if ko and (compatto or sistematico):
         for r in ko:
             r["stato"] = "zona_non_verificata"
 
