@@ -28,7 +28,11 @@ LAYER_RAUMSTEMPEL = "087 Wohnungsfläche WF (Raumstempel)"
 # 1 m alla scala 1:1 = 72/0.0254 pt; alla scala 1:S diviso S
 PT_PER_M_BASE = 72 / 0.0254
 
-TICK_LEN = (6.0, 10.0)     # lunghezza tipica dei tick ArchiCAD (45°)
+TICK_LEN = (6.0, 10.0)     # lunghezza tipica dei tick ArchiCAD (45°) in pianta
+TICK_LEN_FALLBACK = (3.0, 20.0)  # range esteso: sezioni/dettagli usano tick più
+                                 # lunghi (11-20pt) che il detector primario
+                                 # scarta; usato SOLO come fallback sulle quote
+                                 # irrisolte (percorso primario intatto)
 COLLINEAR_TOL = 0.6        # pt: tolleranza per collinearità
 TICK_ON_LINE_TOL = 1.2     # pt: distanza max tick-centro dalla linea di quota
 TEXT_OFFSET_MAX = 14.0     # pt: distanza max testo quota dalla sua linea
@@ -144,17 +148,32 @@ def _merge_collinear(segs):
     return merge(horiz, "h") + merge(vert, "v")
 
 
-def _ticks(segs):
+def _ticks(segs, tick_len=TICK_LEN):
     """Tick di quota: tratti a ~45° di lunghezza tipica; ritorna i punti medi."""
     pts = []
     for p1, p2 in segs:
         L = math.hypot(p2.x - p1.x, p2.y - p1.y)
-        if not (TICK_LEN[0] <= L <= TICK_LEN[1]):
+        if not (tick_len[0] <= L <= tick_len[1]):
             continue
         ang = abs(math.degrees(math.atan2(p2.y - p1.y, p2.x - p1.x))) % 180
         if 30 <= ang <= 60 or 120 <= ang <= 150:
             pts.append(((p1.x + p2.x) / 2, (p1.y + p2.y) / 2))
     return pts
+
+
+def _lines_with_ticks(segs, ticks):
+    """Linee di quota (segmenti H/V collinari fusi) coi tick assegnati; tiene
+    solo quelle con ≥2 tick (una quota ha bisogno di una coppia di tick)."""
+    lines = _merge_collinear(segs)
+    for ln in lines:
+        on_line = []
+        for tx, ty in ticks:
+            if ln["axis"] == "h" and abs(ty - ln["pos"]) < TICK_ON_LINE_TOL and ln["a"] - 2 <= tx <= ln["b"] + 2:
+                on_line.append(tx)
+            elif ln["axis"] == "v" and abs(tx - ln["pos"]) < TICK_ON_LINE_TOL and ln["a"] - 2 <= ty <= ln["b"] + 2:
+                on_line.append(ty)
+        ln["ticks"] = _dedupe(sorted(on_line))
+    return [ln for ln in lines if len(ln["ticks"]) >= 2]
 
 
 def _dimension_texts(page, layer):
@@ -207,27 +226,18 @@ def extract_dimensions(page, scale, layer=None):
     pt_per_m = PT_PER_M_BASE / scale
     tol_pt = TOLLERANZA_MM / 1000.0 * pt_per_m
     segs = _segments(page, layer)
-    lines = _merge_collinear(segs)
-    ticks = _ticks(segs)
     texts = _dimension_texts(page, layer)
+    lines = _lines_with_ticks(segs, _ticks(segs))
 
-    for ln in lines:
-        on_line = []
-        for tx, ty in ticks:
-            if ln["axis"] == "h" and abs(ty - ln["pos"]) < TICK_ON_LINE_TOL and ln["a"] - 2 <= tx <= ln["b"] + 2:
-                on_line.append(tx)
-            elif ln["axis"] == "v" and abs(tx - ln["pos"]) < TICK_ON_LINE_TOL and ln["a"] - 2 <= ty <= ln["b"] + 2:
-                on_line.append(ty)
-        ln["ticks"] = _dedupe(sorted(on_line))
-    lines = [ln for ln in lines if len(ln["ticks"]) >= 2]
-
-    def match_text(t, ptm):
-        """Miglior coppia di tick per il testo alla scala data: (err_pt, span_pt)."""
+    def match_text(t, ptm, lines_=None):
+        """Miglior coppia di tick per il testo alla scala data: (err_pt, span_pt).
+        lines_ permette il fallback a tick esteso senza toccare il set primario."""
+        lines_ = lines if lines_ is None else lines_
         along = t["cy"] if t["vertical"] else t["cx"]
         perp_coord = t["cx"] if t["vertical"] else t["cy"]
         target = t["value_m"] * ptm
         best = None
-        for ln in lines:
+        for ln in lines_:
             if t["vertical"] != (ln["axis"] == "v"):
                 continue
             if abs(perp_coord - ln["pos"]) > TEXT_OFFSET_MAX:
@@ -318,6 +328,26 @@ def extract_dimensions(page, scale, layer=None):
                 r["scala_dettaglio"] = best_alt
                 r["span_pt"] = round(m[1], 2)
 
+    # FALLBACK "tick esteso" (idea Vektorpunkte del progettista): nelle sezioni e
+    # nei dettagli le quote usano tick più lunghi (11–20 pt) che il detector
+    # primario (6–10) scarta → la linea perde i tick e la quota resta irrisolta.
+    # Si ricostruiscono le linee coi tick ESTESI e si ri-verificano SOLO le quote
+    # ancora irrisolte: il percorso primario resta intatto (nessun impatto sulla
+    # quotatura di pianta) e il match è accettato solo se lo span coincide col
+    # valore entro tolleranza — con span esatto un falso positivo è quasi
+    # impossibile. Marcato via_tick_esteso per trasparenza e validazione.
+    ko = [r for r in results if r["stato"] == "senza_riscontro"]
+    n_ko_prima = len(ko)   # irrisolte PRIMA del fallback → rileva la "sezione"
+    if ko:
+        lines_ext = _lines_with_ticks(segs, _ticks(segs, TICK_LEN_FALLBACK))
+        for r in ko:
+            best = match_text(r["_t"], pt_per_m, lines_ext)
+            if best is not None and best[0] <= tol_pt:
+                r["stato"] = "ok"
+                r["span_pt"] = round(best[1], 2)
+                r["err_mm"] = round(best[0] / pt_per_m * 1000, 1)
+                r["via_tick_esteso"] = True
+
     # quote irrisolte da declassare da errore ad avviso — NON sono errori del
     # disegno, ma quote che il motore non verifica con questo metodo:
     #  - cluster compatto  = zona di dettaglio a scala/marcatori ignoti;
@@ -330,7 +360,11 @@ def extract_dimensions(page, scale, layer=None):
     ko = [r for r in results if r["stato"] == "senza_riscontro"]
     n_tot = len(results)
     compatto = len(ko) >= 3 and _spread(ko) < 600
-    sistematico = len(ko) >= max(12, int(0.30 * n_tot))
+    # "sezione" rilevata dall'ALTO tasso di irrisolte PRIMA del fallback: anche il
+    # residuo dopo il recupero è quotatura di sezione non verificata (marcatori
+    # diversi, scala di dettaglio), non errori del progettista → avviso, non
+    # decine di falsi errori.
+    sistematico = n_ko_prima >= max(12, int(0.30 * n_tot))
     if ko and (compatto or sistematico):
         for r in ko:
             r["stato"] = "zona_non_verificata"
