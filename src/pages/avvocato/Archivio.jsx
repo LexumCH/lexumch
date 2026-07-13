@@ -7,7 +7,7 @@ import {
     AlertCircle, Tag, User, FolderOpen, Folder, Eye, Trash2, Filter,
     Archive, Lock, HardDrive, Gavel, Calendar, ArrowRight, ArrowLeft,
     AlertTriangle, Loader2, Building2, CalendarDays, Plus,
-    ChevronRight, ChevronDown, Edit2, Save, Tags, Receipt,
+    ChevronRight, ChevronDown, Edit2, Save, Tags, Receipt, RefreshCw,
 } from 'lucide-react'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import AssegnaDocumento from '@/components/AssegnaDocumento'
@@ -887,6 +887,7 @@ function ModalGestioneCategorie({
 function CardDocumento({
     doc,
     onElimina,
+    onRiprova,
     onAggiornata,
     clienti,
     pratiche = [],
@@ -1232,6 +1233,15 @@ function CardDocumento({
                     >
                         {isSentenza ? <ArrowRight size={13} /> : <Eye size={13} />}
                     </button>
+                    {!isSentenza && doc.ocr_status === 'failed' && onRiprova && (
+                        <button
+                            onClick={() => onRiprova(doc)}
+                            className="w-7 h-7 flex items-center justify-center text-nebbia/25 hover:text-oro transition-colors"
+                            title={t('card.riprova')}
+                        >
+                            <RefreshCw size={13} />
+                        </button>
+                    )}
                     {!isSentenza && doc.metadati?.kind !== 'fattura' && (
                         <button
                             onClick={() => onElimina(doc)}
@@ -1309,6 +1319,7 @@ export default function Archivio() {
     const [meId, setMeId] = useState(null)
     const [titolareId, setTitolareId] = useState(null)
     const [documenti, setDocumenti] = useState([]) // include sentenze proprie normalizzate
+    const [riprovandoBulk, setRiprovandoBulk] = useState(false)
     const [tagsByDoc, setTagsByDoc] = useState({})
     const [etichetteUtente, setEtichetteUtente] = useState([])
     const [clienti, setClienti] = useState([])
@@ -1827,6 +1838,47 @@ export default function Archivio() {
         if (risultatiTrad) setRisultatiTrad(prev => prev.filter(d => d.id !== doc.id))
         if (risultatiLex) setRisultatiLex(prev => prev.filter(d => d.id !== doc.id))
     }
+
+    // ─── Ri-elaborazione documenti falliti ──────────────────
+    // Ri-lancia process-archivio (che ora ha il fallback OCR) su un documento
+    // che era andato in errore. Ottimistico: lo rimettiamo in 'processing' così
+    // il polling esistente segue lo stato reale dal DB (completed/failed).
+    async function avviaProcessArchivio(docId) {
+        const { data: { session } } = await supabase.auth.getSession()
+        return fetch(`${supabaseUrl}/functions/v1/process-archivio`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${session.access_token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ documento_id: docId }),
+        })
+    }
+    function segnaInElaborazione(docId) {
+        const patch = d => d.id === docId ? { ...d, ocr_status: 'processing' } : d
+        setDocumenti(prev => prev.map(patch))
+        if (risultatiTrad) setRisultatiTrad(prev => prev.map(patch))
+        if (risultatiLex) setRisultatiLex(prev => prev.map(patch))
+    }
+    async function riprovaIndicizzazione(doc) {
+        segnaInElaborazione(doc.id)
+        // fire-and-forget: se il POST non parte, il polling riporta lo stato reale
+        avviaProcessArchivio(doc.id).catch(() => { })
+    }
+    async function riprovaTuttiFalliti() {
+        const falliti = documenti.filter(d => d._kind !== 'sentenza' && d.ocr_status === 'failed')
+        if (falliti.length === 0 || riprovandoBulk) return
+        setRiprovandoBulk(true)
+        falliti.forEach(d => segnaInElaborazione(d.id))
+        // Batch throttled (max PARALLEL in volo): l'await attende la fine di ogni
+        // process-archivio → non si sommano decine di OCR concorrenti (rate-limit).
+        for (let i = 0; i < falliti.length; i += PARALLEL) {
+            const batch = falliti.slice(i, i + PARALLEL)
+            await Promise.all(batch.map(d => avviaProcessArchivio(d.id).catch(() => { })))
+            if (i + PARALLEL < falliti.length) await new Promise(r => setTimeout(r, 1500))
+        }
+        setRiprovandoBulk(false)
+    }
     async function ricaricaDocumenti() {
         await ricaricaDati(titolareId, meId)
     }
@@ -1849,6 +1901,11 @@ export default function Archivio() {
     const docsFiltrati = useMemo(
         () => documenti.filter(passaFiltriBase),
         [documenti, filtroCliente, filtroDipendente, filtroPratica, filtroEtichetta, filtroStato, filtroData, filtroDataDa, filtroDataA, tagsByDoc]
+    )
+
+    const docsFalliti = useMemo(
+        () => documenti.filter(d => d._kind !== 'sentenza' && d.ocr_status === 'failed'),
+        [documenti]
     )
 
     const docsInElaborazione = codaUpload.filter(i => ['pending', 'processing'].includes(i.status)).length
@@ -2251,6 +2308,24 @@ export default function Archivio() {
                         )}
                     </div>
 
+                    {/* Banner ri-elaborazione documenti falliti (es. PDF senza layer di testo → ora via OCR) */}
+                    {docsFalliti.length > 0 && (
+                        <div className="flex items-center justify-between gap-3 mb-4 px-4 py-2.5 bg-red-500/5 border border-red-400/20">
+                            <p className="font-body text-xs text-nebbia/60 flex items-center gap-2 min-w-0">
+                                <AlertTriangle size={13} className="text-red-400/80 shrink-0" />
+                                <span className="truncate">{t('riprova.falliti_info', { count: docsFalliti.length })}</span>
+                            </p>
+                            <button
+                                onClick={riprovaTuttiFalliti}
+                                disabled={riprovandoBulk}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 disabled:opacity-50 transition-colors shrink-0"
+                            >
+                                {riprovandoBulk ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                                {t('riprova.tutti')}
+                            </button>
+                        </div>
+                    )}
+
                     {/* RISULTATI */}
                     {inRicerca ? (
                         // VISTA LISTA FLAT (durante ricerca)
@@ -2269,6 +2344,7 @@ export default function Archivio() {
                                     key={doc.id}
                                     doc={doc}
                                     onElimina={eliminaDocumento}
+                                    onRiprova={riprovaIndicizzazione}
                                     onAggiornata={ricaricaDocumenti}
                                     clienti={clienti}
                                     pratiche={pratiche}
@@ -2396,6 +2472,7 @@ export default function Archivio() {
                                                                 key={doc.id}
                                                                 doc={doc}
                                                                 onElimina={eliminaDocumento}
+                                                                onRiprova={riprovaIndicizzazione}
                                                                 onAggiornata={ricaricaDocumenti}
                                                                 clienti={clienti}
                                                                 pratiche={pratiche}
@@ -2430,6 +2507,7 @@ export default function Archivio() {
                                                         key={doc.id}
                                                         doc={doc}
                                                         onElimina={eliminaDocumento}
+                                                        onRiprova={riprovaIndicizzazione}
                                                         onAggiornata={ricaricaDocumenti}
                                                         clienti={clienti}
                                                         pratiche={pratiche}

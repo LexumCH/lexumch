@@ -114,7 +114,8 @@
     "altri_soggetti": "+{{count}} autres",
     "apri_sentenza": "Ouvrir le jugement",
     "anteprima": "Aperçu",
-    "sezione_rilevante": "Section pertinente"
+    "sezione_rilevante": "Section pertinente",
+    "riprova": "Réindexer"
   },
   "anteprima": {
     "titolo": "Aperçu du document",
@@ -200,5 +201,10 @@
     "vuoto_titolo": "Aucun document",
     "vuoto_filtri": "Aucun résultat avec ces filtres",
     "vuoto_desc": "Téléchargez les documents de votre archive pour les indexer et les rendre consultables"
+  },
+  "riprova": {
+    "tutti": "Réessayer les échecs",
+    "falliti_info_one": "{{count}} document non indexé — texte non extractible. OCR disponible.",
+    "falliti_info_other": "{{count}} documents non indexés — texte non extractible. OCR disponible."
   }
 }

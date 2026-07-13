@@ -114,7 +114,8 @@
     "altri_soggetti": "+{{count}} altri",
     "apri_sentenza": "Apri sentenza",
     "anteprima": "Anteprima",
-    "sezione_rilevante": "Sezione rilevante"
+    "sezione_rilevante": "Sezione rilevante",
+    "riprova": "Riprova indicizzazione"
   },
   "anteprima": {
     "titolo": "Anteprima documento",
@@ -200,5 +201,10 @@
     "vuoto_titolo": "Nessun documento",
     "vuoto_filtri": "Nessun risultato con questi filtri",
     "vuoto_desc": "Carica i documenti del tuo archivio per indicizzarli e renderli cercabili"
+  },
+  "riprova": {
+    "tutti": "Riprova i falliti",
+    "falliti_info_one": "{{count}} documento non indicizzato — testo non estraibile. Ora c’è l’OCR.",
+    "falliti_info_other": "{{count}} documenti non indicizzati — testo non estraibile. Ora c’è l’OCR."
   }
 }

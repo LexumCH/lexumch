@@ -114,7 +114,8 @@
     "altri_soggetti": "+{{count}} weitere",
     "apri_sentenza": "Urteil öffnen",
     "anteprima": "Vorschau",
-    "sezione_rilevante": "Relevanter Abschnitt"
+    "sezione_rilevante": "Relevanter Abschnitt",
+    "riprova": "Erneut indexieren"
   },
   "anteprima": {
     "titolo": "Dokumentvorschau",
@@ -200,5 +201,10 @@
     "vuoto_titolo": "Kein Dokument",
     "vuoto_filtri": "Keine Ergebnisse mit diesen Filtern",
     "vuoto_desc": "Laden Sie die Dokumente Ihres Archivs hoch, um sie zu indexieren und durchsuchbar zu machen"
+  },
+  "riprova": {
+    "tutti": "Fehlgeschlagene erneut",
+    "falliti_info_one": "{{count}} nicht indexiertes Dokument — Text nicht extrahierbar. Jetzt mit OCR.",
+    "falliti_info_other": "{{count}} nicht indexierte Dokumente — Text nicht extrahierbar. Jetzt mit OCR."
   }
 }
