@@ -39,6 +39,24 @@ const NOME_LINGUA: Record<Lingua, string> = {
   it: 'ITALIANO', de: 'TEDESCO (Deutsch)', fr: 'FRANCESE (Français)',
 }
 
+// ── Pseudonimizzazione: il nome del committente non esce in chiaro verso l'AI,
+//    viene ripristinato nell'output. Single-shot: replace semplice (no streaming). ──
+const _P_OPEN = '⟦', _P_CLOSE = '⟧'
+function _escRe(s: string): string { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
+function pseudonimizza(testo: string, mappa: Array<{ nome: string; ph: string }>): string {
+  let out = testo
+  for (const { nome, ph } of mappa) {
+    const re = new RegExp(`(^|[^\\p{L}\\p{N}])(${_escRe(nome)})(?=[^\\p{L}\\p{N}]|$)`, 'giu')
+    out = out.replace(re, (_m, pre) => pre + ph)
+  }
+  return out
+}
+function depseudo(testo: string, mappa: Array<{ nome: string; ph: string }>): string {
+  let out = testo
+  for (const { nome, ph } of mappa) out = out.split(ph).join(nome)
+  return out
+}
+
 const TIPI: Record<string, { nome: Record<Lingua, string>; istruzioni: string }> = {
   relazione_conformita: {
     nome: {
@@ -292,6 +310,14 @@ Deno.serve(async (req) => {
     const userMsg = `LINGUA RICHIESTA: ${NOME_LINGUA[lingua]} — scrivi TUTTO il documento in questa lingua.\n` +
       `TIPO DOCUMENTO: ${TIPI[tipo].nome[lingua]}\n\n# ISTRUZIONI DI STRUTTURA\n${TIPI[tipo].istruzioni}\n\n${dati}\n\nProduci SOLO il documento markdown.`
 
+    // Pseudonimizza il committente prima dell'invio all'AI (ripristinato nell'output).
+    let mappaPseudo: Array<{ nome: string; ph: string }> = []
+    try {
+      const comm = (prog.committente ?? '').toString().trim()
+      if (comm.length >= 3) mappaPseudo = [{ nome: comm, ph: `${_P_OPEN}COMMITTENTE${_P_CLOSE}` }]
+    } catch (_e) { mappaPseudo = [] }
+    const userMsgSafe = mappaPseudo.length ? pseudonimizza(userMsg, mappaPseudo) : userMsg
+
     async function chiamaAi(): Promise<{ md: string; tokIn: number; tokOut: number }> {
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -303,7 +329,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           model: MODEL_DOC, max_tokens: MAX_TOKENS,
           system: SYSTEM_DOC,
-          messages: [{ role: 'user', content: userMsg }],
+          messages: [{ role: 'user', content: userMsgSafe }],
         }),
       })
       if (!resp.ok) throw new Error(`Anthropic ${resp.status}: ${await resp.text()}`)
@@ -374,7 +400,7 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify({
       ok: true,
-      documento_markdown: r.md,
+      documento_markdown: depseudo(r.md, mappaPseudo),
       tipo,
       tipo_nome: TIPI[tipo].nome[lingua],
       crediti_rimasti: Math.max(0, crediti.crediti_rimasti - (scalato ? 1 : 0)),
