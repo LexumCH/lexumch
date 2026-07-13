@@ -348,6 +348,50 @@ def extract_dimensions(page, scale, layer=None):
                 r["err_mm"] = round(best[0] / pt_per_m * 1000, 1)
                 r["via_tick_esteso"] = True
 
+    # FALLBACK 2 "linee di richiamo" (Vektorpunkte pieno): quando nemmeno il tick
+    # esteso trova la coppia, molte quote di sezione hanno comunque due LINEE DI
+    # RICHIAMO (extension lines, perpendicolari alla linea di quota) che marcano i
+    # punti misurati. Si misura tra coppie di witness-line DEL LAYER QUOTE (niente
+    # geometria d'arredo → niente rumore) allineate alla quota. Solo sulle quote
+    # ancora irrisolte; accettato entro tolleranza; marcato via_witness. È la
+    # misura tra spigoli chiesta dal progettista, gated per non produrre falsi.
+    ko = [r for r in results if r["stato"] == "senza_riscontro"]
+    if ko:
+        wsegs = [(p1, p2, math.hypot(p2.x - p1.x, p2.y - p1.y)) for p1, p2 in segs]
+        for r in ko:
+            t = r["_t"]
+            axis_v = t["vertical"]
+            along0 = t["cy"] if axis_v else t["cx"]
+            perp0 = t["cx"] if axis_v else t["cy"]
+            target = t["value_m"] * pt_per_m
+            anchors = []
+            for p1, p2, L in wsegs:
+                if not (6.0 <= L <= 70.0):
+                    continue
+                if (abs(p2.y - p1.y) > abs(p2.x - p1.x)) == axis_v:  # perpendicolare all'asse
+                    continue
+                pos = (p1.y + p2.y) / 2 if axis_v else (p1.x + p2.x) / 2
+                cross = (p1.x + p2.x) / 2 if axis_v else (p1.y + p2.y) / 2
+                if abs(cross - perp0) < 26:
+                    anchors.append(round(pos, 2))
+            anchors = sorted(set(anchors))
+            best = None
+            for i in range(len(anchors)):
+                for j in range(i + 1, len(anchors)):
+                    span = anchors[j] - anchors[i]
+                    if span < 3:
+                        continue
+                    if not (anchors[i] - t["halfw"] * 2 - 6 <= along0 <= anchors[j] + t["halfw"] * 2 + 6):
+                        continue
+                    err = abs(span - target)
+                    if best is None or err < best[0]:
+                        best = (err, span)
+            if best is not None and best[0] <= tol_pt:
+                r["stato"] = "ok"
+                r["span_pt"] = round(best[1], 2)
+                r["err_mm"] = round(best[0] / pt_per_m * 1000, 1)
+                r["via_witness"] = True
+
     # quote irrisolte da declassare da errore ad avviso — NON sono errori del
     # disegno, ma quote che il motore non verifica con questo metodo:
     #  - cluster compatto  = zona di dettaglio a scala/marcatori ignoti;
