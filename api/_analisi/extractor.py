@@ -177,31 +177,63 @@ def _lines_with_ticks(segs, ticks):
 
 
 def _dimension_texts(page, layer):
-    """Testi quota con gestione dell'apice (mezzo centimetro)."""
-    spans = [s for s in page.get_texttrace() if s.get("layer") == layer]
-    mains, sups = [], []
-    for s in spans:
+    """Testi quota con gestione dell'apice (mezzo centimetro).
+
+    L'apice va riconosciuto anche quando, in una vista a scala grande (es. 1:25),
+    la sua altezza SUPERA la soglia di font assoluta: resta comunque un numero
+    nettamente più piccolo di un main adiacente e in posizione di apice (dopo il
+    main lungo la lettura, leggermente in alto). Rilevamento RELAZIONALE, che
+    scatta solo in presenza di font a scale miste → non tocca le piante uniformi.
+    """
+    entries = []
+    for s in page.get_texttrace():
+        if s.get("layer") != layer:
+            continue
         txt = span_text(s).strip()
         if not re.fullmatch(r"\d+(\.\d+)?", txt):
             continue
+        b = s["bbox"]
         vertical = abs(s["dir"][1]) > 0.5
-        entry = {
-            "text": txt,
-            "bbox": s["bbox"],
-            "cx": (s["bbox"][0] + s["bbox"][2]) / 2,
-            "cy": (s["bbox"][1] + s["bbox"][3]) / 2,
-            "vertical": vertical,
+        entries.append({
+            "text": txt, "bbox": b, "size": s["size"], "dir": s["dir"],
+            "cx": (b[0] + b[2]) / 2, "cy": (b[1] + b[3]) / 2, "vertical": vertical,
             # semiestensione del testo lungo l'asse della quota
-            "halfw": ((s["bbox"][3] - s["bbox"][1]) if vertical
-                      else (s["bbox"][2] - s["bbox"][0])) / 2,
-        }
-        (sups if s["size"] < SUPERSCRIPT_MAX_SIZE else mains).append(entry)
+            "halfw": ((b[3] - b[1]) if vertical else (b[2] - b[0])) / 2,
+        })
+
+    mains = [e for e in entries if e["size"] >= SUPERSCRIPT_MAX_SIZE]
+    sups = [e for e in entries if e["size"] < SUPERSCRIPT_MAX_SIZE]
+
+    # Riclassificazione relazionale: un "main" nettamente più piccolo di un altro
+    # main (> 1.25×) e in posizione di apice (dopo il main lungo la direzione di
+    # lettura, entro ~1.6× font, con scostamento perpendicolare piccolo) è in
+    # realtà l'apice mezzo-cm. Richiede una differenza di font → non scatta mai su
+    # una tavola a scala uniforme (dove tutti i main hanno lo stesso corpo).
+    riclass = []
+    for n in mains:
+        dx_dir, dy_dir = n["dir"]
+        px, py = -dy_dir, dx_dir
+        for m in mains:
+            if m is n or m["vertical"] != n["vertical"] or m["size"] < n["size"] * 1.25:
+                continue
+            vx, vy = n["cx"] - m["cx"], n["cy"] - m["cy"]
+            along = vx * dx_dir + vy * dy_dir
+            perp = vx * px + vy * py
+            if 0 < along < m["size"] * 1.6 and abs(perp) < m["size"] * 0.85:
+                riclass.append(n)
+                break
+    ricl_ids = {id(x) for x in riclass}
+    mains = [e for e in mains if id(e) not in ricl_ids]
+    sups += riclass
 
     for m in mains:
         m["sup"] = None
+        # distanza di appaiamento relativa al font del main (con floor storico 12pt)
+        dmax_x = max(12.0, m["size"] * 1.4)
+        dmax_y = max(12.0, m["size"] * 0.9)
         for s in sups:
             if s["vertical"] == m["vertical"] and \
-               abs(s["cx"] - m["cx"]) < 12 and abs(s["cy"] - m["cy"]) < 12:
+               abs(s["cx"] - m["cx"]) < dmax_x and abs(s["cy"] - m["cy"]) < dmax_y:
                 m["sup"] = s["text"]
                 break
         m["value_m"] = _parse_value(m["text"], m["sup"])
