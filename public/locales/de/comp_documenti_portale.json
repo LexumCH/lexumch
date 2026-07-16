@@ -1,0 +1,16 @@
+{
+  "titolo": "Im Kundenportal geteilte Dokumente",
+  "descrizione": "Die hier veröffentlichten Dateien erscheinen im Kundenportal. Sie sehen auch die Dateien, die der Kunde für die Kanzlei hochlädt.",
+  "seleziona_file": "Datei zum Teilen auswählen",
+  "condividi": "Teilen",
+  "vuoto": "Keine geteilten Dokumente",
+  "badge": {
+    "dal_cliente": "Vom Kunden",
+    "dallo_studio": "Von der Kanzlei"
+  },
+  "azioni": {
+    "visualizza": "Anzeigen",
+    "rimuovi": "Aus dem Portal entfernen"
+  },
+  "conferma_rimuovi": "\"{{nome}}\" aus dem Kundenportal entfernen?"
+}

@@ -15,6 +15,10 @@
     "messaggi_nuovi": "Neue Nachrichten",
     "fatture_aperte": "Offene Rechnungen"
   },
+  "contatori_fiduciario": {
+    "mandati_attivi": "Aktive Mandate",
+    "scadenze_da_fare": "Offene Fristen"
+  },
   "prossimo": {
     "titolo": "Nächster Termin",
     "tutti": "Alle →",
@@ -24,6 +28,17 @@
     "titolo": "Aktive Dossiers",
     "tutte": "Alle →",
     "vuoto": "Keine aktiven Dossiers"
+  },
+  "scadenze": {
+    "titolo": "Nächste Fristen",
+    "tutte": "Alle →",
+    "vuoto": "Keine anstehenden Fristen"
+  },
+  "giorni": {
+    "scaduta": "Überfällig",
+    "oggi": "Heute",
+    "tra_one": "In {{count}} Tag",
+    "tra_other": "In {{count}} Tagen"
   },
   "stati": {
     "in_corso": "Laufend",

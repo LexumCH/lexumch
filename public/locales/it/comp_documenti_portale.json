@@ -1,0 +1,16 @@
+{
+  "titolo": "Documenti condivisi nel portale cliente",
+  "descrizione": "I file qui pubblicati compaiono nel portale del cliente. Vedi anche quelli che il cliente carica per lo studio.",
+  "seleziona_file": "Seleziona un file da condividere",
+  "condividi": "Condividi",
+  "vuoto": "Nessun documento condiviso",
+  "badge": {
+    "dal_cliente": "Dal cliente",
+    "dallo_studio": "Dallo studio"
+  },
+  "azioni": {
+    "visualizza": "Visualizza",
+    "rimuovi": "Rimuovi dal portale"
+  },
+  "conferma_rimuovi": "Rimuovere \"{{nome}}\" dal portale del cliente?"
+}

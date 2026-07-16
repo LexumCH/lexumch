@@ -17,6 +17,7 @@
 import { useState, useEffect, useRef, cloneElement, isValidElement, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
+import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import ReactMarkdown from 'react-markdown'
 import {
     Sparkles, Send, Save, Plus, AlertCircle, X, CheckCircle,
@@ -761,7 +762,7 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
             if (!response.ok) {
                 const errBody = await response.json().catch(() => ({ error: t('errori.sconosciuto') }))
                 if (errBody.crediti_esauriti) setErrore('crediti_esauriti')
-                else setErrore(errBody.error ?? t('errori.conCodice', { codice: response.status }))
+                else setErrore(sanitizzaErrore(errBody.error) ?? t('errori.conCodice', { codice: response.status }))
                 setConversazione(conversazione)
                 setInviando(false)
                 return
@@ -826,7 +827,7 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
                             }
 
                             if (eventoCorrente === 'error') {
-                                streamError = data.error ?? t('errori.streaming')
+                                streamError = sanitizzaErrore(data.error) ?? t('errori.streaming')
                                 setErrore(streamError)
                             }
                         } catch { /* ignore */ }

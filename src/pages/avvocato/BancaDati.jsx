@@ -16,6 +16,7 @@ import { useState, useEffect, useRef, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { supabase, supabaseUrl } from '@/lib/supabase'
+import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import { useAuth } from '@/context/AuthContext'
 import { PageHeader } from '@/components/shared'
 import BottoniSalvataggio from '@/components/BottoniSalvataggio'
@@ -273,7 +274,7 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
 
             if (!res.ok) {
                 const errBody = await res.json().catch(() => ({ error: t('lex.errore_sconosciuto') }))
-                setErrore(errBody.crediti_esauriti ? 'crediti_esauriti' : (errBody.error ?? t('lex.errore_http', { status: res.status })))
+                setErrore(errBody.crediti_esauriti ? 'crediti_esauriti' : (sanitizzaErrore(errBody.error) ?? t('lex.errore_http', { status: res.status })))
                 setConversazione(conversazione)
                 setCercando(false)
                 return
@@ -316,7 +317,7 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                 tipoRisposta = data.tipo_risposta
                                 if (data.crediti_rimasti !== undefined) setCrediti(data.crediti_rimasti)
                             }
-                            if (eventoCorrente === 'error') setErrore(data.error ?? t('lex.errore_streaming'))
+                            if (eventoCorrente === 'error') setErrore(sanitizzaErrore(data.error) ?? t('lex.errore_streaming'))
                         } catch { /* ignore */ }
                     }
                 }

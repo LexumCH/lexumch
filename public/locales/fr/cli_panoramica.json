@@ -15,6 +15,10 @@
     "messaggi_nuovi": "Nouveaux messages",
     "fatture_aperte": "Factures ouvertes"
   },
+  "contatori_fiduciario": {
+    "mandati_attivi": "Mandats actifs",
+    "scadenze_da_fare": "Échéances à traiter"
+  },
   "prossimo": {
     "titolo": "Prochain rendez-vous",
     "tutti": "Tous →",
@@ -24,6 +28,17 @@
     "titolo": "Dossiers actifs",
     "tutte": "Tous →",
     "vuoto": "Aucun dossier actif"
+  },
+  "scadenze": {
+    "titolo": "Prochaines échéances",
+    "tutte": "Toutes →",
+    "vuoto": "Aucune échéance à venir"
+  },
+  "giorni": {
+    "scaduta": "Échue",
+    "oggi": "Aujourd'hui",
+    "tra_one": "Dans {{count}} jour",
+    "tra_other": "Dans {{count}} jours"
   },
   "stati": {
     "in_corso": "En cours",

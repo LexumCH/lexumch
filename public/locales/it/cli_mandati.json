@@ -1,0 +1,23 @@
+{
+  "header": {
+    "label": "Portale cliente",
+    "titolo": "I miei mandati"
+  },
+  "filtri": {
+    "tutti": "Tutti gli stati"
+  },
+  "stati": {
+    "attivo": "Attivo",
+    "sospeso": "Sospeso",
+    "concluso": "Concluso",
+    "archiviato": "Archiviato"
+  },
+  "vuoto": {
+    "nessun_mandato": "Nessun mandato trovato"
+  },
+  "scheda": {
+    "anno_riferimento": "Anno di riferimento",
+    "aperto_il": "Aperto il",
+    "note": "Note"
+  }
+}

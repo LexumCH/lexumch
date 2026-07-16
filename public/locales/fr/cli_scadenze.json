@@ -1,0 +1,26 @@
+{
+  "header": {
+    "label": "Portail client",
+    "titolo": "Mes échéances"
+  },
+  "riepilogo": {
+    "da_completare": "À traiter",
+    "scadute": "Échues"
+  },
+  "filtri": {
+    "aperte": "À faire",
+    "completate": "Terminées",
+    "tutte": "Toutes"
+  },
+  "vuoto": "Aucune échéance",
+  "stato": {
+    "completata": "Terminée"
+  },
+  "giorni": {
+    "scaduta_one": "Échue depuis {{count}} jour",
+    "scaduta_other": "Échue depuis {{count}} jours",
+    "oggi": "Aujourd'hui",
+    "tra_one": "Dans {{count}} jour",
+    "tra_other": "Dans {{count}} jours"
+  }
+}

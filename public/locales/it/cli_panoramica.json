@@ -15,6 +15,10 @@
     "messaggi_nuovi": "Messaggi nuovi",
     "fatture_aperte": "Fatture aperte"
   },
+  "contatori_fiduciario": {
+    "mandati_attivi": "Mandati attivi",
+    "scadenze_da_fare": "Scadenze da fare"
+  },
   "prossimo": {
     "titolo": "Prossimo appuntamento",
     "tutti": "Tutti →",
@@ -24,6 +28,17 @@
     "titolo": "Pratiche attive",
     "tutte": "Tutte →",
     "vuoto": "Nessuna pratica attiva"
+  },
+  "scadenze": {
+    "titolo": "Prossime scadenze",
+    "tutte": "Tutte →",
+    "vuoto": "Nessuna scadenza in arrivo"
+  },
+  "giorni": {
+    "scaduta": "Scaduta",
+    "oggi": "Oggi",
+    "tra_one": "Tra {{count}} giorno",
+    "tra_other": "Tra {{count}} giorni"
   },
   "stati": {
     "in_corso": "In corso",

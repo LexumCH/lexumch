@@ -2,16 +2,16 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
+import { useTipoStudio } from '@/hooks/useTipoStudio'
 import logo from '@/assets/logo.png'
 import {
-  Home, FolderOpen, Calendar, FileText,
+  Home, FolderOpen, Briefcase, CalendarClock, Calendar, FileText,
   MessageSquare, CreditCard, User, LogOut, Menu
 } from 'lucide-react'
 import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 
-const NAV = [
-  { path: '/portale', labelKey: 'nav.panoramica', icon: Home },
-  { path: '/portale/pratiche', labelKey: 'nav.pratiche', icon: FolderOpen },
+// Menu comune a tutti i tipi di studio
+const NAV_COMUNE = [
   { path: '/portale/appuntamenti', labelKey: 'nav.appuntamenti', icon: Calendar },
   { path: '/portale/documenti', labelKey: 'nav.documenti', icon: FileText },
   { path: '/portale/comunicazioni', labelKey: 'nav.comunicazioni', icon: MessageSquare },
@@ -19,11 +19,25 @@ const NAV = [
   { path: '/portale/profilo', labelKey: 'nav.profilo', icon: User },
 ]
 
+// Voci specifiche: pratiche (avvocato/progettista) vs mandati + scadenze (fiduciario)
+const NAV_AVVOCATO = [{ path: '/portale/pratiche', labelKey: 'nav.pratiche', icon: FolderOpen }]
+const NAV_FIDUCIARIO = [
+  { path: '/portale/mandati', labelKey: 'nav.mandati', icon: Briefcase },
+  { path: '/portale/scadenze', labelKey: 'nav.scadenze', icon: CalendarClock },
+]
+
 export default function ClienteLayout({ children }) {
   const { t } = useTranslation('comp_layout_cliente')
   const { profile, signOut } = useAuth()
+  const { isFiduciario } = useTipoStudio()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+
+  const NAV = [
+    { path: '/portale', labelKey: 'nav.panoramica', icon: Home },
+    ...(isFiduciario ? NAV_FIDUCIARIO : NAV_AVVOCATO),
+    ...NAV_COMUNE,
+  ]
 
   async function handleSignOut() {
     await signOut()

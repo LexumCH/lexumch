@@ -1,0 +1,23 @@
+{
+  "header": {
+    "label": "Portail client",
+    "titolo": "Mes mandats"
+  },
+  "filtri": {
+    "tutti": "Tous les statuts"
+  },
+  "stati": {
+    "attivo": "Actif",
+    "sospeso": "Suspendu",
+    "concluso": "Terminé",
+    "archiviato": "Archivé"
+  },
+  "vuoto": {
+    "nessun_mandato": "Aucun mandat trouvé"
+  },
+  "scheda": {
+    "anno_riferimento": "Année de référence",
+    "aperto_il": "Ouvert le",
+    "note": "Notes"
+  }
+}

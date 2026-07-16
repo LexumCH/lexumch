@@ -62,7 +62,7 @@ export default function ClienteDocumenti() {
                 storage_path: path,
                 tipo_mime: file.type,
                 dimensione: file.size,
-                caricato_da: 'cliente',
+                caricato_da: userId,
                 visibile_cliente: true,
             })
             if (dbErr) throw new Error(dbErr.message)
@@ -149,7 +149,7 @@ export default function ClienteDocumenti() {
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <Badge label={d.caricato_da === 'avvocato' ? t('caricato_da.studio') : t('caricato_da.tu')} variant={d.caricato_da === 'avvocato' ? 'oro' : 'salvia'} />
+                                            <Badge label={d.caricato_da === userId ? t('caricato_da.tu') : t('caricato_da.studio')} variant={d.caricato_da === userId ? 'salvia' : 'oro'} />
                                         </td>
                                         <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
                                             {new Date(d.created_at).toLocaleDateString(dateLocale)}

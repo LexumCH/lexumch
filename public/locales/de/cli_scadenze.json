@@ -1,0 +1,26 @@
+{
+  "header": {
+    "label": "Kundenportal",
+    "titolo": "Meine Fristen"
+  },
+  "riepilogo": {
+    "da_completare": "Zu erledigen",
+    "scadute": "Überfällig"
+  },
+  "filtri": {
+    "aperte": "Offen",
+    "completate": "Erledigt",
+    "tutte": "Alle"
+  },
+  "vuoto": "Keine Fristen",
+  "stato": {
+    "completata": "Erledigt"
+  },
+  "giorni": {
+    "scaduta_one": "Überfällig seit {{count}} Tag",
+    "scaduta_other": "Überfällig seit {{count}} Tagen",
+    "oggi": "Heute",
+    "tra_one": "In {{count}} Tag",
+    "tra_other": "In {{count}} Tagen"
+  }
+}

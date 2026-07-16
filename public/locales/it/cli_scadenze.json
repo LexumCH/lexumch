@@ -1,0 +1,26 @@
+{
+  "header": {
+    "label": "Portale cliente",
+    "titolo": "Le mie scadenze"
+  },
+  "riepilogo": {
+    "da_completare": "Da completare",
+    "scadute": "Scadute"
+  },
+  "filtri": {
+    "aperte": "Da fare",
+    "completate": "Completate",
+    "tutte": "Tutte"
+  },
+  "vuoto": "Nessuna scadenza",
+  "stato": {
+    "completata": "Completata"
+  },
+  "giorni": {
+    "scaduta_one": "Scaduta da {{count}} giorno",
+    "scaduta_other": "Scaduta da {{count}} giorni",
+    "oggi": "Oggi",
+    "tra_one": "Tra {{count}} giorno",
+    "tra_other": "Tra {{count}} giorni"
+  }
+}

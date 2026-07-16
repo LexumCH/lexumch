@@ -1,0 +1,16 @@
+{
+  "titolo": "Documents partagés dans le portail client",
+  "descrizione": "Les fichiers publiés ici apparaissent dans le portail du client. Vous voyez également ceux que le client téléverse pour le cabinet.",
+  "seleziona_file": "Sélectionner un fichier à partager",
+  "condividi": "Partager",
+  "vuoto": "Aucun document partagé",
+  "badge": {
+    "dal_cliente": "Du client",
+    "dallo_studio": "Du cabinet"
+  },
+  "azioni": {
+    "visualizza": "Consulter",
+    "rimuovi": "Retirer du portail"
+  },
+  "conferma_rimuovi": "Retirer « {{nome}} » du portail du client ?"
+}

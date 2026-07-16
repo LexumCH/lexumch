@@ -1,0 +1,23 @@
+{
+  "header": {
+    "label": "Kundenportal",
+    "titolo": "Meine Mandate"
+  },
+  "filtri": {
+    "tutti": "Alle Status"
+  },
+  "stati": {
+    "attivo": "Aktiv",
+    "sospeso": "Ausgesetzt",
+    "concluso": "Abgeschlossen",
+    "archiviato": "Archiviert"
+  },
+  "vuoto": {
+    "nessun_mandato": "Keine Mandate gefunden"
+  },
+  "scheda": {
+    "anno_riferimento": "Referenzjahr",
+    "aperto_il": "Eröffnet am",
+    "note": "Notizen"
+  }
+}

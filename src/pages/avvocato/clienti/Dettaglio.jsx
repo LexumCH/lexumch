@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import DocumentiPortale from '@/components/shared/DocumentiPortale'
 import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
 import GestioneMandati from '@/components/fiduciario/GestioneMandati'
 import GestioneProgetti from '@/components/progettista/GestioneProgetti'
@@ -456,7 +457,11 @@ function TabDocumenti({ clienteId }) {
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center">
+            {/* Canale portale: pubblica/condividi documenti col cliente */}
+            <DocumentiPortale clienteId={clienteId} />
+
+            {/* Archivio documentale interno (indicizzato, collegato alle pratiche/mandati) */}
+            <div className="flex justify-between items-center pt-2">
                 <p className="font-body text-sm text-nebbia/40">
                     {documenti.length} {documenti.length === 1 ? t('documenti.conteggio_uno') : t('documenti.conteggio_molti')}
                     {documenti.length > 0 && (

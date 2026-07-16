@@ -51,6 +51,24 @@ const MAX_DOWNLOAD_BYTES = 10 * 1024 * 1024;
 // niente caratteri invisibili nel sorgente.
 const CODEPOINT_ZERO_WIDTH = new Set([0x00AD, 0x200B, 0x200C, 0x200D, 0x2060, 0xFEFF, 0x180E]);
 
+// WHITE-LABEL: nessun riferimento a un fornitore AI (OpenAI/Anthropic/Mistral) o a
+// dettagli tecnici del provider deve finire nel DB o nella risposta al client.
+// Il dettaglio reale resta nei log della funzione (console.log). Se il messaggio
+// contiene un marcatore provider → si restituisce un testo generico; altrimenti
+// passa invariato (troncato).
+const MARKER_PROVIDER =
+  /openai|anthropic|mistral|claude|gpt-|api\.(?:openai|anthropic|mistral)|x-api-key|anthropic-version|\bsk-ant-|\bsk-proj-|\bsk-[a-z0-9]{20}|text-embedding/i;
+
+function messaggioSicuro(raw: string): string {
+  const s = String(raw ?? "");
+  if (!MARKER_PROVIDER.test(s)) return s.slice(0, 500);
+  const stato = (s.match(/\b(429|5\d\d|401|403)\b/) || [])[1];
+  if (stato === "429") return "Troppe richieste al servizio di elaborazione. Riprovare tra poco.";
+  if (stato === "401" || stato === "403" || (stato && stato[0] === "5"))
+    return "Servizio di elaborazione temporaneamente non disponibile.";
+  return "Elaborazione del documento non riuscita. Riprovare più tardi.";
+}
+
 // ─── HELPERS ────────────────────────────────────────────────
 
 async function generaEmbedding(testo: string): Promise<number[]> {
@@ -650,6 +668,10 @@ Deno.serve(async (req) => {
     );
   } catch (err: any) {
     const messaggio = err.message ?? "Errore sconosciuto";
+    // Testo pulito (senza nomi provider) da persistere/restituire; il dettaglio
+    // reale resta solo nel console.log qui sotto (log della funzione, non visibile
+    // all'utente).
+    const messaggioPubblico = messaggioSicuro(messaggio);
 
     console.log(
       JSON.stringify({
@@ -663,7 +685,7 @@ Deno.serve(async (req) => {
     if (documentoId) {
       try {
         const metadatiErrore = await mergeMetadati(documentoId, {
-          errore: messaggio.slice(0, 500),
+          errore: messaggioPubblico,
           errore_at: new Date().toISOString(),
         });
         await aggiornaDocumento(documentoId, {
@@ -674,7 +696,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ ok: false, error: messaggio }),
+      JSON.stringify({ ok: false, error: messaggioPubblico }),
       {
         status: 500,
         headers: {
