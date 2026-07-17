@@ -138,10 +138,16 @@ def _plain_text(dim):
 
 
 def _num_override(testo):
-    """Se il testo è un override NUMERICO esplicito, ritorna il float grezzo;
-    None se è automatico ('<>'/vuoto) o non numerico. Serve alla futura
-    rilevazione 'quota scritta ≠ geometria' (label sbagliata)."""
-    if not testo or "<>" in testo:
+    """Override numerico ESPLICITO = il progettista ha forzato un valore diverso
+    dalla misura (candidato 'quota scritta sbagliata'). NON è un override se il
+    testo contiene un campo automatico — '<>' oppure '<MeasuredValue>'/'<...>':
+    lì il numero mostrato È la geometria e il resto (seconda riga ^M, apice
+    mezzo-cm '\\S5^', roh/fertig) è ANNOTAZIONE, non una pretesa di valore.
+    Verificato su DXF ArchiCAD reale: trattarli come override darebbe decine di
+    falsi 'quota sbagliata'."""
+    if not testo:
+        return None
+    if "<>" in testo or re.search(r"<[^>]*>", testo):
         return None
     m = re.search(r"\d+(?:[.,]\d+)?", testo)
     return float(m.group(0).replace(",", ".")) if m else None
@@ -246,6 +252,16 @@ def _dim_to_testo(dim, pt_per_m, insunits, fattore_fb):
 
 # ---------------------------------------------------------------- locali
 
+def _pulisci_mtext_residui(s):
+    """I convertitori (libredwg) lasciano residui di codici MTEXT che plain_mtext
+    non rimuove del tutto: height '\\H0.66x;' → '.66x;' incollato al valore, e
+    marker di stack '^'. Vanno tolti PRIMA delle regex, altrimenti sporcano il
+    numero BF (es. '23.04.66x;^' verrebbe letto '23.04.66')."""
+    s = re.sub(r"\.\d+x;", "", s)   # residuo height ancorato al punto
+    s = re.sub(r"[{}\^]", "", s)    # graffe e marker di stack
+    return re.sub(r"\s+", " ", s).strip()
+
+
 def _plain_mtext(entity):
     try:
         from ezdxf.tools.text import plain_mtext
@@ -254,45 +270,54 @@ def _plain_mtext(entity):
         return getattr(entity, "text", "") or ""
 
 
+# Layer dei timbri-locale ArchiCAD (Raumstempel/Wohnungsfläche). Se presenti si
+# usano SOLO quelli: gli altri testi (quote, note, arredo) inquinano i cluster.
+RE_LAYER_TIMBRO = re.compile(r"raumstempel|wohnungsfläche|wohnungsflaeche", re.I)
+CLUSTER_TOL_M = 2.5  # semilato del timbro-locale in metri (stampi compatti)
+
+
 def _extract_rooms_dxf(doc, msp, pt_per_m):
-    """Timbri-locale dai TEXT/MTEXT: stessa euristica del path PDF (BF:, [BWD]:),
-    clustering per prossimità. I nomi e le superfici stanno nei testi del disegno."""
-    items = []
+    """Timbri-locale dai TEXT/MTEXT del layer Raumstempel (fallback: tutti):
+    frammenti puliti dai codici, clusterizzati per prossimità in metri, ricomposti
+    e passati alle stesse regex del path PDF (BF:, [BWD]:)."""
+    frags = []
     for e in msp.query("TEXT MTEXT"):
-        txt = (_plain_mtext(e) if e.dxftype() == "MTEXT" else (e.dxf.text or "")).strip()
-        if not txt:
+        raw = _plain_mtext(e) if e.dxftype() == "MTEXT" else (e.dxf.text or "")
+        t = _pulisci_mtext_residui(raw)
+        if not t:
             continue
         try:
             ins = Vec3(e.dxf.insert)
         except Exception:
             continue
-        items.append({"text": txt, "x": ins.x * pt_per_m, "y": ins.y * pt_per_m})
+        frags.append((ins.x, ins.y, t, e.dxf.layer))
 
-    clusters = []
-    for it in sorted(items, key=lambda i: (-i["y"], i["x"])):
-        placed = False
-        for cl in clusters:
-            if any(abs(it["y"] - o["y"]) < 60 and abs(it["x"] - o["x"]) < 90 for o in cl):
-                cl.append(it)
-                placed = True
-                break
-        if not placed:
-            clusters.append([it])
+    timbro = [f for f in frags if RE_LAYER_TIMBRO.search(f[3] or "")]
+    base = timbro if timbro else frags
+    base.sort(key=lambda f: (-f[1], f[0]))
 
+    used = [False] * len(base)
     rooms = []
-    for cl in clusters:
-        cl.sort(key=lambda i: (-round(i["y"]), i["x"]))
-        text_lines = [i["text"] for i in cl]
+    for i in range(len(base)):
+        if used[i]:
+            continue
+        x0, y0 = base[i][0], base[i][1]
+        grp = []
+        for j in range(len(base)):
+            if not used[j] and abs(base[j][0] - x0) < CLUSTER_TOL_M and abs(base[j][1] - y0) < CLUSTER_TOL_M:
+                grp.append(base[j]); used[j] = True
+        grp.sort(key=lambda f: (-round(f[1], 2), f[0]))
+        text_lines = [g[2] for g in grp]
         joined = "\n".join(text_lines)
         bf = re.search(r"BF:\s*([\d.]+)\s*m", joined)
         room = {
             "nome": text_lines[0] if text_lines else None,
             "superficie_bf_m2": float(bf.group(1)) if bf else None,
-            "finiture": {k: v for k, v in re.findall(r"([BWD]):\s*([^\n]+)", joined)},
-            "posizione_pt": [round(min(i["x"] for i in cl)), round(min(i["y"] for i in cl))],
+            "finiture": {k: v.strip() for k, v in re.findall(r"([BWD]):\s*([^\n]+)", joined)},
+            "posizione_pt": [round(min(g[0] for g in grp) * pt_per_m),
+                             round(min(g[1] for g in grp) * pt_per_m)],
             "testo_completo": text_lines,
         }
-        # stesso filtro di sopravvivenza del path PDF
         if room["superficie_bf_m2"] is not None or (room["nome"] and len(text_lines) > 1):
             rooms.append(room)
     return rooms
