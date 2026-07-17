@@ -18,8 +18,10 @@ esterno) e poi passa da questo stesso estrattore.
 
 import math
 import re
+import tempfile
 
 import ezdxf
+from ezdxf import recover
 from ezdxf.math import Vec3
 
 # Stessa base del path PDF (extractor.PT_PER_M_BASE): 1 m = 72/0.0254 pt a 1:1.
@@ -44,6 +46,62 @@ INSUNITS_TO_M = {
     14: 0.1,     # dm
     13: 1e-9,    # nm (raro)
 }
+
+
+# ---------------------------------------------------------------- caricamento robusto
+
+def _is_code(line):
+    s = line.strip()
+    if not s:
+        return False
+    if s[0] in "+-":
+        s = s[1:]
+    return s.isdigit()
+
+
+def _ripara_dxf_ascii(path):
+    """I convertitori DWG→DXF (libredwg) scrivono MTEXT con newline GREZZE dentro
+    il valore: una newline sfasa TUTTE le coppie [codice]\\n[valore] successive e
+    il tokenizer si ferma. Si riallinea: dove ci si aspetta un codice-intero e non
+    c'è, la riga è la continuazione del valore precedente → la si rifonde. Scrive
+    un DXF riparato in /tmp e ne ritorna il percorso."""
+    raw = open(path, encoding="utf-8", errors="replace").read().split("\n")
+    out = []
+    i, n = 0, len(raw)
+    while i < n:
+        if _is_code(raw[i]):
+            out.append(raw[i].strip())
+            out.append(raw[i + 1] if i + 1 < n else "")
+            i += 2
+        else:
+            if out:
+                out[-1] = out[-1] + " " + raw[i]
+            i += 1
+    fd = tempfile.NamedTemporaryFile(suffix=".dxf", delete=False, mode="w", encoding="utf-8")
+    fd.write("\n".join(out))
+    fd.close()
+    return fd.name
+
+
+def _leggi_dxf(path):
+    """Apre un DXF nel modo più tollerante: strict → recover (auditor) →
+    riparazione delle coppie codice-valore + strict. I DXF reali da convertitore
+    sono spesso non-standard: senza questa catena non si aprono."""
+    try:
+        return ezdxf.readfile(path)
+    except Exception:
+        pass
+    try:
+        doc, _auditor = recover.readfile(path)
+        return doc
+    except Exception:
+        pass
+    riparato = _ripara_dxf_ascii(path)
+    try:
+        return ezdxf.readfile(riparato)
+    except Exception:
+        doc, _auditor = recover.readfile(riparato)
+        return doc
 
 
 # ---------------------------------------------------------------- helpers
@@ -134,6 +192,10 @@ def _dim_to_testo(dim, pt_per_m, insunits, fattore_fb):
             misura = eucl
 
     valore_m = _to_metri(misura, insunits, fattore_fb)
+    # Scarta le quote degeneri (misura ~0): dimensioni a lunghezza nulla o
+    # entità di annotazione senza distanza reale — rumore, non quote.
+    if valore_m < 0.005:
+        return None
 
     if a is not None and b is not None:
         mid = (a + b) * 0.5
@@ -252,7 +314,7 @@ def _scala_dichiarata(doc):
 
 
 def build_twin_from_dxf(dxf_path, nome_file=None, scala_forzata=None, versione_motore=None):
-    doc = ezdxf.readfile(dxf_path)
+    doc = _leggi_dxf(dxf_path)
     msp = doc.modelspace()
 
     insunits = int(doc.header.get("$INSUNITS", 0) or 0)
