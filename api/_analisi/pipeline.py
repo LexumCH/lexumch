@@ -40,14 +40,25 @@ def render_report(twin, findings):
                          if t["stato"] == "ok_dettaglio"})
     tot_bf = sum(r["superficie_bf_m2"] or 0 for r in twin["locali"])
 
+    if m.get("fonte") == "dxf" or m.get("formato_cm") is None:
+        intestazione = [
+            f"- Fonte: DXF (CAD vettoriale) — misura ESATTA dalle entità DIMENSION, "
+            f"scala di riferimento 1:{m['scala_dichiarata']}, unità $INSUNITS={m.get('insunits')}",
+            f"- Entità DIMENSION lineari/allineate misurate: {m.get('n_dimension', len(testi))}"
+            + ("  ⚠️ nessuna quota strutturata (DXF con quote esplose?)" if m.get("dxf_esploso") else ""),
+        ]
+    else:
+        intestazione = [
+            f"- Formato: {m['formato_cm'][0]}×{m['formato_cm'][1]} cm, "
+            f"scala dichiarata 1:{m['scala_dichiarata']}, "
+            f"scala rilevata dalla geometria 1:{m.get('scala_rilevata')}",
+            f"- Layer rilevati automaticamente — quote: “{m.get('layer_quote')}”, "
+            f"timbri locali: “{m.get('layer_timbri')}”",
+        ]
     lines = [
         f"# Analisi disegno — {twin['file']}",
         "",
-        f"- Formato: {m['formato_cm'][0]}×{m['formato_cm'][1]} cm, "
-        f"scala dichiarata 1:{m['scala_dichiarata']}, "
-        f"scala rilevata dalla geometria 1:{m.get('scala_rilevata')}",
-        f"- Layer rilevati automaticamente — quote: “{m.get('layer_quote')}”, "
-        f"timbri locali: “{m.get('layer_timbri')}”",
+        *intestazione,
         f"- Linee di quota: {len(twin['quote']['linee'])} — "
         f"testi quota letti: {len(testi)}",
         f"- Quote riscontrate sulla geometria: {n_ok} "

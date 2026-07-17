@@ -76,15 +76,29 @@ class handler(BaseHTTPRequestHandler):
 
         patch_riga({"stato_analisi": "in_analisi", "errore": None})
 
-        # 2) scarica il PDF e lancia la pipeline
+        # 2) scarica il file e lancia la pipeline giusta per estensione.
+        #    PDF → estrattore vettoriale (misura da tick/geometria, recupero non
+        #    infallibile sulle sezioni). DXF → estrattore CAD (misura ESATTA dalle
+        #    entità DIMENSION, anche sezioni). Stesso gemello a 4 chiavi ⇒
+        #    checks/normativa/UI invariati. Il DWG non si converte qui (ambiente
+        #    serverless): va passato già come DXF.
         try:
-            _, pdf = _req(f"{base}/storage/v1/object/disegni/{riga['storage_path']}",
-                          headers={"apikey": anon, "Authorization": f"Bearer {token}"})
-            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
-                f.write(pdf)
+            nome = (riga.get("nome_file") or riga.get("storage_path") or "").lower()
+            is_dxf = nome.endswith(".dxf")
+            suffix = ".dxf" if is_dxf else ".pdf"
+            _, blob = _req(f"{base}/storage/v1/object/disegni/{riga['storage_path']}",
+                           headers={"apikey": anon, "Authorization": f"Bearer {token}"})
+            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+                f.write(blob)
                 tmp = f.name
 
-            twin = pipeline.build_twin(tmp, nome_file=riga["nome_file"])
+            if is_dxf:
+                from _analisi import dxf_extractor  # import lazy: il path PDF non dipende da ezdxf
+                twin = dxf_extractor.build_twin_from_dxf(
+                    tmp, nome_file=riga["nome_file"],
+                    versione_motore=pipeline.VERSIONE_MOTORE)
+            else:
+                twin = pipeline.build_twin(tmp, nome_file=riga["nome_file"])
             findings = checks.run_all(twin)
             esiti = normativa.analizza(twin)
 

@@ -40,7 +40,13 @@ def main():
         print(report)
         return
 
-    twin = pipeline.build_twin(args[0])
+    if args[0].lower().endswith(".dxf"):
+        from _analisi import dxf_extractor
+        twin = dxf_extractor.build_twin_from_dxf(
+            args[0], nome_file=Path(args[0]).name,
+            versione_motore=pipeline.VERSIONE_MOTORE)
+    else:
+        twin = pipeline.build_twin(args[0])
     findings = checks.run_all(twin)
     (outdir / "gemello.json").write_text(
         json.dumps({"twin": twin, "findings": findings}, indent=1, ensure_ascii=False))
