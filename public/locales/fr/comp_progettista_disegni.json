@@ -1,8 +1,9 @@
 {
   "titolo": "Plans",
-  "helper": "Chargez les PDF vectoriels exportés depuis ArchiCAD : Lexum vérifie les cotes par rapport à la géométrie ainsi que la conformité réglementaire (OLT, PBG).",
-  "carica_pdf": "Charger un PDF",
-  "solo_pdf": "Seuls les fichiers PDF sont acceptés (export vectoriel depuis ArchiCAD).",
+  "helper": "Chargez les plans exportés depuis ArchiCAD (PDF vectoriel ou DXF) : Lexum vérifie les cotes par rapport à la géométrie ainsi que la conformité réglementaire (OLT, PBG). Le DXF donne la mesure exacte, même en coupe.",
+  "carica_pdf": "Charger un plan",
+  "solo_pdf": "Sont acceptés les PDF (export vectoriel) ou DXF (mesure exacte) depuis ArchiCAD.",
+  "dwg_converti": "Le DWG n'est pas encore pris en charge en ligne : exportez en DXF depuis ArchiCAD (Enregistrer sous → DXF) et rechargez.",
   "analizza": "Analyser",
   "risultati": "Résultats",
   "disegni_one": "{{count}} plan",

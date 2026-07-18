@@ -155,7 +155,16 @@ export default function ProgettoDisegni({ progettoId }) {
 
   async function caricaFile(file) {
     if (!file) return
-    if (file.type !== 'application/pdf') {
+    // Validazione per ESTENSIONE (i browser mandano un mime inaffidabile per il
+    // DXF). PDF = analisi vettoriale; DXF = misura ESATTA dalle entità DIMENSION.
+    // Il DWG non è processabile online (niente binari CAD lato server): va
+    // esportato in DXF da ArchiCAD.
+    const nome = (file.name || '').toLowerCase()
+    if (nome.endsWith('.dwg')) {
+      setErrore(t('dwg_converti'))
+      return
+    }
+    if (!nome.endsWith('.pdf') && !nome.endsWith('.dxf')) {
       setErrore(t('solo_pdf'))
       return
     }
@@ -163,7 +172,10 @@ export default function ProgettoDisegni({ progettoId }) {
     setUploading(true)
     try {
       const path = `${profile.id}/${progettoId}/${Date.now()}_${sanitizeFileName(file.name)}`
-      const { error: upErr } = await supabase.storage.from('disegni').upload(path, file)
+      // Content-type esplicito: i browser mandano un mime vuoto/inaffidabile per
+      // il DXF → forzarlo evita il rifiuto dell'allowlist del bucket.
+      const contentType = nome.endsWith('.dxf') ? 'image/vnd.dxf' : 'application/pdf'
+      const { error: upErr } = await supabase.storage.from('disegni').upload(path, file, { contentType })
       if (upErr) throw upErr
       const { error: insErr } = await supabase.from('progetto_disegni').insert({
         progetto_id: progettoId,
@@ -263,7 +275,7 @@ export default function ProgettoDisegni({ progettoId }) {
             {uploading ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
             {t('carica_pdf')}
           </button>
-          <input ref={fileInput} type="file" accept="application/pdf" className="hidden"
+          <input ref={fileInput} type="file" accept=".pdf,.dxf,.dwg,application/pdf" className="hidden"
             onChange={e => caricaFile(e.target.files?.[0])} />
         </div>
         {errore && <p className="font-body text-xs text-red-400 mt-3">{errore}</p>}

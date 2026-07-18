@@ -1,8 +1,9 @@
 {
   "titolo": "Pläne",
-  "helper": "Laden Sie die aus ArchiCAD exportierten Vektor-PDF hoch: Lexum prüft die Masse gegen die Geometrie sowie die Normkonformität (ArGV, PBG).",
-  "carica_pdf": "PDF hochladen",
-  "solo_pdf": "Es werden nur PDF-Dateien akzeptiert (Vektor-Export aus ArchiCAD).",
+  "helper": "Laden Sie die aus ArchiCAD exportierten Pläne hoch (Vektor-PDF oder DXF): Lexum prüft die Masse gegen die Geometrie sowie die Normkonformität (ArGV, PBG). DXF liefert das exakte Mass auch in Schnitten.",
+  "carica_pdf": "Plan hochladen",
+  "solo_pdf": "Akzeptiert werden PDF (Vektor-Export) oder DXF (exaktes Mass) aus ArchiCAD.",
+  "dwg_converti": "DWG wird online noch nicht unterstützt: aus ArchiCAD als DXF exportieren (Speichern unter → DXF) und erneut hochladen.",
   "analizza": "Analysieren",
   "risultati": "Ergebnisse",
   "disegni_one": "{{count}} Plan",

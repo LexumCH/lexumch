@@ -1,8 +1,9 @@
 {
   "titolo": "Disegni",
-  "helper": "Carica i PDF vettoriali esportati da ArchiCAD: Lexum verifica le quote contro la geometria e la conformità normativa (OLL, PBG).",
-  "carica_pdf": "Carica PDF",
-  "solo_pdf": "Sono accettati solo file PDF (export vettoriale da ArchiCAD).",
+  "helper": "Carica i disegni esportati da ArchiCAD (PDF vettoriale o DXF): Lexum verifica le quote contro la geometria e la conformità normativa (OLL, PBG). Il DXF dà la misura esatta anche sulle sezioni.",
+  "carica_pdf": "Carica disegno",
+  "solo_pdf": "Sono accettati PDF (export vettoriale) o DXF (misura esatta) da ArchiCAD.",
+  "dwg_converti": "Il DWG non è ancora supportato online: da ArchiCAD esporta in DXF (Salva con nome → DXF) e ricarica.",
   "analizza": "Analizza",
   "risultati": "Risultati",
   "disegni_one": "{{count}} disegno",
