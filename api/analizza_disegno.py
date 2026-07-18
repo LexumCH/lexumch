@@ -79,16 +79,28 @@ class handler(BaseHTTPRequestHandler):
         # 2) scarica il file e lancia la pipeline giusta per estensione.
         #    PDF → estrattore vettoriale (misura da tick/geometria, recupero non
         #    infallibile sulle sezioni). DXF → estrattore CAD (misura ESATTA dalle
-        #    entità DIMENSION, anche sezioni). Stesso gemello a 4 chiavi ⇒
-        #    checks/normativa/UI invariati. Il DWG non si converte qui (ambiente
-        #    serverless): va passato già come DXF.
+        #    entità DIMENSION, anche sezioni). DWG → convertito a DXF da un
+        #    microservizio esterno (DWG_CONVERTER_URL), poi come DXF. Stesso
+        #    gemello a 4 chiavi ⇒ checks/normativa/UI invariati.
         try:
             nome = (riga.get("nome_file") or riga.get("storage_path") or "").lower()
-            is_dxf = nome.endswith(".dxf")
-            suffix = ".dxf" if is_dxf else ".pdf"
+            is_dwg = nome.endswith(".dwg")
+            is_dxf = nome.endswith(".dxf") or is_dwg
             _, blob = _req(f"{base}/storage/v1/object/disegni/{riga['storage_path']}",
                            headers={"apikey": anon, "Authorization": f"Bearer {token}"})
-            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+
+            # DWG: non convertibile in-funzione (niente binari CAD su Vercel) →
+            # si delega al microservizio esterno se configurato.
+            if is_dwg:
+                conv = os.environ.get("DWG_CONVERTER_URL")
+                if not conv:
+                    raise RuntimeError(
+                        "DWG non supportato online: esporta il disegno in DXF da "
+                        "ArchiCAD, oppure configura DWG_CONVERTER_URL.")
+                _, blob = _req(conv, method="POST", data=blob,
+                               headers={"Content-Type": "application/octet-stream"})
+
+            with tempfile.NamedTemporaryFile(suffix=".dxf" if is_dxf else ".pdf", delete=False) as f:
                 f.write(blob)
                 tmp = f.name
 
