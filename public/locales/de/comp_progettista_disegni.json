@@ -4,6 +4,7 @@
   "carica_pdf": "Plan hochladen",
   "solo_pdf": "Akzeptiert werden PDF (Vektor-Export) oder DXF (exaktes Mass) aus ArchiCAD.",
   "dwg_converti": "DWG wird online noch nicht unterstützt: aus ArchiCAD als DXF exportieren (Speichern unter → DXF) und erneut hochladen.",
+  "panoramica_titolo": "Übersicht des Plans (Fehler hervorgehoben)",
   "analizza": "Analysieren",
   "risultati": "Ergebnisse",
   "disegni_one": "{{count}} Plan",

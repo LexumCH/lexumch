@@ -4,6 +4,7 @@
   "carica_pdf": "Charger un plan",
   "solo_pdf": "Sont acceptés les PDF (export vectoriel) ou DXF (mesure exacte) depuis ArchiCAD.",
   "dwg_converti": "Le DWG n'est pas encore pris en charge en ligne : exportez en DXF depuis ArchiCAD (Enregistrer sous → DXF) et rechargez.",
+  "panoramica_titolo": "Vue d'ensemble du plan (erreurs surlignées)",
   "analizza": "Analyser",
   "risultati": "Résultats",
   "disegni_one": "{{count}} plan",

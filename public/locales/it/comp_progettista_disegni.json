@@ -4,6 +4,7 @@
   "carica_pdf": "Carica disegno",
   "solo_pdf": "Sono accettati PDF (export vettoriale) o DXF (misura esatta) da ArchiCAD.",
   "dwg_converti": "Il DWG non è ancora supportato online: da ArchiCAD esporta in DXF (Salva con nome → DXF) e ricarica.",
+  "panoramica_titolo": "Panoramica del disegno (errori evidenziati)",
   "analizza": "Analizza",
   "risultati": "Risultati",
   "disegni_one": "{{count}} disegno",

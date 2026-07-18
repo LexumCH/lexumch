@@ -444,6 +444,8 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
   const cropItems = cropsFreschi ? (d.zone_dettaglio?.crops?.items ?? []) : []
   const cropPerFinding = (fIdx) => cropItems.find(it => it.tipo === 'finding' && it.ref === fIdx)
   const cropsPorte = cropItems.filter(it => it.tipo === 'porta')
+  // DXF: panoramica annotata dell'intero disegno (finding cerchiati in rosso).
+  const cropPanoramica = cropItems.find(it => it.tipo === 'panoramica')
 
   // Seconde opinioni (controperizia vision sulle segnalazioni del motore).
   const interpZone = d.zone_dettaglio?.interpretazioni?.[lingua]
@@ -505,6 +507,14 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
           <span className="text-nebbia/40 uppercase text-[10px] tracking-wider mr-2">{t('sommario_label')}</span>
           {narr.sommario}
         </p>
+      )}
+
+      {/* DXF: panoramica annotata dell'intero disegno con i finding cerchiati */}
+      {cropPanoramica && (
+        <section>
+          <h3 className="font-display text-xs uppercase tracking-wider text-nebbia/40 mb-2">{t('panoramica_titolo')}</h3>
+          <CropImg path={cropPanoramica.path} big />
+        </section>
       )}
 
       <section>
@@ -815,7 +825,7 @@ function LetturaRaster({ disegno: d, t, lingua }) {
 }
 
 // Miniatura del ritaglio (bucket privato → signed URL con il JWT dell'utente)
-function CropImg({ path }) {
+function CropImg({ path, big = false }) {
   const { data: url } = useQuery({
     queryKey: ['crop_url', path],
     queryFn: async () => {
@@ -825,7 +835,16 @@ function CropImg({ path }) {
     },
     staleTime: 30 * 60 * 1000,
   })
-  if (!url) return <div className="w-32 h-24 bg-slate border border-white/5 animate-pulse shrink-0" />
+  if (!url) {
+    return <div className={`${big ? 'w-full h-48' : 'w-32 h-24 shrink-0'} bg-slate border border-white/5 animate-pulse`} />
+  }
+  if (big) {
+    return (
+      <a href={url} target="_blank" rel="noreferrer" className="block">
+        <img src={url} alt="" className="w-full max-h-96 object-contain border border-white/10 bg-white" />
+      </a>
+    )
+  }
   return (
     <a href={url} target="_blank" rel="noreferrer" className="shrink-0">
       <img src={url} alt="" className="w-32 max-h-32 object-contain border border-white/10 bg-white" />

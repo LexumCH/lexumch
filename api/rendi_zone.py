@@ -90,6 +90,58 @@ class handler(BaseHTTPRequestHandler):
         if crops and crops.get("fonte_updated_at") == riga.get("updated_at"):
             return self._json(200, {"stato": "ok", "cached": True, "crops": crops})
 
+        def salva_crops(items):
+            """Merge su lettura FRESCA di zone_dettaglio + PATCH (MAI updated_at)."""
+            zd = zone_dett
+            try:
+                _, zd_data = _req(f"{base}/rest/v1/progetto_disegni?id=eq.{disegno_id}"
+                                  f"&select=zone_dettaglio", headers=rest)
+                zd_rows = json.loads(zd_data)
+                if zd_rows:
+                    zd = zd_rows[0].get("zone_dettaglio") or {}
+            except Exception:
+                pass
+            nuovo = dict(zd)
+            nuovo["crops"] = {
+                "generato_il": datetime.datetime.now(datetime.timezone.utc)
+                               .isoformat(timespec="seconds"),
+                "fonte_updated_at": riga.get("updated_at"),
+                "items": items,
+            }
+            _req(f"{base}/rest/v1/progetto_disegni?id=eq.{disegno_id}",
+                 method="PATCH", headers={**rest, "Prefer": "return=minimal"},
+                 data=json.dumps({"zone_dettaglio": nuovo}, ensure_ascii=False).encode())
+            return nuovo["crops"]
+
+        # DXF: nessuna tavola raster da ritagliare. Si renderizza il disegno con
+        # ezdxf (backend PyMuPDF) e si sovrappongono i marcatori dei finding →
+        # una panoramica annotata come ancora visiva.
+        if (riga["storage_path"] or "").lower().endswith(".dxf"):
+            try:
+                import sys as _sys
+                _sys.path.insert(0, os.path.dirname(__file__))
+                from _analisi import dxf_render
+                scala = ((gemello.get("metadata") or {}).get("scala_dichiarata")) or 50
+                pt_per_m = (72 / 0.0254) / scala
+                _, blob = _req(f"{base}/storage/v1/object/disegni/{riga['storage_path']}",
+                               headers={"apikey": anon, "Authorization": f"Bearer {token}"})
+                with tempfile.NamedTemporaryFile(suffix=".dxf", delete=False) as f:
+                    f.write(blob)
+                    tmpd = f.name
+                png = dxf_render.render_overview(tmpd, findings, pt_per_m)
+                os.unlink(tmpd)
+                if not png:
+                    return self._json(200, {"stato": "ok", "zone": 0,
+                                            "messaggio": "render DXF non disponibile"})
+                path = f"{os.path.dirname(riga['storage_path'])}/zone_{disegno_id}_panoramica0.png"
+                _req(f"{base}/storage/v1/object/disegni/{path}", method="POST",
+                     headers={"apikey": anon, "Authorization": f"Bearer {token}",
+                              "Content-Type": "image/png", "x-upsert": "true"}, data=png)
+                crops = salva_crops([{"idx": 0, "tipo": "panoramica", "ref": 0, "path": path}])
+                return self._json(200, {"stato": "ok", "cached": False, "crops": crops})
+            except Exception as e:
+                return self._json(500, {"stato": "errore", "errore": str(e)[:800]})
+
         # 2) specifiche dei ritagli (deterministiche, dalle stesse fonti dei report)
         specs = []  # {tipo, ref, rect(x0,y0,x1,y1), quote?}
 
@@ -171,27 +223,7 @@ class handler(BaseHTTPRequestHandler):
             os.unlink(tmp)
 
             # 4) salva i metadati (merge su lettura FRESCA; MAI updated_at)
-            try:
-                _, zd_data = _req(
-                    f"{base}/rest/v1/progetto_disegni?id=eq.{disegno_id}"
-                    f"&select=zone_dettaglio", headers=rest)
-                zd_rows = json.loads(zd_data)
-                if zd_rows:
-                    zone_dett = zd_rows[0].get("zone_dettaglio") or {}
-            except Exception:
-                pass
-            nuovo = dict(zone_dett)
-            nuovo["crops"] = {
-                "generato_il": datetime.datetime.now(datetime.timezone.utc)
-                               .isoformat(timespec="seconds"),
-                "fonte_updated_at": riga.get("updated_at"),
-                "items": items,
-            }
-            _req(f"{base}/rest/v1/progetto_disegni?id=eq.{disegno_id}",
-                 method="PATCH",
-                 headers={**rest, "Prefer": "return=minimal"},
-                 data=json.dumps({"zone_dettaglio": nuovo}, ensure_ascii=False).encode())
-
-            return self._json(200, {"stato": "ok", "cached": False, "crops": nuovo["crops"]})
+            crops = salva_crops(items)
+            return self._json(200, {"stato": "ok", "cached": False, "crops": crops})
         except Exception as e:
             return self._json(500, {"stato": "errore", "errore": str(e)[:800]})
