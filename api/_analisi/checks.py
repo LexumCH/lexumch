@@ -272,6 +272,36 @@ def check_scale_calibration(quote, scala_dichiarata):
     return findings, scala_rilevata
 
 
+OVERRIDE_KO_M = 0.05  # oltre 5 cm tra numero SCRITTO e geometria = errore reale
+
+
+def check_override_dxf(quote):
+    """DXF: una quota il cui TESTO forza un numero diverso dalla misura geometrica
+    (override esplicito — NON un campo automatico '<MeasuredValue>') è una 'quota
+    scritta sbagliata': la geometria è la verità. Capacità che il PDF non ha (lì
+    il numero È il testo). Soglia 5 cm: sotto, è arrotondamento di display; sopra,
+    è un errore reale. Solo per il path DXF (marcatore via_dxf + override_grezzo)."""
+    findings = []
+    for t in quote["testi"]:
+        ov = t.get("override_grezzo")
+        if ov is None or not t.get("via_dxf"):
+            continue
+        scarto = abs(ov - t["valore_m"])
+        if scarto > OVERRIDE_KO_M:
+            findings.append({
+                "tipo": "quota_testo_discorde",
+                "severita": "errore",
+                "messaggio": (
+                    f"Quota {t['orientamento']}: il testo dichiara {ov:.3f} m ma la "
+                    f"geometria misura {t['valore_m']:.3f} m (scarto "
+                    f"{round(scarto * 1000)} mm). La quota scritta non corrisponde "
+                    f"al disegno — verificare."
+                ),
+                "posizione_pt": t["posizione_pt"],
+            })
+    return findings
+
+
 def run_all(twin):
     findings = []
     scale_findings, scala_rilevata = check_scale_calibration(
@@ -281,6 +311,7 @@ def run_all(twin):
     catene_findings, catene_ok = check_catene(twin["quote"])
     findings += catene_findings
     findings += check_completezza(twin)
+    findings += check_override_dxf(twin["quote"])
     twin["metadata"]["scala_rilevata"] = scala_rilevata
     twin["metadata"]["catene_verificate"] = catene_ok
     return findings
