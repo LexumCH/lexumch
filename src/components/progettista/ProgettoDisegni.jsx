@@ -219,8 +219,25 @@ export default function ProgettoDisegni({ progettoId }) {
       })
       const out = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(out.errore ?? `Errore ${res.status}`)
-      // niente refresh qui: il report appare tutto insieme al termine
-      await eseguiBundleAi({ disegnoId, lingua, onFase: (f) => setFase(disegnoId, f) })
+      // Ancore visive DETERMINISTICHE (panoramica DXF coi finding cerchiati /
+      // ritagli PDF): gratis e SEMPRE, prima e fuori dal gate crediti del bundle
+      // AI. Così il progettista vede DOVE cade ogni finding anche senza (o prima
+      // di) pagare l'Analisi AI. rendi_zone è deterministico e idempotente.
+      try {
+        await fetch('/api/rendi_zone', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ disegno_id: disegnoId, supabase_url: supabaseUrl, supabase_anon_key: supabaseKey }),
+        })
+      } catch { /* la panoramica non deve bloccare il resto */ }
+      // Bundle AI (a pagamento): vision/narrazione/cantonale. Se fallisce (es.
+      // crediti esauriti), l'analisi deterministica + la panoramica restano
+      // comunque mostrate — l'AI è un di più, non un prerequisito.
+      try {
+        await eseguiBundleAi({ disegnoId, lingua, onFase: (f) => setFase(disegnoId, f) })
+      } catch (e) {
+        setErrore(messaggioBundle(e))
+      }
       return out
     },
     onMutate: (disegnoId) => {
