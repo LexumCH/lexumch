@@ -20,6 +20,12 @@ LARGHEZZA_CORRIDOIO_M = 1.20  # OLL 4 art. 6 e 9
 
 NOMI_SCALE = re.compile(r"trepp|scala|stair", re.IGNORECASE)
 NOMI_WC = re.compile(r"\bwc\b|gabinett|toilett", re.IGNORECASE)
+# Locali di passaggio per l'art. 6/9: corridoi, atri/ingressi, vani scala.
+# NB: \bgang\b non pesca "Eingang" (nessun word-boundary interno) → Eingang è
+# incluso esplicitamente.
+NOMI_PASSAGGI = re.compile(
+    r"\b(korridor|flur|gang|durchgang|passage|eingang|corridoio|atrio|couloir"
+    r"|treppenhaus)\b", re.IGNORECASE)
 
 
 def carica_norme():
@@ -106,18 +112,49 @@ def analizza(twin, norme=None):
         })
 
     # --- OLL 4 art. 6 e 9: passaggi e corridoi >= 1.20 m
+    # DXF: i perimetri-locale (layer Kontur) danno la LARGHEZZA MINIMA geometrica
+    # di ogni locale. Sui locali di passaggio (corridoi, atri, vani scala) con
+    # associazione certa (match per valore) la si confronta con 1,20 m.
     art6 = _articolo(norme, "RS 822.114 (OLL 4)", 6)
-    esiti.append({
-        "esito": "non_verificabile",
-        "riferimento": f"{art6['fonte']} art. 6 e art. 9",
-        "verifica": (
-            "La larghezza dei passaggi principali e dei corridoi (min. 1,20 m) "
-            "non è ricavabile automaticamente dai timbri dei locali di questa "
-            "tavola: serve la misura dei percorsi (arriverà con l'ingestione "
-            "IFC o con quote dedicate)."
-        ),
-        "testo_norma": art6["testo"],
-    })
+    passaggi = [
+        r for r in locali
+        if r.get("nome") and NOMI_PASSAGGI.search(r["nome"])
+        and r.get("match_poligono") == "valore"
+        and r.get("larghezza_min_m") is not None
+    ]
+    if passaggi:
+        stretti = [r for r in passaggi if r["larghezza_min_m"] < LARGHEZZA_CORRIDOIO_M]
+        esiti.append({
+            "esito": "da_verificare" if stretti else "conforme",
+            "riferimento": f"{art6['fonte']} art. 6 e art. 9",
+            "verifica": (
+                f"{len(passaggi)} locali di passaggio misurati dal perimetro "
+                "(larghezza minima geometrica): "
+                + ", ".join(f"{r['nome']} {r['larghezza_min_m']:.2f} m" for r in passaggi)
+                + ". "
+                + (("Sotto 1,20 m: "
+                    + ", ".join(f"{r['nome']} ({r['larghezza_min_m']:.2f} m)" for r in stretti)
+                    + " — una strozzatura locale (nicchia, arredo fisso) può "
+                      "falsare la minima: verificare sul percorso di fuga reale.")
+                   if stretti else "Tutti ≥ 1,20 m.")
+                + " La verifica copre i locali di passaggio CON timbro: eventuali "
+                  "corridoi non timbrati restano da controllare."
+            ),
+            "testo_norma": art6["testo"],
+            "posizioni_pt": [r["posizione_pt"] for r in stretti],
+        })
+    else:
+        esiti.append({
+            "esito": "non_verificabile",
+            "riferimento": f"{art6['fonte']} art. 6 e art. 9",
+            "verifica": (
+                "La larghezza dei passaggi principali e dei corridoi (min. 1,20 m) "
+                "non è ricavabile da questa tavola: nessun locale di passaggio "
+                "(corridoio, atrio, vano scala) con perimetro misurabile sui "
+                "timbri presenti."
+            ),
+            "testo_norma": art6["testo"],
+        })
 
     # --- OLL 3 art. 32: gabinetti
     art32 = _articolo(norme, "RS 822.113 (OLL 3)", 32)

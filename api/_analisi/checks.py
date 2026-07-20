@@ -310,6 +310,47 @@ def check_override_dxf(quote):
     return findings
 
 
+def check_superfici(twin):
+    """DXF: verifica le SUPERFICI dichiarate nei timbri contro l'area geometrica
+    reale dei perimetri-locale (layer Kontur, shoelace) — il «dichiarato vs
+    misurato» delle superfici, come per le quote.
+
+    L'associazione timbro→perimetro avviene per VALORE (BF ≈ area entro 1% ⇒ il
+    poligono è del locale). Un BF che non trova NESSUN perimetro compatibile è il
+    segnale d'errore. Guard anti-falsi: il check parla solo se il layer Kontur è
+    affidabile in questo file (≥ metà dei BF trova il suo perimetro per valore);
+    severità 'avviso' perché su altri file la convenzione BF potrebbe escludere
+    porzioni del perimetro. Ritorna (findings, n_verificate)."""
+    locali = twin.get("locali") or []
+    con_bf = [r for r in locali if r.get("superficie_bf_m2")]
+    match_val = [r for r in con_bf if r.get("match_poligono") == "valore"]
+    if not con_bf or len(match_val) < max(2, len(con_bf) // 2):
+        return [], 0
+
+    findings = []
+    for r in con_bf:
+        if r.get("match_poligono") == "valore":
+            continue
+        bf = r["superficie_bf_m2"]
+        geom = r.get("superficie_geom_m2")
+        dettaglio = (
+            f"il perimetro in cui ricade il timbro misura {geom:.2f} m²"
+            if geom is not None else
+            "nessun perimetro sulla tavola ha quest'area"
+        )
+        findings.append({
+            "tipo": "superficie_incoerente",
+            "severita": "avviso",
+            "messaggio": (
+                f"Il locale «{r['nome']}» dichiara BF: {bf:.2f} m² ma la "
+                f"geometria non conferma ({dettaglio}). Verificare il valore "
+                f"del timbro contro il perimetro del locale."
+            ),
+            "posizione_pt": r["posizione_pt"],
+        })
+    return findings, len(match_val)
+
+
 def run_all(twin):
     findings = []
     scale_findings, scala_rilevata = check_scale_calibration(
@@ -320,6 +361,9 @@ def run_all(twin):
     findings += catene_findings
     findings += check_completezza(twin)
     findings += check_override_dxf(twin["quote"])
+    sup_findings, sup_ok = check_superfici(twin)
+    findings += sup_findings
     twin["metadata"]["scala_rilevata"] = scala_rilevata
     twin["metadata"]["catene_verificate"] = catene_ok
+    twin["metadata"]["superfici_verificate"] = sup_ok
     return findings

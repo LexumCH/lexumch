@@ -317,9 +317,165 @@ def _extract_rooms_dxf(doc, msp, pt_per_m):
             "posizione_pt": [round(min(g[0] for g in grp) * pt_per_m),
                              round(min(g[1] for g in grp) * pt_per_m)],
             "testo_completo": text_lines,
+            # centro del cluster in metri: punto di ancoraggio per l'associazione
+            # timbro→perimetro (interno, rimosso dopo l'associazione)
+            "_centro_m": (sum(g[0] for g in grp) / len(grp),
+                          sum(g[1] for g in grp) / len(grp)),
         }
         if room["superficie_bf_m2"] is not None or (room["nome"] and len(text_lines) > 1):
             rooms.append(room)
+    return rooms
+
+
+# ---------------------------------------------------------------- perimetri locali
+
+# Layer dei perimetri-locale ArchiCAD (Raumstempel Kontur): poligoni chiusi, uno
+# per locale. Danno l'AREA GEOMETRICA reale (verifica del BF dichiarato) e la
+# larghezza minima (verifica corridoi OLL4 art. 6/9).
+RE_LAYER_KONTUR = re.compile(r"kontur", re.I)
+AREA_MIN_LOCALE_M2 = 1.5   # sotto: pilastri/asole/artefatti, non locali
+
+
+def _shoelace(pts):
+    s = 0.0
+    for i in range(len(pts)):
+        x1, y1 = pts[i]
+        x2, y2 = pts[(i + 1) % len(pts)]
+        s += x1 * y2 - x2 * y1
+    return abs(s) / 2.0
+
+
+def _punto_in_poligono(x, y, pts):
+    dentro = False
+    n = len(pts)
+    for i in range(n):
+        x1, y1 = pts[i]
+        x2, y2 = pts[(i + 1) % n]
+        if (y1 > y) != (y2 > y):
+            xint = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
+            if x < xint:
+                dentro = not dentro
+    return dentro
+
+
+def _larghezza_minima(pts):
+    """Larghezza minima di un poligono-locale: minima distanza tra coppie di lati
+    ANTI-PARALLELI affacciati (overlap in proiezione). Esatta per i poligoni
+    rettilinei (corridoi reali); None se non misurabile in modo affidabile."""
+    lati = []
+    n = len(pts)
+    for i in range(n):
+        x1, y1 = pts[i]
+        x2, y2 = pts[(i + 1) % n]
+        L = math.hypot(x2 - x1, y2 - y1)
+        if L < 0.05:
+            continue
+        lati.append(((x1, y1), (x2, y2), ((x2 - x1) / L, (y2 - y1) / L), L))
+    best = None
+    for i in range(len(lati)):
+        (a1, a2, da, La) = lati[i]
+        for j in range(i + 1, len(lati)):
+            (b1, b2, db, Lb) = lati[j]
+            # anti-paralleli (il perimetro percorre i lati opposti in verso opposto)
+            if da[0] * db[0] + da[1] * db[1] > -0.99:
+                continue
+            # distanza perpendicolare tra le rette (proietto b1-a1 sulla normale di a)
+            nx, ny = -da[1], da[0]
+            d = abs((b1[0] - a1[0]) * nx + (b1[1] - a1[1]) * ny)
+            if d < 0.05 or d > 6.0:
+                continue
+            # overlap lungo la direzione di a (i lati devono AFFACCIARSI)
+            ta = sorted((0.0, La))
+            tb = sorted(((b1[0] - a1[0]) * da[0] + (b1[1] - a1[1]) * da[1],
+                         (b2[0] - a1[0]) * da[0] + (b2[1] - a1[1]) * da[1]))
+            overlap = min(ta[1], tb[1]) - max(ta[0], tb[0])
+            if overlap < 0.30:
+                continue
+            if best is None or d < best:
+                best = d
+    return round(best, 3) if best is not None else None
+
+
+def _room_polygons(msp, pt_per_m):
+    """Poligoni-locale dal layer Kontur (in METRI), filtrati per area minima."""
+    polys = []
+    for pl in msp.query("LWPOLYLINE"):
+        if not RE_LAYER_KONTUR.search(pl.dxf.layer or ""):
+            continue
+        try:
+            pts = [(p[0], p[1]) for p in pl.get_points()]
+        except Exception:
+            continue
+        if len(pts) < 3:
+            continue
+        area = _shoelace(pts)
+        if area < AREA_MIN_LOCALE_M2:
+            continue
+        polys.append({"pts": pts, "area_m2": round(area, 2)})
+    return polys
+
+
+def _tolleranza_match_m2(bf):
+    return max(0.05, bf * 0.01)   # 1% relativo, floor 5 dm²
+
+
+def _associa_poligoni_ai_locali(rooms, polys, pt_per_m):
+    """Associa ogni timbro-locale al suo perimetro, in DUE passate:
+
+    1) per VALORE: se il BF dichiarato coincide con l'area di un poligono libero
+       entro l'1%, quel poligono È del locale (associazione certa). I duplicati
+       (due Lift da 2.88) si risolvono per vicinanza al timbro.
+    2) per POSIZIONE (fallback): centro del cluster dentro il poligono. Fragile
+       per i vani piccoli il cui timbro sta FUORI dal locale → marcata 'posizione'
+       così i check non ci costruiscono sopra verdetti.
+
+    Ogni poligono si assegna una sola volta."""
+    usati = set()
+
+    def centro_m(room):
+        c = room.get("_centro_m")
+        if c:
+            return c
+        return (room["posizione_pt"][0] / pt_per_m, room["posizione_pt"][1] / pt_per_m)
+
+    def centroide(pts):
+        return (sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts))
+
+    # passata 1: per valore
+    for room in rooms:
+        bf = room.get("superficie_bf_m2")
+        if not bf:
+            continue
+        tol = _tolleranza_match_m2(bf)
+        cand = [k for k, p in enumerate(polys)
+                if k not in usati and abs(p["area_m2"] - bf) <= tol]
+        if not cand:
+            continue
+        cx, cy = centro_m(room)
+        k = min(cand, key=lambda k: (centroide(polys[k]["pts"])[0] - cx) ** 2
+                                    + (centroide(polys[k]["pts"])[1] - cy) ** 2)
+        usati.add(k)
+        room["superficie_geom_m2"] = polys[k]["area_m2"]
+        room["larghezza_min_m"] = _larghezza_minima(polys[k]["pts"])
+        room["match_poligono"] = "valore"
+
+    # passata 2: per posizione (solo per chi è rimasto senza)
+    for room in rooms:
+        if room.get("superficie_geom_m2") is not None:
+            continue
+        cx, cy = centro_m(room)
+        cand = [(p["area_m2"], k) for k, p in enumerate(polys)
+                if k not in usati and _punto_in_poligono(cx, cy, p["pts"])]
+        if not cand:
+            continue
+        _, k = min(cand)
+        usati.add(k)
+        room["superficie_geom_m2"] = polys[k]["area_m2"]
+        room["larghezza_min_m"] = _larghezza_minima(polys[k]["pts"])
+        room["match_poligono"] = "posizione"
+
+    for room in rooms:
+        room.pop("_centro_m", None)
     return rooms
 
 
@@ -418,6 +574,9 @@ def build_twin_from_dxf(dxf_path, nome_file=None, scala_forzata=None, versione_m
         t.pop("_linea", None)
 
     locali = _extract_rooms_dxf(doc, msp, pt_per_m)
+    # perimetri-locale (layer Kontur): area geometrica reale + larghezza minima,
+    # associati ai timbri per point-in-polygon → verifiche superfici e corridoi
+    locali = _associa_poligoni_ai_locali(locali, _room_polygons(msp, pt_per_m), pt_per_m)
     aperture = _extract_doors_dxf(msp, pt_per_m)
 
     esploso = len(testi) == 0  # nessuna DIMENSION strutturata → probabile export esploso
