@@ -87,6 +87,14 @@ def check_catene(quote):
       nemmeno il migliore corrisponde (best-pairing).
     Ritorna (findings, n_catene_verificate).
     """
+    # Su DXF ogni quota è misurata esattamente dalla geometria (get_measurement):
+    # una quota NON può essere internamente incoerente. Se Σparziali ≠ totale è
+    # solo perché misurano span DIVERSI (estremi diversi) → due misurazioni
+    # indipendenti, non una coppia parziale/totale → NON è un errore. La verifica-
+    # catene serve sul PDF (errori di lettura), non sul DXF: lì produrrebbe solo
+    # falsi (una quota scritta sbagliata la becca già check_override_dxf).
+    is_dxf = any(t.get("via_dxf") for t in quote["testi"])
+
     ok = [t for t in quote["testi"]
           if t["stato"] in ("ok", "ok_dettaglio") and t.get("span_pt")]
 
@@ -151,7 +159,7 @@ def check_catene(quote):
         tot, diff = min(voce["coppie"], key=lambda c: c[1])
         if diff <= CATENA_OK_M:
             verificate += 1
-        elif diff > CATENA_KO_M:
+        elif diff > CATENA_KO_M and not is_dxf:
             # la posizione entra nella firma: due errori identici in ali
             # simmetriche della pianta sono DUE segnalazioni distinte
             firma = (round(voce["somma"], 3), round(tot["valore_m"], 3),
