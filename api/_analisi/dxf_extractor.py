@@ -323,6 +323,53 @@ def _extract_rooms_dxf(doc, msp, pt_per_m):
     return rooms
 
 
+# ---------------------------------------------------------------- porte
+
+# Layer delle porte ArchiCAD ("010 Türen"). NB: match su "türen"/"door", NON su
+# "tür" secco che pescherebbe "Kontur" (087 Raumstempel Kontur).
+RE_LAYER_PORTE = re.compile(r"türen|tueren|\bdoor|\bporte\b", re.I)
+
+
+def _extract_doors_dxf(msp, pt_per_m):
+    """Larghezza porte dagli ARCHI di apertura sul layer porte. In pianta la
+    porta è disegnata col suo arco di battuta: il RAGGIO dell'arco = la lunghezza
+    dell'anta ≈ la larghezza utile del vano. Fonte geometrica, non testo.
+    Conservativo per non generare falsi: solo archi con raggio da porta
+    (0.6–1.4 m) e apertura ~90° (o riflesso ~270°); dedup per centro (stesso arco
+    disegnato due volte). ⚠️ è la larghezza dell'ANTA: una porta doppia ha due
+    ante ~metà del passaggio → la verifica normativa resta 'da_verificare'."""
+    grezzi = []
+    for e in msp.query("ARC"):
+        if not RE_LAYER_PORTE.search(e.dxf.layer or ""):
+            continue
+        r = e.dxf.radius
+        if not (0.6 <= r <= 1.4):
+            continue
+        ang = abs(e.dxf.end_angle - e.dxf.start_angle) % 360
+        if not (75 <= ang <= 105 or 255 <= ang <= 285):
+            continue
+        try:
+            c = Vec3(e.dxf.center)
+        except Exception:
+            continue
+        grezzi.append((round(r, 3), c.x, c.y))
+
+    aperture = []
+    for r, x, y in grezzi:
+        if any(abs(x - a["_x"]) < 0.15 and abs(y - a["_y"]) < 0.15 for a in aperture):
+            continue
+        aperture.append({
+            "tipo": "porta",
+            "larghezza_m": r,
+            "posizione_pt": [round(x * pt_per_m, 1), round(y * pt_per_m, 1)],
+            "via_dxf_arco": True,
+            "_x": x, "_y": y,
+        })
+    for a in aperture:
+        a.pop("_x", None); a.pop("_y", None)
+    return aperture
+
+
 # ---------------------------------------------------------------- pipeline
 
 def _scala_dichiarata(doc):
@@ -371,6 +418,7 @@ def build_twin_from_dxf(dxf_path, nome_file=None, scala_forzata=None, versione_m
         t.pop("_linea", None)
 
     locali = _extract_rooms_dxf(doc, msp, pt_per_m)
+    aperture = _extract_doors_dxf(msp, pt_per_m)
 
     esploso = len(testi) == 0  # nessuna DIMENSION strutturata → probabile export esploso
 
@@ -393,4 +441,5 @@ def build_twin_from_dxf(dxf_path, nome_file=None, scala_forzata=None, versione_m
         "metadata": metadata,
         "quote": {"linee": linee, "testi": testi},
         "locali": locali,
+        "aperture": aperture,
     }

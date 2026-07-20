@@ -72,17 +72,30 @@ def analizza(twin, norme=None):
                 porte.append((_parse_valore(t["abbinata_a"]), t["posizione_pt"]))
             except ValueError:
                 continue
+    # DXF: larghezze porte dagli ARCHI di apertura (campo 'aperture' del gemello,
+    # raggio dell'arco = anta). Fonte geometrica, non testo.
+    da_arco = False
+    for ap in twin.get("aperture", []):
+        if ap.get("tipo") == "porta" and ap.get("larghezza_m") is not None:
+            porte.append((ap["larghezza_m"], ap["posizione_pt"]))
+            da_arco = True
     strette = [(w, p) for w, p in porte if w < LARGHEZZA_PORTA_M]
     if porte:
+        nota_fonte = (
+            " La larghezza è dedotta dall'arco di apertura in pianta (anta): in una "
+            "porta doppia ogni anta è ~metà del passaggio utile, quindi le ante "
+            "sotto soglia vanno confermate come porte singole." if da_arco else ""
+        )
         esiti.append({
             "esito": "da_verificare" if strette else "conforme",
             "riferimento": f"{art10['fonte']} art. {art10['articolo']} cpv. 2",
             "verifica": (
-                f"{len(porte)} aperture con larghezza dichiarata sulla tavola; "
-                f"{len(strette)} sotto 0,90 m: "
+                f"{len(porte)} aperture rilevate; "
+                f"{len(strette)} con larghezza sotto 0,90 m: "
                 + (", ".join(f"{w:.2f} m (x{p[0]:.0f},y{p[1]:.0f})" for w, p in strette)
                    if strette else "nessuna")
-                + ". Il requisito vale per le porte SU VIE D'EVACUAZIONE: le "
+                + "." + nota_fonte
+                + " Il requisito vale per le porte SU VIE D'EVACUAZIONE: le "
                   "aperture sotto soglia vanno verificate dal progettista "
                   "rispetto al piano di evacuazione."
             ),

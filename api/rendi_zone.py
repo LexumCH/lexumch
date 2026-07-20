@@ -128,7 +128,15 @@ class handler(BaseHTTPRequestHandler):
                 with tempfile.NamedTemporaryFile(suffix=".dxf", delete=False) as f:
                     f.write(blob)
                     tmpd = f.name
-                png = dxf_render.render_overview(tmpd, findings, pt_per_m)
+                # Ancore: i finding del disegno + le aperture sotto soglia della
+                # normativa (posizioni_pt) → così il progettista VEDE cerchiate
+                # anche le porte strette, non solo i finding di quota.
+                ancore = list(findings)
+                for e in esiti:
+                    for p in (e.get("posizioni_pt") or []):
+                        if isinstance(p, list) and len(p) == 2:
+                            ancore.append({"tipo": "porta", "posizione_pt": p})
+                png = dxf_render.render_overview(tmpd, ancore, pt_per_m)
                 os.unlink(tmpd)
                 if not png:
                     return self._json(200, {"stato": "ok", "zone": 0,
