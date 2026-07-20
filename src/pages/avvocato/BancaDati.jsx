@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
+import { escapeHtml } from '@/lib/escapeHtml'
 import { useAuth } from '@/context/AuthContext'
 import { PageHeader } from '@/components/shared'
 import BottoniSalvataggio from '@/components/BottoniSalvataggio'
@@ -793,9 +794,10 @@ function TabFederale() {
     }
 
     function evidenzia(testo, cerca) {
-        if (!cerca?.trim() || !testo) return testo
+        const safe = escapeHtml(testo ?? '')
+        if (!cerca?.trim() || !testo) return safe
         const regex = new RegExp(`(${cerca.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-        return testo.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
+        return safe.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
     }
     function collocazione(a) {
         return [a.parte_titolo, a.titolo_titolo, a.capo_titolo].filter(Boolean).join(' › ')
@@ -1288,9 +1290,10 @@ function TabCantonale() {
     }
 
     function evidenzia(testo, cerca) {
-        if (!cerca?.trim() || !testo) return testo
+        const safe = escapeHtml(testo ?? '')
+        if (!cerca?.trim() || !testo) return safe
         const regex = new RegExp(`(${cerca.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-        return testo.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
+        return safe.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
     }
     function gerarchiaLabel(g) {
         // gerarchia jsonb: provo a comporre una stringa leggibile dai valori
@@ -1753,9 +1756,10 @@ function TabGiurisprudenza() {
         return s.titolo_it || s.titolo_de || s.titolo_fr || s.signature || s.reference || t('comune.senza_titolo')
     }
     function evidenzia(testo, cerca) {
-        if (!cerca?.trim() || !testo) return testo
+        const safe = escapeHtml(testo ?? '')
+        if (!cerca?.trim() || !testo) return safe
         const regex = new RegExp(`(${cerca.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-        return testo.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
+        return safe.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
     }
     function cameraBadge(s) {
         if (!s.fonte) return null
@@ -2264,9 +2268,10 @@ function TabUE() {
     function tornaCatalogoCedu() { setVistaS('catalogo'); setTipoCeduSel(null) }
 
     function evidenzia(testo, cerca) {
-        if (!cerca?.trim() || !testo) return testo
+        const safe = escapeHtml(testo ?? '')
+        if (!cerca?.trim() || !testo) return safe
         const regex = new RegExp(`(${cerca.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-        return testo.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
+        return safe.replace(regex, '<mark class="bg-oro/30 text-nebbia rounded px-0.5">$1</mark>')
     }
     function attoUeLabel(a) {
         return a.titolo_doc || a.titolo_breve || a.celex || t('comune.senza_titolo')

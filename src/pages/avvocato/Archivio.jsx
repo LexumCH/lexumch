@@ -13,6 +13,7 @@ import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import AssegnaDocumento from '@/components/AssegnaDocumento'
 import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
 import { supabase, supabaseUrl } from '@/lib/supabase'
+import { escapeHtml } from '@/lib/escapeHtml'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 
@@ -39,8 +40,8 @@ function isPdf(file) {
 }
 
 function evidenziaParole(testo, parole, classe = 'bg-salvia/30') {
-    if (!parole?.length || !testo) return testo ?? ''
-    let risultato = testo
+    let risultato = escapeHtml(testo ?? '')
+    if (!parole?.length || !testo) return risultato
     const ordinate = [...parole].sort((a, b) => b.length - a.length)
     for (const parola of ordinate) {
         if (!parola?.trim()) continue

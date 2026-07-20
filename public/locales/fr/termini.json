@@ -49,7 +49,7 @@
     "sub41_title": "4.1 Abonnements disponibles",
     "sub41_text": "Lexum est disponible en plusieurs abonnements aux caractéristiques et prix différents, consultables sur la plateforme. Les prix sont exprimés en francs suisses (CHF) et s'entendent hors TVA le cas échéant.",
     "sub42_title": "4.2 Facturation",
-    "sub42_text": "Les abonnements sont facturés à l'avance pour la période choisie (mensuelle ou annuelle). Les paiements sont traités via Stripe. La facture est émise automatiquement au moment du paiement.",
+    "sub42_text": "Les abonnements sont facturés à l'avance pour la période choisie (mensuelle ou annuelle). Les paiements sont traités via un prestataire de services de paiement certifié. La facture est émise automatiquement au moment du paiement.",
     "sub43_title": "4.3 Renouvellement automatique",
     "sub43_text": "Les abonnements se renouvellent automatiquement à l'échéance, sauf résiliation communiquée au moins 7 jours avant la date de renouvellement. La résiliation peut s'effectuer depuis la section Étude de la plateforme ou en envoyant une communication à info@lexum.ch.",
     "sub44_title": "4.4 Défaut de paiement",

@@ -42,7 +42,7 @@
     "title": "3. Finalités et bases juridiques du traitement",
     "items": [
       { "finalita": "Fourniture du service", "base": "Exécution du contrat (art. 31 al. 2 LPD / art. 6.1.b RGPD)", "desc": "Gestion du compte, accès à la plateforme, traitement des dossiers et mandats, recherches IA et fonctionnalités liées." },
-      { "finalita": "Facturation et obligations fiscales", "base": "Obligation légale (art. 31 al. 1 LPD / art. 6.1.c RGPD)", "desc": "Émission de factures, gestion des paiements via Stripe, conservation des pièces comptables selon le droit suisse." },
+      { "finalita": "Facturation et obligations fiscales", "base": "Obligation légale (art. 31 al. 1 LPD / art. 6.1.c RGPD)", "desc": "Émission de factures, gestion des paiements via un prestataire de services de paiement, conservation des pièces comptables selon le droit suisse." },
       { "finalita": "Sécurité de la plateforme", "base": "Intérêt légitime (art. 31 al. 1 LPD / art. 6.1.f RGPD)", "desc": "Prévention des accès non autorisés, détection d'anomalies, protection des données des utilisateurs." },
       { "finalita": "Intelligence artificielle et recherche", "base": "Exécution du contrat (art. 31 al. 2 LPD / art. 6.1.b RGPD)", "desc": "Traitement des contenus chargés pour fournir les fonctionnalités de recherche sémantique et d'analyse IA (Lex). Les contenus ne sont pas utilisés pour entraîner des modèles d'IA de tiers." },
       { "finalita": "Communications de service", "base": "Exécution du contrat (art. 31 al. 2 LPD / art. 6.1.b RGPD)", "desc": "Notifications relatives au compte, mises à jour du service, communications d'assistance." },
@@ -53,14 +53,14 @@
     "title": "4. Destinataires des données",
     "intro": "Les données personnelles peuvent être communiquées aux catégories de destinataires suivantes, exclusivement pour les finalités indiquées :",
     "items": [
-      { "name": "Supabase Inc.", "desc": "infrastructure cloud, base de données et authentification (USA, avec garanties adéquates)" },
-      { "name": "Stripe Inc.", "desc": "traitement des paiements (USA, avec garanties adéquates)" },
-      { "name": "Anthropic PBC", "desc": "traitement IA pour les fonctionnalités Lex (USA, avec garanties adéquates)" },
-      { "name": "OpenAI LLC", "desc": "génération d'embeddings pour la recherche sémantique (USA, avec garanties adéquates)" },
-      { "name": "Postmark/Wildbit", "desc": "envoi d'e-mails transactionnels (USA, avec garanties adéquates)" },
+      { "name": "Fournisseurs d'infrastructure cloud, de base de données et d'authentification", "desc": "hébergement, stockage des données et gestion des accès (UE/USA, avec garanties adéquates)" },
+      { "name": "Fournisseurs de services de paiement", "desc": "traitement des transactions et facturation (USA, avec garanties adéquates)" },
+      { "name": "Fournisseurs de messagerie transactionnelle", "desc": "envoi d'e-mails de service et de notifications (USA, avec garanties adéquates)" },
+      { "name": "Fournisseurs de services d'intelligence artificielle", "desc": "reconnaissance optique des documents, traitement du langage naturel et génération de représentations sémantiques pour les fonctionnalités de l'assistant et de la recherche (UE/USA, avec garanties adéquates) ; les contenus transmis sont exclus de l'entraînement des modèles" },
+      { "name": "Conseillers professionnels", "desc": "conseillers juridiques, fiscaux et réviseurs, tenus à des obligations de confidentialité, le cas échéant" },
       { "name": "Autorités compétentes", "desc": "sur demande légitime d'autorités judiciaires ou administratives" }
     ],
-    "footer": "Tous les prestataires sont liés par des accords de traitement des données (DPA). Pour les transferts vers des pays tiers (en particulier les USA), des garanties adéquates sont appliquées, telles que les clauses contractuelles types approuvées par la Commission européenne et reconnues par le PFPDT."
+    "footer": "Tous les prestataires sont liés par des accords de traitement des données (DPA). Pour les transferts vers des pays tiers (en particulier les USA), des garanties adéquates sont appliquées, telles que les clauses contractuelles types approuvées par la Commission européenne et reconnues par le PFPDT. La liste nominative et à jour des sous-traitants est disponible à tout moment sur demande écrite auprès du Responsable, aux coordonnées indiquées dans la présente politique."
   },
   "conservazione": {
     "title": "5. Durée de conservation",

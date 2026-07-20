@@ -49,7 +49,7 @@
     "sub41_title": "4.1 Verfügbare Abonnemente",
     "sub41_text": "Lexum ist in verschiedenen Abonnementen mit unterschiedlichen Funktionen und Preisen verfügbar, die auf der Plattform einsehbar sind. Die Preise sind in Schweizer Franken (CHF) angegeben und verstehen sich, soweit anwendbar, exklusive MWST.",
     "sub42_title": "4.2 Rechnungsstellung",
-    "sub42_text": "Die Abonnemente werden im Voraus für den gewählten Zeitraum (monatlich oder jährlich) in Rechnung gestellt. Die Zahlungen werden über Stripe abgewickelt. Die Rechnung wird automatisch zum Zeitpunkt der Zahlung ausgestellt.",
+    "sub42_text": "Die Abonnemente werden im Voraus für den gewählten Zeitraum (monatlich oder jährlich) in Rechnung gestellt. Die Zahlungen werden über einen zertifizierten Zahlungsdienstleister abgewickelt. Die Rechnung wird automatisch zum Zeitpunkt der Zahlung ausgestellt.",
     "sub43_title": "4.3 Automatische Verlängerung",
     "sub43_text": "Die Abonnemente verlängern sich bei Ablauf automatisch, sofern nicht mindestens 7 Tage vor dem Verlängerungsdatum gekündigt wird. Die Kündigung kann im Bereich Kanzlei der Plattform oder durch Mitteilung an info@lexum.ch erfolgen.",
     "sub44_title": "4.4 Zahlungsverzug",

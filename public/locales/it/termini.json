@@ -49,7 +49,7 @@
     "sub41_title": "4.1 Piani disponibili",
     "sub41_text": "Lexum è disponibile in diversi piani di abbonamento con caratteristiche e prezzi differenti, consultabili sulla piattaforma. I prezzi sono espressi in franchi svizzeri (CHF) e si intendono IVA esclusa ove applicabile.",
     "sub42_title": "4.2 Fatturazione",
-    "sub42_text": "Gli abbonamenti sono fatturati anticipatamente per il periodo selezionato (mensile o annuale). I pagamenti sono elaborati tramite Stripe. La fattura viene emessa automaticamente al momento del pagamento.",
+    "sub42_text": "Gli abbonamenti sono fatturati anticipatamente per il periodo selezionato (mensile o annuale). I pagamenti sono elaborati tramite un fornitore di servizi di pagamento certificato. La fattura viene emessa automaticamente al momento del pagamento.",
     "sub43_title": "4.3 Rinnovo automatico",
     "sub43_text": "Gli abbonamenti si rinnovano automaticamente alla scadenza salvo disdetta comunicata almeno 7 giorni prima della data di rinnovo. La disdetta può essere effettuata dalla sezione Studio della piattaforma o inviando comunicazione a info@lexum.ch.",
     "sub44_title": "4.4 Mancato pagamento",

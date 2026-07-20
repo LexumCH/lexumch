@@ -42,7 +42,7 @@
     "title": "3. Finalità e basi giuridiche del trattamento",
     "items": [
       { "finalita": "Erogazione del servizio", "base": "Esecuzione del contratto (art. 31 cpv. 2 LPD / art. 6.1.b GDPR)", "desc": "Gestione dell'account, accesso alla piattaforma, elaborazione di pratiche e mandati, ricerche AI e funzionalità collegate." },
-      { "finalita": "Fatturazione e adempimenti fiscali", "base": "Obbligo legale (art. 31 cpv. 1 LPD / art. 6.1.c GDPR)", "desc": "Emissione di fatture, gestione dei pagamenti tramite Stripe, conservazione della documentazione contabile secondo la legge svizzera." },
+      { "finalita": "Fatturazione e adempimenti fiscali", "base": "Obbligo legale (art. 31 cpv. 1 LPD / art. 6.1.c GDPR)", "desc": "Emissione di fatture, gestione dei pagamenti tramite un fornitore di servizi di pagamento, conservazione della documentazione contabile secondo la legge svizzera." },
       { "finalita": "Sicurezza della piattaforma", "base": "Interesse legittimo (art. 31 cpv. 1 LPD / art. 6.1.f GDPR)", "desc": "Prevenzione di accessi non autorizzati, rilevamento di anomalie, protezione dei dati degli utenti." },
       { "finalita": "Intelligenza artificiale e ricerca", "base": "Esecuzione del contratto (art. 31 cpv. 2 LPD / art. 6.1.b GDPR)", "desc": "Elaborazione dei contenuti caricati per fornire le funzionalità di ricerca semantica e analisi AI (Lex). I contenuti non vengono usati per addestrare modelli AI di terze parti." },
       { "finalita": "Comunicazioni di servizio", "base": "Esecuzione del contratto (art. 31 cpv. 2 LPD / art. 6.1.b GDPR)", "desc": "Notifiche relative all'account, aggiornamenti del servizio, comunicazioni di assistenza." },
@@ -53,14 +53,14 @@
     "title": "4. Destinatari dei dati",
     "intro": "I dati personali possono essere comunicati alle seguenti categorie di destinatari, esclusivamente per le finalità indicate:",
     "items": [
-      { "name": "Supabase Inc.", "desc": "infrastruttura cloud, database e autenticazione (USA, con garanzie adeguate)" },
-      { "name": "Stripe Inc.", "desc": "elaborazione pagamenti (USA, con garanzie adeguate)" },
-      { "name": "Anthropic PBC", "desc": "elaborazione AI per le funzionalità Lex (USA, con garanzie adeguate)" },
-      { "name": "OpenAI LLC", "desc": "generazione di embeddings per la ricerca semantica (USA, con garanzie adeguate)" },
-      { "name": "Postmark/Wildbit", "desc": "invio email transazionali (USA, con garanzie adeguate)" },
+      { "name": "Fornitori di infrastruttura cloud, database e autenticazione", "desc": "hosting, archiviazione dei dati e gestione degli accessi (UE/USA, con garanzie adeguate)" },
+      { "name": "Fornitori di servizi di pagamento", "desc": "elaborazione delle transazioni e fatturazione (USA, con garanzie adeguate)" },
+      { "name": "Fornitori di posta elettronica transazionale", "desc": "invio di email di servizio e notifiche (USA, con garanzie adeguate)" },
+      { "name": "Fornitori di servizi di intelligenza artificiale", "desc": "riconoscimento ottico dei documenti, elaborazione del linguaggio naturale e generazione di rappresentazioni semantiche per le funzionalità dell'assistente e della ricerca (UE/USA, con garanzie adeguate); i contenuti trasmessi sono esclusi dall'addestramento dei modelli" },
+      { "name": "Consulenti professionali", "desc": "consulenti legali, fiscali e revisori, vincolati a obblighi di riservatezza, ove necessario" },
       { "name": "Autorità competenti", "desc": "su richiesta legittima di autorità giudiziarie o amministrative" }
     ],
-    "footer": "Tutti i fornitori di servizi sono vincolati da accordi di trattamento dei dati (DPA). Per i trasferimenti verso paesi terzi (in particolare USA) vengono adottate garanzie adeguate, come le Clausole Contrattuali Standard approvate dalla Commissione Europea e riconosciute dall'IFPDT."
+    "footer": "Tutti i fornitori di servizi sono vincolati da accordi di trattamento dei dati (DPA). Per i trasferimenti verso paesi terzi (in particolare USA) vengono adottate garanzie adeguate, come le Clausole Contrattuali Standard approvate dalla Commissione Europea e riconosciute dall'IFPDT. L'elenco nominativo e aggiornato dei responsabili del trattamento è disponibile in qualsiasi momento su richiesta scritta al Titolare, ai recapiti indicati nella presente informativa."
   },
   "conservazione": {
     "title": "5. Periodo di conservazione",

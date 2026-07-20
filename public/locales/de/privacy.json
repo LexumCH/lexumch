@@ -42,7 +42,7 @@
     "title": "3. Zwecke und Rechtsgrundlagen der Bearbeitung",
     "items": [
       { "finalita": "Erbringung der Dienstleistung", "base": "Vertragserfüllung (Art. 31 Abs. 2 DSG / Art. 6.1.b DSGVO)", "desc": "Kontoverwaltung, Zugang zur Plattform, Bearbeitung von Dossiers und Mandaten, KI-Recherchen und damit verbundene Funktionen." },
-      { "finalita": "Rechnungsstellung und steuerliche Pflichten", "base": "Gesetzliche Pflicht (Art. 31 Abs. 1 DSG / Art. 6.1.c DSGVO)", "desc": "Ausstellung von Rechnungen, Zahlungsabwicklung über Stripe, Aufbewahrung der Buchungsbelege nach Schweizer Recht." },
+      { "finalita": "Rechnungsstellung und steuerliche Pflichten", "base": "Gesetzliche Pflicht (Art. 31 Abs. 1 DSG / Art. 6.1.c DSGVO)", "desc": "Ausstellung von Rechnungen, Zahlungsabwicklung über einen Zahlungsdienstleister, Aufbewahrung der Buchungsbelege nach Schweizer Recht." },
       { "finalita": "Sicherheit der Plattform", "base": "Berechtigtes Interesse (Art. 31 Abs. 1 DSG / Art. 6.1.f DSGVO)", "desc": "Verhinderung unbefugter Zugriffe, Erkennung von Anomalien, Schutz der Nutzerdaten." },
       { "finalita": "Künstliche Intelligenz und Recherche", "base": "Vertragserfüllung (Art. 31 Abs. 2 DSG / Art. 6.1.b DSGVO)", "desc": "Verarbeitung der hochgeladenen Inhalte zur Bereitstellung der semantischen Suche und KI-Analyse (Lex). Die Inhalte werden nicht zum Training von KI-Modellen Dritter verwendet." },
       { "finalita": "Dienstbezogene Mitteilungen", "base": "Vertragserfüllung (Art. 31 Abs. 2 DSG / Art. 6.1.b DSGVO)", "desc": "Benachrichtigungen zum Konto, Aktualisierungen des Dienstes, Support-Mitteilungen." },
@@ -53,14 +53,14 @@
     "title": "4. Empfänger der Daten",
     "intro": "Die Personendaten können den folgenden Kategorien von Empfängern ausschliesslich zu den angegebenen Zwecken bekanntgegeben werden:",
     "items": [
-      { "name": "Supabase Inc.", "desc": "Cloud-Infrastruktur, Datenbank und Authentifizierung (USA, mit angemessenen Garantien)" },
-      { "name": "Stripe Inc.", "desc": "Zahlungsabwicklung (USA, mit angemessenen Garantien)" },
-      { "name": "Anthropic PBC", "desc": "KI-Verarbeitung für die Lex-Funktionen (USA, mit angemessenen Garantien)" },
-      { "name": "OpenAI LLC", "desc": "Erzeugung von Embeddings für die semantische Suche (USA, mit angemessenen Garantien)" },
-      { "name": "Postmark/Wildbit", "desc": "Versand transaktionaler E-Mails (USA, mit angemessenen Garantien)" },
+      { "name": "Anbieter von Cloud-Infrastruktur, Datenbank und Authentifizierung", "desc": "Hosting, Datenspeicherung und Zugriffsverwaltung (EU/USA, mit angemessenen Garantien)" },
+      { "name": "Anbieter von Zahlungsdiensten", "desc": "Abwicklung von Transaktionen und Rechnungsstellung (USA, mit angemessenen Garantien)" },
+      { "name": "Anbieter transaktionaler E-Mail-Dienste", "desc": "Versand von Service-E-Mails und Benachrichtigungen (USA, mit angemessenen Garantien)" },
+      { "name": "Anbieter von Diensten der künstlichen Intelligenz", "desc": "optische Zeichenerkennung von Dokumenten, Verarbeitung natürlicher Sprache und Erzeugung semantischer Repräsentationen für die Funktionen des Assistenten und der Suche (EU/USA, mit angemessenen Garantien); die übermittelten Inhalte sind vom Training der Modelle ausgeschlossen" },
+      { "name": "Fachberater", "desc": "Rechts- und Steuerberater sowie Revisoren, an Vertraulichkeitspflichten gebunden, soweit erforderlich" },
       { "name": "Zuständige Behörden", "desc": "auf rechtmässiges Ersuchen von Justiz- oder Verwaltungsbehörden" }
     ],
-    "footer": "Alle Dienstleister sind durch Auftragsbearbeitungsverträge (AVV/DPA) gebunden. Für Übermittlungen in Drittstaaten (insbesondere die USA) werden angemessene Garantien angewendet, wie die von der Europäischen Kommission genehmigten und vom EDÖB anerkannten Standardvertragsklauseln."
+    "footer": "Alle Dienstleister sind durch Auftragsbearbeitungsverträge (AVV/DPA) gebunden. Für Übermittlungen in Drittstaaten (insbesondere die USA) werden angemessene Garantien angewendet, wie die von der Europäischen Kommission genehmigten und vom EDÖB anerkannten Standardvertragsklauseln. Die aktuelle namentliche Liste der Auftragsbearbeiter ist jederzeit auf schriftliche Anfrage beim Verantwortlichen unter den in dieser Erklärung angegebenen Kontaktdaten erhältlich."
   },
   "conservazione": {
     "title": "5. Aufbewahrungsdauer",
