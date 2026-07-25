@@ -24,10 +24,16 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
 
-// Default Opus 4.8: il compito è vision su disegni tecnici, il valore sta
-// nella qualità dell'interpretazione. Overridabile per A/B (es. claude-sonnet-5).
-const MODEL_VISION = Deno.env.get('VISION_ZONE_MODEL') ?? 'claude-opus-4-8'
-const MAX_TOKENS = 1600
+// Default Opus 5: il compito è vision su disegni tecnici, il valore sta nella
+// qualità dell'interpretazione. Overridabile per A/B (es. claude-sonnet-5).
+const MODEL_VISION = Deno.env.get('VISION_ZONE_MODEL') ?? 'claude-opus-5'
+// ⚠️ Su Opus 5 il thinking è ATTIVO per default e consuma lo stesso budget di
+// max_tokens della risposta: con i 1600 di prima l'output JSON veniva troncato.
+// Headroom ampio (è un tetto, si paga il consumo reale); effort 'low' perché
+// questo è un compito di estrazione strutturata, dove i livelli bassi di Opus 5
+// rendono molto bene e sono la leva principale su costo/latenza.
+const MAX_TOKENS = 8000
+const EFFORT = 'low'
 
 type Lingua = 'it' | 'de' | 'fr'
 function linguaSicura(l: any): Lingua {
@@ -259,13 +265,19 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: MODEL_VISION, max_tokens: MAX_TOKENS,
+        output_config: { effort: EFFORT },
         system: SYSTEM_VISION,
         messages: [{ role: 'user', content: contenuto }],
       }),
     })
     if (!resp.ok) throw new Error(`Anthropic ${resp.status}: ${await resp.text()}`)
     const j = await resp.json()
-    const parsed = estraiJson(j.content?.[0]?.text ?? '')
+    // Il testo va cercato tra i blocchi, non preso da content[0]: col thinking
+    // attivo (default su Opus 5) il primo blocco è un blocco 'thinking' senza
+    // campo .text, e un accesso posizionale restituirebbe stringa vuota →
+    // analisi vuota in silenzio. Corretto su qualunque modello.
+    const testoRisposta = (j.content ?? []).find((b: any) => b?.type === 'text')?.text ?? ''
+    const parsed = estraiJson(testoRisposta)
 
     // Guard + normalizzazione (enum chiuso, formato scala, lunghezze, anti-verdetto).
     // Il modello risponde per numero di IMMAGINE (ordine di invio): si rimappa

@@ -24,8 +24,14 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
 
-const MODEL_RASTER = Deno.env.get('VISION_RASTER_MODEL') ?? 'claude-opus-4-8'
-const MAX_TOKENS = 2000
+const MODEL_RASTER = Deno.env.get('VISION_RASTER_MODEL') ?? 'claude-opus-5'
+// ⚠️ Su Opus 5 il thinking è ATTIVO per default e condivide il budget di
+// max_tokens con la risposta: con i 2000 di prima la trascrizione veniva
+// troncata. Headroom ampio (è un tetto, si paga il consumo reale); effort 'low'
+// perché è trascrizione strutturata, dove i livelli bassi di Opus 5 rendono
+// molto bene e sono la leva principale su costo/latenza.
+const MAX_TOKENS = 8000
+const EFFORT = 'low'
 const MAX_LOCALI = 60
 
 type Lingua = 'it' | 'de' | 'fr'
@@ -228,13 +234,19 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: MODEL_RASTER, max_tokens: MAX_TOKENS,
+        output_config: { effort: EFFORT },
         system: SYSTEM_RASTER,
         messages: [{ role: 'user', content: contenuto }],
       }),
     })
     if (!resp.ok) throw new Error(`Anthropic ${resp.status}: ${await resp.text()}`)
     const j = await resp.json()
-    const parsed = estraiJson(j.content?.[0]?.text ?? '')
+    // Il testo va cercato tra i blocchi, non preso da content[0]: col thinking
+    // attivo (default su Opus 5) il primo blocco è un blocco 'thinking' senza
+    // campo .text, e un accesso posizionale darebbe stringa vuota → trascrizione
+    // vuota in silenzio. Corretto su qualunque modello.
+    const testoRisposta = (j.content ?? []).find((b: any) => b?.type === 'text')?.text ?? ''
+    const parsed = estraiJson(testoRisposta)
     if (!parsed) throw new Error('output vision non interpretabile')
 
     // Guard + normalizzazione: trascrizione pura, cap e formati.
