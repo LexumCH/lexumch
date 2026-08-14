@@ -81,17 +81,23 @@ def analizza(twin, norme=None):
     # DXF: larghezze porte dagli ARCHI di apertura (campo 'aperture' del gemello,
     # raggio dell'arco = anta). Fonte geometrica, non testo.
     da_arco = False
+    n_doppie = 0
     for ap in twin.get("aperture", []):
         if ap.get("tipo") == "porta" and ap.get("larghezza_m") is not None:
             porte.append((ap["larghezza_m"], ap["posizione_pt"]))
             da_arco = True
+            if ap.get("doppia"):
+                n_doppie += 1
     strette = [(w, p) for w, p in porte if w < LARGHEZZA_PORTA_M]
     if porte:
-        nota_fonte = (
-            " La larghezza è dedotta dall'arco di apertura in pianta (anta): in una "
-            "porta doppia ogni anta è ~metà del passaggio utile, quindi le ante "
-            "sotto soglia vanno confermate come porte singole." if da_arco else ""
-        )
+        nota_fonte = ""
+        if da_arco:
+            nota_fonte = (" La larghezza è dedotta dall'arco di apertura in pianta"
+                          " (raggio = anta).")
+            if n_doppie:
+                nota_fonte += (
+                    f" {n_doppie} apertura/e a due ante è/sono state riconosciute come"
+                    " porte doppie e misurate sul passaggio complessivo.")
         esiti.append({
             "esito": "da_verificare" if strette else "conforme",
             "riferimento": f"{art10['fonte']} art. {art10['articolo']} cpv. 2",

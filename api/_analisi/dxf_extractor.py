@@ -484,6 +484,9 @@ def _associa_poligoni_ai_locali(rooms, polys, pt_per_m):
 # Layer delle porte ArchiCAD ("010 Türen"). NB: match su "türen"/"door", NON su
 # "tür" secco che pescherebbe "Kontur" (087 Raumstempel Kontur).
 RE_LAYER_PORTE = re.compile(r"türen|tueren|\bdoor|\bporte\b", re.I)
+# Tolleranza sulla firma della porta doppia (dist_cerniere == somma dei raggi).
+# Stretta: è una coincidenza geometrica esatta, non una vicinanza.
+TOLL_PORTA_DOPPIA_M = 0.05
 
 
 def _extract_doors_dxf(msp, pt_per_m):
@@ -492,8 +495,8 @@ def _extract_doors_dxf(msp, pt_per_m):
     dell'anta ≈ la larghezza utile del vano. Fonte geometrica, non testo.
     Conservativo per non generare falsi: solo archi con raggio da porta
     (0.6–1.4 m) e apertura ~90° (o riflesso ~270°); dedup per centro (stesso arco
-    disegnato due volte). ⚠️ è la larghezza dell'ANTA: una porta doppia ha due
-    ante ~metà del passaggio → la verifica normativa resta 'da_verificare'."""
+    disegnato due volte). Le ante di una porta DOPPIA vengono unite in un'unica
+    apertura (vedi _unisci_porte_doppie)."""
     grezzi = []
     for e in msp.query("ARC"):
         if not RE_LAYER_PORTE.search(e.dxf.layer or ""):
@@ -510,20 +513,70 @@ def _extract_doors_dxf(msp, pt_per_m):
             continue
         grezzi.append((round(r, 3), c.x, c.y))
 
-    aperture = []
+    ante = []
     for r, x, y in grezzi:
-        if any(abs(x - a["_x"]) < 0.15 and abs(y - a["_y"]) < 0.15 for a in aperture):
+        if any(abs(x - a["_x"]) < 0.15 and abs(y - a["_y"]) < 0.15 for a in ante):
             continue
-        aperture.append({
+        ante.append({"larghezza_m": r, "_x": x, "_y": y})
+
+    aperture = []
+    for a in _unisci_porte_doppie(ante):
+        voce = {
             "tipo": "porta",
-            "larghezza_m": r,
-            "posizione_pt": [round(x * pt_per_m, 1), round(y * pt_per_m, 1)],
+            "larghezza_m": round(a["larghezza_m"], 3),
+            "posizione_pt": [round(a["_x"] * pt_per_m, 1), round(a["_y"] * pt_per_m, 1)],
             "via_dxf_arco": True,
-            "_x": x, "_y": y,
-        })
-    for a in aperture:
-        a.pop("_x", None); a.pop("_y", None)
+        }
+        if a.get("doppia"):
+            voce["doppia"] = True
+            voce["ante_m"] = a["ante_m"]
+        aperture.append(voce)
     return aperture
+
+
+def _unisci_porte_doppie(ante):
+    """Unisce le due ante di una porta doppia in un'unica apertura.
+
+    Firma geometrica: le cerniere di una doppia stanno sui DUE stipiti, quindi la
+    loro distanza è esattamente la somma dei raggi — le ante si incontrano al
+    centro del vano. Il passaggio utile è quella somma, non la singola anta:
+    senza l'unione una doppia da 1.70 verrebbe segnalata come due porte da 0.85
+    «sotto soglia», cioè due falsi.
+
+    Stretta di proposito, per non NASCONDERE una segnalazione vera: la
+    coincidenza dist == r1+r2 entro 5 cm è una firma esatta, non un'euristica di
+    vicinanza. Verificata sul disegno reale, dove le porte singole vicine hanno
+    cerniere a 2.03–2.32 m contro somme di 1.68–1.72 (scarto minimo 0.31 m, ben
+    oltre la tolleranza): nessuna di esse viene unita per errore."""
+    usata = [False] * len(ante)
+    out = []
+    for i, a in enumerate(ante):
+        if usata[i]:
+            continue
+        partner = None
+        for j in range(i + 1, len(ante)):
+            if usata[j]:
+                continue
+            b = ante[j]
+            dist = math.hypot(a["_x"] - b["_x"], a["_y"] - b["_y"])
+            somma = a["larghezza_m"] + b["larghezza_m"]
+            if abs(dist - somma) <= TOLL_PORTA_DOPPIA_M:
+                partner = j
+                break
+        if partner is None:
+            out.append(a)
+            continue
+        b = ante[partner]
+        usata[i] = usata[partner] = True
+        out.append({
+            "larghezza_m": a["larghezza_m"] + b["larghezza_m"],
+            # il vano è centrato fra le due cerniere
+            "_x": (a["_x"] + b["_x"]) / 2.0,
+            "_y": (a["_y"] + b["_y"]) / 2.0,
+            "doppia": True,
+            "ante_m": [round(a["larghezza_m"], 3), round(b["larghezza_m"], 3)],
+        })
+    return out
 
 
 # ---------------------------------------------------------------- pipeline
