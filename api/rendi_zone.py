@@ -90,7 +90,7 @@ class handler(BaseHTTPRequestHandler):
         if crops and crops.get("fonte_updated_at") == riga.get("updated_at"):
             return self._json(200, {"stato": "ok", "cached": True, "crops": crops})
 
-        def salva_crops(items):
+        def salva_crops(items, ancore=None):
             """Merge su lettura FRESCA di zone_dettaglio + PATCH (MAI updated_at)."""
             zd = zone_dett
             try:
@@ -108,6 +108,10 @@ class handler(BaseHTTPRequestHandler):
                 "fonte_updated_at": riga.get("updated_at"),
                 "items": items,
             }
+            # Mappa numero→segnalazione: è il contratto fra il cerchio numerato
+            # sull'immagine e il numero che la UI mostra accanto al testo.
+            if ancore is not None:
+                nuovo["crops"]["ancore"] = ancore
             _req(f"{base}/rest/v1/progetto_disegni?id=eq.{disegno_id}",
                  method="PATCH", headers={**rest, "Prefer": "return=minimal"},
                  data=json.dumps({"zone_dettaglio": nuovo}, ensure_ascii=False).encode())
@@ -128,24 +132,59 @@ class handler(BaseHTTPRequestHandler):
                 with tempfile.NamedTemporaryFile(suffix=".dxf", delete=False) as f:
                     f.write(blob)
                     tmpd = f.name
-                # Ancore: i finding del disegno + le aperture sotto soglia della
-                # normativa (posizioni_pt) → così il progettista VEDE cerchiate
-                # anche le porte strette, non solo i finding di quota.
-                ancore = list(findings)
-                for e in esiti:
+                # Ancore NUMERATE: i finding del disegno + le aperture sotto
+                # soglia della normativa. Si tengono SOLO quelle con posizione,
+                # così la numerazione è densa (1,2,3…) e ogni numero ha sia il
+                # cerchio sulla panoramica sia il suo ritaglio. `finding_idx` /
+                # `esito_ref` legano il numero alla segnalazione per la UI.
+                ancore = []
+                for i, f in enumerate(findings):
+                    p = f.get("posizione_pt")
+                    if isinstance(p, list) and len(p) == 2:
+                        ancore.append({"tipo": "finding", "finding_idx": i,
+                                       "posizione_pt": p})
+                for j, e in enumerate(esiti):
                     for p in (e.get("posizioni_pt") or []):
                         if isinstance(p, list) and len(p) == 2:
-                            ancore.append({"tipo": "porta", "posizione_pt": p})
+                            ancore.append({"tipo": "porta", "esito_ref": j,
+                                           "posizione_pt": p})
+                for n, a in enumerate(ancore, start=1):
+                    a["numero"] = n
+
+                cartella = os.path.dirname(riga["storage_path"])
+                items = []
+
+                # 1) panoramica: DOVE cade ogni segnalazione sull'intera tavola
                 png = dxf_render.render_overview(tmpd, ancore, pt_per_m)
-                os.unlink(tmpd)
                 if not png:
+                    os.unlink(tmpd)
                     return self._json(200, {"stato": "ok", "zone": 0,
                                             "messaggio": "render DXF non disponibile"})
-                path = f"{os.path.dirname(riga['storage_path'])}/zone_{disegno_id}_panoramica0.png"
+                path = f"{cartella}/zone_{disegno_id}_panoramica0.png"
                 _req(f"{base}/storage/v1/object/disegni/{path}", method="POST",
                      headers={"apikey": anon, "Authorization": f"Bearer {token}",
                               "Content-Type": "image/png", "x-upsert": "true"}, data=png)
-                crops = salva_crops([{"idx": 0, "tipo": "panoramica", "ref": 0, "path": path}])
+                items.append({"idx": 0, "tipo": "panoramica", "ref": 0, "path": path})
+
+                # 2) ritagli zoom: COSA c'è in quel punto (uno per segnalazione)
+                per_numero = {a["numero"]: a for a in ancore}
+                for numero, crop in dxf_render.render_crops(tmpd, ancore, pt_per_m):
+                    cpath = f"{cartella}/zone_{disegno_id}_ancora{numero}.png"
+                    _req(f"{base}/storage/v1/object/disegni/{cpath}", method="POST",
+                         headers={"apikey": anon, "Authorization": f"Bearer {token}",
+                                  "Content-Type": "image/png", "x-upsert": "true"},
+                         data=crop)
+                    a = per_numero.get(numero, {})
+                    voce = {"idx": numero, "tipo": "ancora", "ref": numero,
+                            "numero": numero, "path": cpath}
+                    if "finding_idx" in a:
+                        voce["finding_idx"] = a["finding_idx"]
+                    if "esito_ref" in a:
+                        voce["esito_ref"] = a["esito_ref"]
+                    items.append(voce)
+
+                os.unlink(tmpd)
+                crops = salva_crops(items, ancore=ancore)
                 return self._json(200, {"stato": "ok", "cached": False, "crops": crops})
             except Exception as e:
                 return self._json(500, {"stato": "errore", "errore": str(e)[:800]})

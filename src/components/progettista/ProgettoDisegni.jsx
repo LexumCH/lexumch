@@ -459,10 +459,19 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
   // Ritagli deterministici (ancore visive): per finding e per porte sotto soglia.
   const cropsFreschi = d.zone_dettaglio?.crops?.fonte_updated_at === d.updated_at
   const cropItems = cropsFreschi ? (d.zone_dettaglio?.crops?.items ?? []) : []
-  const cropPerFinding = (fIdx) => cropItems.find(it => it.tipo === 'finding' && it.ref === fIdx)
+  // Il ritaglio di una segnalazione arriva da due sorgenti: il path PDF lo indica
+  // per tipo+ref, il path DXF con le ancore numerate (tipo 'ancora').
+  const cropPerFinding = (fIdx) => cropItems.find(
+    it => (it.tipo === 'finding' && it.ref === fIdx) || (it.tipo === 'ancora' && it.finding_idx === fIdx))
   const cropsPorte = cropItems.filter(it => it.tipo === 'porta')
+  const cropsAncoraEsito = (eIdx) => cropItems.filter(it => it.tipo === 'ancora' && it.esito_ref === eIdx)
   // DXF: panoramica annotata dell'intero disegno (finding cerchiati in rosso).
   const cropPanoramica = cropItems.find(it => it.tipo === 'panoramica')
+  // DXF: numero dell'ancora — è LO STESSO che compare nel cerchio sulla
+  // panoramica e sul ritaglio, così il progettista sa quale cerchio guardare.
+  const ancore = cropsFreschi ? (d.zone_dettaglio?.crops?.ancore ?? []) : []
+  const numeroFinding = (fIdx) => ancore.find(a => a.finding_idx === fIdx)?.numero
+  const numeriEsito = (eIdx) => ancore.filter(a => a.esito_ref === eIdx).map(a => a.numero)
 
   // Seconde opinioni (controperizia vision sulle segnalazioni del motore).
   const interpZone = d.zone_dettaglio?.interpretazioni?.[lingua]
@@ -568,6 +577,7 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
                 <li key={i} className="flex items-start gap-3 font-body text-sm text-nebbia/80">
                   <XCircle size={14} className="text-red-400 mt-0.5 shrink-0" />
                   <span className="flex-1 min-w-0">
+                    <BadgeAncora n={numeroFinding(fIdx)} />
                     {testoFinding(f, fIdx)}
                     {/* Controperizia: seconda voce, la segnalazione resta sempre */}
                     {op?.giudizio === 'possibile_falso_positivo' && (
@@ -636,14 +646,20 @@ function RisultatiDisegno({ disegno: d, t, cantone, candidatoRaster = false }) {
                   <span className={`font-body text-xs font-medium ${es.cls}`}>{t(`esito.${e.esito}`)}</span>
                   <span className="font-body text-xs text-nebbia/40">— {dati.riferimento}</span>
                 </div>
-                <p className="font-body text-sm text-nebbia/80">{dati.spiegazione}</p>
+                <p className="font-body text-sm text-nebbia/80">
+                  {numeriEsito(i).map(n => <BadgeAncora key={n} n={n} />)}
+                  {dati.spiegazione}
+                </p>
                 {/* Ancore visive: le porte sotto soglia, viste (non coordinate).
                     esito_ref lega ogni ritaglio al suo esito (fallback: tutti). */}
-                {(e.posizioni_pt ?? []).length > 0 && cropsPorte.length > 0 && (
+                {(e.posizioni_pt ?? []).length > 0 && (cropsPorte.length > 0 || cropsAncoraEsito(i).length > 0) && (
                   <div className="flex gap-2 mt-2 flex-wrap">
                     {cropsPorte
                       .filter(c => c.esito_ref == null || c.esito_ref === i)
-                      .map(c => <CropImg key={c.ref} path={c.path} />)}
+                      .map(c => <CropImg key={`p${c.ref}`} path={c.path} />)}
+                    {cropsAncoraEsito(i).map(c => (
+                      <CropImg key={`a${c.numero}`} path={c.path} numero={c.numero} />
+                    ))}
                   </div>
                 )}
                 {dati.testo_norma && (
@@ -842,7 +858,20 @@ function LetturaRaster({ disegno: d, t, lingua }) {
 }
 
 // Miniatura del ritaglio (bucket privato → signed URL con il JWT dell'utente)
-function CropImg({ path, big = false }) {
+// Numero della segnalazione: lo STESSO che compare nel cerchio rosso sulla
+// panoramica e sul ritaglio. È l'aggancio che permette al progettista di
+// ritrovare sul disegno il punto di cui parla il testo.
+function BadgeAncora({ n }) {
+  if (!n) return null
+  return (
+    <span className="inline-flex items-center justify-center w-[18px] h-[18px] mr-1.5 rounded-full
+      border border-red-400/60 text-red-400 font-body text-[10px] leading-none align-middle shrink-0">
+      {n}
+    </span>
+  )
+}
+
+function CropImg({ path, big = false, numero = null }) {
   const { data: url } = useQuery({
     queryKey: ['crop_url', path],
     queryFn: async () => {
@@ -863,8 +892,14 @@ function CropImg({ path, big = false }) {
     )
   }
   return (
-    <a href={url} target="_blank" rel="noreferrer" className="shrink-0">
+    <a href={url} target="_blank" rel="noreferrer" className="shrink-0 relative block">
       <img src={url} alt="" className="w-32 max-h-32 object-contain border border-white/10 bg-white" />
+      {numero != null && (
+        <span className="absolute top-1 left-1 inline-flex items-center justify-center w-[18px] h-[18px]
+          rounded-full bg-black/70 border border-red-400/70 text-red-400 font-body text-[10px] leading-none">
+          {numero}
+        </span>
+      )}
     </a>
   )
 }
