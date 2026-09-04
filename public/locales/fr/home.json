@@ -46,7 +46,11 @@
       },
       {
         "t": "Pratique des autorités",
-        "s": "AFC, SECO, OFAS, FINMA, OFJ, MROS"
+        "s": "AFC, FINMA, SECO, OFAS, PFPDT, OFJ, MROS, SUVA, OFSP, SEM, OFDF, OFCOM, COMCO, ComCom, ElCom, CFMJ"
+      },
+      {
+        "t": "Cour européenne des droits de l'homme",
+        "s": "Arrêts et décisions de Strasbourg depuis 1955 (base de données HUDOC)"
       },
       {
         "t": "Droit de l'Union européenne",

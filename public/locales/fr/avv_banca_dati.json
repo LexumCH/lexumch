@@ -37,6 +37,7 @@
     "errore_sconosciuto": "Erreur inconnue",
     "errore_http": "Erreur {{status}}",
     "errore_streaming": "Erreur lors du streaming",
+    "risposta_interrotta": "La réponse a été interrompue avant la fin : le texte ci-dessous est partiel. Relancez la question pour l'obtenir en entier.",
     "title_consultazione": "Lex consulte les sources",
     "frasi_animazione": [
       "J'analyse la demande",
@@ -55,7 +56,8 @@
       "prassi": "Je vérifie la pratique administrative",
       "eu": "J'examine le droit de l'UE",
       "sintesi": "Je rédige la réponse"
-    }
+    },
+    "disclaimer_ai": "Contenu généré par intelligence artificielle. Lex peut commettre des erreurs : vérifiez toujours les sources citées avant tout usage professionnel."
   },
   "comune": {
     "lingua": "Langue :",

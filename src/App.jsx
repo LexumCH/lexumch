@@ -47,6 +47,7 @@ import MailLog from '@/pages/admin/MailLog'
 import AdminCalendario from './pages/admin/Calendario'
 import AdminProfilo from './pages/admin/Profilo'
 import NormativaAggiornamentiCH from './pages/admin/NormativaAggiornamenti'
+import AdminTesti from './pages/admin/Testi'
 
 // ── Avvocato ──
 import AvvocatoDashboard from './pages/avvocato/Dashboard'
@@ -243,6 +244,7 @@ export default function App() {
               <Route path="/admin/lex-logs" element={<Adm><LexLogs /></Adm>} />
               <Route path="/admin/calendario" element={<Adm><AdminCalendario /></Adm>} />
               <Route path="/admin/normativa" element={<Adm><NormativaAggiornamentiCH /></Adm>} />
+              <Route path="/admin/testi" element={<Adm><AdminTesti /></Adm>} />
               <Route path="/admin/profilo" element={<Adm><AdminProfilo /></Adm>} />
 
               {/* ═══════════════════════════════════════════════════════

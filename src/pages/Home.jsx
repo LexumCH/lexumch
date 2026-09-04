@@ -446,12 +446,15 @@ export default function Home() {
             <FadeIn delay={0.1}>
               <div className="space-y-3">
                 {lexaiFeatures.map((feature, i) => {
+                  // Le icone stanno nel codice e sono legate a questo elenco per
+                  // posizione: se l'elenco tradotto cresce, qui non c'e' icona.
+                  // Senza la guardia sarebbe una schermata bianca sulla home.
                   const I = LEXAI_FEATURE_ICONS[i]
                   return (
                     <FadeIn key={i} delay={0.1 + i * 0.08}>
                       <div className="flex gap-4 p-4 bg-slate border border-white/5 hover:border-salvia/20 transition-colors group">
                         <div className="w-8 h-8 flex items-center justify-center border border-salvia/20 bg-salvia/5 shrink-0">
-                          <I size={13} className="text-salvia" />
+                          {I && <I size={13} className="text-salvia" />}
                         </div>
                         <div>
                           <p className="font-body text-sm font-medium text-nebbia mb-0.5">{feature.t}</p>

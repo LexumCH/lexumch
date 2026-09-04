@@ -464,6 +464,7 @@ function SezioneUser({ utente, onDecision }) {
   const [decisione, setDecisione] = useState(utente.verification_status)
   const [docs, setDocs] = useState([])
   const [loadingDocs, setLoadingDocs] = useState(true)
+  const [emailStatus, setEmailStatus] = useState(null)
 
   // Carica documenti di verifica + stato email
   useEffect(() => {
@@ -472,6 +473,13 @@ function SezioneUser({ utente, onDecision }) {
       const { data: docsData } = await supabase.storage.from('verification-docs').list(utente.id)
       setDocs(docsData ?? [])
       setLoadingDocs(false)
+
+      // Stato email e ultimo accesso vivono in auth.users: raggiungibili solo via
+      // RPC admin_get_email_status (SECURITY DEFINER con guardia admin). Se la
+      // chiamata fallisce (non admin) emailStatus resta null e i due campi si
+      // limitano a non mostrare nulla.
+      const { data: statusData } = await supabase.rpc('admin_get_email_status', { p_user_id: utente.id })
+      setEmailStatus(statusData?.[0] ?? null)
     }
     caricaDati()
   }, [utente.id])

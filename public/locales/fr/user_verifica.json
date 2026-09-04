@@ -18,7 +18,7 @@
   },
   "set": {
     "avvocato": {
-      "titolo": "Devenez avocat sur Lexum",
+      "titolo": "Vérification d'identité — Avocat",
       "intro": "Pour accéder à la plateforme en tant qu'avocat, vous devez vérifier votre identité professionnelle. Téléchargez les documents requis et notre équipe les examinera sous 24-48 heures.",
       "documenti": {
         "identita": {
@@ -36,7 +36,7 @@
       }
     },
     "fiduciario": {
-      "titolo": "Devenez fiduciaire sur Lexum",
+      "titolo": "Vérification d'identité — Fiduciaire",
       "intro": "Pour accéder à la plateforme en tant que fiduciaire, vous devez vérifier votre activité professionnelle. Téléchargez les documents requis et notre équipe les examinera sous 24-48 heures.",
       "documenti": {
         "identita": {
@@ -54,7 +54,7 @@
       }
     },
     "progettista": {
-      "titolo": "Devenez projeteur sur Lexum",
+      "titolo": "Vérification d'identité — Projeteur",
       "intro": "Pour accéder à la plateforme comme projeteur (architecte, ingénieur ou dessinateur), vous devez vérifier votre identité professionnelle. Téléversez les documents requis; notre équipe les examinera sous 24-48 heures.",
       "documenti": {
         "identita": {

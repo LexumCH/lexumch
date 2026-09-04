@@ -46,7 +46,11 @@
       },
       {
         "t": "Verwaltungspraxis",
-        "s": "ESTV, SECO, BSV, FINMA, BJ, MROS"
+        "s": "ESTV, FINMA, SECO, BSV, EDÖB, BJ, MROS, SUVA, BAG, SEM, BAZG, BAKOM, WEKO, ComCom, ElCom, ESBK"
+      },
+      {
+        "t": "Europäischer Gerichtshof für Menschenrechte",
+        "s": "Urteile und Entscheidungen aus Strassburg seit 1955 (Datenbank HUDOC)"
       },
       {
         "t": "Recht der Europäischen Union",

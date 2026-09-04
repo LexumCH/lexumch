@@ -2,6 +2,7 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import HttpBackend from 'i18next-http-backend'
 import LanguageDetector from 'i18next-browser-languagedetector'
+import { avviaOverlay } from './overlay'
 
 export const LINGUE_SUPPORTATE = ['it', 'de', 'fr']
 export const LINGUA_DEFAULT = 'it'
@@ -53,6 +54,10 @@ i18n
             bindI18nStore: 'added removed',      // re-render quando nuove risorse arrivano
         },
     })
+
+// I testi cambiati dal pannello admin, sovrapposti a quelli spediti col deploy.
+// Non blocca l'avvio: arriva dopo e i18next ridisegna da solo.
+avviaOverlay(i18n)
 
 // DEBUG: esponi i18n a window
 if (typeof window !== 'undefined') {

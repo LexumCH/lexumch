@@ -18,7 +18,7 @@
   },
   "set": {
     "avvocato": {
-      "titolo": "Diventa avvocato su Lexum",
+      "titolo": "Verifica identità — Avvocato",
       "intro": "Per accedere alla piattaforma come avvocato devi verificare la tua identità professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.",
       "documenti": {
         "identita": {
@@ -36,7 +36,7 @@
       }
     },
     "fiduciario": {
-      "titolo": "Diventa fiduciario su Lexum",
+      "titolo": "Verifica identità — Fiduciario",
       "intro": "Per accedere alla piattaforma come fiduciario devi verificare la tua attività professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.",
       "documenti": {
         "identita": {
@@ -54,7 +54,7 @@
       }
     },
     "progettista": {
-      "titolo": "Diventa progettista su Lexum",
+      "titolo": "Verifica identità — Progettista",
       "intro": "Per accedere alla piattaforma come progettista (architetto, ingegnere o disegnatore) devi verificare la tua identità professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.",
       "documenti": {
         "identita": {

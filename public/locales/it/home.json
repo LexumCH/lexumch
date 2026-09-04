@@ -46,7 +46,11 @@
       },
       {
         "t": "Prassi delle autorità",
-        "s": "AFC, IFD, SECO, UFAS, FINMA, UFG, MROS"
+        "s": "AFC, FINMA, SECO, UFAS, IFPDT, UFG, MROS, SUVA, UFSP, SEM, UDSC, UFCOM, COMCO, ComCom, ElCom, CFCG"
+      },
+      {
+        "t": "Corte europea dei diritti dell'uomo",
+        "s": "Sentenze e decisioni di Strasburgo dal 1955 (banca dati HUDOC)"
       },
       {
         "t": "Diritto dell'Unione Europea",

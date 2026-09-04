@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next'
 
 // Costanti (identiche in tutte le lingue)
 const TERMINI_EMAIL = 'info@lexum.ch'
-const COMPANY_NAME = 'Alpi Consulenti Associati SA'
-const COMPANY_VAT = 'CHE-243.562.655'
-const COMPANY_ADDRESS = 'c/o SAFEINVEST SA, Via Campo Marzio 7, 6900 Lugano, Svizzera'
+const COMPANY_NAME = 'Mosaico Experiences SA'
+const COMPANY_VAT = 'CHE-365.261.725'
+const COMPANY_ADDRESS = 'Via Cantonale 1, 6900 Lugano, Svizzera'
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 function Section({ title, children }) {

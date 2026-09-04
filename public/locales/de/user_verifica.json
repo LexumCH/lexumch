@@ -18,7 +18,7 @@
   },
   "set": {
     "avvocato": {
-      "titolo": "Werden Sie Anwalt auf Lexum",
+      "titolo": "Identitätsprüfung — Anwalt",
       "intro": "Um als Anwalt auf die Plattform zuzugreifen, müssen Sie Ihre berufliche Identität verifizieren. Laden Sie die erforderlichen Dokumente hoch, unser Team prüft sie innerhalb von 24-48 Stunden.",
       "documenti": {
         "identita": {
@@ -36,7 +36,7 @@
       }
     },
     "fiduciario": {
-      "titolo": "Werden Sie Treuhänder auf Lexum",
+      "titolo": "Identitätsprüfung — Treuhänder",
       "intro": "Um als Treuhänder auf die Plattform zuzugreifen, müssen Sie Ihre berufliche Tätigkeit verifizieren. Laden Sie die erforderlichen Dokumente hoch, unser Team prüft sie innerhalb von 24-48 Stunden.",
       "documenti": {
         "identita": {
@@ -54,7 +54,7 @@
       }
     },
     "progettista": {
-      "titolo": "Werden Sie Planer auf Lexum",
+      "titolo": "Identitätsprüfung — Planer",
       "intro": "Um als Planer (Architekt, Ingenieur oder Zeichner) auf die Plattform zuzugreifen, müssen Sie Ihre berufliche Identität verifizieren. Laden Sie die erforderlichen Dokumente hoch; unser Team prüft sie innert 24-48 Stunden.",
       "documenti": {
         "identita": {

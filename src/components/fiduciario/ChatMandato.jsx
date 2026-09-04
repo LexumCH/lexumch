@@ -1095,6 +1095,10 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                                 <ReactMarkdown components={markdownComponents}>
                                     {m.content}
                                 </ReactMarkdown>
+                                {/* Trasparenza AI — art. 50 AI Act */}
+                                <p className="mt-4 pt-3 border-t border-white/5 font-body text-[11px] text-nebbia/35 leading-relaxed">
+                                    {t('disclaimer_ai')}
+                                </p>
                             </div>
                         )}
                     </div>

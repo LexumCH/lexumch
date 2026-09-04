@@ -37,6 +37,7 @@
     "errore_sconosciuto": "Unbekannter Fehler",
     "errore_http": "Fehler {{status}}",
     "errore_streaming": "Fehler beim Streaming",
+    "risposta_interrotta": "Die Antwort wurde vor dem Ende abgebrochen: Der untenstehende Text ist unvollständig. Stellen Sie die Frage erneut, um die vollständige Antwort zu erhalten.",
     "title_consultazione": "Lex konsultiert die Quellen",
     "frasi_animazione": [
       "Ich analysiere die Anfrage",
@@ -55,7 +56,8 @@
       "prassi": "Ich prüfe die Verwaltungspraxis",
       "eu": "Ich prüfe das EU-Recht",
       "sintesi": "Ich verfasse die Antwort"
-    }
+    },
+    "disclaimer_ai": "Mit künstlicher Intelligenz erstellter Inhalt. Lex kann Fehler machen: Überprüfen Sie stets die angegebenen Quellen vor der beruflichen Verwendung."
   },
   "comune": {
     "lingua": "Sprache:",

@@ -37,6 +37,7 @@
     "errore_sconosciuto": "Errore sconosciuto",
     "errore_http": "Errore {{status}}",
     "errore_streaming": "Errore nello streaming",
+    "risposta_interrotta": "La risposta si è interrotta prima della fine: il testo qui sotto è parziale. Rilancia la domanda per averla completa.",
     "title_consultazione": "Lex sta consultando le fonti",
     "frasi_animazione": [
       "Analizzo la richiesta",
@@ -55,7 +56,8 @@
       "prassi": "Verifico la prassi amministrativa",
       "eu": "Esamino il diritto UE",
       "sintesi": "Compongo la risposta"
-    }
+    },
+    "disclaimer_ai": "Contenuto generato con intelligenza artificiale. Lex può commettere errori: verifica sempre le fonti citate prima dell'uso professionale."
   },
   "comune": {
     "lingua": "Lingua:",

@@ -286,8 +286,10 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
             let buffer = ''
             let testoAccumulato = ''
             let metaFinale = null
+            let doneRicevuto = false
             let tipoRisposta = null
 
+            let eventoCorrente = null   // FUORI dal while: deve persistere tra le reader.read()
             while (true) {
                 const { value, done } = await reader.read()
                 if (done) break
@@ -295,7 +297,6 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                 const lines = buffer.split('\n')
                 buffer = lines.pop() ?? ''
 
-                let eventoCorrente = null
                 for (const line of lines) {
                     if (!line.trim()) continue
                     if (line.startsWith('event: ')) { eventoCorrente = line.slice(7).trim(); continue }
@@ -314,6 +315,7 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                 if (faseCorrente !== null) setFaseCorrente(null)
                             }
                             if (eventoCorrente === 'done') {
+                                doneRicevuto = true
                                 metaFinale = data.meta
                                 tipoRisposta = data.tipo_risposta
                                 if (data.crediti_rimasti !== undefined) setCrediti(data.crediti_rimasti)
@@ -324,8 +326,16 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                 }
             }
 
+            // Se lo stream si chiude SENZA l'evento 'done', la risposta e' mozza.
+            // Prima veniva salvata come se fosse intera e senza alcun avviso:
+            // un avvocato non deve scambiare mezzo ragionamento per il tutto.
+            if (!doneRicevuto && testoAccumulato) {
+                setErrore(t('lex.risposta_interrotta'))
+            }
+
             const convFinale = [...nuovaConv, {
                 role: 'assistant', content: testoAccumulato, meta: metaFinale, tipo_risposta: tipoRisposta,
+                interrotta: !doneRicevuto || undefined,
             }]
             setConversazione(convFinale)
             setStreamingTesto('')
@@ -448,6 +458,11 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Trasparenza AI — art. 50 AI Act */}
+                                    <p className="mt-5 pt-3 border-t border-white/5 font-body text-[11px] text-nebbia/35 leading-relaxed">
+                                        {t('lex.disclaimer_ai')}
+                                    </p>
                                 </div>
                             )}
                         </div>
