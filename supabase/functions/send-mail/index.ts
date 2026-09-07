@@ -43,7 +43,10 @@ const supabase = createClient(
 );
 
 const POSTMARK_API_KEY = Deno.env.get("POSTMARK_API_KEY")!;
-const DEFAULT_FROM = Deno.env.get("POSTMARK_DEFAULT_FROM") ?? "noreply@lexum.it";
+// ATTENZIONE: questo ripiego e' DIVERSO da quello del repo LEXUM (Italia), ed e'
+// voluto. Questo e' il prodotto SVIZZERO: se la variabile d'ambiente sparisce non
+// deve tornare a un indirizzo .it. Non "riallineare" i due file su questa riga.
+const DEFAULT_FROM = Deno.env.get("POSTMARK_DEFAULT_FROM") ?? "info@lexum.ch";
 const INTERNAL_BCC = Deno.env.get("POSTMARK_INTERNAL_BCC") ?? "";
 
 // ─── HELPERS ────────────────────────────────────────────────

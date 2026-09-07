@@ -16,7 +16,10 @@ export default function Footer() {
   const trustItems = [
     { icon: Shield, text: t('trust.encrypted') },
     { icon: Lock, text: t('trust.compliance') },
-    { icon: Mail, text: 'info@lexum.it' },
+    // Dalle traduzioni come le altre voci: era scritto a mano, e per giunta col
+    // dominio italiano su un prodotto svizzero. Ora e' anche modificabile
+    // dal pannello /admin/testi senza passare da VS Code.
+    { icon: Mail, text: t('trust.email') },
   ]
 
   return (
