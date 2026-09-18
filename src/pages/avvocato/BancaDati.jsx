@@ -316,6 +316,10 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                             }
                             if (eventoCorrente === 'done') {
                                 doneRicevuto = true
+                                // Il Synthesizer dice se la risposta e' arrivata al tetto di
+                                // lunghezza anche dopo il completamento automatico: l'avvocato
+                                // deve saperlo, non intuirlo da un finale mozzo.
+                                if (data.stop_reason === 'max_tokens') setErrore(t('lex.risposta_al_limite'))
                                 metaFinale = data.meta
                                 tipoRisposta = data.tipo_risposta
                                 if (data.crediti_rimasti !== undefined) setCrediti(data.crediti_rimasti)

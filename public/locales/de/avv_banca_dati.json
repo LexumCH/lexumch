@@ -37,6 +37,7 @@
     "errore_sconosciuto": "Unbekannter Fehler",
     "errore_http": "Fehler {{status}}",
     "errore_streaming": "Fehler beim Streaming",
+    "risposta_al_limite": "Die Antwort hat die Längenbegrenzung erreicht: das Ende könnte unvollständig sein. Sie können «weiter» eingeben, um den fehlenden Teil zu erhalten.",
     "risposta_interrotta": "Die Antwort wurde vor dem Ende abgebrochen: Der untenstehende Text ist unvollständig. Stellen Sie die Frage erneut, um die vollständige Antwort zu erhalten.",
     "title_consultazione": "Lex konsultiert die Quellen",
     "frasi_animazione": [

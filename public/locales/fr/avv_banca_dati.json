@@ -37,6 +37,7 @@
     "errore_sconosciuto": "Erreur inconnue",
     "errore_http": "Erreur {{status}}",
     "errore_streaming": "Erreur lors du streaming",
+    "risposta_al_limite": "La réponse a atteint la limite de longueur : la fin pourrait être incomplète. Vous pouvez demander « continue » pour la partie manquante.",
     "risposta_interrotta": "La réponse a été interrompue avant la fin : le texte ci-dessous est partiel. Relancez la question pour l'obtenir en entier.",
     "title_consultazione": "Lex consulte les sources",
     "frasi_animazione": [
