@@ -5,96 +5,78 @@ import { Link } from 'react-router-dom'
 import { PageHeader, StatCard } from '@/components/shared'
 import {
   Users, ShieldCheck, Headphones, CreditCard,
-  BookOpen, Briefcase, AlertCircle
+  Briefcase, AlertCircle, UserCheck
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import {
+  caricaContatoriAdmin, totaliProfessionisti, composizioneIscritti, formattaImporto
+} from '@/lib/contatoriAdmin'
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null)
+  const [c, setC] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [errore, setErrore] = useState('')
 
   useEffect(() => {
-    async function carica() {
-      setLoading(true)
-
-      const [
-        { count: nAvvocati },
-        { count: nVerifiche },
-        { count: nTicket },
-        { count: nClienti },
-        revenuRes,
-      ] = await Promise.all([
-        // Avvocati attivi (con piano attivo)
-        supabase.from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .eq('role', 'avvocato'),
-
-        // Verifiche pendenti
-        supabase.from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .eq('verification_status', 'pending'),
-
-        // Ticket assistenza aperti verso Lexum
-        supabase.from('ticket_assistenza')
-          .select('id', { count: 'exact', head: true })
-          .is('destinatario_id', null)
-          .eq('stato', 'aperto'),
-
-        // Clienti registrati
-        supabase.from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .eq('role', 'cliente'),
-
-        // Revenue totale (somma transazioni completate)
-        supabase.from('transazioni')
-          .select('importo')
-          .eq('stato', 'completato'),
-      ])
-
-      const revenue = (revenuRes.data ?? []).reduce((a, t) => a + parseFloat(t.importo ?? 0), 0)
-
-      setStats({
-        nAvvocati: nAvvocati ?? 0,
-        nVerifiche: nVerifiche ?? 0,
-        nTicket: nTicket ?? 0,
-        nClienti: nClienti ?? 0,
-        revenue,
-      })
-      setLoading(false)
-    }
-    carica()
+    // Stessa fonte della pagina Utenti: i numeri devono coincidere
+    caricaContatoriAdmin()
+      .then(setC)
+      .catch(() => setErrore('Impossibile caricare i contatori. Ricarica la pagina.'))
+      .finally(() => setLoading(false))
   }, [])
+
+  const vuoto = loading || !c
+  const prof = totaliProfessionisti(c)
+  const nVerifiche = c?.verifiche_pendenti ?? 0
+  const nTicket = c?.ticket_aperti ?? 0
+  const valuta = c?.valuta ?? 'CHF'
+  const altreValute = Object.entries(c?.ricavi ?? {}).filter(([v, tot]) => v !== valuta && Number(tot) !== 0)
+
+  const subProfessionisti = [
+    `su ${prof.totale}`,
+    prof.in_grazia ? `${prof.in_grazia} in grazia` : null,
+    prof.scaduti ? `${prof.scaduti} ${prof.scaduti === 1 ? 'scaduto' : 'scaduti'}` : null,
+    prof.senza_piano ? `${prof.senza_piano} senza piano` : null,
+  ].filter(Boolean).join(' · ')
 
   const STATS = [
     {
-      label: 'Avvocati attivi',
-      value: loading ? '—' : stats?.nAvvocati ?? 0,
+      label: 'Utenti registrati',
+      value: vuoto ? '—' : c.totale,
+      sub: vuoto ? null : composizioneIscritti(c),
+      colorClass: 'text-nebbia',
+      icon: Users,
+    },
+    {
+      label: 'Professionisti attivi',
+      value: vuoto ? '—' : prof.attivi,
+      sub: vuoto ? null : subProfessionisti,
       colorClass: 'text-oro',
       icon: Briefcase,
     },
     {
+      label: 'Clienti registrati',
+      value: vuoto ? '—' : c.per_ruolo?.cliente ?? 0,
+      colorClass: 'text-nebbia/60',
+      icon: UserCheck,
+    },
+    {
       label: 'Verifiche pendenti',
-      value: loading ? '—' : stats?.nVerifiche ?? 0,
-      colorClass: stats?.nVerifiche > 0 ? 'text-amber-400' : 'text-nebbia/30',
+      value: vuoto ? '—' : nVerifiche,
+      colorClass: nVerifiche > 0 ? 'text-amber-400' : 'text-nebbia/30',
       icon: ShieldCheck,
     },
     {
       label: 'Ticket aperti',
-      value: loading ? '—' : stats?.nTicket ?? 0,
-      colorClass: stats?.nTicket > 0 ? 'text-red-400' : 'text-nebbia/30',
+      value: vuoto ? '—' : nTicket,
+      colorClass: nTicket > 0 ? 'text-red-400' : 'text-nebbia/30',
       icon: Headphones,
     },
     {
       label: 'Revenue totale',
-      value: loading ? '—' : `€ ${(stats?.revenue ?? 0).toFixed(0)}`,
+      value: vuoto ? '—' : formattaImporto(c.ricavi?.[valuta], valuta),
+      sub: altreValute.length ? altreValute.map(([v, tot]) => `+ ${formattaImporto(tot, v)}`).join(' · ') : null,
       colorClass: 'text-salvia',
       icon: CreditCard,
-    },
-    {
-      label: 'Clienti registrati',
-      value: loading ? '—' : stats?.nClienti ?? 0,
-      colorClass: 'text-nebbia/60',
-      icon: Users,
     },
   ]
 
@@ -102,18 +84,24 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <PageHeader label="Admin" title="Dashboard" subtitle="Panoramica della piattaforma" />
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      {errore && (
+        <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
+          <AlertCircle size={14} /> {errore}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {STATS.map(s => (
           <StatCard key={s.label} {...s} />
         ))}
       </div>
 
       {/* Alert verifiche pendenti */}
-      {!loading && stats?.nVerifiche > 0 && (
-        <div className="flex items-center gap-3 p-4 bg-amber-900/10 border border-amber-500/20">
+      {!vuoto && nVerifiche > 0 && (
+        <div className="flex flex-wrap items-center gap-3 p-4 bg-amber-900/10 border border-amber-500/20">
           <AlertCircle size={16} className="text-amber-400 shrink-0" />
-          <p className="font-body text-sm text-amber-400">
-            {stats.nVerifiche} {stats.nVerifiche === 1 ? 'avvocato in attesa' : 'avvocati in attesa'} di verifica identità
+          <p className="font-body text-sm text-amber-400 min-w-0 flex-1">
+            {nVerifiche} {nVerifiche === 1 ? 'richiesta' : 'richieste'} di verifica identità in attesa
           </p>
           <Link to="/admin/utenti" className="font-body text-xs text-amber-400 border border-amber-500/30 px-3 py-1.5 hover:bg-amber-400/10 transition-colors ml-auto whitespace-nowrap">
             Gestisci →
@@ -122,11 +110,11 @@ export default function AdminDashboard() {
       )}
 
       {/* Alert ticket aperti */}
-      {!loading && stats?.nTicket > 0 && (
-        <div className="flex items-center gap-3 p-4 bg-red-900/10 border border-red-500/20">
+      {!vuoto && nTicket > 0 && (
+        <div className="flex flex-wrap items-center gap-3 p-4 bg-red-900/10 border border-red-500/20">
           <AlertCircle size={16} className="text-red-400 shrink-0" />
-          <p className="font-body text-sm text-red-400">
-            {stats.nTicket} {stats.nTicket === 1 ? 'ticket aperto' : 'ticket aperti'} da gestire
+          <p className="font-body text-sm text-red-400 min-w-0 flex-1">
+            {nTicket} {nTicket === 1 ? 'ticket aperto' : 'ticket aperti'} da gestire
           </p>
           <Link to="/admin/assistenza" className="font-body text-xs text-red-400 border border-red-500/30 px-3 py-1.5 hover:bg-red-400/10 transition-colors ml-auto whitespace-nowrap">
             Gestisci →
