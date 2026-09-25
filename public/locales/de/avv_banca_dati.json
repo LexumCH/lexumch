@@ -58,7 +58,9 @@
       "eu": "Ich prüfe das EU-Recht",
       "sintesi": "Ich verfasse die Antwort"
     },
-    "disclaimer_ai": "Mit künstlicher Intelligenz erstellter Inhalt. Lex kann Fehler machen: Überprüfen Sie stets die angegebenen Quellen vor der beruflichen Verwendung."
+    "disclaimer_ai": "Mit künstlicher Intelligenz erstellter Inhalt. Lex kann Fehler machen: Überprüfen Sie stets die angegebenen Quellen vor der beruflichen Verwendung.",
+    "avviso_salva": "Speichern Sie diese Unterhaltung mit einem Etikett, um sie nicht zu verlieren: Erhalten bleibt nur, was Sie speichern.",
+    "avviso_ai": "Lex ist eine KI und kann Fehler machen."
   },
   "comune": {
     "lingua": "Sprache:",

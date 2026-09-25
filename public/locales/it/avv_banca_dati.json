@@ -58,7 +58,9 @@
       "eu": "Esamino il diritto UE",
       "sintesi": "Compongo la risposta"
     },
-    "disclaimer_ai": "Contenuto generato con intelligenza artificiale. Lex può commettere errori: verifica sempre le fonti citate prima dell'uso professionale."
+    "disclaimer_ai": "Contenuto generato con intelligenza artificiale. Lex può commettere errori: verifica sempre le fonti citate prima dell'uso professionale.",
+    "avviso_salva": "Salva questa conversazione con un'etichetta per non perderla: puoi tenere in memoria solo ciò che salvi.",
+    "avviso_ai": "Lex è un'AI e potrebbe commettere errori."
   },
   "comune": {
     "lingua": "Lingua:",

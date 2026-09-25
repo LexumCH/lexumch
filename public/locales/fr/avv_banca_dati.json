@@ -58,7 +58,9 @@
       "eu": "J'examine le droit de l'UE",
       "sintesi": "Je rédige la réponse"
     },
-    "disclaimer_ai": "Contenu généré par intelligence artificielle. Lex peut commettre des erreurs : vérifiez toujours les sources citées avant tout usage professionnel."
+    "disclaimer_ai": "Contenu généré par intelligence artificielle. Lex peut commettre des erreurs : vérifiez toujours les sources citées avant tout usage professionnel.",
+    "avviso_salva": "Enregistrez cette conversation avec une étiquette pour ne pas la perdre : seul ce que vous enregistrez est conservé.",
+    "avviso_ai": "Lex est une IA et peut commettre des erreurs."
   },
   "comune": {
     "lingua": "Langue :",

@@ -550,6 +550,10 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                         ? <><span className="animate-spin w-4 h-4 border-2 border-salvia border-t-transparent rounded-full" /> {t('lex.lavorando')}</>
                         : <><Sparkles size={13} /> {conversazione.length > 0 ? t('lex.continua') : t('lex.cerca')}</>}
                 </button>
+                <div className="pt-1 space-y-0.5 text-center">
+                    <p className="font-body text-xs text-nebbia/35 leading-relaxed">{t('lex.avviso_salva')}</p>
+                    <p className="font-body text-xs text-nebbia/35 leading-relaxed">{t('lex.avviso_ai')}</p>
+                </div>
             </div>
         </div>
     )
