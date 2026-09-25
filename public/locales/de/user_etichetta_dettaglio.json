@@ -56,7 +56,11 @@
     "focus": "Fokus",
     "etichetta_vuota": "Die Etikette ist leer",
     "errore_http": "Fehler {{status}}",
-    "lex_ragiona": "Lex denkt nach"
+    "lex_ragiona": "Lex denkt nach",
+    "crediti_esauriti": "Lex-Guthaben aufgebraucht. Kaufen Sie ein Guthabenpaket, um fortzufahren.",
+    "non_generata": "Die Antwort wurde nicht erstellt. Bitte versuchen Sie es in Kürze erneut.",
+    "interrotta": "Die Antwort wurde unterbrochen. Bitte versuchen Sie es in Kürze erneut.",
+    "disclaimer_ai": "Mit künstlicher Intelligenz erstellter Inhalt. Lex kann Fehler machen: Überprüfen Sie stets die angegebenen Quellen vor der beruflichen Verwendung."
   },
   "azioni": {
     "mappa_concettuale": {

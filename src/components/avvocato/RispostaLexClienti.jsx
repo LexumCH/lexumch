@@ -166,6 +166,13 @@ export default function RispostaLexClienti({ risposta, clientiMenzionati, client
                     </div>
                 </div>
             )}
+
+            {/* Trasparenza AI: art. 50 AI Act */}
+            {typingDone && (
+                <p className="pt-2 border-t border-white/5 font-body text-xs lg:text-[11px] text-nebbia/35 leading-relaxed">
+                    {t('disclaimer_ai')}
+                </p>
+            )}
         </div>
     )
 }

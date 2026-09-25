@@ -19,6 +19,7 @@
   "bottom": {
     "copyright": "© {{year}} Lexum. Tous droits réservés.",
     "privacy": "Politique de confidentialité",
-    "terms": "Conditions d'utilisation"
+    "terms": "Conditions d'utilisation",
+    "other_site": "Lexum Italie · lexum.it"
   }
 }

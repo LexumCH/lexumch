@@ -7,5 +7,6 @@
     },
     "clienti_citati": {
         "titolo": "Clienti citati ({{count}})"
-    }
+    },
+    "disclaimer_ai": "Contenuto generato con intelligenza artificiale. Lex può commettere errori: verifica sempre i dati prima dell'uso professionale."
 }

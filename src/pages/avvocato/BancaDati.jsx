@@ -27,7 +27,7 @@ import { FONTI_FEDERALI_ORDER, SET_FEDERALI, parseCantonale, labelFonteFederale,
 import {
     Search, Sparkles, ChevronRight, ChevronLeft,
     BookOpen, AlertCircle, X, FileText,
-    Landmark, Building2, ScrollText, Globe, Scale, MapPin
+    Landmark, Building2, ScrollText, Globe, Scale, MapPin, FileDown, Loader2
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 
@@ -235,6 +235,8 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
     const [conversazione, setConversazione] = useState([])
     const [faseCorrente, setFaseCorrente] = useState(null)
     const [streamingTesto, setStreamingTesto] = useState('')
+    // PDF di una risposta: quale sta preparando, e l'eventuale avviso sotto il pulsante
+    const [pdf, setPdf] = useState({ indice: null, lavoro: false, messaggio: '' })
     const [clientConversationId, setClientConversationId] = useState(() => crypto.randomUUID())
     const [ricercaSalvataId, setRicercaSalvataId] = useState(null)
     const abortControllerRef = useRef(null)
@@ -357,6 +359,23 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
         }
     }
 
+    // PDF di una risposta (25/09/2026): il testo di Lex impaginato cosi' com'e',
+    // con titolo, punti fermi e sintesi scritti da Sonnet nella lingua della
+    // risposta. Nessun credito. Il modulo (pdfmake + caratteri) si carica solo qui.
+    async function scaricaPdf(indice) {
+        if (pdf.lavoro) return
+        setPdf({ indice, lavoro: true, messaggio: '' })
+        try {
+            const { scaricaPdfRisposta } = await import('@/lib/pdf/pdfRisposta')
+            const domandaDellaRisposta = conversazione.slice(0, indice).reverse().find((m) => m.role === 'user')?.content ?? ''
+            const { senzaParti } = await scaricaPdfRisposta({ domanda: domandaDellaRisposta, risposta: conversazione[indice].content })
+            const motivo = senzaParti ? senzaParti.replace(/[.!?\s]*$/, '.') + ' ' : ''
+            setPdf({ indice, lavoro: false, messaggio: senzaParti !== null ? motivo + t('lex.pdf_senza_parti') : '' })
+        } catch {
+            setPdf({ indice, lavoro: false, messaggio: t('lex.pdf_errore') })
+        }
+    }
+
     function nuovaSessione() {
         if (abortControllerRef.current) abortControllerRef.current.abort()
         setConversazione([]); setStreamingTesto(''); setFaseCorrente(null)
@@ -460,6 +479,23 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                                     </button>
                                                 ))}
                                             </div>
+                                        </div>
+                                    )}
+
+                                    {m.content && !m.interrotta && m.tipo_risposta !== 'rigettata' && m.tipo_risposta !== 'messaggio_standard' && (
+                                        <div className="mt-5 flex flex-wrap items-center gap-3">
+                                            <button
+                                                onClick={() => scaricaPdf(i)}
+                                                disabled={pdf.lavoro || cercando}
+                                                className="flex items-center gap-1.5 font-body text-xs text-nebbia/50 hover:text-oro border border-white/10 hover:border-oro/40 px-3 py-1.5 transition-colors disabled:opacity-40"
+                                            >
+                                                {pdf.lavoro && pdf.indice === i
+                                                    ? <><Loader2 size={12} className="animate-spin" /> {t('lex.preparo_pdf')}</>
+                                                    : <><FileDown size={12} /> {t('lex.scarica_pdf')}</>}
+                                            </button>
+                                            {!pdf.lavoro && pdf.indice === i && pdf.messaggio && (
+                                                <span className="font-body text-xs text-nebbia/40">{pdf.messaggio}</span>
+                                            )}
                                         </div>
                                     )}
 

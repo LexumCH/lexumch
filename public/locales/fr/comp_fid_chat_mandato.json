@@ -47,7 +47,8 @@
     "sconosciuto": "Erreur inconnue",
     "conCodice": "Erreur {{codice}}",
     "streaming": "Erreur lors du streaming",
-    "inserisciTitolo": "Saisissez un titre pour la conversation"
+    "inserisciTitolo": "Saisissez un titre pour la conversation",
+    "nonGenerata": "La réponse n'a pas été générée. Veuillez réessayer dans quelques instants."
   },
   "animazione": {
     "titolo": "Lex travaille sur le mandat",

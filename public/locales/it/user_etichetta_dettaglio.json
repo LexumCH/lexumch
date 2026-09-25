@@ -56,7 +56,11 @@
     "focus": "Focus",
     "etichetta_vuota": "L'etichetta è vuota",
     "errore_http": "Errore {{status}}",
-    "lex_ragiona": "Lex sta ragionando"
+    "lex_ragiona": "Lex sta ragionando",
+    "crediti_esauriti": "Crediti Lex esauriti. Acquista un pacchetto crediti per continuare.",
+    "non_generata": "La risposta non è stata generata. Riprova tra qualche istante.",
+    "interrotta": "La risposta si è interrotta. Riprova tra qualche istante.",
+    "disclaimer_ai": "Contenuto generato con intelligenza artificiale. Lex può commettere errori: verifica sempre le fonti citate prima dell'uso professionale."
   },
   "azioni": {
     "mappa_concettuale": {

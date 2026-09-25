@@ -432,7 +432,7 @@ function BollaDocumento({ messaggio, praticaId, onDocumentoSalvato }) {
             setPdfUrl(url)
             setMarkdownAnteprima(markdownDaRendere)
         } catch (err) {
-            setErrorePdf(err.message)
+            setErrorePdf(sanitizzaErrore(err) ?? t('bolla.erroreAnteprima'))
         } finally {
             setGenerandoPdf(false)
         }
@@ -468,7 +468,7 @@ function BollaDocumento({ messaggio, praticaId, onDocumentoSalvato }) {
             setSalvato({ url: data.url, nome_file: data.nome_file })
             if (onDocumentoSalvato) onDocumentoSalvato()
         } catch (err) {
-            setErrore(err.message)
+            setErrore(sanitizzaErrore(err) ?? t('errori.sconosciuto'))
         } finally {
             setSalvando(false)
         }
@@ -755,6 +755,7 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
                     azione: 'libera',
                     domanda: domandaPerEdge,
                     messaggi: storia,
+                    lingua: i18n.language,
                 }),
                 signal: abortRef.current.signal,
             })
@@ -844,6 +845,16 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
                 return
             }
 
+            // Niente testo e niente documento, senza errore: nessuna bolla vuota.
+            if (!documentoMarkdown && !testoAccumulato.trim()) {
+                setErrore(t('errori.nonGenerata'))
+                setConversazione(conversazione)
+                setStreamingTesto('')
+                setStatoGenerazione('')
+                setIsDocumentoStreaming(false)
+                return
+            }
+
             let messaggioFinale
             if (documentoMarkdown) {
                 messaggioFinale = {
@@ -873,7 +884,7 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
             if (err.name === 'AbortError') {
                 setConversazione(conversazione)
             } else {
-                setErrore(err.message)
+                setErrore(sanitizzaErrore(err) ?? t('errori.sconosciuto'))
                 setConversazione(conversazione)
             }
             setStreamingTesto('')
@@ -912,7 +923,7 @@ export default function ChatPratica({ praticaId, onDocumentoSalvato }) {
             setTitoloSalva('')
             setTimeout(() => setSalvataConferma(false), 4000)
         } catch (err) {
-            setErrore(err.message)
+            setErrore(sanitizzaErrore(err) ?? t('errori.sconosciuto'))
         } finally {
             setSalvando(false)
         }

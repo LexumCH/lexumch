@@ -19,6 +19,7 @@
   "bottom": {
     "copyright": "© {{year}} Lexum. Tutti i diritti riservati.",
     "privacy": "Privacy Policy",
-    "terms": "Termini di servizio"
+    "terms": "Termini di servizio",
+    "other_site": "Lexum Italia · lexum.it"
   }
 }

@@ -21,6 +21,7 @@
 import { useState, useEffect, useRef, cloneElement, isValidElement, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
+import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import ReactMarkdown from 'react-markdown'
 import {
     Sparkles, Send, Save, Plus, AlertCircle, X, CheckCircle,
@@ -444,7 +445,7 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
             setPdfUrl(url)
             setMarkdownAnteprima(markdownDaRendere)
         } catch (err) {
-            setErrorePdf(err.message)
+            setErrorePdf(sanitizzaErrore(err) ?? t('bolla.erroreAnteprima'))
         } finally {
             setGenerandoPdf(false)
         }
@@ -480,7 +481,7 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
             setSalvato({ url: data.url, nome_file: data.nome_file })
             if (onDocumentoSalvato) onDocumentoSalvato()
         } catch (err) {
-            setErrore(err.message)
+            setErrore(sanitizzaErrore(err) ?? t('errori.sconosciuto'))
         } finally {
             setSalvando(false)
         }
@@ -765,6 +766,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                     azione: 'libera',
                     domanda: domandaPerEdge,
                     messaggi: storia,
+                    lingua: i18n.language,
                 }),
                 signal: abortRef.current.signal,
             })
@@ -772,7 +774,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
             if (!response.ok) {
                 const errBody = await response.json().catch(() => ({ error: t('errori.sconosciuto') }))
                 if (errBody.crediti_esauriti) setErrore('crediti_esauriti')
-                else setErrore(errBody.error ?? t('errori.conCodice', { codice: response.status }))
+                else setErrore(sanitizzaErrore(errBody.error) ?? t('errori.conCodice', { codice: response.status }))
                 setConversazione(conversazione)
                 setInviando(false)
                 return
@@ -784,6 +786,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
             let testoAccumulato = ''
             let creditiRimasti = null
             let eventoCorrente = null
+            let streamError = null   // messaggio dell'evento 'error', se arriva
 
             let documentoMarkdown = null
             let tipoDocumento = null
@@ -830,11 +833,31 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                             }
 
                             if (eventoCorrente === 'error') {
-                                setErrore(data.error ?? t('errori.streaming'))
+                                streamError = sanitizzaErrore(data.error) ?? t('errori.streaming')
+                                setErrore(streamError)
                             }
                         } catch { /* ignore */ }
                     }
                 }
+            }
+
+            // Errore arrivato a metà stream: non appendere un messaggio Lex vuoto/parziale
+            if (streamError) {
+                setConversazione(conversazione)
+                setStreamingTesto('')
+                setStatoGenerazione('')
+                setIsDocumentoStreaming(false)
+                return
+            }
+
+            // Niente testo e niente documento, senza errore: nessuna bolla vuota.
+            if (!documentoMarkdown && !testoAccumulato.trim()) {
+                setErrore(t('errori.nonGenerata'))
+                setConversazione(conversazione)
+                setStreamingTesto('')
+                setStatoGenerazione('')
+                setIsDocumentoStreaming(false)
+                return
             }
 
             let messaggioFinale
@@ -866,7 +889,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
             if (err.name === 'AbortError') {
                 setConversazione(conversazione)
             } else {
-                setErrore(err.message)
+                setErrore(sanitizzaErrore(err) ?? t('errori.sconosciuto'))
                 setConversazione(conversazione)
             }
             setStreamingTesto('')
@@ -905,7 +928,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
             setTitoloSalva('')
             setTimeout(() => setSalvataConferma(false), 4000)
         } catch (err) {
-            setErrore(err.message)
+            setErrore(sanitizzaErrore(err) ?? t('errori.sconosciuto'))
         } finally {
             setSalvando(false)
         }

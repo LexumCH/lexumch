@@ -3,6 +3,7 @@ import { useTranslation, Trans } from 'react-i18next'
 import { labelFonteGiur, labelFontePrassi } from '@/lib/istituzioni'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
+import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import { escapeHtml } from '@/lib/escapeHtml'
 import { useAuth } from '@/context/AuthContext'
 import ReactMarkdown from 'react-markdown'
@@ -500,6 +501,7 @@ export default function Ricerche() {
                             kind: el.kind,
                             estratto: corpusElemento(el).slice(0, 1500),
                         })),
+                        lingua: i18n.language,
                     }),
                 }
             )
@@ -519,7 +521,7 @@ export default function Ricerche() {
                 return
             }
 
-            if (!res.ok) throw new Error(json.error ?? t('confronto.errore_generico', { status: res.status }))
+            if (!res.ok) throw new Error(sanitizzaErrore(json.error) ?? t('confronto.errore_generico', { status: res.status }))
 
             setRisultatiLexChiavi(json.keys ?? [])
             setParoleChiaveLex(json.parole_chiave ?? [])
@@ -531,7 +533,7 @@ export default function Ricerche() {
             }
         } catch (e) {
             console.error('Errore ricerca Lex:', e)
-            setErroreLex(e.message ?? t('ricerca.lex_errore'))
+            setErroreLex(sanitizzaErrore(e) ?? t('ricerca.lex_errore'))
             setRisultatiLexChiavi([])
         } finally {
             setCercandoLex(false)
@@ -1453,7 +1455,7 @@ function LexAnimazioneConfronto({ azione }) {
 // PANNELLO CONFRONTO (CON CHAT LEX + AZIONI GUIDATE + STREAMING)
 // ═══════════════════════════════════════════════════════════════
 function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, onChiudi, onSintesiSalvata }) {
-    const { t } = useTranslation('user_ricerche')
+    const { t, i18n } = useTranslation('user_ricerche')
     const [tabMobile, setTabMobile] = useState(0)
 
     const [conversazione, setConversazione] = useState([])
@@ -1510,6 +1512,7 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                             titolo: titoloElemento(el, t),
                             contenuto: contenutoElemento(el),
                         })),
+                        lingua: i18n.language,
                     }),
                     signal: controller.signal,
                 }
@@ -1517,13 +1520,15 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
 
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}))
-                throw new Error(err.error ?? t('confronto.errore_generico', { status: res.status }))
+                if (res.status === 402 || err.crediti_esauriti) throw new Error(t('confronto.crediti_esauriti'))
+                throw new Error(sanitizzaErrore(err.error) ?? t('confronto.errore_generico', { status: res.status }))
             }
 
             const reader = res.body.getReader()
             const decoder = new TextDecoder()
             let buffer = ''
             let testoAccumulato = ''
+            let erroreStream = null   // messaggio dell'evento 'error' del server, se arriva
 
             while (true) {
                 const { value, done } = await reader.read()
@@ -1534,24 +1539,39 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
 
                 for (const line of lines) {
                     if (!line.trim() || !line.startsWith('data: ')) continue
+                    let payload
                     try {
-                        const payload = JSON.parse(line.slice(6).trim())
-                        if (payload.text) {
-                            testoAccumulato += payload.text
-                            setStreamingTesto(testoAccumulato)
-                        }
+                        payload = JSON.parse(line.slice(6).trim())
                     } catch {
-                        // ignora
+                        continue   // riga non JSON: si ignora
+                    }
+                    // Evento d'errore del server (Lex o Lead): prima veniva ignorato
+                    // e restava una risposta vuota.
+                    if (payload.error) {
+                        erroreStream = sanitizzaErrore(payload.error) ?? t('confronto.interrotta')
+                        continue
+                    }
+                    if (payload.text) {
+                        testoAccumulato += payload.text
+                        setStreamingTesto(testoAccumulato)
                     }
                 }
             }
 
+            // Nessun testo: niente bolla vuota, l'utente legge perche'.
+            if (!testoAccumulato.trim()) {
+                throw new Error(erroreStream ?? t('confronto.non_generata'))
+            }
+
             setConversazione([...nuovaConv, { role: 'assistant', content: testoAccumulato, azione }])
             setStreamingTesto('')
+            // Interrotta a meta': il testo arrivato resta, l'errore si vede.
+            if (erroreStream) setErroreLex(erroreStream)
         } catch (e) {
             if (e.name !== 'AbortError') {
-                setErroreLex(e.message)
+                setErroreLex(sanitizzaErrore(e) ?? t('confronto.interrotta'))
                 setConversazione(conversazione)
+                setStreamingTesto('')
             }
         } finally {
             setCercando(false)
@@ -1668,6 +1688,10 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                                         >
                                             {m.content}
                                         </ReactMarkdown>
+                                        {/* Trasparenza AI: art. 50 AI Act */}
+                                        <p className="mt-3 pt-2 border-t border-white/5 font-body text-xs lg:text-[11px] text-nebbia/35 leading-relaxed">
+                                            {t('confronto.disclaimer_ai')}
+                                        </p>
                                     </div>
                                 )}
                             </div>

@@ -14,6 +14,7 @@ import {
     AlertCircle, Building2, Trash2, X, CheckCircle, Sparkles, Loader2
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import RispostaLexClienti from '@/components/avvocato/RispostaLexClienti'
 
 // ─────────────────────────────────────────────────────────────
@@ -263,7 +264,12 @@ export function AvvocatoClienti() {
             const { data, error } = await supabase.functions.invoke('lex-assistente-studio', {
                 body: { domanda: search.trim() }
             })
-            if (error) throw new Error(error.message)
+            if (error) {
+                // Con uno stato d'errore il messaggio scritto dal server sta nel
+                // corpo della risposta: error.message e' un testo tecnico generico.
+                const corpo = await error.context?.json?.().catch(() => null)
+                throw new Error(corpo?.error ?? error.message)
+            }
             if (!data?.ok) throw new Error(data?.error ?? t('errori.lex'))
             setRispostaLex({
                 risposta: data.risposta,
@@ -271,7 +277,7 @@ export function AvvocatoClienti() {
                 oltre_limite: data.oltre_limite ?? false,
             })
         } catch (err) {
-            setErroreLex(err.message)
+            setErroreLex(sanitizzaErrore(err) ?? t('errori.lex'))
         } finally {
             setCercandoLex(false)
         }

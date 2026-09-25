@@ -60,7 +60,11 @@
     },
     "disclaimer_ai": "Mit künstlicher Intelligenz erstellter Inhalt. Lex kann Fehler machen: Überprüfen Sie stets die angegebenen Quellen vor der beruflichen Verwendung.",
     "avviso_salva": "Speichern Sie diese Unterhaltung mit einem Etikett, um sie nicht zu verlieren: Erhalten bleibt nur, was Sie speichern.",
-    "avviso_ai": "Lex ist eine KI und kann Fehler machen."
+    "avviso_ai": "Lex ist eine KI und kann Fehler machen.",
+    "scarica_pdf": "PDF herunterladen",
+    "preparo_pdf": "PDF wird erstellt…",
+    "pdf_senza_parti": "Das PDF wurde trotzdem erstellt, ohne Titel, Eckpunkte und Zusammenfassung.",
+    "pdf_errore": "Das PDF konnte nicht erstellt werden. Bitte versuchen Sie es in Kürze erneut."
   },
   "comune": {
     "lingua": "Sprache:",

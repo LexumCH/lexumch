@@ -47,7 +47,8 @@
     "sconosciuto": "Unbekannter Fehler",
     "conCodice": "Fehler {{codice}}",
     "streaming": "Fehler beim Streaming",
-    "inserisciTitolo": "Geben Sie einen Titel für die Konversation ein"
+    "inserisciTitolo": "Geben Sie einen Titel für die Konversation ein",
+    "nonGenerata": "Die Antwort wurde nicht erstellt. Bitte versuchen Sie es in Kürze erneut."
   },
   "animazione": {
     "titolo": "Lex arbeitet am Dossier",

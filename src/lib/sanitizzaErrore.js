@@ -13,6 +13,10 @@
 //     riconoscibile: 429 → troppe richieste, 5xx/401/403 → servizio non
 //     disponibile).
 //
+// Dal 25/09/2026 ferma anche gli errori di rete del browser ("Failed to fetch",
+// "Load failed") e i messaggi tecnici in inglese del motore JavaScript o della
+// piattaforma ("Unexpected token", "Edge Function returned a non-2xx status").
+//
 // Il dettaglio tecnico reale resta nei log lato server (edge function), mai qui.
 // Difesa in profondità: le edge Lex già restituiscono messaggi generici; questo
 // filtro copre anche le funzioni che non possiamo auditare/patchare al volo.
@@ -24,21 +28,32 @@ import i18n from 'i18next'
 const MARKER =
   /openai|anthropic|mistral|\bclaude\b|claude-|\bgpt-|chatgpt|api\.(?:openai|anthropic|mistral)|x-api-key|anthropic-version|\bsk-ant-|\bsk-proj-|\bsk-[a-z0-9]{20}|text-embedding/i
 
+const RETE = /failed to fetch|networkerror|network error|load failed|err_network|err_internet_disconnected/i
+
+const TECNICO =
+  /unexpected (?:end|token)|\bjson\b|is not a function|cannot read propert|is not defined|\bundefined\b|typeerror|syntaxerror|referenceerror|statement timeout|internal server error|bad gateway|gateway time-?out|worker_limit|econnreset|edge function returned|non-2xx|failed to send a request to the edge function|relay error/i
+
 const MSG = {
   it: {
     rate: 'Troppe richieste in questo momento. Riprova tra qualche secondo.',
     down: 'Il servizio AI è temporaneamente non disponibile. Riprova tra poco.',
     generico: 'Il servizio AI non è al momento disponibile. Riprova tra poco.',
+    rete: 'La connessione si è interrotta. Controlla la rete e riprova.',
+    tecnico: 'Si è verificato un errore temporaneo. Riprova tra qualche istante.',
   },
   de: {
     rate: 'Zu viele Anfragen im Moment. Bitte in einigen Sekunden erneut versuchen.',
     down: 'Der KI-Dienst ist vorübergehend nicht verfügbar. Bitte später erneut versuchen.',
     generico: 'Der KI-Dienst ist derzeit nicht verfügbar. Bitte später erneut versuchen.',
+    rete: 'Die Verbindung wurde unterbrochen. Bitte prüfen Sie das Netzwerk und versuchen Sie es erneut.',
+    tecnico: 'Ein vorübergehender Fehler ist aufgetreten. Bitte versuchen Sie es in Kürze erneut.',
   },
   fr: {
     rate: 'Trop de requêtes pour le moment. Réessayez dans quelques secondes.',
     down: 'Le service IA est temporairement indisponible. Réessayez bientôt.',
     generico: "Le service IA est momentanément indisponible. Réessayez bientôt.",
+    rete: 'La connexion a été interrompue. Vérifiez le réseau et réessayez.',
+    tecnico: "Une erreur temporaire s'est produite. Veuillez réessayer dans quelques instants.",
   },
 }
 
@@ -60,13 +75,17 @@ export function sanitizzaErrore(input, fallback) {
       ? input
       : input?.message ?? (input == null ? '' : String(input))
   if (!raw) return undefined
-  if (!MARKER.test(raw)) return raw // nessun riferimento provider → invariato
 
   const m = messaggi()
-  const stato = (raw.match(/\b(429|5\d\d|401|403)\b/) || [])[1]
-  if (stato === '429') return m.rate
-  if (stato === '401' || stato === '403' || (stato && stato[0] === '5')) return m.down
-  return fallback ?? m.generico
+  if (MARKER.test(raw)) {
+    const stato = (raw.match(/\b(429|5\d\d|401|403)\b/) || [])[1]
+    if (stato === '429') return m.rate
+    if (stato === '401' || stato === '403' || (stato && stato[0] === '5')) return m.down
+    return fallback ?? m.generico
+  }
+  if (RETE.test(raw)) return m.rete
+  if (TECNICO.test(raw)) return fallback ?? m.tecnico
+  return raw // messaggio gia' scritto per l'utente → invariato
 }
 
 export default sanitizzaErrore

@@ -47,7 +47,8 @@
     "sconosciuto": "Errore sconosciuto",
     "conCodice": "Errore {{codice}}",
     "streaming": "Errore nello streaming",
-    "inserisciTitolo": "Inserisci un titolo per la conversazione"
+    "inserisciTitolo": "Inserisci un titolo per la conversazione",
+    "nonGenerata": "La risposta non è stata generata. Riprova tra qualche istante."
   },
   "animazione": {
     "titolo": "Lex sta lavorando sul mandato",

@@ -7,5 +7,6 @@
     },
     "clienti_citati": {
         "titolo": "Erwähnte Mandanten ({{count}})"
-    }
+    },
+    "disclaimer_ai": "Mit künstlicher Intelligenz erstellter Inhalt. Lex kann Fehler machen: Überprüfen Sie die Daten stets vor der beruflichen Verwendung."
 }

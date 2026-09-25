@@ -60,7 +60,11 @@
     },
     "disclaimer_ai": "Contenu généré par intelligence artificielle. Lex peut commettre des erreurs : vérifiez toujours les sources citées avant tout usage professionnel.",
     "avviso_salva": "Enregistrez cette conversation avec une étiquette pour ne pas la perdre : seul ce que vous enregistrez est conservé.",
-    "avviso_ai": "Lex est une IA et peut commettre des erreurs."
+    "avviso_ai": "Lex est une IA et peut commettre des erreurs.",
+    "scarica_pdf": "Télécharger le PDF",
+    "preparo_pdf": "Préparation du PDF…",
+    "pdf_senza_parti": "Le PDF a tout de même été créé, sans titre, points clés ni synthèse.",
+    "pdf_errore": "Impossible de créer le PDF. Veuillez réessayer dans quelques instants."
   },
   "comune": {
     "lingua": "Langue :",

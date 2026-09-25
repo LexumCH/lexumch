@@ -168,7 +168,11 @@
     "intro_chat": "Wählen Sie eine geführte Aktion oder schreiben Sie eine freie Frage. Lex analysiert die {{count}} verglichenen Elemente.",
     "placeholder_approfondisci": "Vertiefen Sie oder stellen Sie eine neue Frage...",
     "placeholder_libera": "Oder schreiben Sie eine freie Frage...",
-    "invia_domanda_libera": "Freie Frage senden"
+    "invia_domanda_libera": "Freie Frage senden",
+    "crediti_esauriti": "Lex-Guthaben aufgebraucht. Kaufen Sie ein Guthabenpaket, um fortzufahren.",
+    "non_generata": "Die Antwort wurde nicht erstellt. Bitte versuchen Sie es in Kürze erneut.",
+    "interrotta": "Die Antwort wurde unterbrochen. Bitte versuchen Sie es in Kürze erneut.",
+    "disclaimer_ai": "Mit künstlicher Intelligenz erstellter Inhalt. Lex kann Fehler machen: Überprüfen Sie stets die angegebenen Quellen vor der beruflichen Verwendung."
   },
   "colonna": {
     "apri_banca_dati": "In der Datenbank öffnen",

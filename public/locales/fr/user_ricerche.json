@@ -168,7 +168,11 @@
     "intro_chat": "Choisissez une action guidée ou écrivez une question libre. Lex raisonnera sur les {{count}} éléments comparés.",
     "placeholder_approfondisci": "Approfondissez ou posez une nouvelle question...",
     "placeholder_libera": "Ou écrivez une question libre...",
-    "invia_domanda_libera": "Envoyer la question libre"
+    "invia_domanda_libera": "Envoyer la question libre",
+    "crediti_esauriti": "Crédits Lex épuisés. Achetez un pack de crédits pour continuer.",
+    "non_generata": "La réponse n'a pas été générée. Veuillez réessayer dans quelques instants.",
+    "interrotta": "La réponse s'est interrompue. Veuillez réessayer dans quelques instants.",
+    "disclaimer_ai": "Contenu généré par intelligence artificielle. Lex peut commettre des erreurs : vérifiez toujours les sources citées avant tout usage professionnel."
   },
   "colonna": {
     "apri_banca_dati": "Ouvrir dans la base de données",
