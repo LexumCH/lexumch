@@ -28,7 +28,7 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
 
-const MODEL_NARRA = Deno.env.get('NARRA_DISEGNO_MODEL') ?? 'claude-sonnet-5'
+const MODEL_NARRA = Deno.env.get('NARRA_DISEGNO_MODEL') ?? 'claude-sonnet-5-5'
 const MAX_TOKENS = 2600
 
 type Lingua = 'it' | 'de' | 'fr'
@@ -315,9 +315,11 @@ async function chiamaNarraAi(userMsg: string): Promise<{ parsed: any; tokIn: num
       'Content-Type': 'application/json',
       'x-api-key': Deno.env.get('ANTHROPIC_API_KEY')!,
       'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'server-side-fallback-2026-07-01',
     },
     body: JSON.stringify({
       model: MODEL_NARRA,
+      fallbacks: 'default',
       max_tokens: MAX_TOKENS,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userMsg }],
@@ -325,8 +327,11 @@ async function chiamaNarraAi(userMsg: string): Promise<{ parsed: any; tokIn: num
   })
   if (!resp.ok) throw new Error(`Anthropic ${resp.status}: ${await resp.text()}`)
   const j = await resp.json()
+  // Si legge per tipo: con Sonnet 5.5 il primo blocco e' spesso il ragionamento.
+  if (j.stop_reason === 'refusal') throw new Error(`rifiuto del modello (categoria ${j.stop_details?.category ?? 'n/d'})`)
+  const testo = (j.content ?? []).filter((b: any) => b.type === 'text').map((b: any) => b.text).join('')
   return {
-    parsed: estraiJson(j.content?.[0]?.text ?? ''),
+    parsed: estraiJson(testo),
     tokIn: j.usage?.input_tokens ?? 0,
     tokOut: j.usage?.output_tokens ?? 0,
   }

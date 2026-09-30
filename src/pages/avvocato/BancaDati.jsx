@@ -23,11 +23,14 @@ import { PageHeader } from '@/components/shared'
 import BottoniSalvataggio from '@/components/BottoniSalvataggio'
 import AggiungiAPratica from '@/components/AggiungiAPratica'
 import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
+import PacchettoLampo, {
+    salvaRicercaInSospeso, prendiRicercaInSospeso, leggiEsitoLampo, leggiSaldoCrediti,
+} from '@/components/PacchettoLampo'
 import { FONTI_FEDERALI_ORDER, SET_FEDERALI, parseCantonale, labelFonteFederale, labelCamera } from '@/lib/istituzioni'
 import {
     Search, Sparkles, ChevronRight, ChevronLeft,
     BookOpen, AlertCircle, X, FileText,
-    Landmark, Building2, ScrollText, Globe, Scale, MapPin, FileDown, Loader2
+    Landmark, Building2, ScrollText, Globe, Scale, MapPin, FileDown, Loader2, Zap
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 
@@ -229,6 +232,7 @@ function LexAnimazione({ frasi }) {
 // ═══════════════════════════════════════════════════════════════
 function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
     const { t } = useTranslation('avv_banca_dati')
+    const { t: tLampo } = useTranslation('comp_pacchetto_lampo')
     const [domanda, setDomanda] = useState('')
     const [cercando, setCercando] = useState(false)
     const [errore, setErrore] = useState(null)
@@ -241,10 +245,59 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
     const [ricercaSalvataId, setRicercaSalvataId] = useState(null)
     const abortControllerRef = useRef(null)
 
+    // ── Pacchetto Lampo (30/09/2026, come su IT): popup quando i crediti finiscono,
+    // invito dopo l'ultima ricerca, ritorno dal pagamento con la conversazione ripristinata ──
+    const [lampo, setLampo] = useState({ aperto: false, motivo: 'esauriti' })
+    const [ultimaUsata, setUltimaUsata] = useState(false)
+    const [ritornoLampo, setRitornoLampo] = useState(null)   // 'attesa' | 'arrivati' | 'lento' | 'annullato'
+
+    // Al ritorno da Stripe si ritrova la ricerca lasciata per pagare.
+    useEffect(() => {
+        const esito = leggiEsitoLampo()
+        if (!esito) return
+        const sospesa = prendiRicercaInSospeso()
+        if (sospesa) {
+            if (Array.isArray(sospesa.conversazione)) setConversazione(sospesa.conversazione)
+            if (Array.isArray(sospesa.messaggi) && onAggiornaMessaggi) onAggiornaMessaggi(sospesa.messaggi)
+            if (sospesa.clientConversationId) setClientConversationId(sospesa.clientConversationId)
+            if (sospesa.domanda) setDomanda(sospesa.domanda)
+        }
+        setRitornoLampo(esito === 'ok' ? 'attesa' : 'annullato')
+    }, [])
+
+    // Dopo il pagamento i crediti li accredita il webhook di Stripe, di solito in pochi
+    // secondi: si controlla il saldo ogni 2 s per mezzo minuto.
+    useEffect(() => {
+        if (ritornoLampo !== 'attesa') return
+        let volte = 0
+        let fermo = false
+        const timer = setInterval(async () => {
+            volte += 1
+            const saldo = await leggiSaldoCrediti().catch(() => 0)
+            if (fermo) return
+            if (saldo > 0) {
+                setCrediti(saldo)
+                setRitornoLampo('arrivati')
+                clearInterval(timer)
+            } else if (volte >= 15) {
+                setRitornoLampo('lento')
+                clearInterval(timer)
+            }
+        }, 2000)
+        return () => { fermo = true; clearInterval(timer) }
+    }, [ritornoLampo])
+
     async function cerca(domandaInput, opzioni = {}) {
         const domandaCorrente = domandaInput ?? domanda
         if (!domandaCorrente.trim()) return
-        if (crediti !== null && crediti <= 0) { setErrore('crediti_esauriti'); return }
+        if (crediti !== null && crediti <= 0) {
+            // Si propone il Pacchetto Lampo; la domanda resta nella casella per quando si riparte.
+            if (domandaInput && !domanda.trim()) setDomanda(domandaCorrente)
+            setLampo({ aperto: true, motivo: 'esauriti' })
+            return
+        }
+        setRitornoLampo(null)
+        setUltimaUsata(false)
 
         if (!opzioni.tipoRichiesta || opzioni.tipoRichiesta === 'query_iniziale') setDomanda('')
         setCercando(true); setErrore(null); setFaseCorrente(null); setStreamingTesto('')
@@ -278,6 +331,11 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
             if (!res.ok) {
                 const errBody = await res.json().catch(() => ({ error: t('lex.errore_sconosciuto') }))
                 setErrore(errBody.crediti_esauriti ? 'crediti_esauriti' : (sanitizzaErrore(errBody.error) ?? t('lex.errore_http', { status: res.status })))
+                if (errBody.crediti_esauriti) {
+                    setCrediti(0)
+                    setDomanda(domandaCorrente)   // la domanda torna nella casella per quando si riparte
+                    setLampo({ aperto: true, motivo: 'esauriti' })
+                }
                 setConversazione(conversazione)
                 setCercando(false)
                 return
@@ -324,7 +382,10 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                 if (data.stop_reason === 'max_tokens') setErrore(t('lex.risposta_al_limite'))
                                 metaFinale = data.meta
                                 tipoRisposta = data.tipo_risposta
-                                if (data.crediti_rimasti !== undefined) setCrediti(data.crediti_rimasti)
+                                if (data.crediti_rimasti !== undefined) {
+                                    setCrediti(data.crediti_rimasti)
+                                    if (data.crediti_rimasti === 0) setUltimaUsata(true)
+                                }
                             }
                             if (eventoCorrente === 'error') setErrore(sanitizzaErrore(data.error) ?? t('lex.errore_streaming'))
                         } catch { /* ignore */ }
@@ -573,11 +634,41 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                             <AlertCircle size={13} className="text-oro shrink-0" />
                             <p className="font-body text-xs text-nebbia/60">{t('lex.crediti_esauriti')}</p>
                         </div>
-                        <a href="/studio?tab=acquista" target="_blank" rel="noopener noreferrer"
-                            className="font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors whitespace-nowrap">
-                            {t('lex.acquista_crediti')}
-                        </a>
+                        <button onClick={() => setLampo({ aperto: true, motivo: 'esauriti' })}
+                            className="flex items-center gap-1.5 min-h-[36px] font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors whitespace-nowrap">
+                            <Zap size={12} /> {tLampo('btn_continua_lampo')}
+                        </button>
                     </div>
+                )}
+                {ultimaUsata && !errore && !cercando && (
+                    <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-oro/5 border border-oro/20">
+                        <p className="font-body text-xs text-nebbia/60">{tLampo('banner_ultima')}</p>
+                        <button onClick={() => setLampo({ aperto: true, motivo: 'ultimo' })}
+                            className="flex items-center gap-1.5 min-h-[36px] font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors whitespace-nowrap">
+                            <Zap size={12} /> {tLampo('btn_continua_ricerca')}
+                        </button>
+                    </div>
+                )}
+                {ritornoLampo === 'attesa' && (
+                    <div className="flex items-center gap-2 p-3 bg-salvia/5 border border-salvia/20">
+                        <Loader2 size={13} className="animate-spin text-salvia shrink-0" />
+                        <p className="font-body text-xs text-nebbia/70">{tLampo('ritorno_attesa')}</p>
+                    </div>
+                )}
+                {ritornoLampo === 'arrivati' && (
+                    <div className="flex items-center gap-2 p-3 bg-salvia/10 border border-salvia/25">
+                        <Sparkles size={13} className="text-salvia shrink-0" />
+                        <p className="font-body text-xs text-salvia">{tLampo('ritorno_arrivati', { count: crediti ?? 0 })}</p>
+                    </div>
+                )}
+                {ritornoLampo === 'lento' && (
+                    <div className="flex items-center gap-2 p-3 bg-amber-400/5 border border-amber-400/20">
+                        <AlertCircle size={13} className="text-amber-400 shrink-0" />
+                        <p className="font-body text-xs text-nebbia/70">{tLampo('ritorno_lento')}</p>
+                    </div>
+                )}
+                {ritornoLampo === 'annullato' && (
+                    <p className="font-body text-xs text-nebbia/40">{tLampo('ritorno_annullato')}</p>
                 )}
 
                 <button onClick={() => cerca()} disabled={cercando || !domanda.trim()}
@@ -591,6 +682,18 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                     <p className="font-body text-xs text-nebbia/35 leading-relaxed">{t('lex.avviso_ai')}</p>
                 </div>
             </div>
+
+            <PacchettoLampo
+                aperto={lampo.aperto}
+                motivo={lampo.motivo}
+                onChiudi={() => setLampo(l => ({ ...l, aperto: false }))}
+                primaDiPagare={() => salvaRicercaInSospeso({
+                    domanda,
+                    conversazione,
+                    messaggi: messaggi ?? [],
+                    clientConversationId,
+                })}
+            />
         </div>
     )
 }

@@ -25,7 +25,7 @@
 // credito extra. Cache in progetto_disegni.esiti_sia, invalidata su cambio
 // disegno / lingua / modello / impronta dell'archivio SIA.
 //
-// Versione: 1.0.0-CH
+// Versione: 1.0.1-CH
 // ═══════════════════════════════════════════════════════════════
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
@@ -35,7 +35,7 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
 
-const MODEL_SIA = Deno.env.get('NORME_SIA_MODEL') ?? 'claude-sonnet-5'
+const MODEL_SIA = Deno.env.get('NORME_SIA_MODEL') ?? 'claude-sonnet-5-5'
 const EMBED_MODEL = 'text-embedding-3-small'
 const MATCH_THRESHOLD = 0.42
 const MATCH_COUNT = 12
@@ -207,16 +207,20 @@ async function chiamaSonnet(system: string, user: string, maxTokens: number) {
       'Content-Type': 'application/json',
       'x-api-key': Deno.env.get('ANTHROPIC_API_KEY')!,
       'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'server-side-fallback-2026-07-01',
     },
     body: JSON.stringify({
-      model: MODEL_SIA, max_tokens: maxTokens,
+      model: MODEL_SIA, fallbacks: 'default', max_tokens: maxTokens,
       system, messages: [{ role: 'user', content: user }],
     }),
   })
   if (!resp.ok) throw new Error(`Anthropic ${resp.status}: ${await resp.text()}`)
   const j = await resp.json()
+  // Si legge per tipo: con Sonnet 5.5 il primo blocco e' spesso il ragionamento.
+  if (j.stop_reason === 'refusal') throw new Error(`rifiuto del modello (categoria ${j.stop_details?.category ?? 'n/d'})`)
+  const testo = (j.content ?? []).filter((b: any) => b.type === 'text').map((b: any) => b.text).join('')
   return {
-    parsed: estraiJson(j.content?.[0]?.text ?? ''),
+    parsed: estraiJson(testo),
     tokIn: j.usage?.input_tokens ?? 0,
     tokOut: j.usage?.output_tokens ?? 0,
   }

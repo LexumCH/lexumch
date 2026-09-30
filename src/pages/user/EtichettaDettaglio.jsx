@@ -12,6 +12,7 @@ import {
     FolderOpen, Save, Check, Plus, FileText, MapPin, Globe, Scale,
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import PacchettoLampo from '@/components/PacchettoLampo'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 const toArray = (v) => Array.isArray(v) ? v : []
@@ -665,6 +666,7 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
     const [azioneCorrente, setAzioneCorrente] = useState('libera')
     const [streamingTesto, setStreamingTesto] = useState('')
     const [erroreLex, setErroreLex] = useState('')
+    const [lampoAperto, setLampoAperto] = useState(false)   // Pacchetto Lampo (30/09/2026)
     const [mostraModaleSalva, setMostraModaleSalva] = useState(false)
     const [contenutoSalva, setContenutoSalva] = useState('')
     const abortControllerRef = useRef(null)
@@ -732,7 +734,10 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
 
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}))
-                if (res.status === 402 || err.crediti_esauriti) throw new Error(t('chat.crediti_esauriti'))
+                if (res.status === 402 || err.crediti_esauriti) {
+                    setLampoAperto(true)
+                    throw new Error(t('chat.crediti_esauriti'))
+                }
                 throw new Error(sanitizzaErrore(err.error) ?? t('chat.errore_http', { status: res.status }))
             }
 
@@ -989,6 +994,8 @@ function ChatEtichetta({ etichetta, contenuti, pratiche, etichetteUtente, onSint
                     }}
                 />
             )}
+
+            <PacchettoLampo aperto={lampoAperto} onChiudi={() => setLampoAperto(false)} />
         </div>
     )
 }

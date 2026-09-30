@@ -15,6 +15,7 @@ import {
     BookOpen, Landmark, ScrollText, ExternalLink, MapPin, Globe, Scale,
 } from 'lucide-react'
 import AggiungiAPratica from '@/components/AggiungiAPratica'
+import PacchettoLampo from '@/components/PacchettoLampo'
 
 const PALETTE = [
     '#C9A45C', '#7FA39A', '#8B7BB8', '#D49B6F',
@@ -1464,6 +1465,7 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
     const [azioneCorrente, setAzioneCorrente] = useState('libera')
     const [streamingTesto, setStreamingTesto] = useState('')
     const [erroreLex, setErroreLex] = useState('')
+    const [lampoAperto, setLampoAperto] = useState(false)   // Pacchetto Lampo (30/09/2026)
     const [mostraModaleSalva, setMostraModaleSalva] = useState(false)
     const [contenutoSalva, setContenutoSalva] = useState('')
     const abortControllerRef = useRef(null)
@@ -1520,7 +1522,10 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
 
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}))
-                if (res.status === 402 || err.crediti_esauriti) throw new Error(t('confronto.crediti_esauriti'))
+                if (res.status === 402 || err.crediti_esauriti) {
+                    setLampoAperto(true)
+                    throw new Error(t('confronto.crediti_esauriti'))
+                }
                 throw new Error(sanitizzaErrore(err.error) ?? t('confronto.errore_generico', { status: res.status }))
             }
 
@@ -1796,6 +1801,8 @@ function PannelloConfronto({ elementi, etichette, pratiche, basePathBancaDati, o
                     }}
                 />
             )}
+
+            <PacchettoLampo aperto={lampoAperto} onChiudi={() => setLampoAperto(false)} />
         </div>
     )
 }

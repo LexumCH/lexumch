@@ -83,7 +83,7 @@ export default function ChatWidget() {
                             <Sparkles size={12} className="text-oro shrink-0" />
                             <p className="font-body text-xs text-oro/80 leading-relaxed">
                                 <Trans t={t} i18nKey="cta.bonus">
-                                    Registrandoti ricevi <span className="font-medium">3 ricerche gratuite</span> con Lex AI
+                                    Registrandoti la <span className="font-medium">prima ricerca</span> con Lex AI è gratuita
                                 </Trans>
                             </p>
                         </div>

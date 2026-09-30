@@ -32,7 +32,7 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
 
-const MODEL_CANT = Deno.env.get('NORMATIVA_CANTONALE_MODEL') ?? 'claude-sonnet-5'
+const MODEL_CANT = Deno.env.get('NORMATIVA_CANTONALE_MODEL') ?? 'claude-sonnet-5-5'
 const MAX_SELEZIONI = 12
 
 type Lingua = 'it' | 'de' | 'fr'
@@ -232,16 +232,20 @@ async function chiamaSonnet(system: string, user: string, maxTokens: number) {
       'Content-Type': 'application/json',
       'x-api-key': Deno.env.get('ANTHROPIC_API_KEY')!,
       'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'server-side-fallback-2026-07-01',
     },
     body: JSON.stringify({
-      model: MODEL_CANT, max_tokens: maxTokens,
+      model: MODEL_CANT, fallbacks: 'default', max_tokens: maxTokens,
       system, messages: [{ role: 'user', content: user }],
     }),
   })
   if (!resp.ok) throw new Error(`Anthropic ${resp.status}: ${await resp.text()}`)
   const j = await resp.json()
+  // Si legge per tipo: con Sonnet 5.5 il primo blocco e' spesso il ragionamento.
+  if (j.stop_reason === 'refusal') throw new Error(`rifiuto del modello (categoria ${j.stop_details?.category ?? 'n/d'})`)
+  const testo = (j.content ?? []).filter((b: any) => b.type === 'text').map((b: any) => b.text).join('')
   return {
-    parsed: estraiJson(j.content?.[0]?.text ?? ''),
+    parsed: estraiJson(testo),
     tokIn: j.usage?.input_tokens ?? 0,
     tokOut: j.usage?.output_tokens ?? 0,
   }
