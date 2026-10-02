@@ -19,7 +19,10 @@
     "soft_titolo_one": "Ihnen verbleibt noch {{count}} Mandanten-Slot",
     "soft_titolo_other": "Ihnen verbleiben noch {{count}} Mandanten-Slots",
     "soft_testo": "Sie haben {{conteggio}} von {{totale}} Slots Ihres Abonnements genutzt. Erwägen Sie ein Add-on, um eine Sperre zu vermeiden.",
-    "soft_link": "Optionen ansehen"
+    "soft_link": "Optionen ansehen",
+    "scaduto_titolo": "Abonnement abgelaufen",
+    "scaduto_testo": "Um neue Mandanten zu erfassen, muss das Abonnement erneuert werden.",
+    "scaduto_cta": "Abonnement erneuern"
   },
   "sezioni": {
     "tipo_soggetto": "Art der Person",
@@ -104,6 +107,7 @@
     "annulla": "Abbrechen",
     "crea": "Mandant erstellen",
     "limite_raggiunto": "Limit erreicht",
-    "limite_tooltip": "Mandantenlimit erreicht – erwerben Sie ein Add-on, um fortzufahren"
+    "limite_tooltip": "Mandantenlimit erreicht – erwerben Sie ein Add-on, um fortzufahren",
+    "piano_scaduto": "Abonnement abgelaufen"
   }
 }

@@ -14,7 +14,7 @@
     "grazia": {
       "titolo_one": "Kulanzfrist — noch {{count}} Tag",
       "titolo_other": "Kulanzfrist — noch {{count}} Tage",
-      "descrizione": "Sie haben ab Ablauf 7 Tage Zeit zur Erneuerung, bevor das Archiv schreibgeschützt wird.",
+      "descrizione": "Der Dienst bleibt bis zum Ende der Kulanzfrist aktiv: Erneuern Sie, bevor das Archiv schreibgeschützt wird.",
       "cta": "Jetzt erneuern"
     },
     "scadenza": {

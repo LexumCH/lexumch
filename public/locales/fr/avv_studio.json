@@ -14,7 +14,7 @@
     "grazia": {
       "titolo_one": "Délai de grâce — {{count}} jour restant",
       "titolo_other": "Délai de grâce — {{count}} jours restants",
-      "descrizione": "Vous disposez de 7 jours après l'expiration pour renouveler avant que l'archive ne passe en lecture seule.",
+      "descrizione": "Le service reste actif jusqu'à la fin du délai de grâce : renouvelez avant que l'archive ne passe en lecture seule.",
       "cta": "Renouveler maintenant"
     },
     "scadenza": {

@@ -19,7 +19,10 @@
     "soft_titolo_one": "Il vous reste {{count}} emplacement client",
     "soft_titolo_other": "Il vous reste {{count}} emplacements clients",
     "soft_testo": "Vous avez utilisé {{conteggio}} des {{totale}} emplacements de votre abonnement. Envisagez un module pour ne pas risquer un blocage.",
-    "soft_link": "Voir les options"
+    "soft_link": "Voir les options",
+    "scaduto_titolo": "Abonnement expiré",
+    "scaduto_testo": "Pour enregistrer de nouveaux clients, l'abonnement doit être renouvelé.",
+    "scaduto_cta": "Renouveler l'abonnement"
   },
   "sezioni": {
     "tipo_soggetto": "Type de personne",
@@ -104,6 +107,7 @@
     "annulla": "Annuler",
     "crea": "Créer le client",
     "limite_raggiunto": "Limite atteinte",
-    "limite_tooltip": "Limite de clients atteinte - achetez un module pour continuer"
+    "limite_tooltip": "Limite de clients atteinte - achetez un module pour continuer",
+    "piano_scaduto": "Abonnement expiré"
   }
 }

@@ -19,7 +19,10 @@
     "soft_titolo_one": "Ti resta {{count}} slot cliente",
     "soft_titolo_other": "Ti restano {{count}} slot clienti",
     "soft_testo": "Hai usato {{conteggio}} dei {{totale}} slot del tuo piano. Considera un add-on per non rischiare di bloccarti.",
-    "soft_link": "Vedi opzioni"
+    "soft_link": "Vedi opzioni",
+    "scaduto_titolo": "Piano scaduto",
+    "scaduto_testo": "Per registrare nuovi clienti il piano dello studio va rinnovato.",
+    "scaduto_cta": "Rinnova il piano"
   },
   "sezioni": {
     "tipo_soggetto": "Tipo di soggetto",
@@ -104,6 +107,7 @@
     "annulla": "Annulla",
     "crea": "Crea cliente",
     "limite_raggiunto": "Limite raggiunto",
-    "limite_tooltip": "Limite clienti raggiunto - acquista un add-on per continuare"
+    "limite_tooltip": "Limite clienti raggiunto - acquista un add-on per continuare",
+    "piano_scaduto": "Piano scaduto"
   }
 }

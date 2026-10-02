@@ -1,0 +1,14 @@
+{
+  "titolo": "Choisir dans votre archive",
+  "chiudi": "Fermer",
+  "cerca_placeholder": "Rechercher par titre...",
+  "tutte_le_categorie": "Toutes les catégories",
+  "senza_categoria": "Sans catégorie",
+  "errore_lettura": "Impossible de lire l'archive. Réessayez dans un instant.",
+  "nessun_risultato": "Aucun document trouvé.",
+  "archivio_vuoto": "Votre archive ne contient pas encore de documents prêts à être analysés.",
+  "in_lettura_one": "1 document est encore en cours de lecture : il sera bientôt disponible.",
+  "in_lettura_other": "{{count}} documents sont encore en cours de lecture : ils seront bientôt disponibles.",
+  "vai_archivio": "Aller à l'archive →",
+  "solo_recenti": "Les 50 plus récents sont affichés : recherchez par titre pour trouver les autres."
+}

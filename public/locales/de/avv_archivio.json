@@ -126,22 +126,28 @@
   "header": {
     "label": "Anwalt",
     "title": "Archiv",
-    "sottotitolo": "{{documenti}} Dokumente · {{indicizzati}} indexiert · {{occupato}}/{{totali}} GB",
+    "sottotitolo": "{{documenti}} Dokumente · {{indicizzati}} indexiert · {{occupato}} von {{totali}}",
     "sottotitolo_sentenze": "Aus der Datenbank erworbene Urteile",
     "gestisci_categorie": "Kategorien und Unterkategorien verwalten",
     "categorie": "Kategorien",
     "carica_documenti": "Dokumente hochladen",
     "upload_bloccato": "Upload gesperrt",
     "caricamento": "Wird hochgeladen...",
-    "esplora_banca_dati": "Datenbank durchsuchen"
+    "esplora_banca_dati": "Datenbank durchsuchen",
+    "label_privato": "Persönlicher Bereich"
   },
   "blocco": {
     "piano_scaduto": "Abonnement abgelaufen — Archiv im Nur-Lese-Modus",
-    "spazio_esaurito": "Speicherplatz erschöpft — geben Sie Dateien frei oder erwerben Sie ein Speicherpaket"
+    "spazio_esaurito": "Speicherplatz erschöpft — geben Sie Dateien frei oder erwerben Sie ein Speicherpaket",
+    "spazio_esaurito_privato": "Speicherplatz erschöpft — geben Sie Dateien frei oder aktivieren Sie den Persönlichen Plan"
   },
   "errori": {
     "troppi_file": "Sie können maximal {{max}} Dokumente gleichzeitig hochladen. Sie haben {{selezionati}} ausgewählt.",
-    "spazio_insufficiente": "Nicht genügend Speicherplatz. Sie laden {{caricando}} GB hoch, haben aber nur {{liberi}} GB frei."
+    "spazio_insufficiente": "Nicht genügend Speicherplatz. Sie laden {{caricando}} hoch, haben aber nur {{liberi}} frei.",
+    "server_spazio_esaurito": "Archivspeicher erschöpft.",
+    "server_sola_lettura": "Abonnement abgelaufen: Das Archiv ist im Nur-Lese-Modus.",
+    "server_rifiutato": "Archivspeicher erschöpft oder Archiv nicht verfügbar.",
+    "server_generico": "Hochladen fehlgeschlagen: Bitte versuchen Sie es erneut."
   },
   "banner": {
     "piano_scaduto_titolo": "Abonnement abgelaufen — Archiv im Nur-Lese-Modus",
@@ -149,10 +155,13 @@
     "piano_scaduto_testo_other": "Ihre {{count}} Dokumente bleiben zugänglich und durchsuchbar, aber Sie können keine neuen hochladen, solange Sie das Abonnement nicht erneuern.",
     "rinnova_ora": "Jetzt erneuern →",
     "spazio_esaurito_titolo": "Archivspeicher erschöpft",
-    "spazio_esaurito_testo": "Sie haben {{occupato}} GB von {{totali}} GB verfügbar verbraucht. Geben Sie Speicherplatz frei oder erwerben Sie ein Zusatzpaket.",
+    "spazio_esaurito_testo": "Sie haben {{occupato}} von {{totali}} verfügbar verbraucht. Geben Sie Speicherplatz frei oder erwerben Sie ein Zusatzpaket.",
     "acquista_storage": "Speicher kaufen →",
     "quasi_pieno_titolo": "Archiv fast voll — {{pct}}% belegt",
-    "quasi_pieno_testo": "{{occupato}} GB von {{totali}} GB. Erwägen Sie, zusätzlichen Speicherplatz zu kaufen, bevor das Archiv voll ist."
+    "quasi_pieno_testo": "{{occupato}} von {{totali}}. Erwägen Sie, zusätzlichen Speicher zu erwerben, bevor das Archiv voll ist.",
+    "spazio_esaurito_testo_privato": "Sie haben {{occupato}} von {{totali}} verbraucht. Geben Sie Speicherplatz frei oder aktivieren Sie den Persönlichen Plan: mehr Platz für Ihre Dokumente und jeden Monat Lex-AI-Credits.",
+    "quasi_pieno_testo_privato": "{{occupato}} von {{totali}}. Mit dem Persönlichen Plan haben Sie mehr Platz für Ihre Dokumente.",
+    "scopri_piano": "Persönlichen Plan entdecken →"
   },
   "visibilita": {
     "label": "Sichtbarkeit",

@@ -182,5 +182,56 @@
       "parere_cedu": "Pareri",
       "altro_cedu": "Altro"
     }
+  },
+  "documento": {
+    "allega": "Allega un documento da analizzare:",
+    "dal_archivio": "dal tuo archivio",
+    "dal_dispositivo": "dal tuo dispositivo",
+    "lettura": "Lettura del documento...",
+    "passaggi_one": "{{count}} passaggio indicizzato",
+    "passaggi_other": "{{count}} passaggi indicizzati",
+    "origine_archivio": "dal tuo archivio",
+    "origine_dispositivo": "non archiviato, si cancella dopo 4 ore",
+    "rimuovi": "Rimuovi il documento",
+    "troncato": "Documento molto lungo: analizzata solo la prima parte.",
+    "chiedi_salva": "Vuoi salvarlo nel tuo archivio?",
+    "salva": "Salva",
+    "no_grazie": "No, grazie",
+    "controllo_spazio": "Controllo lo spazio dell'archivio...",
+    "categoria": "Categoria",
+    "senza_categoria": "Senza categoria",
+    "salva_in_archivio": "Salva in archivio",
+    "salvataggio": "Salvataggio...",
+    "annulla": "Annulla",
+    "salvato": "Salvato nel tuo archivio · {{categoria}}",
+    "apri_archivio": "Apri l'archivio →",
+    "riprova": "Riprova",
+    "scopri_piano_personale": "Scopri il Piano Personale →",
+    "rinnova_piano": "Rinnova il piano →",
+    "acquista_spazio": "Acquista spazio →",
+    "scaduto": "Il documento allegato non è più disponibile (i documenti restano 4 ore): allegalo di nuovo.",
+    "file_non_disponibile": "Il file non è più disponibile: ricaricalo per salvarlo.",
+    "blocco": {
+      "sola_lettura": "Piano scaduto: l'archivio è in sola lettura.",
+      "senza_spazio": "Il tuo piano non include spazio d'archivio.",
+      "spazio_insufficiente": "Spazio insufficiente: ti restano {{liberi}} su {{quota}}.",
+      "spazio_esaurito": "Spazio dell'archivio esaurito."
+    },
+    "errori": {
+      "non_autenticato": "Sessione scaduta: accedi di nuovo.",
+      "sessione_non_valida": "Sessione scaduta: accedi di nuovo.",
+      "nessun_file": "Nessun file ricevuto.",
+      "formato": "Formato non supportato: si possono analizzare file PDF e TXT.",
+      "pdf_illeggibile": "Il PDF non è leggibile automaticamente (firmato con una struttura non standard, protetto o danneggiato).",
+      "scansione_troppo_grande": "Il documento è una scansione più grande di 20 MB: caricalo diviso in più parti.",
+      "ocr_non_disponibile": "Il documento è una scansione e il riconoscimento del testo non è disponibile: carica una versione con testo selezionabile.",
+      "ocr_fallito": "Il documento è una scansione e il riconoscimento del testo non è riuscito: riprova fra poco.",
+      "testo_breve": "Dal documento non si ricava abbastanza testo da analizzare.",
+      "non_trovato": "Documento non trovato nel tuo archivio.",
+      "in_lettura": "L'archivio sta ancora leggendo questo documento: riprova tra qualche istante.",
+      "senza_testo": "Da questo documento l'archivio non è riuscito a leggere il testo.",
+      "non_segmentabile": "Non è stato possibile suddividere il documento per l'analisi.",
+      "errore": "Analisi del documento non riuscita: riprova."
+    }
   }
 }

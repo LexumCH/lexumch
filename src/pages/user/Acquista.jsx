@@ -24,6 +24,10 @@ export default function Acquista() {
     const [loadingCrediti, setLoadingCrediti] = useState(true)
 
     // Prodotti
+    // Piano Personale dei privati (02-10-2026): crediti del mese + GB di archivio
+    const isPrivato = profile?.role === 'user'
+    const [pianoPersonale, setPianoPersonale] = useState(null)
+    const [pianoScadenza, setPianoScadenza] = useState(null)
     const [pacchettiCrediti, setPacchettiCrediti] = useState([])
     const [abbonamenti, setAbbonamenti] = useState([])
     const [seatAddon, setSeatAddon] = useState([])
@@ -48,6 +52,7 @@ export default function Acquista() {
         if (profile?.id) {
             caricaCrediti()
             caricaProdotti()
+            caricaPiano()
         }
     }, [profile?.id])
 
@@ -59,6 +64,7 @@ export default function Acquista() {
         const timer = setInterval(() => {
             volte += 1
             caricaCrediti()
+            caricaPiano()
             if (volte >= 10) clearInterval(timer)
         }, 3000)
         return () => clearInterval(timer)
@@ -91,10 +97,32 @@ export default function Acquista() {
         setLoadingCrediti(false)
     }
 
+    // Scadenza del Piano Personale letta dal DB (il profilo in memoria non si aggiorna da solo dopo il pagamento)
+    async function caricaPiano() {
+        if (profile?.role !== 'user') return
+        const { data } = await supabase
+            .from('profiles')
+            .select('piano_id, abbonamento_scadenza')
+            .eq('id', profile.id)
+            .single()
+        setPianoScadenza(data?.piano_id && data?.abbonamento_scadenza ? data.abbonamento_scadenza : null)
+    }
+
     async function caricaProdotti() {
         setLoadingProdotti(true)
         setErrore('')
         try {
+            if (profile?.role === 'user') {
+                const { data: piano } = await supabase
+                    .from('prodotti')
+                    .select('id, prezzo, durata_mesi, crediti_ai_mensili, spazio_gb')
+                    .eq('tipo', 'piano_privato')
+                    .eq('attivo', true)
+                    .order('prezzo')
+                    .limit(1)
+                setPianoPersonale(piano?.[0] ?? null)
+            }
+
             // Pacchetti crediti AI
             const { data: cred, error: errCred } = await supabase
                 .from('prodotti')
@@ -241,11 +269,19 @@ export default function Acquista() {
                 <Info size={14} className="text-salvia/60 shrink-0 mt-0.5" />
                 <div className="space-y-1.5 font-body text-xs text-nebbia/55 leading-relaxed">
                     <p><strong className="text-nebbia/80">{t('trasparenza.titolo')}</strong></p>
-                    <p>
-                        {t('trasparenza.piano_pre')}
-                        <span className="text-oro">{t('trasparenza.piano_evidenza')}</span>
-                        {t('trasparenza.piano_post')}
-                    </p>
+                    {isPrivato ? (
+                        <p>
+                            {t('trasparenza.piano_privato_pre')}
+                            <span className="text-oro">{t('trasparenza.piano_privato_evidenza')}</span>
+                            {t('trasparenza.piano_privato_post')}
+                        </p>
+                    ) : (
+                        <p>
+                            {t('trasparenza.piano_pre')}
+                            <span className="text-oro">{t('trasparenza.piano_evidenza')}</span>
+                            {t('trasparenza.piano_post')}
+                        </p>
+                    )}
                     <p>
                         {t('trasparenza.separati_pre')}
                         <span className="text-nebbia/80">{t('trasparenza.separati_evidenza')}</span>
@@ -256,6 +292,17 @@ export default function Acquista() {
                     <p>{t('trasparenza.consumo')}</p>
                 </div>
             </div>
+
+            {/* Piano Personale: solo per i privati */}
+            {isPrivato && pianoPersonale && (
+                <SezionePianoPersonale
+                    prodotto={pianoPersonale}
+                    attivoFino={pianoScadenza}
+                    acquistando={acquistando}
+                    onAcquista={acquista}
+                    conAbbonamenti={isApproved}
+                />
+            )}
 
             {/* Tab navigation (solo se verificato per mostrare entrambi) */}
             {isApproved && (
@@ -310,7 +357,9 @@ export default function Acquista() {
                     loading={loadingProdotti}
                     acquistando={acquistando}
                     onAcquista={acquista}
-                    piano_attivo={!!profile?.piano_id}
+                    // Il Piano Personale non è un piano professionale e non viene
+                    // sostituito: resta valido fino alla sua scadenza
+                    piano_attivo={!isPrivato && !!profile?.piano_id}
                 />
             )}
 
@@ -385,6 +434,71 @@ export default function Acquista() {
             <p className="font-body text-xs text-nebbia/20 text-center pt-4">
                 {t('footer.trust')}
             </p>
+        </div>
+    )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PIANO PERSONALE (privati) — crediti del mese + GB di archivio
+// Pagamento mese per mese, senza rinnovo automatico: chi rinnova prima della
+// scadenza aggiunge un mese da quella data (lo decide il webhook).
+// ═══════════════════════════════════════════════════════════════
+function SezionePianoPersonale({ prodotto, attivoFino, acquistando, onAcquista, conAbbonamenti }) {
+    const { t, i18n } = useTranslation('user_acquista')
+    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    const isLoading = acquistando === prodotto.id
+    const attivo = !!attivoFino && new Date(attivoFino) > new Date()
+    const mesi = Number(prodotto.durata_mesi ?? 1) || 1
+    const voci = [
+        mesi === 1
+            ? t('piano_personale.voce_crediti_mese', { crediti: prodotto.crediti_ai_mensili })
+            : t('piano_personale.voce_crediti_mesi', { crediti: prodotto.crediti_ai_mensili, mesi }),
+        t('piano_personale.voce_archivio', { gb: prodotto.spazio_gb }),
+        t('piano_personale.voce_rinnovo'),
+    ]
+    return (
+        <div className="bg-slate border border-oro/30 p-5 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
+                <div className="min-w-0">
+                    <p className="font-body text-xs text-oro tracking-widest uppercase mb-2">{t('piano_personale.nome')}</p>
+                    <p className="font-display text-4xl font-light text-oro">
+                        CHF {prodotto.prezzo}
+                        <span className="font-body text-sm text-nebbia/40 ml-2">
+                            {mesi === 1 ? t('piano_personale.al_mese') : t('piano_personale.per_mesi', { mesi })}
+                        </span>
+                    </p>
+                    <ul className="mt-4 space-y-2">
+                        {voci.map(v => (
+                            <li key={v} className="flex items-start gap-2 font-body text-xs text-nebbia/60">
+                                <CheckCircle size={11} className="text-salvia shrink-0 mt-0.5" />
+                                <span>{v}</span>
+                            </li>
+                        ))}
+                    </ul>
+                    {conAbbonamenti && (
+                        <p className="font-body text-xs text-nebbia/35 mt-3">{t('piano_personale.per_professionisti')}</p>
+                    )}
+                </div>
+                <div className="sm:text-right shrink-0">
+                    {attivo && (
+                        <p className="font-body text-xs text-salvia mb-2 flex items-center gap-1.5 sm:justify-end">
+                            <CheckCircle size={12} /> {t('piano_personale.attivo_fino', { data: new Date(attivoFino).toLocaleDateString(dateLocale) })}
+                        </p>
+                    )}
+                    <button
+                        onClick={() => onAcquista(prodotto.id)}
+                        disabled={isLoading}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 lg:py-2.5 bg-oro text-petrolio font-body text-sm hover:bg-oro/90 transition-colors disabled:opacity-40"
+                    >
+                        {isLoading
+                            ? <Loader2 size={14} className="animate-spin" />
+                            : <>{attivo ? t('piano_personale.aggiungi_mese') : t('piano_personale.attiva')} <ArrowRight size={12} /></>}
+                    </button>
+                    {attivo && (
+                        <p className="font-body text-xs text-nebbia/35 mt-2">{t('piano_personale.nota_rinnovo')}</p>
+                    )}
+                </div>
+            </div>
         </div>
     )
 }

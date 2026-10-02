@@ -9,6 +9,8 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
+import { useAuth } from '@/context/AuthContext'
+import { rottaArchivio } from '@/lib/archivio'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
@@ -31,6 +33,10 @@ export default function ArchivioDettaglio() {
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const navigate = useNavigate()
+    const { profile } = useAuth()
+    // I privati (ruolo 'user') non hanno clienti, pratiche né movimenti
+    const isPrivato = profile?.role === 'user'
+    const indietro = rottaArchivio(profile?.role)
 
     const [doc, setDoc] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -96,8 +102,12 @@ export default function ArchivioDettaglio() {
 
             // Carica clienti, pratiche, categorie
             const [{ data: cl }, { data: pr }, { data: cat }] = await Promise.all([
-                supabase.from('profiles').select('id, nome, cognome').eq('role', 'cliente').eq('avvocato_id', tId),
-                supabase.from('pratiche').select('id, titolo').eq('avvocato_id', user.id).eq('stato', 'aperta'),
+                isPrivato
+                    ? Promise.resolve({ data: [] })
+                    : supabase.from('profiles').select('id, nome, cognome').eq('role', 'cliente').eq('avvocato_id', tId),
+                isPrivato
+                    ? Promise.resolve({ data: [] })
+                    : supabase.from('pratiche').select('id, titolo').eq('avvocato_id', user.id).eq('stato', 'aperta'),
                 supabase.from('categorie_archivio').select('id, nome').eq('titolare_id', tId).order('nome'),
             ])
             setClienti(cl ?? [])
@@ -115,8 +125,10 @@ export default function ArchivioDettaglio() {
             titolo: formMeta.titolo,
             categoria: formMeta.categoria || null,
             tags: formMeta.tags ? formMeta.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-            cliente_id: formMeta.cliente_id || null,
-            pratica_id: formMeta.pratica_id || null,
+            ...(isPrivato ? {} : {
+                cliente_id: formMeta.cliente_id || null,
+                pratica_id: formMeta.pratica_id || null,
+            }),
             updated_at: new Date().toISOString(),
         }
         await supabase.from('archivio_documenti').update(aggiornato).eq('id', id)
@@ -165,7 +177,7 @@ export default function ArchivioDettaglio() {
 
     if (!doc) return (
         <div className="space-y-5">
-            <BackButton to="/archivio" label={t('back.archivio')} />
+            <BackButton to={indietro} label={t('back.archivio')} />
             <p className="font-body text-sm text-nebbia/40">{t('loading.non_trovato')}</p>
         </div>
     )
@@ -176,7 +188,7 @@ export default function ArchivioDettaglio() {
 
     return (
         <div className="space-y-5">
-            <BackButton to="/archivio" label={t('back.archivio')} />
+            <BackButton to={indietro} label={t('back.archivio')} />
 
             {/* Header */}
             <div className="flex items-start justify-between flex-wrap gap-3">
@@ -191,7 +203,7 @@ export default function ArchivioDettaglio() {
                     <Badge label={t(sc.labelKey)} variant={sc.variant} />
                     {doc.verificato && <Badge label={t('header.verificato')} variant="salvia" />}
                     {/* Tag entrata/uscita (fiduciario): crea il movimento via OCR. Gated sul mandato. */}
-                    <AssegnaMovimento doc={doc} />
+                    {!isPrivato && <AssegnaMovimento doc={doc} />}
                 </div>
             </div>
 
@@ -445,6 +457,7 @@ export default function ArchivioDettaglio() {
                                         className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2 outline-none focus:border-oro/50 placeholder:text-nebbia/20"
                                     />
                                 </div>
+                                {!isPrivato && (<>
                                 <div>
                                     <label className="block font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1.5">{t('metadati.label_cliente')}</label>
                                     <select
@@ -471,6 +484,7 @@ export default function ArchivioDettaglio() {
                                         ))}
                                     </select>
                                 </div>
+                                </>)}
                             </div>
                         ) : (
                             <div className="space-y-3">

@@ -1,0 +1,14 @@
+{
+  "titolo": "Scegli dal tuo archivio",
+  "chiudi": "Chiudi",
+  "cerca_placeholder": "Cerca per titolo...",
+  "tutte_le_categorie": "Tutte le categorie",
+  "senza_categoria": "Senza categoria",
+  "errore_lettura": "Impossibile leggere l'archivio. Riprova tra poco.",
+  "nessun_risultato": "Nessun documento trovato.",
+  "archivio_vuoto": "Nel tuo archivio non ci sono ancora documenti pronti da analizzare.",
+  "in_lettura_one": "1 documento è ancora in lettura: tra poco sarà disponibile.",
+  "in_lettura_other": "{{count}} documenti sono ancora in lettura: tra poco saranno disponibili.",
+  "vai_archivio": "Vai all'archivio →",
+  "solo_recenti": "Vedi i 50 più recenti: cerca per titolo per trovare gli altri."
+}

@@ -50,10 +50,10 @@
     "sub41_text": "Lexum est disponible en plusieurs abonnements aux caractéristiques et prix différents, consultables sur la plateforme. Les prix sont exprimés en francs suisses (CHF) et s'entendent hors TVA le cas échéant.",
     "sub42_title": "4.2 Facturation",
     "sub42_text": "Les abonnements sont facturés à l'avance pour la période choisie (mensuelle ou annuelle). Les paiements sont traités via un prestataire de services de paiement certifié. La facture est émise automatiquement au moment du paiement.",
-    "sub43_title": "4.3 Renouvellement automatique",
-    "sub43_text": "Les abonnements se renouvellent automatiquement à l'échéance, sauf résiliation communiquée au moins 7 jours avant la date de renouvellement. La résiliation peut s'effectuer depuis la section Étude de la plateforme ou en envoyant une communication à info@lexum.ch.",
-    "sub44_title": "4.4 Défaut de paiement",
-    "sub44_text": "En cas de défaut de paiement à l'échéance, le compte entre dans une période de grâce de 3 jours durant laquelle le service reste accessible. Passé ce délai sans régularisation, l'accès est suspendu. Les données sont conservées pendant 30 jours à compter de la suspension, après quoi elles peuvent être définitivement supprimées.",
+    "sub43_title": "4.3 Durée et renouvellement",
+    "sub43_text": "Chaque abonnement couvre la période choisie lors de l'achat et se paie en une seule fois : il ne se renouvelle pas automatiquement et n'entraîne aucun prélèvement ultérieur. Pour continuer à utiliser le service après l'échéance, il faut acheter une nouvelle période depuis la section Étude de la plateforme. À titre de courtoisie, Lexum envoie un rappel à l'adresse e-mail du compte avant l'échéance.",
+    "sub44_title": "4.4 Échéance de l'abonnement",
+    "sub44_text": "À l'échéance, si aucune nouvelle période n'a été achetée, les fonctionnalités réservées aux abonnés ne sont plus disponibles : le compte reste accessible et les documents déjà enregistrés dans l'archive restent consultables en lecture seule. Lexum peut accorder, à sa discrétion, un délai de grâce pendant lequel le service reste accessible. Les données sont conservées pendant 30 jours à compter de l'échéance, après quoi elles peuvent être définitivement supprimées.",
     "sub45_title": "4.5 Remboursements",
     "sub45_text": "Aucun remboursement n'est prévu pour les périodes d'abonnement déjà facturées, sauf défauts du service imputables à Lexum. En cas de passage à un abonnement supérieur, la différence est calculée au prorata pour la période restante.",
     "sub46_title": "4.6 Crédits IA",
@@ -138,12 +138,11 @@
   "risoluzione": {
     "title": "11. Suspension et résiliation du contrat",
     "sub111_title": "11.1 Résiliation par l'Utilisateur",
-    "sub111_text": "L'Utilisateur peut résilier le contrat à tout moment en désactivant l'abonnement depuis la section Étude de la plateforme. La résiliation prend effet à la fin de la période d'abonnement déjà payée.",
+    "sub111_text": "L'Utilisateur peut résilier le contrat à tout moment. Les abonnements ne se renouvelant pas automatiquement, il suffit de ne pas acheter de nouvelle période : le service payant prend fin à l'échéance de la période déjà payée, sans autre prélèvement. Pour la fermeture du compte, l'Utilisateur peut écrire à info@lexum.ch.",
     "sub112_title": "11.2 Suspension par Lexum",
     "sub112_intro": "Lexum se réserve le droit de suspendre ou de résilier le compte de l'Utilisateur en cas de :",
     "sub112_items": [
       "Violation des présentes conditions",
-      "Défaut de paiement au-delà de la période de grâce",
       "Utilisation frauduleuse ou abusive de la plateforme",
       "Demande de l'autorité judiciaire compétente"
     ],

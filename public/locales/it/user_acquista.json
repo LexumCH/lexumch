@@ -29,7 +29,24 @@
     "separati_mid": " e quelli di ",
     "benvenuto_evidenza": "benvenuto",
     "separati_post": " non scadono mai e restano sempre tuoi.",
-    "consumo": "Quando usi Lex AI, vengono consumati prima i crediti del piano (per non sprecarli), poi quelli di benvenuto, infine quelli acquistati."
+    "consumo": "Quando usi Lex AI, vengono consumati prima i crediti del piano (per non sprecarli), poi quelli di benvenuto, infine quelli acquistati.",
+    "piano_privato_pre": "I crediti del ",
+    "piano_privato_evidenza": "Piano Personale",
+    "piano_privato_post": " valgono fino alla scadenza del piano e non si accumulano: quelli non usati si perdono alla scadenza."
+  },
+  "piano_personale": {
+    "nome": "Piano Personale",
+    "al_mese": "al mese",
+    "per_mesi": "per {{mesi}} mesi",
+    "voce_crediti_mese": "{{crediti}} crediti Lex AI al mese",
+    "voce_crediti_mesi": "{{crediti}} crediti Lex AI per {{mesi}} mesi",
+    "voce_archivio": "{{gb}} GB di archivio per i tuoi documenti (invece di 50 MB)",
+    "voce_rinnovo": "Nessun rinnovo automatico: paghi solo quando vuoi continuare",
+    "per_professionisti": "Pensato per chi usa Lexum per sé. Per i professionisti ci sono gli abbonamenti qui sotto.",
+    "attivo_fino": "Attivo fino al {{data}}",
+    "aggiungi_mese": "Aggiungi un mese",
+    "attiva": "Attiva il piano",
+    "nota_rinnovo": "Il mese in più parte dalla scadenza attuale."
   },
   "tab": {
     "crediti": "Pacchetti crediti",

@@ -182,5 +182,56 @@
       "parere_cedu": "Avis",
       "altro_cedu": "Autres"
     }
+  },
+  "documento": {
+    "allega": "Joindre un document à analyser :",
+    "dal_archivio": "depuis votre archive",
+    "dal_dispositivo": "depuis votre appareil",
+    "lettura": "Lecture du document...",
+    "passaggi_one": "{{count}} passage indexé",
+    "passaggi_other": "{{count}} passages indexés",
+    "origine_archivio": "depuis votre archive",
+    "origine_dispositivo": "non archivé, supprimé après 4 heures",
+    "rimuovi": "Retirer le document",
+    "troncato": "Document très long : seule la première partie a été analysée.",
+    "chiedi_salva": "Voulez-vous l'enregistrer dans votre archive ?",
+    "salva": "Enregistrer",
+    "no_grazie": "Non, merci",
+    "controllo_spazio": "Vérification de l'espace de l'archive...",
+    "categoria": "Catégorie",
+    "senza_categoria": "Sans catégorie",
+    "salva_in_archivio": "Enregistrer dans l'archive",
+    "salvataggio": "Enregistrement...",
+    "annulla": "Annuler",
+    "salvato": "Enregistré dans votre archive · {{categoria}}",
+    "apri_archivio": "Ouvrir l'archive →",
+    "riprova": "Réessayer",
+    "scopri_piano_personale": "Découvrir le Plan personnel →",
+    "rinnova_piano": "Renouveler le plan →",
+    "acquista_spazio": "Acheter de l'espace →",
+    "scaduto": "Le document joint n'est plus disponible (les documents restent 4 heures) : joignez-le à nouveau.",
+    "file_non_disponibile": "Le fichier n'est plus disponible : chargez-le à nouveau pour l'enregistrer.",
+    "blocco": {
+      "sola_lettura": "Plan expiré : l'archive est en lecture seule.",
+      "senza_spazio": "Votre plan ne comprend pas d'espace d'archive.",
+      "spazio_insufficiente": "Espace insuffisant : il vous reste {{liberi}} sur {{quota}}.",
+      "spazio_esaurito": "L'espace de l'archive est épuisé."
+    },
+    "errori": {
+      "non_autenticato": "Session expirée : reconnectez-vous.",
+      "sessione_non_valida": "Session expirée : reconnectez-vous.",
+      "nessun_file": "Aucun fichier reçu.",
+      "formato": "Format non pris en charge : les fichiers PDF et TXT peuvent être analysés.",
+      "pdf_illeggibile": "Le PDF ne peut pas être lu automatiquement (signé avec une structure non standard, protégé ou endommagé).",
+      "scansione_troppo_grande": "Le document est un scan de plus de 20 Mo : chargez-le en plusieurs parties.",
+      "ocr_non_disponibile": "Le document est un scan et la reconnaissance du texte n'est pas disponible : chargez une version avec du texte sélectionnable.",
+      "ocr_fallito": "Le document est un scan et la reconnaissance du texte a échoué : réessayez dans un instant.",
+      "testo_breve": "Le document ne contient pas assez de texte à analyser.",
+      "non_trovato": "Document introuvable dans votre archive.",
+      "in_lettura": "L'archive est encore en train de lire ce document : réessayez dans quelques instants.",
+      "senza_testo": "L'archive n'a pas réussi à lire le texte de ce document.",
+      "non_segmentabile": "Le document n'a pas pu être découpé pour l'analyse.",
+      "errore": "L'analyse du document a échoué : veuillez réessayer."
+    }
   }
 }

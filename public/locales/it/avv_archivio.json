@@ -126,22 +126,28 @@
   "header": {
     "label": "Avvocato",
     "title": "Archivio",
-    "sottotitolo": "{{documenti}} documenti · {{indicizzati}} indicizzati · {{occupato}}/{{totali}} GB",
+    "sottotitolo": "{{documenti}} documenti · {{indicizzati}} indicizzati · {{occupato}} di {{totali}}",
     "sottotitolo_sentenze": "Sentenze acquistate dalla banca dati",
     "gestisci_categorie": "Gestisci categorie e sottocategorie",
     "categorie": "Categorie",
     "carica_documenti": "Carica documenti",
     "upload_bloccato": "Upload bloccato",
     "caricamento": "Caricamento...",
-    "esplora_banca_dati": "Esplora banca dati"
+    "esplora_banca_dati": "Esplora banca dati",
+    "label_privato": "Area personale"
   },
   "blocco": {
     "piano_scaduto": "Piano scaduto — archivio in sola lettura",
-    "spazio_esaurito": "Spazio esaurito — libera file o acquista un pacchetto storage"
+    "spazio_esaurito": "Spazio esaurito — libera file o acquista un pacchetto storage",
+    "spazio_esaurito_privato": "Spazio esaurito — libera file o attiva il Piano Personale"
   },
   "errori": {
     "troppi_file": "Puoi caricare massimo {{max}} documenti alla volta. Hai selezionato {{selezionati}}.",
-    "spazio_insufficiente": "Spazio insufficiente. Stai caricando {{caricando}} GB ma hai solo {{liberi}} GB liberi."
+    "spazio_insufficiente": "Spazio insufficiente. Stai caricando {{caricando}} ma hai solo {{liberi}} liberi.",
+    "server_spazio_esaurito": "Spazio dell'archivio esaurito.",
+    "server_sola_lettura": "Piano scaduto: l'archivio è in sola lettura.",
+    "server_rifiutato": "Spazio dell'archivio esaurito, oppure archivio non disponibile.",
+    "server_generico": "Caricamento non riuscito: riprova."
   },
   "banner": {
     "piano_scaduto_titolo": "Piano scaduto — archivio in sola lettura",
@@ -149,10 +155,13 @@
     "piano_scaduto_testo_other": "I tuoi {{count}} documenti restano accessibili e cercabili, ma non puoi caricarne di nuovi finché non rinnovi il piano.",
     "rinnova_ora": "Rinnova ora →",
     "spazio_esaurito_titolo": "Spazio archivio esaurito",
-    "spazio_esaurito_testo": "Hai usato {{occupato}} GB su {{totali}} GB disponibili. Libera spazio o acquista un pacchetto extra.",
+    "spazio_esaurito_testo": "Hai usato {{occupato}} su {{totali}} disponibili. Libera spazio o acquista un pacchetto extra.",
     "acquista_storage": "Acquista storage →",
     "quasi_pieno_titolo": "Archivio quasi pieno — {{pct}}% occupato",
-    "quasi_pieno_testo": "{{occupato}} GB su {{totali}} GB. Considera di acquistare spazio extra prima di riempire l'archivio."
+    "quasi_pieno_testo": "{{occupato}} su {{totali}}. Considera di acquistare spazio extra prima di riempire l'archivio.",
+    "spazio_esaurito_testo_privato": "Hai usato {{occupato}} su {{totali}}. Libera spazio oppure attiva il Piano Personale: più spazio per i tuoi documenti e crediti Lex AI ogni mese.",
+    "quasi_pieno_testo_privato": "{{occupato}} su {{totali}}. Con il Piano Personale hai più spazio per i tuoi documenti.",
+    "scopri_piano": "Scopri il Piano Personale →"
   },
   "visibilita": {
     "label": "Visibilità",

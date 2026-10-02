@@ -17,23 +17,15 @@
 //      (stripe-webhook fa esattamente cosi': non si rompe nulla)
 //   2. un admin autenticato dal pannello
 //
+// verify_jwt resta false DI PROPOSITO: il progetto usa il nuovo formato di
+// chiavi API, che non sono JWT; attivarlo farebbe rifiutare dal gateway le
+// chiamate server-to-server. Il controllo vero e' qui sotto ed e' completo.
+//
 // Il CORS resta '*' DI PROPOSITO: non e' mai stato lui la falla. Il CORS
 // impedisce a un browser di LEGGERE la risposta, non a un programma di fare
 // la chiamata. Stringerlo avrebbe rotto il pannello senza chiudere niente.
 //
-// Input:
-//   {
-//     to: "user@example.com" | ["a@x.it", "b@y.it"],
-//     templateAlias: "verifica-email",
-//     templateModel: { nome: "Mario", ... },
-//     from?: "noreply@lexum.it",   // solo per chiamate server-to-server
-//     replyTo?: "info@lexum.it",
-//     tipo?: "verifica_email",
-//     origine?: "stripe-webhook",
-//     toUserId?: "uuid"
-//   }
-//
-// Versione: 2.0.0
+// Versione: 2.1.1 — messageStream (outbound | broadcast) + mittente svizzero
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
@@ -43,9 +35,12 @@ const supabase = createClient(
 );
 
 const POSTMARK_API_KEY = Deno.env.get("POSTMARK_API_KEY")!;
+
 // ATTENZIONE: questo ripiego e' DIVERSO da quello del repo LEXUM (Italia), ed e'
 // voluto. Questo e' il prodotto SVIZZERO: se la variabile d'ambiente sparisce non
 // deve tornare a un indirizzo .it. Non "riallineare" i due file su questa riga.
+// Nota: su questo progetto POSTMARK_DEFAULT_FROM NON e' impostata, quindi il
+// ripiego qui sotto e' il valore realmente usato in produzione.
 const DEFAULT_FROM = Deno.env.get("POSTMARK_DEFAULT_FROM") ?? "info@lexum.ch";
 const INTERNAL_BCC = Deno.env.get("POSTMARK_INTERNAL_BCC") ?? "";
 
@@ -174,6 +169,7 @@ Deno.serve(async (req) => {
       origine = "send-mail",
       toUserId = null,
       bccInterno = false,
+      messageStream = "outbound",
     } = body;
 
     // Il mittente lo sceglie solo chi chiama server-to-server: altrimenti un
@@ -189,6 +185,15 @@ Deno.serve(async (req) => {
         { ok: false, error: "Specifica 'templateAlias' o 'templateId'" },
         400
       );
+    }
+
+    // Lo stream separa le reputazioni: una segnalazione spam su una mail
+    // promozionale non deve trascinare giu' le conferme di pagamento.
+    // Postmark richiede il broadcast per marketing e newsletter.
+    const STREAM_AMMESSI = ["outbound", "broadcast"];
+    if (!STREAM_AMMESSI.includes(messageStream)) {
+      return jsonResponse(
+        { ok: false, error: `messageStream non ammesso: ${messageStream}` }, 400);
     }
 
     const destinatari: string[] = Array.isArray(to) ? to : [to];
@@ -215,6 +220,7 @@ Deno.serve(async (req) => {
               chiamante_id: chiamanteId,
               da_servizio: daServizio,
               template_id: templateId ?? null,
+              message_stream: messageStream,
             },
           })
           .select("id")
@@ -231,7 +237,7 @@ Deno.serve(async (req) => {
             From: from,
             To: emailNorm,
             TemplateModel: templateModel,
-            MessageStream: "outbound",
+            MessageStream: messageStream,
           };
           if (templateAlias) postmarkPayload.TemplateAlias = templateAlias;
           if (templateId) postmarkPayload.TemplateId = templateId;

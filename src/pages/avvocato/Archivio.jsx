@@ -13,6 +13,9 @@ import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import AssegnaDocumento from '@/components/AssegnaDocumento'
 import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
 import { supabase, supabaseUrl } from '@/lib/supabase'
+import {
+    leggiSpazioArchivio, formattaSpazio, rottaAcquisti, codiceErroreArchivio,
+} from '@/lib/archivio'
 import { escapeHtml } from '@/lib/escapeHtml'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
@@ -29,10 +32,6 @@ function formatSize(bytes) {
     if (!bytes) return '—'
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-function bytesToGB(bytes) {
-    return (bytes ?? 0) / (1024 * 1024 * 1024)
 }
 
 function isPdf(file) {
@@ -1310,8 +1309,11 @@ function CardDocumento({
 // ─── PAGINA PRINCIPALE ─────────────────────────────────────
 
 export default function Archivio() {
-    const { t } = useTranslation('avv_archivio')
+    const { t, i18n } = useTranslation('avv_archivio')
     const { profile } = useAuth()
+    // Archivio dei privati (02-10-2026): niente pratiche né clienti
+    const isPrivato = profile?.role === 'user'
+    const spazio = bytes => formattaSpazio(bytes, (i18n.language || 'it').slice(0, 2))
     const location = useLocation()
     const fileInputRef = useRef(null)
 
@@ -1332,9 +1334,10 @@ export default function Archivio() {
     // Modal categorie
     const [mostraModalCategorie, setMostraModalCategorie] = useState(false)
 
+    // Spazio: lo calcola il DB (archivio_spazio), con la stessa regola che il
+    // server applica ai caricamenti. Valori in byte.
     const [quota, setQuota] = useState({
-        gb_piano: 0, gb_topup: 0, gb_totali: 0,
-        piano_attivo: false, occupato_gb: 0,
+        quota_bytes: 0, usati_bytes: 0, scrivibile: false, piano_attivo: false,
     })
 
     const [filesSelezionati, setFilesSelezionati] = useState([])
@@ -1417,17 +1420,21 @@ export default function Archivio() {
                 .select('*')
                 .or(`titolare_id.eq.${tIdF},autore_id.eq.${uIdF}`)
                 .order('created_at', { ascending: false }),
-            supabase
-                .from('profiles')
-                .select('id, nome, cognome')
-                .eq('role', 'cliente')
-                .eq('avvocato_id', tIdF),
-            supabase
-                .from('pratiche')
-                .select('id, titolo, cliente_id')
-                .eq('avvocato_id', uIdF)
-                .eq('stato', 'aperta')
-                .order('created_at', { ascending: false }),
+            isPrivato
+                ? Promise.resolve({ data: [] })
+                : supabase
+                    .from('profiles')
+                    .select('id, nome, cognome')
+                    .eq('role', 'cliente')
+                    .eq('avvocato_id', tIdF),
+            isPrivato
+                ? Promise.resolve({ data: [] })
+                : supabase
+                    .from('pratiche')
+                    .select('id, titolo, cliente_id')
+                    .eq('avvocato_id', uIdF)
+                    .eq('stato', 'aperta')
+                    .order('created_at', { ascending: false }),
             supabase
                 .from('etichette')
                 .select('id, nome, colore')
@@ -1474,24 +1481,23 @@ export default function Archivio() {
         }
         setTagsByDoc(map)
 
-        // Quota storage (include sia documenti che sentenze)
-        const { data: quotaData } = await supabase.rpc('quota_studio', { p_proprietario_id: tIdF })
-        const q = Array.isArray(quotaData) ? quotaData[0] : quotaData
+        await aggiornaSpazio(tIdF)
+    }
 
-        const { data: tuttiDocStudio } = await supabase
-            .from('archivio_documenti')
-            .select('dimensione')
-            .eq('titolare_id', tIdF)
-
-        const occupatoBytes = (tuttiDocStudio ?? []).reduce((s, d) => s + (d.dimensione ?? 0), 0)
-
-        setQuota({
-            gb_piano: q?.gb_piano ?? 0,
-            gb_topup: q?.gb_topup ?? 0,
-            gb_totali: q?.gb_totali ?? 0,
-            piano_attivo: q?.piano_attivo ?? false,
-            occupato_gb: bytesToGB(occupatoBytes),
-        })
+    async function aggiornaSpazio(tId) {
+        const tIdF = tId ?? titolareId
+        if (!tIdF) return
+        try {
+            const sp = await leggiSpazioArchivio(tIdF)
+            setQuota({
+                quota_bytes: sp.quota,
+                usati_bytes: sp.usati,
+                scrivibile: sp.scrivibile,
+                piano_attivo: sp.pianoAttivo,
+            })
+        } catch {
+            // Se lo spazio non si legge il caricamento resta bloccato: lo controlla comunque il server
+        }
     }
 
     // Polling stato OCR + auto-cleanup barra progresso
@@ -1579,16 +1585,17 @@ export default function Archivio() {
         }
     }, [documenti.map(d => `${d.id}:${d.ocr_status}:${d.metadati?.suggeriti ? 1 : 0}`).join('|')])
 
-    const pianoScaduto = !quota.piano_attivo
-    const storagePct = quota.gb_totali > 0 ? quota.occupato_gb / quota.gb_totali : 1
-    const spazioPieno = quota.gb_totali === 0 || storagePct >= 1
+    const pianoScaduto = !quota.scrivibile
+    const storagePct = quota.quota_bytes > 0 ? quota.usati_bytes / quota.quota_bytes : 1
+    const spazioPieno = quota.quota_bytes === 0 || storagePct >= 1
     const spazioQuasiPieno = !spazioPieno && storagePct >= SOGLIA_STORAGE_PIENO
     const uploadDisabilitato = pianoScaduto || spazioPieno
+    const linkAcquisto = rottaAcquisti(profile?.role)
 
     const motivoBlocco = pianoScaduto
         ? t('blocco.piano_scaduto')
         : spazioPieno
-            ? t('blocco.spazio_esaurito')
+            ? t(isPrivato ? 'blocco.spazio_esaurito_privato' : 'blocco.spazio_esaurito')
             : null
 
     function handleFilesChange(e) {
@@ -1615,14 +1622,13 @@ export default function Archivio() {
         }
 
         const dimensioneTotaleBytes = tutti.reduce((sum, f) => sum + f.size, 0)
-        const dimensioneTotaleGB = bytesToGB(dimensioneTotaleBytes)
-        const spazioLiberoGB = quota.gb_totali - quota.occupato_gb
+        const spazioLiberoBytes = Math.max(0, quota.quota_bytes - quota.usati_bytes)
 
-        if (dimensioneTotaleGB > spazioLiberoGB) {
+        if (dimensioneTotaleBytes > spazioLiberoBytes) {
             setErroreUpload(
                 t('errori.spazio_insufficiente', {
-                    caricando: dimensioneTotaleGB.toFixed(2),
-                    liberi: spazioLiberoGB.toFixed(2),
+                    caricando: spazio(dimensioneTotaleBytes),
+                    liberi: spazio(spazioLiberoBytes),
                 })
             )
             e.target.value = ''
@@ -1646,7 +1652,7 @@ export default function Archivio() {
         const tipo = isPdf(file) ? 'pdf' : (isTxt ? 'txt' : 'file')
 
         const { error: upErr } = await supabase.storage.from('archivio').upload(path, file)
-        if (upErr) throw new Error(upErr.message)
+        if (upErr) throw new Error(t(`errori.${codiceErroreArchivio(upErr)}`))
 
         const { data: doc, error: dbErr } = await supabase
             .from('archivio_documenti')
@@ -1669,7 +1675,11 @@ export default function Archivio() {
             .select()
             .single()
 
-        if (dbErr) throw new Error(dbErr.message)
+        if (dbErr) {
+            // Riga rifiutata (es. spazio finito col file appena caricato): niente file orfani
+            await supabase.storage.from('archivio').remove([path]).catch(() => { })
+            throw new Error(t(`errori.${codiceErroreArchivio(dbErr)}`))
+        }
         return doc
     }
 
@@ -1719,6 +1729,7 @@ export default function Archivio() {
                     ))
                 } catch (err) {
                     setCodaUpload(prev => prev.map((item, k) => k === idx ? { ...item, status: 'failed' } : item))
+                    setErroreUpload(`${file.name}: ${err.message}`)
                 }
             }))
         }
@@ -1727,8 +1738,7 @@ export default function Archivio() {
         setFilesSelezionati([])
         setUploadInCorso(false)
 
-        const aggiunta = nuoviDocs.reduce((s, d) => s + (d.dimensione ?? 0), 0)
-        setQuota(prev => ({ ...prev, occupato_gb: prev.occupato_gb + bytesToGB(aggiunta) }))
+        aggiornaSpazio()
 
         // Trigger process-archivio per i PDF e TXT
         const docsDaProcessare = nuoviDocs.filter(d => d.tipo === 'pdf' || d.tipo === 'txt')
@@ -1832,9 +1842,7 @@ export default function Archivio() {
         await supabase.from('archivio_documenti').delete().eq('id', doc.id)
         setDocumenti(prev => prev.filter(d => d.id !== doc.id))
 
-        if (doc.dimensione) {
-            setQuota(prev => ({ ...prev, occupato_gb: Math.max(0, prev.occupato_gb - bytesToGB(doc.dimensione)) }))
-        }
+        aggiornaSpazio()
 
         if (risultatiTrad) setRisultatiTrad(prev => prev.filter(d => d.id !== doc.id))
         if (risultatiLex) setRisultatiLex(prev => prev.filter(d => d.id !== doc.id))
@@ -1965,14 +1973,14 @@ export default function Archivio() {
     return (
         <div className="space-y-6 pb-16">
             <PageHeader
-                label={t('header.label')}
+                label={isPrivato ? t('header.label_privato') : t('header.label')}
                 title={t('header.title')}
                 subtitle={tabPrincipale === 'documenti'
                     ? t('header.sottotitolo', {
                         documenti: documenti.length,
                         indicizzati: documenti.filter(d => d.ocr_status === 'completed').length,
-                        occupato: quota.occupato_gb.toFixed(2),
-                        totali: quota.gb_totali,
+                        occupato: spazio(quota.usati_bytes),
+                        totali: spazio(quota.quota_bytes),
                     })
                     : t('header.sottotitolo_sentenze')
                 }
@@ -2027,7 +2035,7 @@ export default function Archivio() {
                                 <p className="font-body text-xs text-red-400/70 mt-1">
                                     {t('banner.piano_scaduto_testo', { count: documenti.length })}
                                 </p>
-                                <Link to="/studio?tab=acquista" className="mt-2 inline-block font-body text-xs text-oro border border-oro/30 px-3 py-1 hover:bg-oro/10 transition-colors">
+                                <Link to={linkAcquisto} className="mt-2 inline-block font-body text-xs text-oro border border-oro/30 px-3 py-1 hover:bg-oro/10 transition-colors">
                                     {t('banner.rinnova_ora')}
                                 </Link>
                             </div>
@@ -2040,10 +2048,10 @@ export default function Archivio() {
                             <div className="flex-1">
                                 <p className="font-body text-sm font-medium text-red-400">{t('banner.spazio_esaurito_titolo')}</p>
                                 <p className="font-body text-xs text-red-400/70 mt-1">
-                                    {t('banner.spazio_esaurito_testo', { occupato: quota.occupato_gb.toFixed(2), totali: quota.gb_totali })}
+                                    {t(isPrivato ? 'banner.spazio_esaurito_testo_privato' : 'banner.spazio_esaurito_testo', { occupato: spazio(quota.usati_bytes), totali: spazio(quota.quota_bytes) })}
                                 </p>
-                                <Link to="/studio?tab=acquista" className="mt-2 inline-block font-body text-xs text-oro border border-oro/30 px-3 py-1 hover:bg-oro/10 transition-colors">
-                                    {t('banner.acquista_storage')}
+                                <Link to={linkAcquisto} className="mt-2 inline-block font-body text-xs text-oro border border-oro/30 px-3 py-1 hover:bg-oro/10 transition-colors">
+                                    {t(isPrivato ? 'banner.scopri_piano' : 'banner.acquista_storage')}
                                 </Link>
                             </div>
                         </div>
@@ -2057,10 +2065,10 @@ export default function Archivio() {
                                     {t('banner.quasi_pieno_titolo', { pct: (storagePct * 100).toFixed(0) })}
                                 </p>
                                 <p className="font-body text-xs text-amber-400/70 mt-1">
-                                    {t('banner.quasi_pieno_testo', { occupato: quota.occupato_gb.toFixed(2), totali: quota.gb_totali })}
+                                    {t(isPrivato ? 'banner.quasi_pieno_testo_privato' : 'banner.quasi_pieno_testo', { occupato: spazio(quota.usati_bytes), totali: spazio(quota.quota_bytes) })}
                                 </p>
-                                <Link to="/studio?tab=acquista" className="mt-2 inline-block font-body text-xs text-oro border border-oro/30 px-3 py-1 hover:bg-oro/10 transition-colors">
-                                    {t('banner.acquista_storage')}
+                                <Link to={linkAcquisto} className="mt-2 inline-block font-body text-xs text-oro border border-oro/30 px-3 py-1 hover:bg-oro/10 transition-colors">
+                                    {t(isPrivato ? 'banner.scopri_piano' : 'banner.acquista_storage')}
                                 </Link>
                             </div>
                         </div>

@@ -126,22 +126,28 @@
   "header": {
     "label": "Avocat",
     "title": "Archive",
-    "sottotitolo": "{{documenti}} documents · {{indicizzati}} indexés · {{occupato}}/{{totali}} GB",
+    "sottotitolo": "{{documenti}} documents · {{indicizzati}} indexés · {{occupato}} sur {{totali}}",
     "sottotitolo_sentenze": "Jugements achetés depuis la base de données",
     "gestisci_categorie": "Gérer les catégories et sous-catégories",
     "categorie": "Catégories",
     "carica_documenti": "Télécharger des documents",
     "upload_bloccato": "Téléchargement bloqué",
     "caricamento": "Téléchargement...",
-    "esplora_banca_dati": "Explorer la base de données"
+    "esplora_banca_dati": "Explorer la base de données",
+    "label_privato": "Espace personnel"
   },
   "blocco": {
     "piano_scaduto": "Abonnement expiré — archive en lecture seule",
-    "spazio_esaurito": "Espace épuisé — libérez des fichiers ou achetez un pack de stockage"
+    "spazio_esaurito": "Espace épuisé — libérez des fichiers ou achetez un pack de stockage",
+    "spazio_esaurito_privato": "Espace épuisé — libérez des fichiers ou activez le Plan personnel"
   },
   "errori": {
     "troppi_file": "Vous pouvez télécharger au maximum {{max}} documents à la fois. Vous en avez sélectionné {{selezionati}}.",
-    "spazio_insufficiente": "Espace insuffisant. Vous téléchargez {{caricando}} GB mais vous n'avez que {{liberi}} GB libres."
+    "spazio_insufficiente": "Espace insuffisant. Vous téléversez {{caricando}} mais vous n'avez que {{liberi}} de libre.",
+    "server_spazio_esaurito": "Espace d'archivage épuisé.",
+    "server_sola_lettura": "Abonnement expiré : l'archive est en lecture seule.",
+    "server_rifiutato": "Espace d'archivage épuisé ou archive indisponible.",
+    "server_generico": "Échec du téléversement : veuillez réessayer."
   },
   "banner": {
     "piano_scaduto_titolo": "Abonnement expiré — archive en lecture seule",
@@ -149,10 +155,13 @@
     "piano_scaduto_testo_other": "Vos {{count}} documents restent accessibles et consultables, mais vous ne pouvez pas en télécharger de nouveaux tant que vous n'avez pas renouvelé l'abonnement.",
     "rinnova_ora": "Renouveler maintenant →",
     "spazio_esaurito_titolo": "Espace d'archivage épuisé",
-    "spazio_esaurito_testo": "Vous avez utilisé {{occupato}} GB sur {{totali}} GB disponibles. Libérez de l'espace ou achetez un pack supplémentaire.",
+    "spazio_esaurito_testo": "Vous avez utilisé {{occupato}} sur {{totali}} disponibles. Libérez de l'espace ou achetez un pack supplémentaire.",
     "acquista_storage": "Acheter du stockage →",
     "quasi_pieno_titolo": "Archive presque pleine — {{pct}}% occupé",
-    "quasi_pieno_testo": "{{occupato}} GB sur {{totali}} GB. Envisagez d'acheter de l'espace supplémentaire avant de remplir l'archive."
+    "quasi_pieno_testo": "{{occupato}} sur {{totali}}. Envisagez d'acheter de l'espace supplémentaire avant de remplir l'archive.",
+    "spazio_esaurito_testo_privato": "Vous avez utilisé {{occupato}} sur {{totali}}. Libérez de l'espace ou activez le Plan personnel : plus d'espace pour vos documents et des crédits Lex AI chaque mois.",
+    "quasi_pieno_testo_privato": "{{occupato}} sur {{totali}}. Avec le Plan personnel, vous avez plus d'espace pour vos documents.",
+    "scopri_piano": "Découvrir le Plan personnel →"
   },
   "visibilita": {
     "label": "Visibilité",

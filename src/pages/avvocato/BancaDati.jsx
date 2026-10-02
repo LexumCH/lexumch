@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useRef, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import { escapeHtml } from '@/lib/escapeHtml'
@@ -27,10 +27,16 @@ import PacchettoLampo, {
     salvaRicercaInSospeso, prendiRicercaInSospeso, leggiEsitoLampo, leggiSaldoCrediti,
 } from '@/components/PacchettoLampo'
 import { FONTI_FEDERALI_ORDER, SET_FEDERALI, parseCantonale, labelFonteFederale, labelCamera } from '@/lib/istituzioni'
+import ScegliDaArchivio from '@/components/ScegliDaArchivio'
+import {
+    titolareDi, leggiSpazioArchivio, leggiCategorieArchivio, bloccoArchivio,
+    salvaInArchivio, rottaArchivio, rottaAcquisti, formattaSpazio,
+} from '@/lib/archivio'
 import {
     Search, Sparkles, ChevronRight, ChevronLeft,
     BookOpen, AlertCircle, X, FileText,
-    Landmark, Building2, ScrollText, Globe, Scale, MapPin, FileDown, Loader2, Zap
+    Landmark, Building2, ScrollText, Globe, Scale, MapPin, FileDown, Loader2, Zap,
+    Plus, FolderOpen, Upload, Save, Check
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 
@@ -231,7 +237,9 @@ function LexAnimazione({ frasi }) {
 //   - niente blocco sentenze_marketplace (non esiste su CH)
 // ═══════════════════════════════════════════════════════════════
 function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
-    const { t } = useTranslation('avv_banca_dati')
+    // avv_archivio: i messaggi d'errore del salvataggio in archivio (errori.*)
+    const { t, i18n } = useTranslation(['avv_banca_dati', 'avv_archivio'])
+    const lingua = (i18n.language ?? 'it').slice(0, 2)
     const { t: tLampo } = useTranslation('comp_pacchetto_lampo')
     const [domanda, setDomanda] = useState('')
     const [cercando, setCercando] = useState(false)
@@ -287,6 +295,171 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
         return () => { fermo = true; clearInterval(timer) }
     }, [ritornoLampo])
 
+    // ── Documento allegato (02-10-2026, come su IT): l'analisi dura 4 ore ──
+    // Arriva dal dispositivo (e si può salvare in archivio) oppure dall'archivio
+    // (si usa il testo che l'archivio ha già letto, niente nuovo caricamento).
+    const { profile } = useAuth()
+    const titolareArchivio = titolareDi(profile)
+    const [documento, setDocumento] = useState(null)   // { id, nome, n_chunk, troncato, scadenza, origine, archivioId }
+    const [caricandoDoc, setCaricandoDoc] = useState(false)
+    const [erroreDoc, setErroreDoc] = useState(null)
+    const [pickerArchivio, setPickerArchivio] = useState(false)
+    const fileInputRef = useRef(null)
+    // File e testo del documento dal dispositivo: servono per salvarlo senza
+    // rileggerlo. Restano solo in memoria nella pagina.
+    const daSalvareRef = useRef(null)
+    // null | chiedi | verifica | categoria | salvando | salvato | errore
+    const [salvataggio, setSalvataggio] = useState(null)
+
+    // Messaggio di un errore delle funzioni del documento, nella lingua della pagina
+    const messaggioDoc = codice => t(`documento.errori.${codice ?? 'errore'}`, { defaultValue: t('documento.errori.errore') })
+
+    async function chiamaFunzione(nome, init) {
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch(`${supabaseUrl}/functions/v1/${nome}`, {
+            ...init,
+            headers: { Authorization: `Bearer ${session?.access_token}`, ...(init.headers ?? {}) },
+        })
+        const json = await res.json().catch(() => ({}))
+        if (!json.ok) throw new Error(messaggioDoc(json.codice))
+        return json
+    }
+
+    async function allegaDocumento(file) {
+        if (!file) return
+        setErroreDoc(null)
+        setCaricandoDoc(true)
+        try {
+            // 1) lettura del testo (con riconoscimento ottico per le scansioni)
+            const formData = new FormData()
+            formData.append('file', file)
+            const letto = await chiamaFunzione('extract-pdf-text', { method: 'POST', body: formData })
+
+            // 2) indicizzazione effimera: il file NON viene salvato, solo il testo
+            const analisi = await chiamaFunzione('analizza-documento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ testo: letto.testo, nome_file: file.name }),
+            })
+
+            daSalvareRef.current = { file, testo: letto.testo }
+            setDocumento({
+                id: analisi.documento_id,
+                nome: file.name,
+                n_chunk: analisi.n_chunk,
+                troncato: analisi.troncato,
+                scadenza: analisi.expires_at,
+                origine: 'dispositivo',
+            })
+            setSalvataggio({ fase: 'chiedi' })
+        } catch (err) {
+            setErroreDoc(err.message)
+            setDocumento(null)
+            daSalvareRef.current = null
+            setSalvataggio(null)
+        } finally {
+            setCaricandoDoc(false)
+            if (fileInputRef.current) fileInputRef.current.value = ''
+        }
+    }
+
+    // Documento già in archivio: si analizza il testo che l'archivio ha già letto
+    async function analizzaDaArchivio(doc) {
+        setPickerArchivio(false)
+        setErroreDoc(null)
+        setCaricandoDoc(true)
+        daSalvareRef.current = null
+        setSalvataggio(null)
+        try {
+            const analisi = await chiamaFunzione('analizza-documento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ archivio_documento_id: doc.id }),
+            })
+            setDocumento({
+                id: analisi.documento_id,
+                nome: analisi.nome_file ?? doc.titolo,
+                n_chunk: analisi.n_chunk,
+                troncato: analisi.troncato,
+                scadenza: analisi.expires_at,
+                origine: 'archivio',
+                archivioId: doc.id,
+            })
+        } catch (err) {
+            setErroreDoc(err.message)
+            setDocumento(null)
+        } finally {
+            setCaricandoDoc(false)
+        }
+    }
+
+    function rimuoviDocumento() {
+        setDocumento(null)
+        daSalvareRef.current = null
+        setSalvataggio(null)
+    }
+
+    // «Salva»: prima lo spazio (stessa regola del server), poi la scelta della categoria
+    async function chiediCategoria() {
+        const daSalvare = daSalvareRef.current
+        if (!daSalvare) {
+            setSalvataggio({ fase: 'errore', messaggio: t('documento.file_non_disponibile') })
+            return
+        }
+        setSalvataggio({ fase: 'verifica' })
+        try {
+            const [spazio, categorie] = await Promise.all([
+                leggiSpazioArchivio(titolareArchivio),
+                leggiCategorieArchivio(titolareArchivio),
+            ])
+            const blocco = bloccoArchivio(spazio, daSalvare.file.size)
+            if (blocco) {
+                setSalvataggio({
+                    fase: 'errore',
+                    messaggio: t(`documento.blocco.${blocco.codice}`, {
+                        liberi: formattaSpazio(blocco.liberi, lingua),
+                        quota: formattaSpazio(blocco.quota, lingua),
+                    }),
+                    acquista: spazio.scrivibile ? 'spazio' : 'rinnova',
+                })
+                return
+            }
+            setSalvataggio({ fase: 'categoria', categorie, categoriaId: '' })
+        } catch {
+            setSalvataggio({ fase: 'errore', messaggio: t('avv_archivio:errori.server_generico') })
+        }
+    }
+
+    async function confermaSalvataggio() {
+        const daSalvare = daSalvareRef.current
+        const scelta = salvataggio
+        if (!daSalvare || scelta?.fase !== 'categoria') return
+        setSalvataggio({ ...scelta, fase: 'salvando' })
+        try {
+            const doc = await salvaInArchivio({
+                file: daSalvare.file,
+                testo: daSalvare.testo,
+                titolareId: titolareArchivio,
+                userId: profile.id,
+                categoriaId: scelta.categoriaId || null,
+            })
+            daSalvareRef.current = null
+            setDocumento(d => (d ? { ...d, origine: 'archivio', archivioId: doc.id } : d))
+            setSalvataggio({
+                fase: 'salvato',
+                categoria: scelta.categorie.find(c => c.id === scelta.categoriaId)?.nome ?? t('documento.senza_categoria'),
+            })
+        } catch (err) {
+            const codice = err?.codice ?? 'server_generico'
+            setSalvataggio({
+                fase: 'errore',
+                messaggio: t(`avv_archivio:errori.${codice}`),
+                acquista: codice === 'server_sola_lettura' ? 'rinnova'
+                    : (codice === 'server_spazio_esaurito' || codice === 'server_rifiutato') ? 'spazio' : null,
+            })
+        }
+    }
+
     async function cerca(domandaInput, opzioni = {}) {
         const domandaCorrente = domandaInput ?? domanda
         if (!domandaCorrente.trim()) return
@@ -298,6 +471,14 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
         }
         setRitornoLampo(null)
         setUltimaUsata(false)
+
+        // Documento allegato scaduto (restano 4 ore): si toglie e la domanda resta nella casella
+        if (documento?.scadenza && new Date(documento.scadenza) <= new Date()) {
+            rimuoviDocumento()
+            setErroreDoc(t('documento.scaduto'))
+            if (domandaInput && !domanda.trim()) setDomanda(domandaCorrente)
+            return
+        }
 
         if (!opzioni.tipoRichiesta || opzioni.tipoRichiesta === 'query_iniziale') setDomanda('')
         setCercando(true); setErrore(null); setFaseCorrente(null); setStreamingTesto('')
@@ -323,6 +504,8 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                         subagent_target: opzioni.subagentTarget,
                         filtro_approfondimento: opzioni.filtroApprofondimento,
                         client_conversation_id: clientConversationId,
+                        documento_id: documento?.id ?? null,
+                        lingua_interfaccia: lingua,
                     }),
                     signal: abortControllerRef.current.signal,
                 }
@@ -625,6 +808,162 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-salvia/50 resize-none placeholder:text-nebbia/25 disabled:opacity-50"
                 />
 
+                {/* ── Documento allegato: effimero; dal dispositivo si può salvare in archivio ── */}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.txt"
+                    className="hidden"
+                    onChange={e => allegaDocumento(e.target.files?.[0])}
+                />
+
+                {!documento ? (
+                    caricandoDoc ? (
+                        <p className="flex items-center gap-2 min-h-[40px] font-body text-xs text-oro/80">
+                            <span className="animate-spin w-3 h-3 border-2 border-oro border-t-transparent rounded-full" /> {t('documento.lettura')}
+                        </p>
+                    ) : (
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0">
+                            <span className="flex items-center gap-1.5 font-body text-xs text-nebbia/45">
+                                <Plus size={12} /> {t('documento.allega')}
+                            </span>
+                            <button
+                                onClick={() => setPickerArchivio(true)}
+                                disabled={cercando}
+                                className="flex items-center gap-1.5 min-h-[40px] font-body text-xs text-oro/80 hover:text-oro transition-colors disabled:opacity-40"
+                            >
+                                <FolderOpen size={12} /> {t('documento.dal_archivio')}
+                            </button>
+                            <span className="font-body text-xs text-nebbia/20" aria-hidden="true">·</span>
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={cercando}
+                                className="flex items-center gap-1.5 min-h-[40px] font-body text-xs text-oro/80 hover:text-oro transition-colors disabled:opacity-40"
+                            >
+                                <Upload size={12} /> {t('documento.dal_dispositivo')}
+                            </button>
+                        </div>
+                    )
+                ) : (
+                    <div className="bg-petrolio/60 border border-salvia/20 px-3 py-2.5 space-y-1.5">
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-2 min-w-0">
+                                <FileText size={13} className="text-salvia shrink-0 mt-0.5" />
+                                <div className="min-w-0">
+                                    <p className="font-body text-xs text-nebbia/80 truncate">{documento.nome}</p>
+                                    <p className="font-body text-xs text-nebbia/35 break-words">
+                                        {t('documento.passaggi', { count: documento.n_chunk ?? 0 })} · {documento.origine === 'archivio'
+                                            ? t('documento.origine_archivio')
+                                            : t('documento.origine_dispositivo')}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={rimuoviDocumento}
+                                disabled={salvataggio?.fase === 'salvando'}
+                                className="p-2 -m-1 text-nebbia/30 hover:text-red-400 transition-colors shrink-0 disabled:opacity-40"
+                                title={t('documento.rimuovi')}
+                            >
+                                <X size={13} />
+                            </button>
+                        </div>
+                        {documento.troncato && (
+                            <p className="font-body text-xs text-amber-400/80 flex items-start gap-1.5">
+                                <AlertCircle size={11} className="shrink-0 mt-0.5" />
+                                {t('documento.troncato')}
+                            </p>
+                        )}
+
+                        {/* Salvataggio in archivio (solo per i documenti dal dispositivo) */}
+                        {salvataggio?.fase === 'chiedi' && (
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-0 pt-1 border-t border-white/5">
+                                <span className="font-body text-xs text-nebbia/55">{t('documento.chiedi_salva')}</span>
+                                <button
+                                    onClick={chiediCategoria}
+                                    className="flex items-center gap-1.5 min-h-[36px] font-body text-xs text-oro hover:text-oro/80 transition-colors"
+                                >
+                                    <Save size={12} /> {t('documento.salva')}
+                                </button>
+                                <button
+                                    onClick={() => setSalvataggio(null)}
+                                    className="min-h-[36px] font-body text-xs text-nebbia/40 hover:text-nebbia/70 transition-colors"
+                                >
+                                    {t('documento.no_grazie')}
+                                </button>
+                            </div>
+                        )}
+                        {salvataggio?.fase === 'verifica' && (
+                            <p className="flex items-center gap-2 pt-2 border-t border-white/5 font-body text-xs text-nebbia/45">
+                                <Loader2 size={11} className="animate-spin" /> {t('documento.controllo_spazio')}
+                            </p>
+                        )}
+                        {(salvataggio?.fase === 'categoria' || salvataggio?.fase === 'salvando') && (
+                            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
+                                <label htmlFor="categoria-salvataggio" className="font-body text-xs text-nebbia/55">{t('documento.categoria')}</label>
+                                <select
+                                    id="categoria-salvataggio"
+                                    value={salvataggio.categoriaId}
+                                    onChange={e => setSalvataggio(st => ({ ...st, categoriaId: e.target.value }))}
+                                    disabled={salvataggio.fase === 'salvando'}
+                                    className="min-h-[36px] max-w-full bg-slate border border-white/10 text-nebbia/80 font-body text-xs px-2 py-1.5 outline-none focus:border-oro/40 disabled:opacity-50"
+                                >
+                                    <option value="">{t('documento.senza_categoria')}</option>
+                                    {salvataggio.categorie.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                                </select>
+                                <button
+                                    onClick={confermaSalvataggio}
+                                    disabled={salvataggio.fase === 'salvando'}
+                                    className="flex items-center gap-1.5 min-h-[36px] px-3 font-body text-xs text-oro border border-oro/30 hover:bg-oro/10 transition-colors disabled:opacity-50"
+                                >
+                                    {salvataggio.fase === 'salvando'
+                                        ? <><Loader2 size={11} className="animate-spin" /> {t('documento.salvataggio')}</>
+                                        : <><Check size={12} /> {t('documento.salva_in_archivio')}</>}
+                                </button>
+                                {salvataggio.fase === 'categoria' && (
+                                    <button
+                                        onClick={() => setSalvataggio({ fase: 'chiedi' })}
+                                        className="min-h-[36px] font-body text-xs text-nebbia/40 hover:text-nebbia/70 transition-colors"
+                                    >
+                                        {t('documento.annulla')}
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                        {salvataggio?.fase === 'salvato' && (
+                            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-2 border-t border-white/5 font-body text-xs text-salvia">
+                                <span className="flex items-center gap-1.5"><Check size={12} /> {t('documento.salvato', { categoria: salvataggio.categoria })}</span>
+                                <Link to={rottaArchivio(profile?.role)} className="text-oro/80 hover:text-oro transition-colors">{t('documento.apri_archivio')}</Link>
+                            </p>
+                        )}
+                        {salvataggio?.fase === 'errore' && (
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 border-t border-white/5">
+                                <p className="font-body text-xs text-amber-400/90 flex items-start gap-1.5">
+                                    <AlertCircle size={11} className="shrink-0 mt-0.5" /> {salvataggio.messaggio}
+                                </p>
+                                {salvataggio.acquista && (
+                                    <Link to={rottaAcquisti(profile?.role)} className="font-body text-xs text-oro/80 hover:text-oro transition-colors">
+                                        {profile?.role === 'user'
+                                            ? t('documento.scopri_piano_personale')
+                                            : salvataggio.acquista === 'rinnova' ? t('documento.rinnova_piano') : t('documento.acquista_spazio')}
+                                    </Link>
+                                )}
+                                <button
+                                    onClick={() => setSalvataggio({ fase: 'chiedi' })}
+                                    className="min-h-[36px] font-body text-xs text-nebbia/40 hover:text-nebbia/70 transition-colors"
+                                >
+                                    {t('documento.riprova')}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {erroreDoc && (
+                    <p className="font-body text-xs text-red-400 flex items-center gap-1.5">
+                        <AlertCircle size={11} />{erroreDoc}
+                    </p>
+                )}
+
                 {errore && errore !== 'crediti_esauriti' && (
                     <p className="font-body text-xs text-red-400 flex items-center gap-1.5"><AlertCircle size={11} />{errore}</p>
                 )}
@@ -683,6 +1022,14 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                 </div>
             </div>
 
+            <ScegliDaArchivio
+                aperto={pickerArchivio}
+                onChiudi={() => setPickerArchivio(false)}
+                onScegli={analizzaDaArchivio}
+                titolareId={titolareArchivio}
+                userId={profile?.id}
+                rottaArchivio={rottaArchivio(profile?.role)}
+            />
             <PacchettoLampo
                 aperto={lampo.aperto}
                 motivo={lampo.motivo}

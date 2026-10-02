@@ -182,5 +182,56 @@
       "parere_cedu": "Gutachten",
       "altro_cedu": "Andere"
     }
+  },
+  "documento": {
+    "allega": "Ein Dokument zur Analyse anhängen:",
+    "dal_archivio": "aus Ihrem Archiv",
+    "dal_dispositivo": "von Ihrem Gerät",
+    "lettura": "Dokument wird gelesen...",
+    "passaggi_one": "{{count}} Abschnitt indexiert",
+    "passaggi_other": "{{count}} Abschnitte indexiert",
+    "origine_archivio": "aus Ihrem Archiv",
+    "origine_dispositivo": "nicht archiviert, wird nach 4 Stunden gelöscht",
+    "rimuovi": "Dokument entfernen",
+    "troncato": "Sehr langes Dokument: nur der erste Teil wurde analysiert.",
+    "chiedi_salva": "Möchten Sie es in Ihrem Archiv speichern?",
+    "salva": "Speichern",
+    "no_grazie": "Nein, danke",
+    "controllo_spazio": "Speicherplatz des Archivs wird geprüft...",
+    "categoria": "Kategorie",
+    "senza_categoria": "Ohne Kategorie",
+    "salva_in_archivio": "Im Archiv speichern",
+    "salvataggio": "Wird gespeichert...",
+    "annulla": "Abbrechen",
+    "salvato": "In Ihrem Archiv gespeichert · {{categoria}}",
+    "apri_archivio": "Archiv öffnen →",
+    "riprova": "Erneut versuchen",
+    "scopri_piano_personale": "Persönlichen Plan entdecken →",
+    "rinnova_piano": "Plan verlängern →",
+    "acquista_spazio": "Speicher kaufen →",
+    "scaduto": "Das angehängte Dokument ist nicht mehr verfügbar (Dokumente bleiben 4 Stunden): Hängen Sie es erneut an.",
+    "file_non_disponibile": "Die Datei ist nicht mehr verfügbar: Laden Sie sie erneut hoch, um sie zu speichern.",
+    "blocco": {
+      "sola_lettura": "Plan abgelaufen: Das Archiv ist schreibgeschützt.",
+      "senza_spazio": "Ihr Plan enthält keinen Archivspeicher.",
+      "spazio_insufficiente": "Zu wenig Speicher: Ihnen bleiben {{liberi}} von {{quota}}.",
+      "spazio_esaurito": "Der Archivspeicher ist voll."
+    },
+    "errori": {
+      "non_autenticato": "Sitzung abgelaufen: Bitte melden Sie sich erneut an.",
+      "sessione_non_valida": "Sitzung abgelaufen: Bitte melden Sie sich erneut an.",
+      "nessun_file": "Keine Datei erhalten.",
+      "formato": "Format nicht unterstützt: Analysiert werden PDF- und TXT-Dateien.",
+      "pdf_illeggibile": "Das PDF kann nicht automatisch gelesen werden (mit nicht standardmässiger Struktur signiert, geschützt oder beschädigt).",
+      "scansione_troppo_grande": "Das Dokument ist ein Scan von mehr als 20 MB: Laden Sie es in mehreren Teilen hoch.",
+      "ocr_non_disponibile": "Das Dokument ist ein Scan und die Texterkennung ist nicht verfügbar: Laden Sie eine Version mit markierbarem Text hoch.",
+      "ocr_fallito": "Das Dokument ist ein Scan und die Texterkennung ist fehlgeschlagen: Versuchen Sie es gleich nochmals.",
+      "testo_breve": "Aus dem Dokument lässt sich nicht genügend Text für eine Analyse gewinnen.",
+      "non_trovato": "Dokument in Ihrem Archiv nicht gefunden.",
+      "in_lettura": "Das Archiv liest dieses Dokument noch: Versuchen Sie es in einigen Augenblicken erneut.",
+      "senza_testo": "Das Archiv konnte den Text dieses Dokuments nicht lesen.",
+      "non_segmentabile": "Das Dokument konnte für die Analyse nicht aufgeteilt werden.",
+      "errore": "Die Analyse des Dokuments ist fehlgeschlagen: Bitte versuchen Sie es erneut."
+    }
   }
 }

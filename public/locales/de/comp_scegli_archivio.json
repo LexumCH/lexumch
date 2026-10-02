@@ -1,0 +1,14 @@
+{
+  "titolo": "Aus Ihrem Archiv wählen",
+  "chiudi": "Schliessen",
+  "cerca_placeholder": "Nach Titel suchen...",
+  "tutte_le_categorie": "Alle Kategorien",
+  "senza_categoria": "Ohne Kategorie",
+  "errore_lettura": "Das Archiv kann nicht gelesen werden. Bitte versuchen Sie es gleich nochmals.",
+  "nessun_risultato": "Kein Dokument gefunden.",
+  "archivio_vuoto": "In Ihrem Archiv gibt es noch keine Dokumente, die analysiert werden können.",
+  "in_lettura_one": "1 Dokument wird noch gelesen: Es ist in Kürze verfügbar.",
+  "in_lettura_other": "{{count}} Dokumente werden noch gelesen: Sie sind in Kürze verfügbar.",
+  "vai_archivio": "Zum Archiv →",
+  "solo_recenti": "Angezeigt werden die 50 neuesten: Suchen Sie nach dem Titel, um weitere zu finden."
+}

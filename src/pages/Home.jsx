@@ -155,19 +155,8 @@ function HeroDatabaseCard({ t }) {
 // Le tre sessioni Lex dell'hero, in ordine di colonna/slide
 const DEMO_VARIANTS = ['avvocato', 'fiduciario', 'progettista']
 
-// Etichette ruolo del badge: hardcoded per lingua (nessuna dipendenza dai JSON
-// remoti → mai chiavi grezze a schermo, anche con locales in cache).
-const ROLE_LABELS = {
-  it: { avvocato: 'Avvocato', fiduciario: 'Fiduciario', progettista: 'Progettista' },
-  de: { avvocato: 'Anwalt', fiduciario: 'Treuhänder', progettista: 'Planer' },
-  fr: { avvocato: 'Avocat', fiduciario: 'Fiduciaire', progettista: 'Concepteur' },
-}
-
-// Box di una sessione Lex: header (Lex AI + ruolo) + animazione della professione
+// Box di una sessione Lex: header (Lex AI) + animazione della professione
 function LexDemoBox({ variant, startDelay = 0 }) {
-  const { i18n } = useTranslation()
-  const lang = LINGUE_SUPPORTATE.includes(i18n.language) ? i18n.language : LINGUA_DEFAULT
-  const roleLabel = ROLE_LABELS[lang]?.[variant] ?? variant
   return (
     <div className="bg-slate border border-oro/20 overflow-hidden shadow-2xl shadow-oro/5 h-full">
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-petrolio/60">
@@ -176,7 +165,6 @@ function LexDemoBox({ variant, startDelay = 0 }) {
           <span className="font-body text-xs text-salvia">Lex AI</span>
           <div className="w-1.5 h-1.5 rounded-full bg-salvia animate-pulse ml-1" />
         </div>
-        <span className="font-body text-[11px] uppercase tracking-widest text-oro/70">{roleLabel}</span>
       </div>
       <div className="p-5">
         <LexAnimatedDemo variant={variant} startDelay={startDelay} />
@@ -215,8 +203,28 @@ export default function Home() {
   const [demoIdx, setDemoIdx] = useState(0)
   const [demoDir, setDemoDir] = useState('next')
   const cambiaDemo = (dir) => {
+    // Niente giro: alla prima sessione non si torna indietro, all'ultima non si va avanti
+    const nuovo = demoIdx + (dir === 'next' ? 1 : -1)
+    if (nuovo < 0 || nuovo >= DEMO_VARIANTS.length) return
     setDemoDir(dir)
-    setDemoIdx(i => (i + (dir === 'next' ? 1 : DEMO_VARIANTS.length - 1)) % DEMO_VARIANTS.length)
+    setDemoIdx(nuovo)
+  }
+  // Scorrimento col dito: un trascinamento orizzontale netto cambia sessione,
+  // quello verticale resta allo scorrimento della pagina
+  const toccoRef = useRef(null)
+  const onToccoInizio = (e) => {
+    const punto = e.touches[0]
+    toccoRef.current = { x: punto.clientX, y: punto.clientY }
+  }
+  const onToccoFine = (e) => {
+    const inizio = toccoRef.current
+    toccoRef.current = null
+    if (!inizio) return
+    const punto = e.changedTouches[0]
+    const dx = punto.clientX - inizio.x
+    const dy = punto.clientY - inizio.y
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    cambiaDemo(dx < 0 ? 'next' : 'prev')
   }
 
   return (
@@ -269,10 +277,11 @@ export default function Home() {
           </div>
 
           {/* Carosello Lex: una sessione alla volta (avvocato → fiduciario → progettista).
-              Le frecce cambiano professione e rimontano il box: l'animazione riparte da capo. */}
+              Frecce o scorrimento col dito cambiano professione e rimontano il box: l'animazione riparte da capo. */}
           <FadeIn delay={0.1}>
             <div className="mb-10">
-              <div className="relative">
+              <div className="relative" onTouchStart={onToccoInizio} onTouchEnd={onToccoFine}
+                style={{ touchAction: 'pan-y pinch-zoom' }}>
                 {/* Slide con transizione direzionale: il remount (key) fa ripartire l'animazione */}
                 <div
                   key={DEMO_VARIANTS[demoIdx]}
@@ -282,22 +291,26 @@ export default function Home() {
                 </div>
 
                 {/* Frecce laterali: grandi, a cavallo del bordo, con invito al click */}
-                <button
-                  onClick={() => cambiaDemo('prev')}
-                  aria-label="Sessione precedente"
-                  className="absolute top-1/2 -translate-y-1/2 left-1 md:-left-6 w-11 h-11 flex items-center justify-center rounded-full bg-slate border border-oro/40 text-oro shadow-lg shadow-black/30 hover:bg-oro hover:text-petrolio transition-colors"
-                  style={{ animation: 'arrowNudgeLeft 2.2s ease-in-out infinite' }}
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  onClick={() => cambiaDemo('next')}
-                  aria-label="Sessione successiva"
-                  className="absolute top-1/2 -translate-y-1/2 right-1 md:-right-6 w-11 h-11 flex items-center justify-center rounded-full bg-slate border border-oro/40 text-oro shadow-lg shadow-black/30 hover:bg-oro hover:text-petrolio transition-colors"
-                  style={{ animation: 'arrowNudgeRight 2.2s ease-in-out infinite' }}
-                >
-                  <ChevronRight size={20} />
-                </button>
+                {demoIdx > 0 && (
+                  <button
+                    onClick={() => cambiaDemo('prev')}
+                    aria-label="Sessione precedente"
+                    className="absolute top-1/2 -translate-y-1/2 left-1 md:-left-6 w-11 h-11 flex items-center justify-center rounded-full bg-slate border border-oro/40 text-oro shadow-lg shadow-black/30 hover:bg-oro hover:text-petrolio transition-colors"
+                    style={{ animation: 'arrowNudgeLeft 2.2s ease-in-out infinite' }}
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                )}
+                {demoIdx < DEMO_VARIANTS.length - 1 && (
+                  <button
+                    onClick={() => cambiaDemo('next')}
+                    aria-label="Sessione successiva"
+                    className="absolute top-1/2 -translate-y-1/2 right-1 md:-right-6 w-11 h-11 flex items-center justify-center rounded-full bg-slate border border-oro/40 text-oro shadow-lg shadow-black/30 hover:bg-oro hover:text-petrolio transition-colors"
+                    style={{ animation: 'arrowNudgeRight 2.2s ease-in-out infinite' }}
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                )}
               </div>
 
               {/* Puntini */}

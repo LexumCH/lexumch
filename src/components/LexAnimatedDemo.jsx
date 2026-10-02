@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Sparkles, FolderOpen } from 'lucide-react'
+import { Sparkles, FolderOpen, Tag } from 'lucide-react'
 
 const toArray = (val) => Array.isArray(val) ? val : []
 
@@ -47,13 +47,40 @@ export default function LexAnimatedDemo({ variant = 'avvocato', startDelay = 0 }
     const [rispostaBlocks, setRispostaBlocks] = useState([])
     const timeoutsRef = useRef([])
 
+    // Scrive solo quando si vede: se la sezione esce dallo schermo l'animazione si ferma
+    // e riprende quando torna visibile. Così, se stai leggendo più in basso, la risposta
+    // che si allunga non fa scorrere la pagina sotto i tuoi occhi.
+    const rootRef = useRef(null)
+    const visibileRef = useRef(false)
+    const inAttesaRef = useRef([])
+    useEffect(() => {
+        const el = rootRef.current
+        if (!el || typeof IntersectionObserver === 'undefined') { visibileRef.current = true; return }
+        const obs = new IntersectionObserver(([e]) => {
+            visibileRef.current = e.isIntersecting
+            if (e.isIntersecting) {
+                inAttesaRef.current.forEach(riprendi => riprendi())
+                inAttesaRef.current = []
+            }
+        })
+        obs.observe(el)
+        return () => obs.disconnect()
+    }, [])
+    const quandoVisibile = () => visibileRef.current
+        ? Promise.resolve()
+        : new Promise(riprendi => inAttesaRef.current.push(riprendi))
+
     const addTimeout = (fn, delay) => {
         const id = setTimeout(fn, delay)
         timeoutsRef.current.push(id)
         return id
     }
 
-    const wait = (ms) => new Promise(resolve => addTimeout(resolve, ms))
+    // Ogni passo dell'animazione aspetta il suo tempo E che la sezione sia visibile
+    const wait = async (ms) => {
+        await new Promise(resolve => addTimeout(resolve, ms))
+        await quandoVisibile()
+    }
 
     useEffect(() => {
         // Avvia l'animazione solo quando le traduzioni sono pronte
@@ -141,7 +168,7 @@ export default function LexAnimatedDemo({ variant = 'avvocato', startDelay = 0 }
     const actionsOpacity = (phase === PHASE.ACTIONS || phase === PHASE.DONE) ? 1 : 0
 
     return (
-        <div className="relative">
+        <div ref={rootRef} className="relative">
 
             {/* INPUT — fade out quando si passa alla conversazione */}
             <div
@@ -263,6 +290,9 @@ export default function LexAnimatedDemo({ variant = 'avvocato', startDelay = 0 }
                 >
                     <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-petrolio border border-oro/25 text-oro/80 font-body text-xs hover:bg-oro/5 transition-colors">
                         <FolderOpen size={12} /> {ACTION}
+                    </button>
+                    <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-petrolio border border-salvia/25 text-salvia/80 font-body text-xs hover:bg-salvia/5 transition-colors">
+                        <Tag size={12} /> {t('anim.action_etichetta')}
                     </button>
                 </div>
             </div>

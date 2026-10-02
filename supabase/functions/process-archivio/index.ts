@@ -9,7 +9,13 @@
 // Trigger: chiamata fire-and-forget dal frontend Archivio.jsx dopo upload.
 // Polling: il frontend monitora ocr_status ogni 3s.
 //
-// Versione: 1.3.0
+// Versione: 1.4.0
+//   - v1.4 (02-10-2026, come su IT): `usa_testo_presente: true` → si usa il testo
+//           già letto (documento salvato dalla Banca Dati dopo l'analisi): niente
+//           nuovo download né OCR. Lo stesso testo fa da riserva se il formato non
+//           è leggibile qui (es. .docx letto da extract-pdf-text). Accesso: chi
+//           chiama deve essere l'autore o dello studio titolare del documento
+//           (prima qualunque utente poteva far rielaborare un documento altrui).
 //   - v1.3: PDF grandi (> MAX_DOWNLOAD_BYTES) → OCR diretto senza caricarli in
 //           funzione (evita OOM/kill della edge → documento orfano in 'processing').
 //   - v1.2: fallback OCR (Mistral) per PDF senza layer di testo o con font
@@ -447,6 +453,7 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     documentoId = body.documento_id;
+    const usaTestoPresente = body.usa_testo_presente === true;
 
     if (!documentoId) {
       return new Response(
@@ -463,7 +470,7 @@ Deno.serve(async (req) => {
 
     const { data: doc, error: docErr } = await supabase
       .from("archivio_documenti")
-      .select("id, titolare_id, autore_id, storage_path, tipo_file, titolo, ocr_status, dimensione")
+      .select("id, titolare_id, autore_id, storage_path, tipo_file, titolo, ocr_status, dimensione, testo_estratto")
       .eq("id", documentoId)
       .single();
 
@@ -472,6 +479,28 @@ Deno.serve(async (req) => {
         JSON.stringify({ ok: false, error: "Documento non trovato" }),
         {
           status: 404,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+    }
+
+    // Solo l'autore o lo studio titolare possono far rielaborare un documento.
+    const uid = userData.user.id;
+    let consentito = doc.autore_id === uid || doc.titolare_id === uid;
+    if (!consentito) {
+      const { data: chiama } = await supabase
+        .from("profiles").select("titolare_id").eq("id", uid).maybeSingle();
+      consentito = !!chiama?.titolare_id && chiama.titolare_id === doc.titolare_id;
+    }
+    if (!consentito) {
+      documentoId = null; // il catch non deve toccare un documento altrui
+      return new Response(
+        JSON.stringify({ ok: false, error: "Documento non accessibile" }),
+        {
+          status: 403,
           headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
@@ -509,8 +538,14 @@ Deno.serve(async (req) => {
     let pagine: number | null = null;
     let tabellare = false;
     let viaOcr = false;
+    let daTestoPresente = false;
+    const testoPresente: string = typeof doc.testo_estratto === "string" ? doc.testo_estratto : "";
 
-    if (ocrDiretto) {
+    if (usaTestoPresente && testoPresente.trim().length >= MIN_CHARS_PER_VERIFY) {
+      // Documento salvato dalla Banca Dati: il testo è già stato letto per l'analisi.
+      testoEstratto = sanificaTesto(pulisciTestoEstratto(testoPresente));
+      daTestoPresente = true;
+    } else if (ocrDiretto) {
       console.log(JSON.stringify({
         evento: "ocr_diretto_grande",
         documento_id: documentoId,
@@ -526,7 +561,15 @@ Deno.serve(async (req) => {
       if (dlErr || !fileBlob) {
         throw new Error(`Download fallito: ${dlErr?.message ?? "blob nullo"}`);
       }
-      const estratto = await estraiTestoDaFile(fileBlob, fileName);
+      let estratto: { testo: string; pagine: number | null; tabellare: boolean };
+      try {
+        estratto = await estraiTestoDaFile(fileBlob, fileName);
+      } catch (errFormato: any) {
+        // Formato che qui non si legge (es. .docx): se il testo c'è già, si usa quello.
+        if (testoPresente.trim().length < MIN_CHARS_PER_VERIFY) throw errFormato;
+        estratto = { testo: testoPresente, pagine: null, tabellare: false };
+        daTestoPresente = true;
+      }
       pagine = estratto.pagine;
       tabellare = estratto.tabellare;
       // Pulizia regex SOLO per prosa (PDF/TXT); Excel salta (romperebbe le colonne).
@@ -611,6 +654,7 @@ Deno.serve(async (req) => {
       chars_estratti: testoEstratto.length,
       chunks: records.length,
       via_ocr: viaOcr,
+      da_testo_presente: daTestoPresente,
       verificato_auto: true,
       verificato_at: new Date().toISOString(),
     });

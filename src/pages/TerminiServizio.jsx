@@ -8,7 +8,6 @@ const TERMINI_EMAIL = 'info@lexum.ch'
 const COMPANY_NAME = 'Mosaico Experiences SA'
 const COMPANY_VAT = 'CHE-365.261.725'
 const COMPANY_ADDRESS = 'Via Cantonale 1, 6900 Lugano, Svizzera'
-const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 function Section({ title, children }) {
   return (
@@ -31,7 +30,7 @@ function Sub({ title, children }) {
 }
 
 export default function TerminiServizio() {
-  const { t, i18n } = useTranslation('termini')
+  const { t } = useTranslation('termini')
   const toArray = (val) => Array.isArray(val) ? val : []
 
   const descrizioneItems = toArray(t('descrizione.items', { returnObjects: true }))
@@ -41,9 +40,6 @@ export default function TerminiServizio() {
   const usoItems = toArray(t('uso.items', { returnObjects: true }))
   const responsabilitaItems = toArray(t('responsabilita.items', { returnObjects: true }))
   const risoluzione112Items = toArray(t('risoluzione.sub112_items', { returnObjects: true }))
-
-  const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
-  const updated = new Date().toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
     <div className="min-h-screen bg-petrolio text-nebbia pt-20">
@@ -59,9 +55,6 @@ export default function TerminiServizio() {
         <div className="space-y-4">
           <p className="font-body text-xs text-salvia/60 tracking-[0.3em] uppercase">{t('header.label')}</p>
           <h1 className="font-display text-5xl font-light text-nebbia">{t('header.h1')}</h1>
-          <p className="font-body text-sm text-nebbia/40">
-            {t('header.updated_prefix')} {updated}
-          </p>
           <div className="bg-slate border border-oro/15 p-4 flex items-start gap-3">
             <AlertCircle size={14} className="text-oro shrink-0 mt-0.5" />
             <p className="font-body text-xs text-nebbia/50 leading-relaxed">

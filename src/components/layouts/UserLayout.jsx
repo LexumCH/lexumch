@@ -7,7 +7,7 @@ import logo from '@/assets/logo.png'
 import {
   LogOut, Menu, X, Sparkles, Plus,
   Home, Search, ShieldCheck, CreditCard, Headphones, User, ChevronRight,
-  Clock, CheckCircle, XCircle
+  Clock, CheckCircle, XCircle, Archive
 } from 'lucide-react'
 
 export default function UserLayout({ children }) {
@@ -50,6 +50,7 @@ export default function UserLayout({ children }) {
   const NAV = [
     { path: '/area', label: t('nav.banca_dati'), icon: Home, end: true },
     { path: '/area/ricerche', label: t('nav.ricerche'), icon: Search },
+    { path: '/area/archivio', label: t('nav.archivio'), icon: Archive },
     ...(verifyItem ? [verifyItem] : []),
     { path: '/area/assistenza', label: t('nav.assistenza'), icon: Headphones },
     { path: '/area/acquista', label: t('nav.acquista'), icon: CreditCard },

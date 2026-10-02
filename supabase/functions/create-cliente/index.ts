@@ -1,14 +1,40 @@
 // supabase/functions/create-cliente/index.ts — Lexum CH
 //
 // Crea un cliente come utente Auth + record profiles.
-// Ruoli abilitati a creare clienti: avvocato, fiduciario, progettista.
 //
-// Se 'attiva_portale' = true: il professionista fornisce 'password_iniziale' e la
-// impostiamo sull'utente Auth. La comunica al cliente fuori da Lexum.
-// Se false: password random buttata, l'accesso portale puo' essere attivato dopo.
+// Se 'attiva_portale' = true: l'avvocato fornisce 'password_iniziale' e la
+// impostiamo sull'utente Auth. L'avvocato la comunica al cliente fuori da Lexum.
 //
-// VALIDAZIONE LIMITE CLIENTI: prima di creare, la RPC conteggio_clienti_studio()
-// verifica il limite del piano. Se raggiunto, 403 con payload strutturato.
+// Se false: password random buttata, l'accesso portale puo' essere attivato
+// dopo dal Detail tramite "Reset password".
+//
+// Nessuna email parte mai da Lexum.
+//
+// ─── DIFFERENZE CH RISPETTO A IT ────────────────────────────────────────────
+//   Anagrafica svizzera:
+//     cf            → numero_avs   (PF — su CH è SOLO della persona fisica,
+//                                   non più campo comune come il CF italiano)
+//     partita_iva   → uid          (PG)
+//     rappr_cf      → rappr_avs    (PG)
+//     comune        → citta        (comune)
+//     provincia     → cantone      (comune, text libero)
+//     pec           → RIMOSSO
+//     + forma_giuridica (PG, text libero)
+//     + iva_attiva      (PG, boolean — assoggettamento IVA)
+//   note → note_iniziali (invariato dall'IT)
+//   CORS: aggiunto x-client-info + apikey.
+//
+// VALIDAZIONE LIMITE CLIENTI:
+// Prima di creare il cliente, chiamiamo la RPC conteggio_clienti_studio()
+// che ritorna {conteggio, limite_piano, limite_extra, limite_totale, percentuale}.
+// Se conteggio >= limite_totale (e limite_totale > 0), blocchiamo con 403
+// e un payload strutturato che il frontend intercetta per mostrare un banner.
+//
+// PIANO DELLO STUDIO (02-10-2026): a piano scaduto niente nuovi clienti (403
+// PIANO_SCADUTO), come l'archivio che passa in sola lettura. Prima non scattava
+// mai: a piano scaduto il limite vale 0, e 0 qui significa «senza limite».
+// Lo stato lo calcola il DB (stato_abbonamento_calcolato), la regola di sempre.
+// Il professionista assegnato deve essere dello studio: prima si accettava qualunque id.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
@@ -23,6 +49,7 @@ const corsHeaders = {
 };
 
 function generaPasswordRandom(): string {
+  // Solo per creare l'utente Auth quando il portale non e' attivato.
   const chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%&";
   return Array.from({ length: 32 }, () =>
     chars[Math.floor(Math.random() * chars.length)]
@@ -59,7 +86,39 @@ Deno.serve(async (req) => {
     if (!["avvocato", "fiduciario", "progettista"].includes(profilo.role)) throw new Error("Accesso negato");
 
     // ─── VALIDAZIONE LIMITE CLIENTI ─────────────────────────────
+    // Risolvi proprietario dello studio (titolare/singolo, non collaboratore)
     const proprietarioId = profilo.titolare_id ?? user.id;
+
+    // ─── PIANO DELLO STUDIO (02-10-2026) ───────────────────
+    // A piano scaduto niente nuovi clienti, come l'archivio in sola lettura.
+    // Il limite qui sotto non basta: a piano scaduto vale 0 = «senza limite».
+    const { data: pianoStudio } = await supabase
+      .from("profiles")
+      .select("abbonamento_scadenza, grazia_fino_al, abbonamento_tipo")
+      .eq("id", proprietarioId)
+      .maybeSingle();
+
+    const { data: statoPiano, error: statoErr } = await supabase.rpc("stato_abbonamento_calcolato", {
+      p_scadenza: pianoStudio?.abbonamento_scadenza ?? null,
+      p_grazia:   pianoStudio?.grazia_fino_al ?? null,
+      p_tipo:     pianoStudio?.abbonamento_tipo ?? null,
+    });
+
+    if (statoErr) {
+      console.error("Errore stato_abbonamento_calcolato:", statoErr);
+      throw new Error("Errore verifica piano");
+    }
+
+    if (!["attivo", "in_scadenza", "in_grazia"].includes(statoPiano as string)) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: "Il piano dello studio è scaduto: rinnovalo per registrare nuovi clienti.",
+          code: "PIANO_SCADUTO",
+        }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     const { data: conteggio, error: conteggioErr } = await supabase
       .rpc("conteggio_clienti_studio", { p_proprietario_id: proprietarioId })
@@ -73,6 +132,7 @@ Deno.serve(async (req) => {
     const conteggioAttuale = (conteggio as any)?.conteggio ?? 0;
     const limiteTotale     = (conteggio as any)?.limite_totale ?? 0;
 
+    // Se limite_totale > 0 (l'avvocato ha un piano valido) e siamo già al limite → blocca
     if (limiteTotale > 0 && conteggioAttuale >= limiteTotale) {
       const errorePayload = {
         ok: false,
@@ -93,18 +153,24 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     const {
+      // Tipo
       tipo_soggetto,
+      // PF
       nome, cognome, data_nascita, luogo_nascita, numero_avs,
+      // PG
       ragione_sociale, uid, forma_giuridica, iva_attiva, sede_legale,
       rappr_nome, rappr_cognome, rappr_avs, rappr_carica,
+      // Comuni
       email, telefono,
       indirizzo, citta, cantone, cap,
       note,
       avvocato_id,
+      // Portale
       attiva_portale,
       password_iniziale,
     } = body;
 
+    // ── VALIDAZIONI ──────────────────────────────────────
     const tipo = tipo_soggetto === "persona_giuridica" ? "persona_giuridica" : "persona_fisica";
 
     if (tipo === "persona_fisica") {
@@ -117,6 +183,7 @@ Deno.serve(async (req) => {
     if (!email?.trim()) throw new Error("Email obbligatoria");
     if (!/\S+@\S+\.\S+/.test(email)) throw new Error("Email non valida");
 
+    // Se attiva il portale, password obbligatoria
     const attivaPortale = attiva_portale === true;
     if (attivaPortale) {
       if (!password_iniziale || typeof password_iniziale !== "string") {
@@ -139,6 +206,19 @@ Deno.serve(async (req) => {
 
     const avvId = avvocato_id ?? user.id;
 
+    // L'assegnatario deve essere dello studio (prima: qualunque id dalla richiesta).
+    if (avvId !== user.id && avvId !== proprietarioId) {
+      const { data: assegnato } = await supabase
+        .from("profiles")
+        .select("titolare_id")
+        .eq("id", avvId)
+        .maybeSingle();
+      if (!assegnato || assegnato.titolare_id !== proprietarioId) {
+        throw new Error("Il professionista assegnato non fa parte dello studio");
+      }
+    }
+
+    // ── CREA UTENTE AUTH ─────────────────────────────────
     const password = attivaPortale ? password_iniziale : generaPasswordRandom();
     const nomeDisplay = tipo === "persona_fisica" ? nome.trim() : ragione_sociale.trim();
 
@@ -157,6 +237,7 @@ Deno.serve(async (req) => {
       throw new Error(createErr?.message ?? "Errore nella creazione utente");
     }
 
+    // ── COSTRUISCI PAYLOAD profiles solo con campi forniti ─────
     const updatePayload: Record<string, unknown> = {
       role:          "cliente",
       tipo_soggetto: tipo,
@@ -171,6 +252,7 @@ Deno.serve(async (req) => {
       updatePayload.credenziali_inviate_il = new Date().toISOString();
     }
 
+    // Nome/Cognome o Ragione sociale
     if (tipo === "persona_fisica") {
       updatePayload.nome    = nome.trim();
       updatePayload.cognome = cognome.trim();
@@ -180,6 +262,7 @@ Deno.serve(async (req) => {
       updatePayload.cognome         = null;
     }
 
+    // Campi comuni opzionali — solo se forniti (anagrafica CH)
     addIfPresent(updatePayload, "telefono",      telefono);
     addIfPresent(updatePayload, "indirizzo",     indirizzo);
     addIfPresent(updatePayload, "citta",         citta);
@@ -208,6 +291,7 @@ Deno.serve(async (req) => {
       .eq("id", newUser.user.id);
 
     if (profileErr) {
+      // Rollback
       await supabase.auth.admin.deleteUser(newUser.user.id);
       throw new Error(profileErr.message);
     }

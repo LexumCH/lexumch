@@ -29,7 +29,24 @@
     "separati_mid": " Credits sowie die ",
     "benvenuto_evidenza": "Willkommens-Credits",
     "separati_post": " verfallen nie und bleiben immer Ihnen erhalten.",
-    "consumo": "Wenn Sie Lex AI nutzen, werden zuerst die Credits des Abonnements verbraucht (um sie nicht zu verlieren), dann die Willkommens-Credits und zuletzt die gekauften Credits."
+    "consumo": "Wenn Sie Lex AI nutzen, werden zuerst die Credits des Abonnements verbraucht (um sie nicht zu verlieren), dann die Willkommens-Credits und zuletzt die gekauften Credits.",
+    "piano_privato_pre": "Die Credits des ",
+    "piano_privato_evidenza": "Persönlichen Plans",
+    "piano_privato_post": " gelten bis zum Ablauf des Plans und werden nicht angesammelt: Nicht genutzte Credits verfallen beim Ablauf."
+  },
+  "piano_personale": {
+    "nome": "Persönlicher Plan",
+    "al_mese": "pro Monat",
+    "per_mesi": "für {{mesi}} Monate",
+    "voce_crediti_mese": "{{crediti}} Lex-AI-Credits pro Monat",
+    "voce_crediti_mesi": "{{crediti}} Lex-AI-Credits für {{mesi}} Monate",
+    "voce_archivio": "{{gb}} GB Archiv für Ihre Dokumente (statt 50 MB)",
+    "voce_rinnovo": "Keine automatische Verlängerung: Sie zahlen nur, wenn Sie weitermachen möchten",
+    "per_professionisti": "Gedacht für alle, die Lexum für sich selbst nutzen. Für Fachpersonen gibt es die Abonnements weiter unten.",
+    "attivo_fino": "Aktiv bis {{data}}",
+    "aggiungi_mese": "Einen Monat hinzufügen",
+    "attiva": "Plan aktivieren",
+    "nota_rinnovo": "Der zusätzliche Monat beginnt ab dem aktuellen Ablaufdatum."
   },
   "tab": {
     "crediti": "Credit-Pakete",
