@@ -19,6 +19,8 @@ Ultimo aggiornamento: 03-10-2026.
   Va fatta in IT e in CH, e ognuna cancella solo il suo paese. Nell'app la conferma (D6) è già pronta con i tuoi testi. Decidi tu cosa fare se c'è un piano ancora attivo.
 - [ ] (Solo se scegli il codice di 6 cifre, decisione aperta n. 1 del piano) cambiare il modello email di conferma.
 
+- [ ] **Verifica in due passaggi per i privati, sul sito** (facoltativo, fuori da questo repo). Il backend la regge già per tutti (`supabase.auth.mfa` e la funzione `mfa-backup-codes`, in IT e in CH). Ma sul sito il riquadro per attivarla c'è solo nei profili di avvocati, commercialisti e admin, non in quello dei privati. Se un privato la attiva dall'app, il sito gliela chiede all'accesso (lo fa già `ProtectedRoute`), ma non può gestirla dal suo Profilo sul sito. Proposta: aggiungere `BoxSicurezza2FA` anche al Profilo dei privati dei due siti.
+
 ## Sentry (segnalazione dei crash)
 
 - [ ] **Account e progetto.** Crea l'account su sentry.io scegliendo la **regione dati europea**, poi un progetto «React Native».
@@ -34,7 +36,7 @@ Ultimo aggiornamento: 03-10-2026.
 - [ ] **Account:** Apple Developer, Google Play Console e Expo (per EAS).
 - [ ] **Icona dell'app** 1024×1024, senza trasparenza (per iPhone). Oggi c'è quella predefinita di Expo; lo splash usa già l'emblema.
 - [ ] **«Condividi in Lexum» su iPhone.** L'estensione di condivisione ha un identificativo suo (per esempio `com.lexum.app.share`) e un «App Group» per passare il file all'app. Si registrano nell'account Apple Developer insieme all'identificativo dell'app: te li preparo io quando c'è.
-- [ ] **Frase di Face ID.** iPhone la mostra la prima volta che l'app chiede Face ID. Proposta: «Lexum usa Face ID per proteggere le tue ricerche e i tuoi documenti.» Approvala o cambiala.
+- [x] **Frase di Face ID**, approvata il 03-10-2026: «Lexum usa Face ID per proteggere le tue ricerche e i tuoi documenti.» È già in `app.json`.
 
 ## Prove sul telefono
 

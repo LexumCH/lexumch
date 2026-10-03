@@ -48,6 +48,7 @@ export type Scenario =
   | 'errore-lex-it'
   | 'offline-it'
   | 'offline-ricerche-it'
+  | 'due-passaggi-it'
   | 'caricamento-it'
   | 'vuoto-it'
   | 'senza-accesso-ch'
@@ -64,6 +65,9 @@ type Stato = {
   documenti: Record<string, DocumentoArchivio[]>;
   simula: Simulazioni;
   telefono: Telefono;
+  // Verifica in due passaggi (codice di un'app di autenticazione), per account di paese:
+  // è la stessa del sito, perché il fattore sta nell'account (Supabase MFA).
+  dueFattori: Record<string, boolean>;
 };
 
 // Impostazioni di questo telefono (Profilo → «Su questo telefono»): valgono per tutti i paesi,
@@ -93,6 +97,7 @@ const statoIniziale = (): Stato => ({
   documenti: copia(documentiArchivioFinti),
   simula: nessunaSimulazione,
   telefono: { blocco: false, ricercheOffline: false },
+  dueFattori: { IT: false, CH: false },
 });
 
 function copia<T>(v: T): T {
@@ -117,6 +122,7 @@ type Azioni = {
   modificaEtichetta: (id: string, dati: { nome: string; colore: string }) => void;
   eliminaEtichetta: (id: string) => void;
   impostaTelefono: (chiave: keyof Telefono, valore: boolean) => void;
+  impostaDueFattori: (attiva: boolean) => void;
   salvaInArchivio: (documento: {
     titolo: string;
     categoria: string | null;
@@ -260,6 +266,10 @@ export function StatoProvider({ children }: { children: ReactNode }) {
     setStato((s) => ({ ...s, telefono: { ...s.telefono, [chiave]: valore } }));
   }, []);
 
+  const impostaDueFattori = useCallback((attiva: boolean) => {
+    setStato((s) => ({ ...s, dueFattori: { ...s.dueFattori, [s.paese]: attiva } }));
+  }, []);
+
   // «Condividi in Lexum» da un'altra app: il file entra in Archivio, in coda per la lettura.
   const salvaInArchivio = useCallback(
     (d: { titolo: string; categoria: string | null; dimensione: string; tipo: string }) => {
@@ -369,6 +379,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       modificaEtichetta,
       eliminaEtichetta,
       impostaTelefono,
+      impostaDueFattori,
       salvaInArchivio,
       nuovaChat,
       apriChatSalvata,
@@ -391,6 +402,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       modificaEtichetta,
       eliminaEtichetta,
       impostaTelefono,
+      impostaDueFattori,
       salvaInArchivio,
       nuovaChat,
       apriChatSalvata,
@@ -457,6 +469,8 @@ function costruisciScenario(nome: Scenario): Stato {
       return concludi({ ...inAttesa(base, 0), simula: { ...base.simula, erroreLex: true } });
     case 'offline-it':
       return { ...base, simula: { ...base.simula, offline: true } };
+    case 'due-passaggi-it':
+      return { ...base, dueFattori: { ...base.dueFattori, IT: true } };
     case 'offline-ricerche-it':
       return {
         ...base,

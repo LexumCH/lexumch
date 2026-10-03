@@ -102,6 +102,15 @@ describe('funzioni del telefono', () => {
     expect(result.current.elementiAttivi.some((e) => e.etichetta === 'casa')).toBe(false);
   });
 
+  it('la verifica in due passaggi vale per l’account del paese attivo', async () => {
+    const { result } = await renderHook(() => useStato(), { wrapper: avvolgi });
+    expect(result.current.dueFattori).toEqual({ IT: false, CH: false });
+    await act(() => {
+      result.current.azioni.impostaDueFattori(true);
+    });
+    expect(result.current.dueFattori).toEqual({ IT: true, CH: false });
+  });
+
   it('un file condiviso da un’altra app entra in Archivio, in coda', async () => {
     const { result } = await renderHook(() => useStato(), { wrapper: avvolgi });
     await act(() => {

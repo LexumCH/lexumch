@@ -33,6 +33,7 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
     - schermata «Lexum è bloccata» (F1) e Ricerche senza rete, chiusa o letta dalla copia sul telefono (F2, F3);
     - «Gestisci etichette» in Ricerche: nome, colore, elimina, come sul sito;
     - Archivio: foglio «Salva in Archivio» per un file arrivato da «Condividi in Lexum».
+  - Verifica in due passaggi, come sul sito (03-10-2026), per ora solo da vedere: schermata del codice all'accesso (A10) e foglio per attivarla e gestirla dal Profilo.
 
 - [ ] **2. Paesi e accesso.**
   - Per prima cosa: spostare tutti i testi in file di traduzione (it/de/fr). Quelli già tradotti sono in `docs/testi/`.
@@ -42,6 +43,7 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Cambio paese da Profilo, con anteprima del conto e conferma.
   - Se manca l'account in quel paese: crealo o accedi.
   - In Svizzera, scelta della lingua (it/de/fr). I testi vengono da `public/locales/` di `LexumCH/lexumch`.
+  - Verifica in due passaggi all'accesso, come `Verifica2FA` del sito: codice di 6 cifre dell'app di autenticazione (`supabase.auth.mfa.challengeAndVerify`) oppure codice di recupero (funzione `mfa-backup-codes`, «verify», che spegne la verifica). È la stessa del sito: lo stesso codice vale su app e sito, un fattore per account di paese.
   - È finita quando si entra con un account IT e uno CH e si passa dall'uno all'altro senza rifare l'accesso.
 
 - [ ] **3. Lex.**
@@ -76,6 +78,7 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Domande: ticket di assistenza.
   - Profilo: «Crediti e piano», con «Aggiungi crediti» e «Fai upgrade» che aprono il sito.
   - Profilo: dati, notifiche, elimina account (serve la funzione del backend: `docs/DA-FARE-ANTONINO.md`).
+  - Profilo → Account → «Verifica in due passaggi», come `ModalAttiva2FA` e `BoxSicurezza2FA` del sito: attiva (`mfa.enroll`, link `otpauth://` che apre l'app di autenticazione, oppure la chiave), codici di recupero (`mfa-backup-codes` «generate» e «regenerate»), spegni (`mfa.unenroll`).
   - Profilo → «Su questo telefono»: blocco con Face ID o impronta (`expo-local-authentication`), spento di base. Quando è acceso, l'app chiede lo sblocco all'apertura e quando torna in primo piano.
 
 - [ ] **7. Rifiniture.**

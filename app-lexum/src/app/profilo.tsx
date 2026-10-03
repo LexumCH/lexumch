@@ -19,6 +19,7 @@ import { Eyebrow, Testo } from '@/componenti/Testo';
 import { mostraAcquisti } from '@/config';
 import { formatoMB } from '@/dati-finti/conti';
 import { utenteFinto } from '@/dati-finti/utente';
+import { FoglioDuePassaggi } from '@/fogli/FoglioDuePassaggi';
 import { FoglioElimina } from '@/fogli/FoglioElimina';
 import { FoglioPaese } from '@/fogli/FoglioPaese';
 import { FoglioProfessionista } from '@/fogli/FoglioProfessionista';
@@ -28,7 +29,7 @@ import { dominio, paesePredefinito, trovaPaese } from '@/paesi/registro';
 import { useStato, type LinguaCH } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
-type Foglio = 'paese' | 'professionista' | 'elimina';
+type Foglio = 'paese' | 'professionista' | 'elimina' | 'due-passaggi';
 
 const nomiLingue: Record<string, string> = { it: 'Italiano', de: 'Deutsch', fr: 'Français' };
 
@@ -36,7 +37,7 @@ const nomiLingue: Record<string, string> = { it: 'Italiano', de: 'Deutsch', fr: 
 // crediti e piano, account, «Su questo telefono», «Completa il profilo» e, ultimo, «Elimina account».
 // Niente pagamenti nell'app: i pulsanti aprono il sito.
 export default function Profilo() {
-  const { paese, conto, lingua, accessi, telefono, azioni } = useStato();
+  const { paese, conto, lingua, accessi, telefono, dueFattori, azioni } = useStato();
   // Il foglio aperto sta nei parametri dell'indirizzo (?foglio=paese), come nella chat.
   // ?verso=CH apre il cambio paese con l'altro paese già scelto (solo per l'elenco delle schermate).
   const parametri = useLocalSearchParams<{ foglio?: Foglio; verso?: string }>();
@@ -143,6 +144,19 @@ export default function Profilo() {
 
         <TitoloSezione>Account</TitoloSezione>
         <Riga stretta titolo="Dati personali" sottotitolo="Nome, telefono, password" freccia="avanti" />
+        <Riga
+          stretta
+          titolo="Verifica in due passaggi"
+          sottotitolo={
+            dueFattori[paese]
+              ? `Attiva · vale anche su ${dominio(datiPaese)}`
+              : "Spenta · codice da un'app di autenticazione"
+          }
+          valore={dueFattori[paese] ? 'Attiva' : undefined}
+          valoreOro
+          freccia="avanti"
+          onPress={() => setFoglio('due-passaggi')}
+        />
         <Riga stretta titolo="Notifiche" sottotitolo="Quando la risposta di Lex è pronta" freccia="avanti" />
         <Riga
           stretta
@@ -216,6 +230,7 @@ export default function Profilo() {
       </ScrollView>
 
       <FoglioProfessionista visibile={foglio === 'professionista'} onChiudi={chiudi} />
+      <FoglioDuePassaggi visibile={foglio === 'due-passaggi'} onChiudi={chiudi} />
       <FoglioElimina
         visibile={foglio === 'elimina'}
         onChiudi={chiudi}

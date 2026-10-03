@@ -200,6 +200,39 @@ test('telefono: Ricerche senza rete si sceglie dal Profilo; Condividi va in Arch
   await vedo(page, 'Lexum è bloccata');
 });
 
+test('verifica in due passaggi: si attiva dal Profilo, come sul sito', async ({ page }) => {
+  await page.goto('/profilo');
+  await tocca(page, 'Verifica in due passaggi', true);
+  await vedo(page, 'Vale anche su lexum.it');
+  await tocca(page, 'Attiva', true);
+  await etichetta(page, 'Codice di 6 cifre').fill('000000');
+  await tocca(page, 'Verifica e attiva', true);
+  await vedo(page, 'Codice non valido');
+  await etichetta(page, 'Codice di 6 cifre').fill('482913');
+  await tocca(page, 'Verifica e attiva', true);
+  await vedo(page, 'Salva i codici di recupero');
+  await vedo(page, '7K9P-2H4M', true);
+  await tocca(page, 'Ho salvato i codici', true);
+  await vedo(page, "Attiva sull'app e su lexum.it");
+  await etichetta(page, 'Chiudi').click();
+  await vedo(page, 'Attiva · vale anche su lexum.it');
+});
+
+test('verifica in due passaggi all’accesso: codice o codice di recupero', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/');
+  await tocca(page, 'A10 · Verifica in due passaggi');
+  await vedo(page, 'è lo stesso che usi su lexum.it');
+  await tocca(page, 'Ho perso il telefono: uso un codice di recupero', true);
+  await etichetta(page, 'Codice di recupero').fill('7k9p-2h4m');
+  await tocca(page, 'Usa il codice e accedi', true);
+  await vedo(page, 'Verifica in due passaggi spenta');
+  await tocca(page, 'Accedi di nuovo', true);
+  await etichetta(page, 'Password').fill('una-password');
+  await tocca(page, 'Accedi', true);
+  await vedo(page, 'Di cosa hai bisogno?');
+});
+
 test('Banca dati: ricerca, filtro, sentenza, sfoglia', async ({ page }) => {
   await page.goto('/banca-dati');
   await vedo(page, 'Codici, leggi, sentenze e prassi');

@@ -9,7 +9,10 @@
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0B1F2A",
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Lexum usa Face ID per proteggere le tue ricerche e i tuoi documenti."
+      }
     },
     "android": {
       "adaptiveIcon": {

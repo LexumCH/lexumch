@@ -19,7 +19,7 @@ import { colori, famiglie } from '@/tema';
 // A6 · Accedi con email e password, come sul sito (non è nei mockup: stesso stile della registrazione).
 // Con ?paese=CH entra nell'account di un altro paese (da G2). L'accesso vero arriva con la tappa 2.
 export default function Accesso() {
-  const { paese: paeseAttivo } = useStato();
+  const { paese: paeseAttivo, dueFattori } = useStato();
   const parametri = useLocalSearchParams<{ paese?: string }>();
   const paese = parametri.paese ?? paeseAttivo;
   const altroPaese = !!parametri.paese && parametri.paese !== paeseAttivo;
@@ -32,6 +32,11 @@ export default function Accesso() {
     // Finto: basta un'email con la chiocciola e una password non vuota.
     if (!email.includes('@') || password.length === 0) {
       setErrore('Email o password non corretti');
+      return;
+    }
+    // Con la verifica in due passaggi attiva (dal sito o dall'app) serve anche il codice.
+    if (dueFattori[paese]) {
+      router.push({ pathname: '/avvio/verifica', params: altroPaese ? { paese } : {} });
       return;
     }
     if (altroPaese) ricominciaDa({ pathname: '/passaggio', params: { paese } });
