@@ -5,8 +5,11 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { ElencoSchermate } from '@/anteprima/ElencoSchermate';
 
 // Solo nel browser, su uno schermo largo: l'app sta dentro una sagoma di telefono
-// (390 × 844, come docs/mockup/anteprima/) e, in sviluppo, a sinistra c'è l'elenco
+// (390 × 844, come docs/mockup/anteprima/) e, in sviluppo o nell'anteprima web
+// (EXPO_PUBLIC_ANTEPRIMA=1, vedi scripts/anteprima-web.mjs), a sinistra c'è l'elenco
 // delle schermate. Sul telefono vero e nei browser stretti l'app occupa tutto lo schermo.
+
+const conElencoSchermate = __DEV__ || process.env.EXPO_PUBLIC_ANTEPRIMA === '1';
 
 const LARGHEZZA = 390;
 const ALTEZZA = 844;
@@ -18,7 +21,7 @@ export function Cornice({ children }: { children: ReactNode }) {
   const { width, height } = useWindowDimensions();
   if (Platform.OS !== 'web' || width <= 500) return <>{children}</>;
   const altezza = Math.min(ALTEZZA, height - 40);
-  const conElenco = __DEV__ && width >= 760;
+  const conElenco = conElencoSchermate && width >= 760;
   return (
     <View style={stili.scena}>
       {conElenco ? <ElencoSchermate /> : null}

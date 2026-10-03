@@ -21,6 +21,10 @@ Nel browser, su uno schermo largo, l'app sta dentro la sagoma di un telefono e a
 
 Per ora (tappa 1) i dati sono tutti finti: niente accesso vero, niente Lex vero, niente database.
 
+### Anteprima senza installare niente
+
+`npm run anteprima:web` crea `dist-anteprima/anteprima-app-lexum.html`: un file solo, con dentro tutta l'app e l'elenco delle schermate. Si apre nel browser o si pubblica come pagina su claude.ai (l'ultima: https://claude.ai/artifact/RNU5EnAh2hjM5tRoqnppQf, privata).
+
 ## Controlli
 
 ```bash

@@ -5,7 +5,7 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', 'docs/*', '.expo/*'],
+    ignores: ['dist/*', 'dist-anteprima/*', 'docs/*', '.expo/*'],
   },
   {
     // nelle prove i finti moduli nativi si caricano con require()
