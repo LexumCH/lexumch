@@ -1,0 +1,132 @@
+import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+
+import { Campo } from '@/componenti/Campi';
+import { CampoPassword } from '@/componenti/CampoPassword';
+import { Avviso } from '@/componenti/Elementi';
+import { BottoneIndietro, Intestazione } from '@/componenti/Intestazione';
+import { Pulsante } from '@/componenti/Pulsante';
+import { Schermata } from '@/componenti/Schermata';
+import { Testo } from '@/componenti/Testo';
+import { utenteFinto } from '@/dati-finti/utente';
+import { ricominciaDa } from '@/navigazione';
+import { contenuti } from '@/paesi/contenuti';
+import { dominio, trovaPaese } from '@/paesi/registro';
+import { useStato } from '@/stato/Stato';
+import { colori, famiglie } from '@/tema';
+
+// A6 · Accedi con email e password, come sul sito (non è nei mockup: stesso stile della registrazione).
+// Con ?paese=CH entra nell'account di un altro paese (da G2). L'accesso vero arriva con la tappa 2.
+export default function Accesso() {
+  const { paese: paeseAttivo } = useStato();
+  const parametri = useLocalSearchParams<{ paese?: string }>();
+  const paese = parametri.paese ?? paeseAttivo;
+  const altroPaese = !!parametri.paese && parametri.paese !== paeseAttivo;
+  const datiPaese = trovaPaese(paese);
+  const [email, setEmail] = useState(utenteFinto.email);
+  const [password, setPassword] = useState('');
+  const [errore, setErrore] = useState<string | null>(null);
+
+  const accedi = () => {
+    // Finto: basta un'email con la chiocciola e una password non vuota.
+    if (!email.includes('@') || password.length === 0) {
+      setErrore('Email o password non corretti');
+      return;
+    }
+    if (altroPaese) ricominciaDa({ pathname: '/passaggio', params: { paese } });
+    else ricominciaDa('/chat');
+  };
+
+  return (
+    <Schermata>
+      <Intestazione sinistra={<BottoneIndietro ripiego="/avvio/paese" />} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={stili.corpo} keyboardShouldPersistTaps="handled">
+          <View style={{ gap: 8 }}>
+            <Testo tipo="dL" accessibilityRole="header">
+              Bentornato
+            </Testo>
+            <Testo tipo="small" colore={colori.fg2}>
+              {altroPaese
+                ? `Entra nel tuo account ${contenuti[paese].aggettivo}: email e password di ${dominio(datiPaese)}.`
+                : `Entra con l'email e la password che usi su ${dominio(datiPaese)}.`}
+            </Testo>
+          </View>
+
+          <Campo
+            etichetta="Email"
+            value={email}
+            onChangeText={(t) => {
+              setEmail(t);
+              setErrore(null);
+            }}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            textContentType="emailAddress"
+          />
+          <View style={{ gap: 4 }}>
+            <CampoPassword
+              etichetta="Password"
+              value={password}
+              onChangeText={(t) => {
+                setPassword(t);
+                setErrore(null);
+              }}
+              autoComplete="current-password"
+              textContentType="password"
+              onSubmitEditing={accedi}
+            />
+            <Text
+              style={stili.dimenticata}
+              accessibilityRole="link"
+              onPress={() => router.push({ pathname: '/avvio/password', params: { email, paese } })}
+            >
+              Password dimenticata?
+            </Text>
+          </View>
+
+          {errore ? <Avviso testo={errore} /> : null}
+
+          <Pulsante titolo="Accedi" onPress={accedi} />
+          <Text style={stili.registrati}>
+            Non hai un account?{' '}
+            <Text
+              style={stili.link}
+              accessibilityRole="link"
+              onPress={() =>
+                router.replace(
+                  parametri.paese
+                    ? { pathname: '/avvio/registrazione', params: { paese } }
+                    : '/avvio/registrazione',
+                )
+              }
+            >
+              Registrati
+            </Text>
+          </Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Schermata>
+  );
+}
+
+const stili = StyleSheet.create({
+  corpo: { gap: 18, paddingTop: 6, paddingHorizontal: 24, paddingBottom: 24 },
+  dimenticata: {
+    alignSelf: 'flex-end',
+    fontFamily: famiglie.testoMedio,
+    fontSize: 14,
+    color: colori.accentText,
+    paddingVertical: 12,
+  },
+  registrati: {
+    fontFamily: famiglie.testo,
+    fontSize: 14,
+    color: colori.fg2,
+    textAlign: 'center',
+    lineHeight: 44,
+  },
+  link: { fontFamily: famiglie.testoMedio, color: colori.accentText },
+});

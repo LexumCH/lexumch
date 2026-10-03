@@ -4,17 +4,25 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
 
 ## Tappe
 
-- [ ] **1. Scheletro.**
+- [x] **1. Scheletro.**
   - Expo + TypeScript + expo-router.
   - Solo il tema Notte, con colori e caratteri presi da `docs/mockup/tela/lexum.css`.
   - Componenti base: intestazione, compositore della chat, chip, riga, foglio dal basso, menù laterale con le etichette.
   - Tutte le schermate dei mockup navigabili, con dati finti.
   - È finita quando `npx expo start --web` mostra l'app e ci si muove come in `docs/mockup/anteprima/`.
 
+  - Aggiunte del 03-10-2026, con dati finti:
+    - schermate Accedi, Password dimenticata, Nuova password, Email confermata;
+    - domande frequenti vere e conferma «Elimina account» (testi in `docs/testi/`);
+    - stati di errore, attesa, elenco vuoto e senza connessione;
+    - Sentry, spento finché non c'è la chiave;
+    - prove automatiche (Jest e Playwright).
+
 - [ ] **2. Paesi e accesso.**
+  - Per prima cosa: spostare tutti i testi in file di traduzione (it/de/fr). Quelli già tradotti sono in `docs/testi/`.
   - Registro dei paesi costruito da `docs/paesi.json`, con un client Supabase per paese.
   - Scelta del paese al primo avvio.
-  - Accesso e registrazione con email e password, come sul sito.
+  - Accesso e registrazione con email e password, come sul sito; password dimenticata e conferma email con i link `lexum://` (le schermate ci sono già).
   - Cambio paese da Profilo, con anteprima del conto e conferma.
   - Se manca l'account in quel paese: crealo o accedi.
   - In Svizzera, scelta della lingua (it/de/fr). I testi vengono da `public/locales/` di `LexumCH/lexumch`.
@@ -45,16 +53,20 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Scansione con lo scanner del telefono: produce un PDF, che usa lo stesso caricamento.
   - Domande: ticket di assistenza.
   - Profilo: «Crediti e piano», con «Aggiungi crediti» e «Fai upgrade» che aprono il sito.
-  - Profilo: dati, notifiche, elimina account.
+  - Profilo: dati, notifiche, elimina account (serve la funzione del backend: `docs/DA-FARE-ANTONINO.md`).
 
 - [ ] **7. Rifiniture.**
   - Notifica «risposta pronta».
   - Prove sul telefono.
-  - Build EAS.
+  - Build EAS, con le chiavi di Sentry.
 
 ## Numeri delle fonti: provvisori
 
 I numeri nella scelta del paese e nel benvenuto (per esempio «oltre 4,2 milioni», «oltre 1,8 milioni») sono provvisori, perché altre sessioni stanno ancora aggiornando il corpus. Nel codice tienili tutti in un solo file di configurazione (per esempio `src/paesi/numeri.ts`), così alla fine si aggiornano in un punto solo. Non sparpagliarli nelle schermate.
+
+## Cose da fare fuori dal repo
+
+Sono in `docs/DA-FARE-ANTONINO.md` (Supabase, Sentry, store, prove sul telefono).
 
 ## Decisioni ancora aperte (le prende Antonino)
 

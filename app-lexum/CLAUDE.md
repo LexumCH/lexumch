@@ -42,6 +42,23 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
 - @supabase/supabase-js, con la sessione salvata sul telefono.
 - Si prova con `npx expo start --web` nel browser e con Expo Go sul telefono. Le build iOS e Android si fanno con EAS, non in questo ambiente.
 
+## Dove sta il codice (dalla tappa 1)
+- `src/app/`: le schermate (expo-router). La chat è la home (`chat.tsx`); le voci del menù si aprono sopra di lei.
+- `src/componenti/`: i componenti base (intestazione, compositore, chip, riga, foglio dal basso, menù laterale…).
+- `src/fogli/`: i fogli dal basso delle schermate (fonte citata, salva, crediti finiti, cambio paese…).
+- `src/tema/`: colori e caratteri di `lexum.css`.
+- `src/paesi/`: registro dei paesi (da `docs/paesi.json`), testi per paese, numeri provvisori delle fonti (`numeri.ts`).
+- `src/stato/`: stato dell'app (paese attivo, conto, chat in corso) e menù.
+- `src/dati-finti/`: i dati finti della tappa 1. Si tolgono man mano che arrivano i dati veri.
+- `src/anteprima/`: solo per il browser, la sagoma del telefono e l'elenco delle schermate per la revisione.
+- `src/testi/`: testi approvati da Antonino (domande frequenti, «Elimina account»), anche in tedesco e francese. Le fonti sono in `docs/testi/`: non cambiarli senza di lui.
+- `src/errori.ts`: messaggi d'errore white-label, la stessa regola di `sanitizzaErrore.js` del sito.
+- `src/sentry.ts`: segnalazione dei crash, accesa solo con `EXPO_PUBLIC_SENTRY_DSN`.
+- `src/config.ts`: interruttori (per esempio `mostraAcquisti`, decisione aperta n. 4).
+- `test/` (Jest) e `e2e/` (Playwright): le prove automatiche.
+- Prima di aprire una PR: `npm run check` (TypeScript, ESLint, Prettier, Jest) e `npm run test:e2e` (percorsi nel browser).
+- Quando serve qualcosa che può fare solo Antonino (Supabase, account, decisioni), aggiungilo a `docs/DA-FARE-ANTONINO.md`.
+
 ## Paesi: il cuore dell'architettura
 - Il registro sta in `src/paesi/` e si costruisce da `docs/paesi.json`. Per ogni paese contiene:
   - URL Supabase e chiave pubblica (publishable);
