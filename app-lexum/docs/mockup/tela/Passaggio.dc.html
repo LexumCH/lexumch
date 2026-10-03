@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Passaggio alla Svizzera</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}" style="background: var(--hero);">
+<div class="alone" style="top: 190px;"></div>
+<div class="safe-top"></div>
+<a href="HomeCH.dc.html" aria-label="Continua" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 0 40px; text-align: center; position: relative;">
+<img src="/_blob/9f26222a702df5b684c3a0ba324525cf" alt="" style="width: 120px; height: 79px; object-fit: contain;">
+<img src="/_blob/48d0b68907bda9a67acc745cc62c32da" alt="Lexum" style="width: 160px; height: 28px; object-fit: contain;">
+<span class="paese" style="margin-top: 10px;">CH</span>
+<p class="d-m">Passo alla banca dati svizzera</p>
+<p class="t-small fg2">Carico il tuo account, i crediti e l'archivio di Lexum Svizzera.</p>
+<div class="barra" style="width: 180px; margin-top: 6px;" role="progressbar" aria-label="Caricamento" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"><i style="width: 62%;"></i></div>
+</a>
+<div class="safe-bottom"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

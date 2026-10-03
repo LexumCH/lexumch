@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Sfoglia una legge</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}">
+<div class="safe-top"></div>
+<div class="hdr">
+<a href="BancaDati.dc.html" class="ib" aria-label="Indietro"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 18l-6-6 6-6"/></svg></a>
+<div class="hdr-center"><span class="hdr-title">Leggi e decreti</span></div>
+<button class="ib" aria-label="Salva la legge"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M18 21l-6-4-6 4V4a1 1 0 011-1h10a1 1 0 011 1z"/></svg></button>
+</div>
+
+<div style="flex: none; display: flex; flex-direction: column; gap: 10px; padding: 6px 20px 14px;">
+<div class="briciole"><span>Tutti i tipi</span><svg viewBox="0 0 24 24" width="14" height="14"><path d="M9 18l6-6-6-6"/></svg><span>Legge</span></div>
+<h1 class="d-m">Legge 241/1990</h1>
+<p class="t-small fg2">Nuove norme in materia di procedimento amministrativo e di diritto di accesso ai documenti amministrativi</p>
+<div class="cerca" style="height: 46px; margin-top: 4px;">
+<svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+<label for="q-legge" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Cerca nella legge</label>
+<input id="q-legge" type="search" placeholder="Cerca per articolo, rubrica o testo…">
+</div>
+</div>
+<div class="sep"></div>
+
+<div class="scorre" style="flex: 1; min-height: 0;">
+<button class="riga" style="min-height: 48px; padding: 8px 20px;"><span class="corpo"><span class="ttl" style="font-size: 15px;">Capo IV-bis · Efficacia ed invalidità del provvedimento</span></span><svg viewBox="0 0 24 24" width="18" height="18" class="chev"><path d="M6 9l6 6 6-6"/></svg></button>
+<div class="riga" style="min-height: 48px; padding: 8px 20px; background: var(--bg-2);"><span class="corpo"><span class="ttl b5" style="font-size: 15px; color: var(--accent-text);">Capo V · Accesso ai documenti amministrativi</span></span><svg viewBox="0 0 24 24" width="18" height="18" class="chev" style="transform: rotate(180deg);"><path d="M6 9l6 6 6-6"/></svg></div>
+<a href="Fonte.dc.html" class="riga"><span class="d-s oro" style="width: 34px; flex: none; font-size: 20px;">22</span><span class="corpo"><span class="ttl">Definizioni e principi in materia di accesso</span></span></a>
+<a href="Fonte.dc.html" class="riga"><span class="d-s oro" style="width: 34px; flex: none; font-size: 20px;">23</span><span class="corpo"><span class="ttl">Ambito di applicazione del diritto di accesso</span></span></a>
+<a href="Fonte.dc.html" class="riga"><span class="d-s oro" style="width: 34px; flex: none; font-size: 20px;">24</span><span class="corpo"><span class="ttl">Esclusione dal diritto di accesso</span></span></a>
+<a href="Fonte.dc.html" class="riga" style="background: var(--accent-soft);"><span class="d-s oro" style="width: 34px; flex: none; font-size: 20px;">25</span><span class="corpo"><span class="ttl">Modalità di esercizio del diritto di accesso e ricorsi</span><span class="sub">Citato da Lex nella tua ultima chat</span></span></a>
+<a href="Fonte.dc.html" class="riga"><span class="d-s oro" style="width: 34px; flex: none; font-size: 20px;">26</span><span class="corpo"><span class="ttl">Obbligo di pubblicazione</span></span></a>
+<a href="Fonte.dc.html" class="riga"><span class="d-s oro" style="width: 34px; flex: none; font-size: 20px;">27</span><span class="corpo"><span class="ttl">Commissione per l'accesso ai documenti amministrativi</span></span></a>
+</div>
+<div class="safe-bottom"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Nessun accesso in Svizzera</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}">
+<dc-import name="Profilo" tema="{{tema}}" hint-size="390px,844px"></dc-import>
+<a href="Profilo.dc.html" class="velo" aria-label="Chiudi"></a>
+<div class="foglio" style="gap: 16px;">
+<span class="maniglia"></span>
+<div style="display: flex; gap: 14px; align-items: center;">
+<span class="paese">CH</span>
+<h2 class="d-s">Non hai ancora un accesso in Svizzera</h2>
+</div>
+<p class="t-body fg2">La banca dati svizzera ha un account suo: crediti, piano e archivio sono separati da quelli italiani. Si crea in un minuto, e anche lì la prima ricerca è gratuita.</p>
+<a href="Registrazione.dc.html" class="btn btn-oro">Crea l'accesso svizzero</a>
+<a href="Passaggio.dc.html" class="btn btn-linea">Ho già un accesso: accedi</a>
+<a href="Profilo.dc.html" class="btn btn-tenue" style="height: 44px;">Resta in Italia</a>
+<p class="t-cap" style="text-align: center;">Puoi usare la stessa email.</p>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

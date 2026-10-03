@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Archivio</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}">
+<div class="safe-top"></div>
+<div class="hdr">
+<a href="Menu.dc.html" class="ib" aria-label="Apri il menù"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 8h16M4 16h11"/></svg></a>
+<div class="hdr-center"><span class="hdr-title">Archivio</span></div>
+<button class="ib" aria-label="Categorie"><svg viewBox="0 0 24 24" width="21" height="21"><path d="M3 5h6l2 2h10v12H3z"/></svg></button>
+</div>
+
+<div style="flex: none; display: flex; flex-direction: column; gap: 12px; padding: 4px 20px 12px;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; justify-content: space-between;" class="t-small"><span>4 documenti · 3 indicizzati</span><span class="fg2">12,4 MB di 50 MB</span></div>
+<div class="barra" role="img" aria-label="Spazio usato: 25 per cento"><i style="width: 25%;"></i></div>
+</div>
+<div class="cerca" style="height: 46px;">
+<svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+<label for="q-archivio" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Cerca tra i tuoi documenti</label>
+<input id="q-archivio" type="search" placeholder="Cerca tra i tuoi documenti…">
+</div>
+<div class="filtri" style="flex-wrap: wrap;">
+<button class="tag on">Tutte</button>
+<button class="tag">Casa</button>
+<button class="tag">Fisco</button>
+<button class="tag">Senza categoria</button>
+<button class="tag" style="border-style: dashed; color: var(--accent-text);">+ Categoria</button>
+</div>
+</div>
+<div class="sep"></div>
+
+<div class="scorre" style="flex: 1; min-height: 0;">
+<a href="Home.dc.html" class="riga" style="align-items: flex-start;">
+<span class="icona tenue"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6"/></svg></span>
+<span class="corpo"><span class="ttl">Contratto di locazione</span><span class="sub">Casa · 12 set · 1,2 MB</span><span style="display: flex; gap: 6px; margin-top: 4px;"><span class="badge">Contratto</span><span class="badge ok">Indicizzato</span></span></span>
+</a>
+<a href="Home.dc.html" class="riga" style="align-items: flex-start;">
+<span class="icona tenue"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6"/></svg></span>
+<span class="corpo"><span class="ttl">Lettera del Comune</span><span class="sub">Casa · 2 ott · 640 KB</span><span style="display: flex; gap: 6px; margin-top: 4px;"><span class="badge">Lettera</span><span class="badge ok">Indicizzato</span></span></span>
+</a>
+<a href="Home.dc.html" class="riga" style="align-items: flex-start;">
+<span class="icona tenue"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+<span class="corpo"><span class="ttl">Verbale di contestazione</span><span class="sub">Senza categoria · oggi · scansione · 2,1 MB</span><span style="display: flex; gap: 6px; margin-top: 4px;"><span class="badge">Verbale</span><span class="badge warn">In coda</span></span></span>
+</a>
+<a href="Home.dc.html" class="riga" style="align-items: flex-start;">
+<span class="icona tenue"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6"/></svg></span>
+<span class="corpo"><span class="ttl">Ricevuta badante marzo</span><span class="sub">Fisco · 5 apr · 210 KB</span><span style="display: flex; gap: 6px; margin-top: 4px;"><span class="badge">Ricevuta</span><span class="badge ok">Indicizzato</span></span></span>
+</a>
+</div>
+
+<div class="barra-azioni">
+<button class="btn btn-linea" style="flex: 1;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Scansiona</button>
+<button class="btn btn-oro" style="flex: 1;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></svg>Carica</button>
+</div>
+<div class="safe-bottom"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

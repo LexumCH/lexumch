@@ -1,0 +1,61 @@
+{
+  "aggiornato": "2026-10-03",
+  "nota": "Solo chiavi PUBBLICHE (publishable): sono le stesse che il sito manda al browser. Mai chiavi di servizio qui.",
+  "paesi": [
+    {
+      "codice": "IT",
+      "nome": "Italia",
+      "supabaseUrl": "https://wnbmyiyblpinayswunxb.supabase.co",
+      "chiavePubblica": "sb_publishable_8d0U2HwHfyviUX3vG_EP-A_icEDv2hc",
+      "sito": "https://www.lexum.it",
+      "paginaAcquisti": "https://www.lexum.it/area/acquista",
+      "paginaProfessionisti": "https://www.lexum.it/verifica",
+      "valuta": "EUR",
+      "lingue": [
+        "it"
+      ],
+      "professioni": [
+        "avvocato",
+        "commercialista"
+      ],
+      "fontiBancaDati": [
+        "codici",
+        "leggi_decreti",
+        "giurisprudenza",
+        "tributario",
+        "prassi",
+        "ue"
+      ],
+      "riferimentiSito": "Lexumita/lexumita"
+    },
+    {
+      "codice": "CH",
+      "nome": "Svizzera",
+      "supabaseUrl": "https://wotkrgsxjiijakeulxjl.supabase.co",
+      "chiavePubblica": "sb_publishable_n-7ybSVBwvkO4jPyQlhA0w_WDUKCc7_",
+      "sito": "https://www.lexum.ch",
+      "paginaAcquisti": "https://www.lexum.ch/area/acquista",
+      "paginaProfessionisti": "https://www.lexum.ch/verifica",
+      "valuta": "CHF",
+      "lingue": [
+        "it",
+        "de",
+        "fr"
+      ],
+      "professioni": [
+        "avvocato",
+        "fiduciario",
+        "progettista"
+      ],
+      "fontiBancaDati": [
+        "federale",
+        "cantonale",
+        "giurisprudenza",
+        "prassi",
+        "ue",
+        "cedu"
+      ],
+      "riferimentiSito": "LexumCH/lexumch"
+    }
+  ]
+}

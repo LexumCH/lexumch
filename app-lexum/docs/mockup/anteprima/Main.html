@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A0 · Scegli il paese · Lexum app</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="lexum.css">
+<link rel="stylesheet" href="anteprima.css">
+</head>
+<body>
+<div class="scena">
+<aside class="lato" aria-label="Schermate"><p class="lato-titolo">Lexum · anteprima app</p><nav><p class="lato-gruppo">Primo avvio</p><a href="Main.html" class="on">A0 · Scegli il paese</a><a href="Benvenuto.html">A1 · Benvenuto</a><a href="Fonti.html">A2 · Le fonti</a><a href="Gratis.html">A3 · Prima domanda gratis</a><a href="Registrazione.html">A4 · Registrazione</a><a href="Codice.html">A5 · Codice via email</a><p class="lato-gruppo">Lex: la home</p><a href="Home.html">B1 · Home: nuova chat</a><a href="Ragiona.html">B2 · Lex sta lavorando</a><a href="Risposta.html">B3 · Risposta con le fonti</a><a href="Fonte.html">B4 · Fonte citata</a><a href="Allega.html">B5 · Allega un documento</a><a href="Esauriti.html">B6 · Crediti finiti (rimanda al sito)</a><a href="SalvaRicerca.html">B7 · Salva la chat in Ricerche</a><a href="NuovaChat.html">B8 · Nuova chat: questa non è salvata</a><p class="lato-gruppo">Menù e Banca dati</p><a href="Menu.html">C1 · Menù</a><a href="BancaDati.html">C2 · Banca dati</a><a href="Risultati.html">C3 · Ricerca per parole</a><a href="Sfoglia.html">C4 · Sfoglia una legge</a><a href="Documento.html">C5 · Sentenza</a><a href="LeggeDaChat.html">C6 · Legge aperta dalla chat</a><p class="lato-gruppo">Altre voci</p><a href="Ricerche.html">D1 · Ricerche</a><a href="Archivio.html">D2 · Archivio</a><a href="Domande.html">D3 · Domande</a><a href="Profilo.html">D4 · Profilo: paese, crediti e piano</a><a href="Professionista.html">D5 · Che professionista sei?</a><p class="lato-gruppo">Italia e Svizzera</p><a href="CambiaPaese.html">G1 · Cambia paese: anteprima e conferma</a><a href="AccessoCH.html">G2 · Nessun accesso in Svizzera</a><a href="Passaggio.html">G3 · L'app passa alla banca dati svizzera</a><a href="HomeCH.html">G4 · Home in Svizzera</a><a href="BancaDatiCH.html">G5 · Banca dati svizzera</a><a href="ProfiloCH.html">G6 · Profilo in Svizzera: paese, lingua, crediti</a></nav><p class="lato-nota">Tocca i pulsanti dentro il telefono per muoverti, come nell'app vera.</p></aside>
+<div class="telefono">
+<div class="app notte" style="background: var(--hero);">
+<div class="alone" style="top: 20px;"></div>
+<div class="safe-top"></div>
+<div class="scorre" style="flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 24px; position: relative;">
+<div style="flex: none; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 18px 0 0;">
+<img src="assets/emblema.png" alt="" style="width: 76px; height: 50px; object-fit: contain;">
+<img src="assets/lexum-scritta.png" alt="Lexum" style="width: 132px; height: 23px; object-fit: contain;">
+</div>
+<div style="flex: 1; min-height: 24px;"></div>
+
+<div style="flex: none; display: flex; flex-direction: column; gap: 10px; padding-bottom: 16px;">
+<h1 class="d-l">Scegli il paese</h1>
+<p class="t-body fg2">Ogni paese ha la sua banca dati e il suo account. Puoi cambiare quando vuoi dal Profilo.</p>
+</div>
+
+<div style="flex: none; display: flex; flex-direction: column; gap: 10px;" role="radiogroup" aria-label="Paese">
+<div class="scelta on" style="flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 14px 0;">
+<button class="scelta-testa" role="radio" aria-checked="true">
+<span class="paese">IT</span>
+<span style="flex: 1; display: flex; flex-direction: column; gap: 2px;"><span class="b5" style="font-size: 17px;">Italia</span><span class="t-small fg2">Diritto italiano ed europeo</span></span>
+<span class="radio"><i></i></span>
+</button>
+<details class="fonti-paese">
+<summary><span>Oltre 4,2 milioni di documenti</span><span class="espandi"><span class="se-chiuso">Espandi</span><span class="se-aperto">Chiudi</span><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 9l6 6 6-6"/></svg></span></summary>
+<dl class="elenco-fonti">
+<dt>Codici</dt><dd>229 codici · 34.000 articoli</dd>
+<dt>Leggi e decreti</dt><dd>66.000 atti · 397.000 articoli</dd>
+<dt>Giurisprudenza</dt><dd>3,2 milioni di decisioni: Cassazione, Corte costituzionale, Consiglio di Stato, TAR, Corte dei conti</dd>
+<dt>Tributario</dt><dd>129.000 sentenze delle Corti di giustizia tributaria</dd>
+<dt>Prassi</dt><dd>177.000 documenti: Agenzia delle Entrate, INPS, INAIL, ANAC, AGCM e altri enti</dd>
+<dt>Europa</dt><dd>215.000 decisioni di Corte di giustizia e Corte EDU · 34.000 articoli di norme UE</dd>
+</dl>
+</details>
+</div>
+
+<div class="scelta" style="flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 14px 0;">
+<button class="scelta-testa" role="radio" aria-checked="false">
+<span class="paese">CH</span>
+<span style="flex: 1; display: flex; flex-direction: column; gap: 2px;"><span class="b5" style="font-size: 17px;">Svizzera</span><span class="t-small fg2">Diritto svizzero ed europeo</span></span>
+<span class="radio"><i></i></span>
+</button>
+<details class="fonti-paese">
+<summary><span>Oltre 1,8 milioni di documenti</span><span class="espandi"><span class="se-chiuso">Espandi</span><span class="se-aperto">Chiudi</span><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 9l6 6 6-6"/></svg></span></summary>
+<dl class="elenco-fonti">
+<dt>Diritto federale</dt><dd>4.600 atti · 412.000 articoli</dd>
+<dt>Diritto cantonale</dt><dd>18.000 atti · 418.000 articoli</dd>
+<dt>Giurisprudenza</dt><dd>795.000 decisioni: Tribunale federale e tribunali cantonali</dd>
+<dt>Prassi</dt><dd>19.000 documenti delle autorità federali e cantonali</dd>
+<dt>Europa</dt><dd>216.000 decisioni di Corte di giustizia e Corte EDU · 34.000 articoli di norme UE</dd>
+<dt>Lingue</dt><dd>App in italiano, tedesco o francese</dd>
+</dl>
+</details>
+</div>
+</div>
+
+<p class="t-cap" style="flex: none; padding: 14px 0 0;">Ti proponiamo l'Italia perché è il paese impostato sul telefono.</p>
+<a href="Benvenuto.html" class="btn btn-oro" style="margin-top: 14px;">Continua</a>
+</div>
+<div class="safe-bottom"></div>
+</div>
+</div>
+</div>
+<script src="anteprima.js"></script>
+</body>
+</html>

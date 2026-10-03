@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Fonte citata</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}">
+<dc-import name="Risposta" tema="{{tema}}" hint-size="390px,844px"></dc-import>
+<a href="Risposta.dc.html" class="velo" aria-label="Chiudi"></a>
+<div class="foglio">
+<span class="maniglia"></span>
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<span class="eyebrow">Norma citata</span>
+<h2 class="d-s">Legge 7 agosto 1990, n. 241</h2>
+<p class="t-small fg2">Art. 25 · Modalità di esercizio del diritto di accesso e ricorsi</p>
+</div>
+<a href="Risposta.dc.html" class="ib" aria-label="Chiudi" style="margin: -6px -12px 0 0;"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M18 6L6 18M6 6l12 12"/></svg></a>
+</div>
+<div class="doc" style="background: var(--bg); border: 1px solid var(--line); padding: 14px 16px; font-size: 15px; line-height: 1.6;">
+<p><span class="b6">4.</span> <mark>Decorsi inutilmente trenta giorni dalla richiesta, questa si intende respinta.</mark> In caso di diniego dell'accesso, espresso o tacito, o di differimento dello stesso ai sensi dell'articolo 24, comma 4, il richiedente può presentare ricorso al tribunale amministrativo regionale ai sensi del comma 5, ovvero chiedere, nello stesso termine e nei confronti degli atti delle amministrazioni comunali, provinciali e regionali, al difensore civico competente per ambito territoriale, ove costituito, che sia riesaminata la suddetta determinazione.</p>
+</div>
+<p class="t-cap">Evidenziato il passaggio usato da Lex.</p>
+<div style="display: flex; gap: 10px;">
+<a href="LeggeDaChat.dc.html" class="btn btn-linea" style="flex: 1;">Apri la legge</a>
+<a href="Ricerche.dc.html" class="btn btn-pieno" style="flex: 1;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M18 21l-6-4-6 4V4a1 1 0 011-1h10a1 1 0 011 1z"/></svg>Salva</a>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

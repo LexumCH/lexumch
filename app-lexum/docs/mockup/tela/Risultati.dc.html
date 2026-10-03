@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Ricerca per parole</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}">
+<div class="safe-top"></div>
+<div class="hdr" style="padding-right: 16px;">
+<a href="BancaDati.dc.html" class="ib" aria-label="Indietro"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 18l-6-6 6-6"/></svg></a>
+<div class="cerca attivo" style="flex: 1; min-width: 0; height: 44px; padding: 0 6px 0 12px;">
+<svg viewBox="0 0 24 24" width="18" height="18" class="fg3"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+<label for="q-cerca" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Cerca nella banca dati</label>
+<input id="q-cerca" type="search" value="accesso agli atti silenzio">
+<button class="ib" style="width: 36px; height: 36px;" aria-label="Cancella la ricerca"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+</div>
+</div>
+
+<div class="filtri" style="padding: 8px 20px 10px;">
+<button class="tag on">Tutto</button>
+<button class="tag">Norme</button>
+<button class="tag">Sentenze</button>
+<button class="tag">Prassi</button>
+<button class="tag">UE</button>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 0 8px 6px 20px;">
+<span class="t-cap">Ordinati per pertinenza</span>
+<button class="btn btn-sm btn-tenue" style="padding: 0 12px; gap: 8px; font-size: 14px;"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Anno, organo</button>
+</div>
+<div class="sep"></div>
+
+<div class="scorre" style="flex: 1; min-height: 0;">
+<a href="Fonte.dc.html" class="risultato">
+<span class="tipo"><span class="badge oro">Norma</span><span class="t-mini">L. 241/1990 · Art. 25</span></span>
+<span class="ttl">Modalità di esercizio del diritto di accesso e ricorsi</span>
+<span class="estratto">…In caso di diniego dell'<mark>accesso</mark>, espresso o tacito, o di differimento dello stesso, il richiedente può presentare ricorso…</span>
+</a>
+<a href="Sfoglia.dc.html" class="risultato">
+<span class="tipo"><span class="badge oro">Norma</span><span class="t-mini">D.Lgs. 104/2010 · Art. 116</span></span>
+<span class="ttl">Rito in materia di accesso ai documenti amministrativi</span>
+<span class="estratto">Contro le determinazioni e contro il <mark>silenzio</mark> sulle istanze di <mark>accesso</mark> ai documenti amministrativi…</span>
+</a>
+<a href="Documento.dc.html" class="risultato">
+<span class="tipo"><span class="badge ok">Sentenza</span><span class="t-mini">Consiglio di Stato · Ad. Plen. · n. 10 · 2020</span></span>
+<span class="ttl">Accesso agli atti e accesso civico generalizzato nei contratti pubblici</span>
+<span class="estratto">…il potere-dovere di esaminare l'istanza di <mark>accesso agli atti</mark> e ai documenti pubblici, formulata in modo generico…</span>
+</a>
+<a href="Documento.dc.html" class="risultato">
+<span class="tipo"><span class="badge">Prassi</span><span class="t-mini">ANAC · Delibera n. 1309 · 2016</span></span>
+<span class="ttl">Linee guida sulle esclusioni e i limiti all'accesso civico</span>
+<span class="estratto">…indicazioni operative ai fini della definizione delle esclusioni e dei limiti all'<mark>accesso</mark> civico…</span>
+</a>
+</div>
+<div class="safe-bottom"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

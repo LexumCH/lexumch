@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Nuova chat: questa non è salvata</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}">
+<dc-import name="Risposta" tema="{{tema}}" hint-size="390px,844px"></dc-import>
+<a href="Risposta.dc.html" class="velo" aria-label="Chiudi"></a>
+<div class="foglio" style="gap: 16px;">
+<span class="maniglia"></span>
+<div style="display: flex; gap: 12px; align-items: center;">
+<span class="icona"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M18 21l-6-4-6 4V4a1 1 0 011-1h10a1 1 0 011 1z"/></svg></span>
+<h2 class="d-s">Questa chat non è salvata</h2>
+</div>
+<p class="t-body fg2">Se apri una nuova chat, «Accesso agli atti» si perde. Salvala in un'etichetta per ritrovarla qui e sul sito.</p>
+<a href="SalvaRicerca.dc.html" class="btn btn-oro">Salva in un'etichetta</a>
+<a href="Home.dc.html" class="btn btn-linea">Nuova chat senza salvare</a>
+<a href="Risposta.dc.html" class="btn btn-tenue">Annulla</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

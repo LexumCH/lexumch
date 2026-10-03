@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Benvenuto</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}" style="background: var(--hero);">
+<div class="alone" style="top: 120px;"></div>
+<div class="safe-top"></div>
+<div class="hdr" style="padding: 0 12px 0 20px;">
+<div class="hdr-left" style="padding-left: 0; gap: 10px;">
+<img src="/_blob/9f26222a702df5b684c3a0ba324525cf" alt="" style="width: 38px; height: 25px; object-fit: contain;">
+<img src="/_blob/48d0b68907bda9a67acc745cc62c32da" alt="Lexum" style="width: 96px; height: 17px; object-fit: contain;">
+</div>
+<a href="Registrazione.dc.html" class="btn btn-tenue btn-sm" style="font-weight: 500;">Accedi</a>
+</div>
+
+<div style="flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; padding: 8px 24px 0; position: relative;">
+<div style="display: flex; flex-direction: column; gap: 14px; padding: 18px; background: var(--bg-2); border: 1px solid var(--line);">
+<div class="io" style="font-size: 14px; padding: 10px 13px;">Il Comune non risponde alla mia richiesta di accesso agli atti. Cosa posso fare?</div>
+<div class="lex" style="gap: 10px;">
+<div class="lex-firma"><img src="/_blob/9f26222a702df5b684c3a0ba324525cf" alt="">Lex</div>
+<p style="font-size: 15px; line-height: 1.55;">Il silenzio vale come rifiuto: hai 30 giorni per chiedere il riesame o fare ricorso al TAR.</p>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;">
+<span class="cit">L. 241/1990, art. 25</span>
+<span class="cit">c.p.a., art. 116</span>
+</div>
+</div>
+</div>
+</div>
+
+<div style="flex: none; display: flex; flex-direction: column; gap: 16px; padding: 28px 24px 0;">
+<div class="eyebrow">Lex AI</div>
+<h1 class="d-xl">L'AI italiana che ragiona su <span class="oro corsivo">diritto e fisco.</span></h1>
+<p class="t-body fg2">Fonti verificate, oltre 4 milioni di documenti giuridici e fiscali, ragionamento strutturato.</p>
+<div class="punti" style="margin-top: 6px;"><i class="on"></i><i></i><i></i></div>
+<a href="Fonti.dc.html" class="btn btn-oro" style="margin-top: 6px;">Inizia</a>
+</div>
+<div class="safe-bottom"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

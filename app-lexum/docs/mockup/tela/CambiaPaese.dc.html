@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Cambia paese</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}">
+<dc-import name="Profilo" tema="{{tema}}" hint-size="390px,844px"></dc-import>
+<a href="Profilo.dc.html" class="velo" aria-label="Chiudi"></a>
+<div class="foglio" style="gap: 14px;">
+<span class="maniglia"></span>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<span class="eyebrow">Paese e banca dati</span>
+<h2 class="d-s">Dove vuoi lavorare?</h2>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;" role="radiogroup" aria-label="Paese">
+<button class="scelta" role="radio" aria-checked="false" style="align-items: center; padding: 10px 14px;">
+<span class="paese">IT</span>
+<span style="flex: 1; display: flex; flex-direction: column; gap: 2px;"><span class="b5" style="font-size: 16px;">Italia</span><span class="t-small fg2">Banca dati attuale</span></span>
+<span class="radio"><i></i></span>
+</button>
+<button class="scelta on" role="radio" aria-checked="true" style="align-items: center; padding: 10px 14px;">
+<span class="paese">CH</span>
+<span style="flex: 1; display: flex; flex-direction: column; gap: 2px;"><span class="b5" style="font-size: 16px;">Svizzera</span><span class="t-small fg2">Accesso già creato con giulia.rossi@email.it</span></span>
+<span class="radio"><i></i></span>
+</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<p class="t-cap">Il tuo account svizzero</p>
+<dl class="anteprima-conto" style="margin: 0;">
+<dt>Piano</dt><dd>Piano Personale · fino al 12.11.2026</dd>
+<dt>Crediti</dt><dd>28 rimanenti</dd>
+<dt>Archivio</dt><dd>340 MB di 2 GB</dd>
+</dl>
+<p class="t-cap">È un account separato: crediti, piano e archivio non passano da un paese all'altro.</p>
+</div>
+<p class="t-body b5">Vuoi passare al database legale svizzero?</p>
+<a href="Passaggio.dc.html" class="btn btn-oro">Sì, passa alla Svizzera</a>
+<a href="Profilo.dc.html" class="btn btn-tenue" style="height: 44px;">Annulla</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

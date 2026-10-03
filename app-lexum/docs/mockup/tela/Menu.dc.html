@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Menù</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="lexum.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Outfit:wght@300;400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app {{tema}}">
+<dc-import name="Risposta" tema="{{tema}}" hint-size="390px,844px"></dc-import>
+<a href="Risposta.dc.html" class="velo" aria-label="Chiudi il menù"></a>
+<nav class="cassetto" aria-label="Menù">
+<div class="safe-top"></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 6px 20px 18px;">
+<img src="/_blob/9f26222a702df5b684c3a0ba324525cf" alt="" style="width: 38px; height: 25px; object-fit: contain;">
+<img src="/_blob/48d0b68907bda9a67acc745cc62c32da" alt="Lexum" style="width: 96px; height: 17px; object-fit: contain;">
+<span class="paese piccolo" style="margin-left: auto;" aria-label="Paese: Italia">IT</span>
+</div>
+<div style="padding: 0 16px 14px;">
+<a href="NuovaChat.dc.html" class="btn btn-linea" style="justify-content: flex-start; padding: 0 14px; gap: 12px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 4H4v16h16v-8M17.5 3.5a2.1 2.1 0 013 3L12 15l-4 1 1-4z"/></svg>Nuova chat</a>
+</div>
+<div class="lista">
+<a href="BancaDati.dc.html" class="voce"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 4.5A1.5 1.5 0 015.5 3H20v15H5.5A1.5 1.5 0 004 19.5zM4 19.5A1.5 1.5 0 005.5 21H20v-3"/></svg>Banca dati</a>
+<a href="Ricerche.dc.html" class="voce"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M18 21l-6-4-6 4V4a1 1 0 011-1h10a1 1 0 011 1z"/></svg>Ricerche</a>
+<a href="Archivio.dc.html" class="voce"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg>Archivio</a>
+<a href="Domande.dc.html" class="voce"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg>Domande</a>
+<a href="Profilo.dc.html" class="voce"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>Profilo</a>
+</div>
+<p class="titolo-sez" style="padding-top: 18px;">Etichette</p>
+<div class="lista">
+<a href="Ricerche.dc.html" class="recente" style="gap: 12px;"><i class="pallino" style="background: #7FA39A;"></i><span class="tit" style="color: var(--fg);">Casa</span><span class="t-cap">4</span></a>
+<a href="Ricerche.dc.html" class="recente" style="gap: 12px;"><i class="pallino" style="background: #C9A45C;"></i><span class="tit" style="color: var(--fg);">Fisco</span><span class="t-cap">6</span></a>
+<a href="Ricerche.dc.html" class="recente" style="gap: 12px;"><i class="pallino" style="background: #8DA3C4;"></i><span class="tit" style="color: var(--fg);">Lavoro</span><span class="t-cap">2</span></a>
+</div>
+<div style="flex: 1;"></div>
+<a href="Profilo.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-top: 1px solid var(--line);">
+<span style="width: 36px; height: 36px; flex: none; display: flex; align-items: center; justify-content: center; background: var(--ok-soft); border: 1px solid var(--ok-line); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 19px; font-weight: 600; color: var(--ok);">G</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+<span style="font-size: 15px; font-weight: 500;">Giulia Rossi</span>
+<span class="t-cap">Italia · Account base · 0 crediti</span>
+</span>
+</a>
+<div class="safe-bottom"></div>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { tema: this.props.tema ?? 'notte' };
+}
+}
+</script>
+</body>
+</html>

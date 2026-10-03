@@ -1,0 +1,339 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Allega.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "B5 · Allega un documento",
+      "w": 390,
+      "x": 1880,
+      "y": 1200
+    },
+    "Archivio.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "D2 · Archivio",
+      "w": 390,
+      "x": 470,
+      "y": 3600
+    },
+    "BancaDati.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "C2 · Banca dati",
+      "w": 390,
+      "x": 470,
+      "y": 2400
+    },
+    "Codice.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "A5 · Codice via email",
+      "w": 390,
+      "x": 2350,
+      "y": 0
+    },
+    "Documento.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "C5 · Sentenza",
+      "w": 390,
+      "x": 1880,
+      "y": 2400
+    },
+    "Domande.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "D3 · Domande",
+      "w": 390,
+      "x": 940,
+      "y": 3600
+    },
+    "Esauriti.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "B6 · Crediti finiti (rimanda al sito)",
+      "w": 390,
+      "x": 2350,
+      "y": 1200
+    },
+    "Fonte.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "B4 · Fonte citata",
+      "w": 390,
+      "x": 1410,
+      "y": 1200
+    },
+    "Fonti.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "A2 · Le fonti",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    },
+    "Gratis.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "A3 · Prima domanda gratis",
+      "w": 390,
+      "x": 1410,
+      "y": 0
+    },
+    "Home.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "B1 · Home: nuova chat",
+      "w": 390,
+      "x": 0,
+      "y": 1200
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "A0 · Scegli il paese",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Menu.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "C1 · Menù",
+      "w": 390,
+      "x": 0,
+      "y": 2400
+    },
+    "Professionista.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "D5 · Che professionista sei?",
+      "w": 390,
+      "x": 1880,
+      "y": 3600
+    },
+    "Profilo.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "D4 · Profilo: paese, crediti e piano",
+      "w": 390,
+      "x": 1410,
+      "y": 3600
+    },
+    "Ragiona.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "B2 · Lex sta lavorando",
+      "w": 390,
+      "x": 470,
+      "y": 1200
+    },
+    "Registrazione.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "A4 · Registrazione",
+      "w": 390,
+      "x": 1880,
+      "y": 0
+    },
+    "Ricerche.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "D1 · Ricerche",
+      "w": 390,
+      "x": 0,
+      "y": 3600
+    },
+    "Risposta.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "B3 · Risposta con le fonti",
+      "w": 390,
+      "x": 940,
+      "y": 1200
+    },
+    "Risultati.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "C3 · Ricerca per parole",
+      "w": 390,
+      "x": 940,
+      "y": 2400
+    },
+    "Sfoglia.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "C4 · Sfoglia una legge",
+      "w": 390,
+      "x": 1410,
+      "y": 2400
+    },
+    "Benvenuto.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "A1 · Benvenuto",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "SalvaRicerca.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "B7 · Salva la chat in Ricerche",
+      "w": 390,
+      "x": 2820,
+      "y": 1200
+    },
+    "NuovaChat.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "B8 · Nuova chat: questa non è salvata",
+      "w": 390,
+      "x": 3290,
+      "y": 1200
+    },
+    "LeggeDaChat.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "C6 · Legge aperta dalla chat",
+      "w": 390,
+      "x": 2350,
+      "y": 2400
+    },
+    "CambiaPaese.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "G1 · Cambia paese: anteprima e conferma",
+      "w": 390,
+      "x": 0,
+      "y": 4800
+    },
+    "AccessoCH.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "G2 · Nessun accesso in Svizzera",
+      "w": 390,
+      "x": 470,
+      "y": 4800
+    },
+    "Passaggio.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "G3 · L'app passa alla banca dati svizzera",
+      "w": 390,
+      "x": 940,
+      "y": 4800
+    },
+    "HomeCH.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "G4 · Home in Svizzera",
+      "w": 390,
+      "x": 1410,
+      "y": 4800
+    },
+    "BancaDatiCH.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "G5 · Banca dati svizzera",
+      "w": 390,
+      "x": 1880,
+      "y": 4800
+    },
+    "ProfiloCH.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "G6 · Profilo in Svizzera: paese, lingua, crediti",
+      "w": 390,
+      "x": 2350,
+      "y": 4800
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-02T22:55:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "rigaA": {
+      "kind": "title1",
+      "maxW": 2740,
+      "text": "Primo avvio: paese, benvenuto, registrazione, credito gratis",
+      "w": 240,
+      "x": 0,
+      "y": -250
+    },
+    "rigaB": {
+      "kind": "title1",
+      "maxW": 3680,
+      "text": "Lex è la home: chiedi, ragiona, risponde, e la chat si salva in Ricerche",
+      "w": 240,
+      "x": 0,
+      "y": 950
+    },
+    "rigaC": {
+      "kind": "title1",
+      "maxW": 2740,
+      "text": "Menù e Banca dati: ricerca per parole e navigazione",
+      "w": 240,
+      "x": 0,
+      "y": 2150
+    },
+    "rigaD": {
+      "kind": "title1",
+      "maxW": 2270,
+      "text": "Le altre voci: Ricerche, Archivio, Domande, Profilo (con crediti e piano)",
+      "w": 240,
+      "x": 0,
+      "y": 3350
+    },
+    "rigaG": {
+      "kind": "title1",
+      "maxW": 2740,
+      "text": "Un'app, più paesi: Italia e Svizzera con account separati",
+      "w": 240,
+      "x": 0,
+      "y": 4550
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Benvenuto.dc.html",
+    "Fonti.dc.html",
+    "Gratis.dc.html",
+    "Registrazione.dc.html",
+    "Codice.dc.html",
+    "Home.dc.html",
+    "Ragiona.dc.html",
+    "Risposta.dc.html",
+    "Fonte.dc.html",
+    "Allega.dc.html",
+    "Esauriti.dc.html",
+    "SalvaRicerca.dc.html",
+    "NuovaChat.dc.html",
+    "Menu.dc.html",
+    "BancaDati.dc.html",
+    "Risultati.dc.html",
+    "Sfoglia.dc.html",
+    "Documento.dc.html",
+    "LeggeDaChat.dc.html",
+    "Ricerche.dc.html",
+    "Archivio.dc.html",
+    "Domande.dc.html",
+    "Profilo.dc.html",
+    "Professionista.dc.html",
+    "CambiaPaese.dc.html",
+    "AccessoCH.dc.html",
+    "Passaggio.dc.html",
+    "HomeCH.dc.html",
+    "BancaDatiCH.dc.html",
+    "ProfiloCH.dc.html"
+  ],
+  "pages": [],
+  "title": "Lexum App Mockup"
+}
