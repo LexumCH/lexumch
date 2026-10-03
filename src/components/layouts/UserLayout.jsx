@@ -51,9 +51,9 @@ export default function UserLayout({ children }) {
     { path: '/area', label: t('nav.banca_dati'), icon: Home, end: true },
     { path: '/area/ricerche', label: t('nav.ricerche'), icon: Search },
     { path: '/area/archivio', label: t('nav.archivio'), icon: Archive },
-    ...(verifyItem ? [verifyItem] : []),
     { path: '/area/assistenza', label: t('nav.assistenza'), icon: Headphones },
     { path: '/area/acquista', label: t('nav.acquista'), icon: CreditCard },
+    ...(verifyItem ? [verifyItem] : []),
     { path: '/area/profilo', label: t('nav.profilo'), icon: User },
   ]
 
