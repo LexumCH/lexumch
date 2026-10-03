@@ -55,30 +55,58 @@ export function Pallino({ colore }: { colore: string }) {
 }
 
 // .tag: filtro a pillola squadrata.
+// Con «colore» è un'etichetta di Ricerche, come sul sito: bordo, testo e sfondo del suo colore.
+// Con «aggiungi» è il «+» oro per crearne una nuova.
 type PropsTag = {
   titolo: string;
   attivo?: boolean;
   onPress?: () => void;
+  colore?: string;
   pallino?: string;
   tratteggiato?: boolean;
+  aggiungi?: boolean;
+  etichetta?: string;
 };
-export function Tag({ titolo, attivo, onPress, pallino, tratteggiato }: PropsTag) {
+export function Tag({
+  titolo,
+  attivo,
+  onPress,
+  colore,
+  pallino,
+  tratteggiato,
+  aggiungi,
+  etichetta,
+}: PropsTag) {
+  const tinta = colore
+    ? attivo
+      ? { borderColor: colore, backgroundColor: `${colore}40` }
+      : { borderColor: `${colore}80`, backgroundColor: `${colore}22` }
+    : null;
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
+      accessibilityLabel={etichetta}
       accessibilityState={{ selected: !!attivo }}
       hitSlop={{ top: 4, bottom: 4 }}
       style={({ pressed }) => [
         stili.tag,
         attivo && stili.tagAttivo,
         tratteggiato && stili.tagTratteggiato,
+        aggiungi && stili.tagAggiungi,
+        tinta,
         pressed && { opacity: 0.8 },
       ]}
     >
-      {pallino ? <Pallino colore={pallino} /> : null}
+      {aggiungi ? <Icona nome="piu" dimensione={14} colore={colori.accentText} /> : null}
+      {colore || pallino ? <Pallino colore={(colore ?? pallino) as string} /> : null}
       <Text
-        style={[stili.tagTesto, attivo && { color: colori.fg }, tratteggiato && { color: colori.accentText }]}
+        style={[
+          stili.tagTesto,
+          attivo && { color: colori.fg },
+          (tratteggiato || aggiungi) && { color: colori.accentText },
+          colore && { color: attivo ? colori.fg : colore, fontFamily: famiglie.testoMedio },
+        ]}
       >
         {titolo}
       </Text>
@@ -363,6 +391,7 @@ const stili = StyleSheet.create({
   },
   tagAttivo: { borderColor: colori.accent, backgroundColor: colori.accentSoft },
   tagTratteggiato: { borderStyle: 'dashed' },
+  tagAggiungi: { borderColor: 'rgba(201,164,92,0.30)' },
   tagTesto: { fontFamily: famiglie.testo, fontSize: 14, color: colori.fg2 },
   paese: {
     width: 40,

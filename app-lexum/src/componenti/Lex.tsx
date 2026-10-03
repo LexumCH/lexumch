@@ -76,7 +76,7 @@ export function RispostaLex({
         </Text>
       ) : null}
       {risposta.punti.map((punto, i) => (
-        <View key={punto.titolo} style={stili.punto}>
+        <View key={`${i}-${punto.titolo}`} style={stili.punto}>
           <Text style={stili.num}>{i + 1}</Text>
           <Text style={[stili.paragrafo, { flex: 1 }]}>
             <Text style={stili.forte}>{punto.titolo}</Text>

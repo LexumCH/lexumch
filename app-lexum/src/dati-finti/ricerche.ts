@@ -3,7 +3,7 @@
 
 import { coloriEtichette } from '@/tema';
 
-import type { Messaggio } from './chat';
+import { rispostaPer, type Messaggio } from './chat';
 
 export type Etichetta = { id: string; nome: string; colore: string };
 
@@ -17,7 +17,8 @@ export type Elemento = {
   estratto: string;
   norma?: string;
   documento?: string;
-  messaggi?: Messaggio[]; // solo per le chat salvate da questa sessione
+  domanda?: string; // chat finte di partenza: la domanda fatta a Lex
+  messaggi?: Messaggio[]; // chat salvate da questa sessione (o finte complete)
 };
 
 export const etichetteFinte: Record<string, Etichetta[]> = {
@@ -66,6 +67,7 @@ export const elementiFinti: Record<string, Elemento[]> = {
       tipo: 'Chat con Lex',
       quando: '3 ott',
       titolo: 'Detrazione delle spese per la badante',
+      domanda: 'Posso detrarre le spese per la badante di mia madre?',
       estratto: 'Per una persona non autosufficiente puoi detrarre il 19% delle spese, entro un tetto annuo…',
     },
     {
@@ -82,6 +84,7 @@ export const elementiFinti: Record<string, Elemento[]> = {
       tipo: 'Chat con Lex',
       quando: '12 set',
       titolo: 'Ferie non godute alla fine del rapporto',
+      domanda: 'Il contratto è finito: mi devono pagare le ferie che non ho fatto?',
       estratto: 'Le ferie maturate e non godute vanno pagate quando il rapporto finisce…',
     },
   ],
@@ -110,6 +113,27 @@ export const elementiFinti: Record<string, Elemento[]> = {
       quando: '30 set',
       titolo: "Garanzia dell'affitto non restituita",
       estratto: 'Cosa fare se il locatore non libera il deposito di garanzia…',
+      messaggi: [
+        {
+          id: 'e3-domanda',
+          da: 'io',
+          testo: "Il padrone di casa non mi restituisce la garanzia dell'affitto",
+        },
+        { id: 'e3-risposta', da: 'lex', risposta: rispostaPer('CH', 'garanzia') },
+      ],
     },
   ],
 };
+
+// I messaggi di una chat salvata. Quasi tutte quelle finte di partenza hanno solo domanda ed estratto.
+export function messaggiDi(elemento: Elemento): Messaggio[] {
+  if (elemento.messaggi) return elemento.messaggi;
+  const risposta: Messaggio = {
+    id: `${elemento.id}-risposta`,
+    da: 'lex',
+    risposta: { titolo: elemento.titolo, punti: [], nota: elemento.estratto },
+  };
+  return elemento.domanda
+    ? [{ id: `${elemento.id}-domanda`, da: 'io', testo: elemento.domanda }, risposta]
+    : [risposta];
+}

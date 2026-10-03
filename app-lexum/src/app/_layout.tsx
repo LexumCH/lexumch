@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Cornice } from '@/anteprima/Cornice';
+import '@/fuoco';
 import { MenuLaterale } from '@/componenti/MenuLaterale';
 import { Pulsante } from '@/componenti/Pulsante';
 import { avvolgi, segnalaErrore } from '@/sentry';

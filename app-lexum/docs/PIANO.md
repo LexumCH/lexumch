@@ -17,6 +17,11 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
     - stati di errore, attesa, elenco vuoto e senza connessione;
     - Sentry, spento finché non c'è la chiave;
     - prove automatiche (Jest e Playwright).
+  - Aggiunte del 03-10-2026 (sera), con dati finti:
+    - domande d'esempio d'uso comune (legittima difesa, affitto, multa), ognuna con la sua risposta;
+    - etichette di Ricerche colorate come sul sito; «+ Etichetta» con nome e colore;
+    - «Confronta»: da 2 a 3 elementi affiancati e le quattro richieste a Lex del sito;
+    - chat salvata aperta da Ricerche in una schermata sua, con «indietro» e «Continua la chat».
 
 - [ ] **2. Paesi e accesso.**
   - Per prima cosa: spostare tutti i testi in file di traduzione (it/de/fr). Quelli già tradotti sono in `docs/testi/`.
@@ -40,6 +45,8 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Salva la chat con un'etichetta, nello stesso formato del sito.
   - Elenco delle ricerche e delle etichette, anche nel menù laterale.
   - Chat sull'etichetta con `lex-etichetta`.
+  - Nuova etichetta (nome e colore) nella tabella `etichette`, come `ModaleNuovaEtichetta` del sito.
+  - Confronto di 2 o 3 elementi con `lex-confronta`, come `PannelloConfronto` del sito (le schermate ci sono già).
   - «Nuova chat» avvisa se la chat in corso non è salvata.
 
 - [ ] **5. Banca dati.**

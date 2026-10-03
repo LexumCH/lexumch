@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CampoCerca } from '@/componenti/Campi';
 import { Badge, BarraAzioni, Separatore, Tag } from '@/componenti/Elementi';
+import { Icona } from '@/componenti/Icona';
 import { BottoneMenu, Intestazione } from '@/componenti/Intestazione';
 import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
@@ -11,7 +12,9 @@ import { Caricamento, StatoVuoto } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
 import { trovaNorma } from '@/dati-finti/banca-dati';
 import type { Elemento } from '@/dati-finti/ricerche';
+import { MAX_CONFRONTO } from '@/dati-finti/confronto';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
+import { FoglioNuovaEtichetta } from '@/fogli/FoglioNuovaEtichetta';
 import { useVaiASezione } from '@/navigazione';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
@@ -22,11 +25,14 @@ const tonoBadge = { 'Chat con Lex': 'oro', Norma: 'neutro', Sentenza: 'ok', Appu
 export default function Ricerche() {
   const { etichetteAttive, elementiAttivi, chatDaSalvare, simula, azioni } = useStato();
   const vai = useVaiASezione();
-  // L'etichetta scelta sta nell'indirizzo (?etichetta=casa): così la apre anche il menù.
-  const { etichetta: scelta } = useLocalSearchParams<{ etichetta?: string }>();
+  // L'etichetta scelta e il foglio aperto stanno nell'indirizzo (?etichetta=casa&foglio=etichetta):
+  // così li apre anche il menù o l'elenco delle schermate.
+  const { etichetta: scelta, foglio } = useLocalSearchParams<{ etichetta?: string; foglio?: 'etichetta' }>();
   const setScelta = (id: string) => router.setParams({ etichetta: id });
   const [testo, setTesto] = useState('');
   const [norma, setNorma] = useState<string | null>(null);
+  // Confronto, come sul sito: si scelgono da 2 a 3 elementi (null = non si sta scegliendo).
+  const [selezione, setSelezione] = useState<string[] | null>(null);
 
   const etichetta = etichetteAttive.find((e) => e.id === scelta) ?? etichetteAttive[0];
   const q = testo.trim().toLowerCase();
@@ -46,12 +52,26 @@ export default function Ricerche() {
   };
 
   const apri = (e: Elemento) => {
-    if (e.tipo === 'Chat con Lex') {
-      azioni.apriChatSalvata(e);
-      vai('/chat');
-    } else if (e.norma) setNorma(e.norma);
+    if (selezione) {
+      seleziona(e.id);
+      return;
+    }
+    if (e.tipo === 'Chat con Lex') router.push({ pathname: '/chat-salvata/[id]', params: { id: e.id } });
+    else if (e.norma) setNorma(e.norma);
     else if (e.documento)
       router.push({ pathname: '/banca-dati/documento/[id]', params: { id: e.documento } });
+  };
+
+  const seleziona = (id: string) =>
+    setSelezione((prima) => {
+      if (!prima) return prima;
+      if (prima.includes(id)) return prima.filter((x) => x !== id);
+      return prima.length < MAX_CONFRONTO ? [...prima, id] : prima;
+    });
+
+  const confronta = () => {
+    if (!selezione || selezione.length < 2) return;
+    router.push({ pathname: '/confronto', params: { ids: selezione.join(',') } });
   };
 
   return (
@@ -78,14 +98,24 @@ export default function Ricerche() {
             <Tag
               key={e.id}
               titolo={e.nome}
-              pallino={e.colore}
+              colore={e.colore}
               attivo={e.id === etichetta?.id}
               onPress={() => setScelta(e.id)}
             />
           ))}
-          <Tag titolo="+ Etichetta" />
+          <Tag
+            titolo="Etichetta"
+            etichetta="Nuova etichetta"
+            aggiungi
+            onPress={() => router.setParams({ foglio: 'etichetta' })}
+          />
         </ScrollView>
-        {etichetta ? (
+        {selezione ? (
+          <Testo tipo="cap" colore={colori.accentText}>
+            Scegli da 2 a {MAX_CONFRONTO} elementi, anche da etichette diverse · {selezione.length} /{' '}
+            {MAX_CONFRONTO} selezionati
+          </Testo>
+        ) : etichetta ? (
           <Testo tipo="cap">
             Etichetta «{etichetta.nome}» · {totale === 1 ? '1 elemento' : `${totale} elementi`}
           </Testo>
@@ -104,8 +134,10 @@ export default function Ricerche() {
           />
         ) : null}
         {(simula.caricamento ? [] : elementi).map((e) => {
-          const apribile = e.tipo !== 'Appunti';
-          const contenuto = (
+          const scelto = !!selezione?.includes(e.id);
+          const pieno = !!selezione && !scelto && selezione.length >= MAX_CONFRONTO;
+          const apribile = !!selezione || e.tipo !== 'Appunti';
+          const testi = (
             <>
               <View style={stili.tipo}>
                 <Badge tono={tonoBadge[e.tipo]}>{e.tipo}</Badge>
@@ -117,12 +149,29 @@ export default function Ricerche() {
               </Text>
             </>
           );
+          const contenuto = selezione ? (
+            <View style={stili.conCasella}>
+              <View style={[stili.casella, scelto && stili.casellaPiena]}>
+                {scelto ? <Icona nome="spunta" dimensione={16} colore={colori.petrolio} /> : null}
+              </View>
+              <View style={{ flex: 1, gap: 6 }}>{testi}</View>
+            </View>
+          ) : (
+            testi
+          );
           return apribile ? (
             <Pressable
               key={e.id}
               onPress={() => apri(e)}
-              accessibilityRole="button"
-              style={({ pressed }) => [stili.elemento, pressed && { backgroundColor: colori.bg2 }]}
+              disabled={pieno}
+              accessibilityRole={selezione ? 'checkbox' : 'button'}
+              accessibilityState={selezione ? { checked: scelto, disabled: pieno } : undefined}
+              style={({ pressed }) => [
+                stili.elemento,
+                scelto && { backgroundColor: colori.accentSoft },
+                pieno && { opacity: 0.45 },
+                pressed && { backgroundColor: colori.bg2 },
+              ]}
             >
               {contenuto}
             </Pressable>
@@ -145,23 +194,48 @@ export default function Ricerche() {
         ) : null}
       </ScrollView>
 
-      <BarraAzioni>
-        <Pulsante
-          titolo={etichetta ? `Chiedi a Lex su «${etichetta.nome}»` : 'Chiedi a Lex'}
-          icona="stella"
-          righe={2}
-          stile={{ flex: 1 }}
-          onPress={() => vai('/chat')}
-        />
-        <Pulsante
-          titolo="Confronta"
-          etichetta="Confronta due o tre elementi"
-          icona="confronta"
-          variante="linea"
-          stile={{ alignSelf: 'auto', paddingHorizontal: 14 }}
-        />
-      </BarraAzioni>
+      {selezione ? (
+        <BarraAzioni>
+          <Pulsante
+            titolo="Annulla"
+            variante="linea"
+            stile={{ alignSelf: 'auto', paddingHorizontal: 16 }}
+            onPress={() => setSelezione(null)}
+          />
+          <Pulsante
+            titolo="Confronta affiancati"
+            icona="confronta"
+            stile={{ flex: 1 }}
+            disabilitato={selezione.length < 2}
+            onPress={confronta}
+          />
+        </BarraAzioni>
+      ) : (
+        <BarraAzioni>
+          <Pulsante
+            titolo={etichetta ? `Chiedi a Lex su «${etichetta.nome}»` : 'Chiedi a Lex'}
+            icona="stella"
+            righe={2}
+            stile={{ flex: 1 }}
+            onPress={() => vai('/chat')}
+          />
+          <Pulsante
+            titolo="Confronta"
+            etichetta="Confronta due o tre elementi"
+            icona="confronta"
+            variante="linea"
+            stile={{ alignSelf: 'auto', paddingHorizontal: 14 }}
+            disabilitato={elementiAttivi.length < 2}
+            onPress={() => setSelezione([])}
+          />
+        </BarraAzioni>
+      )}
 
+      <FoglioNuovaEtichetta
+        visibile={foglio === 'etichetta'}
+        onChiudi={() => router.setParams({ foglio: undefined })}
+        onCreata={(id) => router.setParams({ foglio: undefined, etichetta: id })}
+      />
       <FoglioNorma
         norma={norma ? trovaNorma(norma) : null}
         eyebrow="Norma salvata"
@@ -185,6 +259,17 @@ const stili = StyleSheet.create({
     borderBottomColor: colori.line,
   },
   tipo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  conCasella: { flexDirection: 'row', gap: 14, alignItems: 'flex-start' },
+  casella: {
+    width: 22,
+    height: 22,
+    marginTop: 1,
+    borderWidth: 1.5,
+    borderColor: colori.fg3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  casellaPiena: { borderColor: colori.accent, backgroundColor: colori.accent },
   ttl: { fontFamily: famiglie.testoMedio, fontSize: 16, lineHeight: 22, color: colori.fg },
   estratto: { fontFamily: famiglie.testo, fontSize: 14, lineHeight: 21, color: colori.fg2 },
 });

@@ -56,5 +56,15 @@ export const gradienteOro = {
   posizioni: [0, 0.5, 1] as const,
 };
 
-// Colori dei pallini delle etichette (come sul sito).
-export const coloriEtichette = ['#7FA39A', '#C9A45C', '#8DA3C4', '#C48D8D', '#A58DC4'] as const;
+// Colori delle etichette: la stessa tavolozza del sito (PALETTE in src/pages/user/Ricerche.jsx),
+// così un'etichetta creata dall'app ha lo stesso aspetto anche sul sito.
+export const coloriEtichette = [
+  '#7FA39A',
+  '#C9A45C',
+  '#6FA3D4',
+  '#D47F7F',
+  '#8B7BB8',
+  '#D49B6F',
+  '#8FB979',
+  '#B57FD4',
+] as const;

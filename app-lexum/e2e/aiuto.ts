@@ -35,3 +35,11 @@ export async function domandaALex(p: Page, esempio: string) {
   await vedo(p, 'Lex sta consultando le fonti');
   await expect(testo(p, 'Lex sta consultando le fonti')).toBeHidden({ timeout: 15_000 });
 }
+
+// Scrive una domanda a Lex nel compositore e aspetta la risposta.
+export async function scriviALex(p: Page, domanda: string) {
+  await etichetta(p, 'Scrivi a Lex').fill(domanda);
+  await etichetta(p, 'Invia').click();
+  await vedo(p, 'Lex sta consultando le fonti');
+  await expect(testo(p, 'Lex sta consultando le fonti')).toBeHidden({ timeout: 15_000 });
+}

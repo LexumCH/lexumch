@@ -167,6 +167,32 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
         scenario: 'salvata-it',
         percorso: ['/chat', { pathname: '/ricerche', params: { etichetta: 'casa' } }],
       },
+      {
+        codice: 'D1',
+        titolo: 'Ricerche: nuova etichetta',
+        scenario: 'salvata-it',
+        percorso: ['/chat', { pathname: '/ricerche', params: { etichetta: 'casa', foglio: 'etichetta' } }],
+      },
+      {
+        codice: 'D1',
+        titolo: 'Ricerche: chat salvata',
+        scenario: 'home-it',
+        percorso: [
+          '/chat',
+          { pathname: '/ricerche', params: { etichetta: 'fisco' } },
+          { pathname: '/chat-salvata/[id]', params: { id: 'e4' } },
+        ],
+      },
+      {
+        codice: 'D1',
+        titolo: 'Ricerche: confronto',
+        scenario: 'home-it',
+        percorso: [
+          '/chat',
+          { pathname: '/ricerche', params: { etichetta: 'casa' } },
+          { pathname: '/confronto', params: { ids: 'e1,e2' } },
+        ],
+      },
       { codice: 'D2', titolo: 'Archivio', scenario: 'home-it', percorso: ['/chat', '/archivio'] },
       { codice: 'D3', titolo: 'Domande', scenario: 'home-it', percorso: ['/chat', '/domande'] },
       {
@@ -247,7 +273,7 @@ export function ElencoSchermate() {
   const [scelta, setScelta] = useState<string | null>(null);
 
   const apri = (v: Voce) => {
-    setScelta(v.codice);
+    setScelta(`${v.codice}-${v.titolo}`);
     menu.chiudi();
     azioni.scenario(v.scenario);
     ricominciaDa(v.percorso[0]);
@@ -263,10 +289,10 @@ export function ElencoSchermate() {
           <View key={g.titolo}>
             <Text style={stili.gruppo}>{g.titolo}</Text>
             {g.voci.map((v) => {
-              const on = v.codice === scelta;
+              const on = `${v.codice}-${v.titolo}` === scelta;
               return (
                 <Pressable
-                  key={v.codice}
+                  key={`${v.codice}-${v.titolo}`}
                   onPress={() => apri(v)}
                   accessibilityRole="link"
                   style={(stato) => [

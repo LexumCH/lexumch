@@ -125,9 +125,9 @@ export const contenuti: Record<string, Contenuti> = {
 
     homeSottotitolo: 'Lex consulta norme, sentenze e prassi e ti mostra da dove viene ogni risposta.',
     esempi: [
-      'Il Comune non risponde alla mia richiesta di accesso agli atti',
-      'Posso detrarre le spese per la badante?',
-      'Il vicino ha chiuso il balcone con una veranda: serviva un permesso?',
+      'Un ladro entra in casa di notte: fin dove posso difendermi?',
+      'Il padrone di casa non mi restituisce la cauzione: cosa posso fare?',
+      'Mi è arrivata una multa dopo quattro mesi: devo pagarla?',
     ],
     consiglio: 'Più dettagli dai (date, luogo, chi è coinvolto), più la risposta è precisa.',
     passi: [
@@ -236,9 +236,9 @@ export const contenuti: Record<string, Contenuti> = {
 
     homeSottotitolo: 'Lex consulta il diritto federale e cantonale, la giurisprudenza e la prassi svizzere.',
     esempi: [
-      'Mi hanno disdetto il contratto mentre ero in malattia: è valido?',
+      'Un ladro entra in casa di notte: fin dove posso difendermi?',
       "Il padrone di casa non mi restituisce la garanzia dell'affitto",
-      'Entro quando posso contestare una decisione di tassazione?',
+      "Ho ricevuto un decreto d'accusa per eccesso di velocità: posso contestarlo?",
     ],
     consiglio: 'Più dettagli dai (cantone, date, chi è coinvolto), più la risposta è precisa.',
     passi: [

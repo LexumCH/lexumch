@@ -1,9 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { risposteFinte, rispostaDiSeguitoFinta, type Messaggio, type RispostaFinta } from '@/dati-finti/chat';
+import { rispostaDiSeguitoFinta, rispostaPer, type Messaggio, type RispostaFinta } from '@/dati-finti/chat';
 import { documentiArchivioFinti, type DocumentoArchivio } from '@/dati-finti/archivio';
 import { contiFinti, type Conto } from '@/dati-finti/conti';
-import { elementiFinti, etichetteFinte, type Elemento, type Etichetta } from '@/dati-finti/ricerche';
+import {
+  elementiFinti,
+  etichetteFinte,
+  messaggiDi,
+  type Elemento,
+  type Etichetta,
+} from '@/dati-finti/ricerche';
 import { messaggioErrore } from '@/errori';
 import { coloriEtichette } from '@/tema';
 import { contenuti } from '@/paesi/contenuti';
@@ -97,7 +103,8 @@ type Azioni = {
   impostaSimulazione: (chiave: keyof Simulazioni, valore: boolean) => void;
   mostraSubitoRisposta: () => void;
   salvaChat: (etichettaId: string) => void;
-  creaEtichetta: (nome: string) => Etichetta;
+  creaEtichetta: (nome: string, colore?: string) => Etichetta;
+  usaCredito: () => void;
   nuovaChat: () => void;
   apriChatSalvata: (elemento: Elemento) => void;
   esci: () => void;
@@ -187,12 +194,12 @@ export function StatoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const creaEtichetta = useCallback(
-    (nome: string) => {
+    (nome: string, colore?: string) => {
       const elenco = stato.etichette[stato.paese] ?? [];
       const nuova: Etichetta = {
         id: nuovoId('et'),
         nome: nome.trim(),
-        colore: coloriEtichette[elenco.length % coloriEtichette.length],
+        colore: colore ?? coloriEtichette[elenco.length % coloriEtichette.length],
       };
       setStato((prima) => ({
         ...prima,
@@ -202,6 +209,11 @@ export function StatoProvider({ children }: { children: ReactNode }) {
     },
     [stato.etichette, stato.paese],
   );
+
+  // Per le richieste a Lex fuori dalla chat (per esempio il confronto): scala un credito.
+  const usaCredito = useCallback(() => {
+    setStato((s) => ({ ...s, conti: { ...s.conti, [s.paese]: scalaCredito(s.conti[s.paese]) } }));
+  }, []);
 
   const salvaChat = useCallback((etichettaId: string) => {
     setStato((s) => {
@@ -235,13 +247,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
         titolo: elemento.titolo,
         salvata: true,
         etichetta: elemento.etichetta,
-        messaggi: elemento.messaggi ?? [
-          {
-            id: nuovoId('m'),
-            da: 'lex',
-            risposta: { titolo: elemento.titolo, punti: [], nota: elemento.estratto },
-          },
-        ],
+        messaggi: messaggiDi(elemento),
       },
     }));
   }, []);
@@ -277,6 +283,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       mostraSubitoRisposta,
       salvaChat,
       creaEtichetta,
+      usaCredito,
       nuovaChat,
       apriChatSalvata,
       esci,
@@ -293,6 +300,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       mostraSubitoRisposta,
       salvaChat,
       creaEtichetta,
+      usaCredito,
       nuovaChat,
       apriChatSalvata,
       esci,
@@ -415,14 +423,14 @@ export function scalaCredito(c: Conto): Conto {
 
 function concludiRisposta(chat: Chat, paese: string): Chat {
   const giaRisposto = chat.messaggi.some((m) => m.da === 'lex');
-  const risposta: RispostaFinta = giaRisposto
-    ? rispostaDiSeguitoFinta
-    : (risposteFinte[paese] ?? rispostaDiSeguitoFinta);
+  const domanda = chat.messaggi.find((m) => m.da === 'io');
+  const testoDomanda = domanda && domanda.da === 'io' ? domanda.testo : '';
+  const risposta: RispostaFinta = giaRisposto ? rispostaDiSeguitoFinta : rispostaPer(paese, testoDomanda);
   return {
     ...chat,
     inCorso: false,
     passo: 0,
-    titolo: chat.titolo ?? (risposta.titolo || null),
+    titolo: chat.titolo ?? (risposta.titolo || titoloDaDomanda(testoDomanda)),
     messaggi: [...chat.messaggi, { id: nuovoId('m'), da: 'lex', risposta }],
   };
 }
@@ -430,6 +438,13 @@ function concludiRisposta(chat: Chat, paese: string): Chat {
 function primaRisposta(chat: Chat): RispostaFinta | null {
   const m = chat.messaggi.find((x) => x.da === 'lex');
   return m && m.da === 'lex' ? m.risposta : null;
+}
+
+// Senza un argomento riconosciuto, il titolo della chat è l'inizio della domanda.
+function titoloDaDomanda(t: string): string | null {
+  const pulito = t.trim().replace(/\s+/g, ' ');
+  if (!pulito) return null;
+  return pulito.length <= 42 ? pulito : `${pulito.slice(0, 40).trimEnd()}…`;
 }
 
 function capitalizza(t: string): string {

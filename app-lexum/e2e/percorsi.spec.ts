@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-import { domandaALex, erroriConsole, etichetta, testo, tocca, vedo } from './aiuto';
+import { domandaALex, erroriConsole, etichetta, scriviALex, testo, tocca, vedo } from './aiuto';
 
-const esempioIT = 'Il Comune non risponde alla mia richiesta di accesso agli atti';
+const esempioIT = 'Un ladro entra in casa di notte: fin dove posso difendermi?';
 let errori: string[] = [];
 
 test.beforeEach(async ({ page }) => {
@@ -72,9 +72,20 @@ test('nuova password: minimo 8 caratteri e uguali', async ({ page }) => {
   await vedo(page, 'Password aggiornata');
 });
 
+test("Lex: le domande d'esempio hanno ciascuna la sua risposta", async ({ page }) => {
+  await page.goto('/chat');
+  await vedo(page, 'Il padrone di casa non mi restituisce la cauzione: cosa posso fare?');
+  await vedo(page, 'Mi è arrivata una multa dopo quattro mesi: devo pagarla?');
+  await domandaALex(page, esempioIT);
+  await vedo(page, 'Legittima difesa in casa');
+  await vedo(page, 'Serve un pericolo attuale.');
+  await tocca(page, 'c.p., art. 52, c. 1');
+  await vedo(page, 'Codice penale (R.D. 19 ottobre 1930, n. 1398)');
+});
+
 test('Lex: risposta, fonte, legge sopra la chat e ritorno', async ({ page }) => {
   await page.goto('/chat');
-  await domandaALex(page, esempioIT);
+  await scriviALex(page, 'Il Comune non risponde alla mia richiesta di accesso agli atti');
   await vedo(page, 'Il silenzio è un rifiuto.');
   await vedo(page, "Chat non salvata: con un'etichetta la ritrovi anche dal computer.");
   await expect(etichetta(page, 'Nessun credito disponibile')).toBeVisible();
@@ -105,8 +116,40 @@ test('nuova chat non salvata: avviso, salvataggio e riapertura da Ricerche', asy
   await tocca(page, "Salva in un'etichetta", true);
   await tocca(page, 'Salva in «Casa»', true);
   await vedo(page, 'Etichetta «Casa» · 4 elementi');
-  await tocca(page, 'Accesso agli atti', true);
-  await vedo(page, 'Il silenzio è un rifiuto.');
+  await tocca(page, 'Legittima difesa in casa', true);
+  await vedo(page, 'Salvata in «Casa» · oggi');
+  await vedo(page, 'Serve un pericolo attuale.');
+  await etichetta(page, 'Torna a Ricerche').click();
+  await vedo(page, 'Etichetta «Casa» · 4 elementi');
+  await tocca(page, 'Legittima difesa in casa', true);
+  await tocca(page, 'Continua la chat', true);
+  await expect(etichetta(page, 'Scrivi a Lex')).toBeVisible();
+  await vedo(page, 'Serve un pericolo attuale.');
+});
+
+test('Ricerche: nuova etichetta e confronto tra due elementi', async ({ page }) => {
+  await page.goto('/ricerche?etichetta=casa');
+  await etichetta(page, 'Nuova etichetta').click();
+  await page.getByPlaceholder('Es. Casa, Lavoro, Multe…').fill('Casa');
+  await vedo(page, "Esiste già un'etichetta con questo nome.");
+  await page.getByPlaceholder('Es. Casa, Lavoro, Multe…').fill('Multe');
+  await etichetta(page, 'Colore rosso').click();
+  await tocca(page, 'Crea etichetta', true);
+  await vedo(page, 'Etichetta «Multe» · 0 elementi');
+  await tocca(page, 'Casa', true);
+  await etichetta(page, 'Confronta due o tre elementi').click();
+  await vedo(page, /0 \/ 3 selezionati/);
+  await tocca(page, 'L. 241/1990 · Art. 25', true);
+  await tocca(page, 'Consiglio di Stato · Ad. Plen. · n. 10 · 2020', true);
+  await vedo(page, /2 \/ 3 selezionati/);
+  await tocca(page, 'Confronta affiancati', true);
+  await vedo(page, 'Confronto · 2 elementi');
+  await tocca(page, 'Punti in comune', true);
+  await vedo(page, 'risposta di prova sui 2 elementi che hai scelto.');
+  await expect(etichetta(page, 'Nessun credito disponibile')).toBeVisible();
+  await etichetta(page, 'Torna a Ricerche').click();
+  await tocca(page, 'Annulla', true);
+  await expect(etichetta(page, 'Confronta due o tre elementi')).toBeVisible();
 });
 
 test('Banca dati: ricerca, filtro, sentenza, sfoglia', async ({ page }) => {
