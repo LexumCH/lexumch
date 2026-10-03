@@ -1,3 +1,4 @@
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -11,6 +12,7 @@ import { Caricamento, StatoVuoto } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
 import { categorieFinte } from '@/dati-finti/archivio';
 import { formatoMB } from '@/dati-finti/conti';
+import { FoglioCondiviso } from '@/fogli/FoglioCondiviso';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
 
@@ -18,9 +20,11 @@ const TUTTE = 'Tutte';
 const SENZA = 'Senza categoria';
 
 // D2 · Archivio: spazio usato, categorie con «+ Categoria», scansione e caricamento.
-// Scanner, caricamento e categorie nuove arrivano con la tappa 6.
+// Scanner, caricamento, categorie nuove e «Condividi in Lexum» arrivano con la tappa 6.
 export default function Archivio() {
   const { paese, conto, documentiAttivi: documenti, simula } = useStato();
+  // ?condiviso=1: è arrivato un file da «Condividi in Lexum» di un'altra app.
+  const { condiviso } = useLocalSearchParams<{ condiviso?: string }>();
   const [categoria, setCategoria] = useState(TUTTE);
   const [testo, setTesto] = useState('');
   const categorie = [TUTTE, ...(categorieFinte[paese] ?? []), SENZA];
@@ -109,6 +113,15 @@ export default function Archivio() {
         <Pulsante titolo="Scansiona" icona="fotocamera" variante="linea" stile={{ flex: 1 }} />
         <Pulsante titolo="Carica" icona="carica" stile={{ flex: 1 }} />
       </BarraAzioni>
+
+      <FoglioCondiviso
+        visibile={condiviso === '1'}
+        onChiudi={() => router.setParams({ condiviso: undefined })}
+        onSalvato={() => {
+          setCategoria(TUTTE);
+          router.setParams({ condiviso: undefined });
+        }}
+      />
     </Schermata>
   );
 }

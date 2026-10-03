@@ -165,6 +165,41 @@ test('Ricerche: «+» crea una ricerca scritta a mano', async ({ page }) => {
   await vedo(page, 'Planimetria, visura catastale e permesso del 2019.');
 });
 
+test('Ricerche: gestisci etichette (rinomina ed elimina)', async ({ page }) => {
+  await page.goto('/ricerche?etichetta=casa');
+  await tocca(page, 'Gestisci etichette', true);
+  await etichetta(page, 'Modifica «Lavoro»').click();
+  await etichetta(page, 'Nome').fill('Lavoro e pensione');
+  await tocca(page, 'Salva', true);
+  await vedo(page, 'Lavoro e pensione', true);
+  await etichetta(page, 'Elimina «Fisco»').click();
+  await vedo(page, 'Eliminare «Fisco»?');
+  await tocca(page, 'Elimina', true);
+  await etichetta(page, 'Chiudi').click();
+  await expect(testo(page, 'Fisco', true)).toBeHidden();
+});
+
+test('telefono: Ricerche senza rete si sceglie dal Profilo; Condividi va in Archivio', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/');
+  await tocca(page, 'F2 · Senza rete: Ricerche chiusa');
+  await vedo(page, 'Ricerche si apre con la connessione');
+  await tocca(page, 'Vai al Profilo', true);
+  await vedo(page, 'Su questo telefono');
+  await expect(page.getByRole('switch', { name: /Ricerche anche senza rete/ })).toHaveAttribute(
+    'aria-checked',
+    'false',
+  );
+  await tocca(page, 'Ricerche anche senza rete', true);
+  await vedo(page, 'Chat, norme e appunti salvati restano sul telefono');
+  await tocca(page, 'D2 · Archivio: file da «Condividi»');
+  await vedo(page, 'Verbale_PM_2026_0412.pdf');
+  await tocca(page, 'Salva in Archivio', true);
+  await vedo(page, 'Verbale della multa', true);
+  await tocca(page, 'F1 · App bloccata: Face ID');
+  await vedo(page, 'Lexum è bloccata');
+});
+
 test('Banca dati: ricerca, filtro, sentenza, sfoglia', async ({ page }) => {
   await page.goto('/banca-dati');
   await vedo(page, 'Codici, leggi, sentenze e prassi');

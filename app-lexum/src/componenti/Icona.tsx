@@ -46,6 +46,7 @@ const disegni = {
   fulmine: { p: ['M13 2L4 14h7l-1 8 9-12h-7z'] },
   esterno: { p: ['M14 4h6v6M20 4l-9 9M18 14v6H4V6h6'] },
   spunta: { p: ['M5 12.5l4.5 4.5L19 7.5'] },
+  cestino: { p: ['M4 7h16', 'M9.5 7V4.5h5V7', 'M6.5 7l1 12.5h9l1-12.5', 'M10 11v5', 'M14 11v5'] },
   modifica: { p: ['M12 4H4v16h16v-8M17.5 3.5a2.1 2.1 0 013 3L12 15l-4 1 1-4z'] },
   archivio: { p: ['M3 4h18v4H3zM5 8v12h14V8M10 12h4'] },
   domanda: { p: ['M9.5 9.5a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01'], c: [[12, 12, 9]] },

@@ -97,8 +97,11 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
   3. solo in Svizzera, la lingua dell'app (italiano, Deutsch, français), che cambia tutti i testi;
   4. «Crediti e piano»;
   5. account;
-  6. la parte «Completa il profilo / Che professionista sei?», che rimanda al sito;
-  7. ultimo, in un riquadro suo, «Elimina account» (deciso da Antonino il 03-10-2026).
+  6. «Su questo telefono»: blocco con Face ID o impronta e Ricerche anche senza rete, tutti e due spenti finché l'utente non li accende;
+  7. la parte «Completa il profilo / Che professionista sei?», che rimanda al sito;
+  8. ultimo, in un riquadro suo, «Elimina account».
+
+  (Punti 6 e 8 decisi da Antonino il 03-10-2026.)
 
   Nel menù il Profilo non ha badge.
 - **Archivio:** categorie con il pulsante «+ Categoria».
@@ -110,6 +113,11 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
   - Si conserva solo salvandola in Ricerche con un'etichetta (tabelle `ricerche` + `elementi_etichette`), così app e computer mostrano le stesse cose.
   - «Nuova chat» avvisa se quella in corso non è salvata.
 - **Banca dati e crediti:** la ricerca per parole nella Banca dati è gratuita. Le domande a Lex usano crediti; alla registrazione se ne riceve 1 di benvenuto.
+- **Funzioni del telefono** (decise da Antonino il 03-10-2026):
+  - «Condividi in Lexum»: i file condivisi da altre app vanno in Archivio;
+  - blocco con Face ID o impronta: si accende dal Profilo, spento di base;
+  - Ricerche anche senza rete: si sceglie dal Profilo, spenta di base;
+  - gestione delle etichette come sul sito.
 - **Elimina account:** deve esistere nell'app, perché Apple lo pretende.
 - **White-label:** nei messaggi d'errore non compaiono mai nomi di fornitori AI (OpenAI, Anthropic, Mistral), modelli o indirizzi tecnici. Si mostra un messaggio generico.
 

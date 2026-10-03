@@ -47,6 +47,7 @@ export type Scenario =
   | 'salvata-it'
   | 'errore-lex-it'
   | 'offline-it'
+  | 'offline-ricerche-it'
   | 'caricamento-it'
   | 'vuoto-it'
   | 'senza-accesso-ch'
@@ -62,6 +63,14 @@ type Stato = {
   elementi: Record<string, Elemento[]>;
   documenti: Record<string, DocumentoArchivio[]>;
   simula: Simulazioni;
+  telefono: Telefono;
+};
+
+// Impostazioni di questo telefono (Profilo → «Su questo telefono»): valgono per tutti i paesi,
+// spente finché l'utente non le accende. Dalla tappa 6 si salvano sul telefono.
+export type Telefono = {
+  blocco: boolean; // Face ID o impronta all'apertura dell'app
+  ricercheOffline: boolean; // copia di Ricerche sul telefono, leggibile senza rete
 };
 
 // Situazioni che nella tappa 1 si possono solo simulare (dall'elenco delle schermate).
@@ -83,6 +92,7 @@ const statoIniziale = (): Stato => ({
   elementi: copia(elementiFinti),
   documenti: copia(documentiArchivioFinti),
   simula: nessunaSimulazione,
+  telefono: { blocco: false, ricercheOffline: false },
 });
 
 function copia<T>(v: T): T {
@@ -104,6 +114,15 @@ type Azioni = {
   mostraSubitoRisposta: () => void;
   salvaChat: (etichettaId: string) => void;
   creaEtichetta: (nome: string, colore?: string) => Etichetta;
+  modificaEtichetta: (id: string, dati: { nome: string; colore: string }) => void;
+  eliminaEtichetta: (id: string) => void;
+  impostaTelefono: (chiave: keyof Telefono, valore: boolean) => void;
+  salvaInArchivio: (documento: {
+    titolo: string;
+    categoria: string | null;
+    dimensione: string;
+    tipo: string;
+  }) => void;
   usaCredito: () => void;
   creaAppunti: (dati: { titolo: string; testo: string; etichetta: string }) => Elemento;
   nuovaChat: () => void;
@@ -211,6 +230,48 @@ export function StatoProvider({ children }: { children: ReactNode }) {
     [stato.etichette, stato.paese],
   );
 
+  // Gestione etichette, come sul sito: nome e colore si cambiano; eliminando un'etichetta
+  // chat, norme e appunti non si cancellano, perdono solo l'etichetta.
+  const modificaEtichetta = useCallback((id: string, dati: { nome: string; colore: string }) => {
+    setStato((s) => ({
+      ...s,
+      etichette: {
+        ...s.etichette,
+        [s.paese]: (s.etichette[s.paese] ?? []).map((e) =>
+          e.id === id ? { ...e, nome: dati.nome.trim(), colore: dati.colore } : e,
+        ),
+      },
+    }));
+  }, []);
+
+  const eliminaEtichetta = useCallback((id: string) => {
+    setStato((s) => ({
+      ...s,
+      etichette: { ...s.etichette, [s.paese]: (s.etichette[s.paese] ?? []).filter((e) => e.id !== id) },
+      elementi: {
+        ...s.elementi,
+        [s.paese]: (s.elementi[s.paese] ?? []).map((e) => (e.etichetta === id ? { ...e, etichetta: '' } : e)),
+      },
+      chat: s.chat.etichetta === id ? { ...s.chat, etichetta: null } : s.chat,
+    }));
+  }, []);
+
+  const impostaTelefono = useCallback((chiave: keyof Telefono, valore: boolean) => {
+    setStato((s) => ({ ...s, telefono: { ...s.telefono, [chiave]: valore } }));
+  }, []);
+
+  // «Condividi in Lexum» da un'altra app: il file entra in Archivio, in coda per la lettura.
+  const salvaInArchivio = useCallback(
+    (d: { titolo: string; categoria: string | null; dimensione: string; tipo: string }) => {
+      const documento: DocumentoArchivio = { id: nuovoId('d'), data: 'oggi', stato: 'In coda', ...d };
+      setStato((s) => ({
+        ...s,
+        documenti: { ...s.documenti, [s.paese]: [documento, ...(s.documenti[s.paese] ?? [])] },
+      }));
+    },
+    [],
+  );
+
   // Per le richieste a Lex fuori dalla chat (per esempio il confronto): scala un credito.
   const usaCredito = useCallback(() => {
     setStato((s) => ({ ...s, conti: { ...s.conti, [s.paese]: scalaCredito(s.conti[s.paese]) } }));
@@ -305,6 +366,10 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       creaEtichetta,
       usaCredito,
       creaAppunti,
+      modificaEtichetta,
+      eliminaEtichetta,
+      impostaTelefono,
+      salvaInArchivio,
       nuovaChat,
       apriChatSalvata,
       esci,
@@ -323,6 +388,10 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       creaEtichetta,
       usaCredito,
       creaAppunti,
+      modificaEtichetta,
+      eliminaEtichetta,
+      impostaTelefono,
+      salvaInArchivio,
       nuovaChat,
       apriChatSalvata,
       esci,
@@ -388,6 +457,12 @@ function costruisciScenario(nome: Scenario): Stato {
       return concludi({ ...inAttesa(base, 0), simula: { ...base.simula, erroreLex: true } });
     case 'offline-it':
       return { ...base, simula: { ...base.simula, offline: true } };
+    case 'offline-ricerche-it':
+      return {
+        ...base,
+        simula: { ...base.simula, offline: true },
+        telefono: { ...base.telefono, ricercheOffline: true },
+      };
     case 'caricamento-it':
       return { ...base, simula: { ...base.simula, caricamento: true } };
     case 'vuoto-it':

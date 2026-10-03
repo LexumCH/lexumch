@@ -56,7 +56,7 @@ export function Compositore({ valore, onCambia, onInvia, onAllega, occupato, off
             disabled={!pieno}
             accessibilityRole="button"
             accessibilityLabel="Invia"
-            accessibilityState={{ disabled: !pieno }}
+            aria-disabled={!pieno}
             style={({ pressed }) => [stili.invia, !pieno && stili.spento, pressed && { opacity: 0.85 }]}
           >
             <Icona nome="invia" dimensione={20} colore={pieno ? colori.accentFg : colori.fg3} />

@@ -54,7 +54,7 @@ export default function SceltaPaese() {
                     <Pressable
                       onPress={() => setAperti((a) => ({ ...a, [p.codice]: !aperto }))}
                       accessibilityRole="button"
-                      accessibilityState={{ expanded: aperto }}
+                      aria-expanded={aperto}
                       accessibilityLabel={`${testi.totaleDocumenti}. ${aperto ? 'Chiudi' : 'Espandi'} l'elenco delle fonti`}
                       style={stili.sommario}
                     >

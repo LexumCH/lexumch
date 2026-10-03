@@ -28,6 +28,11 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
     - «Cambia paese» parte dal paese in cui sei, con l'anteprima del tuo account; scegliendo l'altro si vede il suo;
     - «Elimina account» è l'ultimo riquadro del Profilo, sotto «Completa il profilo»;
     - «+» di Ricerche apre «Nuova ricerca» (appunti scritti a mano), come sul sito.
+  - Funzioni del telefono scelte da Antonino (03-10-2026), per ora solo da vedere, con dati finti:
+    - Profilo → «Su questo telefono»: blocco con Face ID o impronta e Ricerche anche senza rete, spenti di base;
+    - schermata «Lexum è bloccata» (F1) e Ricerche senza rete, chiusa o letta dalla copia sul telefono (F2, F3);
+    - «Gestisci etichette» in Ricerche: nome, colore, elimina, come sul sito;
+    - Archivio: foglio «Salva in Archivio» per un file arrivato da «Condividi in Lexum».
 
 - [ ] **2. Paesi e accesso.**
   - Per prima cosa: spostare tutti i testi in file di traduzione (it/de/fr). Quelli già tradotti sono in `docs/testi/`.
@@ -53,6 +58,9 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Chat sull'etichetta con `lex-etichetta`.
   - Nuova etichetta (nome e colore) nella tabella `etichette`, come `ModaleNuovaEtichetta` del sito.
   - Confronto di 2 o 3 elementi con `lex-confronta`, come `PannelloConfronto` del sito (le schermate ci sono già).
+  - Gestione etichette come `ModaleGestioneEtichette` del sito: nome, colore, elimina (le schermate ci sono già).
+  - Etichette di un elemento: aggiungerne o toglierne più d'una, come `AggiungiAEtichetta` del sito (nell'app oggi un elemento ha una sola etichetta).
+  - Ricerche anche senza rete: copia sul telefono di chat, norme e appunti salvati, solo se l'utente la accende dal Profilo (spenta di base). Spegnendola, la copia si cancella.
   - «Nuova chat» avvisa se la chat in corso non è salvata.
 
 - [ ] **5. Banca dati.**
@@ -64,9 +72,11 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
 - [ ] **6. Archivio, Domande, Profilo.**
   - Archivio: spazio usato, categorie con «+ Categoria», caricamento.
   - Scansione con lo scanner del telefono: produce un PDF, che usa lo stesso caricamento.
+  - «Condividi in Lexum»: da Mail, WhatsApp o File un documento va in Archivio, con lo stesso caricamento (per esempio con `expo-share-intent`, da verificare con l'SDK). Funziona solo con la build EAS, non in Expo Go.
   - Domande: ticket di assistenza.
   - Profilo: «Crediti e piano», con «Aggiungi crediti» e «Fai upgrade» che aprono il sito.
   - Profilo: dati, notifiche, elimina account (serve la funzione del backend: `docs/DA-FARE-ANTONINO.md`).
+  - Profilo → «Su questo telefono»: blocco con Face ID o impronta (`expo-local-authentication`), spento di base. Quando è acceso, l'app chiede lo sblocco all'apertura e quando torna in primo piano.
 
 - [ ] **7. Rifiniture.**
   - Notifica «risposta pronta».

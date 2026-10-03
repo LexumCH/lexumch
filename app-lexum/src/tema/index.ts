@@ -1,4 +1,4 @@
-export { colori, coloriEtichette, gradienteHero, gradienteOro } from './colori';
+export { colori, coloriEtichette, gradienteHero, gradienteOro, nomiColoriEtichette } from './colori';
 export { famiglie, tipi, type TipoTesto } from './caratteri';
 
 // Misure comuni. Gli angoli sono vivi: nessun borderRadius nell'app.

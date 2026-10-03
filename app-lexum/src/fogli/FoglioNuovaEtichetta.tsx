@@ -8,18 +8,7 @@ import { Icona } from '@/componenti/Icona';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Testo } from '@/componenti/Testo';
 import { useStato } from '@/stato/Stato';
-import { colori, coloriEtichette } from '@/tema';
-
-const nomiColori: Record<string, string> = {
-  '#7FA39A': 'salvia',
-  '#C9A45C': 'oro',
-  '#6FA3D4': 'azzurro',
-  '#D47F7F': 'rosso',
-  '#8B7BB8': 'viola',
-  '#D49B6F': 'arancio',
-  '#8FB979': 'verde',
-  '#B57FD4': 'lilla',
-};
+import { colori, coloriEtichette, nomiColoriEtichette } from '@/tema';
 
 type Props = {
   visibile: boolean;
@@ -87,8 +76,8 @@ export function FoglioNuovaEtichetta({ visibile, onChiudi, onCreata }: Props) {
                 key={c}
                 onPress={() => setColore(c)}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: scelto }}
-                accessibilityLabel={`Colore ${nomiColori[c] ?? c}`}
+                aria-checked={scelto}
+                accessibilityLabel={`Colore ${nomiColoriEtichette[c] ?? c}`}
                 hitSlop={4}
                 style={[stili.colore, { backgroundColor: c }, scelto && stili.scelto]}
               >

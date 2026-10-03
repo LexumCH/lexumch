@@ -125,7 +125,7 @@ export function MenuLaterale() {
                 key={v.sezione}
                 onPress={() => vai(v.sezione)}
                 accessibilityRole="button"
-                accessibilityState={{ selected: on }}
+                aria-selected={on}
                 style={({ pressed }) => [
                   stili.voce,
                   on && stili.voceOn,

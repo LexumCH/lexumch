@@ -80,3 +80,18 @@ export const documentiArchivioFinti: Record<string, DocumentoArchivio[]> = {
     },
   ],
 };
+
+// «Condividi in Lexum»: il file finto che arriva da un'altra app (Mail, WhatsApp, File…).
+// Dalla tappa 6 arriva davvero dal foglio di condivisione del telefono.
+export const fileCondivisoFinto: Record<
+  string,
+  { nome: string; titolo: string; dimensione: string; tipo: string }
+> = {
+  IT: { nome: 'Verbale_PM_2026_0412.pdf', titolo: 'Verbale della multa', dimensione: '380 KB', tipo: 'PDF' },
+  CH: {
+    nome: 'Tassazione_2025.pdf',
+    titolo: 'Decisione di tassazione 2025',
+    dimensione: '520 KB',
+    tipo: 'PDF',
+  },
+};

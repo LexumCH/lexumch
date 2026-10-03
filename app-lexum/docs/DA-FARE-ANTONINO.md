@@ -33,6 +33,8 @@ Ultimo aggiornamento: 03-10-2026.
 - [ ] **Identificativo dell'app** per iOS e Android, per esempio `com.lexum.app`. È per sempre, quindi lo scegli tu.
 - [ ] **Account:** Apple Developer, Google Play Console e Expo (per EAS).
 - [ ] **Icona dell'app** 1024×1024, senza trasparenza (per iPhone). Oggi c'è quella predefinita di Expo; lo splash usa già l'emblema.
+- [ ] **«Condividi in Lexum» su iPhone.** L'estensione di condivisione ha un identificativo suo (per esempio `com.lexum.app.share`) e un «App Group» per passare il file all'app. Si registrano nell'account Apple Developer insieme all'identificativo dell'app: te li preparo io quando c'è.
+- [ ] **Frase di Face ID.** iPhone la mostra la prima volta che l'app chiede Face ID. Proposta: «Lexum usa Face ID per proteggere le tue ricerche e i tuoi documenti.» Approvala o cambiala.
 
 ## Prove sul telefono
 

@@ -77,6 +77,48 @@ describe('Ricerche', () => {
   });
 });
 
+describe('funzioni del telefono', () => {
+  it('blocco e Ricerche senza rete partono spenti', async () => {
+    const { result } = await renderHook(() => useStato(), { wrapper: avvolgi });
+    expect(result.current.telefono).toEqual({ blocco: false, ricercheOffline: false });
+    await act(() => {
+      result.current.azioni.impostaTelefono('ricercheOffline', true);
+    });
+    expect(result.current.telefono.ricercheOffline).toBe(true);
+  });
+
+  it('gestione etichette: rinomina e colore, poi elimina senza cancellare gli elementi', async () => {
+    const { result } = await renderHook(() => useStato(), { wrapper: avvolgi });
+    const prima = result.current.elementiAttivi.length;
+    await act(() => {
+      result.current.azioni.modificaEtichetta('casa', { nome: 'Casa e condominio', colore: '#8B7BB8' });
+    });
+    expect(result.current.etichetteAttive[0]).toMatchObject({ nome: 'Casa e condominio', colore: '#8B7BB8' });
+    await act(() => {
+      result.current.azioni.eliminaEtichetta('casa');
+    });
+    expect(result.current.etichetteAttive.some((e) => e.id === 'casa')).toBe(false);
+    expect(result.current.elementiAttivi.length).toBe(prima);
+    expect(result.current.elementiAttivi.some((e) => e.etichetta === 'casa')).toBe(false);
+  });
+
+  it('un file condiviso da un’altra app entra in Archivio, in coda', async () => {
+    const { result } = await renderHook(() => useStato(), { wrapper: avvolgi });
+    await act(() => {
+      result.current.azioni.salvaInArchivio({
+        titolo: 'Verbale della multa',
+        categoria: null,
+        dimensione: '380 KB',
+        tipo: 'PDF',
+      });
+    });
+    expect(result.current.documentiAttivi[0]).toMatchObject({
+      titolo: 'Verbale della multa',
+      stato: 'In coda',
+    });
+  });
+});
+
 describe('titolo della chat', () => {
   it('senza un argomento riconosciuto è l’inizio della domanda', async () => {
     jest.useFakeTimers();

@@ -40,7 +40,7 @@ export function Scelta({
       <Pressable
         onPress={onPress}
         accessibilityRole="radio"
-        accessibilityState={{ checked: attiva }}
+        aria-checked={attiva}
         accessibilityLabel={sottotitolo ? `${titolo}. ${sottotitolo}` : titolo}
         style={[stili.testa, !sotto && !compatta && { alignItems: 'flex-start' }]}
       >

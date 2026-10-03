@@ -79,7 +79,7 @@ function VoceDomanda({
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityState={{ expanded: aperta }}
+        aria-expanded={aperta}
         style={({ pressed }) => [stili.domanda, pressed && { backgroundColor: colori.bg2 }]}
       >
         <Text style={[stili.domandaTesto, aperta && { color: colori.accentText }]}>{voce.domanda}</Text>

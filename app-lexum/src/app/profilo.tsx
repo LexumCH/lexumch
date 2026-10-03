@@ -1,7 +1,15 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { BadgePaese, Iniziale, Scheda, Segmentato, Separatore, TitoloSezione } from '@/componenti/Elementi';
+import {
+  BadgePaese,
+  Iniziale,
+  Interruttore,
+  Scheda,
+  Segmentato,
+  Separatore,
+  TitoloSezione,
+} from '@/componenti/Elementi';
 import { Icona } from '@/componenti/Icona';
 import { BottoneMenu, Intestazione } from '@/componenti/Intestazione';
 import { Pulsante } from '@/componenti/Pulsante';
@@ -25,10 +33,10 @@ type Foglio = 'paese' | 'professionista' | 'elimina';
 const nomiLingue: Record<string, string> = { it: 'Italiano', de: 'Deutsch', fr: 'Français' };
 
 // D4 e G6 · Profilo, in quest'ordine: intestazione, paese e banca dati, lingua (solo dove ce n'è più d'una),
-// crediti e piano, account, «Completa il profilo» e, ultimo, «Elimina account».
+// crediti e piano, account, «Su questo telefono», «Completa il profilo» e, ultimo, «Elimina account».
 // Niente pagamenti nell'app: i pulsanti aprono il sito.
 export default function Profilo() {
-  const { paese, conto, lingua, accessi, azioni } = useStato();
+  const { paese, conto, lingua, accessi, telefono, azioni } = useStato();
   // Il foglio aperto sta nei parametri dell'indirizzo (?foglio=paese), come nella chat.
   // ?verso=CH apre il cambio paese con l'altro paese già scelto (solo per l'elenco delle schermate).
   const parametri = useLocalSearchParams<{ foglio?: Foglio; verso?: string }>();
@@ -150,6 +158,30 @@ export default function Profilo() {
             azioni.esci();
             ricominciaDa('/avvio/paese');
           }}
+        />
+
+        <TitoloSezione>Su questo telefono</TitoloSezione>
+        <Riga
+          stretta
+          ruolo="switch"
+          selezionata={telefono.blocco}
+          titolo="Blocca con Face ID o impronta"
+          sottotitolo="Chiede lo sblocco ogni volta che apri l'app"
+          destra={<Interruttore acceso={telefono.blocco} />}
+          onPress={() => azioni.impostaTelefono('blocco', !telefono.blocco)}
+        />
+        <Riga
+          stretta
+          ruolo="switch"
+          selezionata={telefono.ricercheOffline}
+          titolo="Ricerche anche senza rete"
+          sottotitolo={
+            telefono.ricercheOffline
+              ? 'Chat, norme e appunti salvati restano sul telefono'
+              : 'Spenta: Ricerche si apre solo con la connessione'
+          }
+          destra={<Interruttore acceso={telefono.ricercheOffline} />}
+          onPress={() => azioni.impostaTelefono('ricercheOffline', !telefono.ricercheOffline)}
         />
 
         <View style={{ paddingTop: 18, paddingHorizontal: 20, paddingBottom: 16 }}>

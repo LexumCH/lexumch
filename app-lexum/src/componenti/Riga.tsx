@@ -32,7 +32,7 @@ type Props = {
   titoloStile?: StyleProp<TextStyle>;
   stile?: StyleProp<ViewStyle>;
   etichetta?: string;
-  ruolo?: 'button' | 'link' | 'radio';
+  ruolo?: 'button' | 'link' | 'radio' | 'switch';
   selezionata?: boolean;
 };
 
@@ -90,7 +90,7 @@ export function Riga({
       onPress={onPress}
       accessibilityRole={ruolo}
       accessibilityLabel={etichetta}
-      accessibilityState={ruolo === 'radio' ? { checked: !!selezionata } : undefined}
+      aria-checked={ruolo === 'radio' || ruolo === 'switch' ? !!selezionata : undefined}
       style={({ pressed }) => [stileRiga, pressed && { backgroundColor: colori.bg2 }]}
     >
       {contenuto}

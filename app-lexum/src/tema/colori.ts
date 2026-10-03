@@ -68,3 +68,15 @@ export const coloriEtichette = [
   '#8FB979',
   '#B57FD4',
 ] as const;
+
+// Nomi dei colori delle etichette, per chi usa il lettore dello schermo.
+export const nomiColoriEtichette: Record<string, string> = {
+  '#7FA39A': 'salvia',
+  '#C9A45C': 'oro',
+  '#6FA3D4': 'azzurro',
+  '#D47F7F': 'rosso',
+  '#8B7BB8': 'viola',
+  '#D49B6F': 'arancio',
+  '#8FB979': 'verde',
+  '#B57FD4': 'lilla',
+};

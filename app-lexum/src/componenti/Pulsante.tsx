@@ -53,7 +53,7 @@ export function Pulsante({
       disabled={disabilitato}
       accessibilityRole={ruolo}
       accessibilityLabel={etichetta}
-      accessibilityState={{ disabled: !!disabilitato }}
+      aria-disabled={!!disabilitato}
       style={({ pressed }) => [
         stili.base,
         piccolo ? stili.piccolo : stili.normale,
@@ -124,7 +124,7 @@ export function PulsanteIcona({
       disabled={disabilitato}
       accessibilityRole="button"
       accessibilityLabel={etichetta}
-      accessibilityState={{ disabled: !!disabilitato }}
+      aria-disabled={!!disabilitato}
       hitSlop={4}
       style={({ pressed }) => [
         stili.ib,

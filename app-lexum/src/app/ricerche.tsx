@@ -15,9 +15,11 @@ import type { Elemento } from '@/dati-finti/ricerche';
 import { MAX_CONFRONTO } from '@/dati-finti/confronto';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
 import { FoglioAppunti } from '@/fogli/FoglioAppunti';
+import { FoglioGestioneEtichette } from '@/fogli/FoglioGestioneEtichette';
 import { FoglioNuovaEtichetta } from '@/fogli/FoglioNuovaEtichetta';
 import { FoglioNuovaRicerca } from '@/fogli/FoglioNuovaRicerca';
 import { useVaiASezione } from '@/navigazione';
+import { useOffline } from '@/stato/connessione';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
@@ -25,13 +27,17 @@ const tonoBadge = { 'Chat con Lex': 'oro', Norma: 'neutro', Sentenza: 'ok', Appu
 
 // D1 · Ricerche: quello che hai chiesto a Lex e salvato, diviso per etichette (come sul sito).
 export default function Ricerche() {
-  const { etichetteAttive, elementiAttivi, simula } = useStato();
+  const { etichetteAttive, elementiAttivi, simula, telefono } = useStato();
+  // Senza rete Ricerche si legge solo se l'utente l'ha scelto nel Profilo («Ricerche anche senza rete»).
+  const offline = useOffline();
+  const chiusaOffline = offline && !telefono.ricercheOffline;
+  const attesa = simula.caricamento || chiusaOffline;
   const vai = useVaiASezione();
   // L'etichetta scelta e il foglio aperto stanno nell'indirizzo (?etichetta=casa&foglio=etichetta):
   // così li apre anche il menù o l'elenco delle schermate.
   const { etichetta: scelta, foglio } = useLocalSearchParams<{
     etichetta?: string;
-    foglio?: 'etichetta' | 'ricerca';
+    foglio?: 'etichetta' | 'ricerca' | 'gestisci';
   }>();
   const setScelta = (id: string) => router.setParams({ etichetta: id });
   const [testo, setTesto] = useState('');
@@ -87,6 +93,11 @@ export default function Ricerche() {
         <Testo tipo="small" colore={colori.fg2}>
           Tutto quello che hai chiesto a Lex e salvato: chat, appunti, norme, sentenze e prassi.
         </Testo>
+        {offline && telefono.ricercheOffline ? (
+          <Testo tipo="cap" colore={colori.ok}>
+            Senza rete: stai leggendo la copia salvata sul telefono.
+          </Testo>
+        ) : null}
         <CampoCerca
           etichetta="Cerca tra le tue ricerche"
           placeholder="Cerca tra le tue ricerche…"
@@ -103,6 +114,7 @@ export default function Ricerche() {
               colore={e.colore}
               attivo={e.id === etichetta?.id}
               onPress={() => setScelta(e.id)}
+              onLongPress={() => router.setParams({ foglio: 'gestisci' })}
             />
           ))}
           <Tag
@@ -118,16 +130,35 @@ export default function Ricerche() {
             {MAX_CONFRONTO} selezionati
           </Testo>
         ) : etichetta ? (
-          <Testo tipo="cap">
-            Etichetta «{etichetta.nome}» · {totale === 1 ? '1 elemento' : `${totale} elementi`}
-          </Testo>
+          <View style={stili.didascalia}>
+            <Testo tipo="cap" style={{ flex: 1 }}>
+              Etichetta «{etichetta.nome}» · {totale === 1 ? '1 elemento' : `${totale} elementi`}
+            </Testo>
+            <Pressable
+              onPress={() => router.setParams({ foglio: 'gestisci' })}
+              accessibilityRole="button"
+              hitSlop={{ top: 14, bottom: 14, left: 8, right: 8 }}
+            >
+              <Testo tipo="cap" colore={colori.accentText}>
+                Gestisci etichette
+              </Testo>
+            </Pressable>
+          </View>
         ) : null}
       </View>
       <Separatore />
 
       <ScrollView style={{ flex: 1 }}>
         {simula.caricamento ? <Caricamento /> : null}
-        {!simula.caricamento && etichetteAttive.length === 0 ? (
+        {!simula.caricamento && chiusaOffline ? (
+          <StatoVuoto
+            icona="offline"
+            titolo="Ricerche si apre con la connessione"
+            testo="Per leggere chat, norme e appunti salvati anche senza rete, accendi «Ricerche anche senza rete» nel Profilo."
+            azione={{ titolo: 'Vai al Profilo', onPress: () => vai('/profilo') }}
+          />
+        ) : null}
+        {!attesa && etichetteAttive.length === 0 ? (
           <StatoVuoto
             icona="segnalibro"
             titolo="Non hai ancora salvato niente"
@@ -135,7 +166,7 @@ export default function Ricerche() {
             azione={{ titolo: 'Chiedi a Lex', onPress: () => vai('/chat') }}
           />
         ) : null}
-        {(simula.caricamento ? [] : elementi).map((e) => {
+        {(attesa ? [] : elementi).map((e) => {
           const scelto = !!selezione?.includes(e.id);
           const pieno = !!selezione && !scelto && selezione.length >= MAX_CONFRONTO;
           const testi = (
@@ -166,7 +197,8 @@ export default function Ricerche() {
               onPress={() => apri(e)}
               disabled={pieno}
               accessibilityRole={selezione ? 'checkbox' : 'button'}
-              accessibilityState={selezione ? { checked: scelto, disabled: pieno } : undefined}
+              aria-checked={selezione ? scelto : undefined}
+              aria-disabled={selezione ? pieno : undefined}
               style={({ pressed }) => [
                 stili.elemento,
                 scelto && { backgroundColor: colori.accentSoft },
@@ -178,7 +210,7 @@ export default function Ricerche() {
             </Pressable>
           );
         })}
-        {!simula.caricamento && etichetta && elementi.length === 0 ? (
+        {!attesa && etichetta && elementi.length === 0 ? (
           <StatoVuoto
             icona={q ? 'cerca' : 'etichetta'}
             titolo={q ? 'Nessun elemento con queste parole' : "In questa etichetta non c'è ancora niente"}
@@ -237,6 +269,10 @@ export default function Ricerche() {
           router.setParams({ foglio: undefined, etichetta: id });
         }}
       />
+      <FoglioGestioneEtichette
+        visibile={foglio === 'gestisci'}
+        onChiudi={() => router.setParams({ foglio: undefined })}
+      />
       <FoglioAppunti
         elemento={appunti}
         etichetta={etichetteAttive.find((x) => x.id === appunti?.etichetta)}
@@ -270,6 +306,7 @@ const stili = StyleSheet.create({
     borderBottomColor: colori.line,
   },
   tipo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  didascalia: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   conCasella: { flexDirection: 'row', gap: 14, alignItems: 'flex-start' },
   casella: {
     width: 22,

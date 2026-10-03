@@ -61,6 +61,7 @@ type PropsTag = {
   titolo: string;
   attivo?: boolean;
   onPress?: () => void;
+  onLongPress?: () => void;
   colore?: string;
   pallino?: string;
   tratteggiato?: boolean;
@@ -71,6 +72,7 @@ export function Tag({
   titolo,
   attivo,
   onPress,
+  onLongPress,
   colore,
   pallino,
   tratteggiato,
@@ -85,9 +87,10 @@ export function Tag({
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
       accessibilityRole="button"
       accessibilityLabel={etichetta}
-      accessibilityState={{ selected: !!attivo }}
+      aria-selected={!!attivo}
       hitSlop={{ top: 4, bottom: 4 }}
       style={({ pressed }) => [
         stili.tag,
@@ -243,7 +246,7 @@ export function Segmentato<T extends string>({
             key={o.valore}
             onPress={() => onCambia(o.valore)}
             accessibilityRole="radio"
-            accessibilityState={{ checked: on }}
+            aria-checked={on}
             style={[stili.segVoce, on && { backgroundColor: colori.surface2 }]}
           >
             <Text style={[stili.segTesto, on && stili.segTestoOn]}>{o.titolo}</Text>
@@ -317,7 +320,7 @@ export function Spunta({
       <Pressable
         onPress={() => onCambia(!attiva)}
         accessibilityRole="checkbox"
-        accessibilityState={{ checked: attiva }}
+        aria-checked={attiva}
         hitSlop={11}
         style={[stili.box, attiva && stili.boxSi]}
       >
@@ -354,6 +357,15 @@ export function BarraAzioni({ children, stile }: { children: ReactNode; stile?: 
   return <View style={[stili.barraAzioni, stile]}>{children}</View>;
 }
 
+// Interruttore acceso/spento, squadrato come il resto dell'app. Si usa dentro una Riga che fa da tasto.
+export function Interruttore({ acceso }: { acceso: boolean }) {
+  return (
+    <View style={[stili.interruttore, acceso && stili.interruttoreAcceso]}>
+      <View style={[stili.pomello, acceso && stili.pomelloAcceso]} />
+    </View>
+  );
+}
+
 // Iniziale dell'utente nel riquadro salvia (menù e profilo).
 export function Iniziale({ lettera, grande }: { lettera: string; grande?: boolean }) {
   const lato = grande ? 56 : 36;
@@ -365,6 +377,18 @@ export function Iniziale({ lettera, grande }: { lettera: string; grande?: boolea
 }
 
 const stili = StyleSheet.create({
+  interruttore: {
+    width: 44,
+    height: 26,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: colori.line2,
+    backgroundColor: colori.surface,
+    justifyContent: 'center',
+  },
+  interruttoreAcceso: { borderColor: colori.accent, backgroundColor: colori.accentSoft },
+  pomello: { width: 18, height: 18, backgroundColor: colori.fg3 },
+  pomelloAcceso: { alignSelf: 'flex-end', backgroundColor: colori.accent },
   badge: {
     height: 22,
     paddingHorizontal: 7,

@@ -185,6 +185,12 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
       },
       {
         codice: 'D1',
+        titolo: 'Ricerche: gestisci etichette',
+        scenario: 'home-it',
+        percorso: ['/chat', { pathname: '/ricerche', params: { etichetta: 'casa', foglio: 'gestisci' } }],
+      },
+      {
+        codice: 'D1',
         titolo: 'Ricerche: confronto',
         scenario: 'home-it',
         percorso: [
@@ -194,6 +200,12 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
         ],
       },
       { codice: 'D2', titolo: 'Archivio', scenario: 'home-it', percorso: ['/chat', '/archivio'] },
+      {
+        codice: 'D2',
+        titolo: 'Archivio: file da «Condividi»',
+        scenario: 'home-it',
+        percorso: ['/chat', { pathname: '/archivio', params: { condiviso: '1' } }],
+      },
       { codice: 'D3', titolo: 'Domande', scenario: 'home-it', percorso: ['/chat', '/domande'] },
       {
         codice: 'D4',
@@ -263,6 +275,24 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
         percorso: ['/chat', { pathname: '/ricerche', params: { etichetta: 'casa' } }],
       },
       { codice: 'E4', titolo: 'Elenchi vuoti', scenario: 'vuoto-it', percorso: ['/chat', '/ricerche'] },
+    ],
+  },
+  {
+    titolo: 'Funzioni del telefono (senza mockup)',
+    voci: [
+      { codice: 'F1', titolo: 'App bloccata: Face ID', scenario: 'home-it', percorso: ['/chat', '/blocco'] },
+      {
+        codice: 'F2',
+        titolo: 'Senza rete: Ricerche chiusa',
+        scenario: 'offline-it',
+        percorso: ['/chat', { pathname: '/ricerche', params: { etichetta: 'casa' } }],
+      },
+      {
+        codice: 'F3',
+        titolo: 'Senza rete: Ricerche sul telefono',
+        scenario: 'offline-ricerche-it',
+        percorso: ['/chat', { pathname: '/ricerche', params: { etichetta: 'casa' } }],
+      },
     ],
   },
 ];
