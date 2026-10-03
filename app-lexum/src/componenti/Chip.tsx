@@ -4,6 +4,7 @@ import { Icona, type NomeIcona } from '@/componenti/Icona';
 import { colori, famiglie } from '@/tema';
 
 // .chip: suggerimento da toccare (per esempio una domanda d'esempio per Lex).
+// Leggero di proposito (testo piccolo e bordo tenue): è un aiuto, non il centro della home.
 export function Chip({
   testo,
   onPress,
@@ -19,7 +20,7 @@ export function Chip({
       accessibilityRole="button"
       style={({ pressed }) => [stili.chip, pressed && { borderColor: colori.accentLine }]}
     >
-      <Icona nome={icona} dimensione={18} colore={colori.accentText} />
+      <Icona nome={icona} dimensione={15} colore={colori.accentText} />
       <Text style={stili.testo}>{testo}</Text>
     </Pressable>
   );
@@ -27,15 +28,15 @@ export function Chip({
 
 const stili = StyleSheet.create({
   chip: {
-    minHeight: 50,
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    gap: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: colori.line2,
+    borderColor: colori.line,
     alignSelf: 'stretch',
   },
-  testo: { flex: 1, fontFamily: famiglie.testo, fontSize: 15, lineHeight: 20, color: colori.fg },
+  testo: { flex: 1, fontFamily: famiglie.testo, fontSize: 14, lineHeight: 19, color: colori.fg2 },
 });

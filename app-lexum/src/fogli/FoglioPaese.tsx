@@ -19,54 +19,26 @@ type Props = {
   onPassa: (codice: string) => void; // conferma: l'app si ricarica su quel paese
   onCreaAccesso: (codice: string) => void;
   onAccedi: (codice: string) => void;
+  iniziale?: string; // paese già scelto all'apertura (per l'elenco delle schermate); di solito quello attuale
 };
 
-// G1 · Cambia paese: scelta, anteprima del conto e conferma.
+// G1 · Cambia paese: si parte dal paese in cui sei, con l'anteprima del tuo account;
+// scegliendo l'altro si vede il suo account e la domanda di conferma.
 // G2 · Se nel paese scelto non c'è ancora un accesso: crealo o accedi.
-export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAccedi }: Props) {
+export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAccedi, iniziale }: Props) {
   const { paese, accessi, conti } = useStato();
-  const altro = paesi.find((p) => p.codice !== paese)?.codice ?? paese;
-  const [scelto, setScelto] = useState(altro);
+  const [scelto, setScelto] = useState(iniziale ?? paese);
   const [eraVisibile, setEraVisibile] = useState(visibile);
-  // a ogni apertura si parte dall'altro paese
+  // a ogni apertura si riparte dal paese attuale: «sono qui e vado lì»
   if (visibile !== eraVisibile) {
     setEraVisibile(visibile);
-    if (visibile) setScelto(altro);
+    if (visibile) setScelto(iniziale ?? paese);
   }
 
   const testi = contenuti[scelto];
   const testiAttuale = contenuti[paese];
-  const senzaAccesso = scelto !== paese && !accessi[scelto];
-
-  if (senzaAccesso) {
-    return (
-      <Foglio visibile={visibile} onChiudi={onChiudi} spazio={16}>
-        <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
-          <BadgePaese codice={scelto} />
-          <Testo tipo="dS" style={{ flex: 1 }}>
-            Non hai ancora un accesso {testi.in}
-          </Testo>
-        </View>
-        <Testo colore={colori.fg2}>
-          La banca dati {testi.aggettivoFemminile} ha un account suo: crediti, piano e archivio sono separati
-          da quelli {testiAttuale.aggettivoPlurale}. Si crea in un minuto, e anche lì la prima ricerca è
-          gratuita.
-        </Testo>
-        <Pulsante titolo={`Crea l'accesso ${testi.aggettivo}`} onPress={() => onCreaAccesso(scelto)} />
-        <Pulsante titolo="Ho già un accesso: accedi" variante="linea" onPress={() => onAccedi(scelto)} />
-        <Pulsante
-          titolo={`Resta ${testiAttuale.in}`}
-          variante="tenue"
-          stile={{ height: 44 }}
-          onPress={onChiudi}
-        />
-        <Testo tipo="cap" centrato>
-          Puoi usare la stessa email.
-        </Testo>
-      </Foglio>
-    );
-  }
-
+  const attuale = scelto === paese;
+  const senzaAccesso = !attuale && !accessi[scelto];
   const conto = conti[scelto];
   const piano = conto.scadenzaPiano ? `${conto.piano} · fino al ${conto.scadenzaPiano}` : conto.piano;
 
@@ -87,7 +59,7 @@ export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAcce
             titolo={p.nome}
             sottotitolo={
               p.codice === paese
-                ? 'Banca dati attuale'
+                ? 'Sei qui · banca dati attuale'
                 : accessi[p.codice]
                   ? `Accesso già creato con ${utenteFinto.email}`
                   : 'Nessun accesso, per ora'
@@ -95,10 +67,29 @@ export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAcce
           />
         ))}
       </View>
-      {scelto !== paese ? (
+
+      {senzaAccesso ? (
         <>
           <View style={{ gap: 8 }}>
-            <Testo tipo="cap">Il tuo account {testi.aggettivo}</Testo>
+            <Testo medio>Non hai ancora un accesso {testi.in}</Testo>
+            <Testo tipo="small" colore={colori.fg2}>
+              La banca dati {testi.aggettivoFemminile} ha un account suo: crediti, piano e archivio sono
+              separati da quelli {testiAttuale.aggettivoPlurale}. Si crea in un minuto, e anche lì la prima
+              ricerca è gratuita.
+            </Testo>
+          </View>
+          <Pulsante titolo={`Crea l'accesso ${testi.aggettivo}`} onPress={() => onCreaAccesso(scelto)} />
+          <Pulsante titolo="Ho già un accesso: accedi" variante="linea" onPress={() => onAccedi(scelto)} />
+          <Testo tipo="cap" centrato>
+            Puoi usare la stessa email.
+          </Testo>
+        </>
+      ) : (
+        <>
+          <View style={{ gap: 8 }}>
+            <Testo tipo="cap">
+              {attuale ? `Il tuo account ${testi.aggettivo} · in uso` : `Il tuo account ${testi.aggettivo}`}
+            </Testo>
             <ElencoDefinizioni
               stile={{
                 backgroundColor: colori.bg,
@@ -114,18 +105,25 @@ export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAcce
               ]}
             />
             <Testo tipo="cap">
-              È un account separato: crediti, piano e archivio non passano da un paese all'altro.
+              {attuale
+                ? "Scegli l'altro paese per vedere il suo account e passare lì."
+                : "È un account separato: crediti, piano e archivio non passano da un paese all'altro."}
             </Testo>
           </View>
-          <Testo medio>Vuoi passare al database legale {testi.aggettivo}?</Testo>
-          <Pulsante titolo={`Sì, passa ${testi.a}`} onPress={() => onPassa(scelto)} />
+          {attuale ? null : (
+            <>
+              <Testo medio>Vuoi passare al database legale {testi.aggettivo}?</Testo>
+              <Pulsante titolo={`Sì, passa ${testi.a}`} onPress={() => onPassa(scelto)} />
+            </>
+          )}
         </>
-      ) : (
-        <Testo tipo="small" colore={colori.fg2}>
-          Stai già usando la banca dati {testi.aggettivoFemminile}.
-        </Testo>
       )}
-      <Pulsante titolo="Annulla" variante="tenue" stile={{ height: 44 }} onPress={onChiudi} />
+      <Pulsante
+        titolo={attuale ? 'Chiudi' : `Resta ${testiAttuale.in}`}
+        variante="tenue"
+        stile={{ height: 44 }}
+        onPress={onChiudi}
+      />
     </Foglio>
   );
 }

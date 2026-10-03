@@ -105,6 +105,7 @@ type Azioni = {
   salvaChat: (etichettaId: string) => void;
   creaEtichetta: (nome: string, colore?: string) => Etichetta;
   usaCredito: () => void;
+  creaAppunti: (dati: { titolo: string; testo: string; etichetta: string }) => Elemento;
   nuovaChat: () => void;
   apriChatSalvata: (elemento: Elemento) => void;
   esci: () => void;
@@ -215,6 +216,25 @@ export function StatoProvider({ children }: { children: ReactNode }) {
     setStato((s) => ({ ...s, conti: { ...s.conti, [s.paese]: scalaCredito(s.conti[s.paese]) } }));
   }, []);
 
+  // «Nuova ricerca» di Ricerche: appunti scritti a mano, come la «ricerca manuale» del sito.
+  const creaAppunti = useCallback((dati: { titolo: string; testo: string; etichetta: string }) => {
+    const testo = dati.testo.trim();
+    const elemento: Elemento = {
+      id: nuovoId('e'),
+      etichetta: dati.etichetta,
+      tipo: 'Appunti',
+      quando: 'oggi',
+      titolo: dati.titolo.trim() || 'Ricerca manuale',
+      estratto: testo.length > 160 ? `${testo.slice(0, 157).trimEnd()}…` : testo,
+      testo,
+    };
+    setStato((s) => ({
+      ...s,
+      elementi: { ...s.elementi, [s.paese]: [elemento, ...(s.elementi[s.paese] ?? [])] },
+    }));
+    return elemento;
+  }, []);
+
   const salvaChat = useCallback((etichettaId: string) => {
     setStato((s) => {
       const risposta = primaRisposta(s.chat);
@@ -284,6 +304,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       salvaChat,
       creaEtichetta,
       usaCredito,
+      creaAppunti,
       nuovaChat,
       apriChatSalvata,
       esci,
@@ -301,6 +322,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       salvaChat,
       creaEtichetta,
       usaCredito,
+      creaAppunti,
       nuovaChat,
       apriChatSalvata,
       esci,

@@ -152,6 +152,19 @@ test('Ricerche: nuova etichetta e confronto tra due elementi', async ({ page }) 
   await expect(etichetta(page, 'Confronta due o tre elementi')).toBeVisible();
 });
 
+test('Ricerche: «+» crea una ricerca scritta a mano', async ({ page }) => {
+  await page.goto('/ricerche?etichetta=casa');
+  await etichetta(page, 'Nuova ricerca').click();
+  await vedo(page, 'Scrivi i tuoi appunti e salvali in un');
+  await etichetta(page, 'Titolo (facoltativo)').fill('Documenti per il geometra');
+  await etichetta(page, 'Contenuto').fill('Planimetria, visura catastale e permesso del 2019.');
+  await tocca(page, 'Salva in «Casa»', true);
+  await vedo(page, 'Etichetta «Casa» · 4 elementi');
+  await tocca(page, 'Documenti per il geometra', true);
+  await vedo(page, 'In «Casa»');
+  await vedo(page, 'Planimetria, visura catastale e permesso del 2019.');
+});
+
 test('Banca dati: ricerca, filtro, sentenza, sfoglia', async ({ page }) => {
   await page.goto('/banca-dati');
   await vedo(page, 'Codici, leggi, sentenze e prassi');
@@ -171,6 +184,8 @@ test('Banca dati: ricerca, filtro, sentenza, sfoglia', async ({ page }) => {
 test('cambio paese: Svizzera e ritorno, con crediti separati', async ({ page }) => {
   await page.goto('/profilo');
   await tocca(page, 'Cambia', true);
+  await vedo(page, 'Il tuo account italiano · in uso');
+  await tocca(page, 'Svizzera', true);
   await vedo(page, 'Vuoi passare al database legale svizzero?');
   await tocca(page, 'Sì, passa alla Svizzera', true);
   await vedo(page, 'Passo alla banca dati svizzera');
@@ -180,6 +195,8 @@ test('cambio paese: Svizzera e ritorno, con crediti separati', async ({ page }) 
   await tocca(page, 'Profilo', true);
   await vedo(page, 'Elimina account svizzero');
   await tocca(page, 'Cambia', true);
+  await vedo(page, 'Il tuo account svizzero · in uso');
+  await tocca(page, 'Italia', true);
   await tocca(page, "Sì, passa all'Italia", true);
   await expect(etichetta(page, '1 credito disponibile')).toBeVisible();
 });

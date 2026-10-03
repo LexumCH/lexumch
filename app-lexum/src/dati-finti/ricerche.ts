@@ -17,6 +17,7 @@ export type Elemento = {
   estratto: string;
   norma?: string;
   documento?: string;
+  testo?: string; // appunti scritti dall'utente («Nuova ricerca»): il testo intero
   domanda?: string; // chat finte di partenza: la domanda fatta a Lex
   messaggi?: Messaggio[]; // chat salvate da questa sessione (o finte complete)
 };

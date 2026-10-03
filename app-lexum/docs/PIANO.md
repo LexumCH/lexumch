@@ -22,6 +22,12 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
     - etichette di Ricerche colorate come sul sito; «+ Etichetta» con nome e colore;
     - «Confronta»: da 2 a 3 elementi affiancati e le quattro richieste a Lex del sito;
     - chat salvata aperta da Ricerche in una schermata sua, con «indietro» e «Continua la chat».
+  - Ritocchi chiesti da Antonino (03-10-2026, notte), con dati finti:
+    - domande d'esempio svizzere diverse da quelle italiane: affitto, tasse, lavoro;
+    - domande d'esempio della home più leggere (testo più piccolo, bordo tenue);
+    - «Cambia paese» parte dal paese in cui sei, con l'anteprima del tuo account; scegliendo l'altro si vede il suo;
+    - «Elimina account» è l'ultimo riquadro del Profilo, sotto «Completa il profilo»;
+    - «+» di Ricerche apre «Nuova ricerca» (appunti scritti a mano), come sul sito.
 
 - [ ] **2. Paesi e accesso.**
   - Per prima cosa: spostare tutti i testi in file di traduzione (it/de/fr). Quelli già tradotti sono in `docs/testi/`.
@@ -66,6 +72,10 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Notifica «risposta pronta».
   - Prove sul telefono.
   - Build EAS, con le chiavi di Sentry.
+
+## Idee per dopo
+
+- **Bozza della lettera dalla risposta di Lex** (diffida, ricorso, opposizione). Sul sito `lex-genera-documento` oggi si usa solo negli strumenti per i professionisti (`ChatPratica`, `ChatMandato`, `GeneraDocumentoProgetto`), non nella Banca dati. Prima di metterla nell'app va verificato se e come funziona per i privati.
 
 ## Numeri delle fonti: provvisori
 

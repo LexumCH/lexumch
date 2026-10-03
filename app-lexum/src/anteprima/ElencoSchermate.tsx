@@ -228,7 +228,7 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
         codice: 'G2',
         titolo: 'Nessun accesso in Svizzera',
         scenario: 'senza-accesso-ch',
-        percorso: ['/chat', { pathname: '/profilo', params: { foglio: 'paese' } }],
+        percorso: ['/chat', { pathname: '/profilo', params: { foglio: 'paese', verso: 'CH' } }],
       },
       {
         codice: 'G3',

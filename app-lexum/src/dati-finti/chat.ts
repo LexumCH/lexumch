@@ -276,6 +276,37 @@ const decretoAccusaCH: RispostaFinta = {
   nota: "Le multe disciplinari fino a 300 franchi seguono un'altra procedura: se non le paghi entro 30 giorni, si passa a quella ordinaria.",
 };
 
+const reclamoTassazioneCH: RispostaFinta = {
+  titolo: 'Reclamo contro la tassazione',
+  inBreve:
+    "hai 30 giorni dalla notifica per un reclamo scritto all'autorità di tassazione. Non serve un avvocato.",
+  punti: [
+    {
+      titolo: 'Trenta giorni dalla notifica.',
+      testo: [
+        " Il reclamo si presenta per iscritto all'autorità che ha emesso la decisione ",
+        { cit: 'LIFD, art. 132 cpv. 1', norma: 'lifd-132-1' },
+        '. Per le imposte cantonali la regola è la stessa, nella legge del tuo cantone.',
+      ],
+    },
+    {
+      titolo: 'Scrivi cosa non va.',
+      testo: [
+        ' Indica le voci che contesti e allega i documenti (ricevute, certificati): così la decisione si corregge più in fretta.',
+      ],
+    },
+    {
+      titolo: "Se è una tassazione d'ufficio.",
+      testo: [
+        ' Se non avevi consegnato la dichiarazione, puoi contestarla solo se è manifestamente inesatta, spiegando perché e con le prove ',
+        { cit: 'art. 132 cpv. 3', norma: 'lifd-132-3' },
+        '.',
+      ],
+    },
+  ],
+  nota: 'Dopo il reclamo arriva una nuova decisione: contro quella puoi ricorrere alla commissione di ricorso del cantone.',
+};
+
 // Argomenti in ordine: vince il primo che ha una parola della domanda (minuscole, senza accenti).
 // L'accesso agli atti è in fondo perché «comune» compare anche in altre domande.
 const argomenti: Record<string, { parole: string[]; risposta: RispostaFinta }[]> = {
@@ -308,6 +339,7 @@ const argomenti: Record<string, { parole: string[]; risposta: RispostaFinta }[]>
       parole: ['disdett', 'malatt', 'licenzi', 'kundig', 'krank', 'licenci', 'maladie', 'resili'],
       risposta: disdettaMalattiaCH,
     },
+    { parole: ['tassazion', 'impost', 'tasse', 'steuer', 'impot', 'fiscal'], risposta: reclamoTassazioneCH },
   ],
 };
 
@@ -315,7 +347,7 @@ const argomenti: Record<string, { parole: string[]; risposta: RispostaFinta }[]>
 const rispostaFuoriProva: RispostaFinta = {
   titolo: '',
   punti: [],
-  nota: "Risposta di prova: in questa versione Lex conosce solo le domande d'esempio (legittima difesa, affitto, multe). Dalla tappa 3 risponde a tutto.",
+  nota: "Risposta di prova: in questa versione Lex conosce solo le domande d'esempio (per esempio affitto, multe o tasse). Dalla tappa 3 risponde a tutto.",
 };
 
 export function rispostaPer(paese: string, domanda: string): RispostaFinta {
@@ -576,5 +608,22 @@ export const normeFinte: Record<string, Norma> = {
     comma: 'Cpv. 3',
     evidenziato:
       "Se non è interposta valida opposizione, il decreto d'accusa diviene sentenza passata in giudicato.",
+  },
+  'lifd-132-1': {
+    id: 'lifd-132-1',
+    legge: "Legge federale sull'imposta federale diretta (LIFD, RS 642.11)",
+    articolo: 'Art. 132 · Presupposti',
+    comma: 'Cpv. 1',
+    evidenziato:
+      "Contro la decisione di tassazione il contribuente può, entro 30 giorni dalla notificazione, presentare reclamo scritto all'autorità di tassazione.",
+  },
+  'lifd-132-3': {
+    id: 'lifd-132-3',
+    legge: "Legge federale sull'imposta federale diretta (LIFD, RS 642.11)",
+    articolo: 'Art. 132 · Presupposti',
+    comma: 'Cpv. 3',
+    evidenziato:
+      "La tassazione d'ufficio può essere impugnata dal contribuente soltanto perché manifestamente inesatta.",
+    dopo: ' Il reclamo deve essere motivato e indicare gli eventuali mezzi di prova.',
   },
 };

@@ -123,7 +123,7 @@ export default function Chat() {
               </Scheda>
             ) : null}
 
-            <View style={{ gap: 8 }}>
+            <View style={{ gap: 6 }}>
               <Testo tipo="cap">Per iniziare, prova con:</Testo>
               {testi.esempi.map((e) => (
                 <Chip key={e} testo={e} onPress={() => invia(e)} />

@@ -236,9 +236,9 @@ export const contenuti: Record<string, Contenuti> = {
 
     homeSottotitolo: 'Lex consulta il diritto federale e cantonale, la giurisprudenza e la prassi svizzere.',
     esempi: [
-      'Un ladro entra in casa di notte: fin dove posso difendermi?',
       "Il padrone di casa non mi restituisce la garanzia dell'affitto",
-      "Ho ricevuto un decreto d'accusa per eccesso di velocità: posso contestarlo?",
+      'Entro quando posso contestare la decisione di tassazione?',
+      'Mi hanno disdetto il contratto mentre ero in malattia: è valido?',
     ],
     consiglio: 'Più dettagli dai (cantone, date, chi è coinvolto), più la risposta è precisa.',
     passi: [

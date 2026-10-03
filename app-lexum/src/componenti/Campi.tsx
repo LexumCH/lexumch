@@ -24,18 +24,19 @@ type PropsCampo = TextInputProps & {
   stile?: StyleProp<ViewStyle>;
 };
 
-// .field + .input: etichetta sopra e campo alto 52.
+// .field + .input: etichetta sopra e campo alto 52 (140 se è su più righe).
 export function Campo({ etichetta, dopo, stile, onFocus, onBlur, ...resto }: PropsCampo) {
   const [attivo, setAttivo] = useState(false);
+  const piuRighe = !!resto.multiline;
   return (
     <View style={[stili.field, stile]}>
       <Text style={stili.label}>{etichetta}</Text>
-      <View style={[stili.input, attivo && stili.attivo]}>
+      <View style={[stili.input, piuRighe && stili.inputPiuRighe, attivo && stili.attivo]}>
         <TextInput
           accessibilityLabel={etichetta}
           placeholderTextColor={colori.fg3}
           selectionColor={colori.accent}
-          style={[stili.testoInput, senzaContorno]}
+          style={[stili.testoInput, piuRighe && stili.testoPiuRighe, senzaContorno]}
           onFocus={(e) => {
             setAttivo(true);
             onFocus?.(e);
@@ -155,6 +156,7 @@ const stili = StyleSheet.create({
     borderWidth: 1,
     borderColor: colori.line2,
   },
+  inputPiuRighe: { height: 140, alignItems: 'stretch', paddingVertical: 12 },
   attivo: { borderColor: colori.accent },
   testoInput: {
     flex: 1,
@@ -164,6 +166,7 @@ const stili = StyleSheet.create({
     color: colori.fg,
     paddingVertical: 0,
   },
+  testoPiuRighe: { lineHeight: 22, textAlignVertical: 'top' },
   cerca: {
     height: 50,
     flexDirection: 'row',

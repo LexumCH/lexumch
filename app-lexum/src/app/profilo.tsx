@@ -25,13 +25,15 @@ type Foglio = 'paese' | 'professionista' | 'elimina';
 const nomiLingue: Record<string, string> = { it: 'Italiano', de: 'Deutsch', fr: 'Français' };
 
 // D4 e G6 · Profilo, in quest'ordine: intestazione, paese e banca dati, lingua (solo dove ce n'è più d'una),
-// crediti e piano, account, «Completa il profilo». Niente pagamenti nell'app: i pulsanti aprono il sito.
+// crediti e piano, account, «Completa il profilo» e, ultimo, «Elimina account».
+// Niente pagamenti nell'app: i pulsanti aprono il sito.
 export default function Profilo() {
   const { paese, conto, lingua, accessi, azioni } = useStato();
   // Il foglio aperto sta nei parametri dell'indirizzo (?foglio=paese), come nella chat.
-  const parametri = useLocalSearchParams<{ foglio?: Foglio }>();
+  // ?verso=CH apre il cambio paese con l'altro paese già scelto (solo per l'elenco delle schermate).
+  const parametri = useLocalSearchParams<{ foglio?: Foglio; verso?: string }>();
   const foglio = parametri.foglio ?? null;
-  const setFoglio = (f: Foglio | null) => router.setParams({ foglio: f ?? undefined });
+  const setFoglio = (f: Foglio | null) => router.setParams({ foglio: f ?? undefined, verso: undefined });
   const datiPaese = trovaPaese(paese);
   const testi = contenuti[paese];
 
@@ -149,14 +151,8 @@ export default function Profilo() {
             ricominciaDa('/avvio/paese');
           }}
         />
-        <Riga
-          stretta
-          titolo={paese === paesePredefinito ? 'Elimina account' : `Elimina account ${testi.aggettivo}`}
-          titoloStile={{ color: colori.danger }}
-          onPress={() => setFoglio('elimina')}
-        />
 
-        <View style={{ paddingTop: 18, paddingHorizontal: 20, paddingBottom: 24 }}>
+        <View style={{ paddingTop: 18, paddingHorizontal: 20, paddingBottom: 16 }}>
           <Scheda tono="oro" stile={{ backgroundColor: colori.bg2, gap: 10 }}>
             <Eyebrow colore={colori.accentText}>Completa il profilo</Eyebrow>
             <Testo tipo="dS">{testi.domandaProfessione}</Testo>
@@ -172,6 +168,18 @@ export default function Profilo() {
               onPress={() => setFoglio('professionista')}
             />
           </Scheda>
+        </View>
+
+        <View style={{ paddingHorizontal: 20, paddingBottom: 32 }}>
+          <Riga
+            stretta
+            titolo={paese === paesePredefinito ? 'Elimina account' : `Elimina account ${testi.aggettivo}`}
+            sottotitolo={`Cancella l'accesso e i dati ${testi.in}`}
+            titoloStile={{ color: colori.danger }}
+            freccia="avanti"
+            stile={{ paddingHorizontal: 16, borderWidth: 1, borderColor: colori.dangerLine }}
+            onPress={() => setFoglio('elimina')}
+          />
         </View>
       </ScrollView>
 
@@ -189,6 +197,7 @@ export default function Profilo() {
       />
       <FoglioPaese
         visibile={foglio === 'paese'}
+        iniziale={parametri.verso}
         onChiudi={chiudi}
         onPassa={(codice) => {
           chiudi();

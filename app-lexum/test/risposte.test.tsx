@@ -18,9 +18,9 @@ describe('risposte di prova', () => {
       'Multa arrivata tardi',
     ]);
     expect(titoli('CH')).toEqual([
-      'Legittima difesa',
       "Garanzia dell'affitto",
-      "Contestare un decreto d'accusa",
+      'Reclamo contro la tassazione',
+      'Disdetta durante la malattia',
     ]);
   });
 
@@ -28,6 +28,9 @@ describe('risposte di prova', () => {
     expect(rispostaPer('IT', 'Il Comune mi ha fatto una multa').titolo).toBe('Multa arrivata tardi');
     expect(rispostaPer('IT', 'Il Comune non risponde').titolo).toBe('Accesso agli atti');
     expect(rispostaPer('CH', 'Kündigung während der Krankheit').titolo).toBe('Disdetta durante la malattia');
+    expect(rispostaPer('CH', "Ho ricevuto un decreto d'accusa").titolo).toBe(
+      "Contestare un decreto d'accusa",
+    );
   });
 
   it('fuori dagli esempi non inventa: lo dice', () => {

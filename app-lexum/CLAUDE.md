@@ -97,7 +97,8 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
   3. solo in Svizzera, la lingua dell'app (italiano, Deutsch, français), che cambia tutti i testi;
   4. «Crediti e piano»;
   5. account;
-  6. in fondo, la parte «Completa il profilo / Che professionista sei?», che rimanda al sito.
+  6. la parte «Completa il profilo / Che professionista sei?», che rimanda al sito;
+  7. ultimo, in un riquadro suo, «Elimina account» (deciso da Antonino il 03-10-2026).
 
   Nel menù il Profilo non ha badge.
 - **Archivio:** categorie con il pulsante «+ Categoria».

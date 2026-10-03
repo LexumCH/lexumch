@@ -14,7 +14,9 @@ import { trovaNorma } from '@/dati-finti/banca-dati';
 import type { Elemento } from '@/dati-finti/ricerche';
 import { MAX_CONFRONTO } from '@/dati-finti/confronto';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
+import { FoglioAppunti } from '@/fogli/FoglioAppunti';
 import { FoglioNuovaEtichetta } from '@/fogli/FoglioNuovaEtichetta';
+import { FoglioNuovaRicerca } from '@/fogli/FoglioNuovaRicerca';
 import { useVaiASezione } from '@/navigazione';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
@@ -23,14 +25,18 @@ const tonoBadge = { 'Chat con Lex': 'oro', Norma: 'neutro', Sentenza: 'ok', Appu
 
 // D1 · Ricerche: quello che hai chiesto a Lex e salvato, diviso per etichette (come sul sito).
 export default function Ricerche() {
-  const { etichetteAttive, elementiAttivi, chatDaSalvare, simula, azioni } = useStato();
+  const { etichetteAttive, elementiAttivi, simula } = useStato();
   const vai = useVaiASezione();
   // L'etichetta scelta e il foglio aperto stanno nell'indirizzo (?etichetta=casa&foglio=etichetta):
   // così li apre anche il menù o l'elenco delle schermate.
-  const { etichetta: scelta, foglio } = useLocalSearchParams<{ etichetta?: string; foglio?: 'etichetta' }>();
+  const { etichetta: scelta, foglio } = useLocalSearchParams<{
+    etichetta?: string;
+    foglio?: 'etichetta' | 'ricerca';
+  }>();
   const setScelta = (id: string) => router.setParams({ etichetta: id });
   const [testo, setTesto] = useState('');
   const [norma, setNorma] = useState<string | null>(null);
+  const [appunti, setAppunti] = useState<Elemento | null>(null);
   // Confronto, come sul sito: si scelgono da 2 a 3 elementi (null = non si sta scegliendo).
   const [selezione, setSelezione] = useState<string[] | null>(null);
 
@@ -43,13 +49,8 @@ export default function Ricerche() {
   );
   const totale = elementiAttivi.filter((e) => e.etichetta === etichetta?.id).length;
 
-  const nuovaRicerca = () => {
-    if (chatDaSalvare) vai('/chat', { foglio: 'nuova' });
-    else {
-      azioni.nuovaChat();
-      vai('/chat');
-    }
-  };
+  // «+»: nuova ricerca scritta a mano, come sul sito. Per chiedere a Lex c'è il pulsante in basso.
+  const nuovaRicerca = () => router.setParams({ foglio: 'ricerca' });
 
   const apri = (e: Elemento) => {
     if (selezione) {
@@ -57,6 +58,7 @@ export default function Ricerche() {
       return;
     }
     if (e.tipo === 'Chat con Lex') router.push({ pathname: '/chat-salvata/[id]', params: { id: e.id } });
+    else if (e.tipo === 'Appunti') setAppunti(e);
     else if (e.norma) setNorma(e.norma);
     else if (e.documento)
       router.push({ pathname: '/banca-dati/documento/[id]', params: { id: e.documento } });
@@ -136,7 +138,6 @@ export default function Ricerche() {
         {(simula.caricamento ? [] : elementi).map((e) => {
           const scelto = !!selezione?.includes(e.id);
           const pieno = !!selezione && !scelto && selezione.length >= MAX_CONFRONTO;
-          const apribile = !!selezione || e.tipo !== 'Appunti';
           const testi = (
             <>
               <View style={stili.tipo}>
@@ -159,7 +160,7 @@ export default function Ricerche() {
           ) : (
             testi
           );
-          return apribile ? (
+          return (
             <Pressable
               key={e.id}
               onPress={() => apri(e)}
@@ -175,10 +176,6 @@ export default function Ricerche() {
             >
               {contenuto}
             </Pressable>
-          ) : (
-            <View key={e.id} style={stili.elemento}>
-              {contenuto}
-            </View>
           );
         })}
         {!simula.caricamento && etichetta && elementi.length === 0 ? (
@@ -188,7 +185,7 @@ export default function Ricerche() {
             testo={
               q
                 ? 'Prova con altre parole.'
-                : 'Salva qui chat, norme e sentenze dalla chat o dalla Banca dati.'
+                : 'Salva qui chat, norme e sentenze, o scrivi i tuoi appunti con «+».'
             }
           />
         ) : null}
@@ -231,6 +228,20 @@ export default function Ricerche() {
         </BarraAzioni>
       )}
 
+      <FoglioNuovaRicerca
+        visibile={foglio === 'ricerca'}
+        etichettaIniziale={etichetta?.id}
+        onChiudi={() => router.setParams({ foglio: undefined })}
+        onCreata={(id) => {
+          setTesto('');
+          router.setParams({ foglio: undefined, etichetta: id });
+        }}
+      />
+      <FoglioAppunti
+        elemento={appunti}
+        etichetta={etichetteAttive.find((x) => x.id === appunti?.etichetta)}
+        onChiudi={() => setAppunti(null)}
+      />
       <FoglioNuovaEtichetta
         visibile={foglio === 'etichetta'}
         onChiudi={() => router.setParams({ foglio: undefined })}
