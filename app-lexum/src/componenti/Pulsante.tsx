@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } fro
 import { Icona, type NomeIcona } from '@/componenti/Icona';
 import { colori, famiglie, gradienteOro, misure } from '@/tema';
 
-type Variante = 'oro' | 'linea' | 'tenue' | 'pieno';
+type Variante = 'oro' | 'linea' | 'tenue' | 'pieno' | 'pericolo';
 
 type Props = {
   titolo: string;
@@ -27,9 +27,11 @@ const coloreTesto: Record<Variante, string> = {
   linea: colori.fg,
   tenue: colori.fg2,
   pieno: colori.fg,
+  pericolo: colori.danger,
 };
 
-// .btn del mockup: pieno oro, a linea, tenue o pieno scuro. Alto 52 (44 se piccolo).
+// .btn del mockup: pieno oro, a linea, tenue o pieno scuro; «pericolo» per le azioni definitive.
+// Alto 52 (44 se piccolo).
 export function Pulsante({
   titolo,
   onPress,
@@ -57,6 +59,7 @@ export function Pulsante({
         piccolo ? stili.piccolo : stili.normale,
         variante === 'linea' && stili.linea,
         variante === 'pieno' && stili.pieno,
+        variante === 'pericolo' && stili.pericolo,
         allineaASinistra && stili.sinistra,
         (pressed || disabilitato) && { opacity: disabilitato ? 0.5 : 0.85 },
         stile,
@@ -151,6 +154,7 @@ const stili = StyleSheet.create({
   piccolo: { height: misure.tocco, paddingHorizontal: 14, alignSelf: 'flex-start' },
   linea: { borderWidth: 1, borderColor: colori.accentLine },
   pieno: { backgroundColor: colori.surface2 },
+  pericolo: { borderWidth: 1, borderColor: colori.dangerLine },
   sinistra: { justifyContent: 'flex-start', paddingHorizontal: 14, gap: 12 },
   icona: { position: 'relative' },
   testo: { fontFamily: famiglie.testoMedio, fontSize: 16, position: 'relative', flexShrink: 1 },

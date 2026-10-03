@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { risposteFinte, rispostaDiSeguitoFinta, type Messaggio, type RispostaFinta } from '@/dati-finti/chat';
+import { documentiArchivioFinti, type DocumentoArchivio } from '@/dati-finti/archivio';
 import { contiFinti, type Conto } from '@/dati-finti/conti';
 import { elementiFinti, etichetteFinte, type Elemento, type Etichetta } from '@/dati-finti/ricerche';
+import { messaggioErrore } from '@/errori';
 import { coloriEtichette } from '@/tema';
 import { contenuti } from '@/paesi/contenuti';
 import { paesePredefinito } from '@/paesi/registro';
@@ -33,7 +35,16 @@ export type LinguaCH = 'it' | 'de' | 'fr';
 
 // Situazioni pronte per l'elenco delle schermate (anteprima nel browser).
 export type Scenario =
-  'home-it' | 'lavora-it' | 'risposta-it' | 'salvata-it' | 'senza-accesso-ch' | 'home-ch';
+  | 'home-it'
+  | 'lavora-it'
+  | 'risposta-it'
+  | 'salvata-it'
+  | 'errore-lex-it'
+  | 'offline-it'
+  | 'caricamento-it'
+  | 'vuoto-it'
+  | 'senza-accesso-ch'
+  | 'home-ch';
 
 type Stato = {
   paese: string;
@@ -43,7 +54,18 @@ type Stato = {
   chat: Chat;
   etichette: Record<string, Etichetta[]>;
   elementi: Record<string, Elemento[]>;
+  documenti: Record<string, DocumentoArchivio[]>;
+  simula: Simulazioni;
 };
+
+// Situazioni che nella tappa 1 si possono solo simulare (dall'elenco delle schermate).
+export type Simulazioni = {
+  erroreLex: boolean; // la prossima risposta di Lex non arriva
+  offline: boolean; // come se il telefono fosse senza connessione
+  caricamento: boolean; // gli elenchi restano in caricamento
+};
+
+const nessunaSimulazione: Simulazioni = { erroreLex: false, offline: false, caricamento: false };
 
 const statoIniziale = (): Stato => ({
   paese: paesePredefinito,
@@ -53,6 +75,8 @@ const statoIniziale = (): Stato => ({
   chat: chatVuota,
   etichette: copia(etichetteFinte),
   elementi: copia(elementiFinti),
+  documenti: copia(documentiArchivioFinti),
+  simula: nessunaSimulazione,
 });
 
 function copia<T>(v: T): T {
@@ -69,12 +93,15 @@ type Azioni = {
   passaAPaese: (codice: string) => void;
   impostaLingua: (lingua: LinguaCH) => void;
   inviaDomanda: (testo: string) => 'ok' | 'esauriti' | 'occupato';
+  riprova: () => void;
+  impostaSimulazione: (chiave: keyof Simulazioni, valore: boolean) => void;
   mostraSubitoRisposta: () => void;
   salvaChat: (etichettaId: string) => void;
   creaEtichetta: (nome: string) => Etichetta;
   nuovaChat: () => void;
   apriChatSalvata: (elemento: Elemento) => void;
   esci: () => void;
+  eliminaAccesso: (codice: string) => void;
   scenario: (nome: Scenario) => void;
 };
 
@@ -83,6 +110,7 @@ type Valore = Stato & {
   conto: Conto;
   etichetteAttive: Etichetta[];
   elementiAttivi: Elemento[];
+  documentiAttivi: DocumentoArchivio[];
   chatDaSalvare: boolean;
 };
 
@@ -99,7 +127,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       setStato((s) => {
         if (!s.chat.inCorso) return s;
         if (s.chat.passo + 1 < passi) return { ...s, chat: { ...s.chat, passo: s.chat.passo + 1 } };
-        return { ...s, chat: concludiRisposta(s.chat, s.paese) };
+        return concludi(s);
       });
     }, DURATA_PASSO_MS);
     return () => clearTimeout(t);
@@ -117,35 +145,45 @@ export function StatoProvider({ children }: { children: ReactNode }) {
     setStato((s) => ({ ...s, lingua }));
   }, []);
 
+  // Il credito si controlla all'invio ma si scala solo quando la risposta arriva (vedi concludi).
   const inviaDomanda = useCallback(
     (testo: string) => {
       if (stato.chat.inCorso) return 'occupato' as const;
       if (stato.conti[stato.paese].crediti <= 0) return 'esauriti' as const;
-      setStato((prima) => {
-        const c = prima.conti[prima.paese];
-        // i crediti di benvenuto si usano per primi
-        const benvenuto = Math.max(0, c.creditiBenvenuto - 1);
-        return {
-          ...prima,
-          conti: {
-            ...prima.conti,
-            [prima.paese]: { ...c, crediti: c.crediti - 1, creditiBenvenuto: benvenuto },
-          },
-          chat: {
-            ...prima.chat,
-            inCorso: true,
-            passo: 0,
-            messaggi: [...prima.chat.messaggi, { id: nuovoId('m'), da: 'io', testo: testo.trim() }],
-          },
-        };
-      });
+      setStato((prima) => ({
+        ...prima,
+        chat: {
+          ...prima.chat,
+          inCorso: true,
+          passo: 0,
+          messaggi: [...prima.chat.messaggi, { id: nuovoId('m'), da: 'io', testo: testo.trim() }],
+        },
+      }));
       return 'ok' as const;
     },
     [stato.chat.inCorso, stato.conti, stato.paese],
   );
 
+  // Dopo un errore di Lex: toglie l'avviso e rimanda la stessa domanda (stavolta va a buon fine).
+  const riprova = useCallback(() => {
+    setStato((s) => ({
+      ...s,
+      simula: { ...s.simula, erroreLex: false },
+      chat: {
+        ...s.chat,
+        inCorso: true,
+        passo: 0,
+        messaggi: s.chat.messaggi.filter((m) => m.da !== 'errore'),
+      },
+    }));
+  }, []);
+
+  const impostaSimulazione = useCallback((chiave: keyof Simulazioni, valore: boolean) => {
+    setStato((s) => ({ ...s, simula: { ...s.simula, [chiave]: valore } }));
+  }, []);
+
   const mostraSubitoRisposta = useCallback(() => {
-    setStato((s) => (s.chat.inCorso ? { ...s, chat: concludiRisposta(s.chat, s.paese) } : s));
+    setStato((s) => (s.chat.inCorso ? concludi(s) : s));
   }, []);
 
   const creaEtichetta = useCallback(
@@ -214,6 +252,16 @@ export function StatoProvider({ children }: { children: ReactNode }) {
     setStato((s) => ({ ...s, chat: chatVuota }));
   }, []);
 
+  // Finto: toglie l'accesso nel paese e svuota la chat. Quello vero chiede al backend di cancellare i dati.
+  const eliminaAccesso = useCallback((codice: string) => {
+    setStato((s) => ({
+      ...s,
+      chat: chatVuota,
+      accessi: { ...s.accessi, [codice]: false },
+      conti: { ...s.conti, [codice]: copia(contiFinti[codice]) },
+    }));
+  }, []);
+
   const scenario = useCallback((nome: Scenario) => {
     setStato(() => costruisciScenario(nome));
   }, []);
@@ -224,12 +272,15 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       passaAPaese,
       impostaLingua,
       inviaDomanda,
+      riprova,
+      impostaSimulazione,
       mostraSubitoRisposta,
       salvaChat,
       creaEtichetta,
       nuovaChat,
       apriChatSalvata,
       esci,
+      eliminaAccesso,
       scenario,
     }),
     [
@@ -237,12 +288,15 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       passaAPaese,
       impostaLingua,
       inviaDomanda,
+      riprova,
+      impostaSimulazione,
       mostraSubitoRisposta,
       salvaChat,
       creaEtichetta,
       nuovaChat,
       apriChatSalvata,
       esci,
+      eliminaAccesso,
       scenario,
     ],
   );
@@ -254,6 +308,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       conto: stato.conti[stato.paese],
       etichetteAttive: stato.etichette[stato.paese] ?? [],
       elementiAttivi: stato.elementi[stato.paese] ?? [],
+      documentiAttivi: stato.documenti[stato.paese] ?? [],
       chatDaSalvare: stato.chat.messaggi.length > 0 && !stato.chat.salvata,
     }),
     [stato, azioni],
@@ -270,31 +325,20 @@ export function useStato(): Valore {
 
 function costruisciScenario(nome: Scenario): Stato {
   const base = statoIniziale();
-  const conCrediti = (s: Stato, paese: string, crediti: number): Stato => ({
-    ...s,
-    conti: {
-      ...s.conti,
-      [paese]: {
-        ...s.conti[paese],
-        crediti,
-        creditiBenvenuto: Math.min(s.conti[paese].creditiBenvenuto, crediti),
-      },
-    },
-  });
   const domanda: Messaggio = { id: nuovoId('m'), da: 'io', testo: domandaEsempio('IT') };
+  const inAttesa = (s: Stato, passo = 3): Stato => ({
+    ...s,
+    chat: { ...chatVuota, inCorso: true, passo, messaggi: [domanda] },
+  });
   switch (nome) {
     case 'home-it':
       return base;
     case 'lavora-it':
-      return {
-        ...conCrediti(base, 'IT', 0),
-        chat: { ...chatVuota, inCorso: true, passo: 3, messaggi: [domanda] },
-      };
+      return inAttesa(base);
     case 'risposta-it':
+      return concludi(inAttesa(base, 0));
     case 'salvata-it': {
-      const s = conCrediti(base, 'IT', 0);
-      const chat = concludiRisposta({ ...chatVuota, inCorso: true, messaggi: [domanda] }, 'IT');
-      if (nome === 'risposta-it') return { ...s, chat };
+      const s = concludi(inAttesa(base, 0));
       const elemento: Elemento = {
         id: nuovoId('e'),
         etichetta: 'casa',
@@ -302,19 +346,71 @@ function costruisciScenario(nome: Scenario): Stato {
         quando: 'oggi',
         titolo: 'Accesso agli atti: silenzio del Comune',
         estratto: 'Il silenzio del Comune vale come rifiuto e hai 30 giorni per contestarlo…',
-        messaggi: chat.messaggi,
+        messaggi: s.chat.messaggi,
       };
       return {
         ...s,
-        chat: { ...chat, salvata: true, etichetta: 'casa' },
+        chat: { ...s.chat, salvata: true, etichetta: 'casa' },
         elementi: { ...s.elementi, IT: [elemento, ...s.elementi.IT] },
       };
     }
+    case 'errore-lex-it':
+      return concludi({ ...inAttesa(base, 0), simula: { ...base.simula, erroreLex: true } });
+    case 'offline-it':
+      return { ...base, simula: { ...base.simula, offline: true } };
+    case 'caricamento-it':
+      return { ...base, simula: { ...base.simula, caricamento: true } };
+    case 'vuoto-it':
+      return {
+        ...base,
+        elementi: { ...base.elementi, IT: [] },
+        etichette: { ...base.etichette, IT: [] },
+        documenti: { ...base.documenti, IT: [] },
+      };
     case 'senza-accesso-ch':
       return { ...base, accessi: { ...base.accessi, CH: false } };
     case 'home-ch':
       return { ...base, paese: 'CH' };
   }
+}
+
+// Fine dell'attesa: arriva la risposta e si scala un credito; se Lex non risponde,
+// compare l'avviso d'errore e il credito resta.
+function concludi(s: Stato): Stato {
+  if (s.simula.erroreLex) {
+    return {
+      ...s,
+      chat: {
+        ...s.chat,
+        inCorso: false,
+        passo: 0,
+        messaggi: [
+          ...s.chat.messaggi,
+          // nella tappa 3 qui arriva l'errore vero, ripulito da messaggioErrore
+          {
+            id: nuovoId('m'),
+            da: 'errore',
+            testo: messaggioErrore('Edge Function returned a non-2xx status code'),
+          },
+        ],
+      },
+    };
+  }
+  return {
+    ...s,
+    chat: concludiRisposta(s.chat, s.paese),
+    conti: { ...s.conti, [s.paese]: scalaCredito(s.conti[s.paese]) },
+  };
+}
+
+// Ordine delle domande frequenti: prima i crediti del piano, poi quelli di benvenuto, infine quelli acquistati.
+export function scalaCredito(c: Conto): Conto {
+  if (c.crediti <= 0) return c;
+  const delPiano = c.crediti - c.creditiBenvenuto - c.creditiAcquistati;
+  if (delPiano > 0) return { ...c, crediti: c.crediti - 1 };
+  if (c.creditiBenvenuto > 0)
+    return { ...c, crediti: c.crediti - 1, creditiBenvenuto: c.creditiBenvenuto - 1 };
+  return { ...c, crediti: c.crediti - 1, creditiAcquistati: Math.max(0, c.creditiAcquistati - 1) };
 }
 
 function concludiRisposta(chat: Chat, paese: string): Chat {

@@ -67,6 +67,11 @@ const disegni = {
   },
   carica: { p: ['M12 20V9M7 14l5-5 5 5M5 4h14'] },
   esci: { p: ['M10 20H4V4h6M15 16l4-4-4-4M19 12H9'] },
+  // icone aggiunte nell'app (non nei mockup), nello stesso stile a tratto
+  avviso: { p: ['M12 3l10 18H2zM12 10v5M12 18h.01'] },
+  riprova: { p: ['M20 11a8 8 0 10-2.3 5.7M20 4v7h-7'] },
+  offline: { p: ['M2 8.5a15 15 0 0120 0M5.5 12a10 10 0 0113 0M9 15.5a5 5 0 016 0M12 19h.01M3 3l18 18'] },
+  lucchetto: { p: ['M8 11V7a4 4 0 018 0v4'], r: [[5, 11, 14, 10]] },
 } satisfies Record<string, Disegno>;
 
 export type NomeIcona = keyof typeof disegni;

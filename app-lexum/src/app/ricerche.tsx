@@ -7,6 +7,7 @@ import { Badge, BarraAzioni, Separatore, Tag } from '@/componenti/Elementi';
 import { BottoneMenu, Intestazione } from '@/componenti/Intestazione';
 import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
+import { Caricamento, StatoVuoto } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
 import { trovaNorma } from '@/dati-finti/banca-dati';
 import type { Elemento } from '@/dati-finti/ricerche';
@@ -19,7 +20,7 @@ const tonoBadge = { 'Chat con Lex': 'oro', Norma: 'neutro', Sentenza: 'ok', Appu
 
 // D1 · Ricerche: quello che hai chiesto a Lex e salvato, diviso per etichette (come sul sito).
 export default function Ricerche() {
-  const { etichetteAttive, elementiAttivi, chatDaSalvare, azioni } = useStato();
+  const { etichetteAttive, elementiAttivi, chatDaSalvare, simula, azioni } = useStato();
   const vai = useVaiASezione();
   // L'etichetta scelta sta nell'indirizzo (?etichetta=casa): così la apre anche il menù.
   const { etichetta: scelta } = useLocalSearchParams<{ etichetta?: string }>();
@@ -93,7 +94,16 @@ export default function Ricerche() {
       <Separatore />
 
       <ScrollView style={{ flex: 1 }}>
-        {elementi.map((e) => {
+        {simula.caricamento ? <Caricamento /> : null}
+        {!simula.caricamento && etichetteAttive.length === 0 ? (
+          <StatoVuoto
+            icona="segnalibro"
+            titolo="Non hai ancora salvato niente"
+            testo="Quando una risposta di Lex ti serve, salvala con un'etichetta: la ritrovi qui e sul sito."
+            azione={{ titolo: 'Chiedi a Lex', onPress: () => vai('/chat') }}
+          />
+        ) : null}
+        {(simula.caricamento ? [] : elementi).map((e) => {
           const apribile = e.tipo !== 'Appunti';
           const contenuto = (
             <>
@@ -122,10 +132,16 @@ export default function Ricerche() {
             </View>
           );
         })}
-        {elementi.length === 0 ? (
-          <Testo colore={colori.fg3} style={{ padding: 20 }}>
-            {q ? 'Nessun elemento con queste parole.' : 'In questa etichetta non hai ancora salvato niente.'}
-          </Testo>
+        {!simula.caricamento && etichetta && elementi.length === 0 ? (
+          <StatoVuoto
+            icona={q ? 'cerca' : 'etichetta'}
+            titolo={q ? 'Nessun elemento con queste parole' : "In questa etichetta non c'è ancora niente"}
+            testo={
+              q
+                ? 'Prova con altre parole.'
+                : 'Salva qui chat, norme e sentenze dalla chat o dalla Banca dati.'
+            }
+          />
         ) : null}
       </ScrollView>
 

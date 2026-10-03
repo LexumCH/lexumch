@@ -57,6 +57,30 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
     ],
   },
   {
+    titolo: 'Accesso (senza mockup)',
+    voci: [
+      { codice: 'A6', titolo: 'Accedi', scenario: 'home-it', percorso: ['/avvio/paese', '/avvio/accesso'] },
+      {
+        codice: 'A7',
+        titolo: 'Password dimenticata',
+        scenario: 'home-it',
+        percorso: ['/avvio/paese', '/avvio/accesso', '/avvio/password'],
+      },
+      {
+        codice: 'A8',
+        titolo: 'Nuova password (dal link)',
+        scenario: 'home-it',
+        percorso: ['/avvio/nuova-password'],
+      },
+      {
+        codice: 'A9',
+        titolo: 'Email confermata (dal link)',
+        scenario: 'home-it',
+        percorso: ['/avvio/conferma'],
+      },
+    ],
+  },
+  {
     titolo: 'Lex: la home',
     voci: [
       { codice: 'B1', titolo: 'Home: nuova chat', scenario: 'home-it', percorso: ['/chat'] },
@@ -157,6 +181,12 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
         scenario: 'risposta-it',
         percorso: ['/chat', { pathname: '/profilo', params: { foglio: 'professionista' } }],
       },
+      {
+        codice: 'D6',
+        titolo: 'Elimina account: conferma',
+        scenario: 'home-it',
+        percorso: ['/chat', { pathname: '/profilo', params: { foglio: 'elimina' } }],
+      },
     ],
   },
   {
@@ -193,6 +223,20 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
         scenario: 'home-ch',
         percorso: ['/chat', '/profilo'],
       },
+    ],
+  },
+  {
+    titolo: 'Errori e attese (senza mockup)',
+    voci: [
+      { codice: 'E1', titolo: 'Lex non risponde', scenario: 'errore-lex-it', percorso: ['/chat'] },
+      { codice: 'E2', titolo: 'Senza connessione', scenario: 'offline-it', percorso: ['/chat'] },
+      {
+        codice: 'E3',
+        titolo: 'Caricamento',
+        scenario: 'caricamento-it',
+        percorso: ['/chat', { pathname: '/ricerche', params: { etichetta: 'casa' } }],
+      },
+      { codice: 'E4', titolo: 'Elenchi vuoti', scenario: 'vuoto-it', percorso: ['/chat', '/ricerche'] },
     ],
   },
 ];

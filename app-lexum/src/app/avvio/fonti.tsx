@@ -12,7 +12,8 @@ import { colori } from '@/tema';
 // A2 · Le fonti: da dove prende le risposte Lex.
 export default function Fonti() {
   const { paese } = useStato();
-  const fonti = contenuti[paese].fontiBenvenuto;
+  const testi = contenuti[paese];
+  const fonti = testi.fontiBenvenuto;
   return (
     <PaginaBenvenuto
       pagina={1}
@@ -36,7 +37,7 @@ export default function Fonti() {
       eyebrow="Banca dati"
       titolo="Ogni risposta ha "
       titoloOro="la sua fonte."
-      sottotitolo="Lex cerca in norme, sentenze e prassi e ti dice da dove prende ogni passaggio. La Banca dati puoi sfogliarla anche tu, gratis."
+      sottotitolo={testi.fontiTesto}
       pulsanti={<Pulsante titolo="Avanti" onPress={() => router.push('/avvio/gratis')} />}
     />
   );

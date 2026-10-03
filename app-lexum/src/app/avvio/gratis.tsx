@@ -56,7 +56,7 @@ export default function Gratis() {
           <Pulsante
             titolo="Ho già un account"
             variante="tenue"
-            onPress={() => router.push('/avvio/registrazione')}
+            onPress={() => router.push('/avvio/accesso')}
           />
         </>
       }

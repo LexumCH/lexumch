@@ -7,8 +7,9 @@ import { BottoneMenu, Intestazione } from '@/componenti/Intestazione';
 import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Riga } from '@/componenti/Riga';
 import { Schermata } from '@/componenti/Schermata';
+import { Caricamento, StatoVuoto } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
-import { categorieFinte, documentiArchivioFinti } from '@/dati-finti/archivio';
+import { categorieFinte } from '@/dati-finti/archivio';
 import { formatoMB } from '@/dati-finti/conti';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
@@ -19,10 +20,9 @@ const SENZA = 'Senza categoria';
 // D2 · Archivio: spazio usato, categorie con «+ Categoria», scansione e caricamento.
 // Scanner, caricamento e categorie nuove arrivano con la tappa 6.
 export default function Archivio() {
-  const { paese, conto } = useStato();
+  const { paese, conto, documentiAttivi: documenti, simula } = useStato();
   const [categoria, setCategoria] = useState(TUTTE);
   const [testo, setTesto] = useState('');
-  const documenti = documentiArchivioFinti[paese] ?? [];
   const categorie = [TUTTE, ...(categorieFinte[paese] ?? []), SENZA];
   const indicizzati = documenti.filter((d) => d.stato === 'Indicizzato').length;
   const percento = (conto.archivioUsatoMB / conto.archivioTotaleMB) * 100;
@@ -71,7 +71,8 @@ export default function Archivio() {
       <Separatore />
 
       <ScrollView style={{ flex: 1 }}>
-        {visibili.map((d) => (
+        {simula.caricamento ? <Caricamento /> : null}
+        {(simula.caricamento ? [] : visibili).map((d) => (
           <Riga
             key={d.id}
             inAlto
@@ -88,10 +89,19 @@ export default function Archivio() {
             }
           />
         ))}
-        {visibili.length === 0 ? (
-          <Testo colore={colori.fg3} style={{ padding: 20 }}>
-            Nessun documento qui.
-          </Testo>
+        {!simula.caricamento && documenti.length === 0 ? (
+          <StatoVuoto
+            icona="archivio"
+            titolo="L'archivio è vuoto"
+            testo="Carica o scansiona un documento: Lex lo legge quando gli fai una domanda."
+          />
+        ) : null}
+        {!simula.caricamento && documenti.length > 0 && visibili.length === 0 ? (
+          <StatoVuoto
+            icona="cartella"
+            titolo="Nessun documento qui"
+            testo="Prova un'altra categoria o altre parole."
+          />
         ) : null}
       </ScrollView>
 

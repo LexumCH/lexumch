@@ -4,6 +4,8 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 
+import { StrisciaOffline } from '@/componenti/Stati';
+import { useOffline } from '@/stato/connessione';
 import { colori, gradienteHero } from '@/tema';
 
 type Props = {
@@ -11,13 +13,15 @@ type Props = {
   hero?: boolean; // sfondo sfumato delle schermate di benvenuto
   alone?: number; // distanza dall'alto dell'alone dorato (solo con hero)
   senzaFondo?: boolean; // niente spazio sicuro in basso (lo gestisce la schermata)
+  senzaAvvisoOffline?: boolean; // per le schermate che non usano la rete
   stile?: StyleProp<ViewStyle>;
 };
 
 // Contenitore di ogni schermata: fondo petrolio e spazi sicuri del telefono
 // (la barra di stato e la barra di Home le disegna il sistema).
-export function Schermata({ children, hero, alone, senzaFondo, stile }: Props) {
+export function Schermata({ children, hero, alone, senzaFondo, senzaAvvisoOffline, stile }: Props) {
   const insets = useSafeAreaInsets();
+  const offline = useOffline();
   return (
     <View style={[stili.schermata, stile]}>
       {hero ? (
@@ -31,6 +35,7 @@ export function Schermata({ children, hero, alone, senzaFondo, stile }: Props) {
       ) : null}
       {hero && alone !== undefined ? <Alone alto={alone} /> : null}
       <View style={{ height: insets.top }} />
+      {offline && !senzaAvvisoOffline ? <StrisciaOffline /> : null}
       <View style={stili.corpo}>{children}</View>
       {senzaFondo ? null : <View style={{ height: insets.bottom }} />}
     </View>

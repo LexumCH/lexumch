@@ -38,6 +38,7 @@ export const colori = {
   warn: '#E3B66A',
   warnLine: 'rgba(227,182,106,0.42)',
   danger: '#E8968A',
+  dangerLine: 'rgba(232,150,138,0.45)',
 
   // velo sotto fogli e menù
   scrim: 'rgba(3,10,14,0.66)',

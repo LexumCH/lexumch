@@ -24,6 +24,12 @@ android/
 .metro-health-check*
 *.tsbuildinfo
 
+# prove
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
 # varie
 *.log
 *.orig.*

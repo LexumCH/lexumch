@@ -7,10 +7,12 @@ import { Badge, Separatore, Tag } from '@/componenti/Elementi';
 import { BottoneIndietro } from '@/componenti/Intestazione';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
+import { Caricamento, StatoVuoto } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
 import { risultatiFinti, trovaNorma, type Risultato, type TipoRisultato } from '@/dati-finti/banca-dati';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
 import { useVaiASezione } from '@/navigazione';
+import { useOffline } from '@/stato/connessione';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
@@ -44,7 +46,8 @@ const paroleVuote = new Set([
 // C3 · Ricerca per parole nella Banca dati. Nei dati di prova i risultati non dipendono dalle parole:
 // cambiano solo le parole evidenziate. La ricerca vera arriva con la tappa 5.
 export default function Risultati() {
-  const { paese } = useStato();
+  const { paese, simula } = useStato();
+  const offline = useOffline();
   const vai = useVaiASezione();
   const parametri = useLocalSearchParams<{ q?: string; filtro?: string }>();
   const [testo, setTesto] = useState(parametri.q ?? '');
@@ -108,7 +111,15 @@ export default function Risultati() {
       <Separatore />
 
       <ScrollView style={{ flex: 1 }}>
-        {risultati.map((r) => (
+        {offline ? (
+          <StatoVuoto
+            icona="offline"
+            titolo="Senza connessione"
+            testo="La ricerca nella Banca dati torna appena sei online."
+          />
+        ) : null}
+        {!offline && simula.caricamento ? <Caricamento /> : null}
+        {(offline || simula.caricamento ? [] : risultati).map((r) => (
           <Pressable
             key={r.id}
             onPress={() => apri(r)}
@@ -125,10 +136,12 @@ export default function Risultati() {
             <Text style={stili.estratto}>{evidenzia(r.estratto, parole)}</Text>
           </Pressable>
         ))}
-        {risultati.length === 0 ? (
-          <Testo colore={colori.fg3} style={{ padding: 20 }}>
-            Nessun risultato di questo tipo nei dati di prova.
-          </Testo>
+        {!offline && !simula.caricamento && risultati.length === 0 ? (
+          <StatoVuoto
+            icona="cerca"
+            titolo="Nessun risultato"
+            testo="Prova con altre parole o togli il filtro."
+          />
         ) : null}
       </ScrollView>
 

@@ -5,8 +5,8 @@ import { breve, migliaia, milioni, numeri } from './numeri';
 // Testi che cambiano da un paese all'altro. Chi aggiunge un paese al registro
 // aggiunge qui anche i suoi testi. I numeri arrivano da numeri.ts.
 //
-// Per la Svizzera i mockup non hanno le schermate di benvenuto: quei testi
-// sono una proposta da rivedere con Antonino.
+// Il benvenuto svizzero (A1, A2) viene da docs/testi/domande-e-benvenuto.md, sezione 3;
+// lì ci sono anche tedesco e francese, per la tappa 2.
 
 export type Fonte = { nome: string; icona: NomeIcona; descrizione: string; sfogliabile: boolean };
 
@@ -35,6 +35,7 @@ export type Contenuti = {
   };
 
   // A2 · le fonti
+  fontiTesto: string;
   fontiBenvenuto: { nome: string; icona: NomeIcona; descrizione: string; valore?: string }[];
 
   // B1 · home
@@ -94,6 +95,8 @@ export const contenuti: Record<string, Contenuti> = {
       citazioni: ['L. 241/1990, art. 25', 'c.p.a., art. 116'],
     },
 
+    fontiTesto:
+      'Lex cerca in norme, sentenze e prassi e ti dice da dove prende ogni passaggio. La Banca dati puoi sfogliarla anche tu, gratis.',
     fontiBenvenuto: [
       {
         nome: 'Codici, leggi e decreti',
@@ -212,38 +215,23 @@ export const contenuti: Record<string, Contenuti> = {
     ],
 
     benvenuto: {
-      titolo: "L'AI che ragiona sul ",
-      titoloOro: 'diritto svizzero.',
-      sottotitolo: `Fonti verificate, oltre ${milioni(CH.totale)} di documenti giuridici, ragionamento strutturato.`,
-      domanda: 'Mi hanno disdetto il contratto mentre ero in malattia: è valido?',
-      risposta: 'No: la disdetta data durante la malattia, nel periodo di protezione, è nulla.',
+      titolo: "L'AI svizzera che ragiona su ",
+      titoloOro: 'tutto il diritto svizzero.',
+      sottotitolo: `Fonti verificate, oltre ${milioni(CH.totale)} di documenti giuridici e fiscali, ragionamento strutturato.`,
+      domanda: 'Mi hanno disdetto il contratto mentre ero in malattia. È valido?',
+      risposta:
+        'Dopo il tempo di prova, la disdetta data durante la malattia è nulla: la protezione dura da 30 a 180 giorni, secondo gli anni di servizio.',
       citazioni: ['CO, art. 336c'],
     },
 
+    fontiTesto:
+      'Lex cerca nel diritto federale e cantonale, nella giurisprudenza e nella prassi, e ti dice da dove prende ogni passaggio. La Banca dati puoi sfogliarla anche tu, gratis.',
     fontiBenvenuto: [
-      {
-        nome: 'Diritto federale e cantonale',
-        icona: 'libro',
-        descrizione: `${migliaia(CH.federaleAtti)} atti federali · ${migliaia(CH.cantonaleAtti)} cantonali`,
-      },
-      {
-        nome: 'Giurisprudenza',
-        icona: 'tribunale',
-        descrizione: 'Tribunale federale e tribunali cantonali',
-        valore: breve(CH.giurisprudenza),
-      },
-      {
-        nome: 'Prassi',
-        icona: 'documento',
-        descrizione: 'Autorità federali e cantonali',
-        valore: breve(CH.prassi),
-      },
-      {
-        nome: 'Europa',
-        icona: 'globo',
-        descrizione: 'Norme UE, Corte di giustizia, Corte EDU',
-        valore: breve(CH.europaDecisioni),
-      },
+      { nome: 'Diritto federale', icona: 'libro', descrizione: 'Leggi e ordinanze della Confederazione' },
+      { nome: 'Diritto cantonale', icona: 'mappa', descrizione: 'Le leggi dei cantoni' },
+      { nome: 'Giurisprudenza', icona: 'tribunale', descrizione: 'Tribunale federale e tribunali cantonali' },
+      { nome: 'Prassi', icona: 'documento', descrizione: 'Autorità federali e cantonali' },
+      { nome: 'Europa', icona: 'globo', descrizione: 'Norme UE, Corte di giustizia, Corte EDU' },
     ],
 
     homeSottotitolo: 'Lex consulta il diritto federale e cantonale, la giurisprudenza e la prassi svizzere.',

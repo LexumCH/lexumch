@@ -302,6 +302,25 @@ export function Spunta({
   );
 }
 
+// Avviso dentro un modulo: errore (rosa) o informazione (salvia). Lo legge anche il lettore di schermo.
+export function Avviso({ testo, tono = 'errore' }: { testo: string; tono?: 'errore' | 'info' }) {
+  const errore = tono === 'errore';
+  return (
+    <View
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
+      style={[stili.avviso, { borderColor: errore ? colori.dangerLine : colori.okLine }]}
+    >
+      <Icona
+        nome={errore ? 'avviso' : 'spunta'}
+        dimensione={18}
+        colore={errore ? colori.danger : colori.ok}
+      />
+      <Text style={stili.avvisoTesto}>{testo}</Text>
+    </View>
+  );
+}
+
 // .barra-azioni: pulsanti fissi in fondo alla schermata, sopra la riga.
 export function BarraAzioni({ children, stile }: { children: ReactNode; stile?: StyleProp<ViewStyle> }) {
   return <View style={[stili.barraAzioni, stile]}>{children}</View>;
@@ -416,6 +435,15 @@ const stili = StyleSheet.create({
     justifyContent: 'center',
   },
   boxSi: { backgroundColor: colori.accent, borderColor: colori.accent },
+  avviso: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+  },
+  avvisoTesto: { flex: 1, fontFamily: famiglie.testo, fontSize: 14, lineHeight: 20, color: colori.fg },
   barraAzioni: {
     flexDirection: 'row',
     gap: 8,

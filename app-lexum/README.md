@@ -8,7 +8,7 @@ App nativa di Lexum per iPhone e Android: la chat con Lex come home, la Banca da
 
 ## Provarla
 
-Serve Node 22 (va bene anche 20.19 o successivo).
+Serve Node 22.13 o successivo.
 
 ```bash
 cd app-lexum
@@ -24,6 +24,9 @@ Per ora (tappa 1) i dati sono tutti finti: niente accesso vero, niente Lex vero,
 ## Controlli
 
 ```bash
-npm run check    # TypeScript, ESLint e Prettier
-npm run format   # sistema la formattazione
+npm run check      # TypeScript, ESLint, Prettier e prove Jest
+npm run test:e2e   # percorsi nel browser con Playwright (la prima volta: npx playwright install chromium)
+npm run format     # sistema la formattazione
 ```
+
+Le cose da fare fuori da questo repo (Supabase, Sentry, store) sono in `docs/DA-FARE-ANTONINO.md`.

@@ -11,6 +11,7 @@ import { Eyebrow, Testo } from '@/componenti/Testo';
 import { mostraAcquisti } from '@/config';
 import { formatoMB } from '@/dati-finti/conti';
 import { utenteFinto } from '@/dati-finti/utente';
+import { FoglioElimina } from '@/fogli/FoglioElimina';
 import { FoglioPaese } from '@/fogli/FoglioPaese';
 import { FoglioProfessionista } from '@/fogli/FoglioProfessionista';
 import { apriSito, ricominciaDa } from '@/navigazione';
@@ -19,14 +20,14 @@ import { dominio, paesePredefinito, trovaPaese } from '@/paesi/registro';
 import { useStato, type LinguaCH } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
-type Foglio = 'paese' | 'professionista';
+type Foglio = 'paese' | 'professionista' | 'elimina';
 
 const nomiLingue: Record<string, string> = { it: 'Italiano', de: 'Deutsch', fr: 'Français' };
 
 // D4 e G6 · Profilo, in quest'ordine: intestazione, paese e banca dati, lingua (solo dove ce n'è più d'una),
 // crediti e piano, account, «Completa il profilo». Niente pagamenti nell'app: i pulsanti aprono il sito.
 export default function Profilo() {
-  const { paese, conto, lingua, azioni } = useStato();
+  const { paese, conto, lingua, accessi, azioni } = useStato();
   // Il foglio aperto sta nei parametri dell'indirizzo (?foglio=paese), come nella chat.
   const parametri = useLocalSearchParams<{ foglio?: Foglio }>();
   const foglio = parametri.foglio ?? null;
@@ -152,6 +153,7 @@ export default function Profilo() {
           stretta
           titolo={paese === paesePredefinito ? 'Elimina account' : `Elimina account ${testi.aggettivo}`}
           titoloStile={{ color: colori.danger }}
+          onPress={() => setFoglio('elimina')}
         />
 
         <View style={{ paddingTop: 18, paddingHorizontal: 20, paddingBottom: 24 }}>
@@ -174,6 +176,17 @@ export default function Profilo() {
       </ScrollView>
 
       <FoglioProfessionista visibile={foglio === 'professionista'} onChiudi={chiudi} />
+      <FoglioElimina
+        visibile={foglio === 'elimina'}
+        onChiudi={chiudi}
+        onElimina={() => {
+          // Se resta l'accesso nell'altro paese, l'app passa lì; altrimenti si ricomincia dalla scelta del paese.
+          const altro = Object.entries(accessi).find(([codice, attivo]) => codice !== paese && attivo)?.[0];
+          azioni.eliminaAccesso(paese);
+          if (altro) ricominciaDa({ pathname: '/passaggio', params: { paese: altro } });
+          else ricominciaDa('/avvio/paese');
+        }}
+      />
       <FoglioPaese
         visibile={foglio === 'paese'}
         onChiudi={chiudi}
@@ -187,7 +200,7 @@ export default function Profilo() {
         }}
         onAccedi={(codice) => {
           chiudi();
-          router.push({ pathname: '/passaggio', params: { paese: codice } });
+          router.push({ pathname: '/avvio/accesso', params: { paese: codice } });
         }}
       />
     </Schermata>

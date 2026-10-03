@@ -8,6 +8,11 @@ module.exports = defineConfig([
     ignores: ['dist/*', 'docs/*', '.expo/*'],
   },
   {
+    // nelle prove i finti moduli nativi si caricano con require()
+    files: ['test/**'],
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
+  {
     rules: {
       // In italiano gli apostrofi nel testo sono ovunque: scriverli come &apos; renderebbe i testi illeggibili.
       'react/no-unescaped-entities': 'off',

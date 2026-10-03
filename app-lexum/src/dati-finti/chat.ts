@@ -77,7 +77,9 @@ export const risposteFinte: Record<string, RispostaFinta> = {
 };
 
 export type Messaggio =
-  { id: string; da: 'io'; testo: string } | { id: string; da: 'lex'; risposta: RispostaFinta };
+  | { id: string; da: 'io'; testo: string }
+  | { id: string; da: 'lex'; risposta: RispostaFinta }
+  | { id: string; da: 'errore'; testo: string }; // Lex non ha risposto: il credito non è scalato
 
 // Risposta alle domande successive: nella tappa 1 Lex non c'è ancora.
 export const rispostaDiSeguitoFinta: RispostaFinta = {

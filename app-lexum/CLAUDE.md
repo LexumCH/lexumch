@@ -51,8 +51,13 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
 - `src/stato/`: stato dell'app (paese attivo, conto, chat in corso) e menù.
 - `src/dati-finti/`: i dati finti della tappa 1. Si tolgono man mano che arrivano i dati veri.
 - `src/anteprima/`: solo per il browser, la sagoma del telefono e l'elenco delle schermate per la revisione.
+- `src/testi/`: testi approvati da Antonino (domande frequenti, «Elimina account»), anche in tedesco e francese. Le fonti sono in `docs/testi/`: non cambiarli senza di lui.
+- `src/errori.ts`: messaggi d'errore white-label, la stessa regola di `sanitizzaErrore.js` del sito.
+- `src/sentry.ts`: segnalazione dei crash, accesa solo con `EXPO_PUBLIC_SENTRY_DSN`.
 - `src/config.ts`: interruttori (per esempio `mostraAcquisti`, decisione aperta n. 4).
-- Prima di aprire una PR: `npm run check` (TypeScript, ESLint, Prettier).
+- `test/` (Jest) e `e2e/` (Playwright): le prove automatiche.
+- Prima di aprire una PR: `npm run check` (TypeScript, ESLint, Prettier, Jest) e `npm run test:e2e` (percorsi nel browser).
+- Quando serve qualcosa che può fare solo Antonino (Supabase, account, decisioni), aggiungilo a `docs/DA-FARE-ANTONINO.md`.
 
 ## Paesi: il cuore dell'architettura
 - Il registro sta in `src/paesi/` e si costruisce da `docs/paesi.json`. Per ogni paese contiene:

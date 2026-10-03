@@ -17,7 +17,7 @@ export default function Benvenuto() {
     <PaginaBenvenuto
       pagina={0}
       alone={120}
-      azione={{ titolo: 'Accedi', onPress: () => router.push('/avvio/registrazione') }}
+      azione={{ titolo: 'Accedi', onPress: () => router.push('/avvio/accesso') }}
       visuale={
         <View style={stili.esempio}>
           <BollaDomanda testo={b.domanda} piccola />

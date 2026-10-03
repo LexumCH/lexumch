@@ -22,6 +22,7 @@ import { FoglioSalva } from '@/fogli/FoglioSalva';
 import { useVaiASezione } from '@/navigazione';
 import { contenuti } from '@/paesi/contenuti';
 import { paesePredefinito, trovaPaese } from '@/paesi/registro';
+import { useOffline } from '@/stato/connessione';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
 
@@ -35,6 +36,7 @@ const nomiLingua = { it: 'italiano', de: 'tedesco', fr: 'francese' } as const;
 export default function Chat() {
   const { paese, conto, chat, lingua, chatDaSalvare, azioni } = useStato();
   const vai = useVaiASezione();
+  const offline = useOffline();
   // Il foglio aperto sta nei parametri dell'indirizzo (?foglio=…&norma=…): così si apre anche
   // dal menù o dall'elenco delle schermate, e «indietro» su Android lo chiude.
   const parametri = useLocalSearchParams<{ foglio?: Foglio; norma?: string }>();
@@ -53,7 +55,7 @@ export default function Chat() {
   }, [chat.messaggi.length, chat.inCorso, vuota]);
 
   const invia = (testo: string) => {
-    if (!testo.trim()) return;
+    if (!testo.trim() || offline) return;
     const esito = azioni.inviaDomanda(testo);
     if (esito === 'esauriti') setFoglio('esauriti');
     if (esito === 'ok') setBozza('');
@@ -134,6 +136,8 @@ export default function Chat() {
             {chat.messaggi.map((m) =>
               m.da === 'io' ? (
                 <BollaDomanda key={m.id} testo={m.testo} />
+              ) : m.da === 'errore' ? (
+                <ErroreLex key={m.id} messaggio={m.testo} onRiprova={azioni.riprova} />
               ) : (
                 <View key={m.id} style={{ gap: 12 }}>
                   <FirmaLex />
@@ -168,6 +172,7 @@ export default function Chat() {
           onInvia={() => invia(bozza)}
           onAllega={() => setFoglio('allega')}
           occupato={chat.inCorso}
+          offline={offline}
         />
       </KeyboardAvoidingView>
 
@@ -219,6 +224,28 @@ export default function Chat() {
         }}
       />
     </Schermata>
+  );
+}
+
+// Lex non ha risposto: messaggio generico (mai nomi di fornitori) e il credito resta.
+function ErroreLex({ messaggio, onRiprova }: { messaggio: string; onRiprova: () => void }) {
+  return (
+    <View style={{ gap: 12 }} accessibilityLiveRegion="polite">
+      <FirmaLex />
+      <Scheda stile={{ borderColor: colori.warnLine, gap: 8 }}>
+        <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+          <Icona nome="avviso" dimensione={18} colore={colori.warn} />
+          <Testo medio style={{ flex: 1, fontSize: 15 }}>
+            Lex non è riuscito a rispondere
+          </Testo>
+        </View>
+        <Testo tipo="small" colore={colori.fg2}>
+          {messaggio}
+        </Testo>
+        <Testo tipo="cap">Il credito non è stato scalato.</Testo>
+        <Pulsante titolo="Riprova" variante="linea" piccolo icona="riprova" onPress={onRiprova} />
+      </Scheda>
+    </View>
   );
 }
 

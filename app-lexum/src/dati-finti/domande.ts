@@ -1,12 +1,5 @@
-// DATI FINTI della tappa 1: domande frequenti e richieste di assistenza.
-// Dalla tappa 6 le richieste sono i ticket veri.
-
-export const domandeFrequentiFinte = [
-  'Come funzionano i crediti?',
-  'Ci sono limiti di accesso alla Banca dati?',
-  'I miei dati restano miei?',
-  'Cosa succede ai miei dati se smetto di usare Lexum?',
-];
+// DATI FINTI della tappa 1: richieste di assistenza.
+// Dalla tappa 6 sono i ticket veri. Le domande frequenti stanno in src/testi/domande.ts.
 
 export const richiesteFinte = [
   {

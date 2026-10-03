@@ -9,7 +9,7 @@ import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Evidenza, Testo } from '@/componenti/Testo';
 import { utenteFinto } from '@/dati-finti/utente';
-import { apriSito, ricominciaDa } from '@/navigazione';
+import { apriSito } from '@/navigazione';
 import { contenuti } from '@/paesi/contenuti';
 import { trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
@@ -31,10 +31,8 @@ export default function Registrazione() {
   const [vedi, setVedi] = useState(false);
   const [accetto, setAccetto] = useState(true);
 
-  const entra = () => {
-    if (altroPaese) ricominciaDa({ pathname: '/passaggio', params: { paese } });
-    else ricominciaDa('/chat');
-  };
+  const accedi = () =>
+    router.replace(paeseParam ? { pathname: '/avvio/accesso', params: { paese } } : '/avvio/accesso');
 
   return (
     <Schermata>
@@ -125,7 +123,7 @@ export default function Registrazione() {
           />
           <Text style={stili.accedi}>
             Hai già un account?{' '}
-            <Text style={stili.link} onPress={entra} accessibilityRole="link">
+            <Text style={stili.link} onPress={accedi} accessibilityRole="link">
               Accedi
             </Text>
           </Text>

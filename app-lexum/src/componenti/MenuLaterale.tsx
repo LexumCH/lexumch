@@ -138,6 +138,9 @@ export function MenuLaterale() {
             );
           })}
           <TitoloSezione stile={{ paddingTop: 18 }}>Etichette</TitoloSezione>
+          {etichetteAttive.length === 0 ? (
+            <Text style={stili.vuoto}>Le etichette che crei salvando le chat compaiono qui.</Text>
+          ) : null}
           {etichetteAttive.map((e) => {
             const quanti = elementiAttivi.filter((x) => x.etichetta === e.id).length;
             return (
@@ -221,5 +224,12 @@ const stili = StyleSheet.create({
     borderTopColor: colori.line,
   },
   nome: { fontFamily: famiglie.testoMedio, fontSize: 15, color: colori.fg },
+  vuoto: {
+    fontFamily: famiglie.testo,
+    fontSize: 13,
+    lineHeight: 18,
+    color: colori.fg3,
+    paddingHorizontal: 20,
+  },
   dettaglio: { fontFamily: famiglie.testo, fontSize: 13, color: colori.fg3 },
 });
