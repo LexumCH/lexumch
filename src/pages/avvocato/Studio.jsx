@@ -11,6 +11,7 @@ import {
     Sparkles, HardDrive, Clock
 } from 'lucide-react'
 import { supabase, supabaseUrl } from '@/lib/supabase'
+import { vociPiano, etichettaDurata } from '@/lib/vociPiano'
 import { useAuth } from '@/context/AuthContext'
 
 // ─────────────────────────────────────────────────────────────
@@ -91,6 +92,9 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
     const { t, i18n } = useTranslation('avv_studio')
     const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    // Voci delle schede dai dati del prodotto (lib/vociPiano), testi in comp_voci_piano
+    const { t: tv } = useTranslation('comp_voci_piano')
+    const localeNumeri = dateLocale
     const [piani, setPiani] = useState([])
     const [addons, setAddons] = useState([])
     const [clientiAddons, setClientiAddons] = useState([])
@@ -254,33 +258,21 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                                     className={`text-left p-4 border transition-all ${isSelezionato ? 'border-oro/50 bg-oro/10' : 'border-white/8 hover:border-oro/20'}`}
                                 >
                                     <p className="font-body text-sm font-medium text-nebbia mb-1">{p.nome}</p>
-                                    <p className="font-display text-2xl font-light text-oro mb-1">€ {p.prezzo}</p>
+                                    <p className="font-display text-2xl font-light text-oro mb-1">CHF {p.prezzo}</p>
                                     {differenza !== null && (
                                         <p className="font-body text-xs text-nebbia/40 mb-2">
-                                            {t('acquisto.piani.differenza')} <span className={differenza > 0 ? 'text-amber-400' : 'text-salvia'}>€ {Math.abs(differenza)}</span>
+                                            {t('acquisto.piani.differenza')} <span className={differenza > 0 ? 'text-amber-400' : 'text-salvia'}>CHF {Math.abs(differenza)}</span>
                                         </p>
                                     )}
-                                    <p className="font-body text-xs text-nebbia/40 mb-2">
-                                        {p.posti ? t('acquisto.piani.accessi', { count: p.posti }) : '—'}
-                                        {p.durata_mesi && ` · ${t('acquisto.piani.mesi', { count: p.durata_mesi })}`}
-                                    </p>
-                                    <div className="flex gap-1.5 flex-wrap">
-                                        {p.include_banca_dati && (
-                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-oro/30 text-oro">{t('acquisto.piani.tag_banca_dati')}</span>
-                                        )}
-                                        {p.include_monetizzazione && (
-                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">{t('acquisto.piani.tag_monetizzazione')}</span>
-                                        )}
-                                        {p.crediti_ai_mensili > 0 && (
-                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">{t('acquisto.piani.tag_crediti_mese', { count: p.crediti_ai_mensili })}</span>
-                                        )}
-                                        {p.spazio_gb > 0 && (
-                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-salvia/30 text-salvia">{p.spazio_gb} GB</span>
-                                        )}
-                                        {p.posti > 1 && (
-                                            <span className="font-body text-[10px] px-1.5 py-0.5 border border-white/10 text-nebbia/40">{t('acquisto.piani.tag_studio')}</span>
-                                        )}
-                                    </div>
+                                    <p className="font-body text-xs text-nebbia/40 mb-2">{etichettaDurata(p, tv)}</p>
+                                    <ul className="space-y-1">
+                                        {vociPiano(p, tv, localeNumeri).map(v => (
+                                            <li key={v} className="flex items-start gap-1.5 font-body text-[11px] text-nebbia/50">
+                                                <CheckCircle size={10} className="text-salvia shrink-0 mt-0.5" />
+                                                <span>{v}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </button>
                             )
                         })}
@@ -296,7 +288,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                                 <p className="font-body text-xs text-nebbia/40 mt-0.5">
                                     {t('acquisto.piani.importo_da_pagare')}{' '}
                                     <span className="text-nebbia/70">
-                                        € {pianoAttualeId ? Math.max(pianoProposto.prezzo - prezzoAttuale, 0) : pianoProposto.prezzo}
+                                        CHF {pianoAttualeId ? Math.max(pianoProposto.prezzo - prezzoAttuale, 0) : pianoProposto.prezzo}
                                     </span>
                                     {pianoAttualeId && <span className="text-nebbia/30"> · {t('acquisto.piani.scadenza_invariata')}</span>}
                                 </p>
@@ -330,7 +322,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                             <div key={a.id} className="bg-slate border border-white/5 p-4 space-y-3">
                                 <p className="font-body text-sm font-medium text-nebbia">{a.nome}</p>
                                 <p className="font-body text-xs text-nebbia/40">{t('acquisto.seat.piu_accessi', { count: a.posti })}</p>
-                                <p className="font-display text-2xl font-light text-oro">€ {a.prezzo}</p>
+                                <p className="font-display text-2xl font-light text-oro">CHF {a.prezzo}</p>
                                 <p className="font-body text-xs text-nebbia/30">{t('acquisto.seat.transizione', { da: postiAttuali, a: postiAttuali + (a.posti ?? 1) })}</p>
                                 <button onClick={() => acquista(a.id, false)} disabled={acquistando === a.id}
                                     className="btn-secondary text-sm w-full justify-center disabled:opacity-40">
@@ -356,7 +348,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                             <div key={c.id} className="bg-slate border border-white/5 hover:border-salvia/30 p-4 space-y-3 transition-colors">
                                 <p className="font-body text-sm font-medium text-nebbia">{c.nome}</p>
                                 <p className="font-body text-xs text-nebbia/40">{t('acquisto.clienti.piu_clienti', { count: c.limite_clienti })}</p>
-                                <p className="font-display text-2xl font-light text-oro">€ {c.prezzo}</p>
+                                <p className="font-display text-2xl font-light text-oro">CHF {c.prezzo}</p>
                                 <p className="font-body text-[10px] text-nebbia/30 italic">{t('acquisto.clienti.listino')}</p>
                                 <button onClick={() => acquista(c.id, false)} disabled={acquistando === c.id}
                                     className="btn-secondary text-sm w-full justify-center disabled:opacity-40">
@@ -382,7 +374,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                                     <Sparkles size={13} className="text-salvia" />
                                     <p className="font-body text-sm font-medium text-nebbia">{p.nome}</p>
                                 </div>
-                                <p className="font-display text-2xl font-light text-salvia">€ {p.prezzo}</p>
+                                <p className="font-display text-2xl font-light text-salvia">CHF {p.prezzo}</p>
                                 <p className="font-body text-xs text-nebbia/40">
                                     {t('acquisto.crediti.dettaglio', { crediti: p.crediti_ai_mensili, prezzo_credito: (p.prezzo / p.crediti_ai_mensili).toFixed(2) })}
                                 </p>
@@ -423,7 +415,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                                             <HardDrive size={13} className="text-salvia" />
                                             <p className="font-body text-sm font-medium text-nebbia">{s.nome}</p>
                                         </div>
-                                        <p className="font-display text-2xl font-light text-salvia">€ {s.prezzo}</p>
+                                        <p className="font-display text-2xl font-light text-salvia">CHF {s.prezzo}</p>
                                         <p className="font-body text-xs text-nebbia/40">
                                             {s.spazio_gb} GB · {t('acquisto.storage.mesi', { count: s.durata_mesi })}
                                         </p>
@@ -528,7 +520,7 @@ function StoricoTransazioni({ meId, includiSentenze = false }) {
                             <tr key={s.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
                                 <td className="px-4 py-3 font-body text-sm text-nebbia">{s.prodotto_nome ?? '—'}</td>
                                 <td className="px-4 py-3 font-body text-sm font-medium text-oro">
-                                    {parseFloat(s.importo ?? 0) === 0 ? '—' : `€ ${parseFloat(s.importo).toFixed(2)}`}
+                                    {parseFloat(s.importo ?? 0) === 0 ? '—' : `CHF ${parseFloat(s.importo).toFixed(2)}`}
                                 </td>
                                 <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
                                     {new Date(s.created_at).toLocaleDateString(dateLocale)}

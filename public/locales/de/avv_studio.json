@@ -77,8 +77,8 @@
     "titolo": "Warum einen Plan haben?",
     "vantaggi": [
       { "titolo": "Mandantenverwaltung", "desc": "Erstellen und verwalten Sie Ihre Mandanten, Dossiers und Dokumente an einem Ort" },
-      { "titolo": "Urteilsdatenbank", "desc": "Zugriff auf Tausende von anderen Anwälten hochgeladene Urteile (Pro-Pläne)" },
-      { "titolo": "Monetarisierung", "desc": "Laden Sie Ihre Urteile hoch und verdienen Sie bei jedem Kauf (Pro-Pläne)" },
+      { "titolo": "Vollständige Datenbank", "desc": "Normen, Rechtsprechung und Praxis, mit monatlich inbegriffenen Lex-AI-Credits" },
+      { "titolo": "Dokumente, Rechnungen und Kalender", "desc": "Dokumentengenerator, Rechnungsstellung und Terminkalender" },
       { "titolo": "Kanzlei mit mehreren Zugängen", "desc": "Laden Sie Mitarbeitende ein und verwalten Sie gemeinsam Mandanten und Dossiers" }
     ],
     "scegli_piano": "Plan wählen"
@@ -190,7 +190,7 @@
     "crediti": {
       "label": "Zusätzliche KI-Credits",
       "descrizione": "Zusatzpakete, die nie verfallen. Sie werden erst nach den Plan-Credits verbraucht.",
-      "dettaglio": "{{crediti}} Credits · €{{prezzo_credito}}/Credit",
+      "dettaglio": "{{crediti}} Credits · CHF {{prezzo_credito}}/Credit",
       "non_scadono": "Verfallen nie"
     },
     "storage": {

@@ -1,0 +1,30 @@
+{
+  "durata": {
+    "mensile": "Mensile",
+    "annuale": "Annuale",
+    "mesi": "{{mesi}} mesi",
+    "una_tantum": "Una tantum"
+  },
+  "periodo": {
+    "mese": "al mese",
+    "anno": "all’anno",
+    "mesi": "per {{mesi}} mesi"
+  },
+  "voce": {
+    "banca_dati": "Accesso completo alla Banca Dati: norme, giurisprudenza e prassi",
+    "crediti": "{{n}} crediti Lex AI al mese",
+    "crediti_illimitati": "Crediti Lex AI illimitati",
+    "archivio": "Archivio con AI: {{n}} GB",
+    "archivio_illimitato": "Archivio con AI: spazio illimitato",
+    "clienti": "Gestione clienti: fino a {{n}}",
+    "clienti_illimitati": "Gestione clienti: illimitati",
+    "accessi": "Accessi: {{n}}",
+    "accessi_illimitati": "Accessi: illimitati",
+    "pratiche": "Pratiche e documenti",
+    "mandati": "Mandati e documenti",
+    "progetti": "Progetti e documenti",
+    "generatore": "Generatore di documenti",
+    "fatture": "Emissione di fatture",
+    "calendario": "Calendario appuntamenti"
+  }
+}

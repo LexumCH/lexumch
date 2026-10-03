@@ -85,6 +85,7 @@ export const ELENCO_NS = [
   "comp_scegli_archivio",
   "comp_shared",
   "comp_udienza_modal",
+  "comp_voci_piano",
   "contatti",
   "fid_banco_lavoro",
   "fid_dashboard",

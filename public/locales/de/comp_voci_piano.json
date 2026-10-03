@@ -1,0 +1,30 @@
+{
+  "durata": {
+    "mensile": "Monatlich",
+    "annuale": "Jährlich",
+    "mesi": "{{mesi}} Monate",
+    "una_tantum": "Einmalig"
+  },
+  "periodo": {
+    "mese": "pro Monat",
+    "anno": "pro Jahr",
+    "mesi": "für {{mesi}} Monate"
+  },
+  "voce": {
+    "banca_dati": "Vollzugriff auf die Datenbank: Normen, Rechtsprechung und Praxis",
+    "crediti": "{{n}} Lex-AI-Credits pro Monat",
+    "crediti_illimitati": "Unbegrenzte Lex-AI-Credits",
+    "archivio": "Archiv mit KI: {{n}} GB",
+    "archivio_illimitato": "Archiv mit KI: unbegrenzter Speicherplatz",
+    "clienti": "Mandantenverwaltung: bis zu {{n}}",
+    "clienti_illimitati": "Mandantenverwaltung: unbegrenzt",
+    "accessi": "Zugänge: {{n}}",
+    "accessi_illimitati": "Zugänge: unbegrenzt",
+    "pratiche": "Dossiers und Dokumente",
+    "mandati": "Mandate und Dokumente",
+    "progetti": "Projekte und Dokumente",
+    "generatore": "Dokumentengenerator",
+    "fatture": "Rechnungsstellung",
+    "calendario": "Terminkalender"
+  }
+}

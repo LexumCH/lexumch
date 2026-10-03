@@ -102,16 +102,6 @@ export default function UserCheckout() {
                         <p className="font-body text-xs text-nebbia/40 mt-1">
                             {prodotto.durata_mesi ? t('prodotto.durata', { count: prodotto.durata_mesi }) : '—'}
                         </p>
-                        <div className="flex gap-2 mt-2">
-                            <span className={`font-body text-[10px] px-2 py-0.5 border ${prodotto.include_banca_dati ? 'border-oro/30 text-oro' : 'border-white/10 text-nebbia/30'}`}>
-                                {prodotto.include_banca_dati ? t('prodotto.badge_pro') : t('prodotto.badge_base')}
-                            </span>
-                            {prodotto.include_monetizzazione && (
-                                <span className="font-body text-[10px] px-2 py-0.5 border border-salvia/30 text-salvia">
-                                    {t('prodotto.badge_monetizzazione')}
-                                </span>
-                            )}
-                        </div>
                     </div>
                     <p className="font-display text-4xl font-light text-oro shrink-0">CHF {prodotto.prezzo}</p>
                 </div>

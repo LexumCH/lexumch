@@ -124,7 +124,7 @@ function TabPagamenti() {
         <div className="space-y-4">
             {/* 6 stats: Revenue + 4 tipi + Falliti */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                <StatCard label="Revenue totale" value={`€ ${totale.toFixed(2)}`} colorClass="text-oro" />
+                <StatCard label="Revenue totale" value={`CHF ${totale.toFixed(2)}`} colorClass="text-oro" />
                 <StatCard label="Abbonamenti" value={nAbb} colorClass="text-salvia" />
                 <StatCard label="Crediti AI" value={nCrediti} colorClass="text-salvia" />
                 <StatCard label="Storage" value={nStorage} colorClass="text-salvia" />
@@ -200,7 +200,7 @@ function TabPagamenti() {
                                             {p.utente?.studio && <p className="font-body text-xs text-nebbia/30 mt-0.5">{p.utente.studio}</p>}
                                         </td>
                                         <td className="px-4 py-3 font-body text-sm text-nebbia/70">{p.prodotto_nome ?? '—'}</td>
-                                        <td className="px-4 py-3 font-body text-sm text-oro font-medium">€ {parseFloat(p.importo).toFixed(2)}</td>
+                                        <td className="px-4 py-3 font-body text-sm text-oro font-medium">CHF {parseFloat(p.importo).toFixed(2)}</td>
                                         <td className="px-4 py-3"><Badge label={tc.label} variant={tc.variant} /></td>
                                         <td className="px-4 py-3"><Badge label={sb.label} variant={sb.variant} /></td>
                                     </tr>
@@ -276,7 +276,7 @@ function TabRichieste() {
                         ['Avvocato', `Avv. ${selected.avvocato?.nome ?? ''} ${selected.avvocato?.cognome ?? ''}`],
                         ['Studio', selected.avvocato?.studio ?? '—'],
                         ['Data richiesta', new Date(selected.created_at).toLocaleDateString('it-CH')],
-                        ['Importo richiesto', `€ ${parseFloat(selected.importo).toFixed(2)}`],
+                        ['Importo richiesto', `CHF ${parseFloat(selected.importo).toFixed(2)}`],
                     ].map(([l, v]) => (
                         <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                             <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>
@@ -360,7 +360,7 @@ function TabRichieste() {
                                             <p className="font-body text-sm font-medium text-nebbia">{nome}</p>
                                             {r.avvocato?.studio && <p className="font-body text-xs text-nebbia/30 mt-0.5">{r.avvocato.studio}</p>}
                                         </td>
-                                        <td className="px-4 py-3 font-body text-sm text-oro font-medium">€ {parseFloat(r.importo).toFixed(2)}</td>
+                                        <td className="px-4 py-3 font-body text-sm text-oro font-medium">CHF {parseFloat(r.importo).toFixed(2)}</td>
                                         <td className="px-4 py-3"><Badge label={sb.label} variant={sb.variant} /></td>
                                         <td className="px-4 py-3 text-right">
                                             {r.stato === 'in_attesa' && (

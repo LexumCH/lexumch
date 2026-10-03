@@ -77,8 +77,8 @@
     "titolo": "Pourquoi avoir un forfait ?",
     "vantaggi": [
       { "titolo": "Gestion des clients", "desc": "Créez et gérez vos clients, dossiers et documents au même endroit" },
-      { "titolo": "Base de données de jugements", "desc": "Accédez à des milliers de jugements téléversés par d'autres avocats (forfaits Pro)" },
-      { "titolo": "Monétisation", "desc": "Téléversez vos jugements et gagnez à chaque achat (forfaits Pro)" },
+      { "titolo": "Base de données complète", "desc": "Normes, jurisprudence et pratique, avec des crédits Lex AI inclus chaque mois" },
+      { "titolo": "Documents, factures et calendrier", "desc": "Générateur de documents, émission de factures et calendrier des rendez-vous" },
       { "titolo": "Étude multi-accès", "desc": "Invitez des collaborateurs et gérez ensemble clients et dossiers" }
     ],
     "scegli_piano": "Choisir un forfait"
@@ -190,7 +190,7 @@
     "crediti": {
       "label": "Crédits IA supplémentaires",
       "descrizione": "Packs supplémentaires qui n'expirent jamais. Ils ne sont consommés qu'après les crédits du forfait.",
-      "dettaglio": "{{crediti}} crédits · €{{prezzo_credito}}/crédit",
+      "dettaglio": "{{crediti}} crédits · CHF {{prezzo_credito}}/crédit",
       "non_scadono": "N'expirent jamais"
     },
     "storage": {

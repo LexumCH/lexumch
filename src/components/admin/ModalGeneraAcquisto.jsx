@@ -324,7 +324,7 @@ export default function ModalGeneraAcquisto({ onClose, onSuccess }) {
                                                     </p>
                                                 </div>
                                                 <span className="font-body text-sm text-oro font-medium whitespace-nowrap">
-                                                    € {parseFloat(p.prezzo ?? 0).toFixed(2)}
+                                                    CHF {parseFloat(p.prezzo ?? 0).toFixed(2)}
                                                 </span>
                                             </div>
                                         </button>
@@ -352,7 +352,7 @@ export default function ModalGeneraAcquisto({ onClose, onSuccess }) {
                                                 onClick={() => setImporto('0')}
                                                 className="font-body text-xs text-nebbia/60 hover:text-oro border border-white/10 hover:border-oro/30 px-3 py-2.5 whitespace-nowrap"
                                             >
-                                                Omaggio (0 €)
+                                                Omaggio (CHF 0)
                                             </button>
                                             <button
                                                 onClick={() => setImporto(String(prodottoSelezionato.prezzo ?? 0))}
@@ -363,7 +363,7 @@ export default function ModalGeneraAcquisto({ onClose, onSuccess }) {
                                         </div>
                                         {isOmaggio && (
                                             <p className="font-body text-xs text-amber-400 mt-2">
-                                                Importo a 0 €: l'acquisto sara registrato come omaggio.
+                                                Importo a CHF 0: l'acquisto sara registrato come omaggio.
                                             </p>
                                         )}
                                     </div>
@@ -403,7 +403,7 @@ export default function ModalGeneraAcquisto({ onClose, onSuccess }) {
                                 <div className="flex justify-between">
                                     <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">Importo</span>
                                     <span className={`font-body text-sm font-medium ${isOmaggio ? 'text-amber-400' : 'text-oro'}`}>
-                                        € {parseFloat(importo ?? 0).toFixed(2)}
+                                        CHF {parseFloat(importo ?? 0).toFixed(2)}
                                         {isOmaggio && <span className="text-xs ml-2">(omaggio)</span>}
                                     </span>
                                 </div>

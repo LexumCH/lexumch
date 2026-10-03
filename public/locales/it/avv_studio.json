@@ -77,8 +77,8 @@
     "titolo": "Perché avere un piano?",
     "vantaggi": [
       { "titolo": "Gestione clienti", "desc": "Crea e gestisci i tuoi clienti, pratiche e documenti in un unico posto" },
-      { "titolo": "Banca dati sentenze", "desc": "Accedi a migliaia di sentenze caricate da altri avvocati (piani Pro)" },
-      { "titolo": "Monetizzazione", "desc": "Carica le tue sentenze e guadagna ogni volta che vengono acquistate (piani Pro)" },
+      { "titolo": "Banca Dati completa", "desc": "Norme, giurisprudenza e prassi, con i crediti Lex AI inclusi ogni mese" },
+      { "titolo": "Documenti, fatture e calendario", "desc": "Generatore di documenti, emissione di fatture e calendario degli appuntamenti" },
       { "titolo": "Studio multi-accesso", "desc": "Invita collaboratori e gestite insieme clienti e pratiche" }
     ],
     "scegli_piano": "Scegli un piano"
@@ -190,7 +190,7 @@
     "crediti": {
       "label": "Crediti AI extra",
       "descrizione": "Pacchetti aggiuntivi che non scadono mai. Si consumano solo dopo i crediti del piano.",
-      "dettaglio": "{{crediti}} crediti · €{{prezzo_credito}}/credito",
+      "dettaglio": "{{crediti}} crediti · CHF {{prezzo_credito}}/credito",
       "non_scadono": "Non scadono mai"
     },
     "storage": {
