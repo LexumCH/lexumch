@@ -4,7 +4,7 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
 
 ## Tappe
 
-- [ ] **1. Scheletro.**
+- [x] **1. Scheletro.**
   - Expo + TypeScript + expo-router.
   - Solo il tema Notte, con colori e caratteri presi da `docs/mockup/tela/lexum.css`.
   - Componenti base: intestazione, compositore della chat, chip, riga, foglio dal basso, menù laterale con le etichette.

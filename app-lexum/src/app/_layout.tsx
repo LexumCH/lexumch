@@ -1,0 +1,74 @@
+import { CormorantGaramond_500Medium } from '@expo-google-fonts/cormorant-garamond/500Medium';
+import { CormorantGaramond_500Medium_Italic } from '@expo-google-fonts/cormorant-garamond/500Medium_Italic';
+import { CormorantGaramond_600SemiBold } from '@expo-google-fonts/cormorant-garamond/600SemiBold';
+import { Outfit_400Regular } from '@expo-google-fonts/outfit/400Regular';
+import { Outfit_500Medium } from '@expo-google-fonts/outfit/500Medium';
+import { Outfit_600SemiBold } from '@expo-google-fonts/outfit/600SemiBold';
+import { useFonts } from 'expo-font';
+import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { View } from 'react-native';
+
+import { Cornice } from '@/anteprima/Cornice';
+import { MenuLaterale } from '@/componenti/MenuLaterale';
+import { MenuProvider } from '@/stato/Menu';
+import { StatoProvider } from '@/stato/Stato';
+import { colori } from '@/tema';
+
+SplashScreen.preventAutoHideAsync();
+
+// Tema «Notte» anche per la navigazione, così tra una schermata e l'altra non lampeggia il bianco.
+const temaNavigazione = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: colori.accent,
+    background: colori.bg,
+    card: colori.bg,
+    text: colori.fg,
+    border: colori.line,
+  },
+};
+
+export default function Radice() {
+  const [caricati, errore] = useFonts({
+    CormorantGaramond_500Medium,
+    CormorantGaramond_500Medium_Italic,
+    CormorantGaramond_600SemiBold,
+    Outfit_400Regular,
+    Outfit_500Medium,
+    Outfit_600SemiBold,
+  });
+
+  useEffect(() => {
+    if (caricati || errore) SplashScreen.hideAsync();
+  }, [caricati, errore]);
+
+  if (!caricati && !errore) return null;
+
+  return (
+    <ThemeProvider value={temaNavigazione}>
+      <StatoProvider>
+        <MenuProvider>
+          <StatusBar style="light" />
+          <Cornice>
+            <View style={{ flex: 1, backgroundColor: colori.bg }}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: colori.bg },
+                  animation: 'slide_from_right',
+                }}
+              >
+                <Stack.Screen name="passaggio" options={{ animation: 'fade', gestureEnabled: false }} />
+              </Stack>
+              <MenuLaterale />
+            </View>
+          </Cornice>
+        </MenuProvider>
+      </StatoProvider>
+    </ThemeProvider>
+  );
+}

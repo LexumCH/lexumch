@@ -1,10 +1,32 @@
+# dipendenze
 node_modules/
+
+# Expo
 .expo/
 dist/
 web-build/
+expo-env.d.ts
+
+# cartelle native generate (le build si fanno con EAS)
 ios/
 android/
+.kotlin/
+
+# chiavi e firme
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# Metro e TypeScript
+.metro-health-check*
+*.tsbuildinfo
+
+# varie
 *.log
+*.orig.*
 .env
 .env.*
 .DS_Store
