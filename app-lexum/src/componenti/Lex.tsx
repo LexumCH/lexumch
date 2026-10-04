@@ -27,6 +27,7 @@ export function BollaDomanda({ testo, piccola }: { testo: string; piccola?: bool
 
 // .cit: citazione di una fonte, dentro il testo. Toccandola si apre la fonte.
 export function Citazione({ testo, onPress }: { testo: string; onPress?: () => void }) {
+  const { t } = useTesti();
   if (!onPress) {
     return (
       <View style={stili.cit}>
@@ -38,7 +39,7 @@ export function Citazione({ testo, onPress }: { testo: string; onPress?: () => v
     <Pressable
       onPress={onPress}
       accessibilityRole="link"
-      accessibilityLabel={`Apri la fonte: ${testo}`}
+      accessibilityLabel={t('chat.lex.apriFonte', { fonte: testo })}
       hitSlop={{ top: 11, bottom: 11 }}
       style={({ pressed }) => [stili.cit, pressed && { backgroundColor: colori.accentSoft }]}
     >
@@ -93,12 +94,13 @@ export function RispostaLex({
 
 // .passi: le fasi di attesa mentre Lex lavora.
 export function Passi({ passi, attivo, onPress }: { passi: string[]; attivo: number; onPress?: () => void }) {
+  const { t } = useTesti();
   return (
     <Pressable
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Lex sta lavorando: ${passi[attivo]}. Tocca per vedere subito la risposta.`}
+      accessibilityLabel={t('chat.lex.lavora', { passo: passi[attivo] })}
       style={stili.passi}
     >
       {passi.map((passo, i) => {
@@ -118,7 +120,7 @@ export function Passi({ passi, attivo, onPress }: { passi: string[]; attivo: num
             >
               {passo}
             </Text>
-            {ora ? <Text style={stili.inCorso}>in corso</Text> : null}
+            {ora ? <Text style={stili.inCorso}>{t('chat.lex.inCorso')}</Text> : null}
           </View>
         );
       })}

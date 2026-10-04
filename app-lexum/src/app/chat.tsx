@@ -18,8 +18,9 @@ import { FoglioEsauriti } from '@/fogli/FoglioEsauriti';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
 import { FoglioNuovaChat } from '@/fogli/FoglioNuovaChat';
 import { FoglioSalva } from '@/fogli/FoglioSalva';
+import { useTesti } from '@/lingue/useTesti';
 import { useVaiASezione } from '@/navigazione';
-import { contenuti } from '@/paesi/contenuti';
+import { contenutiIn } from '@/paesi/contenuti';
 import { paesePredefinito, trovaPaese } from '@/paesi/registro';
 import { useOffline } from '@/stato/connessione';
 import { useStato } from '@/stato/Stato';
@@ -27,13 +28,12 @@ import { colori } from '@/tema';
 
 type Foglio = 'fonte' | 'allega' | 'esauriti' | 'salva' | 'nuova';
 
-const nomiLingua = { it: 'italiano', de: 'tedesco', fr: 'francese' } as const;
-
 // B1–B8 e G4 · La home è la chat con Lex.
 // La chat in corso resta finché non la salvi o non ne apri una nuova; aprire una fonte
 // o una legge non la chiude.
 export default function Chat() {
   const { paese, conto, chat, lingua, chatDaSalvare, utente, azioni } = useStato();
+  const { t, lingua: linguaTesti } = useTesti();
   const vai = useVaiASezione();
   const offline = useOffline();
   // Il foglio aperto sta nei parametri dell'indirizzo (?foglio=…&norma=…): così si apre anche
@@ -46,7 +46,7 @@ export default function Chat() {
     router.setParams(id ? { foglio: 'fonte', norma: id } : { foglio: undefined, norma: undefined });
   const [bozza, setBozza] = useState('');
   const scorre = useRef<ScrollView>(null);
-  const testi = contenuti[paese];
+  const testi = contenutiIn(paese, linguaTesti);
   const vuota = chat.messaggi.length === 0 && !chat.inCorso;
 
   useEffect(() => {
@@ -67,15 +67,15 @@ export default function Chat() {
       <Intestazione
         sinistra={<BottoneMenu />}
         centro={vuota ? <LexBadge /> : undefined}
-        titolo={vuota ? undefined : (chat.titolo ?? 'Nuova chat')}
+        titolo={vuota ? undefined : (chat.titolo ?? t('interfaccia.voci.nuovaChat'))}
         paese
         destra={<ContatoreCrediti />}
       />
       {chatDaSalvare && !chat.inCorso ? (
         <Striscia
           icona="segnalibro"
-          testo="Chat non salvata: con un'etichetta la ritrovi anche dal computer."
-          azione="Salva"
+          testo={t('chat.nonSalvata.testo')}
+          azione={t('chat.nonSalvata.azione')}
           onPress={() => setFoglio('salva')}
         />
       ) : null}
@@ -88,10 +88,10 @@ export default function Chat() {
               <Testo tipo="dM" accessibilityRole="header">
                 {utente.nome ? (
                   <>
-                    Ciao <Evidenza oro>{utente.nome}</Evidenza>
+                    {t('chat.home.ciao')} <Evidenza oro>{utente.nome}</Evidenza>
                   </>
                 ) : (
-                  'Ciao'
+                  t('chat.home.ciao')
                 )}
               </Testo>
               <Testo colore={colori.fg2}>{testi.homeSottotitolo}</Testo>
@@ -103,11 +103,11 @@ export default function Chat() {
                 <View style={{ flex: 1, gap: 3 }}>
                   <Testo medio style={{ fontSize: 15 }}>
                     {conto.creditiBenvenuto === 1
-                      ? '1 credito di benvenuto'
-                      : `${conto.creditiBenvenuto} crediti di benvenuto`}
+                      ? t('chat.home.creditoBenvenutoUno')
+                      : t('chat.home.creditoBenvenutoMolti', { n: conto.creditiBenvenuto })}
                   </Testo>
                   <Testo tipo="small" colore={colori.fg2}>
-                    La tua prima domanda a Lex è gratuita. La Banca dati è sempre libera.
+                    {t('chat.home.primaGratis')}
                   </Testo>
                 </View>
               </Scheda>
@@ -116,18 +116,22 @@ export default function Chat() {
                 <BadgePaese codice={paese} piccolo />
                 <View style={{ flex: 1, gap: 3 }}>
                   <Testo medio style={{ fontSize: 15 }}>
-                    Sei nella banca dati {testi.aggettivoFemminile}
+                    {t(`chat.home.seiNella.${paese as 'IT' | 'CH'}`)}
                   </Testo>
                   <Testo tipo="small" colore={colori.fg2}>
-                    {conto.scadenzaPiano ? `${conto.piano} fino al ${conto.scadenzaPiano}` : conto.piano}
-                    {trovaPaese(paese).lingue.length > 1 ? ` · app in ${nomiLingua[lingua]}` : ''}
+                    {conto.scadenzaPiano
+                      ? t('chat.home.pianoFino', { piano: conto.piano, data: conto.scadenzaPiano })
+                      : conto.piano}
+                    {trovaPaese(paese).lingue.length > 1
+                      ? ` · ${t('chat.home.appIn', { lingua: t(`chat.home.lingue.${lingua}`) })}`
+                      : ''}
                   </Testo>
                 </View>
               </Scheda>
             ) : null}
 
             <View style={{ gap: 6 }}>
-              <Testo tipo="cap">Per iniziare, prova con:</Testo>
+              <Testo tipo="cap">{t('chat.home.perIniziare')}</Testo>
               {testi.esempi.map((e) => (
                 <Chip key={e} testo={e} onPress={() => invia(e)} />
               ))}
@@ -156,12 +160,12 @@ export default function Chat() {
             {chat.inCorso ? (
               <View style={{ gap: 12 }}>
                 <FirmaLex />
-                <Testo colore={colori.fg2}>Lex sta consultando le fonti</Testo>
+                <Testo colore={colori.fg2}>{t('chat.attesa.consulta')}</Testo>
                 <Passi passi={testi.passi} attivo={chat.passo} onPress={azioni.mostraSubitoRisposta} />
                 <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
                   <Icona nome="campanella" dimensione={18} colore={colori.fg3} />
                   <Testo tipo="small" colore={colori.fg3} style={{ flex: 1 }}>
-                    Puoi chiudere l'app: ti avvisiamo quando la risposta è pronta.
+                    {t('chat.attesa.puoiChiudere')}
                   </Testo>
                 </View>
               </View>
@@ -232,6 +236,7 @@ export default function Chat() {
 
 // Lex non ha risposto: messaggio generico (mai nomi di fornitori) e il credito resta.
 function ErroreLex({ messaggio, onRiprova }: { messaggio: string; onRiprova: () => void }) {
+  const { t } = useTesti();
   return (
     <View style={{ gap: 12 }} accessibilityLiveRegion="polite">
       <FirmaLex />
@@ -239,14 +244,20 @@ function ErroreLex({ messaggio, onRiprova }: { messaggio: string; onRiprova: () 
         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
           <Icona nome="avviso" dimensione={18} colore={colori.warn} />
           <Testo medio style={{ flex: 1, fontSize: 15 }}>
-            Lex non è riuscito a rispondere
+            {t('chat.errore.titolo')}
           </Testo>
         </View>
         <Testo tipo="small" colore={colori.fg2}>
           {messaggio}
         </Testo>
-        <Testo tipo="cap">Il credito non è stato scalato.</Testo>
-        <Pulsante titolo="Riprova" variante="linea" piccolo icona="riprova" onPress={onRiprova} />
+        <Testo tipo="cap">{t('chat.errore.credito')}</Testo>
+        <Pulsante
+          titolo={t('chat.errore.riprova')}
+          variante="linea"
+          piccolo
+          icona="riprova"
+          onPress={onRiprova}
+        />
       </Scheda>
     </View>
   );
@@ -262,6 +273,7 @@ function AzioniRisposta({
   salvata: boolean;
   onSalva: () => void;
 }) {
+  const { t } = useTesti();
   const condividi = () => {
     const testo = [risposta.titolo, risposta.inBreve, ...risposta.punti.map((p) => p.titolo), risposta.nota]
       .filter(Boolean)
@@ -270,7 +282,7 @@ function AzioniRisposta({
   };
   return (
     <View style={stili.azioni}>
-      <PulsanteIcona icona="copia" etichetta="Copia la risposta" dimensione={20} />
+      <PulsanteIcona icona="copia" etichetta={t('chat.risposta.copia')} dimensione={20} />
       <Pulsante
         titolo="PDF"
         icona="scarica"
@@ -279,7 +291,7 @@ function AzioniRisposta({
         stile={{ paddingHorizontal: 10, gap: 7 }}
       />
       <Pulsante
-        titolo={salvata ? 'Salvata' : 'Salva'}
+        titolo={salvata ? t('chat.risposta.salvata') : t('chat.risposta.salva')}
         icona="segnalibro"
         variante="tenue"
         piccolo
@@ -287,7 +299,12 @@ function AzioniRisposta({
         onPress={salvata ? undefined : onSalva}
         disabilitato={salvata}
       />
-      <PulsanteIcona icona="condividi" etichetta="Condividi" dimensione={20} onPress={condividi} />
+      <PulsanteIcona
+        icona="condividi"
+        etichetta={t('chat.risposta.condividi')}
+        dimensione={20}
+        onPress={condividi}
+      />
     </View>
   );
 }

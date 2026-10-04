@@ -339,7 +339,10 @@ const argomenti: Record<string, { parole: string[]; risposta: RispostaFinta }[]>
       parole: ['disdett', 'malatt', 'licenzi', 'kundig', 'krank', 'licenci', 'maladie', 'resili'],
       risposta: disdettaMalattiaCH,
     },
-    { parole: ['tassazion', 'impost', 'tasse', 'steuer', 'impot', 'fiscal'], risposta: reclamoTassazioneCH },
+    {
+      parole: ['tassazion', 'impost', 'tasse', 'steuer', 'impot', 'fiscal', 'veranlagung', 'taxation'],
+      risposta: reclamoTassazioneCH,
+    },
   ],
 };
 

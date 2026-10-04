@@ -11,6 +11,7 @@ import { Schermata } from '@/componenti/Schermata';
 import { Eyebrow, Testo } from '@/componenti/Testo';
 import { documentiFinti, trovaNorma } from '@/dati-finti/banca-dati';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
+import { useTesti } from '@/lingue/useTesti';
 import { useVaiASezione } from '@/navigazione';
 import { colori, famiglie } from '@/tema';
 
@@ -18,15 +19,19 @@ import { colori, famiglie } from '@/tema';
 export default function Documento() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const vai = useVaiASezione();
+  const { t } = useTesti();
   const doc = documentiFinti[id];
   const [norma, setNorma] = useState<string | null>(null);
 
   if (!doc) {
     return (
       <Schermata>
-        <Intestazione sinistra={<BottoneIndietro ripiego="/banca-dati" />} titolo="Documento" />
+        <Intestazione
+          sinistra={<BottoneIndietro ripiego="/banca-dati" />}
+          titolo={t('bancaDati.documento.titolo')}
+        />
         <Testo colore={colori.fg2} style={{ padding: 20 }}>
-          Questo documento non è nei dati di prova.
+          {t('bancaDati.documento.assente')}
         </Testo>
       </Schermata>
     );
@@ -36,11 +41,11 @@ export default function Documento() {
     <Schermata>
       <Intestazione
         sinistra={<BottoneIndietro ripiego="/banca-dati/risultati" />}
-        titolo={doc.tipo}
+        titolo={t(`bancaDati.tipi.${doc.tipo}`)}
         destra={
           <PulsanteIcona
             icona="condividi"
-            etichetta="Condividi"
+            etichetta={t('chat.risposta.condividi')}
             dimensione={20}
             onPress={() =>
               Share.share({ message: `${doc.titolo}\n${doc.riferimento}` }).catch(() => undefined)
@@ -51,8 +56,8 @@ export default function Documento() {
       <ScrollView contentContainerStyle={stili.corpo}>
         <View style={{ gap: 10 }}>
           <View style={{ flexDirection: 'row', gap: 6 }}>
-            <Badge tono={doc.tipo === 'Sentenza' ? 'ok' : 'neutro'}>{doc.tipo}</Badge>
-            <Badge>Gratuita</Badge>
+            <Badge tono={doc.tipo === 'Sentenza' ? 'ok' : 'neutro'}>{t(`bancaDati.tipi.${doc.tipo}`)}</Badge>
+            <Badge>{t('bancaDati.documento.gratuita')}</Badge>
           </View>
           <Testo tipo="dS" style={{ fontSize: 24, lineHeight: 28 }} accessibilityRole="header">
             {doc.titolo}
@@ -67,7 +72,7 @@ export default function Documento() {
         <Separatore />
         {doc.principi.length > 0 ? (
           <View style={{ gap: 12 }}>
-            <Eyebrow>Principio di diritto</Eyebrow>
+            <Eyebrow>{t('bancaDati.documento.principio')}</Eyebrow>
             <View style={{ gap: 10 }}>
               {doc.principi.map((p, i) => (
                 <View key={i} style={{ flexDirection: 'row', gap: 12 }}>
@@ -79,7 +84,7 @@ export default function Documento() {
           </View>
         ) : null}
         <View style={{ gap: 8 }}>
-          <Eyebrow>Norme richiamate</Eyebrow>
+          <Eyebrow>{t('bancaDati.documento.norme')}</Eyebrow>
           <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
             {doc.norme.map((n) => (
               <Citazione key={n.cit} testo={n.cit} onPress={() => setNorma(n.norma)} />
@@ -88,7 +93,7 @@ export default function Documento() {
         </View>
         <View style={{ marginHorizontal: -20 }}>
           <Riga
-            titolo="Testo integrale"
+            titolo={t('bancaDati.documento.testoIntegrale')}
             freccia="avanti"
             altezza={52}
             stile={{ paddingVertical: 8 }}
@@ -99,10 +104,15 @@ export default function Documento() {
       </ScrollView>
 
       <BarraAzioni>
-        <Pulsante titolo="Chiedi a Lex" icona="stella" stile={{ flex: 1 }} onPress={() => vai('/chat')} />
+        <Pulsante
+          titolo={t('bancaDati.documento.chiedi')}
+          icona="stella"
+          stile={{ flex: 1 }}
+          onPress={() => vai('/chat')}
+        />
         <Pulsante
           titolo=""
-          etichetta="Aggiungi a etichetta"
+          etichetta={t('bancaDati.documento.aggiungi')}
           variante="linea"
           icona="etichetta"
           stile={{ width: 52, paddingHorizontal: 0, gap: 0 }}
@@ -112,7 +122,7 @@ export default function Documento() {
 
       <FoglioNorma
         norma={norma ? trovaNorma(norma) : null}
-        eyebrow="Norma richiamata"
+        eyebrow={t('bancaDati.documento.normaRichiamata')}
         onChiudi={() => setNorma(null)}
         onApriLegge={(leggeId) => {
           setNorma(null);

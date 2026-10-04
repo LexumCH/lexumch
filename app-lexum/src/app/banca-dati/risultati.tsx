@@ -11,17 +11,20 @@ import { Caricamento, StatoVuoto } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
 import { risultatiFinti, trovaNorma, type Risultato, type TipoRisultato } from '@/dati-finti/banca-dati';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
+import type { Chiave } from '@/lingue';
+import { useTesti } from '@/lingue/useTesti';
 import { useVaiASezione } from '@/navigazione';
 import { useOffline } from '@/stato/connessione';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
-const filtri: { titolo: string; tipi: TipoRisultato[] | null }[] = [
-  { titolo: 'Tutto', tipi: null },
-  { titolo: 'Norme', tipi: ['Norma'] },
-  { titolo: 'Sentenze', tipi: ['Sentenza'] },
-  { titolo: 'Prassi', tipi: ['Prassi'] },
-  { titolo: 'UE', tipi: ['UE'] },
+// «titolo» resta il nome del filtro (anche nell'indirizzo); sullo schermo si legge «testo» nella lingua dell'app.
+const filtri: { titolo: string; testo: Chiave; tipi: TipoRisultato[] | null }[] = [
+  { titolo: 'Tutto', testo: 'bancaDati.filtri.tutto', tipi: null },
+  { titolo: 'Norme', testo: 'bancaDati.filtri.norme', tipi: ['Norma'] },
+  { titolo: 'Sentenze', testo: 'bancaDati.filtri.sentenze', tipi: ['Sentenza'] },
+  { titolo: 'Prassi', testo: 'bancaDati.filtri.prassi', tipi: ['Prassi'] },
+  { titolo: 'UE', testo: 'bancaDati.filtri.ue', tipi: ['UE'] },
 ];
 
 const tonoBadge = { Norma: 'oro', Sentenza: 'ok', Prassi: 'neutro', UE: 'neutro' } as const;
@@ -47,6 +50,7 @@ const paroleVuote = new Set([
 // cambiano solo le parole evidenziate. La ricerca vera arriva con la tappa 5.
 export default function Risultati() {
   const { paese, simula } = useStato();
+  const { t } = useTesti();
   const offline = useOffline();
   const vai = useVaiASezione();
   const parametri = useLocalSearchParams<{ q?: string; filtro?: string }>();
@@ -72,8 +76,8 @@ export default function Risultati() {
       <View style={stili.testa}>
         <BottoneIndietro ripiego="/banca-dati" />
         <CampoCerca
-          etichetta="Cerca nella banca dati"
-          placeholder="Parole, articolo o numero…"
+          etichetta={t('bancaDati.cerca')}
+          placeholder={t('bancaDati.segnaposto')}
           alto={44}
           value={testo}
           onChangeText={setTesto}
@@ -92,16 +96,16 @@ export default function Risultati() {
         {filtri.map((f) => (
           <Tag
             key={f.titolo}
-            titolo={f.titolo}
+            titolo={t(f.testo)}
             attivo={f.titolo === filtro}
             onPress={() => setFiltro(f.titolo)}
           />
         ))}
       </ScrollView>
       <View style={stili.ordine}>
-        <Testo tipo="cap">Ordinati per pertinenza</Testo>
+        <Testo tipo="cap">{t('bancaDati.ordinati')}</Testo>
         <Pulsante
-          titolo="Anno, organo"
+          titolo={t('bancaDati.annoOrgano')}
           icona="filtri"
           variante="tenue"
           piccolo
@@ -114,8 +118,8 @@ export default function Risultati() {
         {offline ? (
           <StatoVuoto
             icona="offline"
-            titolo="Senza connessione"
-            testo="La ricerca nella Banca dati torna appena sei online."
+            titolo={t('bancaDati.offlineTitolo')}
+            testo={t('bancaDati.offlineTesto')}
           />
         ) : null}
         {!offline && simula.caricamento ? <Caricamento /> : null}
@@ -127,7 +131,7 @@ export default function Risultati() {
             style={({ pressed }) => [stili.risultato, pressed && { backgroundColor: colori.bg2 }]}
           >
             <View style={stili.tipo}>
-              <Badge tono={tonoBadge[r.tipo]}>{r.tipo}</Badge>
+              <Badge tono={tonoBadge[r.tipo]}>{t(`bancaDati.tipi.${r.tipo}`)}</Badge>
               <Testo tipo="mini" style={{ flex: 1 }}>
                 {r.riferimento}
               </Testo>
@@ -137,18 +141,14 @@ export default function Risultati() {
           </Pressable>
         ))}
         {!offline && !simula.caricamento && risultati.length === 0 ? (
-          <StatoVuoto
-            icona="cerca"
-            titolo="Nessun risultato"
-            testo="Prova con altre parole o togli il filtro."
-          />
+          <StatoVuoto icona="cerca" titolo={t('bancaDati.vuotoTitolo')} testo={t('bancaDati.vuotoTesto')} />
         ) : null}
       </ScrollView>
 
       <FoglioNorma
         norma={norma ? trovaNorma(norma) : null}
-        eyebrow="Norma"
-        nota="Evidenziato il passaggio più vicino alla tua ricerca."
+        eyebrow={t('bancaDati.norma')}
+        nota={t('bancaDati.notaRicerca')}
         onChiudi={() => setNorma(null)}
         onApriLegge={(id) => {
           setNorma(null);

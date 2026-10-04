@@ -52,7 +52,8 @@ describe('lingue dell’app', () => {
     expect(contenutiIn('CH', 'fr').totaleDocumenti).toBe('Plus de 1,8 million de documents');
     expect(contenutiIn('CH', 'de').totaleDocumenti).toBe('Über 1,8 Millionen Dokumente');
     // quello che non è tradotto resta in italiano
-    expect(contenutiIn('CH', 'de').esempi).toEqual(contenutiIn('CH', 'it').esempi);
+    expect(contenutiIn('CH', 'de').aggettivo).toBe('svizzero');
+    expect(contenutiIn('IT', 'de').esempi).toEqual(contenutiIn('IT', 'it').esempi);
     expect(contenutiIn('IT', 'it').benvenuto.titoloDopo).toBeUndefined();
   });
 });

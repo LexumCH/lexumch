@@ -11,7 +11,7 @@ import {
   type Etichetta,
 } from '@/dati-finti/ricerche';
 import { salvaPaese } from '@/backend/telefono';
-import { linguaTelefono } from '@/lingue';
+import { linguaDelPaese, linguaTelefono } from '@/lingue';
 import { datiVeri } from '@/config';
 import { messaggioErrore } from '@/errori';
 import { coloriEtichette } from '@/tema';
@@ -586,7 +586,10 @@ function concludi(s: Stato): Stato {
           {
             id: nuovoId('m'),
             da: 'errore',
-            testo: messaggioErrore('Edge Function returned a non-2xx status code'),
+            testo: messaggioErrore(
+              'Edge Function returned a non-2xx status code',
+              linguaDelPaese(s.paese, s.lingua),
+            ),
           },
         ],
       },

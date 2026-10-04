@@ -5,6 +5,7 @@ import { Foglio } from '@/componenti/Foglio';
 import { PulsanteIcona, Pulsante } from '@/componenti/Pulsante';
 import { Eyebrow, Testo } from '@/componenti/Testo';
 import type { Norma } from '@/dati-finti/chat';
+import { useTesti } from '@/lingue/useTesti';
 import { colori, famiglie } from '@/tema';
 
 type Props = {
@@ -18,14 +19,8 @@ type Props = {
 
 // B4 · Fonte citata: il testo della norma con il passaggio evidenziato.
 // Si usa dalla chat, dai risultati della Banca dati, da Sfoglia e da Ricerche.
-export function FoglioNorma({
-  norma,
-  onChiudi,
-  eyebrow = 'Norma citata',
-  nota = 'Evidenziato il passaggio usato da Lex.',
-  onApriLegge,
-  onSalva,
-}: Props) {
+export function FoglioNorma({ norma, onChiudi, eyebrow, nota, onApriLegge, onSalva }: Props) {
+  const { t } = useTesti();
   // tiene la norma durante l'animazione di chiusura
   const [ultima, setUltima] = useState(norma);
   if (norma && norma !== ultima) setUltima(norma);
@@ -38,13 +33,18 @@ export function FoglioNorma({
         <>
           <View style={stili.testa}>
             <View style={{ flex: 1, gap: 6 }}>
-              <Eyebrow>{eyebrow}</Eyebrow>
+              <Eyebrow>{eyebrow ?? t('chat.norma.citata')}</Eyebrow>
               <Testo tipo="dS">{n.legge}</Testo>
               <Testo tipo="small" colore={colori.fg2}>
                 {n.articolo}
               </Testo>
             </View>
-            <PulsanteIcona icona="chiudi" etichetta="Chiudi" onPress={onChiudi} stile={stili.chiudi} />
+            <PulsanteIcona
+              icona="chiudi"
+              etichetta={t('interfaccia.chiudi')}
+              onPress={onChiudi}
+              stile={stili.chiudi}
+            />
           </View>
           <View style={stili.doc}>
             {conTesto ? (
@@ -55,16 +55,14 @@ export function FoglioNorma({
                 {n.dopo}
               </Text>
             ) : (
-              <Text style={[stili.docTesto, { color: colori.fg3 }]}>
-                Testo dell'articolo non disponibile nei dati di prova: arriva con la Banca dati vera.
-              </Text>
+              <Text style={[stili.docTesto, { color: colori.fg3 }]}>{t('chat.norma.nonDisponibile')}</Text>
             )}
           </View>
-          {n.evidenziato ? <Testo tipo="cap">{nota}</Testo> : null}
+          {n.evidenziato ? <Testo tipo="cap">{nota ?? t('chat.norma.nota')}</Testo> : null}
           <View style={stili.azioni}>
             {onApriLegge && n.leggeId ? (
               <Pulsante
-                titolo="Apri la legge"
+                titolo={t('chat.norma.apriLegge')}
                 variante="linea"
                 stile={{ flex: 1 }}
                 onPress={() => onApriLegge(n.leggeId as string)}
@@ -72,7 +70,7 @@ export function FoglioNorma({
             ) : null}
             {onSalva ? (
               <Pulsante
-                titolo="Salva"
+                titolo={t('chat.norma.salva')}
                 variante="pieno"
                 icona="segnalibro"
                 stile={{ flex: 1 }}

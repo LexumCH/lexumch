@@ -12,6 +12,7 @@ import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import { leggiFinte, trovaNorma, type Articolo } from '@/dati-finti/banca-dati';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
+import { useTesti } from '@/lingue/useTesti';
 import { indietro, useVaiASezione } from '@/navigazione';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
@@ -22,6 +23,7 @@ type Props = { leggeId: string; daChat?: boolean };
 // Dalla chat la legge si apre sopra: «indietro» torna alla chat, che resta com'era.
 export function SchermataLegge({ leggeId, daChat }: Props) {
   const { chat } = useStato();
+  const { t } = useTesti();
   const vai = useVaiASezione();
   const legge = leggiFinte[leggeId];
   const [filtro, setFiltro] = useState('');
@@ -45,10 +47,10 @@ export function SchermataLegge({ leggeId, daChat }: Props) {
       <Schermata>
         <Intestazione
           sinistra={<BottoneIndietro ripiego={daChat ? '/chat' : '/banca-dati'} />}
-          titolo="Legge"
+          titolo={t('bancaDati.legge.titolo')}
         />
         <Testo colore={colori.fg2} style={{ padding: 20 }}>
-          Questa legge non è nei dati di prova.
+          {t('bancaDati.legge.assente')}
         </Testo>
       </Schermata>
     );
@@ -58,7 +60,7 @@ export function SchermataLegge({ leggeId, daChat }: Props) {
   const corrisponde = (a: Articolo) =>
     !q || a.numero.toLowerCase().includes(q) || a.rubrica.toLowerCase().includes(q);
   const citato = (a: Articolo) => citate.has(a.norma) || !!a.alias?.some((x) => citate.has(x));
-  const titoloChat = chat.titolo ?? 'Nuova chat';
+  const titoloChat = chat.titolo ?? t('interfaccia.voci.nuovaChat');
 
   return (
     <Schermata>
@@ -66,14 +68,14 @@ export function SchermataLegge({ leggeId, daChat }: Props) {
         sinistra={
           <BottoneIndietro
             ripiego={daChat ? '/chat' : '/banca-dati'}
-            etichetta={daChat ? 'Torna alla chat' : 'Indietro'}
+            etichetta={daChat ? t('bancaDati.legge.tornaChat') : t('interfaccia.indietro')}
           />
         }
         titolo={daChat ? legge.sigla : legge.sezione}
         destra={
           <PulsanteIcona
             icona={daChat ? 'etichetta' : 'segnalibro'}
-            etichetta={daChat ? "Salva la legge in un'etichetta" : 'Salva la legge'}
+            etichetta={daChat ? t('bancaDati.legge.salvaEtichetta') : t('bancaDati.legge.salva')}
             dimensione={20}
           />
         }
@@ -81,7 +83,7 @@ export function SchermataLegge({ leggeId, daChat }: Props) {
       <View style={stili.testa}>
         <View style={stili.briciole}>
           {daChat ? (
-            <Text style={stili.briciolaTesto}>Aperta dalla chat «{titoloChat}»</Text>
+            <Text style={stili.briciolaTesto}>{t('bancaDati.legge.apertaDa', { titolo: titoloChat })}</Text>
           ) : (
             legge.briciole.map((b, i) => (
               <View key={b} style={stili.briciola}>
@@ -99,8 +101,8 @@ export function SchermataLegge({ leggeId, daChat }: Props) {
         </Testo>
         {daChat ? null : (
           <CampoCerca
-            etichetta="Cerca nella legge"
-            placeholder="Cerca per articolo, rubrica o testo…"
+            etichetta={t('bancaDati.legge.cerca')}
+            placeholder={t('bancaDati.legge.segnaposto')}
             alto={46}
             value={filtro}
             onChangeText={setFiltro}
@@ -134,7 +136,9 @@ export function SchermataLegge({ leggeId, daChat }: Props) {
                 }
                 freccia={aperto ? 'su' : 'giu'}
                 onPress={() => setAperti((a) => ({ ...a, [g.titolo]: !aperto }))}
-                etichetta={`${g.titolo}, ${aperto ? 'chiudi' : 'apri'}`}
+                etichetta={t(aperto ? 'bancaDati.legge.chiudi' : 'bancaDati.legge.apri', {
+                  titolo: g.titolo,
+                })}
               />
               {aperto
                 ? articoli.map((a) => {
@@ -148,12 +152,12 @@ export function SchermataLegge({ leggeId, daChat }: Props) {
                         sottotitolo={
                           c
                             ? daChat
-                              ? 'Citato da Lex in questa chat'
-                              : 'Citato da Lex nella tua ultima chat'
+                              ? t('bancaDati.legge.citatoQui')
+                              : t('bancaDati.legge.citatoUltima')
                             : undefined
                         }
                         onPress={() => setNorma(a.norma)}
-                        etichetta={`Articolo ${a.numero}: ${a.rubrica}`}
+                        etichetta={t('bancaDati.legge.articolo', { numero: a.numero, rubrica: a.rubrica })}
                       />
                     );
                   })
@@ -166,20 +170,20 @@ export function SchermataLegge({ leggeId, daChat }: Props) {
       {daChat ? (
         <BarraAzioni stile={{ flexDirection: 'column', gap: 6 }}>
           <Pulsante
-            titolo="Torna alla chat"
+            titolo={t('bancaDati.legge.tornaChat')}
             variante="linea"
             icona="fumetto"
             onPress={() => indietro('/chat')}
           />
           <Testo tipo="cap" centrato>
-            La chat resta aperta dove l'hai lasciata.
+            {t('bancaDati.legge.restaAperta')}
           </Testo>
         </BarraAzioni>
       ) : null}
 
       <FoglioNorma
         norma={norma ? trovaNorma(norma) : null}
-        eyebrow={daChat ? 'Norma citata' : 'Norma'}
+        eyebrow={daChat ? t('chat.norma.citata') : t('bancaDati.norma')}
         onChiudi={() => setNorma(null)}
         onSalva={() => {
           setNorma(null);

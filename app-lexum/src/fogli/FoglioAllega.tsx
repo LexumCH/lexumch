@@ -4,6 +4,7 @@ import { IconaQuadrata } from '@/componenti/Elementi';
 import { Foglio } from '@/componenti/Foglio';
 import { Riga } from '@/componenti/Riga';
 import { Testo } from '@/componenti/Testo';
+import { useTesti } from '@/lingue/useTesti';
 import { colori } from '@/tema';
 
 type Props = {
@@ -15,38 +16,39 @@ type Props = {
 // B5 · Allega un documento. Scanner e file del telefono arrivano con le tappe 3 e 6:
 // per ora quelle due voci chiudono soltanto il foglio.
 export function FoglioAllega({ visibile, onChiudi, onArchivio }: Props) {
+  const { t } = useTesti();
   return (
     <Foglio visibile={visibile} onChiudi={onChiudi}>
       <View style={{ gap: 6 }}>
-        <Testo tipo="dS">Allega un documento</Testo>
+        <Testo tipo="dS">{t('chat.allega.titolo')}</Testo>
         <Testo tipo="small" colore={colori.fg2}>
-          Lex lo legge, lo confronta con la legge e risponde alla tua domanda.
+          {t('chat.allega.testo')}
         </Testo>
       </View>
       <View style={{ marginHorizontal: -20 }}>
         <Riga
           sinistra={<IconaQuadrata nome="fotocamera" />}
-          titolo="Scansiona con la fotocamera"
-          sottotitolo="Lettere, multe, contratti su carta: diventano un PDF"
+          titolo={t('chat.allega.scansiona')}
+          sottotitolo={t('chat.allega.scansionaSotto')}
           freccia="avanti"
           onPress={onChiudi}
         />
         <Riga
           sinistra={<IconaQuadrata nome="cartella" />}
-          titolo="Dal tuo dispositivo"
-          sottotitolo="PDF, Word o testo"
+          titolo={t('chat.allega.dispositivo')}
+          sottotitolo={t('chat.allega.dispositivoSotto')}
           freccia="avanti"
           onPress={onChiudi}
         />
         <Riga
           sinistra={<IconaQuadrata nome="archivio" />}
-          titolo="Dal tuo archivio"
-          sottotitolo="I documenti che hai già salvato su Lexum"
+          titolo={t('chat.allega.archivio')}
+          sottotitolo={t('chat.allega.archivioSotto')}
           freccia="avanti"
           onPress={onArchivio}
         />
       </View>
-      <Testo tipo="cap">Se non lo salvi nell'archivio, il documento si cancella da solo dopo 4 ore.</Testo>
+      <Testo tipo="cap">{t('chat.allega.nota')}</Testo>
     </Foglio>
   );
 }

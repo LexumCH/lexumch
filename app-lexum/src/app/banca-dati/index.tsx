@@ -9,7 +9,8 @@ import { Riga } from '@/componenti/Riga';
 import { Schermata } from '@/componenti/Schermata';
 import { Eyebrow, Testo } from '@/componenti/Testo';
 import { cercateDiRecenteFinte, leggePerPaese } from '@/dati-finti/banca-dati';
-import { contenuti, type Fonte } from '@/paesi/contenuti';
+import { useTesti } from '@/lingue/useTesti';
+import { contenutiIn, type Fonte } from '@/paesi/contenuti';
 import { trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
@@ -26,7 +27,8 @@ const filtroPerFonte: Record<string, string> = {
 // C2 e G5 · Banca dati: ricerca per parole (gratis) e fonti da sfogliare, diverse per paese.
 export default function BancaDati() {
   const { paese } = useStato();
-  const testi = contenuti[paese];
+  const { t, lingua } = useTesti();
+  const testi = contenutiIn(paese, lingua);
   const fonti = trovaPaese(paese)
     .fontiBancaDati.map((codice) => ({ codice, fonte: testi.fonti[codice] }))
     .filter((x): x is { codice: string; fonte: Fonte } => !!x.fonte);
@@ -46,20 +48,20 @@ export default function BancaDati() {
 
   return (
     <Schermata>
-      <Intestazione sinistra={<BottoneMenu />} titolo="Banca dati" paese />
+      <Intestazione sinistra={<BottoneMenu />} titolo={t('interfaccia.voci.bancaDati')} paese />
       <ScrollView contentContainerStyle={stili.corpo}>
         <View style={{ gap: 6 }}>
           <Testo tipo="dM" accessibilityRole="header">
             {testi.bancaDatiTitolo}
           </Testo>
           <Testo tipo="small" colore={colori.fg2}>
-            Cerca per parole o sfoglia le fonti. È gratis e non usa crediti.
+            {t('bancaDati.intro')}
           </Testo>
         </View>
 
         <FintoCerca
-          testo="Parole, articolo o numero…"
-          etichetta="Cerca nella banca dati"
+          testo={t('bancaDati.segnaposto')}
+          etichetta={t('bancaDati.cerca')}
           onPress={() => router.push('/banca-dati/risultati')}
         />
         <Testo tipo="cap" style={{ marginTop: -6 }}>
@@ -67,7 +69,7 @@ export default function BancaDati() {
         </Testo>
 
         <View style={{ marginTop: 4 }}>
-          <Eyebrow>Sfoglia</Eyebrow>
+          <Eyebrow>{t('bancaDati.sfoglia')}</Eyebrow>
         </View>
         <View style={{ gap: 10 }}>
           {coppie.map((coppia) => (
@@ -91,7 +93,7 @@ export default function BancaDati() {
         </View>
 
         <TitoloSezione stile={{ paddingTop: 8, paddingHorizontal: 0, paddingBottom: 0 }}>
-          Cercate di recente
+          {t('bancaDati.recenti')}
         </TitoloSezione>
         <View style={{ marginHorizontal: -20 }}>
           {(cercateDiRecenteFinte[paese] ?? []).map((q) => (

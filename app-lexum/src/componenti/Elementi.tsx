@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyl
 
 import { Icona, type NomeIcona } from '@/componenti/Icona';
 import { Testo } from '@/componenti/Testo';
+import { useTesti } from '@/lingue/useTesti';
 import { colori, famiglie, misure } from '@/tema';
 
 const emblema = require('@/assets/immagini/emblema.png');
@@ -120,10 +121,11 @@ export function Tag({
 
 // .paese: il riquadro con la sigla del paese.
 export function BadgePaese({ codice, piccolo, nome }: { codice: string; piccolo?: boolean; nome?: string }) {
+  const { t } = useTesti();
   return (
     <View
       style={[stili.paese, piccolo && stili.paesePiccolo]}
-      accessibilityLabel={nome ? `Paese: ${nome}` : undefined}
+      accessibilityLabel={nome ? t('chat.elementi.paese', { nome }) : undefined}
     >
       <Text style={[stili.paeseTesto, piccolo && stili.paeseTestoPiccolo]}>{codice}</Text>
     </View>
@@ -260,8 +262,9 @@ export function Segmentato<T extends string>({
 
 // .punti: i puntini delle pagine di benvenuto.
 export function Punti({ totale, attivo }: { totale: number; attivo: number }) {
+  const { t } = useTesti();
   return (
-    <View style={stili.punti} accessibilityLabel={`Pagina ${attivo + 1} di ${totale}`}>
+    <View style={stili.punti} accessibilityLabel={t('chat.elementi.pagina', { n: attivo + 1, totale })}>
       {Array.from({ length: totale }, (_, i) => (
         <View key={i} style={[stili.punto, i === attivo && stili.puntoOn]} />
       ))}
