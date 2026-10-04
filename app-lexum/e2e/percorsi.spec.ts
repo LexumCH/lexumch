@@ -244,8 +244,12 @@ test('un avvocato entra con le stesse schermate, senza errori di ruolo', async (
   await vedo(page, 'Verifica in due passaggi', true);
   await etichetta(page, 'Codice di 6 cifre').fill('482913');
   await tocca(page, 'Verifica e accedi', true);
-  await vedo(page, 'Per iniziare, prova con:');
+  // per i professionisti la prima schermata è la Dashboard, con la chat sotto (04-10-2026)
+  await vedo(page, /^(Buonanotte|Buongiorno|Buon pomeriggio|Buonasera), Giulia\.$/);
   await expect(page.getByText(/non sei un|non autorizzat|accesso negato/i)).toHaveCount(0);
+  await etichetta(page, 'Apri il menù').click();
+  await tocca(page, 'Nuova chat', true);
+  await vedo(page, 'Per iniziare, prova con:');
   await etichetta(page, 'Apri il menù').click();
   // nel menù c'è anche il suo Studio
   await vedo(page, 'Pratiche', true);

@@ -57,6 +57,8 @@ I conti stanno in `src/studio/dashboard.ts` (provati in `test/dashboard.test.tsx
 
 ## Problemi trovati sui siti
 
+Le correzioni dei primi quattro, più le colonne sbagliate di «Oggi», «7 giorni» (CH) e «Messaggi non letti» (IT e CH), sono pronte in `docs/proposte/dashboard-siti/`.
+
 - **IT avvocato, «Pratiche che richiedono attenzione»:** il filtro `.or(prossima_udienza.gte.oggi, prossima_udienza.lte.fra14gg)` prende tutte le date (ogni data è dopo oggi o prima di fra 14 giorni). Così compaiono anche udienze lontane o passate. Va un «e», non un «o». L'app mostra le udienze entro 14 giorni.
 - **Avvocato, «Da incassare»:** somma il netto intero delle fatture aperte, anche se in parte sono già pagate o stornate da una nota di credito. La pagina Fatture dello stesso sito invece toglie pagamenti e note. L'app usa il residuo.
 - **Avvocato, «Pratiche chiuse»:** conta con `updated_at`. Se si modifica una pratica chiusa (per esempio le note), la chiusura «si sposta» al giorno della modifica. Servirebbe una colonna con la data di chiusura.

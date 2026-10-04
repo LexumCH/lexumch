@@ -2,6 +2,8 @@ import { router, usePathname, type Href } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback } from 'react';
 
+import { strumentiStudio } from '@/ruoli';
+
 // Le voci del menù. La chat è la home: le altre si aprono sopra di lei.
 // Gli strumenti dello Studio (Dashboard, clienti, pratiche, calendario, fatture) ci sono solo per alcuni ruoli:
 // vedi src/ruoli.ts.
@@ -60,6 +62,15 @@ export function useVaiASezione() {
 export function ricominciaDa(href: Href) {
   if (router.canDismiss()) router.dismissAll();
   router.replace(href);
+}
+
+// Si entra nell'app (avvio con la sessione salvata, accesso, verifica, conferma, cambio paese):
+// la chat, che resta sotto; per chi ha la Dashboard (avvocati, commercialisti, fiduciari) la Dashboard
+// sopra la chat, come sul sito (deciso da Antonino il 04-10-2026). Sul telefono «indietro» dalla
+// Dashboard porta alla chat; nel browser la cronologia è quella del browser.
+export function entraNellApp(ruolo: string | undefined) {
+  ricominciaDa('/chat');
+  if (ruolo && strumentiStudio(ruolo).includes('dashboard')) router.push('/dashboard');
 }
 
 // Indietro; se non c'è niente sotto (per esempio dopo un ricaricamento della pagina web) va al ripiego.

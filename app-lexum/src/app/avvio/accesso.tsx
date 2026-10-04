@@ -12,7 +12,7 @@ import { Testo } from '@/componenti/Testo';
 import { accedi as accediAlDatabase } from '@/backend/accesso';
 import { datiVeri } from '@/config';
 import { utenteFinto } from '@/dati-finti/utente';
-import { ricominciaDa } from '@/navigazione';
+import { entraNellApp, ricominciaDa } from '@/navigazione';
 import { useTesti } from '@/lingue/useTesti';
 import { dominio, trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
@@ -22,7 +22,7 @@ import { colori, famiglie } from '@/tema';
 // Con ?paese=CH entra nell'account di un altro paese (da G2). Con i dati veri entra nel database
 // di quel paese (src/backend/accesso.ts); con quelli finti basta un'email e una password.
 export default function Accesso() {
-  const { paese: paeseAttivo, dueFattori, azioni } = useStato();
+  const { paese: paeseAttivo, dueFattori, ruoli, azioni } = useStato();
   const parametri = useLocalSearchParams<{ paese?: string }>();
   const paese = parametri.paese ?? paeseAttivo;
   const altroPaese = !!parametri.paese && parametri.paese !== paeseAttivo;
@@ -33,9 +33,9 @@ export default function Accesso() {
   const [errore, setErrore] = useState<string | null>(null);
   const [inCorso, setInCorso] = useState(false);
 
-  const entra = () => {
+  const entra = (ruolo = ruoli[paese]) => {
     if (altroPaese) ricominciaDa({ pathname: '/passaggio', params: { paese } });
-    else ricominciaDa('/chat');
+    else entraNellApp(ruolo);
   };
 
   const accediDavvero = async () => {
@@ -52,7 +52,7 @@ export default function Accesso() {
     else {
       const { esito: _ok, ...dati } = esito;
       azioni.entrato(paese, dati);
-      entra();
+      entra(dati.ruolo);
     }
   };
 

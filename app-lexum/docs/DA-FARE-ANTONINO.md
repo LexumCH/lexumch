@@ -51,18 +51,23 @@ Dettagli in `docs/professionisti/clienti-e-documenti.md`. Nell'app sono già evi
 - [ ] Scheda cliente: «Assegnato a» non si salva da solo; «Vai a Pagamenti» perde il cliente; le note iniziali non si vedono mai.
 - [ ] Il portale non si può attivare dopo la creazione del cliente. Nell'app «Imposta una password» lo attiva: va bene così?
 - [ ] Archivio: le sentenze portano a `/sentenze/:id`, che non esiste; i filtri per cliente e pratica ignorano i collaboratori.
-- [ ] Dashboard CH: «Oggi», «7 giorni» e «Messaggi non letti» usano colonne che non esistono (`data_inizio`, `ticket_assistenza.avvocato_id`…), quindi restano vuoti.
+- [ ] Dashboard CH: «Oggi», «7 giorni» e «Messaggi non letti» usano colonne che non esistono (`data_inizio`, `ticket_assistenza.avvocato_id`…), quindi restano vuoti. Corretto in `docs/proposte/dashboard-siti/sito-ch.patch`.
 - [ ] Elimina cliente: i file restano nello storage; in CH restano anche i documenti del portale (`documenti`).
 - [ ] Due funzioni diverse per la password del cliente (`cliente-reset-password` e `avvocato-cliente-actions`): conviene tenerne una.
 
 ## Dashboard: problemi trovati sui siti (04-10-2026)
 
-Dettagli in `docs/professionisti/dashboard.md`. Nell'app sono già evitati; sul sito restano:
+Dettagli in `docs/professionisti/dashboard.md`. Nell'app sono già evitati.
 
-- [ ] Avvocato IT, «Pratiche che richiedono attenzione»: il filtro sulla prossima udienza usa «o» invece di «e», quindi prende tutte le pratiche con un'udienza, anche lontana o passata.
-- [ ] Avvocato, «Da incassare»: somma il netto intero delle fatture aperte, senza togliere i pagamenti parziali e le note di credito (la pagina Fatture invece li toglie).
+- [ ] **Correzioni pronte, da mettere sui siti** (chieste da Antonino il 04-10-2026): `docs/proposte/dashboard-siti/` (`LEGGIMI.md`, `sito-it.patch`, `sito-ch.patch`). Si applicano pulite al `main` di oggi e i siti compilano. Correggono la Dashboard dell'avvocato:
+  - «Pratiche che richiedono attenzione» solo con l'udienza entro 14 giorni (IT e CH);
+  - «Da incassare» meno pagamenti parziali e note di credito (IT e CH);
+  - CH: fatture in scadenza con l'anno giusto, annullate fuori dalle scadute;
+  - CH: «Oggi» e «Prossimi 7 giorni» leggevano una colonna che non esiste;
+  - IT e CH: «Messaggi non letti» usava colonne che non esistono, quindi era sempre vuota.
+
+  Non sono ancora sui siti perché da questa sessione non posso scrivere lì: su `Lexumita/lexumita` GitHub risponde che l'app Claude non ha accesso all'organizzazione; su `LexumCH/lexumch` il mio branch è quello dell'app. Il commit italiano è pronto, va solo pushato quando c'è l'accesso.
 - [ ] Avvocato, «Pratiche chiuse»: si contano con `updated_at`, quindi una modifica a una pratica chiusa la sposta nel periodo della modifica. Servirebbe una colonna con la data di chiusura (proposta per il backend).
-- [ ] Avvocato CH: tra le fatture in scadenza il titolo usa `f.anno`, che non esiste; tra le scadute compaiono anche le annullate.
 - [ ] Fiduciario CH: il «Fatturato» dell'anno conta anche le bozze.
 - [ ] Commercialista IT: con una nota di credito la barra di un mese può diventare negativa.
 

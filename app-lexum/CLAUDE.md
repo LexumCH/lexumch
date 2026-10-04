@@ -9,7 +9,7 @@
 ## Cos'è questo repo
 È l'app nativa di Lexum per iPhone e Android. È separata dal sito: nessun codice in comune, la duplicazione è voluta.
 
-È per i privati. La home è la chat con Lex, l'AI giuridica. Il menù in alto a sinistra apre:
+È per i privati. La home è la chat con Lex, l'AI giuridica. Per i professionisti che hanno la Dashboard (avvocati, commercialisti, fiduciari) la prima schermata è la Dashboard, aperta sopra la chat: «indietro» porta alla chat (deciso da Antonino il 04-10-2026). Il menù in alto a sinistra apre:
 - Banca dati
 - Ricerche
 - Archivio
@@ -50,7 +50,7 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
 - Account di prova: li dà Antonino in chat. Mai scriverli nel repo.
 
 ## Dove sta il codice (dalla tappa 1)
-- `src/app/`: le schermate (expo-router). La chat è la home (`chat.tsx`); le voci del menù si aprono sopra di lei.
+- `src/app/`: le schermate (expo-router). La chat è la home (`chat.tsx`); le voci del menù si aprono sopra di lei. Si entra nell'app sempre con `entraNellApp` (`src/navigazione.ts`), che per i professionisti apre anche la Dashboard.
 - `src/componenti/`: i componenti base (intestazione, compositore, chip, riga, foglio dal basso, menù laterale…).
 - `src/fogli/`: i fogli dal basso delle schermate (fonte citata, salva, crediti finiti, cambio paese…).
 - `src/tema/`: colori e caratteri di `lexum.css`.

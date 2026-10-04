@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { sessioneSalvata } from '@/backend/accesso';
 import { leggiPaeseSalvato } from '@/backend/telefono';
 import { datiVeri } from '@/config';
+import { entraNellApp } from '@/navigazione';
 import { paesi } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 
 // Primo avvio: si parte dalla scelta del paese (A0).
 // Con i dati veri: se sul telefono c'è il paese e la sua sessione è ancora valida, si va dritti
-// alla chat; le sessioni degli altri paesi si ritrovano per il cambio paese, senza rientrare.
+// alla chat (per i professionisti con la Dashboard, alla Dashboard sopra la chat); le sessioni degli
+// altri paesi si ritrovano per il cambio paese, senza rientrare.
 export default function Inizio() {
   const { azioni } = useStato();
   const [dove, setDove] = useState<Href | null>(datiVeri ? null : '/avvio/paese');
@@ -28,9 +30,10 @@ export default function Inizio() {
         if (profilo && typeof profilo !== 'string') azioni.entrato(p.codice, profilo);
       });
       const indice = paesi.findIndex((p) => p.codice === salvato);
-      if (salvato && indice >= 0 && profili[indice]) {
+      const profilo = indice >= 0 ? profili[indice] : null;
+      if (salvato && profilo && typeof profilo !== 'string') {
         azioni.scegliPaese(salvato as string);
-        setDove('/chat');
+        entraNellApp(profilo.ruolo);
       } else setDove('/avvio/paese');
     })();
     return () => {

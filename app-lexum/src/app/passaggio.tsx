@@ -5,7 +5,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { BadgePaese, Barra, Logo } from '@/componenti/Elementi';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
-import { ricominciaDa } from '@/navigazione';
+import { entraNellApp, ricominciaDa } from '@/navigazione';
 import { useTesti } from '@/lingue/useTesti';
 import { paesePredefinito } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
@@ -16,7 +16,7 @@ const DURATA_MS = 1600;
 // G3 · L'app passa alla banca dati di un altro paese e si ricarica lì.
 // Dalla tappa 2 qui si carica davvero il conto del paese (crediti, piano, archivio) dal suo database.
 export default function Passaggio() {
-  const { azioni } = useStato();
+  const { ruoli, azioni } = useStato();
   const { paese: param } = useLocalSearchParams<{ paese?: string }>();
   const codice = param ?? paesePredefinito;
   const { t } = useTesti(codice);
@@ -28,7 +28,7 @@ export default function Passaggio() {
     if (fatto.current) return;
     fatto.current = true;
     azioni.passaAPaese(codice);
-    ricominciaDa('/chat');
+    entraNellApp(ruoli[codice]);
   };
 
   useEffect(() => {

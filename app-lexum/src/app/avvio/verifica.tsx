@@ -11,7 +11,7 @@ import { Testo } from '@/componenti/Testo';
 import { usaCodiceRecupero, verificaCodice } from '@/backend/accesso';
 import { datiVeri } from '@/config';
 import { useTesti } from '@/lingue/useTesti';
-import { ricominciaDa } from '@/navigazione';
+import { entraNellApp, ricominciaDa } from '@/navigazione';
 import { dominio, trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
@@ -22,7 +22,7 @@ type Modo = 'codice' | 'recupero' | 'spenta';
 // dell'app di autenticazione (lo stesso che vale sul sito), oppure un codice di recupero.
 // Con i dati veri: supabase.auth.mfa.challengeAndVerify e la funzione mfa-backup-codes (action «verify»).
 export default function Verifica() {
-  const { paese: paeseAttivo, azioni } = useStato();
+  const { paese: paeseAttivo, ruoli, azioni } = useStato();
   const parametri = useLocalSearchParams<{ paese?: string }>();
   const paese = parametri.paese ?? paeseAttivo;
   const altroPaese = !!parametri.paese && parametri.paese !== paeseAttivo;
@@ -34,9 +34,9 @@ export default function Verifica() {
   const [errore, setErrore] = useState<string | null>(null);
   const [inCorso, setInCorso] = useState(false);
 
-  const entra = () => {
+  const entra = (ruolo = ruoli[paese]) => {
     if (altroPaese) ricominciaDa({ pathname: '/passaggio', params: { paese } });
-    else ricominciaDa('/chat');
+    else entraNellApp(ruolo);
   };
 
   const verificaDavvero = async () => {
@@ -46,7 +46,7 @@ export default function Verifica() {
     if (esito.esito === 'ok') {
       const { esito: _ok, ...dati } = esito;
       azioni.entrato(paese, dati);
-      entra();
+      entra(dati.ruolo);
     } else if (esito.esito === 'errore') {
       setErrore(esito.messaggio);
       setCodice('');

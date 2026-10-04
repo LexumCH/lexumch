@@ -8,7 +8,7 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import { useTesti } from '@/lingue/useTesti';
-import { ricominciaDa } from '@/navigazione';
+import { entraNellApp, ricominciaDa } from '@/navigazione';
 import { trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
@@ -17,7 +17,7 @@ import { colori } from '@/tema';
 // Va bene sia con il link (oggi) sia con il codice di 6 cifre (decisione aperta n. 1).
 // Con i dati veri il link porta la sessione: si è già dentro, con il ruolo letto dal profilo.
 export default function EmailConfermata() {
-  const { paese: paeseAttivo, azioni } = useStato();
+  const { paese: paeseAttivo, ruoli, azioni } = useStato();
   const { paese: param } = useLocalSearchParams<{ paese?: string }>();
   const paese = param ?? paeseAttivo;
   const datiPaese = trovaPaese(paese);
@@ -31,12 +31,14 @@ export default function EmailConfermata() {
       );
       return;
     }
+    let ruolo = ruoli[paese];
     if (link.stato === 'ok') {
       const { stato: _ok, ...profilo } = link;
       azioni.entrato(paese, profilo);
+      ruolo = profilo.ruolo;
     }
     if (paese !== paeseAttivo) ricominciaDa({ pathname: '/passaggio', params: { paese } });
-    else ricominciaDa('/chat');
+    else entraNellApp(ruolo);
   };
   return (
     <Schermata hero alone={60}>

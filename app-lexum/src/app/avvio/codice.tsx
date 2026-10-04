@@ -11,7 +11,7 @@ import { utenteFinto } from '@/dati-finti/utente';
 import { rimandaConferma } from '@/backend/accesso';
 import { useTesti } from '@/lingue/useTesti';
 import { datiVeri } from '@/config';
-import { ricominciaDa } from '@/navigazione';
+import { entraNellApp, ricominciaDa } from '@/navigazione';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
@@ -22,7 +22,7 @@ const ATTESA_S = 45;
 // oggi il sito manda un link di conferma; il codice richiede di cambiare il modello email di Supabase.
 // Con i dati veri la schermata dice di aprire il link (che riporta nell'app) e «invia di nuovo» lo rimanda.
 export default function Codice() {
-  const { paese: paeseAttivo } = useStato();
+  const { paese: paeseAttivo, ruoli } = useStato();
   const { paese, email } = useLocalSearchParams<{ paese?: string; email?: string }>();
   const paeseConto = paese ?? paeseAttivo;
   const { t, lingua } = useTesti(paeseConto);
@@ -39,7 +39,7 @@ export default function Codice() {
 
   const conferma = () => {
     if (paese && paese !== paeseAttivo) ricominciaDa({ pathname: '/passaggio', params: { paese } });
-    else ricominciaDa('/chat');
+    else entraNellApp(ruoli[paeseConto]);
   };
 
   const rimanda = async () => {

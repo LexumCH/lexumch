@@ -12,7 +12,7 @@ import { salvaNuovaPassword } from '@/backend/accesso';
 import { useSessioneDaLink } from '@/backend/useSessioneDaLink';
 import { datiVeri } from '@/config';
 import { useTesti } from '@/lingue/useTesti';
-import { ricominciaDa } from '@/navigazione';
+import { entraNellApp, ricominciaDa } from '@/navigazione';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
 
@@ -22,7 +22,7 @@ const MINIMO = 8; // come sul sito
 // (lexum://avvio/nuova-password?paese=IT#…). Con i dati veri la sessione arriva dal link e la
 // password si salva nel database di quel paese.
 export default function NuovaPassword() {
-  const { paese: paeseAttivo, azioni } = useStato();
+  const { paese: paeseAttivo, ruoli, azioni } = useStato();
   const parametri = useLocalSearchParams<{ paese?: string }>();
   const paese = parametri.paese ?? paeseAttivo;
   const { t, lingua } = useTesti(paese);
@@ -65,7 +65,9 @@ export default function NuovaPassword() {
           <Pulsante
             titolo={t('comune.continua')}
             onPress={() =>
-              ricominciaDa(paese !== paeseAttivo ? { pathname: '/passaggio', params: { paese } } : '/chat')
+              paese !== paeseAttivo
+                ? ricominciaDa({ pathname: '/passaggio', params: { paese } })
+                : entraNellApp(ruoli[paese])
             }
           />
         </View>

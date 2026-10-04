@@ -94,3 +94,13 @@ test.describe('fiduciario svizzero con il telefono in tedesco', () => {
     await vedo(page, 'Kalender', true);
   });
 });
+
+test('un privato che accede arriva alla chat, non alla Dashboard', async ({ page }) => {
+  await page.goto('/');
+  await tocca(page, 'A6 · Accedi');
+  await etichetta(page, 'Password').fill('una-password');
+  await tocca(page, 'Accedi', true);
+  await vedo(page, 'Per iniziare, prova con:');
+  await etichetta(page, 'Apri il menù').click();
+  await expect(testo(page, 'Dashboard', true)).toBeHidden();
+});
