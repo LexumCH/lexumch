@@ -4,7 +4,24 @@
 // Registro: in italiano «tu», in tedesco «Sie» (svizzero: «ss», mai «ß»), in francese «vous».
 // I segnaposto si scrivono tra graffe: {nome}.
 
+import { interfaccia } from './sezioni/interfaccia';
+import { chat } from './sezioni/chat';
+import { bancaDati } from './sezioni/bancaDati';
+import { ricerche } from './sezioni/ricerche';
+import { archivio } from './sezioni/archivio';
+import { profilo } from './sezioni/profilo';
+import { studio } from './sezioni/studio';
+import { fatture } from './sezioni/fatture';
+
 export const it = {
+  interfaccia: interfaccia.it,
+  chat: chat.it,
+  bancaDati: bancaDati.it,
+  ricerche: ricerche.it,
+  archivio: archivio.it,
+  profilo: profilo.it,
+  studio: studio.it,
+  fatture: fatture.it,
   paesi: { IT: 'Italia', CH: 'Svizzera' },
   comune: {
     continua: 'Continua',

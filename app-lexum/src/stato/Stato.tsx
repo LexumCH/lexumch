@@ -488,6 +488,11 @@ export function StatoProvider({ children }: { children: ReactNode }) {
   return <Contesto.Provider value={valore}>{children}</Contesto.Provider>;
 }
 
+// Come useStato, ma fuori dallo StatoProvider restituisce null invece di fermarsi (per i testi).
+export function useStatoOpzionale(): Valore | null {
+  return useContext(Contesto);
+}
+
 export function useStato(): Valore {
   const v = useContext(Contesto);
   if (!v) throw new Error('useStato va usato dentro StatoProvider');

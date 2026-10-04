@@ -1,10 +1,26 @@
 import type { Traduzione } from './tipi';
+import { interfaccia } from './sezioni/interfaccia';
+import { chat } from './sezioni/chat';
+import { bancaDati } from './sezioni/bancaDati';
+import { ricerche } from './sezioni/ricerche';
+import { archivio } from './sezioni/archivio';
+import { profilo } from './sezioni/profilo';
+import { studio } from './sezioni/studio';
+import { fatture } from './sezioni/fatture';
 
 // Deutsch (Schweiz): «Sie», «ss» statt «ß». Wo es den Text schon auf lexum.ch gibt
 // (public/locales/de/auth.json), ist er übernommen; der Rest ist neu und wartet auf Antoninos Freigabe.
 // Benvenuto A0–A3: genehmigte Texte aus docs/testi/domande-e-benvenuto.md.
 
 export const de: Traduzione = {
+  interfaccia: interfaccia.de,
+  chat: chat.de,
+  bancaDati: bancaDati.de,
+  ricerche: ricerche.de,
+  archivio: archivio.de,
+  profilo: profilo.de,
+  studio: studio.de,
+  fatture: fatture.de,
   paesi: { IT: 'Italien', CH: 'Schweiz' },
   comune: {
     continua: 'Weiter',

@@ -6,6 +6,7 @@ import { Icona, type NomeIcona } from '@/componenti/Icona';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Testo } from '@/componenti/Testo';
 import { colori, famiglie } from '@/tema';
+import { useTesti } from '@/lingue/useTesti';
 
 const nativo = Platform.OS !== 'web';
 
@@ -62,11 +63,12 @@ export function Caricamento({ righe = 4 }: { righe?: number }) {
     ciclo.start();
     return () => ciclo.stop();
   }, [opacita]);
+  const { t } = useTesti();
   return (
     <Animated.View
       style={{ opacity: opacita }}
       accessibilityRole="progressbar"
-      accessibilityLabel="Caricamento in corso"
+      accessibilityLabel={t('interfaccia.caricamento')}
     >
       {Array.from({ length: righe }, (_, i) => (
         <View key={i} style={stili.riga}>
@@ -81,12 +83,11 @@ export function Caricamento({ righe = 4 }: { righe?: number }) {
 
 // Striscia in cima quando il telefono è senza connessione.
 export function StrisciaOffline() {
+  const { t } = useTesti();
   return (
     <View style={stili.offline} accessibilityRole="alert" accessibilityLiveRegion="polite">
       <Icona nome="offline" dimensione={18} colore={colori.warn} />
-      <Text style={stili.offlineTesto}>
-        Sei senza connessione. Lex e la Banca dati tornano appena sei online.
-      </Text>
+      <Text style={stili.offlineTesto}>{t('interfaccia.offline')}</Text>
     </View>
   );
 }

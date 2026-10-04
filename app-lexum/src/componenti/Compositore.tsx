@@ -3,6 +3,7 @@ import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-na
 import { Icona } from '@/componenti/Icona';
 import { PulsanteIcona } from '@/componenti/Pulsante';
 import { colori, famiglie, misure } from '@/tema';
+import { useTesti } from '@/lingue/useTesti';
 
 type Props = {
   valore: string;
@@ -17,6 +18,7 @@ type Props = {
 // .composer: dove si scrive a Lex. In basso, sopra la nota «Lex può commettere errori».
 export function Compositore({ valore, onCambia, onInvia, onAllega, occupato, offline, segnaposto }: Props) {
   const pieno = valore.trim().length > 0 && !occupato && !offline;
+  const { t } = useTesti();
   return (
     <View style={stili.composer}>
       <View style={stili.box}>
@@ -25,16 +27,16 @@ export function Compositore({ valore, onCambia, onInvia, onAllega, occupato, off
           onChangeText={onCambia}
           placeholder={
             occupato
-              ? 'Lex sta lavorando…'
+              ? t('interfaccia.compositore.lavora')
               : offline
-                ? 'Senza connessione: Lex torna appena sei online'
-                : (segnaposto ?? 'Racconta il tuo caso a Lex…')
+                ? t('interfaccia.compositore.offline')
+                : (segnaposto ?? t('interfaccia.compositore.segnaposto'))
           }
           placeholderTextColor={colori.fg3}
           selectionColor={colori.accent}
           editable={!occupato}
           multiline
-          accessibilityLabel="Scrivi a Lex"
+          accessibilityLabel={t('interfaccia.compositore.scrivi')}
           style={[stili.testo, Platform.OS === 'web' && ({ outlineWidth: 0 } as const)]}
           onKeyPress={(e) => {
             // sul web Invio manda, Maiusc+Invio va a capo
@@ -48,7 +50,7 @@ export function Compositore({ valore, onCambia, onInvia, onAllega, occupato, off
         <View style={stili.riga}>
           <PulsanteIcona
             icona="piu"
-            etichetta="Allega un documento"
+            etichetta={t('interfaccia.compositore.allega')}
             onPress={onAllega}
             disabilitato={occupato}
           />
@@ -56,7 +58,7 @@ export function Compositore({ valore, onCambia, onInvia, onAllega, occupato, off
             onPress={onInvia}
             disabled={!pieno}
             accessibilityRole="button"
-            accessibilityLabel="Invia"
+            accessibilityLabel={t('interfaccia.compositore.invia')}
             aria-disabled={!pieno}
             style={({ pressed }) => [stili.invia, !pieno && stili.spento, pressed && { opacity: 0.85 }]}
           >
@@ -64,7 +66,7 @@ export function Compositore({ valore, onCambia, onInvia, onAllega, occupato, off
           </Pressable>
         </View>
       </View>
-      <Text style={stili.nota}>Lex può commettere errori: verifica sempre le fonti citate.</Text>
+      <Text style={stili.nota}>{t('interfaccia.compositore.nota')}</Text>
     </View>
   );
 }

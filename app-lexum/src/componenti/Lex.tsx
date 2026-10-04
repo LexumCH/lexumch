@@ -4,6 +4,7 @@ import { Emblema } from '@/componenti/Elementi';
 import { Icona } from '@/componenti/Icona';
 import type { Pezzo, RispostaFinta } from '@/dati-finti/chat';
 import { colori, famiglie } from '@/tema';
+import { useTesti } from '@/lingue/useTesti';
 
 // .lex-firma: emblema e «LEX» sopra ogni risposta.
 export function FirmaLex() {
@@ -68,11 +69,12 @@ export function RispostaLex({
   risposta: RispostaFinta;
   onCitazione: (norma: string) => void;
 }) {
+  const { t } = useTesti();
   return (
     <View style={stili.lexTesto}>
       {risposta.inBreve ? (
         <Text style={stili.paragrafo}>
-          <Text style={stili.forte}>In breve:</Text> {risposta.inBreve}
+          <Text style={stili.forte}>{t('interfaccia.lex.inBreve')}</Text> {risposta.inBreve}
         </Text>
       ) : null}
       {risposta.punti.map((punto, i) => (

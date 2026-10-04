@@ -17,28 +17,31 @@ import { BadgePaese, Iniziale, Logo, Pallino, TitoloSezione } from '@/componenti
 import { Icona, type NomeIcona } from '@/componenti/Icona';
 import { Pulsante } from '@/componenti/Pulsante';
 import { useVaiASezione, type Sezione } from '@/navigazione';
-import { trovaPaese } from '@/paesi/registro';
 import { useMenu } from '@/stato/Menu';
 import { strumentiStudio, type StrumentoStudio } from '@/ruoli';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
+import type { Chiave } from '@/lingue';
+import { useTesti } from '@/lingue/useTesti';
 
 const LARGHEZZA = 316;
 const nativo = Platform.OS !== 'web';
 
-const voci: { sezione: Sezione; titolo: string; icona: NomeIcona }[] = [
-  { sezione: '/banca-dati', titolo: 'Banca dati', icona: 'libro' },
-  { sezione: '/ricerche', titolo: 'Ricerche', icona: 'segnalibro' },
-  { sezione: '/archivio', titolo: 'Archivio', icona: 'archivio' },
-  { sezione: '/domande', titolo: 'Domande', icona: 'domanda' },
-  { sezione: '/profilo', titolo: 'Profilo', icona: 'persona' },
+type Voce = { sezione: Sezione; titolo: Chiave; icona: NomeIcona };
+
+const voci: Voce[] = [
+  { sezione: '/banca-dati', titolo: 'interfaccia.voci.bancaDati', icona: 'libro' },
+  { sezione: '/ricerche', titolo: 'interfaccia.voci.ricerche', icona: 'segnalibro' },
+  { sezione: '/archivio', titolo: 'interfaccia.voci.archivio', icona: 'archivio' },
+  { sezione: '/domande', titolo: 'interfaccia.voci.domande', icona: 'domanda' },
+  { sezione: '/profilo', titolo: 'interfaccia.voci.profilo', icona: 'persona' },
 ];
 
 // Strumenti dello Studio, solo per i ruoli che li hanno (avvocati; commercialisti e fiduciari in parte).
-const vociStudio: Record<StrumentoStudio, { sezione: Sezione; titolo: string; icona: NomeIcona }> = {
-  mandati: { sezione: '/pratiche', titolo: 'Pratiche', icona: 'bilancia' },
-  calendario: { sezione: '/calendario', titolo: 'Calendario', icona: 'calendario' },
-  fatture: { sezione: '/fatture', titolo: 'Fatture', icona: 'ricevuta' },
+const vociStudio: Record<StrumentoStudio, Voce> = {
+  mandati: { sezione: '/pratiche', titolo: 'interfaccia.voci.pratiche', icona: 'bilancia' },
+  calendario: { sezione: '/calendario', titolo: 'interfaccia.voci.calendario', icona: 'calendario' },
+  fatture: { sezione: '/fatture', titolo: 'interfaccia.voci.fatture', icona: 'ricevuta' },
 };
 
 // C1 · Menù laterale: le cinque voci, poi le etichette dell'utente (non lo storico delle chat).
@@ -50,6 +53,7 @@ export function MenuLaterale() {
   const vai = useVaiASezione();
   const { paese, conto, etichetteAttive, elementiAttivi, chatDaSalvare, ruoli, utente, azioni } = useStato();
   const studio = strumentiStudio(ruoli[paese] ?? 'user').map((s) => vociStudio[s]);
+  const { t } = useTesti();
   const [montato, setMontato] = useState(aperto);
   const [avanzamento] = useState(() => new Animated.Value(0));
   if (aperto && !montato) setMontato(true);
@@ -82,8 +86,11 @@ export function MenuLaterale() {
   if (!montato) return null;
 
   const attiva = (sezione: Sezione) => percorso === sezione || percorso.startsWith(`${sezione}/`);
-  const datiPaese = trovaPaese(paese);
-  const crediti = conto.crediti === 1 ? '1 credito' : `${conto.crediti} crediti`;
+  const crediti =
+    conto.crediti === 1
+      ? t('interfaccia.crediti.breveUno')
+      : t('interfaccia.crediti.breveMolti', { n: conto.crediti });
+  const nomePaese = t(`paesi.${paese as 'IT' | 'CH'}`);
   const traslazione = avanzamento.interpolate({ inputRange: [0, 1], outputRange: [-LARGHEZZA, 0] });
 
   const nuovaChat = () => {
@@ -103,24 +110,24 @@ export function MenuLaterale() {
           style={[StyleSheet.absoluteFill, { backgroundColor: colori.scrim }]}
           onPress={chiudi}
           accessibilityRole="button"
-          accessibilityLabel="Chiudi il menù"
+          accessibilityLabel={t('interfaccia.chiudiMenu')}
         />
       </Animated.View>
       <Animated.View
         accessibilityViewIsModal
-        accessibilityLabel="Menù"
+        accessibilityLabel={t('interfaccia.menu')}
         style={[stili.cassetto, { transform: [{ translateX: traslazione }] }]}
       >
         <View style={{ height: insets.top }} />
         <View style={stili.testa}>
           <Logo />
           <View style={{ marginLeft: 'auto' }}>
-            <BadgePaese codice={paese} piccolo nome={datiPaese.nome} />
+            <BadgePaese codice={paese} piccolo nome={nomePaese} />
           </View>
         </View>
         <View style={stili.nuova}>
           <Pulsante
-            titolo="Nuova chat"
+            titolo={t('interfaccia.voci.nuovaChat')}
             variante="linea"
             icona="modifica"
             allineaASinistra
@@ -128,17 +135,33 @@ export function MenuLaterale() {
           />
         </View>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 12 }}>
-          {studio.length > 0 ? <TitoloSezione stile={{ paddingTop: 6 }}>Studio</TitoloSezione> : null}
+          {studio.length > 0 ? (
+            <TitoloSezione stile={{ paddingTop: 6 }}>{t('interfaccia.voci.studio')}</TitoloSezione>
+          ) : null}
           {studio.map((v) => (
-            <VoceMenu key={v.sezione} {...v} on={attiva(v.sezione)} onPress={() => vai(v.sezione)} />
+            <VoceMenu
+              key={v.sezione}
+              icona={v.icona}
+              titolo={t(v.titolo)}
+              on={attiva(v.sezione)}
+              onPress={() => vai(v.sezione)}
+            />
           ))}
-          {studio.length > 0 ? <TitoloSezione stile={{ paddingTop: 18 }}>Lexum</TitoloSezione> : null}
+          {studio.length > 0 ? (
+            <TitoloSezione stile={{ paddingTop: 18 }}>{t('interfaccia.voci.lexum')}</TitoloSezione>
+          ) : null}
           {voci.map((v) => (
-            <VoceMenu key={v.sezione} {...v} on={attiva(v.sezione)} onPress={() => vai(v.sezione)} />
+            <VoceMenu
+              key={v.sezione}
+              icona={v.icona}
+              titolo={t(v.titolo)}
+              on={attiva(v.sezione)}
+              onPress={() => vai(v.sezione)}
+            />
           ))}
-          <TitoloSezione stile={{ paddingTop: 18 }}>Etichette</TitoloSezione>
+          <TitoloSezione stile={{ paddingTop: 18 }}>{t('interfaccia.voci.etichette')}</TitoloSezione>
           {etichetteAttive.length === 0 ? (
-            <Text style={stili.vuoto}>Le etichette che crei salvando le chat compaiono qui.</Text>
+            <Text style={stili.vuoto}>{t('interfaccia.voci.etichetteVuote')}</Text>
           ) : null}
           {etichetteAttive.map((e) => {
             const quanti = elementiAttivi.filter((x) => x.etichetta === e.id).length;
@@ -147,7 +170,7 @@ export function MenuLaterale() {
                 key={e.id}
                 onPress={() => vai('/ricerche', { etichetta: e.id })}
                 accessibilityRole="button"
-                accessibilityLabel={`Etichetta ${e.nome}, ${quanti} elementi`}
+                accessibilityLabel={t('interfaccia.voci.etichetta', { nome: e.nome, n: quanti })}
                 style={({ pressed }) => [stili.etichetta, pressed && { backgroundColor: colori.bg }]}
               >
                 <Pallino colore={e.colore} />
@@ -162,14 +185,14 @@ export function MenuLaterale() {
         <Pressable
           onPress={() => vai('/profilo')}
           accessibilityRole="button"
-          accessibilityLabel="Apri il profilo"
+          accessibilityLabel={t('interfaccia.voci.apriProfilo')}
           style={({ pressed }) => [stili.piede, pressed && { backgroundColor: colori.bg }]}
         >
           <Iniziale lettera={(utente.nome || utente.email).charAt(0).toUpperCase()} />
           <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
             <Text style={stili.nome}>{`${utente.nome} ${utente.cognome}`.trim() || utente.email}</Text>
             <Text style={stili.dettaglio} numberOfLines={1}>
-              {datiPaese.nome} · {conto.piano} · {crediti}
+              {nomePaese} · {conto.piano} · {crediti}
             </Text>
           </View>
         </Pressable>

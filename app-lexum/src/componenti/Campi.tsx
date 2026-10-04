@@ -14,6 +14,7 @@ import {
 import { Icona } from '@/componenti/Icona';
 import { PulsanteIcona } from '@/componenti/Pulsante';
 import { colori, famiglie } from '@/tema';
+import { useTesti } from '@/lingue/useTesti';
 
 // Sul web il bordo di focus lo disegniamo noi (oro), non il browser.
 const senzaContorno = Platform.OS === 'web' ? ({ outlineWidth: 0 } as const) : null;
@@ -92,6 +93,7 @@ export const CampoCerca = forwardRef<TextInput, PropsCerca>(function CampoCerca(
   ref,
 ) {
   const [attivo, setAttivo] = useState(false);
+  const { t } = useTesti();
   return (
     <View style={[stili.cerca, { height: alto }, attivo && stili.attivo, stile]}>
       <Icona nome="cerca" dimensione={18} colore={colori.fg3} />
@@ -114,7 +116,12 @@ export const CampoCerca = forwardRef<TextInput, PropsCerca>(function CampoCerca(
         {...resto}
       />
       {onCancella && value ? (
-        <PulsanteIcona icona="chiudi" etichetta="Cancella la ricerca" dimensione={18} onPress={onCancella} />
+        <PulsanteIcona
+          icona="chiudi"
+          etichetta={t('interfaccia.cancellaRicerca')}
+          dimensione={18}
+          onPress={onCancella}
+        />
       ) : null}
     </View>
   );

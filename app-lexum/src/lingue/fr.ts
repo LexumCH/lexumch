@@ -1,10 +1,26 @@
 import type { Traduzione } from './tipi';
+import { interfaccia } from './sezioni/interfaccia';
+import { chat } from './sezioni/chat';
+import { bancaDati } from './sezioni/bancaDati';
+import { ricerche } from './sezioni/ricerche';
+import { archivio } from './sezioni/archivio';
+import { profilo } from './sezioni/profilo';
+import { studio } from './sezioni/studio';
+import { fatture } from './sezioni/fatture';
 
 // Français (Suisse) : « vous ». Là où le texte existe déjà sur lexum.ch (public/locales/fr/auth.json),
 // il est repris ; le reste est nouveau et attend l'approbation d'Antonino.
 // Bienvenue A0–A3 : textes approuvés de docs/testi/domande-e-benvenuto.md.
 
 export const fr: Traduzione = {
+  interfaccia: interfaccia.fr,
+  chat: chat.fr,
+  bancaDati: bancaDati.fr,
+  ricerche: ricerche.fr,
+  archivio: archivio.fr,
+  profilo: profilo.fr,
+  studio: studio.fr,
+  fatture: fatture.fr,
   paesi: { IT: 'Italie', CH: 'Suisse' },
   comune: {
     continua: 'Continuer',

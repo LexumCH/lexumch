@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colori } from '@/tema';
+import { useTesti } from '@/lingue/useTesti';
 
 type Props = {
   visibile: boolean;
@@ -29,6 +30,7 @@ const nativo = Platform.OS !== 'web';
 // Si chiude toccando il velo, con «indietro» su Android, o con i pulsanti dentro.
 export function Foglio({ visibile, onChiudi, children, spazio = 14, stile }: Props) {
   const insets = useSafeAreaInsets();
+  const { t } = useTesti();
   const [montato, setMontato] = useState(visibile);
   const [avanzamento] = useState(() => new Animated.Value(visibile ? 1 : 0));
   // si monta subito quando diventa visibile; si smonta a fine animazione di chiusura
@@ -65,7 +67,7 @@ export function Foglio({ visibile, onChiudi, children, spazio = 14, stile }: Pro
           style={[StyleSheet.absoluteFill, stili.velo]}
           onPress={onChiudi}
           accessibilityRole="button"
-          accessibilityLabel="Chiudi"
+          accessibilityLabel={t('interfaccia.chiudi')}
         />
       </Animated.View>
       <Animated.View

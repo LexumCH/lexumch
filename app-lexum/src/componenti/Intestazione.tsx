@@ -6,10 +6,11 @@ import { BadgePaese, Emblema } from '@/componenti/Elementi';
 import { Icona } from '@/componenti/Icona';
 import { PulsanteIcona, SpazioIcona } from '@/componenti/Pulsante';
 import { indietro, useVaiASezione } from '@/navigazione';
-import { paesePredefinito, trovaPaese } from '@/paesi/registro';
+import { paesePredefinito } from '@/paesi/registro';
 import { useMenu } from '@/stato/Menu';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie, misure } from '@/tema';
+import { useTesti } from '@/lingue/useTesti';
 
 type Props = {
   sinistra?: ReactNode;
@@ -42,26 +43,33 @@ export function Intestazione({ sinistra, titolo, centro, destra, paese, stile }:
 // Sigla del paese accanto al titolo: si vede solo fuori dal paese predefinito (come nei mockup G4–G5).
 function SiglaPaese() {
   const { paese } = useStato();
+  const { t } = useTesti();
   if (paese === paesePredefinito) return null;
-  return <BadgePaese codice={paese} piccolo nome={trovaPaese(paese).nome} />;
+  return <BadgePaese codice={paese} piccolo nome={t(`paesi.${paese as 'IT' | 'CH'}`)} />;
 }
 
 export function BottoneMenu() {
   const { apri } = useMenu();
-  return <PulsanteIcona icona="menu" etichetta="Apri il menù" onPress={apri} />;
+  const { t } = useTesti();
+  return <PulsanteIcona icona="menu" etichetta={t('interfaccia.apriMenu')} onPress={apri} />;
 }
 
 export function BottoneIndietro({
   ripiego,
-  etichetta = 'Indietro',
+  etichetta,
   onPress,
 }: {
   ripiego: Href;
   etichetta?: string;
   onPress?: () => void;
 }) {
+  const { t } = useTesti();
   return (
-    <PulsanteIcona icona="indietro" etichetta={etichetta} onPress={onPress ?? (() => indietro(ripiego))} />
+    <PulsanteIcona
+      icona="indietro"
+      etichetta={etichetta ?? t('interfaccia.indietro')}
+      onPress={onPress ?? (() => indietro(ripiego))}
+    />
   );
 }
 
@@ -79,13 +87,14 @@ export function LexBadge() {
 export function ContatoreCrediti() {
   const { conto } = useStato();
   const vai = useVaiASezione();
+  const { t } = useTesti();
   const n = conto.crediti;
   const zero = n <= 0;
   const etichetta = zero
-    ? 'Nessun credito disponibile'
+    ? t('interfaccia.crediti.nessuno')
     : n === 1
-      ? '1 credito disponibile'
-      : `${n} crediti disponibili`;
+      ? t('interfaccia.crediti.uno')
+      : t('interfaccia.crediti.molti', { n });
   return (
     <Pressable
       onPress={() => vai('/profilo')}
