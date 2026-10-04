@@ -6,8 +6,8 @@ import { BadgePaese, Barra, Logo } from '@/componenti/Elementi';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import { ricominciaDa } from '@/navigazione';
-import { contenuti } from '@/paesi/contenuti';
-import { paesePredefinito, trovaPaese } from '@/paesi/registro';
+import { useTesti } from '@/lingue/useTesti';
+import { paesePredefinito } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
 
@@ -19,8 +19,8 @@ export default function Passaggio() {
   const { azioni } = useStato();
   const { paese: param } = useLocalSearchParams<{ paese?: string }>();
   const codice = param ?? paesePredefinito;
-  const datiPaese = trovaPaese(codice);
-  const testi = contenuti[codice];
+  const { t } = useTesti(codice);
+  const nomePaese = t(`paesi.${codice as 'IT' | 'CH'}`);
   const [percento, setPercento] = useState(0);
   const fatto = useRef(false);
 
@@ -33,12 +33,12 @@ export default function Passaggio() {
 
   useEffect(() => {
     const inizio = Date.now();
-    const t = setInterval(() => {
+    const timer = setInterval(() => {
       const p = Math.min(100, ((Date.now() - inizio) / DURATA_MS) * 100);
       setPercento(p);
-      if (p >= 100) clearInterval(t);
+      if (p >= 100) clearInterval(timer);
     }, 50);
-    return () => clearInterval(t);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -50,16 +50,16 @@ export default function Passaggio() {
       <Pressable
         onPress={concludi}
         accessibilityRole="button"
-        accessibilityLabel="Continua"
+        accessibilityLabel={t('comune.continua')}
         style={stili.centro}
       >
         <Logo grande />
-        <BadgePaese codice={codice} nome={datiPaese.nome} />
+        <BadgePaese codice={codice} nome={nomePaese} />
         <Testo tipo="dM" centrato>
-          Passo alla banca dati {testi.aggettivoFemminile}
+          {t(`passaggio.titolo.${codice as 'IT' | 'CH'}`)}
         </Testo>
         <Testo tipo="small" colore={colori.fg2} centrato>
-          Carico il tuo account, i crediti e l'archivio di Lexum {datiPaese.nome}.
+          {t('passaggio.testo', { paese: nomePaese })}
         </Testo>
         <Barra percento={percento} larghezza={180} />
       </Pressable>

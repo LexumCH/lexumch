@@ -11,6 +11,7 @@ import { Testo } from '@/componenti/Testo';
 import { salvaNuovaPassword } from '@/backend/accesso';
 import { useSessioneDaLink } from '@/backend/useSessioneDaLink';
 import { datiVeri } from '@/config';
+import { useTesti } from '@/lingue/useTesti';
 import { ricominciaDa } from '@/navigazione';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
@@ -24,7 +25,8 @@ export default function NuovaPassword() {
   const { paese: paeseAttivo, azioni } = useStato();
   const parametri = useLocalSearchParams<{ paese?: string }>();
   const paese = parametri.paese ?? paeseAttivo;
-  const link = useSessioneDaLink(paese);
+  const { t, lingua } = useTesti(paese);
+  const link = useSessioneDaLink(paese, lingua);
   const [inCorso, setInCorso] = useState(false);
   const [password, setPassword] = useState('');
   const [conferma, setConferma] = useState('');
@@ -32,12 +34,13 @@ export default function NuovaPassword() {
   const [fatto, setFatto] = useState(false);
 
   const salva = async () => {
-    if (password.length < MINIMO) return setErrore(`Minimo ${MINIMO} caratteri`);
-    if (password !== conferma) return setErrore('Le password non coincidono');
+    if (password.length < MINIMO) return setErrore(t('errori.minimoCaratteri', { n: MINIMO }));
+    if (password !== conferma) return setErrore(t('errori.passwordDiverse'));
     if (datiVeri) {
-      if (link.stato !== 'ok') return setErrore(link.stato === 'errore' ? link.messaggio : 'Un momento…');
+      if (link.stato !== 'ok')
+        return setErrore(link.stato === 'errore' ? link.messaggio : t('avvio.nuovaPassword.attendi'));
       setInCorso(true);
-      const esito = await salvaNuovaPassword(paese, password);
+      const esito = await salvaNuovaPassword(paese, password, lingua);
       setInCorso(false);
       if (esito.esito === 'errore') return setErrore(esito.messaggio);
       const { stato: _ok, ...profilo } = link;
@@ -54,13 +57,13 @@ export default function NuovaPassword() {
           <IconaQuadrata nome="spunta" lato={56} dimensione={26} />
           <View style={{ gap: 10 }}>
             <Testo tipo="dL" accessibilityRole="header">
-              Password aggiornata
+              {t('avvio.nuovaPassword.fattoTitolo')}
             </Testo>
-            <Testo colore={colori.fg2}>Da ora entri con la nuova password, qui e sul sito.</Testo>
+            <Testo colore={colori.fg2}>{t('avvio.nuovaPassword.fattoTesto')}</Testo>
           </View>
           <View style={{ flex: 1 }} />
           <Pulsante
-            titolo="Continua"
+            titolo={t('comune.continua')}
             onPress={() =>
               ricominciaDa(paese !== paeseAttivo ? { pathname: '/passaggio', params: { paese } } : '/chat')
             }
@@ -78,12 +81,12 @@ export default function NuovaPassword() {
           <IconaQuadrata nome="lucchetto" lato={56} dimensione={26} />
           <View style={{ gap: 10 }}>
             <Testo tipo="dL" accessibilityRole="header">
-              Nuova password
+              {t('avvio.nuovaPassword.titolo')}
             </Testo>
-            <Testo colore={colori.fg2}>Scegline una di almeno {MINIMO} caratteri.</Testo>
+            <Testo colore={colori.fg2}>{t('avvio.nuovaPassword.testo', { n: MINIMO })}</Testo>
           </View>
           <CampoPassword
-            etichetta="Nuova password"
+            etichetta={t('avvio.nuovaPassword.nuova')}
             value={password}
             onChangeText={(t) => {
               setPassword(t);
@@ -93,7 +96,7 @@ export default function NuovaPassword() {
             textContentType="newPassword"
           />
           <CampoPassword
-            etichetta="Conferma password"
+            etichetta={t('avvio.nuovaPassword.conferma')}
             value={conferma}
             onChangeText={(t) => {
               setConferma(t);
@@ -106,7 +109,7 @@ export default function NuovaPassword() {
           {errore ? <Avviso testo={errore} /> : null}
           {link.stato === 'errore' ? <Avviso testo={link.messaggio} /> : null}
           <Pulsante
-            titolo={inCorso ? 'Salvataggio…' : 'Salva password'}
+            titolo={inCorso ? t('avvio.nuovaPassword.inCorso') : t('avvio.nuovaPassword.salva')}
             disabilitato={inCorso || link.stato === 'errore'}
             onPress={() => void salva()}
           />

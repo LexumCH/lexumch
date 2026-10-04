@@ -1,5 +1,7 @@
 import type { NomeIcona } from '@/componenti/Icona';
 
+import type { Lingua } from '@/lingue';
+
 import { milioni, numeri } from './numeri';
 
 // Testi che cambiano da un paese all'altro. Chi aggiunge un paese al registro
@@ -28,6 +30,7 @@ export type Contenuti = {
   benvenuto: {
     titolo: string;
     titoloOro: string;
+    titoloDopo?: string;
     sottotitolo: string;
     domanda: string;
     risposta: string;
@@ -312,3 +315,158 @@ export const professioni: Record<string, { nome: string; icona: NomeIcona; descr
     descrizione: 'Analisi dei disegni e verifica delle norme edilizie cantonali con Lex AI.',
   },
 };
+
+// ——— Tedesco e francese ———
+// Per la Svizzera, e per la scelta del paese (A0) su un telefono in tedesco o in francese.
+// Benvenuto A0–A3: testi approvati (docs/testi/domande-e-benvenuto.md). Le fonti nuove del 04-10-2026
+// vengono dalla home di lexum.ch (public/locales/de|fr/home.json); le fonti italiane sono da approvare.
+// Quello che non c'è qui si mostra in italiano.
+
+type ParzialeContenuti = {
+  [K in keyof Contenuti]?: Contenuti[K] extends unknown[]
+    ? Contenuti[K]
+    : Contenuti[K] extends object
+      ? Partial<Contenuti[K]>
+      : Contenuti[K];
+};
+
+// 4200000 → «4,2 Millionen» / «4,2 millions»; 1,8 in francese è singolare: «1,8 million».
+function milioniIn(n: number, lingua: Lingua): string {
+  const cifra = milioni(n).replace(' milioni', '');
+  if (lingua === 'de') return `${cifra} Millionen`;
+  if (lingua === 'fr') return `${cifra} ${n < 2_000_000 ? 'million' : 'millions'}`;
+  return milioni(n);
+}
+
+const traduzioni: Record<string, Partial<Record<Lingua, ParzialeContenuti>>> = {
+  IT: {
+    de: {
+      diritto: 'Italienisches und europäisches Recht',
+      totaleDocumenti: `Über ${milioniIn(IT.totale, 'de')} Dokumente`,
+      elencoFonti: [
+        ['Gesetzgebung', 'Verfassung, Gesetzbücher, Gesetze und Dekrete, geltend und historisch'],
+        ['Rechtsprechung', 'Kassationshof, Verfassungsgericht, Staatsrat, TAR, Rechnungshof'],
+        ['Steuerrecht', 'Steuergerichte und Steuerkammer des Kassationshofs (Datenbank des MEF)'],
+        ['Verwaltungspraxis', 'Agenzia delle Entrate, MEF, INPS, Zoll, Datenschutzbehörde, Rechnungshof'],
+        ['Europäische Union', 'Verträge, Verordnungen, Richtlinien und Urteile des EuGH'],
+        ['EGMR', 'Konvention und Urteile aus Strassburg seit 1955 (HUDOC)'],
+        ['Menschenrechte', 'Allgemeine Erklärung und Gesetze zur Ratifizierung der Verträge'],
+        ['Berufsrecht', 'Standesregeln der Anwaltschaft und Leitsätze des Consiglio nazionale forense'],
+      ],
+    },
+    fr: {
+      diritto: 'Droit italien et européen',
+      totaleDocumenti: `Plus de ${milioniIn(IT.totale, 'fr')} de documents`,
+      elencoFonti: [
+        ['Législation', 'Constitution, codes, lois et décrets, en vigueur et historiques'],
+        ['Jurisprudence', 'Cour de cassation, Cour constitutionnelle, Conseil d’État, TAR, Cour des comptes'],
+        ['Droit fiscal', 'Cours de justice fiscale et chambre fiscale de la Cour de cassation (base du MEF)'],
+        ['Pratique', 'Agenzia delle Entrate, MEF, INPS, Douanes, Garante privacy, Cour des comptes'],
+        ['Union européenne', 'Traités, règlements, directives et arrêts de la Cour de justice'],
+        ['Cour EDH', 'Convention et arrêts de Strasbourg depuis 1955 (HUDOC)'],
+        ['Droits de l’homme', 'Déclaration universelle et lois de ratification des traités'],
+        ['Déontologie', 'Code de déontologie des avocats et maximes du Consiglio nazionale forense'],
+      ],
+    },
+  },
+  CH: {
+    de: {
+      diritto: 'Schweizer und europäisches Recht',
+      totaleDocumenti: `Über ${milioniIn(CH.totale, 'de')} Dokumente`,
+      elencoFonti: [
+        ['Bundesrecht', 'Fedlex: Gesetzbücher, Gesetze und Verordnungen des Bundes'],
+        ['Kantonales Recht', 'Erlasse und Praxis der 26 Kantone'],
+        ['Bundesgerichte', 'Bundesgericht und BGE, Bundesverwaltungsgericht, Bundesstrafgericht'],
+        ['Kantonale Gerichte', 'Urteile der Gerichte der 26 Kantone'],
+        [
+          'Praxis',
+          'ESTV, FINMA, SECO, BSV, EDÖB, BJ, MROS, SUVA, BAG, SEM, BAZG, BAKOM, WEKO, ComCom, ElCom, ESBK',
+        ],
+        ['Europäische Union', 'Verordnungen, Richtlinien und Urteile des EuGH'],
+        ['EGMR', 'Urteile und Entscheidungen aus Strassburg seit 1955 (HUDOC)'],
+        ['Sprachen', 'App auf Italienisch, Deutsch oder Französisch'],
+      ],
+      benvenuto: {
+        titolo: 'Die Schweizer KI, die ',
+        titoloOro: 'das gesamte Schweizer Recht',
+        titoloDopo: ' durchdenkt.',
+        sottotitolo: `Geprüfte Quellen, über ${milioniIn(CH.totale, 'de')} juristische und steuerliche Dokumente, strukturierte Argumentation.`,
+        domanda: 'Mir wurde während meiner Krankheit gekündigt. Ist das gültig?',
+        risposta:
+          'Nach der Probezeit ist eine Kündigung während der Krankheit nichtig: Die Sperrfrist dauert je nach Dienstjahren 30 bis 180 Tage.',
+        citazioni: ['OR, Art. 336c'],
+      },
+      fontiTesto:
+        'Lex durchsucht Bundes- und Kantonsrecht, Rechtsprechung und Praxis und zeigt Ihnen, woher jede Aussage stammt. Die Datenbank können Sie auch selbst durchsuchen, kostenlos.',
+      fontiBenvenuto: [
+        {
+          nome: 'Bundesrecht',
+          icona: 'libro',
+          descrizione: 'Fedlex: Gesetzbücher, Gesetze und Verordnungen',
+        },
+        { nome: 'Kantonales Recht', icona: 'mappa', descrizione: 'Erlasse und Praxis der 26 Kantone' },
+        {
+          nome: 'Rechtsprechung',
+          icona: 'tribunale',
+          descrizione: 'BGer und BGE, BVGer, BStGer und kantonale Gerichte',
+        },
+        { nome: 'Praxis', icona: 'documento', descrizione: 'ESTV, FINMA, SECO und weitere Bundesbehörden' },
+        { nome: 'Europa', icona: 'globo', descrizione: 'EU-Recht, EuGH, EGMR' },
+      ],
+    },
+    fr: {
+      diritto: 'Droit suisse et européen',
+      totaleDocumenti: `Plus de ${milioniIn(CH.totale, 'fr')} de documents`,
+      elencoFonti: [
+        ['Droit fédéral', 'Fedlex : codes, lois et ordonnances de la Confédération'],
+        ['Droit cantonal', 'Normes et pratique des 26 cantons'],
+        [
+          'Tribunaux fédéraux',
+          'Tribunal fédéral et ATF, Tribunal administratif fédéral, Tribunal pénal fédéral',
+        ],
+        ['Tribunaux cantonaux', 'Arrêts des tribunaux des 26 cantons'],
+        [
+          'Pratique',
+          'AFC, FINMA, SECO, OFAS, PFPDT, OFJ, MROS, SUVA, OFSP, SEM, OFDF, OFCOM, COMCO, ComCom, ElCom, CFMJ',
+        ],
+        ['Union européenne', 'Règlements, directives et arrêts de la Cour de justice'],
+        ['Cour EDH', 'Arrêts et décisions de Strasbourg depuis 1955 (HUDOC)'],
+        ['Langues', 'App en italien, allemand ou français'],
+      ],
+      benvenuto: {
+        titolo: "L'IA suisse qui raisonne sur ",
+        titoloOro: 'tout le droit suisse.',
+        sottotitolo: `Sources vérifiées, plus de ${milioniIn(CH.totale, 'fr')} de documents juridiques et fiscaux, raisonnement structuré.`,
+        domanda: "J'ai été licencié pendant mon arrêt maladie. Est-ce valable ?",
+        risposta:
+          "Après le temps d'essai, un congé donné pendant la maladie est nul : la protection dure de 30 à 180 jours selon les années de service.",
+        citazioni: ['CO, art. 336c'],
+      },
+      fontiTesto:
+        "Lex cherche dans le droit fédéral et cantonal, la jurisprudence et la pratique, et vous indique d'où vient chaque passage. Vous pouvez aussi consulter la base de données vous-même, gratuitement.",
+      fontiBenvenuto: [
+        { nome: 'Droit fédéral', icona: 'libro', descrizione: 'Fedlex : codes, lois et ordonnances' },
+        { nome: 'Droit cantonal', icona: 'mappa', descrizione: 'Normes et pratique des 26 cantons' },
+        {
+          nome: 'Jurisprudence',
+          icona: 'tribunale',
+          descrizione: 'TF et ATF, TAF, TPF et tribunaux cantonaux',
+        },
+        {
+          nome: 'Pratique administrative',
+          icona: 'documento',
+          descrizione: 'AFC, FINMA, SECO et les autres autorités fédérales',
+        },
+        { nome: 'Europe', icona: 'globo', descrizione: "Droit de l'UE, CJUE, CEDH" },
+      ],
+    },
+  },
+};
+
+// I testi di un paese nella lingua chiesta: quello che manca resta in italiano.
+export function contenutiIn(paese: string, lingua: Lingua): Contenuti {
+  const base = contenuti[paese];
+  const t = traduzioni[paese]?.[lingua];
+  if (!t) return base;
+  return { ...base, ...t, benvenuto: { ...base.benvenuto, ...t.benvenuto } } as Contenuti;
+}

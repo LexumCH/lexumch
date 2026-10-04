@@ -7,6 +7,7 @@ import { Icona } from '@/componenti/Icona';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
+import { useTesti } from '@/lingue/useTesti';
 import { ricominciaDa } from '@/navigazione';
 import { trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
@@ -20,7 +21,9 @@ export default function EmailConfermata() {
   const { paese: param } = useLocalSearchParams<{ paese?: string }>();
   const paese = param ?? paeseAttivo;
   const datiPaese = trovaPaese(paese);
-  const link = useSessioneDaLink(paese);
+  const { t, lingua } = useTesti(paese);
+  const nomePaese = t(`paesi.${paese as 'IT' | 'CH'}`);
+  const link = useSessioneDaLink(paese, lingua);
   const entra = () => {
     if (link.stato === 'errore') {
       ricominciaDa(
@@ -41,31 +44,31 @@ export default function EmailConfermata() {
         <IconaQuadrata nome="spunta" lato={56} dimensione={26} />
         <View style={{ gap: 10 }}>
           <Testo tipo="dL" accessibilityRole="header">
-            Email confermata
+            {t('avvio.conferma.titolo')}
           </Testo>
-          <Testo colore={colori.fg2}>Il tuo account Lexum {datiPaese.nome} è attivo.</Testo>
+          <Testo colore={colori.fg2}>{t('avvio.conferma.testo', { paese: nomePaese })}</Testo>
         </View>
         <Scheda tono="ok" stile={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
           <Icona nome="stella" dimensione={20} colore={colori.ok} />
           <View style={{ flex: 1, gap: 3 }}>
             <Testo medio style={{ fontSize: 15 }}>
-              1 credito di benvenuto
+              {t('avvio.conferma.credito')}
             </Testo>
             <Testo tipo="small" colore={colori.fg2}>
-              La tua prima domanda a Lex è gratuita. La Banca dati è sempre libera.
+              {t('avvio.conferma.creditoTesto')}
             </Testo>
           </View>
         </Scheda>
         <View style={{ flex: 1 }} />
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center' }}>
-          <BadgePaese codice={paese} piccolo nome={datiPaese.nome} />
+          <BadgePaese codice={paese} piccolo nome={nomePaese} />
           <Testo tipo="cap">{datiPaese.sito.replace('https://', '')}</Testo>
         </View>
         {link.stato === 'errore' ? (
-          <Avviso testo={`${link.messaggio} Oppure entra con email e password.`} />
+          <Avviso testo={t('avvio.conferma.oppure', { messaggio: link.messaggio })} />
         ) : null}
         <Pulsante
-          titolo={link.stato === 'errore' ? 'Vai all’accesso' : 'Inizia'}
+          titolo={link.stato === 'errore' ? t('avvio.conferma.vaiAccesso') : t('avvio.conferma.inizia')}
           disabilitato={link.stato === 'attesa'}
           onPress={entra}
         />

@@ -4,7 +4,8 @@ import { View } from 'react-native';
 import { IconaQuadrata } from '@/componenti/Elementi';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Riga } from '@/componenti/Riga';
-import { contenuti } from '@/paesi/contenuti';
+import { useTesti } from '@/lingue/useTesti';
+import { contenutiIn } from '@/paesi/contenuti';
 import { PaginaBenvenuto } from '@/schermate/PaginaBenvenuto';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
@@ -12,13 +13,14 @@ import { colori } from '@/tema';
 // A2 · Le fonti: da dove prende le risposte Lex.
 export default function Fonti() {
   const { paese } = useStato();
-  const testi = contenuti[paese];
+  const { t, lingua } = useTesti();
+  const testi = contenutiIn(paese, lingua);
   const fonti = testi.fontiBenvenuto;
   return (
     <PaginaBenvenuto
       pagina={1}
       alone={110}
-      azione={{ titolo: 'Salta', onPress: () => router.push('/avvio/registrazione') }}
+      azione={{ titolo: t('comune.salta'), onPress: () => router.push('/avvio/registrazione') }}
       visuale={
         <View style={{ backgroundColor: colori.bg2, borderWidth: 1, borderColor: colori.line }}>
           {fonti.map((f, i) => (
@@ -34,11 +36,11 @@ export default function Fonti() {
           ))}
         </View>
       }
-      eyebrow="Banca dati"
-      titolo="Ogni risposta ha "
-      titoloOro="la sua fonte."
+      eyebrow={t('avvio.fonti.sopratitolo')}
+      titolo={t('avvio.fonti.titolo')}
+      titoloOro={t('avvio.fonti.titoloOro')}
       sottotitolo={testi.fontiTesto}
-      pulsanti={<Pulsante titolo="Avanti" onPress={() => router.push('/avvio/gratis')} />}
+      pulsanti={<Pulsante titolo={t('comune.avanti')} onPress={() => router.push('/avvio/gratis')} />}
     />
   );
 }

@@ -13,7 +13,7 @@ import { accedi as accediAlDatabase } from '@/backend/accesso';
 import { datiVeri } from '@/config';
 import { utenteFinto } from '@/dati-finti/utente';
 import { ricominciaDa } from '@/navigazione';
-import { contenuti } from '@/paesi/contenuti';
+import { useTesti } from '@/lingue/useTesti';
 import { dominio, trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
@@ -27,6 +27,7 @@ export default function Accesso() {
   const paese = parametri.paese ?? paeseAttivo;
   const altroPaese = !!parametri.paese && parametri.paese !== paeseAttivo;
   const datiPaese = trovaPaese(paese);
+  const { t, lingua } = useTesti(paese);
   const [email, setEmail] = useState(datiVeri ? '' : utenteFinto.email);
   const [password, setPassword] = useState('');
   const [errore, setErrore] = useState<string | null>(null);
@@ -39,11 +40,11 @@ export default function Accesso() {
 
   const accediDavvero = async () => {
     if (!email.trim() || !password) {
-      setErrore('Scrivi email e password.');
+      setErrore(t('errori.scriviEmailPassword'));
       return;
     }
     setInCorso(true);
-    const esito = await accediAlDatabase(paese, email, password);
+    const esito = await accediAlDatabase(paese, email, password, lingua);
     setInCorso(false);
     if (esito.esito === 'errore') setErrore(esito.messaggio);
     else if (esito.esito === 'due-passaggi')
@@ -62,7 +63,7 @@ export default function Accesso() {
     }
     // Finto: basta un'email con la chiocciola e una password non vuota.
     if (!email.includes('@') || password.length === 0) {
-      setErrore('Email o password non corretti');
+      setErrore(t('errori.credenziali'));
       return;
     }
     // Con la verifica in due passaggi attiva (dal sito o dall'app) serve anche il codice.
@@ -80,17 +81,17 @@ export default function Accesso() {
         <ScrollView contentContainerStyle={stili.corpo} keyboardShouldPersistTaps="handled">
           <View style={{ gap: 8 }}>
             <Testo tipo="dL" accessibilityRole="header">
-              Bentornato
+              {t('avvio.accesso.titolo')}
             </Testo>
             <Testo tipo="small" colore={colori.fg2}>
               {altroPaese
-                ? `Entra nel tuo account ${contenuti[paese].aggettivo}: email e password di ${dominio(datiPaese)}.`
-                : `Entra con l'email e la password che usi su ${dominio(datiPaese)}.`}
+                ? t(`avvio.accesso.testoAltroPaese.${paese as 'IT' | 'CH'}`, { sito: dominio(datiPaese) })
+                : t('avvio.accesso.testo', { sito: dominio(datiPaese) })}
             </Testo>
           </View>
 
           <Campo
-            etichetta="Email"
+            etichetta={t('comune.email')}
             value={email}
             onChangeText={(t) => {
               setEmail(t);
@@ -103,7 +104,7 @@ export default function Accesso() {
           />
           <View style={{ gap: 4 }}>
             <CampoPassword
-              etichetta="Password"
+              etichetta={t('comune.password')}
               value={password}
               onChangeText={(t) => {
                 setPassword(t);
@@ -118,19 +119,19 @@ export default function Accesso() {
               accessibilityRole="link"
               onPress={() => router.push({ pathname: '/avvio/password', params: { email, paese } })}
             >
-              Password dimenticata?
+              {t('avvio.accesso.dimenticata')}
             </Text>
           </View>
 
           {errore ? <Avviso testo={errore} /> : null}
 
           <Pulsante
-            titolo={inCorso ? 'Accesso in corso…' : 'Accedi'}
+            titolo={inCorso ? t('avvio.accesso.inCorso') : t('comune.accedi')}
             disabilitato={inCorso}
             onPress={accedi}
           />
           <Text style={stili.registrati}>
-            Non hai un account?{' '}
+            {t('avvio.accesso.senzaAccount')}{' '}
             <Text
               style={stili.link}
               accessibilityRole="link"
@@ -142,7 +143,7 @@ export default function Accesso() {
                 )
               }
             >
-              Registrati
+              {t('comune.registrati')}
             </Text>
           </Text>
         </ScrollView>

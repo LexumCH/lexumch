@@ -60,6 +60,7 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
 - `src/dati-finti/`: i dati finti della tappa 1. Si tolgono man mano che arrivano i dati veri.
 - `src/studio/`: regole e pezzi dello Studio dei professionisti (date, campi, fatture, calcolatore della parcella); lo stato è in `src/stato/Studio.tsx`.
 - `src/anteprima/`: solo per il browser, la sagoma del telefono e l'elenco delle schermate per la revisione.
+- `src/lingue/`: i testi dell'app in italiano (`it.ts`, il riferimento), tedesco e francese; nelle schermate `const { t } = useTesti()`. In Italia sempre italiano, in Svizzera la lingua scelta.
 - `src/testi/`: testi approvati da Antonino (domande frequenti, «Elimina account»), anche in tedesco e francese. Le fonti sono in `docs/testi/`: non cambiarli senza di lui.
 - `src/errori.ts`: messaggi d'errore white-label, la stessa regola di `sanitizzaErrore.js` del sito.
 - `src/sentry.ts`: segnalazione dei crash, accesa solo con `EXPO_PUBLIC_SENTRY_DSN`.

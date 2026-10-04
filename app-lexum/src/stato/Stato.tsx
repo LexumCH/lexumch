@@ -11,6 +11,7 @@ import {
   type Etichetta,
 } from '@/dati-finti/ricerche';
 import { salvaPaese } from '@/backend/telefono';
+import { linguaTelefono } from '@/lingue';
 import { datiVeri } from '@/config';
 import { messaggioErrore } from '@/errori';
 import { coloriEtichette } from '@/tema';
@@ -112,7 +113,8 @@ const statoIniziale = (): Stato => ({
   // Con i dati veri si parte senza accessi: li ritrova l'avvio dalle sessioni salvate.
   accessi: { IT: !datiVeri, CH: !datiVeri },
   conti: copia(contiFinti),
-  lingua: 'it',
+  // La lingua del telefono, se è italiano, tedesco o francese: vale solo in Svizzera (e nella scelta del paese).
+  lingua: linguaTelefono(),
   chat: chatVuota,
   etichette: copia(etichetteFinte),
   elementi: copia(elementiFinti),

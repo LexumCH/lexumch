@@ -77,6 +77,11 @@ Con `npx expo start` e l'app Expo Go: inquadri il QR e l'app si apre sul telefon
 ## Testi
 
 - [ ] **Tedesco e francese del resto dell'app** (tappa 2). Partirò dai testi del sito (`public/locales/`). Per le frasi nuove dell'app (accesso, errori, elenchi vuoti) servirà la tua traduzione o approvazione.
+- [ ] **Rileggi tedesco e francese dell'avvio e dell'accesso** (04-10-2026): `src/lingue/de.ts` e `src/lingue/fr.ts`. Una parte viene da `public/locales/*/auth.json` del sito svizzero, una parte è nuova. Nuove anche:
+  - le fonti svizzere in tedesco e francese nella scelta del paese e nel benvenuto (riprese dalla home di lexum.ch);
+  - le fonti italiane in tedesco e francese, che si vedono solo su un telefono in quelle lingue (`src/paesi/contenuti.ts`, in fondo).
+
+  Il benvenuto A0–A3 è quello che avevi già approvato.
 - [x] Domande frequenti, conferma «Elimina account» e benvenuto svizzero: inseriti come nel tuo documento (`docs/testi/`).
 - [ ] **Rileggi le risposte di prova delle domande d'esempio** (`src/dati-finti/chat.ts`). Sono finte, ma citano articoli veri e qualcuno le vedrà nelle anteprime:
   - Italia: legittima difesa (c.p. artt. 52 e 55), cauzione dell'affitto (L. 392/1978 art. 11, c.c. art. 1590, D.Lgs. 28/2010 art. 5), multa arrivata tardi (C.d.S. artt. 201–204-bis, D.Lgs. 150/2011 art. 7);

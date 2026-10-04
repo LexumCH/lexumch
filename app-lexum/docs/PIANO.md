@@ -53,7 +53,9 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
     - [x] accesso, verifica in due passaggi (codice o codice di recupero), registrazione (in Italia con la professione, in Svizzera con la lingua), password dimenticata e nuova password, conferma email (`src/backend/accesso.ts`);
     - [x] ruolo, nome ed email letti dal profilo; il paese attivo resta sul telefono e all'avvio si rientra da soli;
     - [ ] prova con i quattro account di prova (privato e avvocato, IT e CH);
-    - [ ] testi in file di traduzione e lingua svizzera.
+    - [x] lingue: `src/lingue/` (italiano di riferimento, tedesco e francese; quello che manca si mostra in italiano). Al primo avvio la lingua e il paese proposto vengono dal telefono;
+    - [x] tradotte: scelta del paese, benvenuto, fonti, prima domanda, accesso, registrazione, conferma email, password, verifica in due passaggi, passaggio di paese, messaggi d'errore dell'accesso;
+    - [ ] da tradurre: chat, menù, Banca dati, Ricerche, Archivio, Domande, Profilo, fogli, Studio.
 
 - [ ] **3. Lex.**
   - Chat con `lex-lead` in streaming, come nel sito: `src/pages/avvocato/BancaDati.jsx` di `Lexumita/lexumita` (la parte RicercaAI).

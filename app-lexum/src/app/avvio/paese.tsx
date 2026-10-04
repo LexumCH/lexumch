@@ -8,18 +8,23 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { Scelta } from '@/componenti/Scelta';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
-import { contenuti } from '@/paesi/contenuti';
+import { regioneTelefono } from '@/lingue';
+import { useTesti } from '@/lingue/useTesti';
+import { contenutiIn } from '@/paesi/contenuti';
 import { paesePredefinito, paesi } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
 // A0 · Scegli il paese. Ogni paese ha la sua banca dati e il suo account.
-// Il paese proposto sarà quello della regione del telefono (tappa 2); per ora è il primo del registro.
+// Propone il paese della regione del telefono (se è nel registro) ed è nella lingua del telefono:
+// su un telefono in tedesco o in francese si legge in tedesco o in francese (testi approvati).
 export default function SceltaPaese() {
-  const { paese, azioni } = useStato();
-  const [scelto, setScelto] = useState(paese);
+  const { azioni } = useStato();
+  const { t, lingua } = useTesti('telefono');
+  const regione = regioneTelefono();
+  const proposto = paesi.some((p) => p.codice === regione) ? regione : null;
+  const [scelto, setScelto] = useState(proposto ?? paesePredefinito);
   const [aperti, setAperti] = useState<Record<string, boolean>>({});
-  const proposto = contenuti[paesePredefinito];
 
   return (
     <Schermata hero alone={20}>
@@ -30,15 +35,13 @@ export default function SceltaPaese() {
         <View style={{ flex: 1, minHeight: 24 }} />
         <View style={stili.testi}>
           <Testo tipo="dL" accessibilityRole="header">
-            Scegli il paese
+            {t('avvio.paese.titolo')}
           </Testo>
-          <Testo colore={colori.fg2}>
-            Ogni paese ha la sua banca dati e il suo account. Puoi cambiare quando vuoi dal Profilo.
-          </Testo>
+          <Testo colore={colori.fg2}>{t('avvio.paese.testo')}</Testo>
         </View>
-        <View style={{ gap: 10 }} accessibilityRole="radiogroup" accessibilityLabel="Paese">
+        <View style={{ gap: 10 }} accessibilityRole="radiogroup" accessibilityLabel={t('avvio.paese.gruppo')}>
           {paesi.map((p) => {
-            const testi = contenuti[p.codice];
+            const testi = contenutiIn(p.codice, lingua);
             const aperto = !!aperti[p.codice];
             return (
               <Scelta
@@ -46,7 +49,7 @@ export default function SceltaPaese() {
                 attiva={p.codice === scelto}
                 onPress={() => setScelto(p.codice)}
                 sinistra={<BadgePaese codice={p.codice} />}
-                titolo={p.nome}
+                titolo={t(`paesi.${p.codice as 'IT' | 'CH'}`)}
                 sottotitolo={testi.diritto}
                 grande
                 sotto={
@@ -55,12 +58,17 @@ export default function SceltaPaese() {
                       onPress={() => setAperti((a) => ({ ...a, [p.codice]: !aperto }))}
                       accessibilityRole="button"
                       aria-expanded={aperto}
-                      accessibilityLabel={`${testi.totaleDocumenti}. ${aperto ? 'Chiudi' : 'Espandi'} l'elenco delle fonti`}
+                      accessibilityLabel={t('avvio.paese.etichettaFonti', {
+                        totale: testi.totaleDocumenti,
+                        azione: aperto ? t('comune.chiudi') : t('comune.espandi'),
+                      })}
                       style={stili.sommario}
                     >
                       <Text style={stili.totale}>{testi.totaleDocumenti}</Text>
                       <View style={stili.espandi}>
-                        <Text style={stili.espandiTesto}>{aperto ? 'Chiudi' : 'Espandi'}</Text>
+                        <Text style={stili.espandiTesto}>
+                          {aperto ? t('comune.chiudi') : t('comune.espandi')}
+                        </Text>
                         <Icona nome={aperto ? 'su' : 'giu'} dimensione={16} colore={colori.accentText} />
                       </View>
                     </Pressable>
@@ -79,11 +87,13 @@ export default function SceltaPaese() {
             );
           })}
         </View>
-        <Testo tipo="cap" style={{ paddingTop: 14 }}>
-          Ti proponiamo {proposto.conArticolo} perché è il paese impostato sul telefono.
-        </Testo>
+        {proposto ? (
+          <Testo tipo="cap" style={{ paddingTop: 14 }}>
+            {t(`avvio.paese.proposta.${proposto as 'IT' | 'CH'}`)}
+          </Testo>
+        ) : null}
         <Pulsante
-          titolo="Continua"
+          titolo={t('comune.continua')}
           stile={{ marginTop: 14 }}
           onPress={() => {
             azioni.scegliPaese(scelto);

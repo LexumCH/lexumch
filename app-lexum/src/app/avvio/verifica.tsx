@@ -10,6 +10,7 @@ import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import { usaCodiceRecupero, verificaCodice } from '@/backend/accesso';
 import { datiVeri } from '@/config';
+import { useTesti } from '@/lingue/useTesti';
 import { ricominciaDa } from '@/navigazione';
 import { dominio, trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
@@ -26,6 +27,7 @@ export default function Verifica() {
   const paese = parametri.paese ?? paeseAttivo;
   const altroPaese = !!parametri.paese && parametri.paese !== paeseAttivo;
   const sito = dominio(trovaPaese(paese));
+  const { t, lingua } = useTesti(paese);
   const [modo, setModo] = useState<Modo>('codice');
   const [codice, setCodice] = useState('');
   const [recupero, setRecupero] = useState('');
@@ -39,7 +41,7 @@ export default function Verifica() {
 
   const verificaDavvero = async () => {
     setInCorso(true);
-    const esito = await verificaCodice(paese, codice);
+    const esito = await verificaCodice(paese, codice, lingua);
     setInCorso(false);
     if (esito.esito === 'ok') {
       const { esito: _ok, ...dati } = esito;
@@ -53,7 +55,7 @@ export default function Verifica() {
 
   const recuperoDavvero = async () => {
     setInCorso(true);
-    const esito = await usaCodiceRecupero(paese, recupero);
+    const esito = await usaCodiceRecupero(paese, recupero, lingua);
     setInCorso(false);
     if (esito.esito === 'ok') {
       azioni.impostaDueFattori(false);
@@ -69,7 +71,7 @@ export default function Verifica() {
       return;
     }
     if (codice === '000000') {
-      setErrore("Codice non valido. Controlla che l'ora del telefono sia giusta e riprova.");
+      setErrore(t('errori.codiceNonValido'));
       setCodice('');
       return;
     }
@@ -84,7 +86,7 @@ export default function Verifica() {
       return;
     }
     if (!/^[A-Z0-9]{4}-?[A-Z0-9]{4}$/.test(recupero.trim())) {
-      setErrore('Codice non valido o già usato.');
+      setErrore(t('errori.recuperoNonValido'));
       return;
     }
     azioni.impostaDueFattori(false);
@@ -98,27 +100,26 @@ export default function Verifica() {
 
   return (
     <Schermata>
-      <Intestazione sinistra={<BottoneIndietro ripiego="/avvio/accesso" etichetta="Torna all'accesso" />} />
+      <Intestazione
+        sinistra={<BottoneIndietro ripiego="/avvio/accesso" etichetta={t('comune.tornaAccesso')} />}
+      />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={stili.corpo} keyboardShouldPersistTaps="handled">
           {modo === 'spenta' ? (
             <>
               <IconaQuadrata nome="lucchetto" />
               <Testo tipo="dM" accessibilityRole="header">
-                Verifica in due passaggi spenta
+                {t('avvio.verifica.spentaTitolo')}
               </Testo>
-              <Testo colore={colori.fg2}>
-                Il codice di recupero è stato accettato. Per sicurezza la verifica in due passaggi si è
-                spenta, anche su {sito}: ora il tuo account è protetto solo dalla password.
-              </Testo>
+              <Testo colore={colori.fg2}>{t('avvio.verifica.spentaTesto', { sito })}</Testo>
               <Scheda tono="oro" stile={{ gap: 6 }}>
-                <Testo medio>Riattivala appena entri</Testo>
+                <Testo medio>{t('avvio.verifica.riattiva')}</Testo>
                 <Testo tipo="small" colore={colori.fg2}>
-                  Profilo → Account → Verifica in due passaggi.
+                  {t('avvio.verifica.riattivaDove')}
                 </Testo>
               </Scheda>
               <Pulsante
-                titolo="Accedi di nuovo"
+                titolo={t('avvio.verifica.accediDiNuovo')}
                 onPress={() =>
                   router.replace(
                     altroPaese ? { pathname: '/avvio/accesso', params: { paese } } : '/avvio/accesso',
@@ -130,22 +131,22 @@ export default function Verifica() {
             <>
               <View style={{ gap: 8 }}>
                 <Testo tipo="dL" accessibilityRole="header">
-                  {modo === 'codice' ? 'Verifica in due passaggi' : 'Codice di recupero'}
+                  {modo === 'codice' ? t('avvio.verifica.titolo') : t('avvio.verifica.recuperoTitolo')}
                 </Testo>
                 <Testo tipo="small" colore={colori.fg2}>
                   {modo === 'codice'
-                    ? `Scrivi il codice di 6 cifre della tua app di autenticazione: è lo stesso che usi su ${sito}.`
-                    : 'Usa uno dei codici che hai salvato quando hai attivato la verifica.'}
+                    ? t('avvio.verifica.testo', { sito })
+                    : t('avvio.verifica.recuperoTesto')}
                 </Testo>
               </View>
 
               {modo === 'codice' ? (
                 <Campo
-                  etichetta="Codice di 6 cifre"
+                  etichetta={t('avvio.verifica.campo')}
                   placeholder="123456"
                   value={codice}
-                  onChangeText={(t) => {
-                    setCodice(t.replace(/\D/g, '').slice(0, 6));
+                  onChangeText={(testo) => {
+                    setCodice(testo.replace(/\D/g, '').slice(0, 6));
                     setErrore(null);
                   }}
                   keyboardType="number-pad"
@@ -158,16 +159,15 @@ export default function Verifica() {
                 <>
                   <Scheda tono="oro">
                     <Testo tipo="small" colore={colori.fg2}>
-                      Con un codice di recupero la verifica in due passaggi si spegne, qui e sul sito. Potrai
-                      riattivarla dal Profilo.
+                      {t('avvio.verifica.recuperoAvviso')}
                     </Testo>
                   </Scheda>
                   <Campo
-                    etichetta="Codice di recupero"
+                    etichetta={t('avvio.verifica.recuperoTitolo')}
                     placeholder="XXXX-XXXX"
                     value={recupero}
-                    onChangeText={(t) => {
-                      setRecupero(t.toUpperCase());
+                    onChangeText={(testo) => {
+                      setRecupero(testo.toUpperCase());
                       setErrore(null);
                     }}
                     autoCapitalize="characters"
@@ -180,10 +180,14 @@ export default function Verifica() {
               {errore ? <Avviso testo={errore} /> : null}
 
               {modo === 'codice' ? (
-                <Pulsante titolo="Verifica e accedi" disabilitato={codice.length !== 6} onPress={verifica} />
+                <Pulsante
+                  titolo={t('avvio.verifica.verifica')}
+                  disabilitato={codice.length !== 6}
+                  onPress={verifica}
+                />
               ) : (
                 <Pulsante
-                  titolo="Usa il codice e accedi"
+                  titolo={t('avvio.verifica.usaRecupero')}
                   disabilitato={!recupero.trim()}
                   onPress={usaRecupero}
                 />
@@ -193,9 +197,7 @@ export default function Verifica() {
                 accessibilityRole="link"
                 onPress={() => cambia(modo === 'codice' ? 'recupero' : 'codice')}
               >
-                {modo === 'codice'
-                  ? 'Ho perso il telefono: uso un codice di recupero'
-                  : "Torna al codice dell'app di autenticazione"}
+                {modo === 'codice' ? t('avvio.verifica.perso') : t('avvio.verifica.tornaCodice')}
               </Text>
             </>
           )}

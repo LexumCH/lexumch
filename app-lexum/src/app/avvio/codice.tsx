@@ -9,6 +9,7 @@ import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import { utenteFinto } from '@/dati-finti/utente';
 import { rimandaConferma } from '@/backend/accesso';
+import { useTesti } from '@/lingue/useTesti';
 import { datiVeri } from '@/config';
 import { ricominciaDa } from '@/navigazione';
 import { useStato } from '@/stato/Stato';
@@ -24,6 +25,7 @@ export default function Codice() {
   const { paese: paeseAttivo } = useStato();
   const { paese, email } = useLocalSearchParams<{ paese?: string; email?: string }>();
   const paeseConto = paese ?? paeseAttivo;
+  const { t, lingua } = useTesti(paeseConto);
   const [avviso, setAvviso] = useState<string | null>(null);
   const [codice, setCodice] = useState('');
   const [attesa, setAttesa] = useState(ATTESA_S);
@@ -31,8 +33,8 @@ export default function Codice() {
 
   useEffect(() => {
     if (attesa <= 0) return;
-    const t = setTimeout(() => setAttesa((a) => a - 1), 1000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setAttesa((a) => a - 1), 1000);
+    return () => clearTimeout(timer);
   }, [attesa]);
 
   const conferma = () => {
@@ -43,8 +45,8 @@ export default function Codice() {
   const rimanda = async () => {
     setAttesa(ATTESA_S);
     if (!datiVeri || !email) return;
-    const esito = await rimandaConferma(paeseConto, email);
-    setAvviso(esito.esito === 'ok' ? 'Email inviata di nuovo.' : esito.messaggio);
+    const esito = await rimandaConferma(paeseConto, email, lingua);
+    setAvviso(esito.esito === 'ok' ? t('avvio.codice.inviata') : esito.messaggio);
   };
 
   const minuti = Math.floor(attesa / 60);
@@ -57,12 +59,12 @@ export default function Codice() {
         <IconaQuadrata nome="email" lato={56} dimensione={26} />
         <View style={{ gap: 10 }}>
           <Testo tipo="dL" accessibilityRole="header">
-            Controlla la tua email
+            {t('avvio.codice.titolo')}
           </Testo>
           <Testo colore={colori.fg2}>
-            {datiVeri ? 'Abbiamo mandato un link di conferma a ' : 'Abbiamo mandato un codice di 6 cifre a '}
+            {datiVeri ? t('avvio.codice.linkA') : t('avvio.codice.codiceA')}
             <Text style={{ color: colori.fg }}>{email ?? utenteFinto.email}</Text>.
-            {datiVeri ? ' Aprilo da questo telefono: ti riporta nell’app, già dentro.' : ''}
+            {datiVeri ? t('avvio.codice.apriLink') : ''}
           </Testo>
         </View>
 
@@ -70,7 +72,7 @@ export default function Codice() {
           <Pressable
             onPress={() => campo.current?.focus()}
             accessibilityRole="none"
-            accessibilityLabel="Codice di conferma"
+            accessibilityLabel={t('avvio.codice.etichetta')}
             style={stili.codice}
           >
             {Array.from({ length: CIFRE }, (_, i) => (
@@ -84,27 +86,27 @@ export default function Codice() {
             <TextInput
               ref={campo}
               value={codice}
-              onChangeText={(t) => setCodice(t.replace(/\D/g, '').slice(0, CIFRE))}
+              onChangeText={(testo) => setCodice(testo.replace(/\D/g, '').slice(0, CIFRE))}
               keyboardType="number-pad"
               textContentType="oneTimeCode"
               autoComplete="one-time-code"
               maxLength={CIFRE}
               autoFocus={Platform.OS !== 'web'}
-              accessibilityLabel="Codice di conferma di 6 cifre"
+              accessibilityLabel={t('avvio.codice.etichetta')}
               style={stili.nascosto}
             />
           </Pressable>
         )}
 
         <Testo tipo="small" colore={colori.fg3}>
-          Non è arrivato? Controlla lo spam, oppure{' '}
+          {t('avvio.codice.nonArrivato')}
           {attesa > 0 ? (
             <Text style={{ color: colori.fg2 }}>
-              invia di nuovo tra {minuti}:{secondi}
+              {t('avvio.codice.inviaTra', { tempo: `${minuti}:${secondi}` })}
             </Text>
           ) : (
             <Text style={stili.link} onPress={() => void rimanda()} accessibilityRole="link">
-              invia di nuovo
+              {t('avvio.codice.inviaDiNuovo')}
             </Text>
           )}
           .
@@ -119,7 +121,7 @@ export default function Codice() {
         <View style={{ flex: 1 }} />
         {datiVeri ? (
           <Pulsante
-            titolo="Ho confermato: accedi"
+            titolo={t('avvio.codice.hoConfermato')}
             variante="linea"
             onPress={() =>
               ricominciaDa(paese ? { pathname: '/avvio/accesso', params: { paese } } : '/avvio/accesso')
@@ -128,9 +130,9 @@ export default function Codice() {
         ) : (
           <>
             <Testo tipo="cap" centrato>
-              Puoi anche toccare il link nell'email: ti riporta qui.
+              {t('avvio.codice.linkNellEmail')}
             </Testo>
-            <Pulsante titolo="Conferma" onPress={conferma} />
+            <Pulsante titolo={t('avvio.codice.conferma')} onPress={conferma} />
           </>
         )}
       </View>

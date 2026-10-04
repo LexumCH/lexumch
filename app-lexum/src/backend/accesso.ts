@@ -1,6 +1,7 @@
 import * as Linking from 'expo-linking';
 
 import { messaggiErrore, messaggioErrore } from '@/errori';
+import { traduci, type Lingua } from '@/lingue';
 
 import { clientDi } from './client';
 
@@ -19,26 +20,27 @@ export type Esito = { esito: 'ok' } | { esito: 'errore'; messaggio: string };
 type ErroreSupabase = { message?: string; code?: string; status?: number } | null | undefined;
 
 // I messaggi di Supabase sono in inglese e tecnici: qui diventano frasi per l'utente.
-export function messaggioAccesso(e: unknown): string {
+export function messaggioAccesso(e: unknown, lingua: Lingua = 'it'): string {
   const err = (e ?? null) as ErroreSupabase;
   const codice = err?.code ?? '';
   const testo = err?.message ?? (typeof e === 'string' ? e : '');
   if (codice === 'invalid_credentials' || /invalid login credentials/i.test(testo))
-    return 'Email o password non corretti';
+    return traduci(lingua, 'errori.credenziali');
   if (codice === 'email_not_confirmed' || /email not confirmed/i.test(testo))
-    return "Prima conferma l'email: apri il link che ti abbiamo mandato.";
+    return traduci(lingua, 'errori.emailDaConfermare');
   if (codice === 'user_already_exists' || /already registered|already exists/i.test(testo))
-    return "Con questa email c'è già un account: accedi.";
+    return traduci(lingua, 'errori.giaRegistrata');
   if (codice === 'weak_password' || /password should be/i.test(testo))
-    return 'Password troppo debole: usa almeno 8 caratteri.';
-  if (codice === 'same_password') return 'La nuova password deve essere diversa da quella di prima.';
+    return traduci(lingua, 'errori.passwordDebole');
+  if (codice === 'same_password') return traduci(lingua, 'errori.stessaPassword');
   if (codice === 'email_address_invalid' || /invalid.*email|email.*invalid/i.test(testo))
-    return "L'indirizzo email non è valido.";
+    return traduci(lingua, 'errori.emailNonValida');
   if (/rate limit|too many|over_.*limit/i.test(`${codice} ${testo}`) || err?.status === 429)
-    return 'Troppi tentativi. Riprova tra qualche minuto.';
+    return traduci(lingua, 'errori.troppiTentativi');
   // Rete o altro: il messaggio generico, mai quello tecnico.
-  const m = messaggioErrore(testo, 'it', messaggiErrore.it.tecnico);
-  return m === testo ? messaggiErrore.it.tecnico : m;
+  const generico = messaggiErrore[lingua].tecnico;
+  const m = messaggioErrore(testo, lingua, generico);
+  return m === testo ? generico : m;
 }
 
 async function profiloDi(paese: string, id: string, email: string): Promise<Profilo> {
@@ -57,50 +59,64 @@ async function profiloDi(paese: string, id: string, email: string): Promise<Prof
 }
 
 // Come il sito: email e password; se l'account ha la verifica in due passaggi, serve anche il codice.
-export async function accedi(paese: string, email: string, password: string): Promise<EsitoAccesso> {
+export async function accedi(
+  paese: string,
+  email: string,
+  password: string,
+  lingua: Lingua = 'it',
+): Promise<EsitoAccesso> {
   try {
     const sb = clientDi(paese);
     const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
-    if (error || !data.user) return { esito: 'errore', messaggio: messaggioAccesso(error) };
+    if (error || !data.user) return { esito: 'errore', messaggio: messaggioAccesso(error, lingua) };
     const { data: livello } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
     if (livello?.currentLevel === 'aal1' && livello?.nextLevel === 'aal2') return { esito: 'due-passaggi' };
     return { esito: 'ok', ...(await profiloDi(paese, data.user.id, data.user.email ?? '')) };
   } catch (e) {
-    return { esito: 'errore', messaggio: messaggioAccesso(e) };
+    return { esito: 'errore', messaggio: messaggioAccesso(e, lingua) };
   }
 }
 
 // Codice di 6 cifre dell'app di autenticazione: lo stesso che vale sul sito.
-export async function verificaCodice(paese: string, codice: string): Promise<EsitoAccesso> {
-  const nonValido = "Codice non valido. Controlla che l'ora del telefono sia giusta e riprova.";
+export async function verificaCodice(
+  paese: string,
+  codice: string,
+  lingua: Lingua = 'it',
+): Promise<EsitoAccesso> {
+  const nonValido = traduci(lingua, 'errori.codiceNonValido');
   try {
     const sb = clientDi(paese);
     const { data: fattori, error } = await sb.auth.mfa.listFactors();
     const totp = fattori?.totp?.find((f) => f.status === 'verified');
-    if (error || !totp) return { esito: 'errore', messaggio: messaggiErrore.it.tecnico };
+    if (error || !totp) return { esito: 'errore', messaggio: messaggiErrore[lingua].tecnico };
     const { error: errore } = await sb.auth.mfa.challengeAndVerify({ factorId: totp.id, code: codice });
     if (errore) return { esito: 'errore', messaggio: nonValido };
     const { data } = await sb.auth.getUser();
-    if (!data.user) return { esito: 'errore', messaggio: messaggiErrore.it.tecnico };
+    if (!data.user) return { esito: 'errore', messaggio: messaggiErrore[lingua].tecnico };
     return { esito: 'ok', ...(await profiloDi(paese, data.user.id, data.user.email ?? '')) };
   } catch (e) {
-    return { esito: 'errore', messaggio: messaggioAccesso(e) };
+    return { esito: 'errore', messaggio: messaggioAccesso(e, lingua) };
   }
 }
 
 // Codice di recupero (XXXX-XXXX): come sul sito spegne la verifica in due passaggi; poi si esce
 // e si rientra con email e password, e la verifica si riattiva dal Profilo.
-export async function usaCodiceRecupero(paese: string, codice: string): Promise<Esito> {
+export async function usaCodiceRecupero(
+  paese: string,
+  codice: string,
+  lingua: Lingua = 'it',
+): Promise<Esito> {
   try {
     const sb = clientDi(paese);
     const { data, error } = await sb.functions.invoke('mfa-backup-codes', {
       body: { action: 'verify', code: codice.trim() },
     });
-    if (error || !data?.ok) return { esito: 'errore', messaggio: 'Codice non valido o già usato.' };
+    if (error || !data?.ok)
+      return { esito: 'errore', messaggio: traduci(lingua, 'errori.recuperoNonValido') };
     await sb.auth.signOut({ scope: 'local' });
     return { esito: 'ok' };
   } catch (e) {
-    return { esito: 'errore', messaggio: messaggioAccesso(e) };
+    return { esito: 'errore', messaggio: messaggioAccesso(e, lingua) };
   }
 }
 
@@ -128,12 +144,13 @@ export async function registrati(
     email: string;
     password: string;
     professione?: string;
-    lingua?: string;
+    lingua?: Lingua;
   },
 ): Promise<Esito> {
+  const lingua: Lingua = dati.lingua ?? 'it';
   const metadati: Record<string, string> = { nome: dati.nome.trim(), cognome: dati.cognome.trim() };
   if (paese === 'IT') metadati.professione = dati.professione ?? 'privato';
-  if (paese === 'CH') metadati.lingua = dati.lingua ?? 'it';
+  if (paese === 'CH') metadati.lingua = lingua;
   try {
     const { error } = await clientDi(paese).auth.signUp({
       email: dati.email.trim().toLowerCase(),
@@ -143,30 +160,34 @@ export async function registrati(
         data: metadati,
       },
     });
-    return error ? { esito: 'errore', messaggio: messaggioAccesso(error) } : { esito: 'ok' };
+    return error ? { esito: 'errore', messaggio: messaggioAccesso(error, lingua) } : { esito: 'ok' };
   } catch (e) {
-    return { esito: 'errore', messaggio: messaggioAccesso(e) };
+    return { esito: 'errore', messaggio: messaggioAccesso(e, lingua) };
   }
 }
 
 // Password dimenticata: il link riporta nell'app, su Nuova password.
-export async function mandaLinkPassword(paese: string, email: string): Promise<Esito> {
+export async function mandaLinkPassword(paese: string, email: string, lingua: Lingua = 'it'): Promise<Esito> {
   try {
     const { error } = await clientDi(paese).auth.resetPasswordForEmail(email.trim(), {
       redirectTo: Linking.createURL('/avvio/nuova-password', { queryParams: { paese } }),
     });
-    return error ? { esito: 'errore', messaggio: messaggioAccesso(error) } : { esito: 'ok' };
+    return error ? { esito: 'errore', messaggio: messaggioAccesso(error, lingua) } : { esito: 'ok' };
   } catch (e) {
-    return { esito: 'errore', messaggio: messaggioAccesso(e) };
+    return { esito: 'errore', messaggio: messaggioAccesso(e, lingua) };
   }
 }
 
-export async function salvaNuovaPassword(paese: string, password: string): Promise<Esito> {
+export async function salvaNuovaPassword(
+  paese: string,
+  password: string,
+  lingua: Lingua = 'it',
+): Promise<Esito> {
   try {
     const { error } = await clientDi(paese).auth.updateUser({ password });
-    return error ? { esito: 'errore', messaggio: messaggioAccesso(error) } : { esito: 'ok' };
+    return error ? { esito: 'errore', messaggio: messaggioAccesso(error, lingua) } : { esito: 'ok' };
   } catch (e) {
-    return { esito: 'errore', messaggio: messaggioAccesso(e) };
+    return { esito: 'errore', messaggio: messaggioAccesso(e, lingua) };
   }
 }
 
@@ -198,9 +219,10 @@ export async function esci(paese: string): Promise<void> {
 export async function sessioneDaLink(
   paese: string,
   url: string,
+  lingua: Lingua = 'it',
 ): Promise<({ esito: 'ok' } & Profilo) | { esito: 'errore'; messaggio: string }> {
   const frammento = new URLSearchParams(url.split('#')[1] ?? '');
-  const scaduto = 'Il link non è più valido. Chiedine uno nuovo.';
+  const scaduto = traduci(lingua, 'errori.linkScaduto');
   if (frammento.get('error') || frammento.get('error_description'))
     return { esito: 'errore', messaggio: scaduto };
   const access_token = frammento.get('access_token');
@@ -211,20 +233,20 @@ export async function sessioneDaLink(
     if (error || !data.user) return { esito: 'errore', messaggio: scaduto };
     return { esito: 'ok', ...(await profiloDi(paese, data.user.id, data.user.email ?? '')) };
   } catch (e) {
-    return { esito: 'errore', messaggio: messaggioAccesso(e) };
+    return { esito: 'errore', messaggio: messaggioAccesso(e, lingua) };
   }
 }
 
 // «Invia di nuovo» l'email di conferma della registrazione.
-export async function rimandaConferma(paese: string, email: string): Promise<Esito> {
+export async function rimandaConferma(paese: string, email: string, lingua: Lingua = 'it'): Promise<Esito> {
   try {
     const { error } = await clientDi(paese).auth.resend({
       type: 'signup',
       email: email.trim().toLowerCase(),
       options: { emailRedirectTo: Linking.createURL('/avvio/conferma', { queryParams: { paese } }) },
     });
-    return error ? { esito: 'errore', messaggio: messaggioAccesso(error) } : { esito: 'ok' };
+    return error ? { esito: 'errore', messaggio: messaggioAccesso(error, lingua) } : { esito: 'ok' };
   } catch (e) {
-    return { esito: 'errore', messaggio: messaggioAccesso(e) };
+    return { esito: 'errore', messaggio: messaggioAccesso(e, lingua) };
   }
 }

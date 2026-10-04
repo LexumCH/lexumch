@@ -15,6 +15,7 @@ type Props = {
   eyebrow: string;
   titolo: string;
   titoloOro: string;
+  titoloDopo?: string; // in tedesco il verbo viene dopo la parte in oro
   sottotitolo: string;
   pulsanti: ReactNode;
 };
@@ -28,6 +29,7 @@ export function PaginaBenvenuto({
   eyebrow,
   titolo,
   titoloOro,
+  titoloDopo,
   sottotitolo,
   pulsanti,
 }: Props) {
@@ -50,6 +52,7 @@ export function PaginaBenvenuto({
             <Evidenza oro corsivo>
               {titoloOro}
             </Evidenza>
+            {titoloDopo ?? ''}
           </Testo>
           <Testo colore={colori.fg2}>{sottotitolo}</Testo>
           <View style={{ marginTop: 6 }}>

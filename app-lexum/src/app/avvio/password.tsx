@@ -9,9 +9,9 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import { mandaLinkPassword } from '@/backend/accesso';
+import { useTesti } from '@/lingue/useTesti';
 import { datiVeri } from '@/config';
 import { indietro } from '@/navigazione';
-import { trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
 
@@ -22,7 +22,8 @@ export default function PasswordDimenticata() {
   const { paese: paeseAttivo } = useStato();
   const parametri = useLocalSearchParams<{ email?: string; paese?: string }>();
   const paese = parametri.paese ?? paeseAttivo;
-  const datiPaese = trovaPaese(paese);
+  const { t, lingua } = useTesti(paese);
+  const nomePaese = t(`paesi.${paese as 'IT' | 'CH'}`);
   const [email, setEmail] = useState(parametri.email ?? '');
   const [inviata, setInviata] = useState(false);
   const [errore, setErrore] = useState<string | null>(null);
@@ -30,12 +31,12 @@ export default function PasswordDimenticata() {
 
   const invia = async () => {
     if (!email.includes('@')) {
-      setErrore("Scrivi l'email del tuo account.");
+      setErrore(t('errori.scriviEmail'));
       return;
     }
     if (datiVeri) {
       setInCorso(true);
-      const esito = await mandaLinkPassword(paese, email);
+      const esito = await mandaLinkPassword(paese, email, lingua);
       setInCorso(false);
       if (esito.esito === 'errore') {
         setErrore(esito.messaggio);
@@ -53,26 +54,27 @@ export default function PasswordDimenticata() {
           <IconaQuadrata nome="email" lato={56} dimensione={26} />
           <View style={{ gap: 10 }}>
             <Testo tipo="dL" accessibilityRole="header">
-              Email inviata
+              {t('avvio.password.inviataTitolo')}
             </Testo>
-            <Testo colore={colori.fg2}>
-              Se <Text style={{ color: colori.fg }}>{email}</Text> è l'email di un account Lexum{' '}
-              {datiPaese.nome}, riceverai un link per scegliere una nuova password. Toccalo: ti riporta qui.
-            </Testo>
+            <Testo colore={colori.fg2}>{t('avvio.password.inviataTesto', { email, paese: nomePaese })}</Testo>
           </View>
           <Testo tipo="small" colore={colori.fg3}>
-            Non è arrivata? Controlla lo spam, oppure{' '}
+            {t('avvio.password.nonArrivata')}
             <Text
               style={{ color: colori.accentText }}
               accessibilityRole="link"
               onPress={() => setInviata(false)}
             >
-              cambia email
+              {t('avvio.password.cambiaEmail')}
             </Text>
             .
           </Testo>
           <View style={{ flex: 1 }} />
-          <Pulsante titolo="Torna all'accesso" variante="linea" onPress={() => indietro('/avvio/accesso')} />
+          <Pulsante
+            titolo={t('comune.tornaAccesso')}
+            variante="linea"
+            onPress={() => indietro('/avvio/accesso')}
+          />
         </View>
       </Schermata>
     );
@@ -86,15 +88,12 @@ export default function PasswordDimenticata() {
           <IconaQuadrata nome="lucchetto" lato={56} dimensione={26} />
           <View style={{ gap: 10 }}>
             <Testo tipo="dL" accessibilityRole="header">
-              Password dimenticata?
+              {t('avvio.password.titolo')}
             </Testo>
-            <Testo colore={colori.fg2}>
-              Scrivi l'email del tuo account Lexum {datiPaese.nome}: ti mandiamo un link per sceglierne una
-              nuova.
-            </Testo>
+            <Testo colore={colori.fg2}>{t('avvio.password.testo', { paese: nomePaese })}</Testo>
           </View>
           <Campo
-            etichetta="Email"
+            etichetta={t('comune.email')}
             value={email}
             onChangeText={(t) => {
               setEmail(t);
@@ -108,11 +107,11 @@ export default function PasswordDimenticata() {
           />
           {errore ? <Avviso testo={errore} /> : null}
           <Pulsante
-            titolo={inCorso ? 'Invio in corso…' : 'Invia link'}
+            titolo={inCorso ? t('avvio.password.inCorso') : t('avvio.password.invia')}
             disabilitato={inCorso}
             onPress={() => void invia()}
           />
-          <Pulsante titolo="Torna all'accesso" variante="tenue" onPress={() => router.back()} />
+          <Pulsante titolo={t('comune.tornaAccesso')} variante="tenue" onPress={() => router.back()} />
         </ScrollView>
       </KeyboardAvoidingView>
     </Schermata>

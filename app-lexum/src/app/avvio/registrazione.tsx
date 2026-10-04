@@ -15,7 +15,7 @@ import { professioniRegistrazione, registrati } from '@/backend/accesso';
 import { datiVeri } from '@/config';
 import { utenteFinto } from '@/dati-finti/utente';
 import { apriSito } from '@/navigazione';
-import { contenuti } from '@/paesi/contenuti';
+import { useTesti } from '@/lingue/useTesti';
 import { trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
@@ -24,11 +24,12 @@ import { colori, famiglie } from '@/tema';
 // Con ?paese=CH crea l'accesso in un altro paese (da G2). Con i dati veri crea l'account nel database
 // di quel paese, con gli stessi dati del sito: in Italia la professione, in Svizzera la lingua.
 export default function Registrazione() {
-  const { paese: paeseAttivo, lingua } = useStato();
+  const { paese: paeseAttivo } = useStato();
   const { paese: paeseParam } = useLocalSearchParams<{ paese?: string }>();
   const paese = paeseParam ?? paeseAttivo;
   const altroPaese = !!paeseParam && paeseParam !== paeseAttivo;
   const datiPaese = trovaPaese(paese);
+  const { t, lingua } = useTesti(paese);
 
   const [nome, setNome] = useState(datiVeri ? '' : utenteFinto.nome);
   const [cognome, setCognome] = useState(datiVeri ? '' : utenteFinto.cognome);
@@ -51,9 +52,9 @@ export default function Registrazione() {
   // Le stesse regole del sito: nome e cognome obbligatori, email valida, password di almeno 8 caratteri.
   const registra = async () => {
     if (!datiVeri) return vaiAlCodice();
-    if (!nome.trim() || !cognome.trim()) return setErrore('Scrivi nome e cognome.');
-    if (!/\S+@\S+\.\S+/.test(email)) return setErrore("L'indirizzo email non è valido.");
-    if (password.length < 8) return setErrore('La password deve avere almeno 8 caratteri.');
+    if (!nome.trim() || !cognome.trim()) return setErrore(t('errori.nomeCognome'));
+    if (!/\S+@\S+\.\S+/.test(email)) return setErrore(t('errori.emailNonValida'));
+    if (password.length < 8) return setErrore(t('errori.minimoCaratteri', { n: 8 }));
     setInCorso(true);
     const esito = await registrati(paese, { nome, cognome, email, password, professione, lingua });
     setInCorso(false);
@@ -71,25 +72,27 @@ export default function Registrazione() {
         <ScrollView contentContainerStyle={stili.corpo} keyboardShouldPersistTaps="handled">
           <View style={{ gap: 8 }}>
             <Testo tipo="dL" accessibilityRole="header">
-              {altroPaese ? `Crea l'accesso ${contenuti[paese].aggettivo}` : 'Crea il tuo account'}
+              {altroPaese
+                ? t(`avvio.registrazione.titoloAltroPaese.${paese as 'IT' | 'CH'}`)
+                : t('avvio.registrazione.titolo')}
             </Testo>
             <Testo tipo="small" colore={colori.fg2}>
               {altroPaese
-                ? `Un account separato per ${datiPaese.nome}: anche qui la prima ricerca con Lex AI è gratuita.`
-                : 'La prima ricerca con Lex AI è gratuita.'}
+                ? t('avvio.registrazione.testoAltroPaese', { paese: t(`paesi.${paese as 'IT' | 'CH'}`) })
+                : t('avvio.registrazione.testo')}
             </Testo>
           </View>
 
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <Campo
-              etichetta="Nome"
+              etichetta={t('avvio.registrazione.nome')}
               value={nome}
               onChangeText={setNome}
               stile={{ flex: 1 }}
               autoComplete="given-name"
             />
             <Campo
-              etichetta="Cognome"
+              etichetta={t('avvio.registrazione.cognome')}
               value={cognome}
               onChangeText={setCognome}
               stile={{ flex: 1 }}
@@ -97,7 +100,7 @@ export default function Registrazione() {
             />
           </View>
           <Campo
-            etichetta="Email"
+            etichetta={t('comune.email')}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -105,7 +108,7 @@ export default function Registrazione() {
             autoComplete="email"
           />
           <Campo
-            etichetta="Password"
+            etichetta={t('comune.password')}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!vedi}
@@ -114,7 +117,7 @@ export default function Registrazione() {
             dopo={
               <PulsanteIcona
                 icona="occhio"
-                etichetta={vedi ? 'Nascondi la password' : 'Mostra la password'}
+                etichetta={vedi ? t('avvio.registrazione.nascondi') : t('avvio.registrazione.mostra')}
                 dimensione={20}
                 colore={colori.fg3}
                 onPress={() => setVedi((v) => !v)}
@@ -124,7 +127,7 @@ export default function Registrazione() {
           />
           {paese === 'IT' ? (
             <CampoScelta
-              etichetta="Professione"
+              etichetta={t('avvio.registrazione.professione')}
               valore={
                 datiVeri
                   ? (professioniRegistrazione.find((p) => p.valore === professione)?.titolo ?? 'Privato')
@@ -135,37 +138,37 @@ export default function Registrazione() {
           ) : null}
 
           <Spunta attiva={accetto} onCambia={setAccetto}>
-            Accetto i{' '}
+            {t('avvio.registrazione.accetto')}
             <Evidenza oro medio>
               <Text onPress={() => apriSito(`${datiPaese.sito}/termini`)} accessibilityRole="link">
-                Termini di servizio
-              </Text>
-            </Evidenza>{' '}
-            e ho letto l'
-            <Evidenza oro medio>
-              <Text onPress={() => apriSito(`${datiPaese.sito}/privacy`)} accessibilityRole="link">
-                Informativa privacy
+                {t('avvio.registrazione.termini')}
               </Text>
             </Evidenza>
-            .
+            {t('avvio.registrazione.hoLetto')}
+            <Evidenza oro medio>
+              <Text onPress={() => apriSito(`${datiPaese.sito}/privacy`)} accessibilityRole="link">
+                {t('avvio.registrazione.privacy')}
+              </Text>
+            </Evidenza>
+            {t('avvio.registrazione.fine')}
           </Spunta>
 
           {errore ? <Avviso testo={errore} /> : null}
           <Pulsante
-            titolo={inCorso ? 'Registrazione in corso…' : 'Registrati'}
+            titolo={inCorso ? t('avvio.registrazione.inCorso') : t('comune.registrati')}
             disabilitato={!accetto || inCorso}
             onPress={() => void registra()}
           />
           <Text style={stili.accedi}>
-            Hai già un account?{' '}
+            {t('avvio.registrazione.hoAccount')}{' '}
             <Text style={stili.link} onPress={accedi} accessibilityRole="link">
-              Accedi
+              {t('comune.accedi')}
             </Text>
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
       <Foglio visibile={sceltaProfessione} onChiudi={() => setSceltaProfessione(false)} spazio={4}>
-        <Testo tipo="dS">Professione</Testo>
+        <Testo tipo="dS">{t('avvio.registrazione.professione')}</Testo>
         <View style={{ marginHorizontal: -20 }}>
           {professioniRegistrazione.map((p) => (
             <Riga

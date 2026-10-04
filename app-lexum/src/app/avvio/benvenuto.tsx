@@ -4,7 +4,8 @@ import { StyleSheet, View } from 'react-native';
 import { Pulsante } from '@/componenti/Pulsante';
 import { BollaDomanda, Citazione, FirmaLex } from '@/componenti/Lex';
 import { Testo } from '@/componenti/Testo';
-import { contenuti } from '@/paesi/contenuti';
+import { useTesti } from '@/lingue/useTesti';
+import { contenutiIn } from '@/paesi/contenuti';
 import { PaginaBenvenuto } from '@/schermate/PaginaBenvenuto';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
@@ -12,12 +13,13 @@ import { colori } from '@/tema';
 // A1 · Benvenuto: un esempio di domanda e risposta con le fonti.
 export default function Benvenuto() {
   const { paese } = useStato();
-  const b = contenuti[paese].benvenuto;
+  const { t, lingua } = useTesti();
+  const b = contenutiIn(paese, lingua).benvenuto;
   return (
     <PaginaBenvenuto
       pagina={0}
       alone={120}
-      azione={{ titolo: 'Accedi', onPress: () => router.push('/avvio/accesso') }}
+      azione={{ titolo: t('comune.accedi'), onPress: () => router.push('/avvio/accesso') }}
       visuale={
         <View style={stili.esempio}>
           <BollaDomanda testo={b.domanda} piccola />
@@ -32,11 +34,12 @@ export default function Benvenuto() {
           </View>
         </View>
       }
-      eyebrow="Lex AI"
+      eyebrow={t('avvio.benvenuto.sopratitolo')}
       titolo={b.titolo}
       titoloOro={b.titoloOro}
+      titoloDopo={b.titoloDopo}
       sottotitolo={b.sottotitolo}
-      pulsanti={<Pulsante titolo="Inizia" onPress={() => router.push('/avvio/fonti')} />}
+      pulsanti={<Pulsante titolo={t('avvio.benvenuto.inizia')} onPress={() => router.push('/avvio/fonti')} />}
     />
   );
 }
