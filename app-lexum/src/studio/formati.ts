@@ -84,17 +84,22 @@ const mesiBrevi: Record<Lingua, string[]> = {
   fr: ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'],
 };
 
+// Il giorno del mese: in francese il primo si scrive «1er».
+function giornoDelMese(d: Date, lingua: Lingua): string {
+  return lingua === 'fr' && d.getDate() === 1 ? '1er' : String(d.getDate());
+}
+
 // «4 ott» · «4. Okt.» · «4 oct.»
 export function dataBreve(iso: string, lingua: Lingua = 'it'): string {
   const d = new Date(iso);
-  return `${d.getDate()}${lingua === 'de' ? '.' : ''} ${mesiBrevi[lingua][d.getMonth()]}`;
+  return `${giornoDelMese(d, lingua)}${lingua === 'de' ? '.' : ''} ${mesiBrevi[lingua][d.getMonth()]}`;
 }
 
 // «4 ottobre 2026» · «4. Oktober 2026» · «4 octobre 2026»
 export function dataCompleta(iso: string, lingua: Lingua = 'it'): string {
   const d = new Date(iso);
   const punto = lingua === 'de' ? '.' : '';
-  return `${d.getDate()}${punto} ${mesi[lingua][d.getMonth()]} ${d.getFullYear()}`;
+  return `${giornoDelMese(d, lingua)}${punto} ${mesi[lingua][d.getMonth()]} ${d.getFullYear()}`;
 }
 
 export function dataNumerica(iso: string): string {
@@ -117,7 +122,7 @@ const parole: Record<Lingua, { oggi: string; domani: string; ieri: string }> = {
 export function titoloGiorno(iso: string, lingua: Lingua = 'it'): string {
   const d = new Date(iso);
   const punto = lingua === 'de' ? '.' : '';
-  const base = `${giorniSettimana[lingua][d.getDay()]} ${d.getDate()}${punto} ${mesi[lingua][d.getMonth()]}`;
+  const base = `${giorniSettimana[lingua][d.getDay()]} ${giornoDelMese(d, lingua)}${punto} ${mesi[lingua][d.getMonth()]}`;
   const g = giorniDaOggi(iso);
   const p = parole[lingua];
   if (g === 0) return `${p.oggi} · ${base}`;
