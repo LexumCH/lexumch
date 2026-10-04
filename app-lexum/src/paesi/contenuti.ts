@@ -1,6 +1,6 @@
 import type { NomeIcona } from '@/componenti/Icona';
 
-import { breve, migliaia, milioni, numeri } from './numeri';
+import { milioni, numeri } from './numeri';
 
 // Testi che cambiano da un paese all'altro. Chi aggiunge un paese al registro
 // aggiunge qui anche i suoi testi. I numeri arrivano da numeri.ts.
@@ -69,21 +69,14 @@ export const contenuti: Record<string, Contenuti> = {
     diritto: 'Diritto italiano ed europeo',
     totaleDocumenti: `Oltre ${milioni(IT.totale)} di documenti`,
     elencoFonti: [
-      ['Codici', `${IT.codici} codici · ${migliaia(IT.codiciArticoli)} articoli`],
-      ['Leggi e decreti', `${migliaia(IT.leggiAtti)} atti · ${migliaia(IT.leggiArticoli)} articoli`],
-      [
-        'Giurisprudenza',
-        `${milioni(IT.giurisprudenza)} di decisioni: Cassazione, Corte costituzionale, Consiglio di Stato, TAR, Corte dei conti`,
-      ],
-      ['Tributario', `${migliaia(IT.tributario)} sentenze delle Corti di giustizia tributaria`],
-      [
-        'Prassi',
-        `${migliaia(IT.prassi)} documenti: Agenzia delle Entrate, INPS, INAIL, ANAC, AGCM e altri enti`,
-      ],
-      [
-        'Europa',
-        `${migliaia(IT.europaDecisioni)} decisioni di Corte di giustizia e Corte EDU · ${migliaia(IT.europaArticoli)} articoli di norme UE`,
-      ],
+      ['Normativa', 'Costituzione, codici, leggi e decreti, vigenti e storici'],
+      ['Giurisprudenza', 'Cassazione, Corte costituzionale, Consiglio di Stato, TAR, Corte dei conti'],
+      ['Tributario', 'Corti di giustizia tributaria e Cassazione tributaria (banca dati del MEF)'],
+      ['Prassi', 'Agenzia delle Entrate, MEF, INPS, Dogane, Garante privacy, Corte dei conti'],
+      ['Unione europea', 'Trattati, regolamenti, direttive e sentenze della Corte di giustizia'],
+      ['Corte EDU', 'Convenzione e sentenze di Strasburgo dal 1955 (HUDOC)'],
+      ['Diritti umani', 'Dichiarazione universale e leggi di ratifica dei trattati'],
+      ['Deontologia', 'Codice deontologico forense e massime del Consiglio nazionale forense'],
     ],
 
     benvenuto: {
@@ -101,25 +94,22 @@ export const contenuti: Record<string, Contenuti> = {
       {
         nome: 'Codici, leggi e decreti',
         icona: 'libro',
-        descrizione: `${IT.codici} codici · ${migliaia(IT.leggiAtti)} atti`,
+        descrizione: 'Costituzione, codici, leggi e decreti',
       },
       {
         nome: 'Giurisprudenza',
         icona: 'tribunale',
         descrizione: 'Cassazione, Consulta, Consiglio di Stato, TAR',
-        valore: breve(IT.giurisprudenza),
       },
       {
         nome: 'Prassi',
         icona: 'documento',
-        descrizione: 'Agenzia delle Entrate, INPS, INAIL, ANAC',
-        valore: breve(IT.prassi),
+        descrizione: 'Agenzia delle Entrate, MEF, INPS, Dogane',
       },
       {
         nome: 'Europa',
         icona: 'globo',
         descrizione: 'Norme UE, Corte di giustizia, Corte EDU',
-        valore: breve(IT.europaDecisioni),
       },
     ],
 
@@ -146,13 +136,13 @@ export const contenuti: Record<string, Contenuti> = {
       codici: {
         nome: 'Codici',
         icona: 'elenco',
-        descrizione: `${IT.codici} codici, articolo per articolo`,
+        descrizione: 'Articolo per articolo',
         sfogliabile: true,
       },
       leggi_decreti: {
         nome: 'Leggi e decreti',
         icona: 'libro',
-        descrizione: `${migliaia(IT.leggiAtti)} atti per tipo e anno`,
+        descrizione: 'Atti per tipo e anno',
         sfogliabile: true,
       },
       giurisprudenza: {
@@ -170,7 +160,7 @@ export const contenuti: Record<string, Contenuti> = {
       prassi: {
         nome: 'Prassi',
         icona: 'documento',
-        descrizione: 'Entrate, INPS, INAIL, ANAC e altri enti',
+        descrizione: 'Entrate, MEF, INPS, Dogane e altri enti',
         sfogliabile: false,
       },
       ue: {
@@ -197,20 +187,19 @@ export const contenuti: Record<string, Contenuti> = {
     diritto: 'Diritto svizzero ed europeo',
     totaleDocumenti: `Oltre ${milioni(CH.totale)} di documenti`,
     elencoFonti: [
-      ['Diritto federale', `${migliaia(CH.federaleAtti)} atti · ${migliaia(CH.federaleArticoli)} articoli`],
+      ['Diritto federale', 'Fedlex: codici, leggi e ordinanze della Confederazione'],
+      ['Diritto cantonale', 'Norme e prassi dei 26 cantoni'],
       [
-        'Diritto cantonale',
-        `${migliaia(CH.cantonaleAtti)} atti · ${migliaia(CH.cantonaleArticoli)} articoli`,
+        'Tribunali federali',
+        'Tribunale federale e DTF, Tribunale amministrativo federale, Tribunale penale federale',
       ],
+      ['Tribunali cantonali', 'Sentenze dei tribunali dei 26 cantoni'],
       [
-        'Giurisprudenza',
-        `${migliaia(CH.giurisprudenza)} decisioni: Tribunale federale e tribunali cantonali`,
+        'Prassi',
+        'AFC, FINMA, SECO, UFAS, IFPDT, UFG, MROS, SUVA, UFSP, SEM, UDSC, UFCOM, COMCO, ComCom, ElCom, CFCG',
       ],
-      ['Prassi', `${migliaia(CH.prassi)} documenti delle autorità federali e cantonali`],
-      [
-        'Europa',
-        `${migliaia(CH.europaDecisioni)} decisioni di Corte di giustizia e Corte EDU · ${migliaia(CH.europaArticoli)} articoli di norme UE`,
-      ],
+      ['Unione europea', 'Regolamenti, direttive e sentenze della Corte di giustizia'],
+      ['Corte EDU', 'Sentenze e decisioni di Strasburgo dal 1955 (HUDOC)'],
       ['Lingue', 'App in italiano, tedesco o francese'],
     ],
 
@@ -227,10 +216,10 @@ export const contenuti: Record<string, Contenuti> = {
     fontiTesto:
       'Lex cerca nel diritto federale e cantonale, nella giurisprudenza e nella prassi, e ti dice da dove prende ogni passaggio. La Banca dati puoi sfogliarla anche tu, gratis.',
     fontiBenvenuto: [
-      { nome: 'Diritto federale', icona: 'libro', descrizione: 'Leggi e ordinanze della Confederazione' },
-      { nome: 'Diritto cantonale', icona: 'mappa', descrizione: 'Le leggi dei cantoni' },
-      { nome: 'Giurisprudenza', icona: 'tribunale', descrizione: 'Tribunale federale e tribunali cantonali' },
-      { nome: 'Prassi', icona: 'documento', descrizione: 'Autorità federali e cantonali' },
+      { nome: 'Diritto federale', icona: 'libro', descrizione: 'Fedlex: codici, leggi e ordinanze' },
+      { nome: 'Diritto cantonale', icona: 'mappa', descrizione: 'Norme e prassi dei 26 cantoni' },
+      { nome: 'Giurisprudenza', icona: 'tribunale', descrizione: 'TF e DTF, TAF, TPF e tribunali cantonali' },
+      { nome: 'Prassi', icona: 'documento', descrizione: 'AFC, FINMA, SECO e le altre autorità federali' },
       { nome: 'Europa', icona: 'globo', descrizione: 'Norme UE, Corte di giustizia, Corte EDU' },
     ],
 
@@ -257,29 +246,39 @@ export const contenuti: Record<string, Contenuti> = {
       federale: {
         nome: 'Federale',
         icona: 'libro',
-        descrizione: 'Leggi e ordinanze della Confederazione',
+        descrizione: 'Fedlex: codici, leggi e ordinanze',
         sfogliabile: true,
       },
       cantonale: {
         nome: 'Cantonale',
         icona: 'mappa',
-        descrizione: 'Le leggi dei 26 cantoni',
+        descrizione: 'Norme e prassi dei 26 cantoni',
         sfogliabile: true,
       },
       giurisprudenza: {
         nome: 'Giurisprudenza',
         icona: 'tribunale',
-        descrizione: 'Tribunale federale e tribunali cantonali',
+        descrizione: 'TF e DTF, TAF, TPF e tribunali cantonali',
         sfogliabile: false,
       },
       prassi: {
         nome: 'Prassi',
         icona: 'documento',
-        descrizione: 'Autorità federali e cantonali',
+        descrizione: 'AFC, FINMA, SECO e le altre autorità',
         sfogliabile: false,
       },
-      ue: { nome: 'UE', icona: 'globo', descrizione: 'Norme UE e Corte di giustizia', sfogliabile: false },
-      cedu: { nome: 'Corte EDU', icona: 'bilancia', descrizione: 'Sentenze e decisioni', sfogliabile: false },
+      ue: {
+        nome: 'UE',
+        icona: 'globo',
+        descrizione: 'Regolamenti, direttive e Corte di giustizia',
+        sfogliabile: false,
+      },
+      cedu: {
+        nome: 'Corte EDU',
+        icona: 'bilancia',
+        descrizione: 'Sentenze di Strasburgo dal 1955',
+        sfogliabile: false,
+      },
     },
 
     domandaProfessione: 'Sei avvocato, fiduciario o progettista?',

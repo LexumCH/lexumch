@@ -1,4 +1,4 @@
-import { breve, migliaia, milioni, numeri } from '@/paesi/numeri';
+import { migliaia, milioni, numeri } from '@/paesi/numeri';
 import { contenuti } from '@/paesi/contenuti';
 
 describe('numeri delle fonti', () => {
@@ -14,9 +14,19 @@ describe('numeri delle fonti', () => {
     expect(milioni(795_000)).toBe('795.000');
   });
 
-  it('accorcia per le righe strette', () => {
-    expect(breve(3_200_000)).toBe('3,2 mln');
-    expect(breve(177_000)).toBe('177 mila');
+  it("nei testi c'è solo il totale, mai i numeri delle singole fonti", () => {
+    for (const paese of ['IT', 'CH']) {
+      const c = contenuti[paese];
+      const testi = [
+        ...c.elencoFonti.flat(),
+        ...c.fontiBenvenuto.map((f) => `${f.descrizione} ${f.valore ?? ''}`),
+        ...Object.values(c.fonti).map((f) => f.descrizione),
+      ];
+      for (const t of testi) {
+        expect(t).not.toMatch(/\d[.’']\d{3}|\bmln\b|\bmila\b|milion/);
+        expect(t).not.toMatch(/\d+\s+(codici|atti|articoli|decisioni|documenti|sentenze|massime)\b/);
+      }
+    }
   });
 
   it('i testi dei paesi usano i numeri del file unico', () => {

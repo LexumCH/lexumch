@@ -105,7 +105,7 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
 
 ## Numeri delle fonti: provvisori
 
-I numeri nella scelta del paese e nel benvenuto (per esempio «oltre 4,2 milioni», «oltre 1,8 milioni») sono provvisori, perché altre sessioni stanno ancora aggiornando il corpus. Nel codice tienili tutti in un solo file di configurazione (per esempio `src/paesi/numeri.ts`), così alla fine si aggiornano in un punto solo. Non sparpagliarli nelle schermate.
+Nell'app si mostra solo il totale di ogni paese («oltre 4,2 milioni», «oltre 1,8 milioni»), mai il numero esatto delle singole fonti: per le fonti solo il nome e cosa contengono (deciso da Antonino il 04-10-2026). Il totale è provvisorio, perché altre sessioni stanno ancora aggiornando il corpus: sta solo in `src/paesi/numeri.ts`, così si aggiorna in un punto solo. Non sparpagliarlo nelle schermate.
 
 ## Cose da fare fuori dal repo
 

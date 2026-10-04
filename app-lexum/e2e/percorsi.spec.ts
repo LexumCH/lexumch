@@ -17,7 +17,8 @@ test('primo avvio: paese, benvenuto, registrazione, codice, chat', async ({ page
   await page.goto('/');
   await vedo(page, 'Scegli il paese');
   await tocca(page, 'Espandi');
-  await vedo(page, '229 codici · 34.000 articoli');
+  await vedo(page, 'Oltre 4,2 milioni di documenti');
+  await vedo(page, 'Costituzione, codici, leggi e decreti, vigenti e storici');
   await tocca(page, 'Continua', true);
   await vedo(page, "L'AI italiana che ragiona su");
   await tocca(page, 'Inizia', true);
