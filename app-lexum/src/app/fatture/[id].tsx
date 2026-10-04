@@ -13,15 +13,18 @@ import { Schermata } from '@/componenti/Schermata';
 import { StatoVuoto } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
 import type { Fattura } from '@/dati-finti/studio';
+import { useTesti } from '@/lingue/useTesti';
 import { indietro } from '@/navigazione';
 import { importo, statoFattura, totaliFattura } from '@/studio/calcoli';
 import { CampoData, Scelta, leggiData, useRiapertura } from '@/studio/Campi';
 import {
   leggiImporto,
   metodiPagamento,
+  nomeMetodo,
   quandoFattura,
   scriviImporto,
   statiFattura,
+  testoStato,
 } from '@/studio/fatturazione';
 import { dataBreve, dataCompleta, dataNumerica } from '@/studio/formati';
 import { TotaliFattura } from '@/studio/TotaliFattura';
@@ -38,6 +41,7 @@ export default function DettaglioFattura() {
   const { id, foglio: parametroFoglio } = useLocalSearchParams<{ id: string; foglio?: FoglioFattura }>();
   const { paese } = useStato();
   const { fatture, clienti, pratiche, fatturazione, azioni } = useStudio();
+  const { t: testo, lingua } = useTesti();
   const fattura = fatture.find((f) => f.id === id);
   const foglio = parametroFoglio ?? null;
   const setFoglio = (f: FoglioFattura | null) => router.setParams({ foglio: f ?? undefined });
@@ -46,11 +50,14 @@ export default function DettaglioFattura() {
   if (!fattura) {
     return (
       <Schermata>
-        <Intestazione sinistra={<BottoneIndietro ripiego="/fatture" />} titolo="Fattura" />
+        <Intestazione
+          sinistra={<BottoneIndietro ripiego="/fatture" />}
+          titolo={testo('fatture.dettaglio.fattura')}
+        />
         <StatoVuoto
           icona="ricevuta"
-          titolo="Questa fattura non c'è più"
-          azione={{ titolo: 'Torna alle fatture', onPress: () => indietro('/fatture') }}
+          titolo={testo('fatture.dettaglio.nonCe')}
+          azione={{ titolo: testo('fatture.dettaglio.tornaFatture'), onPress: () => indietro('/fatture') }}
         />
       </Schermata>
     );
@@ -62,30 +69,34 @@ export default function DettaglioFattura() {
   const daPagare = stato === 'in_attesa' || stato === 'scaduta';
   const nomeFile = `${fattura.numero}.pdf`;
 
-  const info: [string, string][] = [['Emessa', dataCompleta(fattura.emessa)]];
-  if (fattura.scadenza) info.push(['Scadenza', dataCompleta(fattura.scadenza)]);
-  if (fattura.periodo) info.push(['Prestazione', fattura.periodo]);
-  info.push(['Pagamento', fattura.metodo]);
+  const info: [string, string][] = [[testo('fatture.voci.emessa'), dataCompleta(fattura.emessa, lingua)]];
+  if (fattura.scadenza) info.push([testo('fatture.voci.scadenza'), dataCompleta(fattura.scadenza, lingua)]);
+  if (fattura.periodo) info.push([testo('fatture.voci.prestazione'), fattura.periodo]);
+  info.push([testo('fatture.voci.pagamento'), nomeMetodo(fattura.metodo, lingua)]);
   const iban = fattura.iban ?? fatturazione.iban;
-  if (iban && fattura.metodo !== 'Contanti') info.push(['IBAN', iban]);
+  if (iban && fattura.metodo !== 'Contanti') info.push([testo('fatture.voci.iban'), iban]);
 
   return (
     <Schermata>
       <Intestazione
-        sinistra={<BottoneIndietro ripiego="/fatture" etichetta="Torna alle fatture" />}
+        sinistra={<BottoneIndietro ripiego="/fatture" etichetta={testo('fatture.dettaglio.tornaFatture')} />}
         titolo={fattura.numero}
         destra={
           stato !== 'annullata' ? (
-            <PulsanteIcona icona="altro" etichetta="Altre azioni" onPress={() => setFoglio('azioni')} />
+            <PulsanteIcona
+              icona="altro"
+              etichetta={testo('fatture.dettaglio.altreAzioni')}
+              onPress={() => setFoglio('azioni')}
+            />
           ) : undefined
         }
       />
       <ScrollView contentContainerStyle={stili.corpo}>
         <View style={{ gap: 10 }}>
           <View style={stili.stato}>
-            <Badge tono={statiFattura[stato].tono}>{statiFattura[stato].testo}</Badge>
+            <Badge tono={statiFattura[stato].tono}>{testoStato(stato, lingua)}</Badge>
             <Text style={[stili.quando, stato === 'scaduta' && { color: colori.danger }]}>
-              {quandoFattura(fattura)}
+              {quandoFattura(fattura, lingua)}
             </Text>
           </View>
           <Testo tipo="dS">{nomeCliente(clienti, fattura.clienteId)}</Testo>
@@ -105,7 +116,11 @@ export default function DettaglioFattura() {
 
         <View style={stili.cifra}>
           <Text style={stili.cifraTitolo}>
-            {daPagare ? (t.pagato > 0 ? 'Resta da incassare' : 'Da incassare') : 'Totale'}
+            {daPagare
+              ? t.pagato > 0
+                ? testo('fatture.dettaglio.restaDaIncassare')
+                : testo('fatture.elenco.daIncassare')
+              : testo('fatture.totali.totale')}
           </Text>
           <Text
             style={[
@@ -115,15 +130,13 @@ export default function DettaglioFattura() {
           >
             {importo(daPagare ? t.residuo : t.daIncassare, paese)}
           </Text>
-          {t.ritenuta > 0 ? (
-            <Testo tipo="cap">{`Al netto della ritenuta d'acconto: il cliente la versa al fisco.`}</Testo>
-          ) : null}
+          {t.ritenuta > 0 ? <Testo tipo="cap">{testo('fatture.dettaglio.alNetto')}</Testo> : null}
         </View>
 
         <ElencoDefinizioni voci={info} larghezzaTermine={96} />
 
         <View>
-          <TitoloSezione stile={stili.titoloSezione}>Prestazioni</TitoloSezione>
+          <TitoloSezione stile={stili.titoloSezione}>{testo('fatture.voci.prestazioni')}</TitoloSezione>
           {fattura.righe.map((r) => (
             <View key={r.id} style={stili.riga}>
               <View style={{ flex: 1, gap: 2 }}>
@@ -140,23 +153,27 @@ export default function DettaglioFattura() {
         <TotaliFattura fattura={fattura} totali={t} paese={paese} cassa={fatturazione.cassa} />
 
         <View>
-          <TitoloSezione stile={stili.titoloSezione}>Pagamenti</TitoloSezione>
+          <TitoloSezione stile={stili.titoloSezione}>{testo('fatture.dettaglio.pagamenti')}</TitoloSezione>
           {fattura.pagamenti.length === 0 ? (
             <Testo tipo="small" colore={colori.fg3} style={{ paddingVertical: 10 }}>
-              Nessun pagamento registrato.
+              {testo('fatture.dettaglio.nessunPagamento')}
             </Testo>
           ) : (
             fattura.pagamenti.map((p) => (
               <View key={p.id} style={stili.riga}>
                 <Icona nome="spunta" dimensione={18} colore={colori.ok} />
-                <Text style={[stili.rigaTesto, { flex: 1 }]}>{`${dataBreve(p.data)} · ${p.metodo}`}</Text>
+                <Text
+                  style={[stili.rigaTesto, { flex: 1 }]}
+                >{`${dataBreve(p.data, lingua)} · ${nomeMetodo(p.metodo, lingua)}`}</Text>
                 <Text style={stili.rigaImporto}>{importo(p.importo, paese)}</Text>
               </View>
             ))
           )}
           {daPagare && t.pagato > 0 ? (
             <View style={[stili.riga, { borderBottomWidth: 0 }]}>
-              <Text style={[stili.rigaTesto, { flex: 1, color: colori.fg2 }]}>Residuo</Text>
+              <Text style={[stili.rigaTesto, { flex: 1, color: colori.fg2 }]}>
+                {testo('fatture.dettaglio.residuo')}
+              </Text>
               <Text style={stili.rigaImporto}>{importo(t.residuo, paese)}</Text>
             </View>
           ) : null}
@@ -164,7 +181,7 @@ export default function DettaglioFattura() {
 
         {paese === 'IT' ? (
           <Testo tipo="cap" colore={colori.fg3}>
-            Il PDF non è una fattura elettronica: non passa dal Sistema di Interscambio (SDI).
+            {testo('fatture.dettaglio.noSdi')}
           </Testo>
         ) : null}
       </ScrollView>
@@ -173,13 +190,13 @@ export default function DettaglioFattura() {
         <BarraAzioni>
           {daPagare ? (
             <Pulsante
-              titolo="Registra pagamento"
+              titolo={testo('fatture.dettaglio.registraPagamento')}
               stile={{ flex: 1 }}
               onPress={() => setFoglio('pagamento')}
             />
           ) : null}
           <Pulsante
-            titolo={fattura.pdf ? 'PDF' : 'Genera il PDF'}
+            titolo={fattura.pdf ? 'PDF' : testo('fatture.dettaglio.generaPdf')}
             icona={fattura.pdf ? 'documento' : undefined}
             variante={daPagare ? 'linea' : 'oro'}
             stile={daPagare ? undefined : { flex: 1 }}
@@ -192,14 +209,14 @@ export default function DettaglioFattura() {
       ) : null}
 
       <Foglio visibile={foglio === 'azioni'} onChiudi={chiudi}>
-        <Testo tipo="dS">{`Fattura ${fattura.numero}`}</Testo>
+        <Testo tipo="dS">{testo('fatture.dettaglio.fatturaNumero', { numero: fattura.numero })}</Testo>
         <View style={{ marginHorizontal: -20 }}>
           {fattura.pdf ? (
             <Riga
               stretta
               sinistra={<Icona nome="riprova" dimensione={20} colore={colori.fg2} />}
-              titolo="Rigenera il PDF"
-              sottotitolo="Dopo un pagamento o un cambio dei tuoi dati"
+              titolo={testo('fatture.dettaglio.rigeneraPdf')}
+              sottotitolo={testo('fatture.dettaglio.rigeneraQuando')}
               onPress={() => {
                 azioni.generaPdf(fattura.id);
                 setFoglio('pdf');
@@ -210,15 +227,13 @@ export default function DettaglioFattura() {
             <Riga
               stretta
               sinistra={<Icona nome="chiudi" dimensione={20} colore={colori.danger} />}
-              titolo="Annulla la fattura"
+              titolo={testo('fatture.dettaglio.annulla')}
               titoloStile={{ color: colori.danger }}
               onPress={() => setFoglio('annulla')}
             />
           ) : null}
         </View>
-        <Testo tipo="cap">
-          Per eliminare una fattura vai sul sito: si può, ma lascia un vuoto nella numerazione.
-        </Testo>
+        <Testo tipo="cap">{testo('fatture.dettaglio.eliminaSulSito')}</Testo>
       </Foglio>
 
       <FoglioPagamento
@@ -234,19 +249,19 @@ export default function DettaglioFattura() {
       />
 
       <Foglio visibile={foglio === 'annulla'} onChiudi={chiudi}>
-        <Testo tipo="dS">{`Annullare la fattura ${fattura.numero}?`}</Testo>
+        <Testo tipo="dS">{testo('fatture.dettaglio.annullareDomanda', { numero: fattura.numero })}</Testo>
         <Testo tipo="small" colore={colori.fg2}>
-          Resta nell'elenco come annullata e il suo numero non si usa più. Non si torna indietro.
+          {testo('fatture.dettaglio.annullareTesto')}
         </Testo>
         <Pulsante
-          titolo="Annulla la fattura"
+          titolo={testo('fatture.dettaglio.annulla')}
           variante="pericolo"
           onPress={() => {
             azioni.annullaFattura(fattura.id);
             chiudi();
           }}
         />
-        <Pulsante titolo="Lasciala com'è" variante="linea" onPress={chiudi} />
+        <Pulsante titolo={testo('fatture.dettaglio.lasciala')} variante="linea" onPress={chiudi} />
       </Foglio>
 
       <Foglio visibile={foglio === 'pdf'} onChiudi={chiudi}>
@@ -254,17 +269,27 @@ export default function DettaglioFattura() {
           <Icona nome="documento" dimensione={28} colore={colori.accentText} />
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={stili.rigaTesto}>{nomeFile}</Text>
-            <Testo tipo="cap">{`Generato · ${dataNumerica(new Date().toISOString())}`}</Testo>
+            <Testo tipo="cap">
+              {testo('fatture.dettaglio.generato', { data: dataNumerica(new Date().toISOString()) })}
+            </Testo>
           </View>
         </View>
         <Pulsante
-          titolo="Condividi"
+          titolo={testo('fatture.dettaglio.condividi')}
           icona="condividi"
           onPress={() => {
-            Share.share({ title: nomeFile, message: `Fattura ${fattura.numero}` }).catch(() => undefined);
+            Share.share({
+              title: nomeFile,
+              message: testo('fatture.dettaglio.fatturaNumero', { numero: fattura.numero }),
+            }).catch(() => undefined);
           }}
         />
-        <Pulsante titolo="Apri il PDF" variante="linea" icona="esterno" onPress={chiudi} />
+        <Pulsante
+          titolo={testo('fatture.dettaglio.apriPdf')}
+          variante="linea"
+          icona="esterno"
+          onPress={chiudi}
+        />
       </Foglio>
     </Schermata>
   );
@@ -285,6 +310,7 @@ function FoglioPagamento({
   paese: string;
   onRegistra: (importo: number, metodo: string, data: string) => void;
 }) {
+  const { t, lingua } = useTesti();
   const metodi = metodiPagamento[paese] ?? metodiPagamento.IT;
   // Si parte dal residuo, dal metodo della fattura e da oggi: anche se il foglio è già aperto all'arrivo.
   const iniziale = () => ({
@@ -307,37 +333,42 @@ function FoglioPagamento({
   const troppo = cifra != null && cifra > residuo + 0.01;
   const errore =
     testo.trim() && cifra == null
-      ? 'Scrivi un importo, per esempio 250,00.'
+      ? t('fatture.pagamento.erroreImporto')
       : troppo
-        ? `È più del residuo (${importo(residuo, paese)}).`
+        ? t('fatture.pagamento.piuDelResiduo', { importo: importo(residuo, paese) })
         : null;
   const pronto = cifra != null && cifra > 0 && !troppo && !!giorno;
 
   return (
     <Foglio visibile={visibile} onChiudi={onChiudi}>
-      <Testo tipo="dS">Registra un pagamento</Testo>
+      <Testo tipo="dS">{t('fatture.pagamento.titolo')}</Testo>
       <Testo tipo="small" colore={colori.fg2}>
-        {`Residuo: ${importo(residuo, paese)}. Puoi registrare anche un pagamento parziale.`}
+        {t('fatture.pagamento.residuo', { importo: importo(residuo, paese) })}
       </Testo>
       <Campo
-        etichetta={`Importo (${paese === 'CH' ? 'CHF' : '€'})`}
+        etichetta={t('fatture.pagamento.importo', { valuta: paese === 'CH' ? 'CHF' : '€' })}
         value={testo}
         onChangeText={setTesto}
         keyboardType="decimal-pad"
       />
       {errore ? <Avviso testo={errore} /> : null}
-      <Scelta voci={metodi} valore={metodo} onCambia={setMetodo} etichettaGruppo="Metodo" />
+      <Scelta
+        voci={metodi.map((m) => ({ valore: m, titolo: nomeMetodo(m, lingua) }))}
+        valore={metodo}
+        onCambia={setMetodo}
+        etichettaGruppo={t('fatture.pagamento.metodo')}
+      />
       <CampoData
-        etichetta="Data dell'incasso"
+        etichetta={t('fatture.pagamento.data')}
         valore={data}
         onCambia={setData}
         scorciatoie={[
-          { titolo: 'Oggi', giorni: 0 },
-          { titolo: 'Ieri', giorni: -1 },
+          { titolo: t('fatture.scorciatoie.oggi'), giorni: 0 },
+          { titolo: t('fatture.scorciatoie.ieri'), giorni: -1 },
         ]}
       />
       <Pulsante
-        titolo="Registra il pagamento"
+        titolo={t('fatture.pagamento.registra')}
         disabilitato={!pronto}
         onPress={() => {
           if (cifra == null || !giorno) return;

@@ -19,6 +19,7 @@ import { Riga } from '@/componenti/Riga';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import type { RigaFattura } from '@/dati-finti/studio';
+import { useTesti } from '@/lingue/useTesti';
 import { strumentiStudio } from '@/ruoli';
 import { importo, totaliFattura } from '@/studio/calcoli';
 import { CampoData, Scelta, leggiData, traGiorni } from '@/studio/Campi';
@@ -31,6 +32,8 @@ import {
   metodiPagamento,
   motiviEsenzioneCH,
   nomeContributo,
+  nomeMetodo,
+  nomeMotivo,
 } from '@/studio/fatturazione';
 import { dataCompleta, dataNumerica, nomeMese } from '@/studio/formati';
 import { TotaliFattura } from '@/studio/TotaliFattura';
@@ -38,7 +41,8 @@ import { useStato } from '@/stato/Stato';
 import { nomeCliente, useStudio, type Parcella } from '@/stato/Studio';
 import { colori, famiglie } from '@/tema';
 
-const passi = ['Cliente', 'Prestazioni', 'Fisco e pagamento', 'Controlla'] as const;
+// I nomi dei passi sono in fatture.nuova.passi.
+const passi = ['cliente', 'prestazioni', 'fisco', 'controlla'] as const;
 
 let contatoreRighe = 0;
 const idRiga = () => `nr${Date.now().toString(36)}${(contatoreRighe++).toString(36)}`;
@@ -52,6 +56,7 @@ export default function NuovaFattura() {
   const parametri = useLocalSearchParams<{ cliente?: string; pratica?: string }>();
   const { paese, ruoli } = useStato();
   const { clienti, pratiche, fatture, fatturazione, parcella, azioni } = useStudio();
+  const { t, lingua } = useTesti();
   const avvocato = strumentiStudio(ruoli[paese] ?? 'user').includes('mandati');
   const metodi = metodiPagamento[paese] ?? metodiPagamento.IT;
   const forfettario = paese === 'IT' && fatturazione.regime === 'forfettario';
@@ -88,28 +93,28 @@ export default function NuovaFattura() {
   const { scartaParcella } = azioni;
   useEffect(() => scartaParcella, [scartaParcella]);
 
-  const mancaProfessionista = mancanoAlProfessionista(fatturazione, paese);
+  const mancaProfessionista = mancanoAlProfessionista(fatturazione, paese, lingua);
   if (mancaProfessionista.length > 0) {
     return (
       <Schermata>
         <Intestazione
-          sinistra={<BottoneIndietro ripiego="/fatture" etichetta="Annulla" />}
-          titolo="Nuova fattura"
+          sinistra={<BottoneIndietro ripiego="/fatture" etichetta={t('comune.annulla')} />}
+          titolo={t('fatture.nuova.titolo')}
         />
         <View style={stili.blocco}>
           <IconaQuadrata nome="ricevuta" lato={52} dimensione={24} />
-          <Testo tipo="dS">Prima servono i tuoi dati di fatturazione</Testo>
+          <Testo tipo="dS">{t('fatture.nuova.servonoDati')}</Testo>
           <Testo colore={colori.fg2}>
-            {`Mancano ${elenco(mancaProfessionista)}. Vanno sul PDF di ogni fattura: li scrivi una volta sola.`}
+            {t('fatture.nuova.mancanoDati', { elenco: elenco(mancaProfessionista, lingua) })}
           </Testo>
-          <Pulsante titolo="Completa i dati di fatturazione" onPress={() => router.push('/fatture/dati')} />
+          <Pulsante titolo={t('fatture.nuova.completaDati')} onPress={() => router.push('/fatture/dati')} />
         </View>
       </Schermata>
     );
   }
 
   const cliente = clienti.find((c) => c.id === clienteId);
-  const mancaCliente = cliente ? mancanoAlCliente(cliente, paese) : [];
+  const mancaCliente = cliente ? mancanoAlCliente(cliente, paese, lingua) : [];
   const praticheCliente = pratiche.filter((p) => p.clienteId === clienteId && p.stato === 'aperta');
   const conRitenuta = paese === 'IT' && !forfettario && (ritenuta ?? !!cliente?.giuridica);
 
@@ -131,27 +136,27 @@ export default function NuovaFattura() {
   // Perché non si può andare avanti (null: si può).
   const blocco = [
     !cliente
-      ? 'Scegli il cliente.'
+      ? t('fatture.nuova.blocchi.cliente')
       : mancaCliente.length > 0
-        ? 'Completa i dati del cliente sul sito.'
+        ? t('fatture.nuova.blocchi.datiCliente')
         : null,
     righe.length === 0
-      ? 'Aggiungi almeno una prestazione.'
+      ? t('fatture.nuova.blocchi.prestazione')
       : totali.imponibile <= 0
-        ? 'Il totale è zero.'
+        ? t('fatture.nuova.blocchi.zero')
         : null,
     !giornoEmessa
-      ? 'Scrivi la data di emissione.'
+      ? t('fatture.nuova.blocchi.emissione')
       : giornoScadenza && giornoScadenza < giornoEmessa
-        ? 'La scadenza viene prima dell’emissione.'
+        ? t('fatture.nuova.blocchi.scadenzaPrima')
         : !percentualiValide
-          ? 'Controlla le percentuali.'
+          ? t('fatture.nuova.blocchi.percentuali')
           : paese === 'CH' && !periodo.trim()
-            ? 'Scrivi la data o il periodo della prestazione.'
+            ? t('fatture.nuova.blocchi.periodo')
             : paese === 'CH' && esente && !motivo
-              ? 'Scegli il motivo dell’esenzione.'
+              ? t('fatture.nuova.blocchi.motivo')
               : ibanMancante
-                ? 'Manca il tuo IBAN.'
+                ? t('fatture.nuova.blocchi.iban')
                 : null,
     null,
   ][passo];
@@ -203,17 +208,23 @@ export default function NuovaFattura() {
   const oggi = new Date();
   const mesi = [0, -1].map((d) => {
     const x = new Date(oggi.getFullYear(), oggi.getMonth() + d, 1);
-    return nomeMese(x.getFullYear(), x.getMonth());
+    return nomeMese(x.getFullYear(), x.getMonth(), lingua);
   });
 
   return (
     <Schermata>
       <Intestazione
-        sinistra={<BottoneIndietro ripiego="/fatture" etichetta="Annulla" />}
-        titolo="Nuova fattura"
+        sinistra={<BottoneIndietro ripiego="/fatture" etichetta={t('comune.annulla')} />}
+        titolo={t('fatture.nuova.titolo')}
       />
       <View style={stili.passi}>
-        <Text style={stili.passiTesto}>{`Passo ${passo + 1} di ${passi.length} · ${passi[passo]}`}</Text>
+        <Text style={stili.passiTesto}>
+          {t('fatture.nuova.passo', {
+            n: passo + 1,
+            totale: passi.length,
+            nome: t(`fatture.nuova.passi.${passi[passo]}`),
+          })}
+        </Text>
         <Barra percento={((passo + 1) / passi.length) * 100} />
       </View>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
@@ -222,7 +233,7 @@ export default function NuovaFattura() {
             <>
               <View style={{ gap: 8 }}>
                 <Testo tipo="small" colore={colori.fg2}>
-                  Cliente
+                  {t('fatture.voci.cliente')}
                 </Testo>
                 <Scelta
                   voci={clienti.map((c) => ({ valore: c.id, titolo: c.nome }))}
@@ -232,27 +243,30 @@ export default function NuovaFattura() {
                     setPraticaId(null);
                     setRitenuta(null);
                   }}
-                  etichettaGruppo="Cliente"
+                  etichettaGruppo={t('fatture.voci.cliente')}
                 />
               </View>
               {cliente && mancaCliente.length > 0 ? (
                 <Avviso
-                  testo={`A ${cliente.nome} mancano ${elenco(mancaCliente)}. Si aggiungono sul sito, in Clienti: poi torna qui.`}
+                  testo={t('fatture.nuova.mancanoCliente', {
+                    nome: cliente.nome,
+                    elenco: elenco(mancaCliente, lingua),
+                  })}
                 />
               ) : null}
               {righe.length > 0 && !cliente ? (
-                <Avviso tono="info" testo="Le righe della parcella sono pronte: scegli il cliente." />
+                <Avviso tono="info" testo={t('fatture.nuova.righePronte')} />
               ) : null}
               {praticheCliente.length > 0 ? (
                 <View style={{ gap: 8 }}>
                   <Testo tipo="small" colore={colori.fg2}>
-                    Pratica (facoltativa)
+                    {t('fatture.nuova.praticaFacoltativa')}
                   </Testo>
                   <Scelta
                     voci={praticheCliente.map((p) => ({ valore: p.id, titolo: p.titolo }))}
                     valore={praticaId}
                     onCambia={(id) => setPraticaId(id === praticaId ? null : id)}
-                    etichettaGruppo="Pratica"
+                    etichettaGruppo={t('fatture.voci.pratica')}
                   />
                 </View>
               ) : null}
@@ -273,19 +287,19 @@ export default function NuovaFattura() {
                       </View>
                       <PulsanteIcona
                         icona="cestino"
-                        etichetta={`Togli «${r.descrizione}»`}
+                        etichetta={t('fatture.nuova.togli', { descrizione: r.descrizione })}
                         onPress={() => setRighe((x) => x.filter((y) => y.id !== r.id))}
                       />
                     </View>
                   ))}
                   <View style={stili.subtotale}>
-                    <Text style={stili.subtotaleTesto}>Imponibile</Text>
+                    <Text style={stili.subtotaleTesto}>{t('fatture.totali.imponibile')}</Text>
                     <Text style={stili.subtotaleTesto}>{importo(totali.imponibile, paese)}</Text>
                   </View>
                 </View>
               ) : (
                 <Testo tipo="small" colore={colori.fg3}>
-                  Nessuna prestazione, per ora.
+                  {t('fatture.nuova.nessunaPrestazione')}
                 </Testo>
               )}
               {avvocato && paese === 'IT' ? (
@@ -299,24 +313,28 @@ export default function NuovaFattura() {
                 />
               ) : null}
               <TitoloSezione stile={{ paddingHorizontal: 0, paddingTop: 4 }}>
-                Aggiungi una prestazione
+                {t('fatture.nuova.aggiungiPrestazione')}
               </TitoloSezione>
               <Campo
-                etichetta="Descrizione"
-                placeholder={paese === 'IT' ? 'Es. Parere scritto' : 'Es. Consulenza (ore)'}
+                etichetta={t('fatture.nuova.descrizione')}
+                placeholder={
+                  paese === 'IT'
+                    ? t('fatture.nuova.esempioDescrizione.IT')
+                    : t('fatture.nuova.esempioDescrizione.CH')
+                }
                 value={descrizione}
                 onChangeText={setDescrizione}
               />
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <Campo
-                  etichetta="Quantità"
+                  etichetta={t('fatture.nuova.quantita')}
                   value={quantita}
                   onChangeText={setQuantita}
                   keyboardType="decimal-pad"
                   stile={{ flex: 1 }}
                 />
                 <Campo
-                  etichetta={`Prezzo (${paese === 'CH' ? 'CHF' : '€'})`}
+                  etichetta={t('fatture.nuova.prezzo', { valuta: paese === 'CH' ? 'CHF' : '€' })}
                   placeholder="0,00"
                   value={prezzo}
                   onChangeText={setPrezzo}
@@ -325,7 +343,7 @@ export default function NuovaFattura() {
                 />
               </View>
               <Pulsante
-                titolo="Aggiungi la prestazione"
+                titolo={t('fatture.nuova.aggiungiLaPrestazione')}
                 icona="piu"
                 variante="linea"
                 disabilitato={!rigaPronta}
@@ -338,22 +356,17 @@ export default function NuovaFattura() {
             <>
               {paese === 'IT' ? (
                 <>
-                  {forfettario ? (
-                    <Avviso
-                      tono="info"
-                      testo="Regime forfettario: la fattura è senza IVA e senza ritenuta. Sopra 77,47 € va la marca da bollo da 2 €."
-                    />
-                  ) : null}
+                  {forfettario ? <Avviso tono="info" testo={t('fatture.nuova.forfettario')} /> : null}
                   <View style={{ flexDirection: 'row', gap: 10 }}>
                     <Campo
-                      etichetta={`${nomeContributo(fatturazione.cassa)} (%)`}
+                      etichetta={`${nomeContributo(fatturazione.cassa, lingua)} (%)`}
                       value={cpa}
                       onChangeText={setCpa}
                       keyboardType="decimal-pad"
                       stile={{ flex: 1 }}
                     />
                     <Campo
-                      etichetta="IVA (%)"
+                      etichetta={t('fatture.nuova.ivaPercento')}
                       value={iva}
                       onChangeText={setIva}
                       keyboardType="decimal-pad"
@@ -366,8 +379,8 @@ export default function NuovaFattura() {
                         stretta
                         ruolo="switch"
                         selezionata={conRitenuta}
-                        titolo="Ritenuta d'acconto 20%"
-                        sottotitolo="Se il cliente è un'azienda o un professionista: la versa lui al fisco"
+                        titolo={t('fatture.nuova.ritenuta')}
+                        sottotitolo={t('fatture.nuova.ritenutaSpiega')}
                         destra={<Interruttore acceso={conRitenuta} />}
                         onPress={() => setRitenuta(!conRitenuta)}
                       />
@@ -377,10 +390,15 @@ export default function NuovaFattura() {
               ) : (
                 <>
                   <Segmentato
-                    etichetta="IVA"
+                    etichetta={t('fatture.voci.iva')}
                     opzioni={[
-                      { valore: 'si', titolo: `IVA ${String(aliquotaIvaCH).replace('.', ',')}%` },
-                      { valore: 'no', titolo: 'Esente' },
+                      {
+                        valore: 'si',
+                        titolo: t('fatture.totali.iva', {
+                          aliquota: `${String(aliquotaIvaCH).replace('.', ',')}%`,
+                        }),
+                      },
+                      { valore: 'no', titolo: t('fatture.voci.esente') },
                     ]}
                     valore={esente ? 'no' : 'si'}
                     onCambia={(v) => {
@@ -391,20 +409,20 @@ export default function NuovaFattura() {
                   {esente ? (
                     <View style={{ gap: 8 }}>
                       <Testo tipo="small" colore={colori.fg2}>
-                        Motivo dell'esenzione (va sulla fattura)
+                        {t('fatture.nuova.motivo')}
                       </Testo>
                       <Scelta
-                        voci={motiviEsenzioneCH}
+                        voci={motiviEsenzioneCH.map((m) => ({ valore: m, titolo: nomeMotivo(m, lingua) }))}
                         valore={motivo}
                         onCambia={setMotivo}
-                        etichettaGruppo="Motivo dell'esenzione"
+                        etichettaGruppo={t('fatture.nuova.motivoGruppo')}
                       />
                     </View>
                   ) : null}
                   <View style={{ gap: 8 }}>
                     <Campo
-                      etichetta="Data o periodo della prestazione"
-                      placeholder="Es. settembre 2026"
+                      etichetta={t('fatture.nuova.periodo')}
+                      placeholder={t('fatture.nuova.esempioPeriodo')}
                       value={periodo}
                       onChangeText={setPeriodo}
                     />
@@ -413,45 +431,54 @@ export default function NuovaFattura() {
                         voci={mesi}
                         valore={mesi.includes(periodo) ? periodo : null}
                         onCambia={setPeriodo}
-                        etichettaGruppo="Mese della prestazione"
+                        etichettaGruppo={t('fatture.nuova.mesePrestazione')}
                       />
                     </View>
-                    <Testo tipo="cap">La chiede la legge sull'IVA (art. 26 LIVA).</Testo>
+                    <Testo tipo="cap">{t('fatture.nuova.periodoLegge')}</Testo>
                   </View>
                 </>
               )}
               <CampoData
-                etichetta="Emessa il"
+                etichetta={t('fatture.nuova.emessaIl')}
                 valore={emessa}
                 onCambia={setEmessa}
-                scorciatoie={[{ titolo: 'Oggi', giorni: 0 }]}
+                scorciatoie={[{ titolo: t('fatture.scorciatoie.oggi'), giorni: 0 }]}
               />
               <CampoData
-                etichetta="Scadenza del pagamento"
+                etichetta={t('fatture.nuova.scadenzaPagamento')}
                 valore={scadenza}
                 onCambia={setScadenza}
                 scorciatoie={[
-                  { titolo: 'Tra 15 giorni', giorni: 15 },
-                  { titolo: 'Tra 30 giorni', giorni: 30 },
-                  { titolo: 'Tra 60 giorni', giorni: 60 },
+                  { titolo: t('fatture.scorciatoie.traGiorni', { n: 15 }), giorni: 15 },
+                  { titolo: t('fatture.scorciatoie.traGiorni', { n: 30 }), giorni: 30 },
+                  { titolo: t('fatture.scorciatoie.traGiorni', { n: 60 }), giorni: 60 },
                 ]}
               />
               <View style={{ gap: 8 }}>
                 <Testo tipo="small" colore={colori.fg2}>
-                  Pagamento
+                  {t('fatture.voci.pagamento')}
                 </Testo>
-                <Scelta voci={metodi} valore={metodo} onCambia={setMetodo} etichettaGruppo="Pagamento" />
+                <Scelta
+                  voci={metodi.map((m) => ({ valore: m, titolo: nomeMetodo(m, lingua) }))}
+                  valore={metodo}
+                  onCambia={setMetodo}
+                  etichettaGruppo={t('fatture.voci.pagamento')}
+                />
               </View>
               {metodo !== 'Contanti' ? (
                 fatturazione.iban ? (
-                  <Testo tipo="cap">{`Sul PDF: IBAN ${fatturazione.iban}${metodo === 'QR-fattura' ? ', con la sezione di pagamento QR' : ''}.`}</Testo>
+                  <Testo tipo="cap">
+                    {metodo === 'QR-fattura'
+                      ? t('fatture.nuova.sulPdfQr', { iban: fatturazione.iban })
+                      : t('fatture.nuova.sulPdf', { iban: fatturazione.iban })}
+                  </Testo>
                 ) : (
-                  <Avviso testo="Manca il tuo IBAN: aggiungilo nei dati di fatturazione." />
+                  <Avviso testo={t('fatture.nuova.mancaIban')} />
                 )
               ) : null}
               <Campo
-                etichetta="Note sulla fattura (facoltative)"
-                placeholder="Le legge anche il cliente"
+                etichetta={t('fatture.nuova.note')}
+                placeholder={t('fatture.nuova.noteSegnaposto')}
                 value={note}
                 onChangeText={setNote}
                 multiline
@@ -464,25 +491,32 @@ export default function NuovaFattura() {
               <ElencoDefinizioni
                 larghezzaTermine={96}
                 voci={[
-                  ['Numero', prossimoNumero],
-                  ['Cliente', nomeCliente(clienti, cliente.id)],
+                  [t('fatture.voci.numero'), prossimoNumero],
+                  [t('fatture.voci.cliente'), nomeCliente(clienti, cliente.id)],
                   ...(praticaId
-                    ? ([['Pratica', pratiche.find((p) => p.id === praticaId)?.titolo ?? '']] as [
+                    ? ([
+                        [t('fatture.voci.pratica'), pratiche.find((p) => p.id === praticaId)?.titolo ?? ''],
+                      ] as [string, string][])
+                    : []),
+                  [
+                    t('fatture.voci.emessa'),
+                    giornoEmessa ? dataCompleta(giornoEmessa.toISOString(), lingua) : '',
+                  ],
+                  ...(giornoScadenza
+                    ? ([[t('fatture.voci.scadenza'), dataCompleta(giornoScadenza.toISOString(), lingua)]] as [
                         string,
                         string,
                       ][])
                     : []),
-                  ['Emessa', giornoEmessa ? dataCompleta(giornoEmessa.toISOString()) : ''],
-                  ...(giornoScadenza
-                    ? ([['Scadenza', dataCompleta(giornoScadenza.toISOString())]] as [string, string][])
+                  ...(paese === 'CH'
+                    ? ([[t('fatture.voci.prestazione'), periodo.trim()]] as [string, string][])
                     : []),
-                  ...(paese === 'CH' ? ([['Prestazione', periodo.trim()]] as [string, string][]) : []),
-                  ['Pagamento', metodo],
+                  [t('fatture.voci.pagamento'), nomeMetodo(metodo, lingua)],
                 ]}
               />
               <View>
                 <TitoloSezione stile={{ paddingHorizontal: 0, paddingTop: 0 }}>
-                  {`Prestazioni · ${righe.length}`}
+                  {t('fatture.nuova.prestazioniN', { n: righe.length })}
                 </TitoloSezione>
                 {righe.map((r) => (
                   <View key={r.id} style={stili.riga}>
@@ -495,9 +529,7 @@ export default function NuovaFattura() {
               </View>
               <TotaliFattura fattura={fiscale} totali={totali} paese={paese} cassa={fatturazione.cassa} />
               <Testo tipo="cap">
-                {paese === 'IT'
-                  ? 'Il numero si assegna quando la crei. Il PDF lo generi dal dettaglio.'
-                  : 'Il numero si assegna quando la crei. Il PDF, con la QR-fattura, lo generi dal dettaglio.'}
+                {paese === 'IT' ? t('fatture.nuova.notaFinale.IT') : t('fatture.nuova.notaFinale.CH')}
               </Testo>
             </>
           ) : null}
@@ -510,17 +542,17 @@ export default function NuovaFattura() {
           ) : null}
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {passo > 0 ? (
-              <Pulsante titolo="Indietro" variante="linea" onPress={() => setPasso(passo - 1)} />
+              <Pulsante titolo={t('comune.indietro')} variante="linea" onPress={() => setPasso(passo - 1)} />
             ) : null}
             {passo < passi.length - 1 ? (
               <Pulsante
-                titolo="Avanti"
+                titolo={t('comune.avanti')}
                 stile={{ flex: 1 }}
                 disabilitato={!!blocco}
                 onPress={() => setPasso(passo + 1)}
               />
             ) : (
-              <Pulsante titolo="Crea la fattura" stile={{ flex: 1 }} onPress={crea} />
+              <Pulsante titolo={t('fatture.nuova.crea')} stile={{ flex: 1 }} onPress={crea} />
             )}
           </View>
         </BarraAzioni>

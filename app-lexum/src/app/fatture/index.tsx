@@ -11,9 +11,10 @@ import { Schermata } from '@/componenti/Schermata';
 import { StatoVuoto } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
 import type { Fattura } from '@/dati-finti/studio';
+import { useTesti } from '@/lingue/useTesti';
 import { strumentiStudio } from '@/ruoli';
 import { importo, statoFattura, totaliFattura } from '@/studio/calcoli';
-import { mancanoAlProfessionista, quandoFattura, statiFattura } from '@/studio/fatturazione';
+import { mancanoAlProfessionista, quandoFattura, statiFattura, testoStato } from '@/studio/fatturazione';
 import { useStato } from '@/stato/Stato';
 import { nomeCliente, useStudio } from '@/stato/Studio';
 import { colori, famiglie } from '@/tema';
@@ -25,6 +26,7 @@ type Filtro = 'da-incassare' | 'scadute' | 'pagate' | 'tutte';
 export default function Fatture() {
   const { paese, ruoli } = useStato();
   const { fatture, clienti, fatturazione } = useStudio();
+  const { t } = useTesti();
   const [filtro, setFiltro] = useState<Filtro>('da-incassare');
   const avvocato = strumentiStudio(ruoli[paese] ?? 'user').includes('mandati');
   const manca = mancanoAlProfessionista(fatturazione, paese);
@@ -35,17 +37,17 @@ export default function Fatture() {
   );
   const somma = (fn: (f: Fattura) => number, elenco = dellAnno) => elenco.reduce((s, f) => s + fn(f), 0);
   const numeri = [
-    { titolo: 'Fatturato', valore: somma((f) => totaliFattura(f, paese).totale) },
-    { titolo: 'Incassato', valore: somma((f) => totaliFattura(f, paese).pagato) },
+    { titolo: t('fatture.elenco.fatturato'), valore: somma((f) => totaliFattura(f, paese).totale) },
+    { titolo: t('fatture.elenco.incassato'), valore: somma((f) => totaliFattura(f, paese).pagato) },
     {
-      titolo: 'Da incassare',
+      titolo: t('fatture.elenco.daIncassare'),
       valore: somma(
         (f) => totaliFattura(f, paese).residuo,
         dellAnno.filter((f) => f.stato === 'in_attesa'),
       ),
     },
     {
-      titolo: 'Scaduto',
+      titolo: t('fatture.elenco.scaduto'),
       valore: somma(
         (f) => totaliFattura(f, paese).residuo,
         dellAnno.filter((f) => statoFattura(f) === 'scaduta'),
@@ -73,19 +75,19 @@ export default function Fatture() {
     <Schermata>
       <Intestazione
         sinistra={<BottoneMenu />}
-        titolo="Fatture"
-        destra={<PulsanteIcona icona="piu" etichetta="Nuova fattura" onPress={nuova} />}
+        titolo={t('fatture.elenco.titolo')}
+        destra={<PulsanteIcona icona="piu" etichetta={t('fatture.nuova.titolo')} onPress={nuova} />}
       />
       {manca.length > 0 ? (
         <Striscia
           icona="avviso"
-          testo="Mancano i tuoi dati di fatturazione"
-          azione="Completa"
+          testo={t('fatture.elenco.mancanoDati')}
+          azione={t('fatture.elenco.completa')}
           onPress={() => router.push('/fatture/dati')}
         />
       ) : null}
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
-        <View style={stili.numeri} accessibilityLabel={`I numeri del ${anno}`}>
+        <View style={stili.numeri} accessibilityLabel={t('fatture.elenco.numeriAnno', { anno })}>
           {numeri.map((n) => (
             <View key={n.titolo} style={stili.numero}>
               <Text style={stili.numeroTitolo}>{n.titolo}</Text>
@@ -100,7 +102,7 @@ export default function Fatture() {
           ))}
         </View>
         <Testo tipo="mini" colore={colori.fg3} style={{ paddingHorizontal: 20, marginTop: -6 }}>
-          {`Fatture emesse nel ${anno}`}
+          {t('fatture.elenco.emesseNel', { anno })}
         </Testo>
 
         {avvocato && paese === 'IT' ? (
@@ -122,10 +124,19 @@ export default function Fatture() {
           <View style={{ paddingTop: 14 }}>
             <Schede
               voci={[
-                { valore: 'da-incassare', titolo: `Da incassare ${filtra('da-incassare').length}` },
-                { valore: 'scadute', titolo: `Scadute ${filtra('scadute').length}` },
-                { valore: 'pagate', titolo: `Pagate ${filtra('pagate').length}` },
-                { valore: 'tutte', titolo: `Tutte ${fatture.length}` },
+                {
+                  valore: 'da-incassare',
+                  titolo: t('fatture.elenco.filtri.daIncassare', { n: filtra('da-incassare').length }),
+                },
+                {
+                  valore: 'scadute',
+                  titolo: t('fatture.elenco.filtri.scadute', { n: filtra('scadute').length }),
+                },
+                {
+                  valore: 'pagate',
+                  titolo: t('fatture.elenco.filtri.pagate', { n: filtra('pagate').length }),
+                },
+                { valore: 'tutte', titolo: t('fatture.elenco.filtri.tutte', { n: fatture.length }) },
               ]}
               attiva={filtro}
               onCambia={setFiltro}
@@ -147,13 +158,13 @@ export default function Fatture() {
             icona="ricevuta"
             titolo={
               fatture.length === 0
-                ? 'Nessuna fattura, per ora'
+                ? t('fatture.elenco.vuoto.nessuna')
                 : filtro === 'da-incassare'
-                  ? 'Niente da incassare'
-                  : 'Nessuna fattura qui'
+                  ? t('fatture.elenco.vuoto.nienteDaIncassare')
+                  : t('fatture.elenco.vuoto.nessunaQui')
             }
-            testo={fatture.length === 0 ? 'Crea la prima con «+» in alto.' : undefined}
-            azione={fatture.length === 0 ? { titolo: 'Nuova fattura', onPress: nuova } : undefined}
+            testo={fatture.length === 0 ? t('fatture.elenco.vuoto.crea') : undefined}
+            azione={fatture.length === 0 ? { titolo: t('fatture.nuova.titolo'), onPress: nuova } : undefined}
           />
         ) : null}
       </ScrollView>
@@ -172,6 +183,7 @@ function RigaFattura({
   paese: string;
   onPress: () => void;
 }) {
+  const { t: testo, lingua } = useTesti();
   const stato = statoFattura(f);
   const t = totaliFattura(f, paese);
   const cifra = stato === 'in_attesa' || stato === 'scaduta' ? t.residuo : t.daIncassare;
@@ -179,19 +191,24 @@ function RigaFattura({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Fattura ${f.numero}, ${cliente}, ${importo(cifra, paese)}, ${statiFattura[stato].testo}`}
+      accessibilityLabel={testo('fatture.elenco.riga', {
+        numero: f.numero,
+        cliente,
+        importo: importo(cifra, paese),
+        stato: testoStato(stato, lingua),
+      })}
       style={({ pressed }) => [stili.riga, pressed && { backgroundColor: colori.bg2 }]}
     >
       <View style={{ flex: 1, gap: 5 }}>
         <View style={stili.testaRiga}>
-          <Badge tono={statiFattura[stato].tono}>{statiFattura[stato].testo}</Badge>
+          <Badge tono={statiFattura[stato].tono}>{testoStato(stato, lingua)}</Badge>
           <Testo tipo="mini">{f.numero}</Testo>
         </View>
         <Text style={stili.cliente} numberOfLines={1}>
           {cliente}
         </Text>
         <Text style={[stili.quando, stato === 'scaduta' && { color: colori.danger }]}>
-          {quandoFattura(f)}
+          {quandoFattura(f, lingua)}
         </Text>
       </View>
       <Text

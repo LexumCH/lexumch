@@ -8,6 +8,7 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import type { DatiFatturazione } from '@/dati-finti/studio';
+import { useTesti } from '@/lingue/useTesti';
 import { indietro } from '@/navigazione';
 import { Scelta } from '@/studio/Campi';
 import {
@@ -29,6 +30,7 @@ import { colori } from '@/tema';
 export default function DatiFatturazioneSchermata() {
   const { paese, ruoli } = useStato();
   const { fatturazione, azioni } = useStudio();
+  const { t } = useTesti();
   const [d, setD] = useState<DatiFatturazione>(() => ({
     ...fatturazione,
     cassa: fatturazione.cassa ?? (ruoli[paese] === 'commercialista' ? 'TC04' : 'TC01'),
@@ -40,20 +42,17 @@ export default function DatiFatturazioneSchermata() {
   const errori: Partial<Record<keyof DatiFatturazione, string>> = {};
   const pieno = (v?: string) => !!v && !!v.trim();
   if (paese === 'IT') {
-    if (pieno(d.piva) && !pivaValida(d.piva!)) errori.piva = 'La partita IVA ha 11 cifre: controlla.';
-    if (pieno(d.cf) && !cfValido(d.cf!)) errori.cf = 'Il codice fiscale ha 16 caratteri (o 11 cifre).';
+    if (pieno(d.piva) && !pivaValida(d.piva!)) errori.piva = t('fatture.dati.errori.piva');
+    if (pieno(d.cf) && !cfValido(d.cf!)) errori.cf = t('fatture.dati.errori.cf');
     if (pieno(d.provincia) && !/^[A-Za-z]{2}$/.test(d.provincia!.trim()))
-      errori.provincia = 'La sigla ha due lettere, per esempio MI.';
+      errori.provincia = t('fatture.dati.errori.provincia');
   } else if (d.assoggettatoIva && pieno(d.numeroIva) && !numeroIvaValido(d.numeroIva!)) {
-    errori.numeroIva = 'Si scrive così: CHE-123.456.789 IVA.';
+    errori.numeroIva = t('fatture.dati.errori.numeroIva');
   }
   if (pieno(d.cap) && !capValido(d.cap!, paese))
-    errori.cap = paese === 'CH' ? 'Il NPA ha 4 cifre.' : 'Il CAP ha 5 cifre.';
+    errori.cap = paese === 'CH' ? t('fatture.dati.errori.cap.CH') : t('fatture.dati.errori.cap.IT');
   if (pieno(d.iban) && !ibanValido(d.iban!, paese))
-    errori.iban =
-      paese === 'CH'
-        ? 'L’IBAN svizzero ha 21 caratteri e inizia con CH.'
-        : 'L’IBAN italiano ha 27 caratteri e inizia con IT.';
+    errori.iban = paese === 'CH' ? t('fatture.dati.errori.iban.CH') : t('fatture.dati.errori.iban.IT');
   const valido = Object.keys(errori).length === 0;
 
   const campo = (
@@ -90,33 +89,33 @@ export default function DatiFatturazioneSchermata() {
   return (
     <Schermata>
       <Intestazione
-        sinistra={<BottoneIndietro ripiego="/fatture" etichetta="Annulla" />}
-        titolo="Dati di fatturazione"
+        sinistra={<BottoneIndietro ripiego="/fatture" etichetta={t('comune.annulla')} />}
+        titolo={t('fatture.dati.titolo')}
       />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={stili.corpo} keyboardShouldPersistTaps="handled">
           <Testo tipo="small" colore={colori.fg2}>
-            Vanno sul PDF di ogni fattura. Sono gli stessi del sito: li cambi qui e cambiano anche lì.
+            {t('fatture.dati.intro')}
           </Testo>
 
           {paese === 'IT' ? (
             <>
-              <TitoloSezione stile={stili.titolo}>Dati fiscali</TitoloSezione>
-              {campo('piva', 'Partita IVA', {
+              <TitoloSezione stile={stili.titolo}>{t('fatture.dati.datiFiscali')}</TitoloSezione>
+              {campo('piva', t('fatture.dati.partitaIva'), {
                 keyboardType: 'number-pad',
                 maxLength: 11,
-                placeholder: '11 cifre',
+                placeholder: t('fatture.dati.undiciCifre'),
               })}
-              {campo('cf', 'Codice fiscale', { autoCapitalize: 'characters', maxLength: 16 })}
+              {campo('cf', t('fatture.dati.codiceFiscale'), { autoCapitalize: 'characters', maxLength: 16 })}
               <View style={{ gap: 8 }}>
                 <Testo tipo="small" colore={colori.fg2}>
-                  Regime fiscale
+                  {t('fatture.dati.regime')}
                 </Testo>
                 <Segmentato
-                  etichetta="Regime fiscale"
+                  etichetta={t('fatture.dati.regime')}
                   opzioni={[
-                    { valore: 'ordinario', titolo: 'Ordinario' },
-                    { valore: 'forfettario', titolo: 'Forfettario' },
+                    { valore: 'ordinario', titolo: t('fatture.dati.ordinario') },
+                    { valore: 'forfettario', titolo: t('fatture.dati.forfettario') },
                   ]}
                   valore={d.regime ?? 'ordinario'}
                   onCambia={(v) => setD((x) => ({ ...x, regime: v }))}
@@ -124,7 +123,7 @@ export default function DatiFatturazioneSchermata() {
               </View>
               <View style={{ gap: 8 }}>
                 <Testo tipo="small" colore={colori.fg2}>
-                  Cassa di previdenza
+                  {t('fatture.dati.cassa')}
                 </Testo>
                 <Scelta
                   voci={(Object.keys(nomiCassa) as (keyof typeof nomiCassa)[]).map((k) => ({
@@ -133,72 +132,75 @@ export default function DatiFatturazioneSchermata() {
                   }))}
                   valore={d.cassa ?? null}
                   onCambia={(v) => setD((x) => ({ ...x, cassa: v }))}
-                  etichettaGruppo="Cassa di previdenza"
+                  etichettaGruppo={t('fatture.dati.cassa')}
                 />
               </View>
             </>
           ) : null}
 
-          <TitoloSezione stile={stili.titolo}>Indirizzo dello studio</TitoloSezione>
+          <TitoloSezione stile={stili.titolo}>{t('fatture.dati.indirizzo')}</TitoloSezione>
           <View style={stili.fila}>
-            {campo('via', 'Via', { stile: { flex: 3 } })}
-            {campo('civico', 'Numero', { stile: { flex: 1 } })}
+            {campo('via', t('fatture.dati.via'), { stile: { flex: 3 } })}
+            {campo('civico', t('fatture.dati.civico'), { stile: { flex: 1 } })}
           </View>
           <View style={stili.fila}>
-            {campo('cap', paese === 'CH' ? 'NPA' : 'CAP', {
+            {campo('cap', paese === 'CH' ? t('fatture.dati.cap.CH') : t('fatture.dati.cap.IT'), {
               keyboardType: 'number-pad',
               maxLength: paese === 'CH' ? 4 : 5,
               stile: { flex: 1 },
             })}
-            {campo('citta', paese === 'CH' ? 'Località' : 'Comune', { stile: { flex: 2 } })}
+            {campo('citta', paese === 'CH' ? t('fatture.dati.citta.CH') : t('fatture.dati.citta.IT'), {
+              stile: { flex: 2 },
+            })}
           </View>
           {paese === 'IT'
-            ? campo('provincia', 'Provincia', { autoCapitalize: 'characters', maxLength: 2 })
+            ? campo('provincia', t('fatture.dati.provincia'), { autoCapitalize: 'characters', maxLength: 2 })
             : null}
 
-          <TitoloSezione stile={stili.titolo}>Pagamento</TitoloSezione>
-          {campo('iban', paese === 'CH' ? 'IBAN o QR-IBAN' : 'IBAN', { autoCapitalize: 'characters' })}
+          <TitoloSezione stile={stili.titolo}>{t('fatture.voci.pagamento')}</TitoloSezione>
+          {campo('iban', paese === 'CH' ? t('fatture.dati.iban.CH') : t('fatture.dati.iban.IT'), {
+            autoCapitalize: 'characters',
+          })}
           {paese === 'CH' && d.iban && ibanValido(d.iban, 'CH') ? (
-            <Testo tipo="cap">
-              {eQrIban(d.iban)
-                ? 'È un QR-IBAN: la QR-fattura avrà un riferimento QR.'
-                : 'Va sulla QR-fattura, la sezione di pagamento in fondo al PDF.'}
-            </Testo>
+            <Testo tipo="cap">{eQrIban(d.iban) ? t('fatture.dati.qrIban') : t('fatture.dati.sullaQr')}</Testo>
           ) : null}
 
           {paese === 'CH' ? (
             <>
-              <TitoloSezione stile={stili.titolo}>IVA</TitoloSezione>
+              <TitoloSezione stile={stili.titolo}>{t('fatture.voci.iva')}</TitoloSezione>
               <View style={{ gap: 8 }}>
                 <Testo tipo="small" colore={colori.fg2}>
-                  Sei assoggettato all'IVA?
+                  {t('fatture.dati.assoggettatoDomanda')}
                 </Testo>
                 <Segmentato
-                  etichetta="Assoggettato all'IVA"
+                  etichetta={t('fatture.dati.assoggettato')}
                   opzioni={[
-                    { valore: 'si', titolo: 'Sì' },
-                    { valore: 'no', titolo: 'No' },
+                    { valore: 'si', titolo: t('fatture.dati.si') },
+                    { valore: 'no', titolo: t('fatture.dati.no') },
                   ]}
                   valore={(d.assoggettatoIva == null ? '' : d.assoggettatoIva ? 'si' : 'no') as 'si' | 'no'}
                   onCambia={(v) => setD((x) => ({ ...x, assoggettatoIva: v === 'si' }))}
                 />
                 <Testo tipo="cap">
-                  {d.assoggettatoIva === false
-                    ? 'Le tue fatture saranno esenti, con il motivo scritto in fattura.'
-                    : 'Obbligatorio da CHF 100’000 di cifra d’affari all’anno.'}
+                  {d.assoggettatoIva === false ? t('fatture.dati.esenti') : t('fatture.dati.obbligo')}
                 </Testo>
               </View>
               {d.assoggettatoIva
-                ? campo('numeroIva', 'Numero IVA', {
+                ? campo('numeroIva', t('fatture.dati.numeroIva'), {
                     autoCapitalize: 'characters',
-                    placeholder: 'CHE-123.456.789 IVA',
+                    placeholder: t('fatture.dati.esempioNumeroIva'),
                   })
                 : null}
             </>
           ) : null}
         </ScrollView>
         <BarraAzioni>
-          <Pulsante titolo="Salva" stile={{ flex: 1 }} disabilitato={!valido} onPress={salva} />
+          <Pulsante
+            titolo={t('fatture.dati.salva')}
+            stile={{ flex: 1 }}
+            disabilitato={!valido}
+            onPress={salva}
+          />
         </BarraAzioni>
       </KeyboardAvoidingView>
     </Schermata>
