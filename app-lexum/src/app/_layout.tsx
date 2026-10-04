@@ -12,6 +12,8 @@ import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Cornice } from '@/anteprima/Cornice';
+import { rinnovoSessioni } from '@/backend/client';
+import { datiVeri } from '@/config';
 import '@/fuoco';
 import { MenuLaterale } from '@/componenti/MenuLaterale';
 import { Pulsante } from '@/componenti/Pulsante';
@@ -49,6 +51,9 @@ function Radice() {
   useEffect(() => {
     if (caricati || errore) SplashScreen.hideAsync();
   }, [caricati, errore]);
+
+  // Con i dati veri le sessioni dei paesi si rinnovano mentre l'app è aperta.
+  useEffect(() => (datiVeri ? rinnovoSessioni() : undefined), []);
 
   if (!caricati && !errore) return null;
 

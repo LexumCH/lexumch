@@ -8,6 +8,8 @@ import { BottoneIndietro, Intestazione } from '@/componenti/Intestazione';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
+import { usaCodiceRecupero, verificaCodice } from '@/backend/accesso';
+import { datiVeri } from '@/config';
 import { ricominciaDa } from '@/navigazione';
 import { dominio, trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
@@ -17,7 +19,7 @@ type Modo = 'codice' | 'recupero' | 'spenta';
 
 // A10 · Verifica in due passaggi all'accesso, come Verifica2FA del sito: il codice di 6 cifre
 // dell'app di autenticazione (lo stesso che vale sul sito), oppure un codice di recupero.
-// Dalla tappa 2: supabase.auth.mfa.challengeAndVerify e la funzione mfa-backup-codes (action «verify»).
+// Con i dati veri: supabase.auth.mfa.challengeAndVerify e la funzione mfa-backup-codes (action «verify»).
 export default function Verifica() {
   const { paese: paeseAttivo, azioni } = useStato();
   const parametri = useLocalSearchParams<{ paese?: string }>();
@@ -28,15 +30,44 @@ export default function Verifica() {
   const [codice, setCodice] = useState('');
   const [recupero, setRecupero] = useState('');
   const [errore, setErrore] = useState<string | null>(null);
+  const [inCorso, setInCorso] = useState(false);
 
   const entra = () => {
     if (altroPaese) ricominciaDa({ pathname: '/passaggio', params: { paese } });
     else ricominciaDa('/chat');
   };
 
+  const verificaDavvero = async () => {
+    setInCorso(true);
+    const esito = await verificaCodice(paese, codice);
+    setInCorso(false);
+    if (esito.esito === 'ok') {
+      const { esito: _ok, ...dati } = esito;
+      azioni.entrato(paese, dati);
+      entra();
+    } else if (esito.esito === 'errore') {
+      setErrore(esito.messaggio);
+      setCodice('');
+    }
+  };
+
+  const recuperoDavvero = async () => {
+    setInCorso(true);
+    const esito = await usaCodiceRecupero(paese, recupero);
+    setInCorso(false);
+    if (esito.esito === 'ok') {
+      azioni.impostaDueFattori(false);
+      setModo('spenta');
+    } else setErrore(esito.messaggio);
+  };
+
   // Finto: ogni codice di 6 cifre va bene, tranne 000000 (per vedere l'errore).
   const verifica = () => {
-    if (codice.length !== 6) return;
+    if (codice.length !== 6 || inCorso) return;
+    if (datiVeri) {
+      void verificaDavvero();
+      return;
+    }
     if (codice === '000000') {
       setErrore("Codice non valido. Controlla che l'ora del telefono sia giusta e riprova.");
       setCodice('');
@@ -47,6 +78,11 @@ export default function Verifica() {
 
   // Come sul sito: un codice di recupero spegne la verifica in due passaggi; poi si rientra e la si riattiva.
   const usaRecupero = () => {
+    if (inCorso) return;
+    if (datiVeri) {
+      void recuperoDavvero();
+      return;
+    }
     if (!/^[A-Z0-9]{4}-?[A-Z0-9]{4}$/.test(recupero.trim())) {
       setErrore('Codice non valido o già usato.');
       return;
@@ -81,7 +117,14 @@ export default function Verifica() {
                   Profilo → Account → Verifica in due passaggi.
                 </Testo>
               </Scheda>
-              <Pulsante titolo="Accedi di nuovo" onPress={() => router.replace('/avvio/accesso')} />
+              <Pulsante
+                titolo="Accedi di nuovo"
+                onPress={() =>
+                  router.replace(
+                    altroPaese ? { pathname: '/avvio/accesso', params: { paese } } : '/avvio/accesso',
+                  )
+                }
+              />
             </>
           ) : (
             <>

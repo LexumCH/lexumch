@@ -3,11 +3,16 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Campo, CampoScelta } from '@/componenti/Campi';
-import { Spunta } from '@/componenti/Elementi';
+import { Avviso, Spunta } from '@/componenti/Elementi';
+import { Foglio } from '@/componenti/Foglio';
+import { Icona } from '@/componenti/Icona';
+import { Riga } from '@/componenti/Riga';
 import { BottoneIndietro, Intestazione } from '@/componenti/Intestazione';
 import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Evidenza, Testo } from '@/componenti/Testo';
+import { professioniRegistrazione, registrati } from '@/backend/accesso';
+import { datiVeri } from '@/config';
 import { utenteFinto } from '@/dati-finti/utente';
 import { apriSito } from '@/navigazione';
 import { contenuti } from '@/paesi/contenuti';
@@ -16,20 +21,45 @@ import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
 // A4 · Registrazione con email e password, come sul sito.
-// Con ?paese=CH crea l'accesso in un altro paese (da G2). L'accesso vero arriva con la tappa 2.
+// Con ?paese=CH crea l'accesso in un altro paese (da G2). Con i dati veri crea l'account nel database
+// di quel paese, con gli stessi dati del sito: in Italia la professione, in Svizzera la lingua.
 export default function Registrazione() {
-  const { paese: paeseAttivo } = useStato();
+  const { paese: paeseAttivo, lingua } = useStato();
   const { paese: paeseParam } = useLocalSearchParams<{ paese?: string }>();
   const paese = paeseParam ?? paeseAttivo;
   const altroPaese = !!paeseParam && paeseParam !== paeseAttivo;
   const datiPaese = trovaPaese(paese);
 
-  const [nome, setNome] = useState(utenteFinto.nome);
-  const [cognome, setCognome] = useState(utenteFinto.cognome);
-  const [email, setEmail] = useState(utenteFinto.email);
-  const [password, setPassword] = useState('lexum-prova-2026');
+  const [nome, setNome] = useState(datiVeri ? '' : utenteFinto.nome);
+  const [cognome, setCognome] = useState(datiVeri ? '' : utenteFinto.cognome);
+  const [email, setEmail] = useState(datiVeri ? '' : utenteFinto.email);
+  const [password, setPassword] = useState(datiVeri ? '' : 'lexum-prova-2026');
   const [vedi, setVedi] = useState(false);
-  const [accetto, setAccetto] = useState(true);
+  const [accetto, setAccetto] = useState(!datiVeri);
+  const [professione, setProfessione] = useState<string>('privato');
+  const [sceltaProfessione, setSceltaProfessione] = useState(false);
+  const [errore, setErrore] = useState<string | null>(null);
+  const [inCorso, setInCorso] = useState(false);
+
+  const vaiAlCodice = () =>
+    router.push(
+      paeseParam
+        ? { pathname: '/avvio/codice', params: { paese, email } }
+        : { pathname: '/avvio/codice', params: { email } },
+    );
+
+  // Le stesse regole del sito: nome e cognome obbligatori, email valida, password di almeno 8 caratteri.
+  const registra = async () => {
+    if (!datiVeri) return vaiAlCodice();
+    if (!nome.trim() || !cognome.trim()) return setErrore('Scrivi nome e cognome.');
+    if (!/\S+@\S+\.\S+/.test(email)) return setErrore("L'indirizzo email non è valido.");
+    if (password.length < 8) return setErrore('La password deve avere almeno 8 caratteri.');
+    setInCorso(true);
+    const esito = await registrati(paese, { nome, cognome, email, password, professione, lingua });
+    setInCorso(false);
+    if (esito.esito === 'errore') return setErrore(esito.messaggio);
+    vaiAlCodice();
+  };
 
   const accedi = () =>
     router.replace(paeseParam ? { pathname: '/avvio/accesso', params: { paese } } : '/avvio/accesso');
@@ -92,7 +122,17 @@ export default function Registrazione() {
               />
             }
           />
-          <CampoScelta etichetta="Professione" valore={utenteFinto.professione} />
+          {paese === 'IT' ? (
+            <CampoScelta
+              etichetta="Professione"
+              valore={
+                datiVeri
+                  ? (professioniRegistrazione.find((p) => p.valore === professione)?.titolo ?? 'Privato')
+                  : utenteFinto.professione
+              }
+              onPress={datiVeri ? () => setSceltaProfessione(true) : undefined}
+            />
+          ) : null}
 
           <Spunta attiva={accetto} onCambia={setAccetto}>
             Accetto i{' '}
@@ -110,16 +150,11 @@ export default function Registrazione() {
             .
           </Spunta>
 
+          {errore ? <Avviso testo={errore} /> : null}
           <Pulsante
-            titolo="Registrati"
-            disabilitato={!accetto}
-            onPress={() =>
-              router.push(
-                paeseParam
-                  ? { pathname: '/avvio/codice', params: { paese, email } }
-                  : { pathname: '/avvio/codice', params: { email } },
-              )
-            }
+            titolo={inCorso ? 'Registrazione in corso…' : 'Registrati'}
+            disabilitato={!accetto || inCorso}
+            onPress={() => void registra()}
           />
           <Text style={stili.accedi}>
             Hai già un account?{' '}
@@ -129,6 +164,29 @@ export default function Registrazione() {
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
+      <Foglio visibile={sceltaProfessione} onChiudi={() => setSceltaProfessione(false)} spazio={4}>
+        <Testo tipo="dS">Professione</Testo>
+        <View style={{ marginHorizontal: -20 }}>
+          {professioniRegistrazione.map((p) => (
+            <Riga
+              key={p.valore}
+              stretta
+              ruolo="radio"
+              selezionata={p.valore === professione}
+              titolo={p.titolo}
+              destra={
+                p.valore === professione ? (
+                  <Icona nome="spunta" dimensione={18} colore={colori.accentText} />
+                ) : undefined
+              }
+              onPress={() => {
+                setProfessione(p.valore);
+                setSceltaProfessione(false);
+              }}
+            />
+          ))}
+        </View>
+      </Foglio>
     </Schermata>
   );
 }

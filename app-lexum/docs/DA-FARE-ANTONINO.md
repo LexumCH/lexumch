@@ -11,7 +11,7 @@ Ultimo aggiornamento: 04-10-2026.
   - `lexum://**` per l'app installata;
   - `exp://**` solo per le prove con Expo Go (poi si può togliere).
 
-  Senza, i link «conferma email» e «password dimenticata» aprono il sito invece dell'app. Nell'app le schermate di arrivo ci sono già: «Email confermata» e «Nuova password».
+  Senza, i link «conferma email» e «password dimenticata» aprono il sito invece dell'app. Nell'app le schermate di arrivo ci sono già: «Email confermata» e «Nuova password», e dal 04-10-2026 leggono davvero la sessione dal link (gli indirizzi sono `lexum://avvio/conferma?paese=IT` e `lexum://avvio/nuova-password?paese=IT`, o `CH`).
 - [ ] **Funzione per eliminare il proprio account.** Oggi non c'è in nessuno dei due progetti: esiste solo quella per gli admin. Apple la pretende. Proposta: una edge function `elimina-account`, con controllo del JWT, che con la sessione dell'utente:
   1. cancella i suoi dati di quel paese (crediti, piano, ricerche, etichette, archivio con i file);
   2. poi cancella l'utente.

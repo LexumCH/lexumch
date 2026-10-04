@@ -6,7 +6,6 @@ import { Avviso, IconaQuadrata, Scheda } from '@/componenti/Elementi';
 import { Foglio } from '@/componenti/Foglio';
 import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Eyebrow, Testo } from '@/componenti/Testo';
-import { utenteFinto } from '@/dati-finti/utente';
 import { contenuti } from '@/paesi/contenuti';
 import { dominio, trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
@@ -38,7 +37,7 @@ type Props = {
 // D4 · Verifica in due passaggi, come ModalAttiva2FA e BoxSicurezza2FA del sito.
 // È la stessa del sito: il fattore sta nell'account del paese, quindi lo stesso codice vale su app e sito.
 export function FoglioDuePassaggi({ visibile, onChiudi }: Props) {
-  const { paese, dueFattori, azioni } = useStato();
+  const { paese, dueFattori, utente, azioni } = useStato();
   const attiva = !!dueFattori[paese];
   const testi = contenuti[paese];
   const sito = dominio(trovaPaese(paese));
@@ -125,8 +124,8 @@ export function FoglioDuePassaggi({ visibile, onChiudi }: Props) {
             />
             {aperta ? (
               <Testo tipo="small" colore={colori.ok}>
-                Nell'app di autenticazione trovi «{nomeNellApp}» con {utenteFinto.email}. Torna qui e scrivi
-                il codice che mostra.
+                Nell'app di autenticazione trovi «{nomeNellApp}» con {utente.email}. Torna qui e scrivi il
+                codice che mostra.
               </Testo>
             ) : null}
             <Testo tipo="small" colore={colori.fg2}>

@@ -13,7 +13,6 @@ import { Schermata } from '@/componenti/Schermata';
 import { Evidenza, Testo } from '@/componenti/Testo';
 import { trovaNorma } from '@/dati-finti/banca-dati';
 import type { RispostaFinta } from '@/dati-finti/chat';
-import { utenteFinto } from '@/dati-finti/utente';
 import { FoglioAllega } from '@/fogli/FoglioAllega';
 import { FoglioEsauriti } from '@/fogli/FoglioEsauriti';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
@@ -34,7 +33,7 @@ const nomiLingua = { it: 'italiano', de: 'tedesco', fr: 'francese' } as const;
 // La chat in corso resta finché non la salvi o non ne apri una nuova; aprire una fonte
 // o una legge non la chiude.
 export default function Chat() {
-  const { paese, conto, chat, lingua, chatDaSalvare, azioni } = useStato();
+  const { paese, conto, chat, lingua, chatDaSalvare, utente, azioni } = useStato();
   const vai = useVaiASezione();
   const offline = useOffline();
   // Il foglio aperto sta nei parametri dell'indirizzo (?foglio=…&norma=…): così si apre anche
@@ -87,7 +86,13 @@ export default function Chat() {
             <View style={{ gap: 8 }}>
               {/* Saluto più discreto (Antonino, 04-10-2026): «Ciao» in bianco, il nome in oro. */}
               <Testo tipo="dM" accessibilityRole="header">
-                Ciao <Evidenza oro>{utenteFinto.nome}</Evidenza>
+                {utente.nome ? (
+                  <>
+                    Ciao <Evidenza oro>{utente.nome}</Evidenza>
+                  </>
+                ) : (
+                  'Ciao'
+                )}
               </Testo>
               <Testo colore={colori.fg2}>{testi.homeSottotitolo}</Testo>
             </View>

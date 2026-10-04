@@ -9,6 +9,8 @@ import { BottoneIndietro, Intestazione } from '@/componenti/Intestazione';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
+import { accedi as accediAlDatabase } from '@/backend/accesso';
+import { datiVeri } from '@/config';
 import { utenteFinto } from '@/dati-finti/utente';
 import { ricominciaDa } from '@/navigazione';
 import { contenuti } from '@/paesi/contenuti';
@@ -17,18 +19,47 @@ import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
 // A6 · Accedi con email e password, come sul sito (non è nei mockup: stesso stile della registrazione).
-// Con ?paese=CH entra nell'account di un altro paese (da G2). L'accesso vero arriva con la tappa 2.
+// Con ?paese=CH entra nell'account di un altro paese (da G2). Con i dati veri entra nel database
+// di quel paese (src/backend/accesso.ts); con quelli finti basta un'email e una password.
 export default function Accesso() {
-  const { paese: paeseAttivo, dueFattori } = useStato();
+  const { paese: paeseAttivo, dueFattori, azioni } = useStato();
   const parametri = useLocalSearchParams<{ paese?: string }>();
   const paese = parametri.paese ?? paeseAttivo;
   const altroPaese = !!parametri.paese && parametri.paese !== paeseAttivo;
   const datiPaese = trovaPaese(paese);
-  const [email, setEmail] = useState(utenteFinto.email);
+  const [email, setEmail] = useState(datiVeri ? '' : utenteFinto.email);
   const [password, setPassword] = useState('');
   const [errore, setErrore] = useState<string | null>(null);
+  const [inCorso, setInCorso] = useState(false);
+
+  const entra = () => {
+    if (altroPaese) ricominciaDa({ pathname: '/passaggio', params: { paese } });
+    else ricominciaDa('/chat');
+  };
+
+  const accediDavvero = async () => {
+    if (!email.trim() || !password) {
+      setErrore('Scrivi email e password.');
+      return;
+    }
+    setInCorso(true);
+    const esito = await accediAlDatabase(paese, email, password);
+    setInCorso(false);
+    if (esito.esito === 'errore') setErrore(esito.messaggio);
+    else if (esito.esito === 'due-passaggi')
+      router.push({ pathname: '/avvio/verifica', params: altroPaese ? { paese } : {} });
+    else {
+      const { esito: _ok, ...dati } = esito;
+      azioni.entrato(paese, dati);
+      entra();
+    }
+  };
 
   const accedi = () => {
+    if (datiVeri) {
+      void accediDavvero();
+      return;
+    }
     // Finto: basta un'email con la chiocciola e una password non vuota.
     if (!email.includes('@') || password.length === 0) {
       setErrore('Email o password non corretti');
@@ -39,8 +70,7 @@ export default function Accesso() {
       router.push({ pathname: '/avvio/verifica', params: altroPaese ? { paese } : {} });
       return;
     }
-    if (altroPaese) ricominciaDa({ pathname: '/passaggio', params: { paese } });
-    else ricominciaDa('/chat');
+    entra();
   };
 
   return (
@@ -94,7 +124,11 @@ export default function Accesso() {
 
           {errore ? <Avviso testo={errore} /> : null}
 
-          <Pulsante titolo="Accedi" onPress={accedi} />
+          <Pulsante
+            titolo={inCorso ? 'Accesso in corso…' : 'Accedi'}
+            disabilitato={inCorso}
+            onPress={accedi}
+          />
           <Text style={stili.registrati}>
             Non hai un account?{' '}
             <Text

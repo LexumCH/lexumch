@@ -16,7 +16,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BadgePaese, Iniziale, Logo, Pallino, TitoloSezione } from '@/componenti/Elementi';
 import { Icona, type NomeIcona } from '@/componenti/Icona';
 import { Pulsante } from '@/componenti/Pulsante';
-import { utenteFinto } from '@/dati-finti/utente';
 import { useVaiASezione, type Sezione } from '@/navigazione';
 import { trovaPaese } from '@/paesi/registro';
 import { useMenu } from '@/stato/Menu';
@@ -49,7 +48,7 @@ export function MenuLaterale() {
   const insets = useSafeAreaInsets();
   const percorso = usePathname();
   const vai = useVaiASezione();
-  const { paese, conto, etichetteAttive, elementiAttivi, chatDaSalvare, ruoli, azioni } = useStato();
+  const { paese, conto, etichetteAttive, elementiAttivi, chatDaSalvare, ruoli, utente, azioni } = useStato();
   const studio = strumentiStudio(ruoli[paese] ?? 'user').map((s) => vociStudio[s]);
   const [montato, setMontato] = useState(aperto);
   const [avanzamento] = useState(() => new Animated.Value(0));
@@ -166,11 +165,9 @@ export function MenuLaterale() {
           accessibilityLabel="Apri il profilo"
           style={({ pressed }) => [stili.piede, pressed && { backgroundColor: colori.bg }]}
         >
-          <Iniziale lettera={utenteFinto.nome.charAt(0)} />
+          <Iniziale lettera={(utente.nome || utente.email).charAt(0).toUpperCase()} />
           <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-            <Text style={stili.nome}>
-              {utenteFinto.nome} {utenteFinto.cognome}
-            </Text>
+            <Text style={stili.nome}>{`${utente.nome} ${utente.cognome}`.trim() || utente.email}</Text>
             <Text style={stili.dettaglio} numberOfLines={1}>
               {datiPaese.nome} · {conto.piano} · {crediti}
             </Text>

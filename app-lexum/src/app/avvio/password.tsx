@@ -8,6 +8,8 @@ import { BottoneIndietro, Intestazione } from '@/componenti/Intestazione';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
+import { mandaLinkPassword } from '@/backend/accesso';
+import { datiVeri } from '@/config';
 import { indietro } from '@/navigazione';
 import { trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
@@ -15,19 +17,30 @@ import { colori } from '@/tema';
 
 // A7 · Password dimenticata: si manda un link per email (come sul sito, «Invia link»).
 // Il link riporta nell'app su «Nuova password» (A8): serve l'indirizzo dell'app tra i
-// redirect di Supabase (vedi docs/DA-FARE-ANTONINO.md). L'invio vero arriva con la tappa 2.
+// redirect di Supabase (vedi docs/DA-FARE-ANTONINO.md). Con i dati veri il link parte davvero.
 export default function PasswordDimenticata() {
   const { paese: paeseAttivo } = useStato();
   const parametri = useLocalSearchParams<{ email?: string; paese?: string }>();
-  const datiPaese = trovaPaese(parametri.paese ?? paeseAttivo);
+  const paese = parametri.paese ?? paeseAttivo;
+  const datiPaese = trovaPaese(paese);
   const [email, setEmail] = useState(parametri.email ?? '');
   const [inviata, setInviata] = useState(false);
   const [errore, setErrore] = useState<string | null>(null);
+  const [inCorso, setInCorso] = useState(false);
 
-  const invia = () => {
+  const invia = async () => {
     if (!email.includes('@')) {
       setErrore("Scrivi l'email del tuo account.");
       return;
+    }
+    if (datiVeri) {
+      setInCorso(true);
+      const esito = await mandaLinkPassword(paese, email);
+      setInCorso(false);
+      if (esito.esito === 'errore') {
+        setErrore(esito.messaggio);
+        return;
+      }
     }
     setInviata(true);
   };
@@ -91,10 +104,14 @@ export default function PasswordDimenticata() {
             autoCapitalize="none"
             autoComplete="email"
             textContentType="emailAddress"
-            onSubmitEditing={invia}
+            onSubmitEditing={() => void invia()}
           />
           {errore ? <Avviso testo={errore} /> : null}
-          <Pulsante titolo="Invia link" onPress={invia} />
+          <Pulsante
+            titolo={inCorso ? 'Invio in corso…' : 'Invia link'}
+            disabilitato={inCorso}
+            onPress={() => void invia()}
+          />
           <Pulsante titolo="Torna all'accesso" variante="tenue" onPress={() => router.back()} />
         </ScrollView>
       </KeyboardAvoidingView>

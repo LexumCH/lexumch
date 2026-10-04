@@ -46,6 +46,8 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
 - Expo (ultimo SDK stabile), React Native, TypeScript, expo-router.
 - @supabase/supabase-js, con la sessione salvata sul telefono.
 - Si prova con `npx expo start --web` nel browser e con Expo Go sul telefono. Le build iOS e Android si fanno con EAS, non in questo ambiente.
+- Dati veri o finti: con `EXPO_PUBLIC_DATI=veri` l'app usa i database dei paesi (`src/backend/`); senza, usa i dati finti. L'anteprima web, l'elenco delle schermate e le prove automatiche restano sempre con i dati finti.
+- Account di prova: li dà Antonino in chat. Mai scriverli nel repo.
 
 ## Dove sta il codice (dalla tappa 1)
 - `src/app/`: le schermate (expo-router). La chat è la home (`chat.tsx`); le voci del menù si aprono sopra di lei.
@@ -54,6 +56,7 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
 - `src/tema/`: colori e caratteri di `lexum.css`.
 - `src/paesi/`: registro dei paesi (da `docs/paesi.json`), testi per paese, numeri provvisori delle fonti (`numeri.ts`).
 - `src/stato/`: stato dell'app (paese attivo, conto, chat in corso) e menù.
+- `src/backend/`: collegamento ai database dei paesi (client per paese, accesso, paese salvato sul telefono).
 - `src/dati-finti/`: i dati finti della tappa 1. Si tolgono man mano che arrivano i dati veri.
 - `src/studio/`: regole e pezzi dello Studio dei professionisti (date, campi, fatture, calcolatore della parcella); lo stato è in `src/stato/Studio.tsx`.
 - `src/anteprima/`: solo per il browser, la sagoma del telefono e l'elenco delle schermate per la revisione.

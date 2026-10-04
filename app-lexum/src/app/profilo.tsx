@@ -16,9 +16,9 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { Riga } from '@/componenti/Riga';
 import { Schermata } from '@/componenti/Schermata';
 import { Eyebrow, Testo } from '@/componenti/Testo';
-import { mostraAcquisti } from '@/config';
+import { esci as esciDalPaese } from '@/backend/accesso';
+import { datiVeri, mostraAcquisti } from '@/config';
 import { formatoMB } from '@/dati-finti/conti';
-import { utenteFinto } from '@/dati-finti/utente';
 import { FoglioDuePassaggi } from '@/fogli/FoglioDuePassaggi';
 import { FoglioElimina } from '@/fogli/FoglioElimina';
 import { FoglioPaese } from '@/fogli/FoglioPaese';
@@ -41,7 +41,7 @@ const nomiLingue: Record<string, string> = { it: 'Italiano', de: 'Deutsch', fr: 
 // «Completa il profilo» (per un professionista: cosa trova nell'app e cosa sul sito) e, ultimo, «Elimina account».
 // Niente pagamenti nell'app: i pulsanti aprono il sito.
 export default function Profilo() {
-  const { paese, conto, lingua, accessi, telefono, dueFattori, ruoli, azioni } = useStato();
+  const { paese, conto, lingua, accessi, telefono, dueFattori, ruoli, utente, azioni } = useStato();
   const ruolo = ruoli[paese] ?? 'user';
   const gruppo = gruppoRuolo(ruolo);
   const strumenti = strumentiStudio(ruolo);
@@ -70,13 +70,11 @@ export default function Profilo() {
       <Intestazione sinistra={<BottoneMenu />} titolo="Profilo" />
       <ScrollView style={{ flex: 1 }}>
         <View style={stili.testa}>
-          <Iniziale lettera={utenteFinto.nome.charAt(0)} grande />
+          <Iniziale lettera={(utente.nome || utente.email).charAt(0).toUpperCase()} grande />
           <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
-            <Text style={stili.nome}>
-              {utenteFinto.nome} {utenteFinto.cognome}
-            </Text>
+            <Text style={stili.nome}>{`${utente.nome} ${utente.cognome}`.trim() || utente.email}</Text>
             <Testo tipo="cap">
-              {gruppo === 'privato' ? utenteFinto.email : `${utenteFinto.email} · ${nomeRuolo(ruolo)}`}
+              {gruppo === 'privato' ? utente.email : `${utente.email} · ${nomeRuolo(ruolo)}`}
             </Testo>
           </View>
         </View>
@@ -198,6 +196,10 @@ export default function Profilo() {
           destra={<Icona nome="esci" dimensione={18} colore={colori.fg3} />}
           onPress={() => {
             azioni.esci();
+            if (datiVeri) {
+              void esciDalPaese(paese);
+              azioni.uscito(paese);
+            }
             ricominciaDa('/avvio/paese');
           }}
         />

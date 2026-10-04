@@ -47,6 +47,13 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Accesso per tutti i ruoli dei siti (`profiles.role`: user, cliente, avvocato, commercialista, commerciale, admin; in CH anche fiduciario e progettista). Stesse schermate per tutti; nessun ruolo viene respinto e non compare mai un errore «non sei un utente». Il sito manda ogni ruolo alla sua area, l'app no: un professionista trova in Profilo il rimando ai suoi strumenti sul sito. Da verificare: da dove il sito legge crediti e piano per i professionisti (può essere diverso dai privati), e che le tabelle usate dall'app (ricerche, etichette, archivio) rispondano anche per loro.
   - Verifica in due passaggi all'accesso, come `Verifica2FA` del sito: codice di 6 cifre dell'app di autenticazione (`supabase.auth.mfa.challengeAndVerify`) oppure codice di recupero (funzione `mfa-backup-codes`, «verify», che spegne la verifica). È la stessa del sito: lo stesso codice vale su app e sito, un fattore per account di paese.
   - È finita quando si entra con un account IT e uno CH e si passa dall'uno all'altro senza rifare l'accesso.
+  - Fatto il 04-10-2026, da provare con gli account veri (la rete di questo ambiente blocca i due database):
+    - [x] un client per paese con la sessione salvata sul telefono (`src/backend/client.ts`);
+    - [x] interruttore `EXPO_PUBLIC_DATI=veri`: senza, l'app resta con i dati finti (anteprima e prove);
+    - [x] accesso, verifica in due passaggi (codice o codice di recupero), registrazione (in Italia con la professione, in Svizzera con la lingua), password dimenticata e nuova password, conferma email (`src/backend/accesso.ts`);
+    - [x] ruolo, nome ed email letti dal profilo; il paese attivo resta sul telefono e all'avvio si rientra da soli;
+    - [ ] prova con i quattro account di prova (privato e avvocato, IT e CH);
+    - [ ] testi in file di traduzione e lingua svizzera.
 
 - [ ] **3. Lex.**
   - Chat con `lex-lead` in streaming, come nel sito: `src/pages/avvocato/BancaDati.jsx` di `Lexumita/lexumita` (la parte RicercaAI).

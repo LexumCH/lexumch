@@ -7,7 +7,6 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { Scelta } from '@/componenti/Scelta';
 import { Eyebrow, Testo } from '@/componenti/Testo';
 import { formatoMB } from '@/dati-finti/conti';
-import { utenteFinto } from '@/dati-finti/utente';
 import { contenuti } from '@/paesi/contenuti';
 import { paesi } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
@@ -26,7 +25,7 @@ type Props = {
 // scegliendo l'altro si vede il suo account e la domanda di conferma.
 // G2 · Se nel paese scelto non c'è ancora un accesso: crealo o accedi.
 export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAccedi, iniziale }: Props) {
-  const { paese, accessi, conti } = useStato();
+  const { paese, accessi, conti, utenti } = useStato();
   const [scelto, setScelto] = useState(iniziale ?? paese);
   const [eraVisibile, setEraVisibile] = useState(visibile);
   // a ogni apertura si riparte dal paese attuale: «sono qui e vado lì»
@@ -61,7 +60,7 @@ export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAcce
               p.codice === paese
                 ? 'Sei qui · banca dati attuale'
                 : accessi[p.codice]
-                  ? `Accesso già creato con ${utenteFinto.email}`
+                  ? `Accesso già creato con ${utenti[p.codice]?.email ?? ''}`
                   : 'Nessun accesso, per ora'
             }
           />

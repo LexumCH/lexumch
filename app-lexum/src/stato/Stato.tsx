@@ -10,9 +10,12 @@ import {
   type Elemento,
   type Etichetta,
 } from '@/dati-finti/ricerche';
+import { salvaPaese } from '@/backend/telefono';
+import { datiVeri } from '@/config';
 import { messaggioErrore } from '@/errori';
 import { coloriEtichette } from '@/tema';
 import { contenuti } from '@/paesi/contenuti';
+import { utenteFinto } from '@/dati-finti/utente';
 import { paesePredefinito } from '@/paesi/registro';
 
 // Stato dell'app nella tappa 1: tutto in memoria, con dati finti.
@@ -74,8 +77,18 @@ type Stato = {
   dueFattori: Record<string, boolean>;
   // Ruolo dell'account in ogni paese (user, avvocato, cliente…): non blocca mai l'accesso.
   ruoli: Record<string, string>;
+  // Chi è entrato in ogni paese: gli account dei due paesi sono separati, anche con la stessa email.
+  utenti: Record<string, Utente>;
   // Cresce a ogni scenario dell'elenco delle schermate: lo Studio riparte dai suoi dati finti.
   generazione: number;
+};
+
+export type Utente = { nome: string; cognome: string; email: string };
+
+const utenteDiProva: Utente = {
+  nome: utenteFinto.nome,
+  cognome: utenteFinto.cognome,
+  email: utenteFinto.email,
 };
 
 // Impostazioni di questo telefono (Profilo → «Su questo telefono»): valgono per tutti i paesi,
@@ -96,7 +109,8 @@ const nessunaSimulazione: Simulazioni = { erroreLex: false, offline: false, cari
 
 const statoIniziale = (): Stato => ({
   paese: paesePredefinito,
-  accessi: { IT: true, CH: true },
+  // Con i dati veri si parte senza accessi: li ritrova l'avvio dalle sessioni salvate.
+  accessi: { IT: !datiVeri, CH: !datiVeri },
   conti: copia(contiFinti),
   lingua: 'it',
   chat: chatVuota,
@@ -107,6 +121,7 @@ const statoIniziale = (): Stato => ({
   telefono: { blocco: false, ricercheOffline: false },
   dueFattori: { IT: false, CH: false },
   ruoli: { IT: 'user', CH: 'user' },
+  utenti: { IT: { ...utenteDiProva }, CH: { ...utenteDiProva } },
   generazione: 0,
 });
 
@@ -145,12 +160,16 @@ type Azioni = {
   apriChatSalvata: (elemento: Elemento) => void;
   esci: () => void;
   eliminaAccesso: (codice: string) => void;
+  // Accesso vero (tappa 2): chi è entrato in un paese, con il ruolo letto dal profilo.
+  entrato: (codice: string, dati: { ruolo: string } & Utente) => void;
+  uscito: (codice: string) => void;
   scenario: (nome: Scenario) => void;
 };
 
 type Valore = Stato & {
   azioni: Azioni;
   conto: Conto;
+  utente: Utente;
   etichetteAttive: Etichetta[];
   elementiAttivi: Elemento[];
   documentiAttivi: DocumentoArchivio[];
@@ -175,6 +194,11 @@ export function StatoProvider({ children }: { children: ReactNode }) {
     }, DURATA_PASSO_MS);
     return () => clearTimeout(t);
   }, [stato.chat.inCorso, stato.chat.passo, stato.paese]);
+
+  // Con i dati veri il paese attivo resta sul telefono.
+  useEffect(() => {
+    if (datiVeri) void salvaPaese(stato.paese);
+  }, [stato.paese]);
 
   const scegliPaese = useCallback((codice: string) => {
     setStato((s) => ({ ...s, paese: codice }));
@@ -369,6 +393,25 @@ export function StatoProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const entrato = useCallback((codice: string, dati: { ruolo: string } & Utente) => {
+    const { ruolo, ...utente } = dati;
+    setStato((s) => ({
+      ...s,
+      accessi: { ...s.accessi, [codice]: true },
+      ruoli: { ...s.ruoli, [codice]: ruolo },
+      utenti: { ...s.utenti, [codice]: utente },
+    }));
+  }, []);
+
+  const uscito = useCallback((codice: string) => {
+    setStato((s) => ({
+      ...s,
+      chat: s.paese === codice ? chatVuota : s.chat,
+      accessi: { ...s.accessi, [codice]: false },
+      ruoli: { ...s.ruoli, [codice]: 'user' },
+    }));
+  }, []);
+
   const scenario = useCallback((nome: Scenario) => {
     setStato((prima) => ({ ...costruisciScenario(nome), generazione: prima.generazione + 1 }));
   }, []);
@@ -395,6 +438,8 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       apriChatSalvata,
       esci,
       eliminaAccesso,
+      entrato,
+      uscito,
       scenario,
     }),
     [
@@ -418,6 +463,8 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       apriChatSalvata,
       esci,
       eliminaAccesso,
+      entrato,
+      uscito,
       scenario,
     ],
   );
@@ -427,6 +474,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       ...stato,
       azioni,
       conto: stato.conti[stato.paese],
+      utente: stato.utenti[stato.paese] ?? utenteDiProva,
       etichetteAttive: stato.etichette[stato.paese] ?? [],
       elementiAttivi: stato.elementi[stato.paese] ?? [],
       documentiAttivi: stato.documenti[stato.paese] ?? [],
