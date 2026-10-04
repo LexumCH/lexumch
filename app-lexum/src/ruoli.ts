@@ -35,3 +35,19 @@ export function gruppoRuolo(ruolo: string): GruppoRuolo {
 export function nomeRuolo(ruolo: string): string {
   return nomi[ruolo] ?? 'Account professionale';
 }
+
+// Strumenti dello studio nell'app, per ruolo (deciso da Antonino il 04-10-2026):
+// - avvocati: mandati, calendario e fatture;
+// - commercialisti e fiduciari: per ora calendario e fatture (la loro parte di mandati è in revisione);
+// - gli altri ruoli: niente strumenti dello studio nell'app (li trovano sul sito).
+export type StrumentoStudio = 'mandati' | 'calendario' | 'fatture';
+
+const strumenti: Record<string, StrumentoStudio[]> = {
+  avvocato: ['mandati', 'calendario', 'fatture'],
+  commercialista: ['calendario', 'fatture'],
+  fiduciario: ['calendario', 'fatture'],
+};
+
+export function strumentiStudio(ruolo: string): StrumentoStudio[] {
+  return strumenti[ruolo] ?? [];
+}
