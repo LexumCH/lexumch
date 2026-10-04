@@ -106,7 +106,9 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - [x] «Dati di fatturazione» nel Profilo: senza quelli, e senza i dati del cliente, la fattura non parte e l'app dice cosa manca.
   - [ ] Dati veri: tabelle `pratiche`, `controparti`, `termini_processuali`, `udienze`, `appuntamenti`, `fatture`, `righe_fattura`, `pagamenti_fattura`; edge function `crea-fattura` e `genera-fattura-pdf`; RPC `genera_numero_fattura`. I totali li calcolano i trigger del database.
   - [ ] Dati veri dei clienti e dei documenti: `profiles` (role='cliente'), `create-cliente`, `update-cliente`, `avvocato-cliente-actions`, `lex-assistente-studio`; `note_interne`, `ticket_assistenza`, `messaggi_ticket`, `documenti` (portale); `archivio_documenti`, `categorie_archivio`, `sottocategorie_archivio`, `process-archivio`, `salva-documento-pdf`.
-  - [ ] Fatture da allineare a quanto pubblicato sui siti il 04-10-2026: in Italia regime RF01/RF19, cassa, nota di credito, natura IVA, bollo, XML FatturaPA; in Svizzera QR-IBAN, Cantone, numero IDI con cifra di controllo, IVA sì/no, lingua della fattura.
+  - [x] Fatture allineate a quanto pubblicato sui siti il 04-10-2026:
+    - Italia: regime RF01/RF19 e cassa di chi emette, natura IVA con IVA 0, spese anticipate esenti (art. 15), bollo da 2 € proposto da solo, nota di credito (TD04), XML FatturaPA, elimina solo se non emessa;
+    - Svizzera: aliquote 8,1/2,6/3,8%, IVA solo se iscritti nel registro (di base no), numero IDI con cifra di controllo, QR-IBAN, Cantone, lingua della fattura, annulla solo se emessa.
   - [ ] Prima dei dati veri servono le decisioni e le correzioni lato sito in `docs/DA-FARE-ANTONINO.md` (fattura elettronica IT, QR-fattura CH, colonne mancanti, fiduciari).
 
 - [ ] **7. Rifiniture.**

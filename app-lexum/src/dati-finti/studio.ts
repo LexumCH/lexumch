@@ -171,13 +171,27 @@ export type Appuntamento = {
   origine?: 'termine' | 'udienza' | 'mandato'; // eventi creati da altro, si gestiscono lì
 };
 
-export type RigaFattura = { id: string; descrizione: string; quantita: number; prezzo: number };
-export type StatoFattura = 'in_attesa' | 'pagata' | 'annullata';
+// Una riga con natura (N1, spesa anticipata per conto del cliente, art. 15 DPR 633/72) resta fuori
+// da cassa, IVA e ritenuta (solo IT).
+export type RigaFattura = {
+  id: string;
+  descrizione: string;
+  quantita: number;
+  prezzo: number;
+  natura?: 'N1';
+};
+// «emessa» è lo stato delle note di credito (IT), che non si pagano.
+export type StatoFattura = 'in_attesa' | 'pagata' | 'annullata' | 'emessa';
 export type Pagamento = { id: string; data: string; importo: number; metodo: string };
+
+// Regime fiscale (IT): RF01 ordinario, RF19 forfettario (niente IVA, natura N2.2, niente ritenuta).
+export type RegimeIT = 'RF01' | 'RF19';
+// Cassa di previdenza (IT), colonna `cassa_previdenza` con questi valori.
+export type CassaIT = 'cassa_forense' | 'cnpadc' | 'cnpr' | 'nessuna';
 
 export type Fattura = {
   id: string;
-  numero: string; // F-AAAA-NNN
+  numero: string; // F-AAAA-NNN (anche le note di credito, stessa numerazione)
   clienteId: string;
   praticaId?: string;
   emessa: string; // ISO
@@ -185,36 +199,48 @@ export type Fattura = {
   stato: StatoFattura;
   righe: RigaFattura[];
   // IT
-  cpa?: number; // %
+  tipo?: 'TD01' | 'TD04'; // TD04: nota di credito
+  origineId?: string; // la fattura stornata da questa nota di credito
+  regime?: RegimeIT; // quello di chi emette, al momento della fattura
+  cassa?: CassaIT;
+  cpa?: number; // % della cassa
   iva: number; // % (CH: aliquota IVA; 0 se esente)
   ritenuta?: number; // %, se applicata
+  natura?: string; // natura IVA con IVA 0 (N2.2 nel forfettario, scelta nell'ordinario)
+  riferimentoNormativo?: string;
+  bollo?: boolean; // imposta di bollo 2 €
+  bolloACaricoCliente?: boolean; // di base sì
   // CH
   esenteIva?: boolean;
-  motivoEsenzione?: string;
+  motivoEsenzione?: string; // testo libero, oppure 'non_assoggettato' (lo impone il database)
   periodo?: string; // data o periodo della prestazione (obbligatorio in CH)
+  lingua?: 'it' | 'de' | 'fr'; // lingua della fattura (CH)
   metodo: string;
   iban?: string;
   notePubbliche?: string;
   pagamenti: Pagamento[];
-  pdf?: boolean;
+  pdf?: boolean; // PDF generato: la fattura è emessa
 };
 
-// Dati di fatturazione del professionista (Profilo → «Dati di fatturazione»).
-// Sui siti esistono quasi tutti come colonne di `profiles`, ma non si possono inserire dal Profilo.
+// Dati di fatturazione del professionista: dal 04-10-2026 sui siti si scrivono nel Profilo
+// («Dati di fatturazione»), colonne di `profiles`.
 export type DatiFatturazione = {
   // IT
   piva?: string;
   cf?: string;
-  regime?: 'ordinario' | 'forfettario';
-  cassa?: 'TC01' | 'TC04'; // TC01 Cassa Forense, TC04 CNPADC (sui siti questa colonna non c'è)
+  regime?: RegimeIT; // regime_fiscale, di base RF01
+  cassa?: CassaIT; // cassa_previdenza: di base cnpadc per i commercialisti, cassa_forense per gli altri
+  codiceDestinatario?: string; // codice_destinatario_sdi (7 caratteri)
   // CH
-  numeroIva?: string; // CHE-xxx.xxx.xxx IVA
-  assoggettatoIva?: boolean;
+  numeroIva?: string; // numero IDI (`uid`): CHE-123.456.789, obbligatorio se assoggettato
+  assoggettatoIva?: boolean; // iva_attiva, di base no: senza, le fatture escono senza IVA
+  qrIban?: string; // qr_iban, facoltativo
+  cantone?: string;
   // comuni
   via?: string;
   civico?: string;
   cap?: string;
-  citta?: string;
+  citta?: string; // IT comune, CH località
   provincia?: string;
   paese?: string;
   iban?: string;
@@ -779,8 +805,8 @@ function avvocatoIT(): DatiStudio {
     // commercialista e fiduciario qui sotto mostrano cosa succede quando mancano.
     fatturazione: {
       paese: 'IT',
-      cassa: 'TC01',
-      regime: 'ordinario',
+      cassa: 'cassa_forense',
+      regime: 'RF01',
       piva: '01234567897',
       cf: 'RSSGLI85M41F205Z',
       via: 'Corso di Porta Romana',
@@ -1046,8 +1072,9 @@ function avvocatoCH(): DatiStudio {
       cap: '6900',
       citta: 'Lugano',
       iban: 'CH93 0076 2011 6238 5295 7',
+      cantone: 'TI',
       assoggettatoIva: true,
-      numeroIva: 'CHE-216.874.390 IVA',
+      numeroIva: 'CHE-216.874.394',
     },
   };
 }
@@ -1106,7 +1133,7 @@ function commercialistaIT(): DatiStudio {
         pagamenti: [],
       },
     ],
-    fatturazione: { paese: 'IT', cassa: 'TC04', regime: 'ordinario' },
+    fatturazione: { paese: 'IT', cassa: 'cnpadc', regime: 'RF01' },
     ...senzaDocumenti,
   };
 }

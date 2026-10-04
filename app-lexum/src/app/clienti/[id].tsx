@@ -29,7 +29,7 @@ import {
 } from '@/fogli/FogliDocumenti';
 import { useTesti } from '@/lingue/useTesti';
 import { indietro } from '@/navigazione';
-import { importo, statoFattura, totaliFattura } from '@/studio/calcoli';
+import { importo, statoFattura, totaliConNote } from '@/studio/calcoli';
 import { dataPerCampo, documentiDi } from '@/studio/clienti';
 import { quandoFattura, statiFattura, testoStato } from '@/studio/fatturazione';
 import { dataBreve, dataCompleta, giorniDaOggi, ora } from '@/studio/formati';
@@ -258,7 +258,7 @@ function Panoramica({
   const aperte = pratiche.filter((p) => p.clienteId === c.id && p.stato === 'aperta').length;
   const daIncassare = fatture
     .filter((f) => f.clienteId === c.id && ['in_attesa', 'scaduta'].includes(statoFattura(f)))
-    .reduce((s, f) => s + totaliFattura(f, paese).residuo, 0);
+    .reduce((s, f) => s + totaliConNote(f, fatture, paese).residuo, 0);
   const prossimi = appuntamenti
     .filter((a) => a.clienteId === c.id && a.stato === 'programmato' && giorniDaOggi(a.inizio) >= 0)
     .sort((a, b) => a.inizio.localeCompare(b.inizio))
@@ -746,10 +746,10 @@ function Pagamenti({ cliente, onNuova }: { cliente: Cliente; onNuova: () => void
     .filter((f) => f.clienteId === cliente.id)
     .sort((a, b) => b.emessa.localeCompare(a.emessa));
   const aperte = sue.filter((f) => ['in_attesa', 'scaduta'].includes(statoFattura(f)));
-  const daIncassare = aperte.reduce((s, f) => s + totaliFattura(f, paese).residuo, 0);
+  const daIncassare = aperte.reduce((s, f) => s + totaliConNote(f, fatture, paese).residuo, 0);
   const incassato = sue
     .filter((f) => statoFattura(f) !== 'annullata')
-    .reduce((s, f) => s + totaliFattura(f, paese).pagato, 0);
+    .reduce((s, f) => s + totaliConNote(f, fatture, paese).pagato, 0);
   return (
     <View style={{ gap: 14 }}>
       <View style={stili.numeri}>
@@ -773,7 +773,7 @@ function Pagamenti({ cliente, onNuova }: { cliente: Cliente; onNuova: () => void
       <View style={{ marginHorizontal: -20 }}>
         {sue.map((f) => {
           const stato = statoFattura(f);
-          const tot = totaliFattura(f, paese);
+          const tot = totaliConNote(f, fatture, paese);
           return (
             <Riga
               key={f.id}

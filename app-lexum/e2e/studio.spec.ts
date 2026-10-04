@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { erroriConsole, etichetta, tocca, vedo } from './aiuto';
+import { erroriConsole, etichetta, testo, tocca, vedo } from './aiuto';
 
 // Lo Studio dei professionisti: pratiche, calendario e fatture (Italia e Svizzera), con i dati finti.
 // Si parte dall'elenco delle schermate, che prepara il ruolo giusto (avvocato, commercialista…).
@@ -85,12 +85,19 @@ test('fattura svizzera: esente IVA con il motivo e il periodo della prestazione'
   await tocca(page, 'Aggiungi la prestazione', true);
   await vedo(page, 'CHF 500.00');
   await avanti(page).click();
-  await page.getByRole('radio', { name: 'Esente' }).filter({ visible: true }).first().click();
-  await vedo(page, /Non assoggettato all’IVA/);
+  // le tre aliquote svizzere e «Esente»; il motivo è facoltativo, con due suggerimenti
+  await vedo(page, 'Normale 8,1%, ridotta 2,6%, alloggio 3,8%.');
+  await tocca(page, 'Esente', true);
+  await tocca(page, 'Prestazione a un cliente all’estero (art. 8 LIVA)', true);
+  await expect(etichetta(page, "Motivo dell'esenzione (facoltativo, va in fattura)")).toHaveValue(
+    'Prestazione a un cliente all’estero (art. 8 LIVA)',
+  );
+  await page.getByRole('radio', { name: 'Deutsch' }).click();
   await vedo(page, 'Scrivi la data o il periodo della prestazione.');
   await etichetta(page, 'Data o periodo della prestazione').fill('Settembre 2026');
   await avanti(page).click();
   await vedo(page, 'Esente', true);
+  await vedo(page, 'Deutsch', true);
   await tocca(page, 'Crea la fattura', true);
   await vedo(page, 'Da incassare');
   await vedo(page, 'CHF 500.00');
@@ -112,6 +119,94 @@ test('senza dati di fatturazione la fattura non parte; completati, sì', async (
   await etichetta(page, 'CAP').fill('25121');
   await etichetta(page, 'Comune').fill('Brescia');
   await etichetta(page, 'Provincia').fill('bs');
+  await etichetta(page, 'Codice destinatario SDI').fill('ABC');
+  await vedo(page, 'Il codice SDI ha 7 caratteri, lettere e numeri.');
+  await etichetta(page, 'Codice destinatario SDI').fill('');
+  // il commercialista ha di base la CNPADC
+  await expect(
+    page.getByRole('button', { name: 'CNPADC, dottori commercialisti (4%)' }).filter({ visible: true }),
+  ).toHaveAttribute('aria-selected', 'true');
   await tocca(page, 'Salva', true);
   await vedo(page, 'Passo 1 di 4 · Cliente');
+});
+
+test('nota di credito di una fattura italiana emessa', async ({ page }) => {
+  await tocca(page, 'S6 · Fattura: dettaglio (IT)');
+  await etichetta(page, 'Altre azioni').click();
+  await tocca(page, 'Storna la fattura, tutta o in parte');
+  await vedo(page, 'Passo 2 di 4 · Prestazioni');
+  await vedo(page, /Per uno storno totale lascia le righe come sono/);
+  await page.getByRole('button', { name: 'Avanti', exact: true }).filter({ visible: true }).first().click();
+  await vedo(page, 'La nota di credito ripete IVA, cassa e ritenuta della fattura F-2026-008.');
+  await page.getByRole('button', { name: 'Avanti', exact: true }).filter({ visible: true }).first().click();
+  await tocca(page, 'Crea la nota di credito', true);
+  await vedo(page, 'A storno della fattura F-2026-008');
+  await tocca(page, 'A storno della fattura F-2026-008');
+  await vedo(page, 'Annullata', true);
+  await vedo(page, 'Note di credito', true);
+});
+
+test('fattura italiana non ancora emessa: si elimina; XML FatturaPA pronto', async ({ page }) => {
+  await tocca(page, 'S5 · Fatture e scadenzario (IT)');
+  await tocca(page, 'F-2026-006');
+  await etichetta(page, 'Altre azioni').click();
+  await tocca(page, 'XML FatturaPA', true);
+  // a Lucia Bianchi mancano codice fiscale e indirizzo: l'XML non si prepara
+  await vedo(page, /Per preparare l’XML sistema prima: codice fiscale e indirizzo/);
+  await page.keyboard.press('Escape');
+  await page.goBack();
+  await tocca(page, 'F-2026-006');
+  await etichetta(page, 'Altre azioni').click();
+  await tocca(page, 'Elimina', true);
+  await tocca(page, 'Elimina per sempre', true);
+  await vedo(page, 'Da incassare');
+  await expect(testo(page, 'F-2026-006')).toBeHidden();
+});
+
+test('fattura italiana con IVA 0: natura obbligatoria, spesa anticipata e bollo proposto', async ({
+  page,
+}) => {
+  await tocca(page, 'S7 · Nuova fattura (IT)');
+  await tocca(page, 'Marco Ferrari', true);
+  await avanti(page).click();
+  await etichetta(page, 'Descrizione').fill('Consulenza a cliente estero');
+  await etichetta(page, 'Prezzo (€)').fill('300');
+  await tocca(page, 'Aggiungi la prestazione', true);
+  await etichetta(page, 'Descrizione').fill('Contributo unificato anticipato');
+  await etichetta(page, 'Prezzo (€)').fill('98');
+  await page.getByRole('switch', { name: /Spesa anticipata per conto del cliente/ }).click();
+  await tocca(page, 'Aggiungi la prestazione', true);
+  await vedo(page, 'Spese esenti art. 15', true);
+  await avanti(page).click();
+  await etichetta(page, 'IVA (%)').fill('0');
+  await vedo(page, "Con IVA 0% indica la natura dell'operazione.");
+  await tocca(page, 'N2.1 – Non soggetta (artt. 7-7septies, es. cliente estero)', true);
+  // senza IVA si superano 77,47 €: il bollo da 2 € è già acceso
+  await expect(page.getByRole('switch', { name: /Imposta di bollo 2 €/ })).toHaveAttribute(
+    'aria-checked',
+    'true',
+  );
+  await avanti(page).click();
+  await vedo(page, 'Imposta di bollo', true);
+  // 300 + cassa 12 + esenti 98 + bollo 2 = 412 €
+  await vedo(page, '412,00 €');
+  await tocca(page, 'Crea la fattura', true);
+  await vedo(page, 'IVA 0% · N2.1 Non soggetta (artt. 7-7septies, es. cliente estero)');
+});
+
+test('dati di fatturazione svizzeri: IVA sì vuole il numero IDI con la cifra di controllo', async ({
+  page,
+}) => {
+  await tocca(page, 'S9 · Dati di fatturazione (CH)');
+  await expect(etichetta(page, 'Numero IDI')).toHaveValue('CHE-216.874.394');
+  await etichetta(page, 'Numero IDI').fill('CHE-216.874.390');
+  await vedo(page, /Numero IDI non valido/);
+  await etichetta(page, 'Numero IDI').fill('');
+  await vedo(page, "Se sei assoggettato all'IVA serve il numero IDI.");
+  await page.getByRole('radio', { name: 'No' }).click();
+  await vedo(page, 'Non assoggettato: le tue fatture escono senza IVA.');
+  await etichetta(page, 'QR-IBAN (facoltativo)').fill('CH93 0076 2011 6238 5295 7');
+  await vedo(page, 'Non è un QR-IBAN svizzero (banca tra 30000 e 31999).');
+  await etichetta(page, 'QR-IBAN (facoltativo)').fill('CH44 3199 9123 0008 8901 2');
+  await tocca(page, 'Salva', true);
 });

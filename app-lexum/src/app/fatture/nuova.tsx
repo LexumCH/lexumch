@@ -18,22 +18,28 @@ import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Riga } from '@/componenti/Riga';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
-import type { RigaFattura } from '@/dati-finti/studio';
+import type { Fattura, RigaFattura } from '@/dati-finti/studio';
+import type { Lingua } from '@/lingue';
 import { useTesti } from '@/lingue/useTesti';
 import { strumentiStudio } from '@/ruoli';
-import { importo, totaliFattura } from '@/studio/calcoli';
+import { bolloDovuto, importo, totaliFattura } from '@/studio/calcoli';
 import { CampoData, Scelta, leggiData, traGiorni } from '@/studio/Campi';
 import {
-  aliquotaIvaCH,
+  aliquoteCH,
+  cassaPredefinita,
+  eQrIban,
   elenco,
   leggiImporto,
   mancanoAlCliente,
   mancanoAlProfessionista,
   metodiPagamento,
   motiviEsenzioneCH,
+  natureIva,
   nomeContributo,
   nomeMetodo,
   nomeMotivo,
+  percento,
+  senzaRecapitoSdi,
 } from '@/studio/fatturazione';
 import { dataCompleta, dataNumerica, nomeMese } from '@/studio/formati';
 import { TotaliFattura } from '@/studio/TotaliFattura';
@@ -47,40 +53,66 @@ const passi = ['cliente', 'prestazioni', 'fisco', 'controlla'] as const;
 let contatoreRighe = 0;
 const idRiga = () => `nr${Date.now().toString(36)}${(contatoreRighe++).toString(36)}`;
 
-// S7 · Nuova fattura, a passi. Due processi diversi:
-// - Italia: contributo cassa (CPA 4%), IVA 22% su imponibile + CPA, ritenuta d'acconto 20% se il cliente
-//   è sostituto d'imposta; per gli avvocati c'è il calcolatore della parcella;
-// - Svizzera: IVA 8,1% oppure esente con il motivo, data o periodo della prestazione, QR-fattura.
+const nomiLingue: Record<Lingua, string> = { it: 'Italiano', de: 'Deutsch', fr: 'Français' };
+
+// S7 · Nuova fattura, a passi. Due processi diversi, come i siti dal 04-10-2026:
+// - Italia: regime e cassa di chi emette; ordinario con cassa (CPA 4%), IVA 22% su imponibile + cassa,
+//   natura IVA se l'IVA è 0, ritenuta d'acconto se il cliente è sostituto d'imposta; forfettario senza IVA
+//   (natura N2.2) e senza ritenuta. Spese anticipate esenti (art. 15), imposta di bollo da 2 € sopra 77,47 €
+//   senza IVA. Per gli avvocati c'è il calcolatore della parcella.
+//   ?storno=<id>: nota di credito (TD04) della fattura, con le sue righe e i suoi parametri fiscali.
+// - Svizzera: IVA 8,1%, 2,6% o 3,8%, oppure esente con il motivo; senza iscrizione nel registro IVA la fattura
+//   esce senza IVA. Lingua della fattura, data o periodo della prestazione, QR-fattura.
 // Prima di tutto controlla i dati: senza quelli del professionista e del cliente la fattura non parte.
 export default function NuovaFattura() {
-  const parametri = useLocalSearchParams<{ cliente?: string; pratica?: string }>();
+  const parametri = useLocalSearchParams<{ cliente?: string; pratica?: string; storno?: string }>();
   const { paese, ruoli } = useStato();
   const { clienti, pratiche, fatture, fatturazione, parcella, azioni } = useStudio();
   const { t, lingua } = useTesti();
   const avvocato = strumentiStudio(ruoli[paese] ?? 'user').includes('mandati');
   const metodi = metodiPagamento[paese] ?? metodiPagamento.IT;
-  const forfettario = paese === 'IT' && fatturazione.regime === 'forfettario';
+  // nota di credito: solo di una fattura italiana emessa
+  const origine: Fattura | undefined =
+    paese === 'IT' ? fatture.find((f) => f.id === parametri.storno && f.tipo !== 'TD04') : undefined;
+  const nc = !!origine;
+  const regime = origine?.regime ?? fatturazione.regime ?? 'RF01';
+  const forfettario = paese === 'IT' && regime === 'RF19';
+  const cassa = origine?.cassa ?? fatturazione.cassa ?? cassaPredefinita(ruoli[paese] ?? '');
+  const contributo = paese === 'IT' ? nomeContributo(cassa, lingua) : null;
+  const assoggettato = paese === 'CH' && !!fatturazione.assoggettatoIva;
 
-  const [passo, setPasso] = useState(0);
-  const [clienteId, setClienteId] = useState<string | null>(parametri.cliente ?? null);
-  const [praticaId, setPraticaId] = useState<string | null>(parametri.pratica ?? null);
-  const [righe, setRighe] = useState<RigaFattura[]>([]);
+  const [passo, setPasso] = useState(nc ? 1 : 0);
+  const [clienteId, setClienteId] = useState<string | null>(origine?.clienteId ?? parametri.cliente ?? null);
+  const [praticaId, setPraticaId] = useState<string | null>(
+    origine ? (origine.praticaId ?? null) : (parametri.pratica ?? null),
+  );
+  const [righe, setRighe] = useState<RigaFattura[]>(() =>
+    origine ? origine.righe.map((r) => ({ ...r, id: idRiga() })) : [],
+  );
   const [descrizione, setDescrizione] = useState('');
   const [quantita, setQuantita] = useState('1');
   const [prezzo, setPrezzo] = useState('');
+  const [spesaEsente, setSpesaEsente] = useState(false);
   // IT
-  const [cpa, setCpa] = useState('4');
-  const [iva, setIva] = useState(forfettario ? '0' : '22');
-  const [ritenuta, setRitenuta] = useState<boolean | null>(null); // null: decide il tipo di cliente
+  const [cpa, setCpa] = useState(String(origine?.cpa ?? 4).replace('.', ','));
+  const [iva, setIva] = useState(String(origine?.iva ?? (forfettario ? 0 : 22)).replace('.', ','));
+  const [ritenuta, setRitenuta] = useState<boolean | null>(origine ? !!origine.ritenuta : null); // null: decide il tipo di cliente
+  const [natura, setNatura] = useState<string | null>(origine?.natura ?? null);
+  const [riferimento, setRiferimento] = useState(origine?.riferimentoNormativo ?? '');
+  const [bollo, setBollo] = useState<boolean | null>(origine ? !!origine.bollo : null); // null: lo propone l'app
+  const [bolloCliente, setBolloCliente] = useState(origine?.bolloACaricoCliente ?? true);
   // CH
-  const [esente, setEsente] = useState(paese === 'CH' && fatturazione.assoggettatoIva === false);
-  const [motivo, setMotivo] = useState<string | null>(esente ? motiviEsenzioneCH[0] : null);
+  const [aliquota, setAliquota] = useState<number | 'esente'>(assoggettato ? aliquoteCH[0] : 'esente');
+  const [motivo, setMotivo] = useState('');
   const [periodo, setPeriodo] = useState('');
+  const [linguaFattura, setLinguaFattura] = useState<Lingua>(lingua);
   // comuni
   const [emessa, setEmessa] = useState(() => dataNumerica(new Date().toISOString()));
-  const [scadenza, setScadenza] = useState(() => dataNumerica(traGiorni(30).toISOString()));
-  const [metodo, setMetodo] = useState(metodi[0]);
-  const [note, setNote] = useState('');
+  const [scadenza, setScadenza] = useState(() => (nc ? '' : dataNumerica(traGiorni(30).toISOString())));
+  const [metodo, setMetodo] = useState(origine?.metodo ?? metodi[0]);
+  const [note, setNote] = useState(() =>
+    origine ? t('fatture.nc.aStornoDel', { numero: origine.numero, data: dataNumerica(origine.emessa) }) : '',
+  );
 
   // Le righe del calcolatore della parcella arrivano da lì, attraverso lo stato dello Studio.
   const [parcellaVista, setParcellaVista] = useState<Parcella | null>(null);
@@ -117,19 +149,42 @@ export default function NuovaFattura() {
   const mancaCliente = cliente ? mancanoAlCliente(cliente, paese, lingua) : [];
   const praticheCliente = pratiche.filter((p) => p.clienteId === clienteId && p.stato === 'aperta');
   const conRitenuta = paese === 'IT' && !forfettario && (ritenuta ?? !!cliente?.giuridica);
+  const esente = paese === 'CH' && aliquota === 'esente';
 
-  const fiscale = {
-    cpa: paese === 'IT' ? (leggiImporto(cpa, 'IT') ?? 0) : undefined,
-    iva: paese === 'IT' ? (leggiImporto(iva, 'IT') ?? 0) : esente ? 0 : aliquotaIvaCH,
+  const ivaIT = forfettario ? 0 : (leggiImporto(iva, 'IT') ?? 0);
+  const cpaIT = contributo ? (leggiImporto(cpa, 'IT') ?? 0) : 0;
+  const naturaIT = forfettario ? 'N2.2' : ivaIT === 0 ? (natura ?? undefined) : undefined;
+  const base = {
+    cpa: paese === 'IT' ? cpaIT : undefined,
+    iva: paese === 'IT' ? ivaIT : esente ? 0 : (aliquota as number),
     ritenuta: conRitenuta ? 20 : undefined,
     esenteIva: paese === 'CH' ? esente : undefined,
-    motivoEsenzione: paese === 'CH' && esente ? (motivo ?? undefined) : undefined,
+    motivoEsenzione: paese === 'CH' && esente ? motivo.trim() || undefined : undefined,
+  };
+  const provvisori = totaliFattura({ ...base, righe, pagamenti: [] }, paese);
+  // Il bollo lo propone l'app finché non lo tocchi (come il sito).
+  const serveBollo = paese === 'IT' && bolloDovuto(provvisori, ivaIT);
+  const conBollo = paese === 'IT' && (bollo ?? serveBollo);
+  const fiscale = {
+    ...base,
+    natura: paese === 'IT' ? naturaIT : undefined,
+    riferimentoNormativo:
+      paese === 'IT' && naturaIT && !forfettario ? riferimento.trim() || undefined : undefined,
+    bollo: conBollo || undefined,
+    bolloACaricoCliente: conBollo ? bolloCliente : undefined,
+    tipo: nc ? ('TD04' as const) : undefined,
   };
   const totali = totaliFattura({ ...fiscale, righe, pagamenti: [] }, paese);
 
   const giornoEmessa = leggiData(emessa);
-  const giornoScadenza = leggiData(scadenza);
-  const ibanMancante = metodo !== 'Contanti' && !fatturazione.iban;
+  const giornoScadenza = nc ? null : leggiData(scadenza);
+  // Svizzera: per la QR-fattura va bene anche il QR-IBAN; per il bonifico serve l'IBAN del conto.
+  const ibanFattura =
+    paese === 'CH' && metodo === 'QR-fattura'
+      ? (fatturazione.qrIban ?? fatturazione.iban)
+      : fatturazione.iban;
+  const ibanMancante = metodo !== 'Contanti' && !ibanFattura;
+  const ibanQrPerBonifico = paese === 'CH' && metodo === 'Bonifico' && !!ibanFattura && eQrIban(ibanFattura);
   const percentualiValide =
     paese !== 'IT' || (leggiImporto(cpa, 'IT') != null && leggiImporto(iva, 'IT') != null);
 
@@ -142,7 +197,7 @@ export default function NuovaFattura() {
         : null,
     righe.length === 0
       ? t('fatture.nuova.blocchi.prestazione')
-      : totali.imponibile <= 0
+      : totali.imponibile + totali.esenti <= 0
         ? t('fatture.nuova.blocchi.zero')
         : null,
     !giornoEmessa
@@ -151,13 +206,15 @@ export default function NuovaFattura() {
         ? t('fatture.nuova.blocchi.scadenzaPrima')
         : !percentualiValide
           ? t('fatture.nuova.blocchi.percentuali')
-          : paese === 'CH' && !periodo.trim()
-            ? t('fatture.nuova.blocchi.periodo')
-            : paese === 'CH' && esente && !motivo
-              ? t('fatture.nuova.blocchi.motivo')
+          : paese === 'IT' && !nc && !forfettario && ivaIT === 0 && !natura
+            ? t('fatture.fisco.naturaManca')
+            : paese === 'CH' && !periodo.trim()
+              ? t('fatture.nuova.blocchi.periodo')
               : ibanMancante
                 ? t('fatture.nuova.blocchi.iban')
-                : null,
+                : ibanQrPerBonifico
+                  ? t('fatture.fisco.ibanQr')
+                  : null,
     null,
   ][passo];
 
@@ -173,11 +230,18 @@ export default function NuovaFattura() {
     if (!rigaPronta || prezzoRiga == null) return;
     setRighe((r) => [
       ...r,
-      { id: idRiga(), descrizione: descrizione.trim(), quantita: quantitaRiga, prezzo: prezzoRiga },
+      {
+        id: idRiga(),
+        descrizione: descrizione.trim(),
+        quantita: quantitaRiga,
+        prezzo: prezzoRiga,
+        natura: spesaEsente ? 'N1' : undefined,
+      },
     ]);
     setDescrizione('');
     setQuantita('1');
     setPrezzo('');
+    setSpesaEsente(false);
   };
 
   const prossimoNumero = (() => {
@@ -197,9 +261,13 @@ export default function NuovaFattura() {
       scadenza: giornoScadenza?.toISOString(),
       righe,
       ...fiscale,
+      origineId: origine?.id,
+      regime: paese === 'IT' ? regime : undefined,
+      cassa: paese === 'IT' ? cassa : undefined,
       periodo: paese === 'CH' ? periodo.trim() : undefined,
+      lingua: paese === 'CH' ? linguaFattura : undefined,
       metodo,
-      iban: metodo !== 'Contanti' ? fatturazione.iban : undefined,
+      iban: metodo !== 'Contanti' ? ibanFattura : undefined,
       notePubbliche: note.trim() || undefined,
     });
     router.replace({ pathname: '/fatture/[id]', params: { id } });
@@ -215,7 +283,7 @@ export default function NuovaFattura() {
     <Schermata>
       <Intestazione
         sinistra={<BottoneIndietro ripiego="/fatture" etichetta={t('comune.annulla')} />}
-        titolo={t('fatture.nuova.titolo')}
+        titolo={nc ? t('fatture.nc.titolo') : t('fatture.nuova.titolo')}
       />
       <View style={stili.passi}>
         <Text style={stili.passiTesto}>
@@ -229,7 +297,19 @@ export default function NuovaFattura() {
       </View>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={stili.corpo} keyboardShouldPersistTaps="handled">
-          {passo === 0 ? (
+          {passo === 0 && origine ? (
+            <>
+              <Avviso tono="info" testo={t('fatture.nc.aStorno', { numero: origine.numero })} />
+              <ElencoDefinizioni
+                larghezzaTermine={96}
+                voci={[
+                  [t('fatture.voci.cliente'), nomeCliente(clienti, origine.clienteId)],
+                  [t('fatture.voci.emessa'), dataCompleta(origine.emessa, lingua)],
+                ]}
+              />
+            </>
+          ) : null}
+          {passo === 0 && !origine ? (
             <>
               <View style={{ gap: 8 }}>
                 <Testo tipo="small" colore={colori.fg2}>
@@ -254,6 +334,21 @@ export default function NuovaFattura() {
                   })}
                 />
               ) : null}
+              {paese === 'IT' && cliente && (cliente.codiceDestinatario || cliente.pecFatturazione) ? (
+                <Testo tipo="cap">
+                  {t('fatture.fisco.destinatario', {
+                    destinatario: [
+                      cliente.codiceDestinatario && `SDI ${cliente.codiceDestinatario}`,
+                      cliente.pecFatturazione && `PEC ${cliente.pecFatturazione}`,
+                    ]
+                      .filter(Boolean)
+                      .join(' · '),
+                  })}
+                </Testo>
+              ) : null}
+              {paese === 'IT' && cliente && senzaRecapitoSdi(cliente) ? (
+                <Avviso tono="info" testo={t('fatture.fisco.clienteSdi')} />
+              ) : null}
               {righe.length > 0 && !cliente ? (
                 <Avviso tono="info" testo={t('fatture.nuova.righePronte')} />
               ) : null}
@@ -275,6 +370,7 @@ export default function NuovaFattura() {
 
           {passo === 1 ? (
             <>
+              {nc ? <Testo tipo="cap">{t('fatture.nc.righe')}</Testo> : null}
               {righe.length > 0 ? (
                 <View>
                   {righe.map((r) => (
@@ -283,6 +379,7 @@ export default function NuovaFattura() {
                         <Text style={stili.rigaTesto}>{r.descrizione}</Text>
                         <Testo tipo="cap">
                           {`${String(r.quantita).replace('.', ',')} × ${importo(r.prezzo, paese)} = ${importo(r.quantita * r.prezzo, paese)}`}
+                          {r.natura ? ` · ${t('fatture.fisco.esente')}` : ''}
                         </Testo>
                       </View>
                       <PulsanteIcona
@@ -296,13 +393,19 @@ export default function NuovaFattura() {
                     <Text style={stili.subtotaleTesto}>{t('fatture.totali.imponibile')}</Text>
                     <Text style={stili.subtotaleTesto}>{importo(totali.imponibile, paese)}</Text>
                   </View>
+                  {totali.esenti > 0 ? (
+                    <View style={stili.subtotale}>
+                      <Text style={stili.subtotaleTesto}>{t('fatture.fisco.esenti')}</Text>
+                      <Text style={stili.subtotaleTesto}>{importo(totali.esenti, paese)}</Text>
+                    </View>
+                  ) : null}
                 </View>
               ) : (
                 <Testo tipo="small" colore={colori.fg3}>
                   {t('fatture.nuova.nessunaPrestazione')}
                 </Testo>
               )}
-              {avvocato && paese === 'IT' ? (
+              {avvocato && paese === 'IT' && !nc ? (
                 <Pulsante
                   titolo="Calcola parcella"
                   icona="calcolatrice"
@@ -342,6 +445,19 @@ export default function NuovaFattura() {
                   stile={{ flex: 2 }}
                 />
               </View>
+              {paese === 'IT' ? (
+                <View style={{ marginHorizontal: -20 }}>
+                  <Riga
+                    stretta
+                    ruolo="switch"
+                    selezionata={spesaEsente}
+                    titolo={t('fatture.fisco.spesa')}
+                    sottotitolo={t('fatture.fisco.spesaTesto')}
+                    destra={<Interruttore acceso={spesaEsente} />}
+                    onPress={() => setSpesaEsente(!spesaEsente)}
+                  />
+                </View>
+              ) : null}
               <Pulsante
                 titolo={t('fatture.nuova.aggiungiLaPrestazione')}
                 icona="piu"
@@ -356,24 +472,57 @@ export default function NuovaFattura() {
             <>
               {paese === 'IT' ? (
                 <>
-                  {forfettario ? <Avviso tono="info" testo={t('fatture.nuova.forfettario')} /> : null}
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <Campo
-                      etichetta={`${nomeContributo(fatturazione.cassa, lingua)} (%)`}
-                      value={cpa}
-                      onChangeText={setCpa}
-                      keyboardType="decimal-pad"
-                      stile={{ flex: 1 }}
-                    />
-                    <Campo
-                      etichetta={t('fatture.nuova.ivaPercento')}
-                      value={iva}
-                      onChangeText={setIva}
-                      keyboardType="decimal-pad"
-                      stile={{ flex: 1 }}
-                    />
-                  </View>
-                  {!forfettario ? (
+                  <Testo tipo="small" colore={colori.fg2}>
+                    {t(`fatture.fisco.regime.${regime}`)} · {t('fatture.fisco.cambia')}
+                  </Testo>
+                  {nc && origine ? (
+                    <Avviso tono="info" testo={t('fatture.nc.ripete', { numero: origine.numero })} />
+                  ) : null}
+                  {forfettario ? <Avviso tono="info" testo={t('fatture.fisco.forfettario')} /> : null}
+                  {!nc ? (
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      {contributo ? (
+                        <Campo
+                          etichetta={`${contributo} (%)`}
+                          value={cpa}
+                          onChangeText={setCpa}
+                          keyboardType="decimal-pad"
+                          stile={{ flex: 1 }}
+                        />
+                      ) : null}
+                      {!forfettario ? (
+                        <Campo
+                          etichetta={t('fatture.nuova.ivaPercento')}
+                          value={iva}
+                          onChangeText={setIva}
+                          keyboardType="decimal-pad"
+                          stile={{ flex: 1 }}
+                        />
+                      ) : null}
+                    </View>
+                  ) : null}
+                  {!nc && !forfettario && ivaIT === 0 ? (
+                    <>
+                      <View style={{ gap: 8 }}>
+                        <Testo tipo="small" colore={colori.fg2}>
+                          {t('fatture.fisco.natura')}
+                        </Testo>
+                        <Scelta
+                          voci={natureIva.map((n) => ({ valore: n.codice, titolo: n.etichetta }))}
+                          valore={natura}
+                          onCambia={setNatura}
+                          etichettaGruppo={t('fatture.fisco.natura')}
+                        />
+                      </View>
+                      <Campo
+                        etichetta={t('fatture.fisco.riferimento')}
+                        placeholder={t('fatture.fisco.riferimentoEsempio')}
+                        value={riferimento}
+                        onChangeText={setRiferimento}
+                      />
+                    </>
+                  ) : null}
+                  {!forfettario && !nc ? (
                     <View style={{ marginHorizontal: -20 }}>
                       <Riga
                         stretta
@@ -386,39 +535,91 @@ export default function NuovaFattura() {
                       />
                     </View>
                   ) : null}
+                  <View style={{ marginHorizontal: -20 }}>
+                    <Riga
+                      stretta
+                      ruolo="switch"
+                      selezionata={conBollo}
+                      titolo={t('fatture.fisco.bollo')}
+                      sottotitolo={
+                        serveBollo ? t('fatture.fisco.bolloServe') : t('fatture.fisco.bolloNonServe')
+                      }
+                      destra={<Interruttore acceso={conBollo} />}
+                      onPress={() => setBollo(!conBollo)}
+                    />
+                    {conBollo ? (
+                      <Riga
+                        stretta
+                        ruolo="switch"
+                        selezionata={bolloCliente}
+                        titolo={t('fatture.fisco.bolloCliente')}
+                        destra={<Interruttore acceso={bolloCliente} />}
+                        onPress={() => setBolloCliente(!bolloCliente)}
+                      />
+                    ) : null}
+                  </View>
                 </>
               ) : (
                 <>
-                  <Segmentato
-                    etichetta={t('fatture.voci.iva')}
-                    opzioni={[
-                      {
-                        valore: 'si',
-                        titolo: t('fatture.totali.iva', {
-                          aliquota: `${String(aliquotaIvaCH).replace('.', ',')}%`,
-                        }),
-                      },
-                      { valore: 'no', titolo: t('fatture.voci.esente') },
-                    ]}
-                    valore={esente ? 'no' : 'si'}
-                    onCambia={(v) => {
-                      setEsente(v === 'no');
-                      if (v === 'no' && !motivo) setMotivo(motiviEsenzioneCH[0]);
-                    }}
-                  />
-                  {esente ? (
-                    <View style={{ gap: 8 }}>
-                      <Testo tipo="small" colore={colori.fg2}>
-                        {t('fatture.nuova.motivo')}
-                      </Testo>
-                      <Scelta
-                        voci={motiviEsenzioneCH.map((m) => ({ valore: m, titolo: nomeMotivo(m, lingua) }))}
-                        valore={motivo}
-                        onCambia={setMotivo}
-                        etichettaGruppo={t('fatture.nuova.motivoGruppo')}
-                      />
-                    </View>
-                  ) : null}
+                  {!assoggettato ? (
+                    <Avviso
+                      tono="info"
+                      testo={`${t('fatture.fisco.nonAssoggettato')} ${t('fatture.fisco.cambiaDati')}`}
+                    />
+                  ) : (
+                    <>
+                      <View style={{ gap: 8 }}>
+                        <Testo tipo="small" colore={colori.fg2}>
+                          {t('fatture.fisco.aliquota')}
+                        </Testo>
+                        <Scelta<string>
+                          voci={[
+                            ...aliquoteCH.map((a) => ({ valore: String(a), titolo: percento(a) })),
+                            { valore: 'esente', titolo: t('fatture.voci.esente') },
+                          ]}
+                          valore={String(aliquota)}
+                          onCambia={(v) => setAliquota(v === 'esente' ? 'esente' : Number(v))}
+                          etichettaGruppo={t('fatture.fisco.aliquota')}
+                        />
+                        <Testo tipo="cap">{t('fatture.fisco.aliquoteSpiega')}</Testo>
+                      </View>
+                      {esente ? (
+                        <View style={{ gap: 8 }}>
+                          <Campo
+                            etichetta={t('fatture.fisco.motivo')}
+                            placeholder={t('fatture.fisco.motivoEsempio')}
+                            value={motivo}
+                            onChangeText={setMotivo}
+                          />
+                          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                            <Scelta
+                              voci={motiviEsenzioneCH.map((m) => ({
+                                valore: m,
+                                titolo: nomeMotivo(m, lingua),
+                              }))}
+                              valore={motiviEsenzioneCH.includes(motivo) ? motivo : null}
+                              onCambia={setMotivo}
+                              etichettaGruppo={t('fatture.nuova.motivoGruppo')}
+                            />
+                          </View>
+                        </View>
+                      ) : null}
+                    </>
+                  )}
+                  <View style={{ gap: 8 }}>
+                    <Testo tipo="small" colore={colori.fg2}>
+                      {t('fatture.fisco.lingua')}
+                    </Testo>
+                    <Segmentato<Lingua>
+                      etichetta={t('fatture.fisco.lingua')}
+                      opzioni={(['it', 'de', 'fr'] as Lingua[]).map((l) => ({
+                        valore: l,
+                        titolo: nomiLingue[l],
+                      }))}
+                      valore={linguaFattura}
+                      onCambia={setLinguaFattura}
+                    />
+                  </View>
                   <View style={{ gap: 8 }}>
                     <Campo
                       etichetta={t('fatture.nuova.periodo')}
@@ -444,16 +645,18 @@ export default function NuovaFattura() {
                 onCambia={setEmessa}
                 scorciatoie={[{ titolo: t('fatture.scorciatoie.oggi'), giorni: 0 }]}
               />
-              <CampoData
-                etichetta={t('fatture.nuova.scadenzaPagamento')}
-                valore={scadenza}
-                onCambia={setScadenza}
-                scorciatoie={[
-                  { titolo: t('fatture.scorciatoie.traGiorni', { n: 15 }), giorni: 15 },
-                  { titolo: t('fatture.scorciatoie.traGiorni', { n: 30 }), giorni: 30 },
-                  { titolo: t('fatture.scorciatoie.traGiorni', { n: 60 }), giorni: 60 },
-                ]}
-              />
+              {!nc ? (
+                <CampoData
+                  etichetta={t('fatture.nuova.scadenzaPagamento')}
+                  valore={scadenza}
+                  onCambia={setScadenza}
+                  scorciatoie={[
+                    { titolo: t('fatture.scorciatoie.traGiorni', { n: 15 }), giorni: 15 },
+                    { titolo: t('fatture.scorciatoie.traGiorni', { n: 30 }), giorni: 30 },
+                    { titolo: t('fatture.scorciatoie.traGiorni', { n: 60 }), giorni: 60 },
+                  ]}
+                />
+              ) : null}
               <View style={{ gap: 8 }}>
                 <Testo tipo="small" colore={colori.fg2}>
                   {t('fatture.voci.pagamento')}
@@ -466,11 +669,11 @@ export default function NuovaFattura() {
                 />
               </View>
               {metodo !== 'Contanti' ? (
-                fatturazione.iban ? (
+                ibanFattura ? (
                   <Testo tipo="cap">
                     {metodo === 'QR-fattura'
-                      ? t('fatture.nuova.sulPdfQr', { iban: fatturazione.iban })
-                      : t('fatture.nuova.sulPdf', { iban: fatturazione.iban })}
+                      ? t('fatture.nuova.sulPdfQr', { iban: ibanFattura })
+                      : t('fatture.nuova.sulPdf', { iban: ibanFattura })}
                   </Testo>
                 ) : (
                   <Avviso testo={t('fatture.nuova.mancaIban')} />
@@ -491,7 +694,7 @@ export default function NuovaFattura() {
               <ElencoDefinizioni
                 larghezzaTermine={96}
                 voci={[
-                  [t('fatture.voci.numero'), prossimoNumero],
+                  [nc ? t('fatture.nc.titolo') : t('fatture.voci.numero'), prossimoNumero],
                   [t('fatture.voci.cliente'), nomeCliente(clienti, cliente.id)],
                   ...(praticaId
                     ? ([
@@ -509,7 +712,10 @@ export default function NuovaFattura() {
                       ][])
                     : []),
                   ...(paese === 'CH'
-                    ? ([[t('fatture.voci.prestazione'), periodo.trim()]] as [string, string][])
+                    ? ([
+                        [t('fatture.voci.prestazione'), periodo.trim()],
+                        [t('fatture.fisco.lingua'), nomiLingue[linguaFattura]],
+                      ] as [string, string][])
                     : []),
                   [t('fatture.voci.pagamento'), nomeMetodo(metodo, lingua)],
                 ]}
@@ -527,7 +733,7 @@ export default function NuovaFattura() {
                   </View>
                 ))}
               </View>
-              <TotaliFattura fattura={fiscale} totali={totali} paese={paese} cassa={fatturazione.cassa} />
+              <TotaliFattura fattura={fiscale} totali={totali} paese={paese} cassa={cassa} />
               <Testo tipo="cap">
                 {paese === 'IT' ? t('fatture.nuova.notaFinale.IT') : t('fatture.nuova.notaFinale.CH')}
               </Testo>
@@ -552,7 +758,11 @@ export default function NuovaFattura() {
                 onPress={() => setPasso(passo + 1)}
               />
             ) : (
-              <Pulsante titolo={t('fatture.nuova.crea')} stile={{ flex: 1 }} onPress={crea} />
+              <Pulsante
+                titolo={nc ? t('fatture.nc.crea') : t('fatture.nuova.crea')}
+                stile={{ flex: 1 }}
+                onPress={crea}
+              />
             )}
           </View>
         </BarraAzioni>

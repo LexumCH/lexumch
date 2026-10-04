@@ -2,15 +2,16 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { TitoloSezione } from '@/componenti/Elementi';
 import { Testo } from '@/componenti/Testo';
-import type { DatiFatturazione, Fattura } from '@/dati-finti/studio';
+import type { CassaIT, Fattura } from '@/dati-finti/studio';
 import { useTesti } from '@/lingue/useTesti';
 import { colori, famiglie } from '@/tema';
 
 import { importo, type Totali } from './calcoli';
-import { nomeContributo, nomeMotivo, percento } from './fatturazione';
+import { nomeContributo, nomeMotivo, nomeNatura, percento } from './fatturazione';
 
 // I totali di una fattura come li calcola il database del paese.
-// IT: imponibile, CPA, IVA, totale, ritenuta e netto. CH: imponibile, IVA (o esente), totale.
+// IT: imponibile, cassa, IVA (o IVA 0 con la natura), spese esenti, bollo, totale, ritenuta e netto.
+// CH: imponibile, IVA (o esente con il motivo), totale.
 export function TotaliFattura({
   fattura: f,
   totali: t,
@@ -18,10 +19,10 @@ export function TotaliFattura({
   cassa,
   senzaTitolo,
 }: {
-  fattura: Pick<Fattura, 'cpa' | 'iva' | 'ritenuta' | 'esenteIva' | 'motivoEsenzione'>;
+  fattura: Pick<Fattura, 'cpa' | 'iva' | 'ritenuta' | 'esenteIva' | 'motivoEsenzione' | 'natura' | 'tipo'>;
   totali: Totali;
   paese: string;
-  cassa?: DatiFatturazione['cassa'];
+  cassa?: CassaIT;
   senzaTitolo?: boolean;
 }) {
   const { t: testo, lingua } = useTesti();
@@ -29,16 +30,21 @@ export function TotaliFattura({
     { titolo: testo('fatture.totali.imponibile'), valore: importo(t.imponibile, paese) },
   ];
   if (paese === 'IT') {
+    const contributo = nomeContributo(cassa, lingua);
+    if (contributo && (f.cpa ?? 0) > 0)
+      righe.push({ titolo: `${contributo} ${percento(f.cpa ?? 0)}`, valore: importo(t.cpa, paese) });
     righe.push({
-      titolo: `${nomeContributo(cassa, lingua)} ${percento(f.cpa ?? 0)}`,
-      valore: importo(t.cpa, paese),
-    });
-    righe.push({
-      titolo: testo('fatture.totali.iva', { aliquota: percento(f.iva) }),
+      titolo:
+        f.iva === 0 && f.natura
+          ? testo('fatture.fisco.ivaZero', { natura: nomeNatura(f.natura) })
+          : testo('fatture.totali.iva', { aliquota: percento(f.iva) }),
       valore: importo(t.iva, paese),
     });
+    if (t.esenti > 0) righe.push({ titolo: testo('fatture.fisco.esenti'), valore: importo(t.esenti, paese) });
+    if (t.bollo > 0)
+      righe.push({ titolo: testo('fatture.fisco.bolloRiga'), valore: importo(t.bollo, paese) });
     righe.push({
-      titolo: testo('fatture.totali.totaleFattura'),
+      titolo: f.tipo === 'TD04' ? testo('fatture.nc.totale') : testo('fatture.totali.totaleFattura'),
       valore: importo(t.totale, paese),
       forte: t.ritenuta === 0,
     });
@@ -49,7 +55,7 @@ export function TotaliFattura({
       });
       righe.push({
         titolo: testo('fatture.totali.netto'),
-        valore: importo(t.daIncassare, paese),
+        valore: importo(t.netto, paese),
         forte: true,
       });
     }

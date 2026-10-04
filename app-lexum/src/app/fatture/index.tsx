@@ -13,7 +13,7 @@ import { Testo } from '@/componenti/Testo';
 import type { Fattura } from '@/dati-finti/studio';
 import { useTesti } from '@/lingue/useTesti';
 import { strumentiStudio } from '@/ruoli';
-import { importo, statoFattura, totaliFattura } from '@/studio/calcoli';
+import { importo, statoFattura, totaliConNote } from '@/studio/calcoli';
 import { mancanoAlProfessionista, quandoFattura, statiFattura, testoStato } from '@/studio/fatturazione';
 import { useStato } from '@/stato/Stato';
 import { nomeCliente, useStudio } from '@/stato/Studio';
@@ -32,24 +32,26 @@ export default function Fatture() {
   const manca = mancanoAlProfessionista(fatturazione, paese);
 
   const anno = new Date().getFullYear();
+  // Come i siti dal 04-10-2026: importi sul netto, note di credito sottratte, scadute tra le aperte.
+  const tot = (f: Fattura) => totaliConNote(f, fatture, paese);
   const dellAnno = fatture.filter(
-    (f) => new Date(f.emessa).getFullYear() === anno && f.stato !== 'annullata',
+    (f) => new Date(f.emessa).getFullYear() === anno && f.tipo !== 'TD04' && f.stato !== 'annullata',
   );
   const somma = (fn: (f: Fattura) => number, elenco = dellAnno) => elenco.reduce((s, f) => s + fn(f), 0);
   const numeri = [
-    { titolo: t('fatture.elenco.fatturato'), valore: somma((f) => totaliFattura(f, paese).totale) },
-    { titolo: t('fatture.elenco.incassato'), valore: somma((f) => totaliFattura(f, paese).pagato) },
+    { titolo: t('fatture.elenco.fatturato'), valore: somma((f) => tot(f).daIncassare) },
+    { titolo: t('fatture.elenco.incassato'), valore: somma((f) => tot(f).pagato) },
     {
       titolo: t('fatture.elenco.daIncassare'),
       valore: somma(
-        (f) => totaliFattura(f, paese).residuo,
+        (f) => tot(f).residuo,
         dellAnno.filter((f) => f.stato === 'in_attesa'),
       ),
     },
     {
       titolo: t('fatture.elenco.scaduto'),
       valore: somma(
-        (f) => totaliFattura(f, paese).residuo,
+        (f) => tot(f).residuo,
         dellAnno.filter((f) => statoFattura(f) === 'scaduta'),
       ),
       pericolo: true,
@@ -184,9 +186,16 @@ function RigaFattura({
   onPress: () => void;
 }) {
   const { t: testo, lingua } = useTesti();
+  const { fatture } = useStudio();
   const stato = statoFattura(f);
-  const t = totaliFattura(f, paese);
-  const cifra = stato === 'in_attesa' || stato === 'scaduta' ? t.residuo : t.daIncassare;
+  const t = totaliConNote(f, fatture, paese);
+  const nc = f.tipo === 'TD04';
+  const cifra =
+    stato === 'in_attesa' || stato === 'scaduta'
+      ? t.residuo
+      : nc || stato === 'annullata'
+        ? t.netto
+        : t.daIncassare;
   return (
     <Pressable
       onPress={onPress}
@@ -194,14 +203,16 @@ function RigaFattura({
       accessibilityLabel={testo('fatture.elenco.riga', {
         numero: f.numero,
         cliente,
-        importo: importo(cifra, paese),
+        importo: `${nc ? '− ' : ''}${importo(cifra, paese)}`,
         stato: testoStato(stato, lingua),
       })}
       style={({ pressed }) => [stili.riga, pressed && { backgroundColor: colori.bg2 }]}
     >
       <View style={{ flex: 1, gap: 5 }}>
         <View style={stili.testaRiga}>
-          <Badge tono={statiFattura[stato].tono}>{testoStato(stato, lingua)}</Badge>
+          <Badge tono={nc ? 'oro' : statiFattura[stato].tono}>
+            {nc ? testo('fatture.nc.titolo') : testoStato(stato, lingua)}
+          </Badge>
           <Testo tipo="mini">{f.numero}</Testo>
         </View>
         <Text style={stili.cliente} numberOfLines={1}>
@@ -217,7 +228,7 @@ function RigaFattura({
           stato === 'annullata' && { color: colori.fg3, textDecorationLine: 'line-through' },
         ]}
       >
-        {importo(cifra, paese)}
+        {`${nc ? '− ' : ''}${importo(cifra, paese)}`}
       </Text>
     </Pressable>
   );

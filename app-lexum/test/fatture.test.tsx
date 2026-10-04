@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import { studioFinto } from '@/dati-finti/studio';
-import { totaliFattura } from '@/studio/calcoli';
+import { bolloDovuto, totaliConNote, totaliFattura } from '@/studio/calcoli';
 import {
   cfValido,
   eQrIban,
@@ -10,8 +10,10 @@ import {
   leggiImporto,
   mancanoAlCliente,
   mancanoAlProfessionista,
+  ibanSvizzero,
   numeroIvaValido,
   pivaValida,
+  sdiValido,
 } from '@/studio/fatturazione';
 import { calcolaParcella, scaglioneDaValore, valoreMedioFase } from '@/studio/parametri-forensi/engine';
 import { StatoProvider, useStato } from '@/stato/Stato';
@@ -109,19 +111,27 @@ describe('calcolatore della parcella (stesso motore del sito)', () => {
 });
 
 describe('dati di fatturazione', () => {
-  it('controlla la forma di partita IVA, codice fiscale, IBAN e numero IVA', () => {
+  it('controlla partita IVA, codice fiscale, IBAN, QR-IBAN, numero IDI e codice SDI', () => {
     expect(pivaValida('01234567897')).toBe(true);
     expect(pivaValida('01234567890')).toBe(false);
     expect(cfValido('RSSGLI85M41F205Z')).toBe(true);
     expect(cfValido('RSSGLI85')).toBe(false);
-    expect(ibanValido('IT60X0542811101000000123456', 'IT')).toBe(true);
-    expect(ibanValido('IT60X0542811101000000123457', 'IT')).toBe(false);
-    expect(ibanValido('CH93 0076 2011 6238 5295 7', 'CH')).toBe(true);
+    expect(ibanValido('IT60X0542811101000000123456')).toBe(true);
+    expect(ibanValido('IT60X0542811101000000123457')).toBe(false);
+    expect(ibanValido('CH93 0076 2011 6238 5295 7')).toBe(true);
+    // come i siti dal 04-10-2026: un IBAN di qualunque paese, con il modulo 97
+    expect(ibanValido('DE89 3704 0044 0532 0130 00')).toBe(true);
+    expect(ibanSvizzero('CH93 0076 2011 6238 5295 7')).toBe(true);
+    expect(ibanSvizzero('IT60X0542811101000000123456')).toBe(false);
     expect(eQrIban('CH44 3199 9123 0008 8901 2')).toBe(true);
     expect(eQrIban('CH93 0076 2011 6238 5295 7')).toBe(false);
-    expect(numeroIvaValido('CHE-123.456.789 IVA')).toBe(true);
-    expect(numeroIvaValido('CHE-123.456.789 MWST')).toBe(true);
+    // numero IDI con la cifra di controllo (modulo 11), con o senza IVA/MWST/TVA
+    expect(numeroIvaValido('CHE-216.874.394 IVA')).toBe(true);
+    expect(numeroIvaValido('CHE-216.874.394 MWST')).toBe(true);
+    expect(numeroIvaValido('CHE-123.456.789 IVA')).toBe(false);
     expect(numeroIvaValido('IT01234567897')).toBe(false);
+    expect(sdiValido('M5UXCR1', false)).toBe(true);
+    expect(sdiValido('UFABC1', false)).toBe(false);
   });
 
   it('dice cosa manca al professionista e al cliente', () => {
@@ -129,14 +139,25 @@ describe('dati di fatturazione', () => {
       'partita IVA',
       'codice fiscale',
       'indirizzo dello studio',
-      'regime fiscale',
     ]);
     expect(mancanoAlProfessionista(studioFinto('IT', 'avvocato').fatturazione, 'IT')).toEqual([]);
     expect(mancanoAlProfessionista({ paese: 'CH' }, 'CH')).toEqual([
       'indirizzo dello studio',
       'IBAN per la QR-fattura',
-      'se sei assoggettato all’IVA',
     ]);
+    // con l'IVA serve anche il numero IDI; un QR-IBAN basta per la QR-fattura
+    expect(
+      mancanoAlProfessionista(
+        {
+          via: 'Via Nassa',
+          cap: '6900',
+          citta: 'Lugano',
+          qrIban: 'CH44 3199 9123 0008 8901 2',
+          assoggettatoIva: true,
+        },
+        'CH',
+      ),
+    ).toEqual(['numero IDI']);
     expect(mancanoAlProfessionista(studioFinto('CH', 'avvocato').fatturazione, 'CH')).toEqual([]);
     const clienti = studioFinto('IT', 'avvocato').clienti;
     expect(mancanoAlCliente(clienti[0], 'IT')).toEqual([]);
@@ -185,5 +206,128 @@ describe('fatture nello stato dello Studio', () => {
     expect(nuova()?.stato).toBe('in_attesa');
     await act(async () => result.current.studio.azioni.registraPagamento(id, 568.8, 'Bonifico'));
     expect(nuova()?.stato).toBe('pagata');
+  });
+});
+
+describe('fatture italiane dal 04-10-2026: spese esenti, bollo, note di credito', () => {
+  const riga = (prezzo: number, natura?: 'N1') => ({
+    id: `r${prezzo}`,
+    descrizione: 'x',
+    quantita: 1,
+    prezzo,
+    natura,
+  });
+
+  it('spese anticipate (N1) fuori da cassa, IVA e ritenuta; bollo a carico del cliente nel totale', () => {
+    const t = totaliFattura(
+      { righe: [riga(1000), riga(100, 'N1')], cpa: 4, iva: 22, ritenuta: 20, bollo: true, pagamenti: [] },
+      'IT',
+    );
+    // 1000 + cassa 40 + IVA 228,80 + esenti 100 + bollo 2 = 1370,80; meno ritenuta 200 = 1170,80
+    expect(t).toMatchObject({ imponibile: 1000, esenti: 100, cpa: 40, iva: 228.8, bollo: 2, totale: 1370.8 });
+    expect(t.netto).toBe(1170.8);
+    const aCaricoStudio = totaliFattura(
+      { righe: [riga(1000)], cpa: 4, iva: 0, bollo: true, bolloACaricoCliente: false, pagamenti: [] },
+      'IT',
+    );
+    expect(aCaricoStudio.bollo).toBe(0);
+  });
+
+  it('bollo dovuto quando la parte senza IVA supera 77,47 €', () => {
+    const forfettario = totaliFattura({ righe: [riga(70)], cpa: 4, iva: 0, pagamenti: [] }, 'IT');
+    expect(bolloDovuto(forfettario, 0)).toBe(false); // 70 + 2,80 di cassa
+    expect(bolloDovuto(totaliFattura({ righe: [riga(80)], cpa: 0, iva: 0, pagamenti: [] }, 'IT'), 0)).toBe(
+      true,
+    );
+    // con l'IVA conta solo la parte esente
+    expect(
+      bolloDovuto(totaliFattura({ righe: [riga(1000), riga(50, 'N1')], iva: 22, pagamenti: [] }, 'IT'), 22),
+    ).toBe(false);
+  });
+
+  const avvolgi = ({ children }: { children: ReactNode }) => (
+    <StatoProvider>
+      <StudioProvider>{children}</StudioProvider>
+    </StatoProvider>
+  );
+
+  it('nota di credito: parziale riduce il dovuto, totale annulla la fattura', async () => {
+    const { result } = await renderHook(() => ({ stato: useStato(), studio: useStudio() }), {
+      wrapper: avvolgi,
+    });
+    await act(async () => result.current.stato.azioni.scenario('avvocato-it'));
+    const studio = () => result.current.studio;
+    // f1 (Edilnord): emessa, netto 2084,59
+    let nc = '';
+    await act(async () => {
+      nc = studio().azioni.creaFattura({
+        clienteId: 'c3',
+        emessa: new Date().toISOString(),
+        righe: [{ id: 'n1', descrizione: 'Storno parziale', quantita: 1, prezzo: 254.4 }],
+        cpa: 4,
+        iva: 22,
+        ritenuta: 20,
+        metodo: 'Bonifico',
+        tipo: 'TD04',
+        origineId: 'f1',
+      });
+    });
+    const f1 = () => studio().fatture.find((f) => f.id === 'f1')!;
+    const nota = studio().fatture.find((f) => f.id === nc)!;
+    expect(nota.stato).toBe('emessa');
+    const t = totaliConNote(f1(), studio().fatture, 'IT');
+    // nota: 254,40 + 10,18 + 58,21 − 50,88 = 271,91
+    expect(t.stornato).toBe(271.91);
+    expect(t.daIncassare).toBe(1812.68);
+    expect(f1().stato).toBe('in_attesa');
+    // il resto, con una seconda nota: la fattura risulta annullata
+    await act(async () => {
+      studio().azioni.creaFattura({
+        clienteId: 'c3',
+        emessa: new Date().toISOString(),
+        righe: f1().righe.filter((r) => r.prezzo !== 254.4),
+        cpa: 4,
+        iva: 22,
+        ritenuta: 20,
+        metodo: 'Bonifico',
+        tipo: 'TD04',
+        origineId: 'f1',
+      });
+    });
+    expect(f1().stato).toBe('annullata');
+    // una fattura emessa non si elimina; una non emessa sì
+    let esito = '';
+    await act(async () => {
+      esito = studio().azioni.eliminaFattura('f1');
+    });
+    expect(esito).toBe('emessa');
+    await act(async () => {
+      esito = studio().azioni.eliminaFattura('f3');
+    });
+    expect(esito).toBe('ok');
+    expect(studio().fatture.some((f) => f.id === 'f3')).toBe(false);
+  });
+
+  it('Svizzera: chi non è iscritto nel registro IVA fattura senza IVA', async () => {
+    const { result } = await renderHook(() => ({ stato: useStato(), studio: useStudio() }), {
+      wrapper: avvolgi,
+    });
+    await act(async () => result.current.stato.azioni.scenario('fiduciario-ch'));
+    let id = '';
+    await act(async () => {
+      id = result.current.studio.azioni.creaFattura({
+        clienteId: 'c1',
+        emessa: new Date().toISOString(),
+        righe: [{ id: 'r1', descrizione: 'Consulenza', quantita: 1, prezzo: 500 }],
+        iva: 8.1,
+        periodo: 'Settembre 2026',
+        metodo: 'QR-fattura',
+      });
+    });
+    expect(result.current.studio.fatture.find((f) => f.id === id)).toMatchObject({
+      esenteIva: true,
+      iva: 0,
+      motivoEsenzione: 'non_assoggettato',
+    });
   });
 });

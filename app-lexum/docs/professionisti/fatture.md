@@ -3,6 +3,12 @@
 Studio del 04-10-2026, fatto in sola lettura. Riguarda il codice dei due siti, le edge function `crea-fattura`, `genera-fattura-pdf` ed `elimina-fattura`, e lo schema del database.
 IT = `Lexumita/lexumita`, CH = `LexumCH/lexumch` branch `main`. Il CH è un clone adattato dell'IT.
 
+> **Aggiornamento del 04-10-2026.** Dopo questo studio Antonino ha pubblicato sui due siti:
+> - Italia: dati di fatturazione nel Profilo (regime RF01/RF19, cassa `cassa_forense`/`cnpadc`/`cnpr`/`nessuna`, numero civico, paese, SDI), nota di credito (`tipo_documento` TD04, `fattura_origine_id`), natura IVA, spese esenti art. 15 (natura N1), bollo da 2 € (`bollo_importo`, `bollo_a_carico_cliente`), XML FatturaPA (`genera-fattura-xml`), stato sul netto meno note di credito (`aggiorna_stato_fattura`), elimina solo se non emessa;
+> - Svizzera: dati di fatturazione nel Profilo (numero civico, paese, Cantone, IBAN, QR-IBAN, IVA sì/no, numero IDI con cifra di controllo), IVA solo se assoggettati (`trg_fatture_iva_assoggettamento`), lingua della fattura, una fattura emessa non si elimina ma si annulla (`GIA_EMESSA`).
+>
+> Diversi problemi elencati qui sotto sono quindi risolti; l'app segue le regole nuove (`src/studio/fatturazione.ts`, `src/studio/calcoli.ts`).
+
 ## In breve
 
 - **Italia: il sito non produce una fattura valida per il fisco.** Fa solo un PDF intitolato «FATTURA», senza XML FatturaPA e senza invio allo SDI. Dal 2024 la fattura elettronica è obbligatoria anche per i forfettari: oggi quel PDF vale al massimo come avviso di parcella (pro forma).

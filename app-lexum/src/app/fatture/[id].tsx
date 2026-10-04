@@ -16,10 +16,13 @@ import type { Fattura } from '@/dati-finti/studio';
 import { useTesti } from '@/lingue/useTesti';
 import { indietro } from '@/navigazione';
 import { strumentiStudio } from '@/ruoli';
-import { importo, statoFattura, totaliFattura } from '@/studio/calcoli';
+import { importo, statoFattura, totaliConNote } from '@/studio/calcoli';
 import { CampoData, Scelta, leggiData, useRiapertura } from '@/studio/Campi';
 import {
+  elenco,
   leggiImporto,
+  mancanoAlCliente,
+  mancanoAlProfessionista,
   metodiPagamento,
   nomeMetodo,
   quandoFattura,
@@ -33,11 +36,12 @@ import { useStato } from '@/stato/Stato';
 import { nomeCliente, useStudio } from '@/stato/Studio';
 import { colori, famiglie } from '@/tema';
 
-type FoglioFattura = 'azioni' | 'pagamento' | 'annulla' | 'pdf' | 'pratica';
+type FoglioFattura = 'azioni' | 'pagamento' | 'annulla' | 'pdf' | 'pratica' | 'elimina' | 'xml';
 
-// S6 · Dettaglio della fattura: righe, totali del paese, pagamenti.
-// Si registra un pagamento (anche parziale), si genera e si condivide il PDF, si annulla.
-// Eliminare resta sul sito, come la modifica (che sul sito non esiste).
+// S6 · Dettaglio della fattura: righe, totali del paese, pagamenti, note di credito.
+// Si registra un pagamento (anche parziale), si genera e si condivide il PDF.
+// Come i siti dal 04-10-2026: si elimina solo se non è emessa (niente PDF); una volta emessa,
+// in Italia si storna con una nota di credito (e c'è l'XML FatturaPA), in Svizzera si annulla.
 export default function DettaglioFattura() {
   const { id, foglio: parametroFoglio } = useLocalSearchParams<{ id: string; foglio?: FoglioFattura }>();
   const { paese, ruoli } = useStato();
@@ -67,7 +71,24 @@ export default function DettaglioFattura() {
   }
 
   const stato = statoFattura(fattura);
-  const t = totaliFattura(fattura, paese);
+  const t = totaliConNote(fattura, fatture, paese);
+  const nc = fattura.tipo === 'TD04';
+  const origine = fatture.find((f) => f.id === fattura.origineId);
+  const note = fatture.filter((f) => f.tipo === 'TD04' && f.origineId === fattura.id);
+  const emessaPdf = !!fattura.pdf;
+  const eliminabile = !emessaPdf && note.length === 0;
+  const stornabile = paese === 'IT' && !nc && emessaPdf && stato !== 'annullata' && t.daIncassare > 0.01;
+  const annullabile = paese === 'CH' && emessaPdf && (stato === 'in_attesa' || stato === 'scaduta');
+  // XML FatturaPA (genera-fattura-xml): se mancano dati, la funzione dice quali.
+  const clienteFattura = clienti.find((c) => c.id === fattura.clienteId);
+  const mancaXml =
+    paese === 'IT'
+      ? [
+          ...mancanoAlProfessionista(fatturazione, 'IT', lingua),
+          ...(clienteFattura ? mancanoAlCliente(clienteFattura, 'IT', lingua) : []),
+        ]
+      : [];
+  const fileXml = `IT${(fatturazione.piva ?? '').replace(/\s/g, '')}_${fattura.numero.replace(/\D/g, '').slice(-5)}.xml`;
   const pratica = pratiche.find((p) => p.id === fattura.praticaId);
   const daPagare = stato === 'in_attesa' || stato === 'scaduta';
   const nomeFile = `${fattura.numero}.pdf`;
@@ -75,6 +96,11 @@ export default function DettaglioFattura() {
   const info: [string, string][] = [[testo('fatture.voci.emessa'), dataCompleta(fattura.emessa, lingua)]];
   if (fattura.scadenza) info.push([testo('fatture.voci.scadenza'), dataCompleta(fattura.scadenza, lingua)]);
   if (fattura.periodo) info.push([testo('fatture.voci.prestazione'), fattura.periodo]);
+  if (fattura.lingua)
+    info.push([
+      testo('fatture.fisco.lingua'),
+      { it: 'Italiano', de: 'Deutsch', fr: 'Français' }[fattura.lingua],
+    ]);
   info.push([testo('fatture.voci.pagamento'), nomeMetodo(fattura.metodo, lingua)]);
   const iban = fattura.iban ?? fatturazione.iban;
   if (iban && fattura.metodo !== 'Contanti') info.push([testo('fatture.voci.iban'), iban]);
@@ -97,12 +123,25 @@ export default function DettaglioFattura() {
       <ScrollView contentContainerStyle={stili.corpo}>
         <View style={{ gap: 10 }}>
           <View style={stili.stato}>
+            {nc ? <Badge tono="oro">{testo('fatture.nc.titolo')}</Badge> : null}
             <Badge tono={statiFattura[stato].tono}>{testoStato(stato, lingua)}</Badge>
             <Text style={[stili.quando, stato === 'scaduta' && { color: colori.danger }]}>
               {quandoFattura(fattura, lingua)}
             </Text>
           </View>
           <Testo tipo="dS">{nomeCliente(clienti, fattura.clienteId)}</Testo>
+          {origine ? (
+            <Pressable
+              onPress={() => router.push({ pathname: '/fatture/[id]', params: { id: origine.id } })}
+              accessibilityRole="link"
+              style={stili.pratica}
+            >
+              <Icona nome="ricevuta" dimensione={16} colore={colori.accentText} />
+              <Text style={stili.praticaTesto} numberOfLines={1}>
+                {testo('fatture.nc.aStorno', { numero: origine.numero })}
+              </Text>
+            </Pressable>
+          ) : null}
           {pratica ? (
             <Pressable
               onPress={() => router.push({ pathname: '/pratiche/[id]', params: { id: pratica.id } })}
@@ -131,7 +170,7 @@ export default function DettaglioFattura() {
               stato === 'annullata' && { color: colori.fg3, textDecorationLine: 'line-through' },
             ]}
           >
-            {importo(daPagare ? t.residuo : t.daIncassare, paese)}
+            {importo(daPagare ? t.residuo : stato === 'annullata' || nc ? t.netto : t.daIncassare, paese)}
           </Text>
           {t.ritenuta > 0 ? <Testo tipo="cap">{testo('fatture.dettaglio.alNetto')}</Testo> : null}
         </View>
@@ -182,9 +221,38 @@ export default function DettaglioFattura() {
           ) : null}
         </View>
 
+        {note.length > 0 ? (
+          <View>
+            <TitoloSezione stile={stili.titoloSezione}>{testo('fatture.nc.elenco')}</TitoloSezione>
+            {note.map((n) => (
+              <Pressable
+                key={n.id}
+                onPress={() => router.push({ pathname: '/fatture/[id]', params: { id: n.id } })}
+                accessibilityRole="link"
+                style={stili.riga}
+              >
+                <Icona nome="ricevuta" dimensione={18} colore={colori.accentText} />
+                <Text
+                  style={[stili.rigaTesto, { flex: 1 }]}
+                >{`${n.numero} · ${dataBreve(n.emessa, lingua)}`}</Text>
+                <Text
+                  style={stili.rigaImporto}
+                >{`− ${importo(totaliConNote(n, fatture, paese).netto, paese)}`}</Text>
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
+
         {paese === 'IT' ? (
           <Testo tipo="cap" colore={colori.fg3}>
-            {testo('fatture.dettaglio.noSdi')}
+            {testo('fatture.xml.nota')}
+          </Testo>
+        ) : null}
+        {emessaPdf && !nc && stato !== 'annullata' ? (
+          <Testo tipo="cap" colore={colori.fg3}>
+            {paese === 'IT'
+              ? testo('fatture.emissione.nonEliminaIT')
+              : testo('fatture.emissione.nonEliminaCH')}
           </Testo>
         ) : null}
       </ScrollView>
@@ -212,9 +280,13 @@ export default function DettaglioFattura() {
       ) : null}
 
       <Foglio visibile={foglio === 'azioni'} onChiudi={chiudi}>
-        <Testo tipo="dS">{testo('fatture.dettaglio.fatturaNumero', { numero: fattura.numero })}</Testo>
+        <Testo tipo="dS">
+          {nc
+            ? testo('fatture.nc.numero', { numero: fattura.numero })
+            : testo('fatture.dettaglio.fatturaNumero', { numero: fattura.numero })}
+        </Testo>
         <View style={{ marginHorizontal: -20 }}>
-          {conPratiche ? (
+          {conPratiche && !nc ? (
             <Riga
               stretta
               sinistra={<Icona nome="bilancia" dimensione={20} colore={colori.fg2} />}
@@ -245,7 +317,28 @@ export default function DettaglioFattura() {
               }}
             />
           ) : null}
-          {daPagare ? (
+          {stornabile ? (
+            <Riga
+              stretta
+              sinistra={<Icona nome="riprova" dimensione={20} colore={colori.fg2} />}
+              titolo={testo('fatture.nc.azione')}
+              sottotitolo={testo('fatture.nc.azioneTesto')}
+              onPress={() => {
+                chiudi();
+                router.push({ pathname: '/fatture/nuova', params: { storno: fattura.id } });
+              }}
+            />
+          ) : null}
+          {paese === 'IT' ? (
+            <Riga
+              stretta
+              sinistra={<Icona nome="documento" dimensione={20} colore={colori.fg2} />}
+              titolo={testo('fatture.xml.azione')}
+              sottotitolo={testo('fatture.xml.azioneTesto')}
+              onPress={() => setFoglio('xml')}
+            />
+          ) : null}
+          {annullabile ? (
             <Riga
               stretta
               sinistra={<Icona nome="chiudi" dimensione={20} colore={colori.danger} />}
@@ -254,8 +347,66 @@ export default function DettaglioFattura() {
               onPress={() => setFoglio('annulla')}
             />
           ) : null}
+          {eliminabile ? (
+            <Riga
+              stretta
+              sinistra={<Icona nome="cestino" dimensione={20} colore={colori.danger} />}
+              titolo={testo('fatture.emissione.elimina')}
+              sottotitolo={testo('fatture.emissione.eliminaTesto')}
+              titoloStile={{ color: colori.danger }}
+              onPress={() => setFoglio('elimina')}
+            />
+          ) : null}
         </View>
-        <Testo tipo="cap">{testo('fatture.dettaglio.eliminaSulSito')}</Testo>
+      </Foglio>
+
+      <Foglio visibile={foglio === 'elimina'} onChiudi={chiudi}>
+        <Testo tipo="dS">{testo('fatture.emissione.eliminareDomanda', { numero: fattura.numero })}</Testo>
+        <Testo tipo="small" colore={colori.fg2}>
+          {testo('fatture.emissione.eliminareTesto')}
+        </Testo>
+        <Pulsante
+          titolo={testo('fatture.emissione.eliminaConferma')}
+          variante="pericolo"
+          onPress={() => {
+            if (azioni.eliminaFattura(fattura.id) === 'ok') indietro('/fatture');
+            else chiudi();
+          }}
+        />
+        <Pulsante titolo={testo('fatture.dettaglio.lasciala')} variante="linea" onPress={chiudi} />
+      </Foglio>
+
+      <Foglio visibile={foglio === 'xml'} onChiudi={chiudi}>
+        {mancaXml.length > 0 ? (
+          <>
+            <Testo tipo="dS">{testo('fatture.xml.azione')}</Testo>
+            <Avviso testo={testo('fatture.xml.mancano', { elenco: elenco(mancaXml, lingua) })} />
+            <Pulsante
+              titolo={testo('fatture.nuova.completaDati')}
+              onPress={() => router.push('/fatture/dati')}
+            />
+          </>
+        ) : (
+          <>
+            <View style={stili.pdf}>
+              <Icona nome="documento" dimensione={28} colore={colori.accentText} />
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={stili.rigaTesto}>{fileXml}</Text>
+                <Testo tipo="cap">{testo('fatture.xml.pronto')}</Testo>
+              </View>
+            </View>
+            <Testo tipo="small" colore={colori.fg2}>
+              {testo('fatture.xml.spiega')}
+            </Testo>
+            <Pulsante
+              titolo={testo('fatture.dettaglio.condividi')}
+              icona="condividi"
+              onPress={() => {
+                Share.share({ title: fileXml, message: fileXml }).catch(() => undefined);
+              }}
+            />
+          </>
+        )}
       </Foglio>
 
       <Foglio visibile={foglio === 'pratica'} onChiudi={chiudi}>

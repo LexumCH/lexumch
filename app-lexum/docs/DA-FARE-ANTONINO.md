@@ -27,23 +27,16 @@ Ultimo aggiornamento: 04-10-2026.
 
 Dettagli in `docs/professionisti/fatture.md` e `docs/professionisti/pratiche-e-calendario.md`. Si sistemano sui siti e sul backend, non da qui.
 
-- [ ] **Fattura italiana:** il sito fa solo un PDF, senza XML FatturaPA né invio allo SDI. Decidi se chiamarlo «avviso di parcella / pro forma» oppure collegare un intermediario SDI. Nell'app, sotto ogni fattura italiana, oggi c'è scritto: «Il PDF non è una fattura elettronica: non passa dal Sistema di Interscambio (SDI).»
-- [ ] **Colonne che mancano per i dati di fatturazione** (l'app ha già la schermata «Dati di fatturazione» con questi campi):
-  - IT, professionista: la cassa di previdenza (TC01 Cassa Forense, TC04 CNPADC), il numero civico separato dalla via;
-  - CH, professionista: numero civico separato, paese (CH o LI), sapere se l'IBAN è un QR-IBAN; `iva_attiva` c'è ma non è usato;
-  - le altre colonne ci sono già in `profiles` (`partita_iva`, `cf`, `indirizzo`, `cap`, `comune`/`citta`, `provincia`, `iban`, `regime_fiscale`, `uid`): va solo controllato che l'utente possa scriverle con la sua sessione.
-- [ ] **Marca da bollo (IT, forfettari):** sopra 77,47 € va il bollo da 2 €; oggi né il sito né il trigger lo aggiungono. Nell'app per ora c'è solo l'avviso.
-- [ ] **Dati fiscali dei professionisti:** le colonne ci sono in `profiles`, ma nel Profilo di avvocati e commercialisti non c'è il campo per scriverle (controllato il 04-10-2026).
-  - IT: P.IVA, codice fiscale e indirizzo si scrivono solo in `/verifica`, la pagina del privato prima di diventare professionista (servono a Lexum per fatturargli l'abbonamento). L'IBAN ha il campo solo nel Profilo del commerciale. Il regime fiscale non ha campo: tutti hanno il valore predefinito RF01.
-  - Nel DB IT: 6 avvocati e 1 commercialista, nessuno con P.IVA, codice fiscale, indirizzo o IBAN.
-  - Effetto: `genera-fattura-pdf` prende questi dati dal profilo e, se sono vuoti, salta le righe. Le fatture escono senza P.IVA, codice fiscale e indirizzo dello studio.
-  - CH: indirizzo, IBAN e numero IVA non hanno nessuna schermata.
+- [x] **Fattura italiana:** dal 04-10-2026 c'è l'XML FatturaPA (`genera-fattura-xml`), da caricare su «Fatture e Corrispettivi» o da dare al commercialista. Nell'app: «XML FatturaPA» nel dettaglio della fattura.
+- [ ] **Invio diretto allo SDI:** oggi l'XML si scarica e si carica a mano. Se vuoi l'invio automatico serve un intermediario.
+- [x] **Dati di fatturazione del professionista:** dal 04-10-2026 si scrivono nel Profilo dei due siti (IT: cassa, regime, numero civico, paese, SDI; CH: numero civico, paese, Cantone, QR-IBAN, IVA sì/no, numero IDI). L'app ha gli stessi campi e controlli.
+- [x] **Marca da bollo (IT):** dal 04-10-2026 il sito e il trigger la gestiscono (2 € sopra 77,47 € senza IVA). Nell'app l'interruttore si accende da solo, come sul sito.
 - [x] **Cliente italiano:** codice destinatario SDI, PEC di fatturazione e P.IVA anche per le persone fisiche sono nel modulo cliente dal 04-10-2026 (sito e app).
 - [ ] **QR-fattura svizzera:** non conforme agli indirizzi «S» (obbligatori dal 21.11.2025), paese fisso «CH», IBAN preso dal profilo e non dalla fattura, niente QR-IBAN.
 - [ ] **Fiduciari (CH):** vedono «Fatturazione», ma `crea-fattura` accetta solo gli avvocati. Nell'app il fiduciario ha Fatture: con i dati veri gli darebbe errore finché la funzione non accetta anche il suo ruolo.
 - [ ] **Commercialisti (IT):** sul sito vedono il calcolatore forense, che per loro non vale (servirebbe il DM 140/2012). Nell'app non lo vedono.
-- [ ] **IVA svizzera:** l'8.1% si applica anche a chi non è assoggettato (`iva_attiva` non usato).
-- [ ] **Ritenuta d'acconto (IT):** se il cliente paga il netto, il trigger lascia la fattura «in attesa» per un residuo pari alla ritenuta. Nell'app la fattura passa a «pagata» quando arriva il netto: il trigger andrebbe allineato.
+- [x] **IVA svizzera:** dal 04-10-2026 chi non è assoggettato fattura senza IVA (trigger `trg_fatture_iva_assoggettamento`). Attenzione: `iva_attiva` di base è «no», quindi chi non lo imposta nel Profilo fattura senza IVA.
+- [x] **Ritenuta d'acconto (IT):** dal 04-10-2026 `aggiorna_stato_fattura` confronta i pagamenti con il netto, meno le note di credito. App e sito ora fanno lo stesso conto.
 - [ ] **Calendario IT:** il DB vuole sempre il cliente in un appuntamento, ma il modulo lo dice facoltativo.
 - [ ] **Promemoria CH:** manca il job giornaliero di `genera-notifiche`, e la funzione cerca una colonna `luogo` che non esiste.
 - [ ] **Collaboratori di pratica (IT):** mancano le regole per aggiungerli o toglierli; `pratiche.studio_id` non viene riempito.

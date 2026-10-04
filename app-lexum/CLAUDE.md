@@ -131,8 +131,9 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
   - verifica in due passaggi con un'app di autenticazione, la stessa del sito: un fattore per account di paese, lo stesso codice vale su app e sito (`supabase.auth.mfa` e `mfa-backup-codes`).
 - **Accesso per tutti** (deciso da Antonino il 03-10-2026): nell'app entra chiunque abbia un account del sito, privato o professionista (avvocato, commercialista, fiduciario, progettista, cliente di uno studio, admin). Stesse schermate, mai un errore «non sei un utente». Un professionista trova nel menù il suo Studio e in Profilo il rimando al resto sul sito. I ruoli e gli strumenti di ognuno sono in `src/ruoli.ts`.
 - **Fatture, due processi** (dal 04-10-2026): Italia e Svizzera fatturano in modo diverso, anche nel database.
-  - Italia: CPA (o contributo integrativo) 4% sull'imponibile, IVA 22% su imponibile + CPA, ritenuta 20% sull'imponibile se il cliente è sostituto d'imposta. Calcolatore della parcella solo per gli avvocati.
-  - Svizzera: IVA 8,1% sull'imponibile oppure esente con il motivo; data o periodo della prestazione obbligatori; QR-fattura.
+  - Italia: cassa (CPA o contributo integrativo) 4% sull'imponibile, IVA 22% su imponibile + cassa, ritenuta 20% sull'imponibile se il cliente è sostituto d'imposta; forfettario (RF19) senza IVA (natura N2.2) e senza ritenuta; IVA 0 con la natura; spese anticipate (N1) fuori da cassa, IVA e ritenuta; bollo da 2 € sopra 77,47 € senza IVA. Il cliente paga il netto, meno le note di credito (TD04). XML FatturaPA dal dettaglio. Calcolatore della parcella solo per gli avvocati.
+  - Svizzera: IVA 8,1% (o 2,6%, 3,8%) sull'imponibile oppure esente con il motivo; chi non è iscritto nel registro IVA fattura sempre senza IVA; data o periodo della prestazione obbligatori; lingua della fattura; QR-fattura.
+  - Una fattura emessa (PDF generato) non si elimina: in Italia si storna con una nota di credito, in Svizzera si annulla.
   - Le regole stanno in `src/studio/fatturazione.ts` e `src/studio/calcoli.ts`; il calcolatore in `src/studio/parametri-forensi/` è una copia del sito: se il sito cambia, va aggiornato.
   - Senza i dati di fatturazione del professionista o quelli del cliente, la nuova fattura non parte e dice cosa manca.
 - **Elimina account:** deve esistere nell'app, perché Apple lo pretende.

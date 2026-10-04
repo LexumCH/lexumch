@@ -4,7 +4,9 @@
 import type { Cliente, DocumentoStudio } from '@/dati-finti/studio';
 import type { Chiave } from '@/lingue';
 
-import { capValido, cfValido, pivaValida } from './fatturazione';
+import { capValido, cfValido, normalizzaUid, pivaValida, sdiValido } from './fatturazione';
+
+export { normalizzaUid, sdiValido };
 
 // I dati che si scrivono nel modulo: tutto il cliente tranne quello che decide lo studio.
 export type DatiCliente = Omit<Cliente, 'id' | 'nome' | 'creato' | 'portale'> & { ragioneSociale?: string };
@@ -24,21 +26,6 @@ export function avsValido(s: string): boolean {
   return (10 - (somma % 10)) % 10 === Number(v[12]);
 }
 
-// Numero UID (IDI) delle imprese svizzere: CHE-123.456.789, l'ultima cifra è di controllo (modulo 11).
-// Come `normalizzaUid` del sito svizzero: torna la forma ufficiale, o null se non è valido.
-export function normalizzaUid(s: string): string | null {
-  const v = s
-    .toUpperCase()
-    .replace(/[^0-9A-Z]/g, '')
-    .replace(/(MWST|TVA|IVA|VAT)$/, '');
-  const m = /^CHE(\d{9})$/.exec(v);
-  if (!m) return null;
-  const d = m[1].split('').map(Number);
-  const somma = [5, 4, 3, 2, 7, 6, 5, 4].reduce((tot, peso, i) => tot + peso * d[i], 0);
-  const controllo = (11 - (somma % 11)) % 11;
-  if (controllo === 10 || controllo !== d[8]) return null;
-  return `CHE-${m[1].slice(0, 3)}.${m[1].slice(3, 6)}.${m[1].slice(6)}`;
-}
 export function uidValido(s: string): boolean {
   return normalizzaUid(s) !== null;
 }
@@ -72,11 +59,6 @@ export const cantoni = [
   'ZG',
   'ZH',
 ] as const;
-
-// Codice destinatario SDI: 7 caratteri, 6 per la Pubblica Amministrazione.
-export function sdiValido(s: string): boolean {
-  return /^[A-Z0-9]{6,7}$/i.test(s.trim());
-}
 
 // Il nome che si vede: «Nome Cognome» per le persone, la ragione sociale per le società.
 export function nomeDaDati(d: DatiCliente): string {

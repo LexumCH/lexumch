@@ -16,7 +16,8 @@ import {
   type StatoEvento,
   type TipoCausa,
 } from '@/dati-finti/studio';
-import { totaliFattura } from '@/studio/calcoli';
+import { statoDopo } from '@/studio/calcoli';
+import { nonAssoggettato } from '@/studio/fatturazione';
 import { nomeDaDati, type DatiCliente } from '@/studio/clienti';
 import { useStato } from '@/stato/Stato';
 
@@ -67,6 +68,7 @@ type Azioni = {
   creaFattura: (f: NuovaFattura) => string;
   registraPagamento: (fatturaId: string, importo: number, metodo: string, data?: string) => void;
   annullaFattura: (fatturaId: string) => void;
+  eliminaFattura: (fatturaId: string) => 'ok' | 'emessa' | 'note';
   generaPdf: (fatturaId: string) => void;
   salvaDatiFatturazione: (d: DatiFatturazione) => void;
   preparaParcella: (p: Parcella) => void;
@@ -267,7 +269,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           ...d,
           appuntamenti: d.appuntamenti.map((a) => (a.id === id ? { ...a, stato } : a)),
         })),
-      // Numerazione come `genera_numero_fattura`: F-AAAA-NNN, contatore per anno.
+      // Numerazione come `genera_numero_fattura`: F-AAAA-NNN, contatore per anno (anche le note di credito).
+      // Svizzera: chi non è iscritto nel registro IVA fattura senza IVA (trigger `trg_fatture_iva_assoggettamento`).
+      // Italia: una nota di credito (TD04) aggiorna lo stato della fattura che storna.
       creaFattura: (n) => {
         const id = nuovoId('f');
         aggiorna((d) => {
@@ -276,11 +280,30 @@ export function StudioProvider({ children }: { children: ReactNode }) {
             .filter((f) => f.numero.startsWith(`F-${anno}-`))
             .reduce((m, f) => Math.max(m, Number(f.numero.slice(7)) || 0), 0);
           const numero = `F-${anno}-${String(ultimo + 1).padStart(3, '0')}`;
-          return { ...d, fatture: [{ ...n, id, numero, stato: 'in_attesa', pagamenti: [] }, ...d.fatture] };
+          const forzata =
+            paese === 'CH' && !d.fatturazione.assoggettatoIva
+              ? { esenteIva: true, iva: 0, motivoEsenzione: nonAssoggettato }
+              : {};
+          const nuova: Fattura = {
+            ...n,
+            ...forzata,
+            id,
+            numero,
+            stato: n.tipo === 'TD04' ? 'emessa' : 'in_attesa',
+            pagamenti: [],
+          };
+          const fatture = [nuova, ...d.fatture];
+          return {
+            ...d,
+            fatture: n.origineId
+              ? fatture.map((f) =>
+                  f.id === n.origineId ? { ...f, stato: statoDopo(f, fatture, paese, true) } : f,
+                )
+              : fatture,
+          };
         });
         return id;
       },
-      // Come il trigger `trg_aggiorna_stato_da_pagamenti`, ma confrontando con quanto il cliente paga davvero.
       registraPagamento: (fatturaId, importo, metodo, data) =>
         aggiorna((d) => ({
           ...d,
@@ -290,8 +313,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
               ...f.pagamenti,
               { id: nuovoId('pg'), data: data ?? new Date().toISOString(), importo, metodo },
             ];
-            const t = totaliFattura({ ...f, pagamenti }, paese);
-            return { ...f, pagamenti, stato: t.residuo <= 0.01 ? 'pagata' : f.stato };
+            const conPagamento = { ...f, pagamenti };
+            const tutte = d.fatture.map((x) => (x.id === fatturaId ? conPagamento : x));
+            return { ...conPagamento, stato: statoDopo(conPagamento, tutte, paese) };
           }),
         })),
       annullaFattura: (fatturaId) =>
@@ -299,6 +323,25 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           ...d,
           fatture: d.fatture.map((f) => (f.id === fatturaId ? { ...f, stato: 'annullata' } : f)),
         })),
+      // Come `elimina-fattura`: solo se non è emessa (niente PDF) e non ha note di credito.
+      eliminaFattura: (fatturaId) => {
+        const f = dati.fatture.find((x) => x.id === fatturaId);
+        if (f?.pdf) return 'emessa';
+        if (dati.fatture.some((x) => x.origineId === fatturaId)) return 'note';
+        aggiorna((d) => {
+          const fatture = d.fatture.filter((x) => x.id !== fatturaId);
+          return {
+            ...d,
+            fatture: f?.origineId
+              ? fatture.map((x) =>
+                  x.id === f.origineId ? { ...x, stato: statoDopo(x, fatture, paese, true) } : x,
+                )
+              : fatture,
+            documenti: d.documenti.filter((x) => x.fatturaId !== fatturaId),
+          };
+        });
+        return 'ok';
+      },
       // Come `genera-fattura-pdf`: il PDF finisce anche nell'archivio, nella categoria «Fatture».
       generaPdf: (fatturaId) =>
         aggiorna((d) => {
@@ -313,7 +356,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           }
           const pdf: DocumentoStudio = {
             id: nuovoId('d'),
-            titolo: `Fattura ${f.numero}`,
+            titolo: `${f.tipo === 'TD04' ? 'Nota di credito' : 'Fattura'} ${f.numero}`,
             quando: new Date().toISOString(),
             dimensione: '90 KB',
             formato: 'PDF',
