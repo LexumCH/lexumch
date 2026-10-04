@@ -68,11 +68,13 @@
   "indirizzo": {
     "domicilio": "Adresse de domicile",
     "sede_operativa": "Adresse d'exploitation (si différente du siège social)",
-    "via_ph": "Rue, numéro",
+    "via_ph": "Rue",
     "localita": "Localité",
     "localita_ph": "Lugano",
     "cantone": "Canton",
-    "npa": "NPA"
+    "npa": "NPA",
+    "numero": "N°",
+    "paese": "Pays"
   },
   "avvocato": {
     "assegnato": "Avocat assigné *",
@@ -96,7 +98,9 @@
     "email_obbligatoria": "L'e-mail est obligatoire",
     "email_non_valida": "E-mail invalide",
     "password_obbligatoria": "Saisissez le mot de passe initial pour activer le portail",
-    "password_corta": "Le mot de passe doit comporter au moins 8 caractères"
+    "password_corta": "Le mot de passe doit comporter au moins 8 caractères",
+    "paese_non_valido": "Pays : code à deux lettres (p. ex. CH)",
+    "npa_non_valido": "Le NPA a 4 chiffres"
   },
   "successo": {
     "titolo": "Client créé",

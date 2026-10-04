@@ -35,6 +35,7 @@
 // mai: a piano scaduto il limite vale 0, e 0 qui significa «senza limite».
 // Lo stato lo calcola il DB (stato_abbonamento_calcolato), la regola di sempre.
 // Il professionista assegnato deve essere dello studio: prima si accettava qualunque id.
+// 04-10-2026: numero civico e paese, che servono all'indirizzo strutturato della QR-fattura.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
@@ -162,7 +163,7 @@ Deno.serve(async (req) => {
       rappr_nome, rappr_cognome, rappr_avs, rappr_carica,
       // Comuni
       email, telefono,
-      indirizzo, citta, cantone, cap,
+      indirizzo, numero_civico, citta, cantone, cap, paese,
       note,
       avvocato_id,
       // Portale
@@ -181,6 +182,7 @@ Deno.serve(async (req) => {
     }
 
     if (!email?.trim()) throw new Error("Email obbligatoria");
+    if (paese?.trim() && !/^[A-Za-z]{2}$/.test(paese.trim())) throw new Error("Paese non valido (codice a due lettere, es. CH)");
     if (!/\S+@\S+\.\S+/.test(email)) throw new Error("Email non valida");
 
     // Se attiva il portale, password obbligatoria
@@ -265,6 +267,8 @@ Deno.serve(async (req) => {
     // Campi comuni opzionali — solo se forniti (anagrafica CH)
     addIfPresent(updatePayload, "telefono",      telefono);
     addIfPresent(updatePayload, "indirizzo",     indirizzo);
+    addIfPresent(updatePayload, "numero_civico", numero_civico);
+    addIfPresent(updatePayload, "paese",         paese?.trim()?.toUpperCase());
     addIfPresent(updatePayload, "citta",         citta);
     addIfPresent(updatePayload, "cantone",       cantone);
     addIfPresent(updatePayload, "cap",           cap);

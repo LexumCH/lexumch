@@ -2,7 +2,8 @@
   "common": {
     "trattino": "—",
     "annulla": "Abbrechen",
-    "errore": "Fehler"
+    "errore": "Fehler",
+    "gia_emessa": "Die Rechnung wurde bereits ausgestellt (PDF erstellt): sie kann nicht gelöscht werden. Stornieren Sie sie: sie bleibt im Register."
   },
   "back": {
     "fatturazione": "Rechnungsstellung"
@@ -49,7 +50,10 @@
   "cliente": {
     "destinatario": "Empfänger",
     "pratica_collegata": "Verknüpftes Dossier",
-    "nessuna_pratica": "Kein Dossier verknüpft"
+    "nessuna_pratica": "Kein Dossier verknüpft",
+    "mandato_collegato": "Verknüpftes Mandat",
+    "nessun_mandato": "Kein Mandat",
+    "cambia_mandato": "Mit einem Mandat verknüpfen"
   },
   "righe": {
     "prestazioni": "Leistungen",
@@ -71,6 +75,7 @@
     "titolo": "Zusammenfassung",
     "imponibile": "Steuerbarer Betrag",
     "iva_esente": "MWST — befreit",
+    "non_assoggettato": "nicht MWST-pflichtig",
     "iva": "MWST {{aliquota}}%",
     "totale_fattura": "Rechnungsbetrag",
     "incassato": "Eingegangen",

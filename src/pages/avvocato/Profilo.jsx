@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { PageHeader, Badge } from '@/components/shared'
-import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale, ArrowRight, Shield, ShieldCheck } from 'lucide-react'
+import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale, ArrowRight, Shield, ShieldCheck, Receipt } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
 import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
 import SelectLingua, { nomeLingua } from '@/components/SelectLingua'
+import { CANTONI, pulisciIban, formattaIban, ibanValido, ibanSvizzero, isQrIban, normalizzaUid, mancanzeQr } from '@/lib/fatturazione'
 
 function Campo({ label, value, placeholder = '—', type = 'text', disabled = false, editing, onChange, notEditableLabel }) {
     if (!editing || disabled) {
@@ -31,6 +32,34 @@ function Campo({ label, value, placeholder = '—', type = 'text', disabled = fa
     )
 }
 
+function CampoSelect({ label, value, opzioni, editing, onChange }) {
+    const testo = opzioni.find(o => o.codice === value)?.etichetta
+    if (!editing) {
+        return (
+            <div>
+                <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-1">{label}</label>
+                <p className={`font-body text-sm py-2 border-b border-white/8 ${testo ? 'text-nebbia' : 'text-nebbia/25 italic'}`}>{testo || '—'}</p>
+            </div>
+        )
+    }
+    return (
+        <div>
+            <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">{label}</label>
+            <select value={value} onChange={e => onChange(e.target.value)}
+                className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50">
+                {opzioni.map(o => <option key={o.codice} value={o.codice}>{o.etichetta}</option>)}
+            </select>
+        </div>
+    )
+}
+
+// Dati di fatturazione (04-10-2026): intestano le fatture e servono alla
+// QR-fattura. Prima non c'era nessuna pagina per scriverli.
+const FATT_VUOTO = {
+    indirizzo: '', numero_civico: '', cap: '', citta: '', cantone: '', paese: 'CH',
+    iban: '', qr_iban: '', uid: '', iva_attiva: 'no',
+}
+
 export default function AvvocatoProfilo() {
     const { t, i18n } = useTranslation('avv_profilo')
     const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
@@ -38,6 +67,8 @@ export default function AvvocatoProfilo() {
 
     const [loading, setLoading] = useState(true)
     const [tipoAccount, setTipoAccount] = useState(null)
+    const [ruolo, setRuolo] = useState(null)
+    const [titolareId, setTitolareId] = useState(null)
     const [verificato, setVerificato] = useState(false)
 
     // Dati piano da profiles
@@ -58,6 +89,14 @@ export default function AvvocatoProfilo() {
     const [salvandoAtti, setSalvandoAtti] = useState(false)
     const [okAtti, setOkAtti] = useState(false)
     const [errAtti, setErrAtti] = useState('')
+
+    // Dati di fatturazione
+    const [fatt, setFatt] = useState(FATT_VUOTO)
+    const [fattOriginali, setFattOriginali] = useState(FATT_VUOTO)
+    const [editingFatt, setEditingFatt] = useState(false)
+    const [salvandoFatt, setSalvandoFatt] = useState(false)
+    const [okFatt, setOkFatt] = useState(false)
+    const [errFatt, setErrFatt] = useState('')
 
     // Password
     const [editingPwd, setEditingPwd] = useState(false)
@@ -84,7 +123,7 @@ export default function AvvocatoProfilo() {
 
                 const { data: profilo } = await supabase
                     .from('profiles')
-                    .select('nome, cognome, email, telefono, lingua, specializzazioni, studio, tipo_account, verification_status, piano_id, abbonamento_tipo, abbonamento_scadenza, posti_acquistati, include_banca_dati, include_monetizzazione, cantone_albo, numero_albo, data_iscrizione_albo, mfa_attivo, mfa_attivato_at')
+                    .select('nome, cognome, email, telefono, lingua, specializzazioni, studio, tipo_account, verification_status, piano_id, abbonamento_tipo, abbonamento_scadenza, posti_acquistati, include_banca_dati, include_monetizzazione, cantone_albo, numero_albo, data_iscrizione_albo, mfa_attivo, mfa_attivato_at, role, titolare_id, indirizzo, numero_civico, cap, citta, cantone, paese, iban, qr_iban, uid, iva_attiva')
                     .eq('id', user.id)
                     .single()
 
@@ -111,7 +150,24 @@ export default function AvvocatoProfilo() {
                     setAtti(a)
                     setAttiOriginali(a)
 
+                    const f = {
+                        indirizzo: profilo.indirizzo ?? '',
+                        numero_civico: profilo.numero_civico ?? '',
+                        cap: profilo.cap ?? '',
+                        citta: profilo.citta ?? '',
+                        cantone: profilo.cantone ?? '',
+                        paese: profilo.paese ?? 'CH',
+                        iban: profilo.iban ? formattaIban(profilo.iban) : '',
+                        qr_iban: profilo.qr_iban ? formattaIban(profilo.qr_iban) : '',
+                        uid: profilo.uid ?? '',
+                        iva_attiva: profilo.iva_attiva ? 'si' : 'no',
+                    }
+                    setFatt(f)
+                    setFattOriginali(f)
+
                     setTipoAccount(profilo.tipo_account ?? null)
+                    setRuolo(profilo.role ?? null)
+                    setTitolareId(profilo.titolare_id ?? null)
                     setVerificato(profilo.verification_status === 'approved')
 
                     if (profilo.piano_id) {
@@ -191,6 +247,48 @@ export default function AvvocatoProfilo() {
 
     function handleAnnullaAtti() { setAtti(attiOriginali); setEditingAtti(false); setErrAtti('') }
 
+    async function handleSalvaFatt() {
+        setErrFatt(''); setOkFatt(false)
+        const v = Object.fromEntries(Object.entries(fatt).map(([k, x]) => [k, typeof x === 'string' ? x.trim() : x]))
+        v.paese = (v.paese || 'CH').toUpperCase()
+        const iban = pulisciIban(v.iban)
+        const qrIban = pulisciIban(v.qr_iban)
+        if (!/^[A-Z]{2}$/.test(v.paese)) return setErrFatt(t('fatturazione.err_paese'))
+        if ((v.paese === 'CH' || v.paese === 'LI') && v.cap && !/^[0-9]{4}$/.test(v.cap)) return setErrFatt(t('fatturazione.err_cap'))
+        if (iban && !ibanValido(iban)) return setErrFatt(t('fatturazione.err_iban'))
+        if (iban && isQrIban(iban)) return setErrFatt(t('fatturazione.err_iban_qr'))
+        if (qrIban && !(ibanSvizzero(qrIban) && isQrIban(qrIban))) return setErrFatt(t('fatturazione.err_qr_iban'))
+        let uid = v.uid
+        if (uid && (v.paese === 'CH' || /^CHE/i.test(uid))) {
+            uid = normalizzaUid(uid)
+            if (!uid) return setErrFatt(t('fatturazione.err_uid'))
+        }
+        if (v.iva_attiva === 'si' && !uid) return setErrFatt(t('fatturazione.err_uid_iva'))
+        setSalvandoFatt(true)
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            const { error } = await supabase.from('profiles').update({
+                indirizzo: v.indirizzo || null,
+                numero_civico: v.numero_civico || null,
+                cap: v.cap || null,
+                citta: v.citta || null,
+                cantone: v.cantone || null,
+                paese: v.paese,
+                iban: iban || null,
+                qr_iban: qrIban || null,
+                uid: uid || null,
+                iva_attiva: v.iva_attiva === 'si',
+            }).eq('id', user.id)
+            if (error) throw new Error(error.message)
+            const salvati = { ...v, iban: iban ? formattaIban(iban) : '', qr_iban: qrIban ? formattaIban(qrIban) : '', uid: uid || '' }
+            setFatt(salvati); setFattOriginali(salvati); setEditingFatt(false); setOkFatt(true)
+            setTimeout(() => setOkFatt(false), 3000)
+        } catch (err) { setErrFatt(err.message) }
+        finally { setSalvandoFatt(false) }
+    }
+
+    function handleAnnullaFatt() { setFatt(fattOriginali); setEditingFatt(false); setErrFatt('') }
+
     async function handleCambiaPwd() {
         setErrPwd(''); setOkPwd(false)
         if (pwd.nuova.length < 8) return setErrPwd(t('password.min_caratteri'))
@@ -252,11 +350,19 @@ export default function AvvocatoProfilo() {
 
     const scaduto = pianoDati?.scadenza && new Date(pianoDati.scadenza) < new Date()
 
-    // Verifica completezza dati per generazione atti
+    // Verifica completezza dati per generazione atti (gli atti sono degli avvocati)
+    const isAvvocato = ruolo === 'avvocato'
     const campiAttiMancanti = []
     if (!atti.cantone_albo) campiAttiMancanti.push(t('campi_mancanti.cantone_albo'))
     if (!atti.numero_albo) campiAttiMancanti.push(t('campi_mancanti.numero_albo'))
     const profiloCompleto = campiAttiMancanti.length === 0
+
+    // Dati di fatturazione: le fatture dello studio le emette il titolare
+    const emetteTitolare = !!titolareId
+    const fattMancanti = mancanzeQr(fattOriginali)
+    if (fattOriginali.iva_attiva === 'si' && !fattOriginali.uid) fattMancanti.push('uid')
+    const fattCompleto = fattMancanti.length === 0
+    const ibanEstero = !!fatt.iban && ibanValido(fatt.iban) && !ibanSvizzero(fatt.iban)
 
     if (loading) return (
         <div className="flex items-center justify-center py-40">
@@ -269,7 +375,7 @@ export default function AvvocatoProfilo() {
             <PageHeader label={t('header.label')} title={t('header.title')} />
 
             {/* BANNER COMPLETAMENTO PROFILO */}
-            {!profiloCompleto && (
+            {isAvvocato && !profiloCompleto && (
                 <div className="bg-amber-900/10 border border-amber-500/30 p-4 flex items-start gap-3">
                     <AlertCircle size={18} className="text-amber-400 shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
@@ -345,7 +451,7 @@ export default function AvvocatoProfilo() {
             </div>
 
             {/* DATI PROFESSIONALI PER ATTI */}
-            <div className={`bg-slate border p-6 space-y-5 ${profiloCompleto ? 'border-white/5' : 'border-amber-500/30'}`}>
+            {isAvvocato && <div className={`bg-slate border p-6 space-y-5 ${profiloCompleto ? 'border-white/5' : 'border-amber-500/30'}`}>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Scale size={14} className="text-oro/60" />
@@ -387,7 +493,85 @@ export default function AvvocatoProfilo() {
                         {salvandoAtti ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><Check size={14} /> {t('atti.salva')}</>}
                     </button>
                 )}
-            </div>
+            </div>}
+
+            {/* DATI DI FATTURAZIONE (chi emette: il titolare; i membri usano quelli dello studio) */}
+            {emetteTitolare ? (
+                <div className="bg-slate border border-white/5 p-5 flex items-start gap-3">
+                    <Receipt size={14} className="text-oro/60 shrink-0 mt-0.5" />
+                    <p className="font-body text-xs text-nebbia/45 leading-relaxed">{t('fatturazione.membro')}</p>
+                </div>
+            ) : (
+                <div className={`bg-slate border p-6 space-y-5 ${fattCompleto ? 'border-white/5' : 'border-amber-500/30'}`}>
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-2 flex-wrap min-w-0">
+                            <Receipt size={14} className="text-oro/60 shrink-0" />
+                            <p className="section-label !m-0">{t('fatturazione.titolo')}</p>
+                            {fattCompleto && (
+                                <span className="font-body text-[10px] text-salvia border border-salvia/30 bg-salvia/5 px-2 py-0.5 uppercase tracking-wider">
+                                    {t('fatturazione.completo_badge')}
+                                </span>
+                            )}
+                        </div>
+                        {!editingFatt ? (
+                            <button onClick={() => setEditingFatt(true)} className="shrink-0 flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-oro transition-colors border border-white/10 hover:border-oro/30 px-3 py-1.5">
+                                <Edit2 size={12} /> {fattCompleto ? t('fatturazione.modifica') : t('fatturazione.compila')}
+                            </button>
+                        ) : (
+                            <button onClick={handleAnnullaFatt} className="shrink-0 flex items-center gap-1.5 font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors border border-white/10 px-3 py-1.5">
+                                <X size={12} /> {t('fatturazione.annulla')}
+                            </button>
+                        )}
+                    </div>
+
+                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">
+                        {t('fatturazione.descrizione')}
+                        {!fattCompleto && <> {t('fatturazione.mancano')} <span className="text-amber-400/80">{fattMancanti.map(k => t(`fatturazione.mancanti.${k}`)).join(', ')}</span>.</>}
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px] gap-5">
+                        <Campo label={t('fatturazione.indirizzo')} value={fatt.indirizzo} placeholder={t('fatturazione.indirizzo_placeholder')}
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, indirizzo: v }))} />
+                        <Campo label={t('fatturazione.numero_civico')} value={fatt.numero_civico} placeholder="5"
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, numero_civico: v }))} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr_110px_90px] gap-5">
+                        <Campo label={t('fatturazione.cap')} value={fatt.cap} placeholder={t('fatturazione.cap_placeholder')}
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, cap: v }))} />
+                        <Campo label={t('fatturazione.citta')} value={fatt.citta} placeholder={t('fatturazione.citta_placeholder')}
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, citta: v }))} />
+                        <CampoSelect label={t('fatturazione.cantone')} value={fatt.cantone} opzioni={[{ codice: '', etichetta: '—' }, ...CANTONI.map(c => ({ codice: c, etichetta: c }))]}
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, cantone: v }))} />
+                        <Campo label={t('fatturazione.paese')} value={fatt.paese} placeholder="CH"
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, paese: v }))} />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <Campo label={t('fatturazione.iban')} value={fatt.iban} placeholder="CH93 0076 2011 6238 5295 7"
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, iban: v }))} />
+                        <Campo label={t('fatturazione.qr_iban')} value={fatt.qr_iban} placeholder="CH44 3199 9123 0008 8901 2"
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, qr_iban: v }))} />
+                    </div>
+                    {editingFatt && <p className="font-body text-xs text-nebbia/30 leading-relaxed -mt-2">{t('fatturazione.qr_iban_nota')}</p>}
+                    {ibanEstero && <p className="font-body text-xs text-amber-400/80 leading-relaxed -mt-2">{t('fatturazione.avviso_iban_estero')}</p>}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <CampoSelect label={t('fatturazione.iva_attiva')} value={fatt.iva_attiva} opzioni={[{ codice: 'si', etichetta: t('fatturazione.iva_attiva_si') }, { codice: 'no', etichetta: t('fatturazione.iva_attiva_no') }]}
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, iva_attiva: v }))} />
+                        <Campo label={t('fatturazione.uid')} value={fatt.uid} placeholder="CHE-123.456.789"
+                            editing={editingFatt} onChange={v => setFatt(f => ({ ...f, uid: v }))} />
+                    </div>
+                    {fatt.iva_attiva === 'no' && <p className="font-body text-xs text-nebbia/30 leading-relaxed -mt-2">{t('fatturazione.iva_nota')}</p>}
+
+                    {errFatt && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20"><AlertCircle size={14} /> {errFatt}</div>}
+                    {okFatt && <div className="flex items-center gap-2 text-salvia text-xs font-body p-3 bg-salvia/5 border border-salvia/20"><CheckCircle size={14} /> {t('fatturazione.ok')}</div>}
+                    {editingFatt && (
+                        <button onClick={handleSalvaFatt} disabled={salvandoFatt} className="btn-primary text-sm flex items-center gap-2 disabled:opacity-40">
+                            {salvandoFatt ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" /> : <><Check size={14} /> {t('fatturazione.salva')}</>}
+                        </button>
+                    )}
+                </div>
+            )}
 
             {/* ABBONAMENTO */}
             {pianoDati && (

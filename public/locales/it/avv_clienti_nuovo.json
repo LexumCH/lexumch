@@ -68,11 +68,13 @@
   "indirizzo": {
     "domicilio": "Indirizzo di domicilio",
     "sede_operativa": "Sede operativa (se diversa dalla sede legale)",
-    "via_ph": "Via, numero civico",
+    "via_ph": "Via",
     "localita": "Località",
     "localita_ph": "Lugano",
     "cantone": "Cantone",
-    "npa": "NPA"
+    "npa": "NPA",
+    "numero": "Numero",
+    "paese": "Paese"
   },
   "avvocato": {
     "assegnato": "Avvocato assegnato *",
@@ -96,7 +98,9 @@
     "email_obbligatoria": "L'email è obbligatoria",
     "email_non_valida": "Email non valida",
     "password_obbligatoria": "Inserisci la password iniziale per attivare il portale",
-    "password_corta": "La password deve essere di almeno 8 caratteri"
+    "password_corta": "La password deve essere di almeno 8 caratteri",
+    "paese_non_valido": "Paese: codice di due lettere (es. CH)",
+    "npa_non_valido": "L'NPA ha 4 cifre"
   },
   "successo": {
     "titolo": "Cliente creato",

@@ -34,6 +34,7 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
   const [noteIniziali, setNoteIniziali] = useState('')
   const [avvocatoId, setAvvocatoId] = useState('')
   const [confirmAdmin, setConfirmAdmin] = useState(false)
+  const [passwordScelta, setPasswordScelta] = useState('')  // vuota = la genera il server
 
   // Stati flusso
   const [avvocati, setAvvocati] = useState([])
@@ -42,14 +43,17 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
   const [successo, setSuccesso] = useState(null)  // { user_id, password_temp }
   const [copiato, setCopiato] = useState(false)
 
-  // Carica avvocati alla prima apertura per il select cliente → avvocato
+  // Carica i professionisti alla prima apertura per il select cliente → professionista.
+  // Solo avvocati, fiduciari e progettisti: prima arrivavano TUTTI i profili
+  // (privati, clienti, admin) e sceglierne uno faceva fallire la creazione.
   useEffect(() => {
     if (!open) return
     async function caricaAvvocati() {
       const { data } = await supabase
         .from('profiles')
         .select('id, nome, cognome, email, role, studio, verification_status, tipo_richiesta, created_at')
-        .order('created_at', { ascending: false })
+        .in('role', ['avvocato', 'fiduciario', 'progettista'])
+        .order('cognome', { ascending: true })
       setAvvocati(data ?? [])
     }
     caricaAvvocati()
@@ -59,7 +63,7 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
   function reset() {
     setRole('user'); setNome(''); setCognome(''); setEmail('')
     setTelefono(''); setCf(''); setIndirizzo(''); setNoteIniziali('')
-    setAvvocatoId(''); setConfirmAdmin(false)
+    setAvvocatoId(''); setConfirmAdmin(false); setPasswordScelta('')
     setErrore(''); setSuccesso(null); setCopiato(false)
   }
 
@@ -77,8 +81,10 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
     if (!cognome.trim()) return setErrore('Cognome obbligatorio')
     if (!email.trim()) return setErrore('Email obbligatoria')
     if (!/\S+@\S+\.\S+/.test(email)) return setErrore('Email non valida')
-    if (role === 'cliente' && !avvocatoId) return setErrore("Seleziona l'avvocato di appartenenza")
+    if (role === 'cliente' && !avvocatoId) return setErrore('Seleziona il professionista di appartenenza')
     if (role === 'admin' && !confirmAdmin) return setErrore('Devi confermare la creazione del nuovo admin')
+    if (passwordScelta && passwordScelta.length < 8) return setErrore('La password deve avere almeno 8 caratteri')
+    if (passwordScelta && passwordScelta.trim() !== passwordScelta) return setErrore('La password non può iniziare o finire con uno spazio')
 
     setLoading(true)
     try {
@@ -103,6 +109,7 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
             note_iniziali: noteIniziali.trim() || null,
             avvocato_id: role === 'cliente' ? avvocatoId : null,
             confirm_admin: role === 'admin' ? true : undefined,
+            password: passwordScelta || undefined,
           }),
         }
       )
@@ -235,7 +242,7 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { id: 'user', label: 'User', desc: 'Account base' },
-                    { id: 'cliente', label: 'Cliente', desc: 'Per avvocato' },
+                    { id: 'cliente', label: 'Cliente', desc: 'Di un professionista' },
                     { id: 'admin', label: 'Admin', desc: 'Pieni poteri' },
                   ].map(r => (
                     <button key={r.id}
@@ -278,25 +285,39 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
                   className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50" />
               </div>
 
+              {/* Password temporanea: la sceglie l'admin, oppure la genera il server */}
+              <div>
+                <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
+                  Password temporanea <span className="text-nebbia/25 normal-case tracking-normal">— facoltativa</span>
+                </label>
+                <input type="text" value={passwordScelta} onChange={e => setPasswordScelta(e.target.value)} disabled={loading}
+                  autoComplete="new-password" spellCheck={false} autoCapitalize="off" autoCorrect="off"
+                  placeholder="Lasciala vuota per generarla in automatico"
+                  className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
+                <p className="font-body text-[11px] text-nebbia/30 mt-1">
+                  Almeno 8 caratteri. Alla fine la ritrovi qui sotto, da copiare.
+                </p>
+              </div>
+
               {/* Campi specifici per CLIENTE */}
               {role === 'cliente' && (
                 <>
                   <div>
                     <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-1.5">
-                      Avvocato di appartenenza <span className="text-red-400 normal-case tracking-normal">*</span>
+                      Professionista di appartenenza <span className="text-red-400 normal-case tracking-normal">*</span>
                     </label>
                     <select value={avvocatoId} onChange={e => setAvvocatoId(e.target.value)} disabled={loading}
                       className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50">
-                      <option value="">— Seleziona avvocato —</option>
+                      <option value="">— Seleziona professionista —</option>
                       {avvocati.map(a => (
                         <option key={a.id} value={a.id}>
-                          {a.cognome} {a.nome}{a.studio ? ` — ${a.studio}` : ''}
+                          {a.cognome} {a.nome} · {ROLE_BADGE[a.role]?.label ?? a.role}{a.studio ? ` — ${a.studio}` : ''}
                         </option>
                       ))}
                     </select>
                     {avvocati.length === 0 && (
                       <p className="font-body text-xs text-nebbia/40 mt-1">
-                        Nessun avvocato verificato disponibile.
+                        Nessun professionista disponibile.
                       </p>
                     )}
                   </div>

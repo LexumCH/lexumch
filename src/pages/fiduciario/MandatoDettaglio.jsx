@@ -3,6 +3,7 @@
 // Pagina dettaglio di un mandato fiduciario (rotta /banco-lavoro/:id).
 // Layout a griglia:
 //   Riga 1: Anagrafica (cliente + dati + note) + Scadenze   — 2 colonne, h fissa
+//   Fatture del mandato (04-10-2026)                        — full width
 //   Riga 2: Dipendenti                                      — full width
 //   Riga 3: Documenti + Ricerche                            — 2 colonne, h fissa
 //   Riga 4: Chat (Lex per il mandato)                       — full width (placeholder)
@@ -18,6 +19,7 @@ import {
 import BoxScadenzeMandato from '@/components/fiduciario/BoxScadenzeMandato'
 import BoxDocumentiMandato from '@/components/fiduciario/BoxDocumentiMandato'
 import BoxRicercheMandato from '@/components/fiduciario/BoxRicercheMandato'
+import BoxFattureMandato from '@/components/fiduciario/BoxFattureMandato'
 import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
 import ChatMandato from '@/components/fiduciario/ChatMandato'
 import EntrateUscite from '@/components/fiduciario/EntrateUscite'
@@ -288,6 +290,9 @@ export default function MandatoDettaglio() {
                     refreshTrigger={refreshMovimenti}
                 />
             </div>
+
+            {/* ═══════════ Fatture del mandato (full width) ═══════════ */}
+            <BoxFattureMandato mandatoId={mandato.id} clienteId={mandato.cliente_id} />
 
             {/* ═══════════ Entrate e uscite (full width) ═══════════ */}
             <EntrateUscite

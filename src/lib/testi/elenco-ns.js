@@ -48,6 +48,7 @@ export const ELENCO_NS = [
   "comp_etichette_assegnate",
   "comp_fid_assegna_movimento",
   "comp_fid_box_documenti",
+  "comp_fid_box_fatture",
   "comp_fid_box_ricerche",
   "comp_fid_box_scadenze",
   "comp_fid_budget_scostamenti",

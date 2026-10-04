@@ -1,0 +1,21 @@
+{
+  "header": {
+    "titolo": "Fatture ({{count}})",
+    "nuova": "Nuova fattura"
+  },
+  "riepilogo": {
+    "fatturato": "Fatturato",
+    "da_incassare": "Da incassare"
+  },
+  "vuoto": {
+    "titolo": "Nessuna fattura",
+    "suggerimento": "Le fatture create da qui restano collegate a questo mandato."
+  },
+  "senza_cliente": "Collega un cliente al mandato per poterlo fatturare.",
+  "stati": {
+    "pagata": "Pagata",
+    "in_attesa": "In attesa",
+    "scaduta": "Scaduta",
+    "annullata": "Annullata"
+  }
+}

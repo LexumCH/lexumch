@@ -2,7 +2,8 @@
   "common": {
     "trattino": "—",
     "annulla": "Annuler",
-    "errore": "Erreur"
+    "errore": "Erreur",
+    "gia_emessa": "La facture a déjà été émise (PDF généré) : elle ne peut pas être supprimée. Annulez-la : elle reste dans le registre."
   },
   "back": {
     "fatturazione": "Facturation"
@@ -49,7 +50,10 @@
   "cliente": {
     "destinatario": "Destinataire",
     "pratica_collegata": "Dossier lié",
-    "nessuna_pratica": "Aucun dossier lié"
+    "nessuna_pratica": "Aucun dossier lié",
+    "mandato_collegato": "Mandat lié",
+    "nessun_mandato": "Aucun mandat",
+    "cambia_mandato": "Lier à un mandat"
   },
   "righe": {
     "prestazioni": "Prestations",
@@ -71,6 +75,7 @@
     "titolo": "Récapitulatif",
     "imponibile": "Montant imposable",
     "iva_esente": "TVA — exonérée",
+    "non_assoggettato": "non assujetti à la TVA",
     "iva": "TVA {{aliquota}}%",
     "totale_fattura": "Total de la facture",
     "incassato": "Encaissé",

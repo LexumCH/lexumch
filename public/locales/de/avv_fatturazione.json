@@ -87,7 +87,8 @@
       "stato": "Status",
       "pagata_il": "Bezahlt {{data}}",
       "vuoto_nessuna": "Noch keine Rechnung. Erstellen Sie die erste.",
-      "vuoto_filtri": "Keine Rechnung gefunden"
+      "vuoto_filtri": "Keine Rechnung gefunden",
+      "mandato": "Mandat"
     }
   },
   "scadenzario": {

@@ -2,7 +2,8 @@
   "common": {
     "trattino": "—",
     "annulla": "Annulla",
-    "errore": "Errore"
+    "errore": "Errore",
+    "gia_emessa": "La fattura è già stata emessa (PDF generato): non si elimina. Annullala: resta nel registro."
   },
   "back": {
     "fatturazione": "Fatturazione"
@@ -49,7 +50,10 @@
   "cliente": {
     "destinatario": "Destinatario",
     "pratica_collegata": "Pratica collegata",
-    "nessuna_pratica": "Nessuna pratica collegata"
+    "nessuna_pratica": "Nessuna pratica collegata",
+    "mandato_collegato": "Mandato collegato",
+    "nessun_mandato": "Nessun mandato",
+    "cambia_mandato": "Collega a un mandato"
   },
   "righe": {
     "prestazioni": "Prestazioni",
@@ -71,6 +75,7 @@
     "titolo": "Riepilogo",
     "imponibile": "Imponibile",
     "iva_esente": "IVA — esente",
+    "non_assoggettato": "non assoggettato all'IVA",
     "iva": "IVA {{aliquota}}%",
     "totale_fattura": "Totale fattura",
     "incassato": "Incassato",

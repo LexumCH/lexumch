@@ -9,9 +9,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { PageHeader, BackButton, InputField, TextareaField } from '@/components/shared'
+import { PageHeader, BackButton, InputField, TextareaField, SelectField } from '@/components/shared'
 import { AlertCircle, CheckCircle, User, Building2, Eye, EyeOff, Lock, Users, ShoppingBag } from 'lucide-react'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
+import { CANTONI } from '@/lib/fatturazione'
 
 // ─────────────────────────────────────────────────────────────
 // SWITCHER PF / PG
@@ -173,7 +174,7 @@ export default function AvvocatoClientiNuovo() {
         rappr_nome: '', rappr_cognome: '', rappr_avs: '', rappr_carica: '',
         // Comuni
         email: '', telefono: '',
-        indirizzo: '', citta: '', cantone: '', cap: '',
+        indirizzo: '', numero_civico: '', citta: '', cantone: '', cap: '', paese: 'CH',
         note: '',
         avvocato_id: '',
         // Portale
@@ -249,6 +250,10 @@ export default function AvvocatoClientiNuovo() {
         }
         if (!form.email.trim()) return setErrore(t('errori.email_obbligatoria'))
         if (!/\S+@\S+\.\S+/.test(form.email)) return setErrore(t('errori.email_non_valida'))
+        // Indirizzo: serve strutturato alla QR-fattura (via, numero, NPA, localita', paese)
+        const paese = (form.paese || 'CH').trim().toUpperCase()
+        if (!/^[A-Z]{2}$/.test(paese)) return setErrore(t('errori.paese_non_valido'))
+        if ((paese === 'CH' || paese === 'LI') && form.cap.trim() && !/^[0-9]{4}$/.test(form.cap.trim())) return setErrore(t('errori.npa_non_valido'))
 
         if (form.attiva_portale) {
             if (!form.password_iniziale) return setErrore(t('errori.password_obbligatoria'))
@@ -264,9 +269,11 @@ export default function AvvocatoClientiNuovo() {
                 email: form.email,
                 telefono: form.telefono,
                 indirizzo: form.indirizzo,
+                numero_civico: form.numero_civico,
                 citta: form.citta,
-                cantone: form.cantone,
+                cantone: form.cantone || undefined,
                 cap: form.cap,
+                paese,
                 note: form.note,
                 avvocato_id: form.avvocato_id || null,
                 attiva_portale: form.attiva_portale,
@@ -438,15 +445,22 @@ export default function AvvocatoClientiNuovo() {
                     {/* Indirizzo */}
                     <div className="border-t border-white/8 pt-5 space-y-4">
                         <p className="section-label">{t('sezioni.indirizzo')}</p>
-                        <InputField
-                            label={tipo === 'persona_fisica' ? t('indirizzo.domicilio') : t('indirizzo.sede_operativa')}
-                            placeholder={t('indirizzo.via_ph')}
-                            {...f('indirizzo')}
-                        />
-                        <div className="grid grid-cols-3 gap-4">
-                            <InputField label={t('indirizzo.localita')} placeholder={t('indirizzo.localita_ph')} {...f('citta')} />
-                            <InputField label={t('indirizzo.cantone')} placeholder="TI" {...f('cantone')} />
+                        <div className="grid grid-cols-[1fr_110px] gap-4">
+                            <InputField
+                                label={tipo === 'persona_fisica' ? t('indirizzo.domicilio') : t('indirizzo.sede_operativa')}
+                                placeholder={t('indirizzo.via_ph')}
+                                {...f('indirizzo')}
+                            />
+                            <InputField label={t('indirizzo.numero')} placeholder="5" {...f('numero_civico')} />
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-[110px_1fr_110px_90px] gap-4">
                             <InputField label={t('indirizzo.npa')} placeholder="6900" {...f('cap')} />
+                            <InputField label={t('indirizzo.localita')} placeholder={t('indirizzo.localita_ph')} {...f('citta')} />
+                            <SelectField label={t('indirizzo.cantone')} {...f('cantone')}>
+                                <option value="">—</option>
+                                {CANTONI.map(c => <option key={c} value={c}>{c}</option>)}
+                            </SelectField>
+                            <InputField label={t('indirizzo.paese')} placeholder="CH" maxLength={2} {...f('paese')} />
                         </div>
                     </div>
 

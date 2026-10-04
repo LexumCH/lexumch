@@ -87,7 +87,8 @@
       "stato": "Statut",
       "pagata_il": "Payée {{data}}",
       "vuoto_nessuna": "Aucune facture pour le moment. Créez la première.",
-      "vuoto_filtri": "Aucune facture trouvée"
+      "vuoto_filtri": "Aucune facture trouvée",
+      "mandato": "Mandat"
     }
   },
   "scadenzario": {

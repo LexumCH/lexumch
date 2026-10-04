@@ -1,0 +1,21 @@
+{
+  "header": {
+    "titolo": "Factures ({{count}})",
+    "nuova": "Nouvelle facture"
+  },
+  "riepilogo": {
+    "fatturato": "Facturé",
+    "da_incassare": "À encaisser"
+  },
+  "vuoto": {
+    "titolo": "Aucune facture",
+    "suggerimento": "Les factures créées ici restent liées à ce mandat."
+  },
+  "senza_cliente": "Liez un client au mandat pour pouvoir le facturer.",
+  "stati": {
+    "pagata": "Payée",
+    "in_attesa": "En attente",
+    "scaduta": "Échue",
+    "annullata": "Annulée"
+  }
+}

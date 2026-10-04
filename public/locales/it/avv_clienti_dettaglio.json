@@ -212,14 +212,16 @@
     "telefono": "Telefono",
     "telefono_placeholder": "+41 ...",
     "indirizzo": "Indirizzo",
-    "indirizzo_placeholder": "Via ...",
+    "indirizzo_placeholder": "Via",
     "localita": "Località",
     "cantone": "Cantone",
     "npa": "NPA",
     "nome_completo": "Nome completo",
     "si": "Sì",
     "no": "No",
-    "avvocato_assegnato": "Avvocato assegnato"
+    "avvocato_assegnato": "Avvocato assegnato",
+    "numero": "Numero",
+    "paese": "Paese"
   },
   "pratiche": {
     "nuova_pratica": "Nuova pratica",

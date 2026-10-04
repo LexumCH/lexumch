@@ -16,7 +16,8 @@
     "imponibile": "Imponibile",
     "iva_esente": "IVA — esente",
     "iva_aliquota": "IVA {{aliquota}}%",
-    "totale_fattura": "Totale fattura"
+    "totale_fattura": "Totale fattura",
+    "mandato_collegato": "Mandato"
   },
   "destinatario": {
     "titolo": "Destinatario",
@@ -26,7 +27,11 @@
     "pratica_label": "Pratica collegata",
     "opzionale": "— opzionale",
     "nessuna_pratica": "Nessuna pratica",
-    "nessuna_pratica_aperta": "Questo cliente non ha pratiche aperte."
+    "nessuna_pratica_aperta": "Questo cliente non ha pratiche aperte.",
+    "lingua_label": "Lingua della fattura",
+    "mandato_label": "Mandato",
+    "nessun_mandato": "Nessun mandato",
+    "nessun_mandato_cliente": "Questo cliente non ha mandati."
   },
   "date": {
     "titolo": "Date",
@@ -46,12 +51,16 @@
   "iva": {
     "titolo": "IVA",
     "esente_label": "Esente IVA",
-    "esente_desc": "Spunta se non sei assoggettato all'IVA (es. cifra d'affari sotto la soglia LIVA).",
+    "esente_desc": "Per prestazioni non soggette all'IVA svizzera (es. cliente con sede all'estero). Indica il motivo: compare in fattura.",
     "motivo_label": "Motivo esenzione",
     "motivo_hint": "— opzionale, compare in fattura",
-    "motivo_ph": "Es. Non assoggettato IVA (art. 10 cpv. 2 LIVA)",
+    "motivo_ph": "Es. Luogo della prestazione all'estero (art. 8 LIVA)",
     "aliquota_label": "Aliquota IVA %",
-    "aliquota_hint": "Aliquote svizzere 2024: normale 8.1%, ridotta 2.6%, alloggio 3.8%."
+    "aliquota_hint": "Aliquote svizzere 2024: normale 8.1%, ridotta 2.6%, alloggio 3.8%.",
+    "non_assoggettato": "Chi emette la fattura non è iscritto nel registro IVA: la fattura esce senza IVA.",
+    "non_assoggettato_breve": "non assoggettato",
+    "cambia_profilo": "Modifica nel profilo",
+    "decide_titolare": "Lo imposta il titolare dello studio nel suo profilo."
   },
   "pagamento": {
     "titolo": "Modalità di pagamento",
@@ -93,6 +102,20 @@
     "almeno_una_riga": "Almeno una riga con descrizione e quantità > 0",
     "prezzi_numerici": "Tutti i prezzi devono essere numerici",
     "creazione_fattura": "Errore creazione fattura",
-    "fattura_creata_ma_pdf": "Fattura creata ma errore PDF"
+    "fattura_creata_ma_pdf": "Fattura creata ma errore PDF",
+    "iban_non_valido": "IBAN non valido: controlla le cifre",
+    "iban_qr": "Questo è un QR-IBAN: va nel profilo, nel campo QR-IBAN. Qui serve l'IBAN normale del conto."
+  },
+  "avviso_qr": {
+    "titolo": "La fattura uscirà senza QR-fattura",
+    "mancano": "Nei dati di fatturazione mancano:",
+    "completa": "Completa il profilo",
+    "chiedi_titolare": "Chiedi al titolare dello studio di completarli nel suo profilo.",
+    "campi": {
+      "indirizzo": "via",
+      "cap": "NPA",
+      "citta": "località",
+      "iban": "IBAN svizzero"
+    }
   }
 }

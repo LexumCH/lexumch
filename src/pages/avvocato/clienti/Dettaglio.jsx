@@ -15,7 +15,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
-import { BackButton, Badge, InputField, EmptyState } from '@/components/shared'
+import { BackButton, Badge, InputField, SelectField, EmptyState } from '@/components/shared'
 import {
     Plus, Search, Send, Lock, FileText, MessageSquare,
     CreditCard, StickyNote, User, FolderOpen, ArrowRight, Sparkles,
@@ -25,6 +25,7 @@ import {
     DraftingCompass
 } from 'lucide-react'
 import { supabase, supabaseUrl } from '@/lib/supabase'
+import { CANTONI } from '@/lib/fatturazione'
 import { useAuth } from '@/context/AuthContext'
 import DocumentiPortale from '@/components/shared/DocumentiPortale'
 import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
@@ -1465,7 +1466,7 @@ export default function AvvocatoClientiDettaglio() {
             // CH: anagrafica svizzera — numero_avs, uid, forma_giuridica, iva_attiva,
             // citta, cantone, rappr_avs; niente cf/partita_iva/pec/comune/provincia
             const { data: c } = await supabase.from('profiles')
-                .select('id, tipo_soggetto, nome, cognome, ragione_sociale, uid, forma_giuridica, iva_attiva, sede_legale, rappr_nome, rappr_cognome, rappr_avs, rappr_carica, email, telefono, numero_avs, data_nascita, luogo_nascita, indirizzo, citta, cantone, cap, note_iniziali, avvocato_id, created_at')
+                .select('id, tipo_soggetto, nome, cognome, ragione_sociale, uid, forma_giuridica, iva_attiva, sede_legale, rappr_nome, rappr_cognome, rappr_avs, rappr_carica, email, telefono, numero_avs, data_nascita, luogo_nascita, indirizzo, numero_civico, citta, cantone, cap, paese, note_iniziali, avvocato_id, created_at')
                 .eq('id', id).single()
             if (c) {
                 const cliente = { ...c, tipo_soggetto: c.tipo_soggetto ?? 'persona_fisica' }
@@ -1518,9 +1519,11 @@ export default function AvvocatoClientiDettaglio() {
                         email: formCliente.email,
                         telefono: formCliente.telefono,
                         indirizzo: formCliente.indirizzo,
+                        numero_civico: formCliente.numero_civico,
                         citta: formCliente.citta,
                         cantone: formCliente.cantone,
                         cap: formCliente.cap,
+                        paese: (formCliente.paese || 'CH').trim().toUpperCase(),
                         avvocato_id: avvocatoId || null,
                     }),
                 }
@@ -1670,14 +1673,21 @@ export default function AvvocatoClientiDettaglio() {
 
                                 <div className="border-t border-white/8 pt-3 space-y-3">
                                     <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase">{t('anagrafica.indirizzo')}</p>
-                                    <InputField label={t('anagrafica.indirizzo')} placeholder={t('anagrafica.indirizzo_placeholder')} {...fc('indirizzo')} />
-                                    <div className="grid grid-cols-3 gap-3">
-                                        <div className="col-span-2">
-                                            <InputField label={t('anagrafica.localita')} placeholder={t('anagrafica.luogo_nascita_placeholder')} {...fc('citta')} />
-                                        </div>
-                                        <InputField label={t('anagrafica.cantone')} placeholder="TI" {...fc('cantone')} />
+                                    <div className="grid grid-cols-[1fr_90px] gap-3">
+                                        <InputField label={t('anagrafica.indirizzo')} placeholder={t('anagrafica.indirizzo_placeholder')} {...fc('indirizzo')} />
+                                        <InputField label={t('anagrafica.numero')} placeholder="5" {...fc('numero_civico')} />
                                     </div>
-                                    <InputField label={t('anagrafica.npa')} placeholder="6900" {...fc('cap')} />
+                                    <div className="grid grid-cols-[100px_1fr] gap-3">
+                                        <InputField label={t('anagrafica.npa')} placeholder="6900" {...fc('cap')} />
+                                        <InputField label={t('anagrafica.localita')} placeholder={t('anagrafica.luogo_nascita_placeholder')} {...fc('citta')} />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <SelectField label={t('anagrafica.cantone')} {...fc('cantone')}>
+                                            <option value="">—</option>
+                                            {CANTONI.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </SelectField>
+                                        <InputField label={t('anagrafica.paese')} placeholder="CH" maxLength={2} {...fc('paese')} />
+                                    </div>
                                 </div>
 
                                 {erroreCliente && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20"><AlertCircle size={14} /> {erroreCliente}</div>}
@@ -1739,10 +1749,11 @@ export default function AvvocatoClientiDettaglio() {
                                 <div className="border-t border-white/5 pt-3 mt-3 space-y-2">
                                     <p className="font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">{t('anagrafica.indirizzo')}</p>
                                     {[
-                                        [t('anagrafica.indirizzo'), cliente.indirizzo || '—'],
+                                        [t('anagrafica.indirizzo'), [cliente.indirizzo, cliente.numero_civico].filter(Boolean).join(' ') || '—'],
                                         [t('anagrafica.localita'), cliente.citta || '—'],
                                         [t('anagrafica.cantone'), cliente.cantone || '—'],
                                         [t('anagrafica.npa'), cliente.cap || '—'],
+                                        [t('anagrafica.paese'), cliente.paese || '—'],
                                     ].map(([l, v]) => (
                                         <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                                             <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>

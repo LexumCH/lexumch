@@ -5,7 +5,7 @@
   },
   "avviso": {
     "totale_da_pagare": "Offener Gesamtbetrag: CHF {{importo}}",
-    "contatta_avvocato": "Bitte kontaktieren Sie Ihren Anwalt für die Zahlungsmodalitäten."
+    "contatta_avvocato": "Die Zahlungsangaben finden Sie im PDF der Rechnung."
   },
   "filtri": {
     "tutte": "Alle",
@@ -28,6 +28,13 @@
     "importo": "Betrag",
     "emissione": "Ausstellung",
     "scadenza": "Fälligkeit",
-    "stato": "Status"
+    "stato": "Status",
+    "pdf": "PDF"
+  },
+  "azioni": {
+    "scarica": "Herunterladen"
+  },
+  "errori": {
+    "download": "Download fehlgeschlagen, bitte erneut versuchen."
   }
 }

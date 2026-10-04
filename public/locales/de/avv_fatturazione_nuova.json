@@ -16,7 +16,8 @@
     "imponibile": "Nettobetrag",
     "iva_esente": "MWST — befreit",
     "iva_aliquota": "MWST {{aliquota}}%",
-    "totale_fattura": "Rechnungstotal"
+    "totale_fattura": "Rechnungstotal",
+    "mandato_collegato": "Mandat"
   },
   "destinatario": {
     "titolo": "Empfänger",
@@ -26,7 +27,11 @@
     "pratica_label": "Verknüpftes Dossier",
     "opzionale": "— optional",
     "nessuna_pratica": "Kein Dossier",
-    "nessuna_pratica_aperta": "Dieser Mandant hat keine offenen Dossiers."
+    "nessuna_pratica_aperta": "Dieser Mandant hat keine offenen Dossiers.",
+    "lingua_label": "Sprache der Rechnung",
+    "mandato_label": "Mandat",
+    "nessun_mandato": "Kein Mandat",
+    "nessun_mandato_cliente": "Dieser Klient hat keine Mandate."
   },
   "date": {
     "titolo": "Daten",
@@ -46,12 +51,16 @@
   "iva": {
     "titolo": "MWST",
     "esente_label": "MWST-befreit",
-    "esente_desc": "Aktivieren Sie diese Option, wenn Sie nicht mehrwertsteuerpflichtig sind (z. B. Umsatz unter der Schwelle gemäss MWSTG).",
+    "esente_desc": "Für Leistungen, die nicht der Schweizer MWST unterliegen (z. B. Klient mit Sitz im Ausland). Geben Sie den Grund an: er erscheint auf der Rechnung.",
     "motivo_label": "Befreiungsgrund",
     "motivo_hint": "— optional, erscheint auf der Rechnung",
-    "motivo_ph": "Z. B. Nicht mehrwertsteuerpflichtig (Art. 10 Abs. 2 MWSTG)",
+    "motivo_ph": "Z. B. Ort der Leistung im Ausland (Art. 8 MWSTG)",
     "aliquota_label": "MWST-Satz %",
-    "aliquota_hint": "Schweizer Sätze 2024: Normalsatz 8.1%, reduziert 2.6%, Beherbergung 3.8%."
+    "aliquota_hint": "Schweizer Sätze 2024: Normalsatz 8.1%, reduziert 2.6%, Beherbergung 3.8%.",
+    "non_assoggettato": "Wer die Rechnung ausstellt, ist nicht im MWST-Register eingetragen: die Rechnung erscheint ohne MWST.",
+    "non_assoggettato_breve": "nicht steuerpflichtig",
+    "cambia_profilo": "Im Profil ändern",
+    "decide_titolare": "Das wird im Profil des Kanzleiinhabers festgelegt."
   },
   "pagamento": {
     "titolo": "Zahlungsweise",
@@ -93,6 +102,20 @@
     "almeno_una_riga": "Mindestens eine Position mit Beschreibung und Menge > 0",
     "prezzi_numerici": "Alle Preise müssen numerisch sein",
     "creazione_fattura": "Fehler bei der Rechnungserstellung",
-    "fattura_creata_ma_pdf": "Rechnung erstellt, aber PDF-Fehler"
+    "fattura_creata_ma_pdf": "Rechnung erstellt, aber PDF-Fehler",
+    "iban_non_valido": "Ungültige IBAN: bitte die Ziffern prüfen",
+    "iban_qr": "Das ist eine QR-IBAN: sie gehört ins Profil, ins Feld QR-IBAN. Hier braucht es die normale IBAN des Kontos."
+  },
+  "avviso_qr": {
+    "titolo": "Die Rechnung erscheint ohne QR-Rechnung",
+    "mancano": "In den Rechnungsdaten fehlen:",
+    "completa": "Profil vervollständigen",
+    "chiedi_titolare": "Bitten Sie den Kanzleiinhaber, sie im Profil zu ergänzen.",
+    "campi": {
+      "indirizzo": "Strasse",
+      "cap": "PLZ",
+      "citta": "Ort",
+      "iban": "Schweizer IBAN"
+    }
   }
 }

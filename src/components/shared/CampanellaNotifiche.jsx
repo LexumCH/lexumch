@@ -7,7 +7,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Bell, Check, X, AlertTriangle, Calendar, FileText, MessageCircle, User, CreditCard, Gavel, Receipt, FolderOpen } from 'lucide-react'
+import { Bell, Check, X, AlertTriangle, Calendar, FileText, MessageCircle, User, CreditCard, Gavel, Receipt, FolderOpen, UserPlus, UserMinus } from 'lucide-react'
 import { useNotifiche } from '@/hooks/useNotifiche'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
@@ -30,6 +30,12 @@ function iconaTipo(tipo) {
         termine_T7: { Icon: AlertTriangle, color: 'text-amber-400' },
         termine_T3: { Icon: AlertTriangle, color: 'text-amber-400' },
         termine_T1: { Icon: AlertTriangle, color: 'text-red-400' },
+        // Studio: inviti e collaboratori (testi scritti dal database nella lingua di chi li riceve)
+        invito_studio: { Icon: UserPlus, color: 'text-oro' },
+        invito_studio_accettato: { Icon: UserPlus, color: 'text-salvia' },
+        invito_studio_rifiutato: { Icon: UserMinus, color: 'text-nebbia/40' },
+        studio_rimosso: { Icon: UserMinus, color: 'text-amber-400' },
+        studio_lasciato: { Icon: UserMinus, color: 'text-amber-400' },
     }
     return map[tipo] ?? { Icon: FileText, color: 'text-nebbia/40' }
 }

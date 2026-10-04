@@ -5,9 +5,13 @@
 //   - totale (NON totale_lordo); CHF; campi cliente CH (citta, no cf/partita_iva/comune/provincia/pec/sdi).
 //   - Metodi pagamento svizzeri. iban (NON iban_pagamento).
 //   - ModalEliminaFattura → edge elimina-fattura (già CH). Scollega/Collega pratica invariati.
+//   - 04-10-2026: una fattura gia' emessa (PDF generato) non si elimina, si
+//     annulla; la pratica collegata solo per gli avvocati; errori veri delle
+//     funzioni; motivo 'non_assoggettato' tradotto; avviso dalla nuova fattura.
+//   - 04-10-2026: per i fiduciari il mandato collegato (link e cambio).
 
 import { useState, useEffect } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 import { BackButton, Badge } from '@/components/shared'
 import {
@@ -16,6 +20,7 @@ import {
     FileSignature, Wallet, Archive
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { erroreFunzione } from '@/lib/fatturazione'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
@@ -206,8 +211,10 @@ export function ModalEliminaFattura({ fattura, onClose, onEliminata }) {
             const { data, error } = await supabase.functions.invoke('elimina-fattura', {
                 body: { fattura_id: fattura.id }
             })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('common.errore'))
+            if (error || !data?.ok) {
+                const e = await erroreFunzione(error, data)
+                throw new Error(e.codice === 'GIA_EMESSA' ? t('common.gia_emessa') : (e.messaggio ?? t('common.errore')))
+            }
             onEliminata()
         } catch (err) {
             setErrore(err.message)
@@ -512,8 +519,13 @@ export default function AvvocatoFatturazioneDettaglio() {
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const { id } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
+    const avviso = location.state?.avviso ?? ''
 
     const [fattura, setFattura] = useState(null)
+    const [ruolo, setRuolo] = useState(null)
+    const [mandatiCliente, setMandatiCliente] = useState([])
+    const [salvandoMandato, setSalvandoMandato] = useState(false)
     const [righe, setRighe] = useState([])
     const [pagamenti, setPagamenti] = useState([])
     const [loading, setLoading] = useState(true)
@@ -532,8 +544,9 @@ export default function AvvocatoFatturazioneDettaglio() {
             supabase.from('fatture')
                 .select(`
           *,
-          cliente:cliente_id(id, nome, cognome, ragione_sociale, tipo_soggetto, email, telefono, indirizzo, citta, cap),
-          pratica:pratica_id(id, titolo)
+          cliente:cliente_id(id, nome, cognome, ragione_sociale, tipo_soggetto, email, telefono, indirizzo, numero_civico, citta, cap),
+          pratica:pratica_id(id, titolo),
+          mandato:mandato_id(id, titolo)
         `)
                 .eq('id', id).single(),
             supabase.from('righe_fattura').select('*').eq('fattura_id', id).order('ordine'),
@@ -548,15 +561,47 @@ export default function AvvocatoFatturazioneDettaglio() {
 
     useEffect(() => { carica() }, [id])
 
+    useEffect(() => {
+        supabase.auth.getUser().then(async ({ data: { user } }) => {
+            if (!user) return
+            const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+            setRuolo(data?.role ?? null)
+        })
+    }, [])
+
+    // Fiduciari: i mandati del cliente, per collegare la fattura
+    useEffect(() => {
+        if (ruolo !== 'fiduciario' || !fattura?.cliente_id) return
+        supabase.from('mandati')
+            .select('id, titolo, anno_riferimento')
+            .eq('cliente_id', fattura.cliente_id)
+            .order('created_at', { ascending: false })
+            .then(({ data }) => setMandatiCliente(data ?? []))
+    }, [ruolo, fattura?.cliente_id])
+
+    async function cambiaMandato(mandatoId) {
+        setSalvandoMandato(true); setErrore('')
+        try {
+            const { error } = await supabase.from('fatture').update({ mandato_id: mandatoId || null }).eq('id', id)
+            if (error) throw new Error(error.message)
+            await carica()
+        } catch (err) {
+            setErrore(err.message)
+        } finally {
+            setSalvandoMandato(false)
+        }
+    }
+
     async function generaPdf() {
         setGenerandoPdf(true); setErrore('')
         try {
             const { data, error } = await supabase.functions.invoke('genera-fattura-pdf', {
                 body: { fattura_id: id }
             })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('common.errore'))
+            if (error || !data?.ok) throw new Error((await erroreFunzione(error, data)).messaggio ?? t('common.errore'))
             if (data.url) window.open(data.url, '_blank')
+            // PDF riuscito: l'avviso arrivato dalla nuova fattura non vale piu'
+            if (avviso) navigate(location.pathname, { replace: true, state: null })
             await carica()
         } catch (err) {
             setErrore(err.message)
@@ -612,6 +657,13 @@ export default function AvvocatoFatturazioneDettaglio() {
 
     const ha_pdf = !!fattura.pdf_storage_path
     const archiviata = ha_pdf
+    // Emessa = PDF generato almeno una volta: da li' in poi si annulla, non si elimina
+    const emessa = !!fattura.pdf_generato_at || ha_pdf
+    const isAvvocato = ruolo === 'avvocato'
+    const isFiduciario = ruolo === 'fiduciario'
+    const motivoEsenzione = fattura.esente_iva_motivo === 'non_assoggettato'
+        ? t('riepilogo.non_assoggettato')
+        : (fattura.esente_iva_motivo || t('common.trattino'))
 
     return (
         <div className="space-y-5">
@@ -640,6 +692,12 @@ export default function AvvocatoFatturazioneDettaglio() {
                     )}
                 </div>
             </div>
+
+            {avviso && (
+                <div className="flex items-center gap-2 text-amber-400 text-xs font-body p-3 bg-amber-900/10 border border-amber-500/30">
+                    <AlertCircle size={14} /> {avviso}
+                </div>
+            )}
 
             {errore && (
                 <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
@@ -695,10 +753,12 @@ export default function AvvocatoFatturazioneDettaglio() {
                     </button>
                 )}
 
-                <button onClick={() => setModalElimina(true)}
-                    className="flex items-center gap-2 px-4 py-2 border border-white/10 text-nebbia/40 hover:text-red-400 hover:border-red-500/30 transition-colors font-body text-sm">
-                    <Trash2 size={14} /> {t('azioni.elimina')}
-                </button>
+                {!emessa && (
+                    <button onClick={() => setModalElimina(true)}
+                        className="flex items-center gap-2 px-4 py-2 border border-white/10 text-nebbia/40 hover:text-red-400 hover:border-red-500/30 transition-colors font-body text-sm">
+                        <Trash2 size={14} /> {t('azioni.elimina')}
+                    </button>
+                )}
             </div>
 
             {/* Layout 2 colonne: dati + riepilogo */}
@@ -723,7 +783,7 @@ export default function AvvocatoFatturazioneDettaglio() {
                                 <div className="font-body text-xs text-nebbia/40 mt-1 space-y-0.5">
                                     {(fattura.cliente?.indirizzo || fattura.cliente?.citta) && (
                                         <p>
-                                            {[fattura.cliente.indirizzo, fattura.cliente.cap, fattura.cliente.citta].filter(Boolean).join(' ')}
+                                            {[fattura.cliente.indirizzo, fattura.cliente.numero_civico, fattura.cliente.cap, fattura.cliente.citta].filter(Boolean).join(' ')}
                                         </p>
                                     )}
                                     {fattura.cliente?.email && <p>{fattura.cliente.email}</p>}
@@ -731,7 +791,7 @@ export default function AvvocatoFatturazioneDettaglio() {
                                 </div>
                             </div>
                         </div>
-                        <div className="pt-3 border-t border-white/5">
+                        {isAvvocato && <div className="pt-3 border-t border-white/5">
                             <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">{t('cliente.pratica_collegata')}</p>
                             {fattura.pratica ? (
                                 <div className="flex items-center justify-between gap-3">
@@ -753,7 +813,32 @@ export default function AvvocatoFatturazioneDettaglio() {
                                     </button>
                                 </div>
                             )}
-                        </div>
+                        </div>}
+                        {isFiduciario && <div className="pt-3 border-t border-white/5">
+                            <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">{t('cliente.mandato_collegato')}</p>
+                            <div className="flex items-center justify-between gap-3">
+                                {fattura.mandato ? (
+                                    <Link to={`/banco-lavoro/${fattura.mandato.id}`}
+                                        className="font-body text-sm text-oro/80 hover:text-oro transition-colors truncate">
+                                        {fattura.mandato.titolo}
+                                    </Link>
+                                ) : (
+                                    <p className="font-body text-sm text-nebbia/40 italic">{t('cliente.nessun_mandato')}</p>
+                                )}
+                                <select
+                                    value={fattura.mandato_id ?? ''}
+                                    onChange={e => cambiaMandato(e.target.value)}
+                                    disabled={salvandoMandato}
+                                    aria-label={t('cliente.cambia_mandato')}
+                                    className="max-w-[200px] bg-petrolio border border-white/10 text-nebbia/70 font-body text-xs px-2 py-1 outline-none focus:border-oro/50 disabled:opacity-40 shrink-0"
+                                >
+                                    <option value="">{t('cliente.nessun_mandato')}</option>
+                                    {mandatiCliente.map(m => (
+                                        <option key={m.id} value={m.id}>{m.titolo}{m.anno_riferimento ? ` (${m.anno_riferimento})` : ''}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>}
                     </div>
 
                     {/* Righe */}
@@ -863,7 +948,7 @@ export default function AvvocatoFatturazioneDettaglio() {
                             {fattura.esente_iva ? (
                                 <div className="flex justify-between text-xs font-body text-nebbia/60">
                                     <span>{t('riepilogo.iva_esente')}</span>
-                                    <span className="text-nebbia/40 italic truncate max-w-[160px]">{fattura.esente_iva_motivo || t('common.trattino')}</span>
+                                    <span className="text-nebbia/40 italic truncate max-w-[160px]">{motivoEsenzione}</span>
                                 </div>
                             ) : (
                                 <div className="flex justify-between text-xs font-body text-nebbia/60">

@@ -302,7 +302,7 @@ function TabPanoramica({ fatture, clienti }) {
 // ─────────────────────────────────────────────────────────────
 // TAB FATTURE (lista con filtri + Lex search)
 // ─────────────────────────────────────────────────────────────
-function TabFatture({ fatture, clienti, onReload }) {
+function TabFatture({ fatture, clienti, onReload, isFiduciario }) {
     const { t, i18n } = useTranslation('avv_fatturazione')
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const [cerca, setCerca] = useState('')
@@ -378,7 +378,7 @@ function TabFatture({ fatture, clienti, onReload }) {
             const s = cercaApplicata.toLowerCase()
             result = result.filter(f => {
                 const cl = nomeCliente(f.cliente).toLowerCase()
-                const pr = (f.pratica?.titolo ?? '').toLowerCase()
+                const pr = (f.pratica?.titolo ?? f.mandato?.titolo ?? '').toLowerCase()
                 const desc = (f.descrizione ?? '').toLowerCase()
                 const num = (f.numero ?? '').toLowerCase()
                 return cl.includes(s) || pr.includes(s) || desc.includes(s) || num.includes(s)
@@ -550,7 +550,7 @@ function TabFatture({ fatture, clienti, onReload }) {
                         <tr className="border-b border-white/5">
                             <SortTh label={t('fatture.tabella.numero')} field="numero" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                             <SortTh label={t('fatture.tabella.cliente')} field="cliente" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{t('fatture.tabella.pratica')}</th>
+                            <th className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{isFiduciario ? t('fatture.tabella.mandato') : t('fatture.tabella.pratica')}</th>
                             <SortTh label={t('fatture.tabella.totale')} field="totale" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                             <SortTh label={t('fatture.tabella.emessa_il')} field="data_emissione" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                             <SortTh label={t('fatture.tabella.scadenza')} field="data_scadenza" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
@@ -583,7 +583,7 @@ function TabFatture({ fatture, clienti, onReload }) {
                                             <span className="font-body text-sm text-nebbia">{nomeCliente(f.cliente)}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 font-body text-xs text-nebbia/50 max-w-xs truncate">{f.pratica?.titolo ?? '—'}</td>
+                                    <td className="px-4 py-3 font-body text-xs text-nebbia/50 max-w-xs truncate">{(isFiduciario ? f.mandato?.titolo : f.pratica?.titolo) ?? '—'}</td>
                                     <td className="px-4 py-3 font-body text-sm font-semibold text-oro whitespace-nowrap">CHF {fmtCHF(f.totale, dateLocale)}</td>
                                     <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">{f.data_emissione ? new Date(f.data_emissione).toLocaleDateString(dateLocale) : '—'}</td>
                                     <td className={`px-4 py-3 font-body text-xs whitespace-nowrap ${f.stato === 'pagata' ? 'text-salvia' : sc_scaduta ? 'text-red-400' : 'text-nebbia/50'}`}>
@@ -598,7 +598,7 @@ function TabFatture({ fatture, clienti, onReload }) {
                                     <td className="px-4 py-3"><Badge label={t(`stati.${stato}`)} variant={scVariant} /></td>
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">
-                                            {f.stato !== 'pagata' && (
+                                            {f.stato !== 'pagata' && !f.pdf_generato_at && !f.pdf_storage_path && (
                                                 <button onClick={(e) => { e.preventDefault(); setEliminando(f); }}
                                                     title={t('fatture.elimina_fattura')}
                                                     className="inline-flex items-center justify-center w-7 h-7 text-nebbia/20 hover:text-red-400 hover:bg-red-500/10 transition-colors">
@@ -727,6 +727,7 @@ export default function AvvocatoFatturazione() {
     const [clienti, setClienti] = useState([])
     const [loading, setLoading] = useState(true)
     const [tab, setTab] = useState('panoramica')
+    const [ruolo, setRuolo] = useState(null)
 
     async function carica() {
         setLoading(true)
@@ -735,8 +736,9 @@ export default function AvvocatoFatturazione() {
 
         const { data: profilo } = await supabase
             .from('profiles')
-            .select('id, titolare_id')
+            .select('id, titolare_id, role')
             .eq('id', user.id).single()
+        setRuolo(profilo?.role ?? null)
 
         const titolareId = profilo?.titolare_id ?? user.id
         const { data: collabIds } = await supabase
@@ -748,9 +750,10 @@ export default function AvvocatoFatturazione() {
                 .from('fatture')
                 .select(`
           id, numero, stato, data_emissione, data_scadenza, data_pagamento,
-          totale, valuta, descrizione, pdf_storage_path, cliente_id,
+          totale, valuta, descrizione, pdf_storage_path, pdf_generato_at, cliente_id,
           cliente:cliente_id(id, nome, cognome, ragione_sociale, tipo_soggetto),
-          pratica:pratica_id(id, titolo)
+          pratica:pratica_id(id, titolo),
+          mandato:mandato_id(id, titolo)
         `)
                 .in('avvocato_id', idsAvvocati)
                 .order('data_emissione', { ascending: false }),
@@ -804,7 +807,7 @@ export default function AvvocatoFatturazione() {
             </div>
 
             {tab === 'panoramica' && <TabPanoramica fatture={fatture} clienti={clienti} />}
-            {tab === 'fatture' && <TabFatture fatture={fatture} clienti={clienti} onReload={carica} />}
+            {tab === 'fatture' && <TabFatture fatture={fatture} clienti={clienti} onReload={carica} isFiduciario={ruolo === 'fiduciario'} />}
             {tab === 'scadenzario' && <TabScadenzario fatture={fatture} />}
         </div>
     )

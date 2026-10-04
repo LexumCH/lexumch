@@ -1,9 +1,13 @@
 // src/pages/cliente/Fatture.jsx
+//
+// 04-10-2026: su CH l'importo sta in "totale" (la colonna "importo" non esiste:
+// la lista restava vuota); da pagare = in attesa + scadute; PDF scaricabile
+// (policy fatture_pdf_select_cliente).
 
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader, Badge } from '@/components/shared'
-import { CreditCard } from 'lucide-react'
+import { CreditCard, Download } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
@@ -22,6 +26,8 @@ export default function ClienteFatture() {
     const [fatture, setFatture] = useState([])
     const [loading, setLoading] = useState(true)
     const [statoF, setStatoF] = useState('')
+    const [scaricando, setScaricando] = useState(null)
+    const [errore, setErrore] = useState('')
 
     useEffect(() => {
         async function carica() {
@@ -29,7 +35,7 @@ export default function ClienteFatture() {
             if (!user) return
             const { data } = await supabase
                 .from('fatture')
-                .select('id, numero, descrizione, importo, stato, data_emissione, data_scadenza, data_pagamento, pratica:pratica_id(titolo)')
+                .select('id, numero, descrizione, totale, valuta, stato, data_emissione, data_scadenza, data_pagamento, pdf_storage_path, pratica:pratica_id(titolo), mandato:mandato_id(titolo)')
                 .eq('cliente_id', user.id)
                 .order('data_emissione', { ascending: false })
             setFatture(data ?? [])
@@ -39,7 +45,20 @@ export default function ClienteFatture() {
     }, [])
 
     const rows = fatture.filter(f => !statoF || f.stato === statoF)
-    const totaleAperto = fatture.filter(f => f.stato === 'in_attesa').reduce((a, f) => a + parseFloat(f.importo ?? 0), 0)
+    const totaleAperto = fatture.filter(f => f.stato === 'in_attesa' || f.stato === 'scaduta').reduce((a, f) => a + parseFloat(f.totale ?? 0), 0)
+
+    async function scaricaPdf(f) {
+        setErrore(''); setScaricando(f.id)
+        try {
+            const { data, error } = await supabase.storage.from('fatture').createSignedUrl(f.pdf_storage_path, 3600)
+            if (error || !data?.signedUrl) throw new Error(t('errori.download'))
+            window.open(data.signedUrl, '_blank')
+        } catch (err) {
+            setErrore(err.message)
+        } finally {
+            setScaricando(null)
+        }
+    }
 
     return (
         <div className="space-y-5">
@@ -57,6 +76,10 @@ export default function ClienteFatture() {
                         </p>
                     </div>
                 </div>
+            )}
+
+            {errore && (
+                <div className="font-body text-xs text-red-400 p-3 bg-red-900/10 border border-red-500/20">{errore}</div>
             )}
 
             <div className="flex gap-3">
@@ -84,7 +107,7 @@ export default function ClienteFatture() {
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-white/5">
-                                    {[t('tabella.numero'), t('tabella.descrizione'), t('tabella.importo'), t('tabella.emissione'), t('tabella.scadenza'), t('tabella.stato')].map(h => (
+                                    {[t('tabella.numero'), t('tabella.descrizione'), t('tabella.importo'), t('tabella.emissione'), t('tabella.scadenza'), t('tabella.stato'), t('tabella.pdf')].map(h => (
                                         <th key={h} className="px-4 py-3 text-left font-body text-xs font-medium text-nebbia/30 tracking-widest uppercase">{h}</th>
                                     ))}
                                 </tr>
@@ -97,10 +120,10 @@ export default function ClienteFatture() {
                                         <tr key={f.id} className="border-b border-white/5 hover:bg-petrolio/40 transition-colors">
                                             <td className="px-4 py-3 font-body text-xs text-nebbia/50">{f.numero ?? '—'}</td>
                                             <td className="px-4 py-3 font-body text-sm text-nebbia max-w-xs truncate">
-                                                {f.pratica?.titolo ?? f.descrizione ?? '—'}
+                                                {f.pratica?.titolo ?? f.mandato?.titolo ?? f.descrizione ?? '—'}
                                             </td>
                                             <td className="px-4 py-3 font-display text-sm font-semibold text-oro">
-                                                CHF {parseFloat(f.importo).toFixed(2)}
+                                                {f.valuta ?? 'CHF'} {parseFloat(f.totale ?? 0).toFixed(2)}
                                             </td>
                                             <td className="px-4 py-3 font-body text-xs text-nebbia/50 whitespace-nowrap">
                                                 {f.data_emissione ? new Date(f.data_emissione).toLocaleDateString(dateLocale) : '—'}
@@ -109,6 +132,14 @@ export default function ClienteFatture() {
                                                 {f.data_scadenza ? new Date(f.data_scadenza).toLocaleDateString(dateLocale) : '—'}
                                             </td>
                                             <td className="px-4 py-3"><Badge label={statoLabel} variant={variant} /></td>
+                                            <td className="px-4 py-3">
+                                                {f.pdf_storage_path ? (
+                                                    <button onClick={() => scaricaPdf(f)} disabled={scaricando === f.id}
+                                                        className="flex items-center gap-1.5 font-body text-xs text-oro border border-oro/30 px-2.5 py-1 hover:bg-oro/10 transition-colors disabled:opacity-40">
+                                                        <Download size={12} /> {t('azioni.scarica')}
+                                                    </button>
+                                                ) : <span className="font-body text-xs text-nebbia/25">—</span>}
+                                            </td>
                                         </tr>
                                     )
                                 })}

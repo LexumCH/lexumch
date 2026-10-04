@@ -5,7 +5,7 @@
   },
   "avviso": {
     "totale_da_pagare": "Totale da pagare: CHF {{importo}}",
-    "contatta_avvocato": "Contatta il tuo avvocato per le modalità di pagamento."
+    "contatta_avvocato": "I dati per il pagamento sono nel PDF della fattura."
   },
   "filtri": {
     "tutte": "Tutte",
@@ -28,6 +28,13 @@
     "importo": "Importo",
     "emissione": "Emissione",
     "scadenza": "Scadenza",
-    "stato": "Stato"
+    "stato": "Stato",
+    "pdf": "PDF"
+  },
+  "azioni": {
+    "scarica": "Scarica"
+  },
+  "errori": {
+    "download": "Download non riuscito, riprova."
   }
 }

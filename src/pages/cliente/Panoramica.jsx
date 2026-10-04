@@ -59,7 +59,7 @@ export default function ClientePanoramica() {
                     .order('data_ora_inizio', { ascending: true })
                     .limit(1),
                 supabase.from('fatture')
-                    .select('id, numero, importo, stato, data_scadenza')
+                    .select('id, numero, totale, stato, data_scadenza')
                     .eq('cliente_id', user.id)
                     .order('data_emissione', { ascending: false }),
                 supabase.from('ticket_assistenza')
@@ -98,7 +98,7 @@ export default function ClientePanoramica() {
         carica()
     }, [loadingTipo, isFiduciario])
 
-    const fattureInAttesa = fatture.filter(f => f.stato === 'in_attesa')
+    const fattureInAttesa = fatture.filter(f => f.stato === 'in_attesa' || f.stato === 'scaduta')
 
     const getUltimoAutore = (ticket) => {
         const msgs = [...(ticket.messaggi ?? [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))

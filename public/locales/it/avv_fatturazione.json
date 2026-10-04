@@ -87,7 +87,8 @@
       "stato": "Stato",
       "pagata_il": "Pagata {{data}}",
       "vuoto_nessuna": "Nessuna fattura ancora. Crea la prima.",
-      "vuoto_filtri": "Nessuna fattura trovata"
+      "vuoto_filtri": "Nessuna fattura trovata",
+      "mandato": "Mandato"
     }
   },
   "scadenzario": {

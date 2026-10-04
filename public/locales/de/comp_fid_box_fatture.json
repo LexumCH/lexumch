@@ -1,0 +1,21 @@
+{
+  "header": {
+    "titolo": "Rechnungen ({{count}})",
+    "nuova": "Neue Rechnung"
+  },
+  "riepilogo": {
+    "fatturato": "Fakturiert",
+    "da_incassare": "Offen"
+  },
+  "vuoto": {
+    "titolo": "Keine Rechnungen",
+    "suggerimento": "Hier erstellte Rechnungen bleiben mit diesem Mandat verknüpft."
+  },
+  "senza_cliente": "Verknüpfen Sie einen Klienten mit dem Mandat, um es zu fakturieren.",
+  "stati": {
+    "pagata": "Bezahlt",
+    "in_attesa": "Ausstehend",
+    "scaduta": "Überfällig",
+    "annullata": "Storniert"
+  }
+}

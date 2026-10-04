@@ -446,7 +446,14 @@ function CollaboRow({ collabo, isTitolare, meId, onRefresh }) {
 
     async function rimuovi() {
         if (!confirm(t('collaboratori.conferma_rimozione', { nome: collabo.nome, cognome: collabo.cognome }))) return
-        await supabase.from('profiles').update({ titolare_id: null, tipo_account: 'singolo' }).eq('id', collabo.id)
+        // Dal server: il browser non può scrivere sul profilo di un altro utente
+        const { data, error } = await supabase.rpc('studio_rimuovi_collaboratore', { p_collaboratore: collabo.id })
+        if (error || !data?.ok) {
+            alert(data?.codice
+                ? t(`collaboratori.errori.${data.codice}`, { defaultValue: data.error })
+                : t('collaboratori.errori.generico'))
+            return
+        }
         onRefresh()
     }
 
@@ -555,7 +562,7 @@ export default function AvvocatoStudio() {
     const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const toArray = (v) => Array.isArray(v) ? v : []
-    const { profile: authProfile } = useAuth()
+    const { profile: authProfile, reloadProfile } = useAuth()
     const isUser = authProfile?.role === 'user'
 
     // ── HOOKS ─────────────────────────────────────────────────
@@ -570,6 +577,10 @@ export default function AvvocatoStudio() {
     const [emailInvito, setEmailInvito] = useState('')
     const [inviando, setInviando] = useState(false)
     const [erroreInvito, setErroreInvito] = useState('')
+    // Collaboratori, inviti e posti: li decide e li racconta il database
+    const [squadra, setSquadra] = useState(null)
+    const [erroreSquadra, setErroreSquadra] = useState('')
+    const [inRisposta, setInRisposta] = useState(false)
     const [editNome, setEditNome] = useState(false)
     const [nomeStudio, setNomeStudio] = useState('')
 
@@ -594,11 +605,10 @@ export default function AvvocatoStudio() {
         setNomeStudio(p?.studio ?? '')
 
         if (!isUser) {
-            const { data: cl } = await supabase
-                .from('profiles')
-                .select('id, nome, cognome, email')
-                .eq('titolare_id', meId)
-            setCollaboratori(cl ?? [])
+            // Collaboratori, inviti spediti e ricevuti, posti: una sola fonte, il database
+            const { data: stato } = await supabase.rpc('studio_stato_collaboratori')
+            setSquadra(stato ?? null)
+            setCollaboratori(stato?.collaboratori ?? [])
 
             // Quota crediti AI (somma per tipo)
             const now = new Date().toISOString()
@@ -711,7 +721,7 @@ export default function AvvocatoStudio() {
                 }
             )
             const json = await res.json()
-            if (!json.ok) throw new Error(json.error ?? t('collaboratori.errore_invio'))
+            if (!json.ok) throw new Error(testoErrore(json, t('collaboratori.errore_invio')))
             setInviatoOk(true)
             setEmailInvito('')
             setShowInvita(false)
@@ -720,6 +730,50 @@ export default function AvvocatoStudio() {
             setErroreInvito(err.message)
         } finally {
             setInviando(false)
+        }
+    }
+
+    // Il database risponde con un codice: qui si traduce e basta
+    function testoErrore(esito, ripiego) {
+        if (esito?.codice) return t(`collaboratori.errori.${esito.codice}`, { defaultValue: esito.error ?? ripiego })
+        return esito?.error ?? ripiego ?? t('collaboratori.errori.generico')
+    }
+
+    async function rispondiInvito(invitoId, accetta) {
+        if (!accetta && !confirm(t('collaboratori.conferma_rifiuta'))) return
+        setErroreSquadra('')
+        setInRisposta(true)
+        try {
+            const { data, error } = await supabase.rpc('studio_rispondi_invito', { p_invito: invitoId, p_accetta: accetta })
+            if (error || !data?.ok) return setErroreSquadra(testoErrore(data, t('collaboratori.errori.generico')))
+            // Entrando cambia titolare_id: menu, quote e archivio seguono lo studio
+            if (accetta) await reloadProfile()
+            carica()
+        } finally {
+            setInRisposta(false)
+        }
+    }
+
+    async function annullaInvito(invitoId) {
+        setErroreSquadra('')
+        const { data, error } = await supabase.rpc('studio_annulla_invito', { p_invito: invitoId })
+        if (error || !data?.ok) return setErroreSquadra(testoErrore(data, t('collaboratori.errori.generico')))
+        carica()
+    }
+
+    async function lasciaStudio() {
+        const tit = squadra?.titolare
+        if (!tit) return
+        if (!confirm(t('collaboratori.conferma_lascia', { titolare: `${tit.nome ?? ''} ${tit.cognome ?? ''}`.trim() }))) return
+        setErroreSquadra('')
+        setInRisposta(true)
+        try {
+            const { data, error } = await supabase.rpc('studio_rimuovi_collaboratore', { p_collaboratore: meId })
+            if (error || !data?.ok) return setErroreSquadra(testoErrore(data, t('collaboratori.errori.generico')))
+            await reloadProfile()
+            carica()
+        } finally {
+            setInRisposta(false)
         }
     }
 
@@ -739,6 +793,8 @@ export default function AvvocatoStudio() {
     const postiAcquistati = profilo?.posti_acquistati ?? 0
     const postiUsati = profilo?.posti_usati ?? 0
     const postiLiberi = postiAcquistati - postiUsati
+    // Per invitare conta il database: anche gli inviti in attesa tengono un posto
+    const postiPerInviti = squadra?.posti?.liberi ?? Math.max(0, postiLiberi)
     const haStudio = !isUser && postiAcquistati > 1
     const isTitolare = profilo?.tipo_account === 'titolare' || profilo?.tipo_account === 'singolo'
     const hasPiano = !!profilo?.piano_id
@@ -781,8 +837,64 @@ export default function AvvocatoStudio() {
             {inviatoOk && (
                 <div className="flex items-center gap-2 p-3 bg-salvia/5 border border-salvia/20">
                     <CheckCircle size={14} className="text-salvia shrink-0" />
-                    <p className="font-body text-sm text-salvia">{t('header.operazione_ok')}</p>
+                    <p className="font-body text-sm text-salvia">{t('collaboratori.invito_inviato')}</p>
                     <button onClick={() => setInviatoOk(false)} className="ml-auto text-nebbia/30 hover:text-nebbia"><X size={14} /></button>
+                </div>
+            )}
+
+            {erroreSquadra && (
+                <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
+                    <AlertCircle size={14} className="shrink-0" /> {erroreSquadra}
+                    <button onClick={() => setErroreSquadra('')} className="ml-auto text-nebbia/30 hover:text-nebbia"><X size={14} /></button>
+                </div>
+            )}
+
+            {/* Inviti ricevuti: in uno studio si entra solo accettando */}
+            {(squadra?.inviti_ricevuti ?? []).map(inv => (
+                <div key={inv.id} className="bg-slate border border-oro/25 p-5 space-y-4">
+                    <div className="flex items-start gap-3">
+                        <UserPlus size={16} className="text-oro shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                            <p className="font-body text-sm font-medium text-nebbia">{t('collaboratori.ricevuto_titolo')}</p>
+                            <p className="font-body text-sm text-nebbia/70">
+                                {t('collaboratori.ricevuto_testo', {
+                                    titolare: `${inv.nome ?? ''} ${inv.cognome ?? ''}`.trim(),
+                                    studio: inv.studio ? ` (${inv.studio})` : '',
+                                })}
+                            </p>
+                            <p className="font-body text-xs text-nebbia/45 leading-relaxed">{t('collaboratori.ricevuto_nota')}</p>
+                            <p className="font-body text-xs text-nebbia/30">
+                                {t('collaboratori.scade_il', { data: new Date(inv.scade_il).toLocaleDateString(dateLocale) })}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                        <button onClick={() => rispondiInvito(inv.id, true)} disabled={inRisposta}
+                            className="btn-primary text-sm flex items-center gap-2 disabled:opacity-40">
+                            <Check size={13} /> {t('collaboratori.accetta')}
+                        </button>
+                        <button onClick={() => rispondiInvito(inv.id, false)} disabled={inRisposta}
+                            className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-40">
+                            <X size={13} /> {t('collaboratori.rifiuta')}
+                        </button>
+                    </div>
+                </div>
+            ))}
+
+            {/* Collaboratore di uno studio */}
+            {squadra?.titolare && (
+                <div className="flex flex-wrap items-center gap-3 p-3 bg-salvia/5 border border-salvia/20">
+                    <CheckCircle size={14} className="text-salvia shrink-0" />
+                    <p className="font-body text-sm text-nebbia/70 flex-1 min-w-0">
+                        {t('collaboratori.membro_testo', {
+                            titolare: `${squadra.titolare.nome ?? ''} ${squadra.titolare.cognome ?? ''}`.trim(),
+                            studio: squadra.titolare.studio ? ` (${squadra.titolare.studio})` : '',
+                        })}
+                    </p>
+                    <button onClick={lasciaStudio} disabled={inRisposta}
+                        className="font-body text-xs text-nebbia/40 hover:text-red-400 transition-colors whitespace-nowrap disabled:opacity-40">
+                        {t('collaboratori.lascia')}
+                    </button>
                 </div>
             )}
 
@@ -1029,16 +1141,16 @@ export default function AvvocatoStudio() {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <p className="font-body text-sm text-nebbia/40">
-                            {t('collaboratori.conteggio', { count: collaboratori.length })} · {t('collaboratori.posti_liberi', { count: postiLiberi })}
+                            {t('collaboratori.conteggio', { count: collaboratori.length })} · {t('collaboratori.posti_liberi', { count: postiPerInviti })}
                         </p>
-                        {isTitolare && postiLiberi > 0 && (
+                        {isTitolare && postiPerInviti > 0 && (
                             <button onClick={() => setShowInvita(v => !v)} className="btn-primary text-sm flex items-center gap-2">
                                 <UserPlus size={14} /> {t('collaboratori.invita_btn')}
                             </button>
                         )}
                     </div>
 
-                    {postiLiberi === 0 && (
+                    {postiPerInviti === 0 && (
                         <div className="flex items-center gap-3 p-3 bg-oro/5 border border-oro/15">
                             <CreditCard size={14} className="text-oro/60 shrink-0" />
                             <p className="font-body text-xs text-nebbia/50 flex-1">{t('collaboratori.esauriti')}</p>
@@ -1077,6 +1189,30 @@ export default function AvvocatoStudio() {
                             <CollaboRow key={c.id} collabo={c} isTitolare={isTitolare} meId={meId} onRefresh={carica} />
                         ))}
                     </div>
+
+                    {/* Inviti spediti: tengono il posto finché non arriva una risposta */}
+                    {(squadra?.inviti_inviati ?? []).length > 0 && (
+                        <div className="space-y-2">
+                            <p className="section-label">{t('collaboratori.inviti_in_attesa')}</p>
+                            {squadra.inviti_inviati.map(inv => (
+                                <div key={inv.id} className="border border-white/5 p-4 flex items-center gap-4">
+                                    <Clock size={14} className="text-amber-400/70 shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-body text-sm text-nebbia">{inv.nome} {inv.cognome}</p>
+                                        <p className="font-body text-xs text-nebbia/40">
+                                            {inv.email} · {t('collaboratori.scade_il', { data: new Date(inv.scade_il).toLocaleDateString(dateLocale) })}
+                                        </p>
+                                    </div>
+                                    {isTitolare && (
+                                        <button onClick={() => annullaInvito(inv.id)}
+                                            className="font-body text-xs text-nebbia/25 hover:text-red-400 transition-colors whitespace-nowrap">
+                                            {t('collaboratori.annulla_invito')}
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 

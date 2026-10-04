@@ -16,7 +16,8 @@
     "imponibile": "Montant net",
     "iva_esente": "TVA — exonérée",
     "iva_aliquota": "TVA {{aliquota}}%",
-    "totale_fattura": "Total de la facture"
+    "totale_fattura": "Total de la facture",
+    "mandato_collegato": "Mandat"
   },
   "destinatario": {
     "titolo": "Destinataire",
@@ -26,7 +27,11 @@
     "pratica_label": "Dossier lié",
     "opzionale": "— facultatif",
     "nessuna_pratica": "Aucun dossier",
-    "nessuna_pratica_aperta": "Ce client n'a aucun dossier ouvert."
+    "nessuna_pratica_aperta": "Ce client n'a aucun dossier ouvert.",
+    "lingua_label": "Langue de la facture",
+    "mandato_label": "Mandat",
+    "nessun_mandato": "Aucun mandat",
+    "nessun_mandato_cliente": "Ce client n'a pas de mandat."
   },
   "date": {
     "titolo": "Dates",
@@ -46,12 +51,16 @@
   "iva": {
     "titolo": "TVA",
     "esente_label": "Exonéré de TVA",
-    "esente_desc": "Cochez si vous n'êtes pas assujetti à la TVA (p. ex. chiffre d'affaires inférieur au seuil de la LTVA).",
+    "esente_desc": "Pour les prestations non soumises à la TVA suisse (p. ex. client domicilié à l'étranger). Indiquez le motif : il figure sur la facture.",
     "motivo_label": "Motif d'exonération",
     "motivo_hint": "— facultatif, figure sur la facture",
-    "motivo_ph": "P. ex. Non assujetti à la TVA (art. 10 al. 2 LTVA)",
+    "motivo_ph": "P. ex. Lieu de la prestation à l'étranger (art. 8 LTVA)",
     "aliquota_label": "Taux de TVA %",
-    "aliquota_hint": "Taux suisses 2024 : normal 8.1%, réduit 2.6%, hébergement 3.8%."
+    "aliquota_hint": "Taux suisses 2024 : normal 8.1%, réduit 2.6%, hébergement 3.8%.",
+    "non_assoggettato": "L'émetteur de la facture n'est pas inscrit au registre TVA : la facture sort sans TVA.",
+    "non_assoggettato_breve": "non assujetti",
+    "cambia_profilo": "Modifier dans le profil",
+    "decide_titolare": "C'est le titulaire de l'étude qui le définit dans son profil."
   },
   "pagamento": {
     "titolo": "Mode de paiement",
@@ -93,6 +102,20 @@
     "almeno_una_riga": "Au moins une ligne avec description et quantité > 0",
     "prezzi_numerici": "Tous les prix doivent être numériques",
     "creazione_fattura": "Erreur lors de la création de la facture",
-    "fattura_creata_ma_pdf": "Facture créée mais erreur PDF"
+    "fattura_creata_ma_pdf": "Facture créée mais erreur PDF",
+    "iban_non_valido": "IBAN non valable : vérifiez les chiffres",
+    "iban_qr": "C'est un QR-IBAN : il va dans le profil, champ QR-IBAN. Ici, il faut l'IBAN normal du compte."
+  },
+  "avviso_qr": {
+    "titolo": "La facture sortira sans QR-facture",
+    "mancano": "Il manque dans les données de facturation :",
+    "completa": "Compléter le profil",
+    "chiedi_titolare": "Demandez au titulaire de l'étude de les compléter dans son profil.",
+    "campi": {
+      "indirizzo": "rue",
+      "cap": "NPA",
+      "citta": "localité",
+      "iban": "IBAN suisse"
+    }
   }
 }

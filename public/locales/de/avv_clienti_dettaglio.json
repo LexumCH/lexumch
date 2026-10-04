@@ -212,14 +212,16 @@
     "telefono": "Telefon",
     "telefono_placeholder": "+41 ...",
     "indirizzo": "Adresse",
-    "indirizzo_placeholder": "Strasse ...",
+    "indirizzo_placeholder": "Strasse",
     "localita": "Ort",
     "cantone": "Kanton",
     "npa": "PLZ",
     "nome_completo": "Vollständiger Name",
     "si": "Ja",
     "no": "Nein",
-    "avvocato_assegnato": "Zugewiesener Anwalt"
+    "avvocato_assegnato": "Zugewiesener Anwalt",
+    "numero": "Nr.",
+    "paese": "Land"
   },
   "pratiche": {
     "nuova_pratica": "Neues Dossier",

@@ -5,7 +5,7 @@
   },
   "avviso": {
     "totale_da_pagare": "Total à payer : CHF {{importo}}",
-    "contatta_avvocato": "Veuillez contacter votre avocat pour les modalités de paiement."
+    "contatta_avvocato": "Les données de paiement figurent dans le PDF de la facture."
   },
   "filtri": {
     "tutte": "Toutes",
@@ -28,6 +28,13 @@
     "importo": "Montant",
     "emissione": "Émission",
     "scadenza": "Échéance",
-    "stato": "Statut"
+    "stato": "Statut",
+    "pdf": "PDF"
+  },
+  "azioni": {
+    "scarica": "Télécharger"
+  },
+  "errori": {
+    "download": "Échec du téléchargement, réessayez."
   }
 }

@@ -7,6 +7,11 @@
 // - Modello fiscale CH: imponibile → IVA (o esente) → totale. Niente CPA/ritenuta.
 // - Body allineato alla edge crea-fattura CH: aliquota_iva, esente_iva,
 //   esente_iva_motivo, iban (NON iva_percentuale/cpa/ritenuta/iban_pagamento).
+// - 04-10-2026: chi emette e' il titolare dello studio. Se non e' assoggettato
+//   all'IVA la fattura esce senza (lo impone anche il server); IBAN dal suo
+//   profilo; avviso se mancano i dati della QR-fattura; lingua della fattura;
+//   la pratica solo per gli avvocati; errori veri delle funzioni.
+// - 04-10-2026: per i fiduciari la fattura si collega al mandato (?mandato_id=).
 
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -17,6 +22,8 @@ import {
     Loader2, Save, FileSignature, ChevronDown, Info
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import SelectLingua from '@/components/SelectLingua'
+import { pulisciIban, formattaIban, ibanValido, isQrIban, mancanzeQr, messaggioErroreFunzione } from '@/lib/fatturazione'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
@@ -58,7 +65,7 @@ function calcolaTotali({ righe, aliquotaIva, esente }) {
 // ─────────────────────────────────────────────────────────────
 // COMPONENTE PREVIEW (colonna destra, sticky)
 // ─────────────────────────────────────────────────────────────
-function PreviewFattura({ form, righe, totali, cliente, pratica }) {
+function PreviewFattura({ form, righe, totali, cliente, pratica, mandato, nonAssoggettato }) {
     const { t, i18n } = useTranslation('avv_fatturazione_nuova')
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const oggi = new Date().toLocaleDateString(dateLocale)
@@ -94,6 +101,13 @@ function PreviewFattura({ form, righe, totali, cliente, pratica }) {
                 </div>
             )}
 
+            {mandato && (
+                <div>
+                    <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-1">{t('preview.mandato_collegato')}</p>
+                    <p className="font-body text-xs text-nebbia/60 truncate">{mandato.titolo}</p>
+                </div>
+            )}
+
             <div className="border-t border-white/5 pt-3">
                 <p className="font-body text-xs text-nebbia/30 uppercase tracking-widest mb-2">{t('preview.prestazioni')}</p>
                 {righe.length === 0 || righe.every(r => !r.descrizione?.trim()) ? (
@@ -122,7 +136,7 @@ function PreviewFattura({ form, righe, totali, cliente, pratica }) {
                 {form.esente_iva ? (
                     <div className="flex justify-between text-xs font-body text-nebbia/60">
                         <span>{t('preview.iva_esente')}</span>
-                        <span className="text-nebbia/40 italic truncate max-w-[160px]">{form.esente_iva_motivo || '—'}</span>
+                        <span className="text-nebbia/40 italic truncate max-w-[160px]">{nonAssoggettato ? t('iva.non_assoggettato_breve') : (form.esente_iva_motivo || '—')}</span>
                     </div>
                 ) : (
                     <div className="flex justify-between text-xs font-body text-nebbia/60">
@@ -149,10 +163,14 @@ export default function AvvocatoFatturazioneNuova() {
     const [searchParams] = useSearchParams()
     const clientePreselezionato = searchParams.get('cliente_id')
     const praticaPreselezionata = searchParams.get('pratica_id')
+    const mandatoPreselezionato = searchParams.get('mandato_id')
 
     const [clienti, setClienti] = useState([])
     const [pratiche, setPratiche] = useState([])
-    const [profiloAvv, setProfiloAvv] = useState(null)
+    const [mandati, setMandati] = useState([])
+    const [emittente, setEmittente] = useState(null)   // il titolare: chi emette la fattura
+    const [emettoIo, setEmettoIo] = useState(true)
+    const [ruolo, setRuolo] = useState(null)
     const [loading, setLoading] = useState(true)
 
     const [salvando, setSalvando] = useState(null) // null | 'bozza' | 'pdf'
@@ -167,6 +185,7 @@ export default function AvvocatoFatturazioneNuova() {
     const [form, setForm] = useState({
         cliente_id: clientePreselezionato ?? '',
         pratica_id: praticaPreselezionata ?? '',
+        mandato_id: mandatoPreselezionato ?? '',
         data_emissione: oggi,
         data_scadenza: tra30giorni,
         aliquota_iva: ALIQUOTA_IVA_DEFAULT,
@@ -174,8 +193,9 @@ export default function AvvocatoFatturazioneNuova() {
         esente_iva_motivo: '',
         note_pubbliche: '',
         note_interne: '',
-        metodo_pagamento: 'Bonifico bancario',
+        metodo_pagamento: 'bonifico',
         iban: '',
+        lingua_fattura: i18n.language?.slice(0, 2) || 'it',
     })
 
     const [righe, setRighe] = useState([
@@ -191,20 +211,33 @@ export default function AvvocatoFatturazioneNuova() {
 
             const { data: prof } = await supabase
                 .from('profiles')
-                .select('id, titolare_id, iban')
+                .select('id, role, titolare_id')
                 .eq('id', user.id).single()
 
             const titolareId = prof?.titolare_id ?? user.id
-            setProfiloAvv(prof)
+            setRuolo(prof?.role ?? null)
+            setEmettoIo(titolareId === user.id)
 
-            // Pre-popola IBAN dal profilo se presente
-            if (prof?.iban) setForm(p => ({ ...p, iban: prof.iban }))
+            // Chi emette: il titolare (assoggettamento IVA, IBAN, indirizzo, lingua)
+            const { data: emit } = await supabase
+                .from('profiles')
+                .select('id, iva_attiva, iban, qr_iban, indirizzo, numero_civico, cap, citta, paese, lingua')
+                .eq('id', titolareId).maybeSingle()
+            setEmittente(emit ?? null)
+            if (emit) {
+                setForm(p => ({
+                    ...p,
+                    iban: emit.iban ? formattaIban(emit.iban) : p.iban,
+                    lingua_fattura: ['it', 'de', 'fr'].includes(emit.lingua) ? emit.lingua : p.lingua_fattura,
+                    ...(emit.iva_attiva === false ? { esente_iva: true, esente_iva_motivo: '' } : {}),
+                }))
+            }
 
             const { data: collabIds } = await supabase
                 .from('profiles').select('id').eq('titolare_id', titolareId)
             const idsAvvocati = [titolareId, ...(collabIds ?? []).map(c => c.id)]
 
-            const [{ data: cli }, { data: prat }] = await Promise.all([
+            const [{ data: cli }, { data: prat }, { data: mand }] = await Promise.all([
                 supabase
                     .from('profiles')
                     .select('id, nome, cognome, ragione_sociale, tipo_soggetto, email')
@@ -216,10 +249,18 @@ export default function AvvocatoFatturazioneNuova() {
                     .select('id, titolo, cliente_id, stato')
                     .in('avvocato_id', idsAvvocati)
                     .order('created_at', { ascending: false }),
+                prof?.role === 'fiduciario'
+                    ? supabase
+                        .from('mandati')
+                        .select('id, titolo, cliente_id, anno_riferimento')
+                        .in('avvocato_id', idsAvvocati)
+                        .order('created_at', { ascending: false })
+                    : Promise.resolve({ data: [] }),
             ])
 
             setClienti(cli ?? [])
             setPratiche(prat ?? [])
+            setMandati(mand ?? [])
             setLoading(false)
         }
         carica()
@@ -233,6 +274,15 @@ export default function AvvocatoFatturazioneNuova() {
             setForm(prev => ({ ...prev, pratica_id: '' }))
         }
     }, [form.cliente_id, pratiche])
+
+    // Lo stesso per il mandato
+    useEffect(() => {
+        if (!form.mandato_id) return
+        const m = mandati.find(m => m.id === form.mandato_id)
+        if (m && m.cliente_id !== form.cliente_id) {
+            setForm(prev => ({ ...prev, mandato_id: '' }))
+        }
+    }, [form.cliente_id, mandati])
 
     const clienteSelezionato = useMemo(
         () => clienti.find(c => c.id === form.cliente_id) ?? null,
@@ -248,6 +298,23 @@ export default function AvvocatoFatturazioneNuova() {
         () => pratiche.find(p => p.id === form.pratica_id) ?? null,
         [pratiche, form.pratica_id]
     )
+
+    const mandatiCliente = useMemo(
+        () => mandati.filter(m => m.cliente_id === form.cliente_id),
+        [mandati, form.cliente_id]
+    )
+
+    const mandatoSelezionato = useMemo(
+        () => mandati.find(m => m.id === form.mandato_id) ?? null,
+        [mandati, form.mandato_id]
+    )
+
+    const nonAssoggettato = emittente?.iva_attiva === false
+    const isAvvocato = ruolo === 'avvocato'
+    const isFiduciario = ruolo === 'fiduciario'
+    const ibanForm = pulisciIban(form.iban)
+    // Il PDF usa l'IBAN scritto nella fattura, se c'e', altrimenti quello del profilo
+    const mancaQr = emittente ? mancanzeQr({ ...emittente, iban: ibanForm || emittente.iban }) : []
 
     // Totali calcolati live (formula CH)
     const totali = useMemo(() => calcolaTotali({
@@ -276,6 +343,8 @@ export default function AvvocatoFatturazioneNuova() {
         for (const r of righeValide) {
             if (isNaN(Number(r.prezzo_unitario))) return t('errori.prezzi_numerici')
         }
+        if (ibanForm && !ibanValido(ibanForm)) return t('errori.iban_non_valido')
+        if (ibanForm && isQrIban(ibanForm)) return t('errori.iban_qr')
         return null
     }
 
@@ -296,26 +365,31 @@ export default function AvvocatoFatturazioneNuova() {
                     ordine: idx,
                 }))
 
+            // Il metodo di pagamento va in fattura cosi' com'e': nella lingua della fattura
+            const tFattura = i18n.getFixedT(form.lingua_fattura, 'avv_fatturazione_nuova')
+            const metodo = form.metodo_pagamento ? tFattura(`pagamento.metodi.${form.metodo_pagamento}`) : null
+
             // 1. Crea fattura — body allineato a crea-fattura CH
             const { data: creaRes, error: creaErr } = await supabase.functions.invoke('crea-fattura', {
                 body: {
                     cliente_id: form.cliente_id,
-                    pratica_id: form.pratica_id || null,
+                    pratica_id: (isAvvocato && form.pratica_id) || null,
+                    mandato_id: (isFiduciario && form.mandato_id) || null,
                     data_emissione: form.data_emissione,
                     data_scadenza: form.data_scadenza || null,
                     aliquota_iva: Number(form.aliquota_iva),
                     esente_iva: form.esente_iva,
-                    esente_iva_motivo: form.esente_iva ? (form.esente_iva_motivo?.trim() || null) : null,
+                    esente_iva_motivo: form.esente_iva && !nonAssoggettato ? (form.esente_iva_motivo?.trim() || null) : null,
                     note_pubbliche: form.note_pubbliche?.trim() || null,
                     note_interne: form.note_interne?.trim() || null,
-                    metodo_pagamento: form.metodo_pagamento?.trim() || null,
-                    iban: form.iban?.trim() || null,
+                    metodo_pagamento: metodo,
+                    iban: ibanForm || null,
+                    lingua_fattura: form.lingua_fattura,
                     righe: righeValide,
                 }
             })
 
-            if (creaErr) throw new Error(creaErr.message)
-            if (!creaRes?.ok) throw new Error(creaRes?.error ?? t('errori.creazione_fattura'))
+            if (creaErr || !creaRes?.ok) throw new Error(await messaggioErroreFunzione(creaErr, creaRes, t('errori.creazione_fattura')))
 
             const fatturaId = creaRes.fattura.id
 
@@ -324,8 +398,12 @@ export default function AvvocatoFatturazioneNuova() {
                 const { data: pdfRes, error: pdfErr } = await supabase.functions.invoke('genera-fattura-pdf', {
                     body: { fattura_id: fatturaId }
                 })
-                if (pdfErr) throw new Error(`${t('errori.fattura_creata_ma_pdf')}: ${pdfErr.message}`)
-                if (!pdfRes?.ok) throw new Error(`${t('errori.fattura_creata_ma_pdf')}: ${pdfRes?.error}`)
+                if (pdfErr || !pdfRes?.ok) {
+                    // La fattura esiste gia': si apre il dettaglio, da li' si rigenera il PDF
+                    const motivo = await messaggioErroreFunzione(pdfErr, pdfRes, '')
+                    navigate(`/fatturazione/${fatturaId}`, { state: { avviso: `${t('errori.fattura_creata_ma_pdf')}${motivo ? `: ${motivo}` : ''}` } })
+                    return
+                }
             }
 
             // 3. Naviga al dettaglio
@@ -346,6 +424,21 @@ export default function AvvocatoFatturazioneNuova() {
         <div className="space-y-5">
             <BackButton to="/fatturazione" label={t('back')} />
             <PageHeader label={t('header.label')} title={t('header.title')} />
+
+            {emittente && mancaQr.length > 0 && (
+                <div className="bg-amber-900/10 border border-amber-500/30 p-4 flex items-start gap-3">
+                    <AlertCircle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0 space-y-1">
+                        <p className="font-body text-sm text-amber-400">{t('avviso_qr.titolo')}</p>
+                        <p className="font-body text-xs text-amber-400/70 leading-relaxed">
+                            {t('avviso_qr.mancano')} {mancaQr.map(k => t(`avviso_qr.campi.${k}`)).join(', ')}.{' '}
+                            {emettoIo
+                                ? <Link to="/profilo" className="underline hover:text-amber-300">{t('avviso_qr.completa')}</Link>
+                                : t('avviso_qr.chiedi_titolare')}
+                        </p>
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5">
                 {/* COLONNA FORM */}
@@ -374,7 +467,7 @@ export default function AvvocatoFatturazioneNuova() {
                             )}
                         </div>
 
-                        <div>
+                        {isAvvocato && <div>
                             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
                                 {t('destinatario.pratica_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('destinatario.opzionale')}</span>
                             </label>
@@ -392,6 +485,35 @@ export default function AvvocatoFatturazioneNuova() {
                             {form.cliente_id && praticheCliente.length === 0 && (
                                 <p className="font-body text-xs text-nebbia/40 mt-2">{t('destinatario.nessuna_pratica_aperta')}</p>
                             )}
+                        </div>}
+
+                        {isFiduciario && <div>
+                            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
+                                {t('destinatario.mandato_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('destinatario.opzionale')}</span>
+                            </label>
+                            <select
+                                value={form.mandato_id}
+                                onChange={e => setForm(p => ({ ...p, mandato_id: e.target.value }))}
+                                disabled={!form.cliente_id}
+                                className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 disabled:opacity-40"
+                            >
+                                <option value="">{t('destinatario.nessun_mandato')}</option>
+                                {mandatiCliente.map(m => (
+                                    <option key={m.id} value={m.id}>{m.titolo}{m.anno_riferimento ? ` (${m.anno_riferimento})` : ''}</option>
+                                ))}
+                            </select>
+                            {form.cliente_id && mandatiCliente.length === 0 && (
+                                <p className="font-body text-xs text-nebbia/40 mt-2">{t('destinatario.nessun_mandato_cliente')}</p>
+                            )}
+                        </div>}
+
+                        <div>
+                            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('destinatario.lingua_label')}</label>
+                            <SelectLingua
+                                value={form.lingua_fattura}
+                                onChange={v => setForm(p => ({ ...p, lingua_fattura: v }))}
+                                className="w-full max-w-[220px] bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
+                            />
                         </div>
                     </div>
 
@@ -497,6 +619,17 @@ export default function AvvocatoFatturazioneNuova() {
                     <div className="bg-slate border border-white/5 p-5 space-y-4">
                         <p className="section-label">{t('iva.titolo')}</p>
 
+                        {nonAssoggettato ? (
+                            <div className="flex items-start gap-3 bg-petrolio/40 border border-white/5 p-3">
+                                <Info size={14} className="text-salvia/70 shrink-0 mt-0.5" />
+                                <p className="font-body text-xs text-nebbia/60 leading-relaxed">
+                                    {t('iva.non_assoggettato')}{' '}
+                                    {emettoIo
+                                        ? <Link to="/profilo" className="text-oro/80 hover:text-oro underline">{t('iva.cambia_profilo')}</Link>
+                                        : t('iva.decide_titolare')}
+                                </p>
+                            </div>
+                        ) : (<>
                         <label className="flex items-center gap-3 cursor-pointer group">
                             <input
                                 type="checkbox"
@@ -536,6 +669,7 @@ export default function AvvocatoFatturazioneNuova() {
                                 </p>
                             </div>
                         )}
+                        </>)}
                     </div>
 
                     {/* Step 5: Pagamento */}
@@ -549,10 +683,10 @@ export default function AvvocatoFatturazioneNuova() {
                                 onChange={e => setForm(p => ({ ...p, metodo_pagamento: e.target.value }))}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                             >
-                                <option value="Bonifico bancario">{t('pagamento.metodi.bonifico')}</option>
-                                <option value="QR-fattura">{t('pagamento.metodi.qr')}</option>
-                                <option value="Contanti">{t('pagamento.metodi.contanti')}</option>
-                                <option value="Carta / TWINT">{t('pagamento.metodi.carta_twint')}</option>
+                                <option value="bonifico">{t('pagamento.metodi.bonifico')}</option>
+                                <option value="qr">{t('pagamento.metodi.qr')}</option>
+                                <option value="contanti">{t('pagamento.metodi.contanti')}</option>
+                                <option value="carta_twint">{t('pagamento.metodi.carta_twint')}</option>
                                 <option value="">{t('pagamento.metodi.altro')}</option>
                             </select>
                         </div>
@@ -563,10 +697,10 @@ export default function AvvocatoFatturazioneNuova() {
                             value={form.iban}
                             onChange={e => setForm(p => ({ ...p, iban: e.target.value }))}
                         />
-                        {profiloAvv?.iban && form.iban !== profiloAvv.iban && (
+                        {emittente?.iban && ibanForm !== pulisciIban(emittente.iban) && (
                             <button
                                 type="button"
-                                onClick={() => setForm(p => ({ ...p, iban: profiloAvv.iban }))}
+                                onClick={() => setForm(p => ({ ...p, iban: formattaIban(emittente.iban) }))}
                                 className="font-body text-xs text-oro/60 hover:text-oro"
                             >
                                 {t('pagamento.usa_iban_profilo')}
@@ -671,7 +805,9 @@ export default function AvvocatoFatturazioneNuova() {
                         righe={righe}
                         totali={totali}
                         cliente={clienteSelezionato}
-                        pratica={praticaSelezionata}
+                        pratica={isAvvocato ? praticaSelezionata : null}
+                        mandato={isFiduciario ? mandatoSelezionato : null}
+                        nonAssoggettato={nonAssoggettato}
                     />
                 </div>
             </div>
