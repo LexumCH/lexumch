@@ -45,7 +45,6 @@ export type Contenuti = {
   homeSottotitolo: string;
   esempi: string[];
   consiglio: string;
-  passi: string[];
 
   // C2 · banca dati
   bancaDatiTitolo: string;
@@ -123,15 +122,6 @@ export const contenuti: Record<string, Contenuti> = {
       'Mi è arrivata una multa dopo quattro mesi: devo pagarla?',
     ],
     consiglio: 'Più dettagli dai (date, luogo, chi è coinvolto), più la risposta è precisa.',
-    passi: [
-      'Analizzo la richiesta',
-      'Individuo le fonti da consultare',
-      'Cerco tra leggi e decreti',
-      'Confronto la giurisprudenza',
-      'Verifico la prassi amministrativa',
-      'Ragiono sul caso',
-      'Compongo la risposta',
-    ],
 
     bancaDatiTitolo: 'Codici, leggi, sentenze e prassi',
     bancaDatiCitazioni: 'Riconosce anche citazioni come «241/1990» o «legge 241 del 1990».',
@@ -233,15 +223,6 @@ export const contenuti: Record<string, Contenuti> = {
       'Mi hanno disdetto il contratto mentre ero in malattia: è valido?',
     ],
     consiglio: 'Più dettagli dai (cantone, date, chi è coinvolto), più la risposta è precisa.',
-    passi: [
-      'Analizzo la richiesta',
-      'Individuo le fonti da consultare',
-      'Cerco nel diritto federale e cantonale',
-      'Confronto la giurisprudenza',
-      'Verifico la prassi delle autorità',
-      'Ragiono sul caso',
-      'Compongo la risposta',
-    ],
 
     bancaDatiTitolo: 'Diritto svizzero, giurisprudenza e prassi',
     bancaDatiCitazioni: 'Riconosce anche citazioni come «art. 336c CO» o «RS 220».',
@@ -420,15 +401,6 @@ const traduzioni: Record<string, Partial<Record<Lingua, ParzialeContenuti>>> = {
         'Mir wurde während meiner Krankheit gekündigt: Ist das gültig?',
       ],
       consiglio: 'Je mehr Details Sie angeben (Kanton, Daten, Beteiligte), desto genauer ist die Antwort.',
-      passi: [
-        'Ich analysiere die Anfrage',
-        'Ich ermittle die zu konsultierenden Quellen',
-        'Ich suche im Bundes- und Kantonsrecht',
-        'Ich vergleiche die Rechtsprechung',
-        'Ich prüfe die Praxis der Behörden',
-        'Ich denke den Fall durch',
-        'Ich verfasse die Antwort',
-      ],
       bancaDatiTitolo: 'Schweizer Recht, Rechtsprechung und Praxis',
       bancaDatiCitazioni: 'Erkennt auch Zitate wie «Art. 336c OR» oder «SR 220».',
       fonti: {
@@ -523,15 +495,6 @@ const traduzioni: Record<string, Partial<Record<Lingua, ParzialeContenuti>>> = {
       ],
       consiglio:
         'Plus vous donnez de détails (canton, dates, personnes concernées), plus la réponse est précise.',
-      passi: [
-        "J'analyse la demande",
-        "J'identifie les sources à consulter",
-        'Je recherche dans le droit fédéral et cantonal',
-        'Je compare la jurisprudence',
-        'Je vérifie la pratique des autorités',
-        'Je raisonne sur le cas',
-        'Je rédige la réponse',
-      ],
       bancaDatiTitolo: 'Droit suisse, jurisprudence et pratique',
       bancaDatiCitazioni: 'Reconnaît aussi les citations comme « art. 336c CO » ou « RS 220 ».',
       fonti: {

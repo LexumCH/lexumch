@@ -4,6 +4,7 @@ import { Emblema } from '@/componenti/Elementi';
 import { Icona } from '@/componenti/Icona';
 import type { Pezzo, RispostaFinta } from '@/dati-finti/chat';
 import { colori, famiglie } from '@/tema';
+import type { AttesaLex } from '@/backend/sse';
 import { useTesti } from '@/lingue/useTesti';
 
 // .lex-firma: emblema e «LEX» sopra ogni risposta.
@@ -128,7 +129,100 @@ export function Passi({ passi, attivo, onPress }: { passi: string[]; attivo: num
   );
 }
 
+// L'attesa della chat, come la manda lex-lead in diretta: tre fasi (analisi, ricerca con le fonti consultate,
+// sintesi), poi il testo della risposta che si scrive. Toccandola si vede subito la risposta (dati finti).
+const fasiLex = ['analisi', 'ricerca', 'sintesi'] as const;
+
+export function nomeFonteLex(codice: string, t: ReturnType<typeof useTesti>['t']): string {
+  const noti = [
+    'norme_core',
+    'norme_archivio',
+    'norme_ue',
+    'giurisprudenza',
+    'prassi',
+    'bdgt_mef',
+    'deontologia',
+    'norme_federali',
+    'norme_cantonali',
+    'eu',
+    'documento',
+  ] as const;
+  const noto = noti.find((n) => n === codice);
+  return noto ? t(`chat.fontiLex.${noto}`) : codice.replace(/_/g, ' ');
+}
+
+export function FasiLex({ attesa, onPress }: { attesa: AttesaLex; onPress?: () => void }) {
+  const { t } = useTesti();
+  if (attesa.testo) {
+    return (
+      <Pressable
+        onPress={onPress}
+        disabled={!onPress}
+        accessibilityRole="button"
+        accessibilityLabel={t('chat.fasi.scrive')}
+        style={{ gap: 4 }}
+      >
+        <Text style={stili.inArrivo}>
+          {attesa.testo}
+          <Text style={stili.cursore}> ▍</Text>
+        </Text>
+      </Pressable>
+    );
+  }
+  const corrente =
+    attesa.fase && fasiLex.includes(attesa.fase as (typeof fasiLex)[number]) ? attesa.fase : null;
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole="button"
+      accessibilityLabel={t('chat.fasi.attesa', {
+        fase: corrente ? t(`chat.fasi.${corrente as (typeof fasiLex)[number]}`) : t('chat.fasi.analisi'),
+      })}
+      style={stili.passi}
+    >
+      {fasiLex.map((fase) => {
+        const fatto = attesa.fatte.includes(fase);
+        const ora = attesa.fase === fase;
+        const fonti =
+          fase === 'ricerca' && (fatto || ora)
+            ? attesa.senzaFonti
+              ? t('chat.fasi.materiale')
+              : attesa.fonti.map((f) => nomeFonteLex(f, t)).join(' · ')
+            : '';
+        return (
+          <View key={fase} style={stili.passo}>
+            <View style={stili.stato}>
+              {fatto ? (
+                <Icona nome="spunta" dimensione={18} colore={colori.ok} />
+              ) : (
+                <View style={ora ? stili.quadroOra : stili.quadroPoi} />
+              )}
+            </View>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text
+                style={[
+                  stili.passoTesto,
+                  ora && { color: colori.fg },
+                  !fatto && !ora && { color: colori.fg3 },
+                ]}
+              >
+                {t(`chat.fasi.${fase}`)}
+              </Text>
+              {fonti ? <Text style={stili.fonti}>{fonti}</Text> : null}
+            </View>
+            {ora ? <Text style={stili.inCorso}>{t('chat.lex.inCorso')}</Text> : null}
+          </View>
+        );
+      })}
+    </Pressable>
+  );
+}
+
 const stili = StyleSheet.create({
+  inArrivo: { fontFamily: famiglie.testo, fontSize: 16, lineHeight: 24, color: colori.fg },
+  cursore: { color: colori.accent },
+  fonti: { fontFamily: famiglie.testo, fontSize: 13, lineHeight: 18, color: colori.accentText },
   firma: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   firmaTesto: {
     fontFamily: famiglie.testoMedio,

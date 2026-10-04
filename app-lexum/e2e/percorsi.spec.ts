@@ -321,3 +321,16 @@ test('elenco delle schermate: ogni voce si apre senza errori', async ({ page }) 
   }
   await expect(testo(page, 'Lexum · anteprima app')).toBeVisible();
 });
+
+test('Lex sta lavorando: le fasi vere di lex-lead, poi la risposta che si scrive', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/');
+  await tocca(page, 'B2 · Lex sta lavorando', true);
+  await vedo(page, 'Consulto le fonti', true);
+  await vedo(page, 'Codici e leggi · Giurisprudenza · Prassi', true);
+  await vedo(page, 'Compongo la risposta', true);
+  // poi il testo arriva a pezzi, e alla fine la risposta con le fonti
+  await vedo(page, /^In breve: /);
+  await expect(testo(page, 'Lex sta consultando le fonti')).toBeHidden();
+  await vedo(page, 'Il silenzio è un rifiuto.', true);
+});

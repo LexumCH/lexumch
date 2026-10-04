@@ -2,22 +2,20 @@ import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import { contiFinti } from '@/dati-finti/conti';
-import { contenuti } from '@/paesi/contenuti';
 import { scalaCredito, StatoProvider, useStato } from '@/stato/Stato';
 
 const avvolgi = ({ children }: { children: ReactNode }) => <StatoProvider>{children}</StatoProvider>;
-const passiIT = contenuti.IT.passi.length;
 
 async function prepara() {
   jest.useFakeTimers();
   return renderHook(() => useStato(), { wrapper: avvolgi });
 }
 
-// Fa avanzare tutti i passi dell'attesa, uno alla volta (ogni passo è un timer nuovo).
+// Fa avanzare l'attesa evento per evento (fasi, pezzi di testo, fine: ognuno è un timer nuovo).
 async function aspettaRisposta() {
-  for (let i = 0; i < passiIT + 1; i++) {
+  for (let i = 0; i < 400; i++) {
     await act(() => {
-      jest.advanceTimersByTime(800);
+      jest.advanceTimersByTime(2000);
     });
   }
 }

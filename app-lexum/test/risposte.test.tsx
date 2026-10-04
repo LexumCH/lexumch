@@ -137,9 +137,9 @@ describe('titolo della chat', () => {
         'Come si divide un’eredità tra fratelli e sorelle quando manca il testamento?',
       );
     });
-    for (let i = 0; i < contenuti.IT.passi.length + 1; i++) {
+    for (let i = 0; i < 400 && result.current.chat.inCorso; i++) {
       await act(() => {
-        jest.advanceTimersByTime(800);
+        jest.advanceTimersByTime(2000);
       });
     }
     expect(result.current.chat.titolo).toBe('Come si divide un’eredità tra fratelli e…');

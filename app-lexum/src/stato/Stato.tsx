@@ -1,6 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { rispostaDiSeguitoFinta, rispostaPer, type Messaggio, type RispostaFinta } from '@/dati-finti/chat';
+import {
+  rispostaDiSeguitoFinta,
+  rispostaPer,
+  testoRisposta,
+  type Messaggio,
+  type RispostaFinta,
+} from '@/dati-finti/chat';
+import { attesaVuota, avanzaAttesa, type AttesaLex, type EventoLex } from '@/backend/sse';
 import { documentiArchivioFinti, type DocumentoArchivio } from '@/dati-finti/archivio';
 import { contiFinti, type Conto } from '@/dati-finti/conti';
 import {
@@ -15,7 +22,6 @@ import { linguaDelPaese, linguaTelefono } from '@/lingue';
 import { datiVeri } from '@/config';
 import { messaggioErrore } from '@/errori';
 import { coloriEtichette } from '@/tema';
-import { contenuti } from '@/paesi/contenuti';
 import { utenteFinto } from '@/dati-finti/utente';
 import { paesePredefinito } from '@/paesi/registro';
 
@@ -26,7 +32,8 @@ import { paesePredefinito } from '@/paesi/registro';
 export type Chat = {
   messaggi: Messaggio[];
   inCorso: boolean; // Lex sta lavorando
-  passo: number; // passo attivo dell'attesa
+  attesa: AttesaLex; // fasi di lex-lead e testo che arriva (src/backend/sse.ts)
+  indice: number; // dati finti: a che punto è il copione dell'attesa
   titolo: string | null;
   salvata: boolean;
   etichetta: string | null;
@@ -35,7 +42,8 @@ export type Chat = {
 const chatVuota: Chat = {
   messaggi: [],
   inCorso: false,
-  passo: 0,
+  attesa: attesaVuota,
+  indice: 0,
   titolo: null,
   salvata: false,
   etichetta: null,
@@ -47,6 +55,7 @@ export type LinguaCH = 'it' | 'de' | 'fr';
 export type Scenario =
   | 'home-it'
   | 'lavora-it'
+  | 'scrive-it'
   | 'risposta-it'
   | 'salvata-it'
   | 'errore-lex-it'
@@ -134,8 +143,6 @@ function copia<T>(v: T): T {
 let contatore = 0;
 const nuovoId = (prefisso: string) => `${prefisso}${Date.now().toString(36)}${(contatore++).toString(36)}`;
 
-const DURATA_PASSO_MS = 750;
-
 type Azioni = {
   scegliPaese: (codice: string) => void;
   passaAPaese: (codice: string) => void;
@@ -183,19 +190,27 @@ const Contesto = createContext<Valore | null>(null);
 export function StatoProvider({ children }: { children: ReactNode }) {
   const [stato, setStato] = useState<Stato>(statoIniziale);
 
-  // Passi dell'attesa: avanzano da soli finché Lex «risponde».
+  // L'attesa con i dati finti: gli stessi eventi di lex-lead (fasi, pezzi di testo, fine), uno alla volta.
   useEffect(() => {
     if (!stato.chat.inCorso) return;
-    const passi = contenuti[stato.paese].passi.length;
-    const t = setTimeout(() => {
-      setStato((s) => {
-        if (!s.chat.inCorso) return s;
-        if (s.chat.passo + 1 < passi) return { ...s, chat: { ...s.chat, passo: s.chat.passo + 1 } };
-        return concludi(s);
-      });
-    }, DURATA_PASSO_MS);
+    const copione = copioneFinto(stato.chat, stato.paese);
+    const passo = copione[stato.chat.indice];
+    const t = setTimeout(
+      () => {
+        setStato((s) => {
+          if (!s.chat.inCorso) return s;
+          const e = copioneFinto(s.chat, s.paese)[s.chat.indice];
+          if (!e || e.evento.tipo === 'done') return concludi(s);
+          return {
+            ...s,
+            chat: { ...s.chat, attesa: avanzaAttesa(s.chat.attesa, e.evento), indice: s.chat.indice + 1 },
+          };
+        });
+      },
+      passo ? passo.dopo : 0,
+    );
     return () => clearTimeout(t);
-  }, [stato.chat.inCorso, stato.chat.passo, stato.paese]);
+  }, [stato.chat, stato.paese]);
 
   // Con i dati veri il paese attivo resta sul telefono.
   useEffect(() => {
@@ -224,7 +239,8 @@ export function StatoProvider({ children }: { children: ReactNode }) {
         chat: {
           ...prima.chat,
           inCorso: true,
-          passo: 0,
+          attesa: attesaVuota,
+          indice: 0,
           messaggi: [...prima.chat.messaggi, { id: nuovoId('m'), da: 'io', testo: testo.trim() }],
         },
       }));
@@ -241,7 +257,8 @@ export function StatoProvider({ children }: { children: ReactNode }) {
       chat: {
         ...s.chat,
         inCorso: true,
-        passo: 0,
+        attesa: attesaVuota,
+        indice: 0,
         messaggi: s.chat.messaggi.filter((m) => m.da !== 'errore'),
       },
     }));
@@ -502,15 +519,17 @@ export function useStato(): Valore {
 function costruisciScenario(nome: Scenario): Stato {
   const base = statoIniziale();
   const domanda: Messaggio = { id: nuovoId('m'), da: 'io', testo: domandaEsempio('IT') };
-  const inAttesa = (s: Stato, passo = 3): Stato => ({
+  const inAttesa = (s: Stato, passo = 2): Stato => ({
     ...s,
-    chat: { ...chatVuota, inCorso: true, passo, messaggi: [domanda] },
+    chat: { ...chatVuota, inCorso: true, messaggi: [domanda], ...attesaAlPasso(passo, domanda) },
   });
   switch (nome) {
     case 'home-it':
       return base;
     case 'lavora-it':
       return inAttesa(base);
+    case 'scrive-it':
+      return inAttesa(base, 30);
     case 'risposta-it':
       return concludi(inAttesa(base, 0));
     case 'salvata-it': {
@@ -579,7 +598,8 @@ function concludi(s: Stato): Stato {
       chat: {
         ...s.chat,
         inCorso: false,
-        passo: 0,
+        attesa: attesaVuota,
+        indice: 0,
         messaggi: [
           ...s.chat.messaggi,
           // nella tappa 3 qui arriva l'errore vero, ripulito da messaggioErrore
@@ -612,15 +632,51 @@ export function scalaCredito(c: Conto): Conto {
   return { ...c, crediti: c.crediti - 1, creditiAcquistati: Math.max(0, c.creditiAcquistati - 1) };
 }
 
-function concludiRisposta(chat: Chat, paese: string): Chat {
+// La risposta finta che arriverà per la domanda in corso.
+function rispostaInArrivo(chat: Chat, paese: string): RispostaFinta {
   const giaRisposto = chat.messaggi.some((m) => m.da === 'lex');
   const domanda = chat.messaggi.find((m) => m.da === 'io');
   const testoDomanda = domanda && domanda.da === 'io' ? domanda.testo : '';
-  const risposta: RispostaFinta = giaRisposto ? rispostaDiSeguitoFinta : rispostaPer(paese, testoDomanda);
+  return giaRisposto ? rispostaDiSeguitoFinta : rispostaPer(paese, testoDomanda);
+}
+
+// Il copione dell'attesa con i dati finti, come lo manda lex-lead: analisi, ricerca con le fonti,
+// sintesi, poi il testo a pezzi e la fine. «dopo»: i millisecondi prima dell'evento.
+const fontiFinte: Record<string, string> = {
+  IT: 'Consulto le fonti: norme_core, giurisprudenza, prassi',
+  CH: 'Consulto le fonti: norme_federali, norme_cantonali, giurisprudenza',
+};
+export function copioneFinto(chat: Chat, paese: string): { dopo: number; evento: EventoLex }[] {
+  const pezzi = testoRisposta(rispostaInArrivo(chat, paese)).match(/(\S+\s*){1,3}/g) ?? [];
+  return [
+    { dopo: 150, evento: { tipo: 'fase', fase: 'analisi', descrizione: 'Analizzo la domanda' } },
+    { dopo: 700, evento: { tipo: 'fase', fase: 'ricerca', descrizione: fontiFinte[paese] ?? fontiFinte.IT } },
+    { dopo: 1500, evento: { tipo: 'fase', fase: 'sintesi', descrizione: 'Composizione della risposta' } },
+    ...pezzi.map((testo, i) => ({ dopo: i === 0 ? 700 : 45, evento: { tipo: 'chunk', testo } as EventoLex })),
+    { dopo: 300, evento: { tipo: 'done' } },
+  ];
+}
+
+// Per l'elenco delle schermate: l'attesa ferma a un punto del copione
+// (2 = durante la ricerca delle fonti; oltre 3 = la risposta si sta scrivendo).
+function attesaAlPasso(passo: number, domanda: Messaggio): Pick<Chat, 'attesa' | 'indice'> {
+  const chat: Chat = { ...chatVuota, inCorso: true, messaggi: [domanda] };
+  const copione = copioneFinto(chat, 'IT').slice(0, passo);
+  return {
+    attesa: copione.reduce((a, p) => avanzaAttesa(a, p.evento), attesaVuota),
+    indice: copione.length,
+  };
+}
+
+function concludiRisposta(chat: Chat, paese: string): Chat {
+  const domanda = chat.messaggi.find((m) => m.da === 'io');
+  const testoDomanda = domanda && domanda.da === 'io' ? domanda.testo : '';
+  const risposta = rispostaInArrivo(chat, paese);
   return {
     ...chat,
     inCorso: false,
-    passo: 0,
+    attesa: attesaVuota,
+    indice: 0,
     titolo: chat.titolo ?? (risposta.titolo || titoloDaDomanda(testoDomanda)),
     messaggi: [...chat.messaggi, { id: nuovoId('m'), da: 'lex', risposta }],
   };

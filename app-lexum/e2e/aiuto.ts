@@ -29,17 +29,25 @@ export function erroriConsole(p: Page): string[] {
   return errori;
 }
 
+// Aspetta la fine della risposta: prima le fasi («Lex sta consultando le fonti»), poi il testo che si
+// scrive (il riquadro «Lex sta scrivendo la risposta»), infine la risposta con le fonti.
+async function aspettaLex(p: Page) {
+  await vedo(p, 'Lex sta consultando le fonti');
+  await expect(testo(p, 'Lex sta consultando le fonti')).toBeHidden({ timeout: 15_000 });
+  await expect(p.getByLabel(/^Lex sta scrivendo la risposta/).filter({ visible: true })).toHaveCount(0, {
+    timeout: 15_000,
+  });
+}
+
 // Fa una domanda a Lex toccando il primo esempio e aspetta la risposta.
 export async function domandaALex(p: Page, esempio: string) {
   await tocca(p, esempio);
-  await vedo(p, 'Lex sta consultando le fonti');
-  await expect(testo(p, 'Lex sta consultando le fonti')).toBeHidden({ timeout: 15_000 });
+  await aspettaLex(p);
 }
 
 // Scrive una domanda a Lex nel compositore e aspetta la risposta.
 export async function scriviALex(p: Page, domanda: string) {
   await etichetta(p, 'Scrivi a Lex').fill(domanda);
   await etichetta(p, 'Invia').click();
-  await vedo(p, 'Lex sta consultando le fonti');
-  await expect(testo(p, 'Lex sta consultando le fonti')).toBeHidden({ timeout: 15_000 });
+  await aspettaLex(p);
 }

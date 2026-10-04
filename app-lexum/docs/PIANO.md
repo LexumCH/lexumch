@@ -111,6 +111,8 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
     - Svizzera: aliquote 8,1/2,6/3,8%, IVA solo se iscritti nel registro (di base no), numero IDI con cifra di controllo, QR-IBAN, Cantone, lingua della fattura, annulla solo se emessa.
   - [ ] Prima dei dati veri servono le decisioni e le correzioni lato sito in `docs/DA-FARE-ANTONINO.md` (fattura elettronica IT, QR-fattura CH, colonne mancanti, fiduciari).
 
+- [x] **«Lex sta lavorando» con le fasi vere** (chiesto da Antonino il 04-10-2026): al posto dei sette passi fissi, le tre fasi che `lex-lead` manda in diretta (analizzo la domanda, consulto le fonti con i loro nomi leggibili, compongo la risposta), poi il testo che si scrive man mano, come sul sito. Il lettore dello stream è in `src/backend/sse.ts` (provato) e la chiamata vera in `src/backend/lex.ts`: si collega alla chat nella tappa 3.
+
 - [ ] **7. Rifiniture.**
   - Notifica «risposta pronta».
   - Prove sul telefono.

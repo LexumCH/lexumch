@@ -10,6 +10,14 @@ export type RispostaFinta = {
   nota?: string;
 };
 
+// Il testo della risposta come arriva dallo stream di lex-lead, a pezzi: per l'attesa con i dati finti.
+export function testoRisposta(r: RispostaFinta): string {
+  const punti = r.punti.map(
+    (p) => `${p.titolo}${p.testo.map((x) => (typeof x === 'string' ? x : `(${x.cit})`)).join('')}`,
+  );
+  return [r.inBreve ? `In breve: ${r.inBreve}` : null, ...punti].filter(Boolean).join('\n\n');
+}
+
 // Le risposte di prova, una per argomento. Lex «sceglie» quella giusta con le parole della domanda.
 const accessoAgliAtti: RispostaFinta = {
   titolo: 'Accesso agli atti',

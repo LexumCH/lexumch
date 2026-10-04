@@ -7,7 +7,7 @@ import { Compositore } from '@/componenti/Compositore';
 import { BadgePaese, Scheda, Striscia } from '@/componenti/Elementi';
 import { Icona } from '@/componenti/Icona';
 import { BottoneMenu, ContatoreCrediti, Intestazione, LexBadge } from '@/componenti/Intestazione';
-import { FirmaLex, BollaDomanda, Passi, RispostaLex } from '@/componenti/Lex';
+import { FirmaLex, BollaDomanda, FasiLex, RispostaLex } from '@/componenti/Lex';
 import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Evidenza, Testo } from '@/componenti/Testo';
@@ -160,14 +160,17 @@ export default function Chat() {
             {chat.inCorso ? (
               <View style={{ gap: 12 }}>
                 <FirmaLex />
-                <Testo colore={colori.fg2}>{t('chat.attesa.consulta')}</Testo>
-                <Passi passi={testi.passi} attivo={chat.passo} onPress={azioni.mostraSubitoRisposta} />
-                <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
-                  <Icona nome="campanella" dimensione={18} colore={colori.fg3} />
-                  <Testo tipo="small" colore={colori.fg3} style={{ flex: 1 }}>
-                    {t('chat.attesa.puoiChiudere')}
-                  </Testo>
-                </View>
+                {/* come il sito: prima della risposta le fasi in diretta, poi il testo che si scrive */}
+                {!chat.attesa.testo ? <Testo colore={colori.fg2}>{t('chat.attesa.consulta')}</Testo> : null}
+                <FasiLex attesa={chat.attesa} onPress={azioni.mostraSubitoRisposta} />
+                {!chat.attesa.testo ? (
+                  <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
+                    <Icona nome="campanella" dimensione={18} colore={colori.fg3} />
+                    <Testo tipo="small" colore={colori.fg3} style={{ flex: 1 }}>
+                      {t('chat.attesa.puoiChiudere')}
+                    </Testo>
+                  </View>
+                ) : null}
               </View>
             ) : null}
           </ScrollView>

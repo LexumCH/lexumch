@@ -96,6 +96,11 @@ Con `npx expo start` e l'app Expo Go: inquadri il QR e l'app si apre sul telefon
   - Banca dati: «Normen» / «Normes» per «Norme» (il sito usa anche «Erlasse»), «Arrêt» per sentenza;
   - Profilo: «Upgrade» / «Changer de plan», «Steuerberater» ed «Expert-comptable» per commercialista, «Projeteur» per progettista.
   - Clienti e documenti (04-10-2026): «Mandant», «Mandantenportal», «AHV-Nummer», «UID-Nummer», «PLZ» dal sito; nuovi «Gespräche» / «Conversations» per i messaggi e «Akte von Lex» / «Acte de Lex» per l'atto preparato da Lex.
+- [ ] **Nomi delle fonti mentre Lex lavora** (04-10-2026): `lex-lead` manda i nomi tecnici delle fonti consultate; nell'app li mostro così, controlla che siano giusti, soprattutto i primi due:
+  - `norme_archivio` → «Norme storiche», `bdgt_mef` → «Giurisprudenza tributaria»;
+  - `norme_core` → «Codici e leggi», `norme_ue` / `eu` → «Diritto UE», `giurisprudenza`, `prassi`, `deontologia`;
+  - CH: `norme_federali` → «Diritto federale», `norme_cantonali` → «Diritto cantonale», `documento` → «Il tuo documento».
+  Sul sito la fase «ricerca» compare come «Ricerca» (IT) e «ricerca» minuscolo (CH): è un piccolo difetto del sito.
 - [ ] **Motivo d'esenzione IVA (CH) sul PDF:** nel database si salva in italiano; sul PDF va scritto nella lingua del professionista? Oggi l'app lo mostra tradotto.
 - [x] Domande frequenti, conferma «Elimina account» e benvenuto svizzero: inseriti come nel tuo documento (`docs/testi/`).
 - [ ] **Rileggi le risposte di prova delle domande d'esempio** (`src/dati-finti/chat.ts`). Sono finte, ma citano articoli veri e qualcuno le vedrà nelle anteprime:

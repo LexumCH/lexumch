@@ -97,6 +97,7 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
     voci: [
       { codice: 'B1', titolo: 'Home: nuova chat', scenario: 'home-it', percorso: ['/chat'] },
       { codice: 'B2', titolo: 'Lex sta lavorando', scenario: 'lavora-it', percorso: ['/chat'] },
+      { codice: 'B2', titolo: 'Lex scrive la risposta', scenario: 'scrive-it', percorso: ['/chat'] },
       { codice: 'B3', titolo: 'Risposta con le fonti', scenario: 'risposta-it', percorso: ['/chat'] },
       {
         codice: 'B4',
