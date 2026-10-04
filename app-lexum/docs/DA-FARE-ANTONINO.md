@@ -33,7 +33,11 @@ Dettagli in `docs/professionisti/fatture.md` e `docs/professionisti/pratiche-e-c
   - CH, professionista: numero civico separato, paese (CH o LI), sapere se l'IBAN è un QR-IBAN; `iva_attiva` c'è ma non è usato;
   - le altre colonne ci sono già in `profiles` (`partita_iva`, `cf`, `indirizzo`, `cap`, `comune`/`citta`, `provincia`, `iban`, `regime_fiscale`, `uid`): va solo controllato che l'utente possa scriverle con la sua sessione.
 - [ ] **Marca da bollo (IT, forfettari):** sopra 77,47 € va il bollo da 2 €; oggi né il sito né il trigger lo aggiungono. Nell'app per ora c'è solo l'avviso.
-- [ ] **Dati fiscali dei professionisti:** P.IVA, codice fiscale, indirizzo, IBAN e regime non si possono inserire dal Profilo del professionista (in IT ce li hanno 0 su 7). In CH indirizzo, IBAN e numero IVA non hanno nessuna schermata.
+- [ ] **Dati fiscali dei professionisti:** le colonne ci sono in `profiles`, ma nel Profilo di avvocati e commercialisti non c'è il campo per scriverle (controllato il 04-10-2026).
+  - IT: P.IVA, codice fiscale e indirizzo si scrivono solo in `/verifica`, la pagina del privato prima di diventare professionista (servono a Lexum per fatturargli l'abbonamento). L'IBAN ha il campo solo nel Profilo del commerciale. Il regime fiscale non ha campo: tutti hanno il valore predefinito RF01.
+  - Nel DB IT: 6 avvocati e 1 commercialista, nessuno con P.IVA, codice fiscale, indirizzo o IBAN.
+  - Effetto: `genera-fattura-pdf` prende questi dati dal profilo e, se sono vuoti, salta le righe. Le fatture escono senza P.IVA, codice fiscale e indirizzo dello studio.
+  - CH: indirizzo, IBAN e numero IVA non hanno nessuna schermata.
 - [ ] **Cliente italiano:** il codice destinatario SDI e la PEC di fatturazione non sono nel modulo cliente; la P.IVA c'è solo per le persone giuridiche.
 - [ ] **QR-fattura svizzera:** non conforme agli indirizzi «S» (obbligatori dal 21.11.2025), paese fisso «CH», IBAN preso dal profilo e non dalla fattura, niente QR-IBAN.
 - [ ] **Fiduciari (CH):** vedono «Fatturazione», ma `crea-fattura` accetta solo gli avvocati. Nell'app il fiduciario ha Fatture: con i dati veri gli darebbe errore finché la funzione non accetta anche il suo ruolo.
