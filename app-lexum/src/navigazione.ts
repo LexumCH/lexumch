@@ -3,9 +3,29 @@ import * as WebBrowser from 'expo-web-browser';
 import { useCallback } from 'react';
 
 // Le voci del menù. La chat è la home: le altre si aprono sopra di lei.
-export type Sezione = '/chat' | '/banca-dati' | '/ricerche' | '/archivio' | '/domande' | '/profilo';
+// Gli strumenti dello Studio (pratiche, calendario, fatture) ci sono solo per alcuni ruoli: vedi src/ruoli.ts.
+export type Sezione =
+  | '/chat'
+  | '/banca-dati'
+  | '/ricerche'
+  | '/archivio'
+  | '/domande'
+  | '/profilo'
+  | '/pratiche'
+  | '/calendario'
+  | '/fatture';
 
-export const sezioni: Sezione[] = ['/chat', '/banca-dati', '/ricerche', '/archivio', '/domande', '/profilo'];
+export const sezioni: Sezione[] = [
+  '/chat',
+  '/banca-dati',
+  '/ricerche',
+  '/archivio',
+  '/domande',
+  '/profilo',
+  '/pratiche',
+  '/calendario',
+  '/fatture',
+];
 
 // Va a una voce del menù senza accumulare schermate:
 // - alla chat si torna indietro (la chat in corso resta com'era);

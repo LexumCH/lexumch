@@ -20,6 +20,7 @@ import { utenteFinto } from '@/dati-finti/utente';
 import { useVaiASezione, type Sezione } from '@/navigazione';
 import { trovaPaese } from '@/paesi/registro';
 import { useMenu } from '@/stato/Menu';
+import { strumentiStudio, type StrumentoStudio } from '@/ruoli';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
@@ -34,13 +35,22 @@ const voci: { sezione: Sezione; titolo: string; icona: NomeIcona }[] = [
   { sezione: '/profilo', titolo: 'Profilo', icona: 'persona' },
 ];
 
+// Strumenti dello Studio, solo per i ruoli che li hanno (avvocati; commercialisti e fiduciari in parte).
+const vociStudio: Record<StrumentoStudio, { sezione: Sezione; titolo: string; icona: NomeIcona }> = {
+  mandati: { sezione: '/pratiche', titolo: 'Pratiche', icona: 'bilancia' },
+  calendario: { sezione: '/calendario', titolo: 'Calendario', icona: 'calendario' },
+  fatture: { sezione: '/fatture', titolo: 'Fatture', icona: 'ricevuta' },
+};
+
 // C1 · Menù laterale: le cinque voci, poi le etichette dell'utente (non lo storico delle chat).
+// Per un professionista, sopra c'è il gruppo «Studio» con i suoi strumenti.
 export function MenuLaterale() {
   const { aperto, chiudi } = useMenu();
   const insets = useSafeAreaInsets();
   const percorso = usePathname();
   const vai = useVaiASezione();
-  const { paese, conto, etichetteAttive, elementiAttivi, chatDaSalvare, azioni } = useStato();
+  const { paese, conto, etichetteAttive, elementiAttivi, chatDaSalvare, ruoli, azioni } = useStato();
+  const studio = strumentiStudio(ruoli[paese] ?? 'user').map((s) => vociStudio[s]);
   const [montato, setMontato] = useState(aperto);
   const [avanzamento] = useState(() => new Animated.Value(0));
   if (aperto && !montato) setMontato(true);
@@ -72,6 +82,7 @@ export function MenuLaterale() {
 
   if (!montato) return null;
 
+  const attiva = (sezione: Sezione) => percorso === sezione || percorso.startsWith(`${sezione}/`);
   const datiPaese = trovaPaese(paese);
   const crediti = conto.crediti === 1 ? '1 credito' : `${conto.crediti} crediti`;
   const traslazione = avanzamento.interpolate({ inputRange: [0, 1], outputRange: [-LARGHEZZA, 0] });
@@ -118,25 +129,14 @@ export function MenuLaterale() {
           />
         </View>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 12 }}>
-          {voci.map((v) => {
-            const on = percorso === v.sezione || percorso.startsWith(`${v.sezione}/`);
-            return (
-              <Pressable
-                key={v.sezione}
-                onPress={() => vai(v.sezione)}
-                accessibilityRole="button"
-                aria-selected={on}
-                style={({ pressed }) => [
-                  stili.voce,
-                  on && stili.voceOn,
-                  pressed && !on && { backgroundColor: colori.bg },
-                ]}
-              >
-                <Icona nome={v.icona} dimensione={20} colore={on ? colori.accentText : colori.fg2} />
-                <Text style={[stili.voceTesto, on && { color: colori.accentText }]}>{v.titolo}</Text>
-              </Pressable>
-            );
-          })}
+          {studio.length > 0 ? <TitoloSezione stile={{ paddingTop: 6 }}>Studio</TitoloSezione> : null}
+          {studio.map((v) => (
+            <VoceMenu key={v.sezione} {...v} on={attiva(v.sezione)} onPress={() => vai(v.sezione)} />
+          ))}
+          {studio.length > 0 ? <TitoloSezione stile={{ paddingTop: 18 }}>Lexum</TitoloSezione> : null}
+          {voci.map((v) => (
+            <VoceMenu key={v.sezione} {...v} on={attiva(v.sezione)} onPress={() => vai(v.sezione)} />
+          ))}
           <TitoloSezione stile={{ paddingTop: 18 }}>Etichette</TitoloSezione>
           {etichetteAttive.length === 0 ? (
             <Text style={stili.vuoto}>Le etichette che crei salvando le chat compaiono qui.</Text>
@@ -179,6 +179,34 @@ export function MenuLaterale() {
         <View style={{ height: insets.bottom }} />
       </Animated.View>
     </View>
+  );
+}
+
+function VoceMenu({
+  titolo,
+  icona,
+  on,
+  onPress,
+}: {
+  titolo: string;
+  icona: NomeIcona;
+  on: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      aria-selected={on}
+      style={({ pressed }) => [
+        stili.voce,
+        on && stili.voceOn,
+        pressed && !on && { backgroundColor: colori.bg },
+      ]}
+    >
+      <Icona nome={icona} dimensione={20} colore={on ? colori.accentText : colori.fg2} />
+      <Text style={[stili.voceTesto, on && { color: colori.accentText }]}>{titolo}</Text>
+    </Pressable>
   );
 }
 

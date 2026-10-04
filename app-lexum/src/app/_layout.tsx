@@ -18,6 +18,7 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { avvolgi, segnalaErrore } from '@/sentry';
 import { MenuProvider } from '@/stato/Menu';
 import { StatoProvider } from '@/stato/Stato';
+import { StudioProvider } from '@/stato/Studio';
 import { colori, famiglie } from '@/tema';
 
 SplashScreen.preventAutoHideAsync();
@@ -54,23 +55,25 @@ function Radice() {
   return (
     <ThemeProvider value={temaNavigazione}>
       <StatoProvider>
-        <MenuProvider>
-          <StatusBar style="light" />
-          <Cornice>
-            <View style={{ flex: 1, backgroundColor: colori.bg }}>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: colori.bg },
-                  animation: 'slide_from_right',
-                }}
-              >
-                <Stack.Screen name="passaggio" options={{ animation: 'fade', gestureEnabled: false }} />
-              </Stack>
-              <MenuLaterale />
-            </View>
-          </Cornice>
-        </MenuProvider>
+        <StudioProvider>
+          <MenuProvider>
+            <StatusBar style="light" />
+            <Cornice>
+              <View style={{ flex: 1, backgroundColor: colori.bg }}>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: colori.bg },
+                    animation: 'slide_from_right',
+                  }}
+                >
+                  <Stack.Screen name="passaggio" options={{ animation: 'fade', gestureEnabled: false }} />
+                </Stack>
+                <MenuLaterale />
+              </View>
+            </Cornice>
+          </MenuProvider>
+        </StudioProvider>
       </StatoProvider>
     </ThemeProvider>
   );

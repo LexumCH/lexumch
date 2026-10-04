@@ -11,10 +11,11 @@ type Props = {
   onAllega: () => void;
   occupato?: boolean; // Lex sta lavorando
   offline?: boolean; // senza connessione non si manda niente
+  segnaposto?: string; // testo di invito, se diverso da quello della home
 };
 
 // .composer: dove si scrive a Lex. In basso, sopra la nota «Lex può commettere errori».
-export function Compositore({ valore, onCambia, onInvia, onAllega, occupato, offline }: Props) {
+export function Compositore({ valore, onCambia, onInvia, onAllega, occupato, offline, segnaposto }: Props) {
   const pieno = valore.trim().length > 0 && !occupato && !offline;
   return (
     <View style={stili.composer}>
@@ -27,7 +28,7 @@ export function Compositore({ valore, onCambia, onInvia, onAllega, occupato, off
               ? 'Lex sta lavorando…'
               : offline
                 ? 'Senza connessione: Lex torna appena sei online'
-                : 'Racconta il tuo caso a Lex…'
+                : (segnaposto ?? 'Racconta il tuo caso a Lex…')
           }
           placeholderTextColor={colori.fg3}
           selectionColor={colori.accent}

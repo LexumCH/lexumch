@@ -33,12 +33,13 @@ export function Emblema({ larghezza = 24, altezza = 16 }: { larghezza?: number; 
 }
 
 // .badge
-type TonoBadge = 'neutro' | 'ok' | 'warn' | 'oro';
+export type TonoBadge = 'neutro' | 'ok' | 'warn' | 'oro' | 'pericolo';
 const toniBadge: Record<TonoBadge, { bordo: string; testo: string }> = {
   neutro: { bordo: colori.line2, testo: colori.fg2 },
   ok: { bordo: colori.okLine, testo: colori.ok },
   warn: { bordo: colori.warnLine, testo: colori.warn },
   oro: { bordo: colori.accentLine, testo: colori.accentText },
+  pericolo: { bordo: colori.dangerLine, testo: colori.danger },
 };
 export function Badge({ children, tono = 'neutro' }: { children: string; tono?: TonoBadge }) {
   const t = toniBadge[tono];

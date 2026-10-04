@@ -50,6 +50,9 @@ export type Scenario =
   | 'offline-ricerche-it'
   | 'due-passaggi-it'
   | 'avvocato-it'
+  | 'avvocato-ch'
+  | 'commercialista-it'
+  | 'fiduciario-ch'
   | 'caricamento-it'
   | 'vuoto-it'
   | 'senza-accesso-ch'
@@ -71,6 +74,8 @@ type Stato = {
   dueFattori: Record<string, boolean>;
   // Ruolo dell'account in ogni paese (user, avvocato, cliente…): non blocca mai l'accesso.
   ruoli: Record<string, string>;
+  // Cresce a ogni scenario dell'elenco delle schermate: lo Studio riparte dai suoi dati finti.
+  generazione: number;
 };
 
 // Impostazioni di questo telefono (Profilo → «Su questo telefono»): valgono per tutti i paesi,
@@ -102,6 +107,7 @@ const statoIniziale = (): Stato => ({
   telefono: { blocco: false, ricercheOffline: false },
   dueFattori: { IT: false, CH: false },
   ruoli: { IT: 'user', CH: 'user' },
+  generazione: 0,
 });
 
 function copia<T>(v: T): T {
@@ -364,7 +370,7 @@ export function StatoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const scenario = useCallback((nome: Scenario) => {
-    setStato(() => costruisciScenario(nome));
+    setStato((prima) => ({ ...costruisciScenario(nome), generazione: prima.generazione + 1 }));
   }, []);
 
   const azioni = useMemo<Azioni>(
@@ -479,6 +485,12 @@ function costruisciScenario(nome: Scenario): Stato {
         ruoli: { ...base.ruoli, IT: 'avvocato' },
         dueFattori: { ...base.dueFattori, IT: true },
       };
+    case 'avvocato-ch':
+      return { ...base, paese: 'CH', ruoli: { ...base.ruoli, CH: 'avvocato' } };
+    case 'commercialista-it':
+      return { ...base, ruoli: { ...base.ruoli, IT: 'commercialista' } };
+    case 'fiduciario-ch':
+      return { ...base, paese: 'CH', ruoli: { ...base.ruoli, CH: 'fiduciario' } };
     case 'due-passaggi-it':
       return { ...base, dueFattori: { ...base.dueFattori, IT: true } };
     case 'offline-ricerche-it':

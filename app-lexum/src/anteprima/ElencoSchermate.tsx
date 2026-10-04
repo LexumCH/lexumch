@@ -302,6 +302,69 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
     ],
   },
   {
+    titolo: 'Studio dei professionisti (senza mockup)',
+    voci: [
+      {
+        codice: 'S1',
+        titolo: 'Pratiche (avvocato IT)',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/pratiche'],
+      },
+      {
+        codice: 'S2',
+        titolo: 'Pratica: panoramica',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/pratiche', { pathname: '/pratiche/[id]', params: { id: 'p1' } }],
+      },
+      {
+        codice: 'S2',
+        titolo: 'Pratica: scadenze e udienze',
+        scenario: 'avvocato-it',
+        percorso: [
+          '/chat',
+          '/pratiche',
+          { pathname: '/pratiche/[id]', params: { id: 'p1', scheda: 'scadenze' } },
+        ],
+      },
+      {
+        codice: 'S2',
+        titolo: 'Pratica: Lex',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/pratiche', { pathname: '/pratiche/[id]', params: { id: 'p1', scheda: 'lex' } }],
+      },
+      {
+        codice: 'S3',
+        titolo: 'Nuova pratica',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/pratiche', '/pratiche/nuova'],
+      },
+      {
+        codice: 'S4',
+        titolo: 'Calendario: agenda',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/calendario'],
+      },
+      {
+        codice: 'S4',
+        titolo: 'Calendario: mese',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', { pathname: '/calendario', params: { vista: 'mese' } }],
+      },
+      {
+        codice: 'S1',
+        titolo: 'Pratiche (avvocato CH)',
+        scenario: 'avvocato-ch',
+        percorso: ['/chat', '/pratiche'],
+      },
+      {
+        codice: 'S4',
+        titolo: 'Calendario del commercialista',
+        scenario: 'commercialista-it',
+        percorso: ['/chat', '/calendario'],
+      },
+    ],
+  },
+  {
     titolo: 'Funzioni del telefono (senza mockup)',
     voci: [
       { codice: 'F1', titolo: 'App bloccata: Face ID', scenario: 'home-it', percorso: ['/chat', '/blocco'] },
