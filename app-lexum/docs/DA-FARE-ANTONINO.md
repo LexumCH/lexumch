@@ -38,7 +38,7 @@ Dettagli in `docs/professionisti/fatture.md` e `docs/professionisti/pratiche-e-c
   - Nel DB IT: 6 avvocati e 1 commercialista, nessuno con P.IVA, codice fiscale, indirizzo o IBAN.
   - Effetto: `genera-fattura-pdf` prende questi dati dal profilo e, se sono vuoti, salta le righe. Le fatture escono senza P.IVA, codice fiscale e indirizzo dello studio.
   - CH: indirizzo, IBAN e numero IVA non hanno nessuna schermata.
-- [ ] **Cliente italiano:** il codice destinatario SDI e la PEC di fatturazione non sono nel modulo cliente; la P.IVA c'è solo per le persone giuridiche.
+- [x] **Cliente italiano:** codice destinatario SDI, PEC di fatturazione e P.IVA anche per le persone fisiche sono nel modulo cliente dal 04-10-2026 (sito e app).
 - [ ] **QR-fattura svizzera:** non conforme agli indirizzi «S» (obbligatori dal 21.11.2025), paese fisso «CH», IBAN preso dal profilo e non dalla fattura, niente QR-IBAN.
 - [ ] **Fiduciari (CH):** vedono «Fatturazione», ma `crea-fattura` accetta solo gli avvocati. Nell'app il fiduciario ha Fatture: con i dati veri gli darebbe errore finché la funzione non accetta anche il suo ruolo.
 - [ ] **Commercialisti (IT):** sul sito vedono il calcolatore forense, che per loro non vale (servirebbe il DM 140/2012). Nell'app non lo vedono.
@@ -47,6 +47,20 @@ Dettagli in `docs/professionisti/fatture.md` e `docs/professionisti/pratiche-e-c
 - [ ] **Calendario IT:** il DB vuole sempre il cliente in un appuntamento, ma il modulo lo dice facoltativo.
 - [ ] **Promemoria CH:** manca il job giornaliero di `genera-notifiche`, e la funzione cerca una colonna `luogo` che non esiste.
 - [ ] **Collaboratori di pratica (IT):** mancano le regole per aggiungerli o toglierli; `pratiche.studio_id` non viene riempito.
+
+## Clienti e documenti dello studio: problemi trovati sui siti (04-10-2026)
+
+Dettagli in `docs/professionisti/clienti-e-documenti.md`. Nell'app sono già evitati; sul sito restano:
+
+- [ ] «Aggiungi documento» della pratica porta all'Archivio senza `?pratica_id`: il file caricato non finisce nella pratica.
+- [ ] «Aggiungi a pratica» nell'Archivio non imposta il cliente della pratica.
+- [ ] Nella scheda cliente il pannello della pratica legge le tabelle vecchie (`documenti_pratiche`, `note_interne` come ricerche).
+- [ ] Scheda cliente: «Assegnato a» non si salva da solo; «Vai a Pagamenti» perde il cliente; le note iniziali non si vedono mai.
+- [ ] Il portale non si può attivare dopo la creazione del cliente. Nell'app «Imposta una password» lo attiva: va bene così?
+- [ ] Archivio: le sentenze portano a `/sentenze/:id`, che non esiste; i filtri per cliente e pratica ignorano i collaboratori.
+- [ ] Dashboard CH: «Oggi», «7 giorni» e «Messaggi non letti» usano colonne che non esistono (`data_inizio`, `ticket_assistenza.avvocato_id`…), quindi restano vuoti.
+- [ ] Elimina cliente: i file restano nello storage; in CH restano anche i documenti del portale (`documenti`).
+- [ ] Due funzioni diverse per la password del cliente (`cliente-reset-password` e `avvocato-cliente-actions`): conviene tenerne una.
 
 ## Sentry (segnalazione dei crash)
 
@@ -82,12 +96,13 @@ Con `npx expo start` e l'app Expo Go: inquadri il QR e l'app si apre sul telefon
   - le fonti italiane in tedesco e francese, che si vedono solo su un telefono in quelle lingue (`src/paesi/contenuti.ts`, in fondo).
 
   Il benvenuto A0–A3 è quello che avevi già approvato.
-- [ ] **Rileggi tedesco e francese del resto dell'app** (04-10-2026): sezioni in `src/lingue/sezioni/` (interfaccia, chat, Banca dati, Ricerche, Archivio, Profilo, Studio, Fatture). Dove il sito svizzero aveva già il testo, è quello. Le scelte su cui ho più dubbi:
+- [ ] **Rileggi tedesco e francese del resto dell'app** (04-10-2026): sezioni in `src/lingue/sezioni/` (interfaccia, chat, Banca dati, Ricerche, Archivio, Profilo, Studio, Fatture, Clienti, Documenti). Dove il sito svizzero aveva già il testo, è quello. Le scelte su cui ho più dubbi:
   - nomi: «Dossiers» per Pratiche (de e fr), «Kanzlei» / «Étude» per Studio, «Mandant» per cliente, «Recherchen» / «Recherches», «Archiv» / «Archives»;
   - fatture: «steuerbefreit» / «exonérée» per «esente» (per la legge svizzera «non assoggettato» ed «escluso» non sono «befreit»), «Nettobetrag» / «Montant net» per «imponibile»;
   - chat: il saluto «Hallo» / «Bonjour»; «chat» al maschile in francese; la domanda d'esempio «Bis wann kann ich die Steuerveranlagung anfechten?» (in Svizzera si dice spesso «Einsprache erheben»);
   - Banca dati: «Normen» / «Normes» per «Norme» (il sito usa anche «Erlasse»), «Arrêt» per sentenza;
   - Profilo: «Upgrade» / «Changer de plan», «Steuerberater» ed «Expert-comptable» per commercialista, «Projeteur» per progettista.
+  - Clienti e documenti (04-10-2026): «Mandant», «Mandantenportal», «AHV-Nummer», «UID-Nummer», «PLZ» dal sito; nuovi «Gespräche» / «Conversations» per i messaggi e «Akte von Lex» / «Acte de Lex» per l'atto preparato da Lex.
 - [ ] **Motivo d'esenzione IVA (CH) sul PDF:** nel database si salva in italiano; sul PDF va scritto nella lingua del professionista? Oggi l'app lo mostra tradotto.
 - [x] Domande frequenti, conferma «Elimina account» e benvenuto svizzero: inseriti come nel tuo documento (`docs/testi/`).
 - [ ] **Rileggi le risposte di prova delle domande d'esempio** (`src/dati-finti/chat.ts`). Sono finte, ma citano articoli veri e qualcuno le vedrà nelle anteprime:

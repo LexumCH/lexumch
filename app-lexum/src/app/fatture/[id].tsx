@@ -15,6 +15,7 @@ import { Testo } from '@/componenti/Testo';
 import type { Fattura } from '@/dati-finti/studio';
 import { useTesti } from '@/lingue/useTesti';
 import { indietro } from '@/navigazione';
+import { strumentiStudio } from '@/ruoli';
 import { importo, statoFattura, totaliFattura } from '@/studio/calcoli';
 import { CampoData, Scelta, leggiData, useRiapertura } from '@/studio/Campi';
 import {
@@ -32,15 +33,17 @@ import { useStato } from '@/stato/Stato';
 import { nomeCliente, useStudio } from '@/stato/Studio';
 import { colori, famiglie } from '@/tema';
 
-type FoglioFattura = 'azioni' | 'pagamento' | 'annulla' | 'pdf';
+type FoglioFattura = 'azioni' | 'pagamento' | 'annulla' | 'pdf' | 'pratica';
 
 // S6 · Dettaglio della fattura: righe, totali del paese, pagamenti.
 // Si registra un pagamento (anche parziale), si genera e si condivide il PDF, si annulla.
 // Eliminare resta sul sito, come la modifica (che sul sito non esiste).
 export default function DettaglioFattura() {
   const { id, foglio: parametroFoglio } = useLocalSearchParams<{ id: string; foglio?: FoglioFattura }>();
-  const { paese } = useStato();
+  const { paese, ruoli } = useStato();
   const { fatture, clienti, pratiche, fatturazione, azioni } = useStudio();
+  // «Collega a una pratica» solo per chi ha le pratiche (gli avvocati)
+  const conPratiche = strumentiStudio(ruoli[paese] ?? 'user').includes('mandati');
   const { t: testo, lingua } = useTesti();
   const fattura = fatture.find((f) => f.id === id);
   const foglio = parametroFoglio ?? null;
@@ -211,6 +214,25 @@ export default function DettaglioFattura() {
       <Foglio visibile={foglio === 'azioni'} onChiudi={chiudi}>
         <Testo tipo="dS">{testo('fatture.dettaglio.fatturaNumero', { numero: fattura.numero })}</Testo>
         <View style={{ marginHorizontal: -20 }}>
+          {conPratiche ? (
+            <Riga
+              stretta
+              sinistra={<Icona nome="bilancia" dimensione={20} colore={colori.fg2} />}
+              titolo={pratica ? testo('documenti.fattura.cambia') : testo('documenti.fattura.collega')}
+              onPress={() => setFoglio('pratica')}
+            />
+          ) : null}
+          {conPratiche && pratica ? (
+            <Riga
+              stretta
+              sinistra={<Icona nome="chiudi" dimensione={20} colore={colori.fg2} />}
+              titolo={testo('documenti.fattura.scollega')}
+              onPress={() => {
+                azioni.collegaFattura(fattura.id, null);
+                chiudi();
+              }}
+            />
+          ) : null}
           {fattura.pdf ? (
             <Riga
               stretta
@@ -234,6 +256,32 @@ export default function DettaglioFattura() {
           ) : null}
         </View>
         <Testo tipo="cap">{testo('fatture.dettaglio.eliminaSulSito')}</Testo>
+      </Foglio>
+
+      <Foglio visibile={foglio === 'pratica'} onChiudi={chiudi}>
+        <View style={{ gap: 6 }}>
+          <Testo tipo="dS">{testo('documenti.fattura.titolo')}</Testo>
+          <Testo tipo="small" colore={colori.fg2}>
+            {testo('documenti.fattura.testo', { nome: nomeCliente(clienti, fattura.clienteId) })}
+          </Testo>
+        </View>
+        {pratiche.some((p) => p.clienteId === fattura.clienteId) ? (
+          <Scelta
+            voci={pratiche
+              .filter((p) => p.clienteId === fattura.clienteId)
+              .map((p) => ({ valore: p.id, titolo: p.titolo }))}
+            valore={fattura.praticaId ?? null}
+            onCambia={(v) => {
+              azioni.collegaFattura(fattura.id, v);
+              chiudi();
+            }}
+            etichettaGruppo={testo('documenti.fattura.titolo')}
+          />
+        ) : (
+          <Testo tipo="small" colore={colori.fg3}>
+            {testo('documenti.fattura.nessuna')}
+          </Testo>
+        )}
       </Foglio>
 
       <FoglioPagamento

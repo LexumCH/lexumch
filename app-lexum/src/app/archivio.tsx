@@ -14,6 +14,8 @@ import { categorieFinte } from '@/dati-finti/archivio';
 import { formatoMB } from '@/dati-finti/conti';
 import { FoglioCondiviso } from '@/fogli/FoglioCondiviso';
 import { useTesti } from '@/lingue/useTesti';
+import { strumentiStudio } from '@/ruoli';
+import { ArchivioStudio } from '@/studio/ArchivioStudio';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
 
@@ -24,6 +26,13 @@ const SENZA = 'Senza categoria';
 // D2 · Archivio: spazio usato, categorie con «+ Categoria», scansione e caricamento.
 // Scanner, caricamento, categorie nuove e «Condividi in Lexum» arrivano con la tappa 6.
 export default function Archivio() {
+  const { paese, ruoli } = useStato();
+  // per l'avvocato è l'archivio dello studio, con clienti e pratiche
+  if (strumentiStudio(ruoli[paese] ?? 'user').includes('clienti')) return <ArchivioStudio />;
+  return <ArchivioPersonale />;
+}
+
+function ArchivioPersonale() {
   const { paese, conto, documentiAttivi: documenti, simula } = useStato();
   const { t } = useTesti();
   // ?condiviso=1: è arrivato un file da «Condividi in Lexum» di un'altra app.

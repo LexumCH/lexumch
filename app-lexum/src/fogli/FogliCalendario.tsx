@@ -148,11 +148,13 @@ export function FoglioNuovoEvento({
   giornoIniziale,
   paese,
   conUdienze,
+  clienteIniziale,
 }: {
   visibile: boolean;
   onChiudi: () => void;
   evento?: Appuntamento | null; // presente: si modifica
   giornoIniziale: string; // ISO del giorno scelto
+  clienteIniziale?: string; // dalla scheda di un cliente
   paese: string;
   conUdienze: boolean; // solo per gli avvocati
 }) {
@@ -173,7 +175,7 @@ export function FoglioNuovoEvento({
     setData(dataNumerica(evento?.inizio ?? giornoIniziale));
     setInizio(evento ? ora(evento.inizio) : '09:00');
     setFine(evento ? ora(evento.fine) : '10:00');
-    setClienteId(evento?.clienteId ?? null);
+    setClienteId(evento?.clienteId ?? clienteIniziale ?? null);
     setPraticaId(evento?.praticaId ?? null);
     setLuogo(evento?.tipo === 'videocall' ? (evento.link ?? '') : (evento?.noteInterne ?? ''));
     setNoteCliente(evento?.noteCliente ?? '');

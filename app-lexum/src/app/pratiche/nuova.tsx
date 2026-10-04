@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -23,8 +23,12 @@ export default function NuovaPratica() {
   const { paese } = useStato();
   const { clienti, azioni } = useStudio();
   const { t, lingua } = useTesti();
+  // ?cliente=<id>: dalla scheda del cliente («Nuova pratica»), il cliente è già scelto.
+  const { cliente } = useLocalSearchParams<{ cliente?: string }>();
   const [titolo, setTitolo] = useState('');
-  const [clienteId, setClienteId] = useState<string | null>(null);
+  const [clienteId, setClienteId] = useState<string | null>(() =>
+    clienti.some((c) => c.id === cliente) ? (cliente ?? null) : null,
+  );
   const [tipo, setTipo] = useState<TipoCausa | null>(null);
   const [note, setNote] = useState('');
   const [ore, setOre] = useState('');

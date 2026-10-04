@@ -305,6 +305,57 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
     titolo: 'Studio dei professionisti (senza mockup)',
     voci: [
       {
+        codice: 'S10',
+        titolo: 'Clienti (avvocato IT)',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/clienti'],
+      },
+      {
+        codice: 'S11',
+        titolo: 'Nuovo cliente (IT)',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/clienti', '/clienti/nuovo'],
+      },
+      {
+        codice: 'S12',
+        titolo: 'Scheda cliente: panoramica',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/clienti', { pathname: '/clienti/[id]', params: { id: 'c1' } }],
+      },
+      {
+        codice: 'S12',
+        titolo: 'Scheda cliente: documenti e portale',
+        scenario: 'avvocato-it',
+        percorso: [
+          '/chat',
+          '/clienti',
+          { pathname: '/clienti/[id]', params: { id: 'c1', scheda: 'documenti' } },
+        ],
+      },
+      {
+        codice: 'S12',
+        titolo: 'Scheda cliente: note interne',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/clienti', { pathname: '/clienti/[id]', params: { id: 'c3', scheda: 'note' } }],
+      },
+      {
+        codice: 'S13',
+        titolo: 'Messaggi con il cliente',
+        scenario: 'avvocato-it',
+        percorso: [
+          '/chat',
+          '/clienti',
+          { pathname: '/clienti/[id]', params: { id: 'c1', scheda: 'comunicazioni' } },
+          { pathname: '/comunicazioni/[id]', params: { id: 'tk1' } },
+        ],
+      },
+      {
+        codice: 'D2',
+        titolo: 'Archivio dello studio (avvocato)',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/archivio'],
+      },
+      {
         codice: 'S1',
         titolo: 'Pratiche (avvocato IT)',
         scenario: 'avvocato-it',
@@ -324,6 +375,16 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
           '/chat',
           '/pratiche',
           { pathname: '/pratiche/[id]', params: { id: 'p1', scheda: 'scadenze' } },
+        ],
+      },
+      {
+        codice: 'S2',
+        titolo: 'Pratica: documenti',
+        scenario: 'avvocato-it',
+        percorso: [
+          '/chat',
+          '/pratiche',
+          { pathname: '/pratiche/[id]', params: { id: 'p1', scheda: 'documenti' } },
         ],
       },
       {
@@ -389,6 +450,24 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
         titolo: 'Dati di fatturazione (IT)',
         scenario: 'avvocato-it',
         percorso: ['/chat', '/profilo', '/fatture/dati'],
+      },
+      {
+        codice: 'S10',
+        titolo: 'Clienti (avvocato CH)',
+        scenario: 'avvocato-ch',
+        percorso: ['/chat', '/clienti'],
+      },
+      {
+        codice: 'S11',
+        titolo: 'Nuovo cliente (CH)',
+        scenario: 'avvocato-ch',
+        percorso: ['/chat', '/clienti', '/clienti/nuovo'],
+      },
+      {
+        codice: 'S12',
+        titolo: 'Scheda cliente (CH, società)',
+        scenario: 'avvocato-ch',
+        percorso: ['/chat', '/clienti', { pathname: '/clienti/[id]', params: { id: 'c2' } }],
       },
       {
         codice: 'S1',

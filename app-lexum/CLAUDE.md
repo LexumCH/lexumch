@@ -19,11 +19,11 @@
 Sotto le voci, il menù mostra le etichette dell'utente (non uno storico delle chat). Non c'è una voce «Acquisti».
 
 Per i professionisti il menù ha in più il gruppo «Studio» (deciso da Antonino il 04-10-2026):
-- avvocati: Pratiche, Calendario, Fatture;
+- avvocati: Clienti, Pratiche, Calendario, Fatture; l'Archivio dell'avvocato è quello dello studio (documenti collegati a clienti e pratiche);
 - commercialisti e fiduciari: per ora solo Calendario e Fatture;
 - progettisti: niente.
 
-Il resto degli strumenti professionali (clienti, mandati, documenti dello studio, statistiche) resta sul sito, e l'app ci rimanda.
+Le funzioni del sito vanno riportate tutte nell'app (Antonino, 04-10-2026). Quelle che mancano ancora (Fisco, Dashboard, Studio e collaboratori, mandati di commercialisti e fiduciari) per ora restano sul sito, e l'app ci rimanda.
 
 È un'app sola per più paesi. Oggi ce ne sono due:
 - Italia: lexum.it, database IT;
@@ -58,7 +58,7 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
 - `src/stato/`: stato dell'app (paese attivo, conto, chat in corso) e menù.
 - `src/backend/`: collegamento ai database dei paesi (client per paese, accesso, paese salvato sul telefono).
 - `src/dati-finti/`: i dati finti della tappa 1. Si tolgono man mano che arrivano i dati veri.
-- `src/studio/`: regole e pezzi dello Studio dei professionisti (date, campi, fatture, calcolatore della parcella); lo stato è in `src/stato/Studio.tsx`.
+- `src/studio/`: regole e pezzi dello Studio dei professionisti (date, campi, clienti, fatture, calcolatore della parcella, archivio dello studio); lo stato è in `src/stato/Studio.tsx`.
 - `src/anteprima/`: solo per il browser, la sagoma del telefono e l'elenco delle schermate per la revisione.
 - `src/lingue/`: i testi dell'app in italiano (`it.ts`, il riferimento), tedesco e francese; nelle schermate `const { t } = useTesti()`. In Italia sempre italiano, in Svizzera la lingua scelta.
 - `src/testi/`: testi approvati da Antonino (domande frequenti, «Elimina account»), anche in tedesco e francese. Le fonti sono in `docs/testi/`: non cambiarli senza di lui.

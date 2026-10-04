@@ -7,6 +7,8 @@ import { archivio } from './sezioni/archivio';
 import { profilo } from './sezioni/profilo';
 import { studio } from './sezioni/studio';
 import { fatture } from './sezioni/fatture';
+import { clienti } from './sezioni/clienti';
+import { documenti } from './sezioni/documenti';
 
 // Deutsch (Schweiz): «Sie», «ss» statt «ß». Wo es den Text schon auf lexum.ch gibt
 // (public/locales/de/auth.json), ist er übernommen; der Rest ist neu und wartet auf Antoninos Freigabe.
@@ -21,6 +23,8 @@ export const de: Traduzione = {
   profilo: profilo.de,
   studio: studio.de,
   fatture: fatture.de,
+  clienti: clienti.de,
+  documenti: documenti.de,
   paesi: { IT: 'Italien', CH: 'Schweiz' },
   comune: {
     continua: 'Weiter',

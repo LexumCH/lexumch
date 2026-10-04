@@ -94,7 +94,10 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Profilo → «Su questo telefono»: blocco con Face ID o impronta (`expo-local-authentication`), spento di base. Quando è acceso, l'app chiede lo sblocco all'apertura e quando torna in primo piano.
 
 - [ ] **Studio dei professionisti** (chiesto da Antonino il 04-10-2026). Le schermate ci sono, con i dati finti; studio dei siti in `docs/professionisti/`.
-  - Chi vede cosa (`src/ruoli.ts`): l'avvocato ha Pratiche, Calendario e Fatture; commercialista e fiduciario per ora solo Calendario e Fatture (Antonino sta rivedendo i loro mandati); il progettista nessuno.
+  - Chi vede cosa (`src/ruoli.ts`): l'avvocato ha Clienti, Pratiche, Calendario e Fatture; commercialista e fiduciario per ora solo Calendario e Fatture (Antonino sta rivedendo i loro mandati); il progettista nessuno.
+  - [x] Clienti (04-10-2026, «le funzioni del sito le riportiamo tutte»): elenco con ricerca e «Chiedi a Lex», nuovo cliente e modifica (campi IT e CH, portale con password iniziale), scheda a sei schede (panoramica, pratiche, documenti, messaggi, note interne, pagamenti), accesso al portale, elimina. Studio dei siti: `docs/professionisti/clienti-e-documenti.md`.
+  - [x] Documenti dello studio: l'archivio dell'avvocato con categorie e sottocategorie, filtri per cliente e pratica, ogni documento collegabile a un cliente e a una pratica; carica e scansiona già collegati; documenti condivisi nel portale del cliente; documenti della pratica; atto di Lex salvato in PDF nella pratica; fattura collegata a una pratica; chat salvata anche nella pratica.
+  - [ ] Ancora sul sito: Fisco (solo IT), Assistenza verso Lexum, Dashboard, notifiche, Studio (piano, collaboratori), dati professionali per gli atti, Google Calendar.
   - [x] Pratiche: elenco, dettaglio a schede (panoramica, scadenze e udienze, controparti, documenti, ricerche, Lex), nuova pratica, chiusura con esito.
   - [x] Calendario: agenda e mese, dettaglio dell'evento, nuovo appuntamento e modifica.
   - [x] Fatture: numeri dell'anno, scadenzario, dettaglio con pagamenti (anche parziali), PDF, annulla.
@@ -102,6 +105,8 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - [x] Calcolatore della parcella (solo Italia, solo avvocati): lo stesso motore del sito (DM 55/2014, tabelle 2022), copiato in `src/studio/parametri-forensi/`.
   - [x] «Dati di fatturazione» nel Profilo: senza quelli, e senza i dati del cliente, la fattura non parte e l'app dice cosa manca.
   - [ ] Dati veri: tabelle `pratiche`, `controparti`, `termini_processuali`, `udienze`, `appuntamenti`, `fatture`, `righe_fattura`, `pagamenti_fattura`; edge function `crea-fattura` e `genera-fattura-pdf`; RPC `genera_numero_fattura`. I totali li calcolano i trigger del database.
+  - [ ] Dati veri dei clienti e dei documenti: `profiles` (role='cliente'), `create-cliente`, `update-cliente`, `avvocato-cliente-actions`, `lex-assistente-studio`; `note_interne`, `ticket_assistenza`, `messaggi_ticket`, `documenti` (portale); `archivio_documenti`, `categorie_archivio`, `sottocategorie_archivio`, `process-archivio`, `salva-documento-pdf`.
+  - [ ] Fatture da allineare a quanto pubblicato sui siti il 04-10-2026: in Italia regime RF01/RF19, cassa, nota di credito, natura IVA, bollo, XML FatturaPA; in Svizzera QR-IBAN, Cantone, numero IDI con cifra di controllo, IVA sì/no, lingua della fattura.
   - [ ] Prima dei dati veri servono le decisioni e le correzioni lato sito in `docs/DA-FARE-ANTONINO.md` (fattura elettronica IT, QR-fattura CH, colonne mancanti, fiduciari).
 
 - [ ] **7. Rifiniture.**

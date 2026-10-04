@@ -9,7 +9,10 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { Riga } from '@/componenti/Riga';
 import { Testo } from '@/componenti/Testo';
 import { useTesti } from '@/lingue/useTesti';
+import { strumentiStudio } from '@/ruoli';
+import { Scelta } from '@/studio/Campi';
 import { useStato } from '@/stato/Stato';
+import { useStudio } from '@/stato/Studio';
 import { colori } from '@/tema';
 
 type Props = {
@@ -18,9 +21,16 @@ type Props = {
   onSalvata: (etichettaId: string) => void;
 };
 
+const NESSUNA = '__nessuna';
+
 // B7 · Salva la chat in Ricerche, scegliendo o creando un'etichetta.
 export function FoglioSalva({ visibile, onChiudi, onSalvata }: Props) {
-  const { etichetteAttive, elementiAttivi, azioni } = useStato();
+  const { etichetteAttive, elementiAttivi, azioni, chat, paese, ruoli } = useStato();
+  const studio = useStudio();
+  // L'avvocato può collegare la chat anche a una pratica («Salva in pratica» del sito, `ricerche.pratica_id`).
+  const conPratiche = strumentiStudio(ruoli[paese] ?? 'user').includes('mandati');
+  const aperte = studio.pratiche.filter((p) => p.stato === 'aperta');
+  const [pratica, setPratica] = useState<string>(NESSUNA);
   const { t } = useTesti();
   const [scelta, setScelta] = useState<string | null>(etichetteAttive[0]?.id ?? null);
   const [testo, setTesto] = useState('');
@@ -31,6 +41,7 @@ export function FoglioSalva({ visibile, onChiudi, onSalvata }: Props) {
     setEraVisibile(visibile);
     if (visibile) {
       setTesto('');
+      setPratica(NESSUNA);
       if (!scelta) setScelta(etichetteAttive[0]?.id ?? null);
     }
   }
@@ -100,12 +111,33 @@ export function FoglioSalva({ visibile, onChiudi, onSalvata }: Props) {
           onPress={nuova}
         />
       </View>
+      {conPratiche && aperte.length > 0 ? (
+        <View style={{ gap: 8 }}>
+          <Testo tipo="small" colore={colori.fg2}>
+            {t('documenti.ricerca.pratica')}
+          </Testo>
+          <Scelta
+            voci={[
+              { valore: NESSUNA, titolo: t('documenti.ricerca.nessuna') },
+              ...aperte.map((p) => ({ valore: p.id, titolo: p.titolo })),
+            ]}
+            valore={pratica}
+            onCambia={setPratica}
+            etichettaGruppo={t('documenti.ricerca.pratica')}
+          />
+        </View>
+      ) : null}
       <Pulsante
         titolo={nomeScelta ? t('chat.salva.salvaIn', { nome: nomeScelta }) : t('chat.salva.scegli')}
         disabilitato={!scelta}
         onPress={() => {
           if (!scelta) return;
           azioni.salvaChat(scelta);
+          if (pratica !== NESSUNA)
+            studio.azioni.collegaRicerca(pratica, {
+              titolo: chat.titolo ?? 'Chat con Lex',
+              tipo: 'Chat con Lex',
+            });
           onSalvata(scelta);
         }}
       />

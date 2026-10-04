@@ -39,6 +39,7 @@ const voci: Voce[] = [
 
 // Strumenti dello Studio, solo per i ruoli che li hanno (avvocati; commercialisti e fiduciari in parte).
 const vociStudio: Record<StrumentoStudio, Voce> = {
+  clienti: { sezione: '/clienti', titolo: 'interfaccia.voci.clienti', icona: 'persone' },
   mandati: { sezione: '/pratiche', titolo: 'interfaccia.voci.pratiche', icona: 'bilancia' },
   calendario: { sezione: '/calendario', titolo: 'interfaccia.voci.calendario', icona: 'calendario' },
   fatture: { sezione: '/fatture', titolo: 'interfaccia.voci.fatture', icona: 'ricevuta' },

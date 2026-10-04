@@ -32,14 +32,15 @@ export function nomeRuolo(ruolo: string, lingua: Lingua = 'it'): string {
   return traduci(lingua, `profilo.ruoli.${noto}`);
 }
 
-// Strumenti dello studio nell'app, per ruolo (deciso da Antonino il 04-10-2026):
-// - avvocati: mandati, calendario e fatture;
+// Strumenti dello studio nell'app, per ruolo (deciso da Antonino il 04-10-2026; i clienti dal 04-10-2026,
+// «le funzioni del sito le dobbiamo riportare tutte»):
+// - avvocati: clienti, mandati, calendario e fatture;
 // - commercialisti e fiduciari: per ora calendario e fatture (la loro parte di mandati è in revisione);
 // - gli altri ruoli: niente strumenti dello studio nell'app (li trovano sul sito).
-export type StrumentoStudio = 'mandati' | 'calendario' | 'fatture';
+export type StrumentoStudio = 'clienti' | 'mandati' | 'calendario' | 'fatture';
 
 const strumenti: Record<string, StrumentoStudio[]> = {
-  avvocato: ['mandati', 'calendario', 'fatture'],
+  avvocato: ['clienti', 'mandati', 'calendario', 'fatture'],
   commercialista: ['calendario', 'fatture'],
   fiduciario: ['calendario', 'fatture'],
 };

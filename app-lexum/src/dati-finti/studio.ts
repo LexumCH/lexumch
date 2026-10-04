@@ -3,20 +3,104 @@
 // dalle tabelle vere: pratiche, controparti, termini_processuali, udienze, appuntamenti, fatture.
 // Le date sono relative a oggi, così l'anteprima resta sempre attuale.
 
+// Il cliente di uno studio: sui siti è un account (`profiles` con role='cliente' e avvocato_id).
+// Italia e Svizzera hanno campi diversi: IT codice fiscale, partita IVA, PEC, provincia;
+// CH numero AVS, UID, forma giuridica, IVA sì/no, Cantone (vedi docs/professionisti/clienti-e-documenti.md).
+export type Rappresentante = {
+  nome?: string;
+  cognome?: string;
+  codice?: string; // IT codice fiscale, CH numero AVS
+  carica?: string;
+};
+
 export type Cliente = {
   id: string;
-  nome: string; // nome e cognome, oppure ragione sociale
+  nome: string; // come si mostra: «Nome Cognome», oppure la ragione sociale
   giuridica?: boolean;
-  // dati usati in fattura
-  indirizzo?: string;
+  // persona fisica
+  nomeProprio?: string;
+  cognome?: string;
+  dataNascita?: string; // AAAA-MM-GG
+  luogoNascita?: string;
+  cf?: string; // IT
+  avs?: string; // CH, 756.xxxx.xxxx.xx
+  // persona giuridica
+  piva?: string; // IT (anche per le persone fisiche, dal 04-10-2026)
+  uid?: string; // CH, CHE-xxx.xxx.xxx
+  formaGiuridica?: string; // CH
+  ivaAttiva?: boolean; // CH
+  sedeLegale?: string;
+  rappresentante?: Rappresentante;
+  // contatti
+  email?: string;
+  telefono?: string;
+  pec?: string; // IT
+  // indirizzo (anche per le fatture)
+  indirizzo?: string; // la via
+  numeroCivico?: string;
   cap?: string;
   citta?: string;
   provincia?: string; // IT
+  cantone?: string; // CH
   paese?: string;
-  cf?: string; // IT
-  piva?: string; // IT
-  codiceDestinatario?: string; // IT, SDI
-  uid?: string; // CH
+  codiceDestinatario?: string; // IT, codice destinatario SDI (6 o 7 caratteri)
+  pecFatturazione?: string; // IT, PEC per le fatture elettroniche
+  // studio
+  portale?: boolean; // accesso al portale clienti attivo
+  creato?: string; // ISO
+  noteIniziali?: string;
+};
+
+// Note interne sul cliente (`note_interne`): le vede solo lo studio, Lex non le legge.
+export type NotaCliente = {
+  id: string;
+  clienteId: string;
+  testo: string;
+  quando: string;
+  modificata?: string;
+};
+
+// Comunicazioni con il cliente: ticket (`ticket_assistenza`) e messaggi (`messaggi_ticket`).
+export type MessaggioTicket = { id: string; da: 'studio' | 'cliente'; testo: string; quando: string };
+export type Ticket = {
+  id: string;
+  clienteId: string;
+  oggetto: string;
+  stato: 'aperto' | 'chiuso';
+  creato: string;
+  messaggi: MessaggioTicket[];
+};
+
+// Documenti condivisi nel portale del cliente (tabella `documenti`, bucket `documenti`):
+// sono separati dall'archivio dello studio.
+export type DocumentoPortale = {
+  id: string;
+  clienteId: string;
+  nome: string;
+  dimensione: string;
+  quando: string;
+  da: 'studio' | 'cliente';
+};
+
+// Archivio dello studio (`archivio_documenti`, `categorie_archivio`, `sottocategorie_archivio`).
+// Un documento può essere collegato a un cliente e a una pratica.
+export type Sottocategoria = { id: string; nome: string };
+export type CategoriaStudio = { id: string; nome: string; sottocategorie: Sottocategoria[] };
+export type DocumentoStudio = {
+  id: string;
+  titolo: string;
+  quando: string; // ISO
+  dimensione: string;
+  formato: string; // PDF, DOCX, JPG…
+  stato: 'Indicizzato' | 'In coda';
+  categoriaId?: string;
+  sottocategoriaId?: string;
+  clienteId?: string;
+  praticaId?: string;
+  scansione?: boolean;
+  origine?: 'atto' | 'fattura'; // atto preparato da Lex, PDF di una fattura
+  fatturaId?: string;
+  soloPratica?: boolean; // in CH gli atti di Lex vanno nei documenti della pratica, non in archivio
 };
 
 export const tipiCausa = ['Civile', 'Penale', 'Commerciale', 'Amministrativo', 'Lavoro', 'Famiglia'] as const;
@@ -52,7 +136,6 @@ export type Controparte = {
   legale?: string; // legale avversario
 };
 
-export type DocumentoPratica = { id: string; titolo: string; quando: string; archivio?: boolean };
 export type RicercaPratica = { id: string; titolo: string; tipo: 'Chat con Lex' | 'Ricerca AI' | 'Appunti' };
 
 export type Pratica = {
@@ -68,8 +151,7 @@ export type Pratica = {
   controparti: Controparte[];
   termini: Termine[];
   udienze: Udienza[];
-  documenti: DocumentoPratica[];
-  ricerche: RicercaPratica[];
+  ricerche: RicercaPratica[]; // i documenti stanno nell'archivio dello studio, con praticaId
 };
 
 export type TipoEvento = 'presenza' | 'videocall' | 'telefonico' | 'udienza' | 'scadenza';
@@ -144,7 +226,16 @@ export type DatiStudio = {
   appuntamenti: Appuntamento[];
   fatture: Fattura[];
   fatturazione: DatiFatturazione;
+  note: NotaCliente[];
+  comunicazioni: Ticket[];
+  portale: DocumentoPortale[];
+  categorie: CategoriaStudio[];
+  documenti: DocumentoStudio[];
+  limiteClienti?: number; // clienti del piano più quelli comprati in aggiunta
 };
+
+// Le parti dello studio che non tutti i ruoli hanno ancora nell'app.
+const senzaDocumenti = { note: [], comunicazioni: [], portale: [], categorie: [], documenti: [] };
 
 // ——— date relative a oggi ———
 function oggiAlleZero(): Date {
@@ -169,27 +260,64 @@ function avvocatoIT(): DatiStudio {
       {
         id: 'c1',
         nome: 'Marco Ferrari',
+        nomeProprio: 'Marco',
+        cognome: 'Ferrari',
+        dataNascita: '1978-03-12',
+        luogoNascita: 'Milano',
+        cf: 'FRRMRC78C12F205X',
+        email: 'marco.ferrari@example.com',
+        telefono: '+39 333 123 4567',
         indirizzo: 'Via Verdi 14',
         cap: '20121',
         citta: 'Milano',
         provincia: 'MI',
         paese: 'IT',
-        cf: 'FRRMRC78C12F205X',
+        portale: true,
+        creato: giorno(-60),
+        noteIniziali: 'Infiltrazioni dal lastrico solare condominiale, danni in cucina e in bagno.',
       },
-      { id: 'c2', nome: 'Lucia Bianchi', citta: 'Monza', provincia: 'MB', paese: 'IT' },
+      {
+        id: 'c2',
+        nome: 'Lucia Bianchi',
+        nomeProprio: 'Lucia',
+        cognome: 'Bianchi',
+        email: 'lucia.bianchi@example.com',
+        telefono: '+39 347 765 4321',
+        citta: 'Monza',
+        provincia: 'MB',
+        paese: 'IT',
+        creato: giorno(-10),
+      },
       {
         id: 'c3',
         nome: 'Edilnord S.r.l.',
         giuridica: true,
+        piva: '04512870967',
+        sedeLegale: 'Via dei Mille 8, Monza',
+        rappresentante: { nome: 'Paolo', cognome: 'Galli', carica: 'Amministratore unico' },
+        email: 'amministrazione@edilnord.example',
+        pec: 'edilnord@pec.example',
+        telefono: '+39 039 123 456',
         indirizzo: 'Via dei Mille 8',
         cap: '20900',
         citta: 'Monza',
         provincia: 'MB',
         paese: 'IT',
-        piva: '04512870967',
         codiceDestinatario: 'M5UXCR1',
+        portale: true,
+        creato: giorno(-80),
       },
-      { id: 'c4', nome: 'Giovanni Esposito', citta: 'Milano', provincia: 'MI', paese: 'IT' },
+      {
+        id: 'c4',
+        nome: 'Giovanni Esposito',
+        nomeProprio: 'Giovanni',
+        cognome: 'Esposito',
+        email: 'g.esposito@example.com',
+        citta: 'Milano',
+        provincia: 'MI',
+        paese: 'IT',
+        creato: giorno(-215),
+      },
     ],
     pratiche: [
       {
@@ -236,10 +364,6 @@ function avvocatoIT(): DatiStudio {
             giudice: 'Dott.ssa Romano',
           },
         ],
-        documenti: [
-          { id: 'd1', titolo: 'Atto di citazione.pdf', quando: giorno(-40) },
-          { id: 'd2', titolo: 'Verbale assemblea 2025.pdf', quando: giorno(-46), archivio: true },
-        ],
         ricerche: [
           { id: 'r1', titolo: 'Infiltrazioni dal lastrico solare: chi paga', tipo: 'Chat con Lex' },
           { id: 'r2', titolo: 'Art. 1126 c.c. e giurisprudenza recente', tipo: 'Ricerca AI' },
@@ -263,7 +387,6 @@ function avvocatoIT(): DatiStudio {
           },
         ],
         udienze: [],
-        documenti: [{ id: 'd3', titolo: 'Lettera di licenziamento.pdf', quando: giorno(-9) }],
         ricerche: [],
       },
       {
@@ -292,7 +415,6 @@ function avvocatoIT(): DatiStudio {
             sede: 'Tribunale di Monza · Sez. I civile',
           },
         ],
-        documenti: [{ id: 'd4', titolo: 'Decreto ingiuntivo.pdf', quando: giorno(-70) }],
         ricerche: [{ id: 'r3', titolo: 'Provvisoria esecuzione: presupposti', tipo: 'Appunti' }],
       },
       {
@@ -306,7 +428,6 @@ function avvocatoIT(): DatiStudio {
         controparti: [],
         termini: [],
         udienze: [],
-        documenti: [],
         ricerche: [],
       },
     ],
@@ -468,6 +589,192 @@ function avvocatoIT(): DatiStudio {
         pagamenti: [],
       },
     ],
+    // Archivio dello studio, portale, note e messaggi: come le tabelle dei siti.
+    limiteClienti: 25,
+    categorie: [
+      {
+        id: 'k1',
+        nome: 'Atti e ricorsi',
+        sottocategorie: [
+          { id: 's1', nome: 'Atti introduttivi' },
+          { id: 's2', nome: 'Memorie' },
+        ],
+      },
+      { id: 'k2', nome: 'Corrispondenza', sottocategorie: [] },
+      { id: 'k3', nome: 'Fatture', sottocategorie: [] },
+    ],
+    documenti: [
+      {
+        id: 'd1',
+        titolo: 'Atto di citazione',
+        quando: giorno(-40),
+        dimensione: '420 KB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        categoriaId: 'k1',
+        sottocategoriaId: 's1',
+        clienteId: 'c1',
+        praticaId: 'p1',
+      },
+      {
+        id: 'd2',
+        titolo: 'Verbale assemblea 2025',
+        quando: giorno(-46),
+        dimensione: '1,1 MB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        categoriaId: 'k2',
+        clienteId: 'c1',
+        praticaId: 'p1',
+      },
+      {
+        id: 'd3',
+        titolo: 'Lettera di licenziamento',
+        quando: giorno(-9),
+        dimensione: '180 KB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        clienteId: 'c2',
+        praticaId: 'p2',
+      },
+      {
+        id: 'd4',
+        titolo: 'Decreto ingiuntivo',
+        quando: giorno(-70),
+        dimensione: '640 KB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        categoriaId: 'k1',
+        sottocategoriaId: 's1',
+        clienteId: 'c3',
+        praticaId: 'p3',
+      },
+      {
+        id: 'd5',
+        titolo: 'Visura camerale Edilnord',
+        quando: giorno(-78),
+        dimensione: '310 KB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        clienteId: 'c3',
+      },
+      {
+        id: 'd6',
+        titolo: 'Fattura F-2026-008',
+        quando: giorno(-25),
+        dimensione: '95 KB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        categoriaId: 'k3',
+        clienteId: 'c3',
+        praticaId: 'p3',
+        origine: 'fattura',
+        fatturaId: 'f1',
+      },
+      {
+        id: 'd7',
+        titolo: 'Modello di procura alle liti',
+        quando: giorno(-120),
+        dimensione: '48 KB',
+        formato: 'DOCX',
+        stato: 'Indicizzato',
+        categoriaId: 'k1',
+      },
+      {
+        id: 'd8',
+        titolo: 'Ricevuta della raccomandata',
+        quando: giorno(0, 9, 40),
+        dimensione: '760 KB',
+        formato: 'PDF',
+        stato: 'In coda',
+        clienteId: 'c2',
+        scansione: true,
+      },
+    ],
+    portale: [
+      {
+        id: 'pp1',
+        clienteId: 'c1',
+        nome: 'Preventivo firmato.pdf',
+        dimensione: '220 KB',
+        quando: giorno(-55),
+        da: 'studio',
+      },
+      {
+        id: 'pp2',
+        clienteId: 'c1',
+        nome: 'Foto delle infiltrazioni.pdf',
+        dimensione: '3,4 MB',
+        quando: giorno(-50),
+        da: 'cliente',
+      },
+      {
+        id: 'pp3',
+        clienteId: 'c3',
+        nome: 'Mandato professionale.pdf',
+        dimensione: '150 KB',
+        quando: giorno(-79),
+        da: 'studio',
+      },
+    ],
+    note: [
+      {
+        id: 'n1',
+        clienteId: 'c1',
+        testo: 'Preferisce essere sentito al telefono dopo le 18.',
+        quando: giorno(-47, 18, 20),
+      },
+      {
+        id: 'n2',
+        clienteId: 'c3',
+        testo: 'Referente operativo: geom. Galli. Di solito paga a 60 giorni.',
+        quando: giorno(-60, 11),
+      },
+    ],
+    comunicazioni: [
+      {
+        id: 'tk1',
+        clienteId: 'c1',
+        oggetto: 'Verbali delle assemblee',
+        stato: 'aperto',
+        creato: giorno(-3, 10),
+        messaggi: [
+          {
+            id: 'm1',
+            da: 'studio',
+            testo: 'Buongiorno, mi servono i verbali delle ultime due assemblee condominiali.',
+            quando: giorno(-3, 10),
+          },
+          {
+            id: 'm2',
+            da: 'cliente',
+            testo: 'Li cerco e li carico nel portale entro venerdì.',
+            quando: giorno(-2, 18, 30),
+          },
+        ],
+      },
+      {
+        id: 'tk2',
+        clienteId: 'c3',
+        oggetto: 'Documenti per il ricorso',
+        stato: 'chiuso',
+        creato: giorno(-74, 9),
+        messaggi: [
+          {
+            id: 'm3',
+            da: 'studio',
+            testo: 'Per il ricorso servono le fatture non pagate e i DDT firmati.',
+            quando: giorno(-74, 9),
+          },
+          {
+            id: 'm4',
+            da: 'cliente',
+            testo: 'Caricati nel portale. Grazie.',
+            quando: giorno(-73, 16),
+          },
+        ],
+      },
+    ],
     // Dati già compilati, per mostrare la nuova fattura. Sui siti oggi 0 professionisti su 7 li hanno:
     // commercialista e fiduciario qui sotto mostrano cosa succede quando mancano.
     fatturazione: {
@@ -494,20 +801,39 @@ function avvocatoCH(): DatiStudio {
       {
         id: 'c1',
         nome: 'Laura Keller',
+        nomeProprio: 'Laura',
+        cognome: 'Keller',
+        dataNascita: '1985-06-02',
+        luogoNascita: 'Lugano',
+        avs: '756.1234.5678.97',
+        email: 'laura.keller@example.ch',
+        telefono: '+41 79 123 45 67',
         indirizzo: 'Via Nassa 12',
         cap: '6900',
         citta: 'Lugano',
+        cantone: 'TI',
         paese: 'CH',
+        portale: true,
+        creato: giorno(-25),
+        noteIniziali: 'Disdetta ricevuta per raccomandata, contesta il motivo.',
       },
       {
         id: 'c2',
         nome: 'Brunner AG',
         giuridica: true,
+        uid: 'CHE-123.456.788',
+        formaGiuridica: 'SA',
+        ivaAttiva: true,
+        sedeLegale: 'Bahnhofstrasse 10, Zürich',
+        rappresentante: { nome: 'Thomas', cognome: 'Brunner', carica: 'Presidente del CdA' },
+        email: 'info@brunner.example.ch',
+        telefono: '+41 44 123 45 67',
         indirizzo: 'Bahnhofstrasse 10',
         cap: '8001',
         citta: 'Zürich',
+        cantone: 'ZH',
         paese: 'CH',
-        uid: 'CHE-123.456.789',
+        creato: giorno(-40),
       },
     ],
     pratiche: [
@@ -537,7 +863,6 @@ function avvocatoCH(): DatiStudio {
             sede: 'Autorità di conciliazione in materia di locazione, Lugano',
           },
         ],
-        documenti: [{ id: 'd1', titolo: 'Disdetta.pdf', quando: giorno(-20) }],
         ricerche: [],
       },
       {
@@ -558,7 +883,6 @@ function avvocatoCH(): DatiStudio {
           },
         ],
         udienze: [],
-        documenti: [],
         ricerche: [],
       },
     ],
@@ -630,6 +954,91 @@ function avvocatoCH(): DatiStudio {
         pdf: true,
       },
     ],
+    limiteClienti: 25,
+    categorie: [
+      { id: 'k1', nome: 'Atti', sottocategorie: [{ id: 's1', nome: 'Allegati' }] },
+      { id: 'k2', nome: 'Corrispondenza', sottocategorie: [] },
+    ],
+    documenti: [
+      {
+        id: 'd1',
+        titolo: 'Disdetta',
+        quando: giorno(-20),
+        dimensione: '240 KB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        categoriaId: 'k2',
+        clienteId: 'c1',
+        praticaId: 'p1',
+      },
+      {
+        id: 'd2',
+        titolo: 'Contratto di locazione',
+        quando: giorno(-24),
+        dimensione: '1,3 MB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        categoriaId: 'k1',
+        sottocategoriaId: 's1',
+        clienteId: 'c1',
+        praticaId: 'p1',
+      },
+      {
+        id: 'd3',
+        titolo: 'Precetto esecutivo',
+        quando: giorno(-34),
+        dimensione: '310 KB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        categoriaId: 'k1',
+        clienteId: 'c2',
+        praticaId: 'p2',
+      },
+      {
+        id: 'd4',
+        titolo: 'Estratto del registro di commercio',
+        quando: giorno(-39),
+        dimensione: '120 KB',
+        formato: 'PDF',
+        stato: 'Indicizzato',
+        clienteId: 'c2',
+      },
+    ],
+    portale: [
+      {
+        id: 'pp1',
+        clienteId: 'c1',
+        nome: 'Procura.pdf',
+        dimensione: '90 KB',
+        quando: giorno(-22),
+        da: 'studio',
+      },
+    ],
+    note: [
+      {
+        id: 'n1',
+        clienteId: 'c1',
+        testo: 'Vuole evitare la causa se il locatore offre una proroga.',
+        quando: giorno(-19, 17),
+      },
+    ],
+    comunicazioni: [
+      {
+        id: 'tk1',
+        clienteId: 'c1',
+        oggetto: 'Contratto di locazione firmato',
+        stato: 'aperto',
+        creato: giorno(-1, 9),
+        messaggi: [
+          {
+            id: 'm1',
+            da: 'studio',
+            testo: 'Buongiorno, può caricare nel portale il contratto con tutte le pagine firmate?',
+            quando: giorno(-1, 9),
+          },
+        ],
+      },
+    ],
     fatturazione: {
       paese: 'CH',
       via: 'Via Nassa',
@@ -698,6 +1107,7 @@ function commercialistaIT(): DatiStudio {
       },
     ],
     fatturazione: { paese: 'IT', cassa: 'TC04', regime: 'ordinario' },
+    ...senzaDocumenti,
   };
 }
 
@@ -748,6 +1158,7 @@ function fiduciarioCH(): DatiStudio {
     ],
     fatture: [],
     fatturazione: { paese: 'CH' },
+    ...senzaDocumenti,
   };
 }
 
@@ -758,5 +1169,12 @@ export function studioFinto(paese: string, ruolo: string): DatiStudio {
   if (chiave === 'CH-avvocato') return avvocatoCH();
   if (chiave === 'IT-commercialista') return commercialistaIT();
   if (chiave === 'CH-fiduciario') return fiduciarioCH();
-  return { clienti: [], pratiche: [], appuntamenti: [], fatture: [], fatturazione: { paese } };
+  return {
+    clienti: [],
+    pratiche: [],
+    appuntamenti: [],
+    fatture: [],
+    fatturazione: { paese },
+    ...senzaDocumenti,
+  };
 }

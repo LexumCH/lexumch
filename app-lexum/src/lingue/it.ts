@@ -12,6 +12,8 @@ import { archivio } from './sezioni/archivio';
 import { profilo } from './sezioni/profilo';
 import { studio } from './sezioni/studio';
 import { fatture } from './sezioni/fatture';
+import { clienti } from './sezioni/clienti';
+import { documenti } from './sezioni/documenti';
 
 export const it = {
   interfaccia: interfaccia.it,
@@ -22,6 +24,8 @@ export const it = {
   profilo: profilo.it,
   studio: studio.it,
   fatture: fatture.it,
+  clienti: clienti.it,
+  documenti: documenti.it,
   paesi: { IT: 'Italia', CH: 'Svizzera' },
   comune: {
     continua: 'Continua',

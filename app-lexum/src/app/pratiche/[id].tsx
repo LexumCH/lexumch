@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Compositore } from '@/componenti/Compositore';
-import { Badge, ElencoDefinizioni, IconaQuadrata, Scheda, Tag } from '@/componenti/Elementi';
+import { Avviso, Badge, ElencoDefinizioni, IconaQuadrata, Scheda, Tag } from '@/componenti/Elementi';
 import { Foglio } from '@/componenti/Foglio';
 import { Icona } from '@/componenti/Icona';
 import { BottoneIndietro, Intestazione } from '@/componenti/Intestazione';
@@ -15,7 +15,14 @@ import { Schermata } from '@/componenti/Schermata';
 import { StatoVuoto } from '@/componenti/Stati';
 import { Eyebrow, Testo } from '@/componenti/Testo';
 import type { RispostaFinta } from '@/dati-finti/chat';
-import type { Pratica, RicercaPratica } from '@/dati-finti/studio';
+import type { DocumentoStudio, Pratica, RicercaPratica } from '@/dati-finti/studio';
+import {
+  FoglioAggiungiDocumento,
+  FoglioCarica,
+  FoglioDocumento,
+  FoglioScegliDocumenti,
+  percorsoCategoria,
+} from '@/fogli/FogliDocumenti';
 import { FoglioEsauriti } from '@/fogli/FoglioEsauriti';
 import {
   FoglioChiudiPratica,
@@ -28,6 +35,7 @@ import {
 import type { Chiave } from '@/lingue';
 import { useTesti } from '@/lingue/useTesti';
 import { indietro, useVaiASezione } from '@/navigazione';
+import { documentiDi } from '@/studio/clienti';
 import { dataCompleta, ora, urgenza, type Urgenza } from '@/studio/formati';
 import {
   attiLex,
@@ -44,7 +52,18 @@ import { colori, famiglie } from '@/tema';
 
 type SchedaPratica = 'panoramica' | 'scadenze' | 'controparti' | 'documenti' | 'ricerche' | 'lex';
 type FoglioPratica =
-  'azioni' | 'note' | 'chiudi' | 'elimina' | 'termine' | 'udienza' | 'controparte' | 'esauriti';
+  | 'azioni'
+  | 'note'
+  | 'chiudi'
+  | 'elimina'
+  | 'termine'
+  | 'udienza'
+  | 'controparte'
+  | 'esauriti'
+  | 'aggiungiDocumento'
+  | 'carica'
+  | 'scansiona'
+  | 'scegliDocumenti';
 
 const schede: SchedaPratica[] = ['panoramica', 'scadenze', 'controparti', 'documenti', 'ricerche', 'lex'];
 
@@ -79,6 +98,8 @@ export default function DettaglioPratica() {
   const pratica = pratiche.find((p) => p.id === id);
   const attiva: SchedaPratica = scheda ?? 'panoramica';
   const [foglio, setFoglio] = useState<FoglioPratica | null>(null);
+  const [documento, setDocumento] = useState<DocumentoStudio | null>(null);
+  const { documenti } = useStudio();
   const chiudi = () => setFoglio(null);
 
   if (!pratica) {
@@ -124,6 +145,7 @@ export default function DettaglioPratica() {
           cliente={cliente}
           paese={paese}
           onEsauriti={() => setFoglio('esauriti')}
+          onDocumenti={() => router.setParams({ scheda: 'documenti' })}
         />
       ) : (
         <ScrollView contentContainerStyle={stili.corpo}>
@@ -146,7 +168,13 @@ export default function DettaglioPratica() {
           {attiva === 'controparti' ? (
             <Controparti pratica={pratica} onNuova={() => setFoglio('controparte')} />
           ) : null}
-          {attiva === 'documenti' ? <Documenti pratica={pratica} /> : null}
+          {attiva === 'documenti' ? (
+            <Documenti
+              pratica={pratica}
+              onAggiungi={() => setFoglio('aggiungiDocumento')}
+              onApri={setDocumento}
+            />
+          ) : null}
           {attiva === 'ricerche' ? <Ricerche pratica={pratica} /> : null}
         </ScrollView>
       )}
@@ -216,6 +244,31 @@ export default function DettaglioPratica() {
       <FoglioTermine visibile={foglio === 'termine'} onChiudi={chiudi} pratica={pratica} />
       <FoglioUdienza visibile={foglio === 'udienza'} onChiudi={chiudi} pratica={pratica} />
       <FoglioControparte visibile={foglio === 'controparte'} onChiudi={chiudi} pratica={pratica} />
+      <FoglioAggiungiDocumento
+        visibile={foglio === 'aggiungiDocumento'}
+        onChiudi={chiudi}
+        onCarica={() => setFoglio('carica')}
+        onScansiona={() => setFoglio('scansiona')}
+        onScegli={() => setFoglio('scegliDocumenti')}
+      />
+      <FoglioCarica
+        visibile={foglio === 'carica' || foglio === 'scansiona'}
+        scansione={foglio === 'scansiona'}
+        onChiudi={chiudi}
+        praticaId={pratica.id}
+      />
+      <FoglioScegliDocumenti
+        visibile={foglio === 'scegliDocumenti'}
+        onChiudi={chiudi}
+        titolo={t('documenti.pratica.scegliTitolo')}
+        candidati={documenti.filter((d) => d.praticaId !== pratica.id && !d.soloPratica)}
+        onScegli={(d) => azioni.collegaDocumento(d.id, { praticaId: pratica.id })}
+      />
+      <FoglioDocumento
+        documento={documento ? (documenti.find((d) => d.id === documento.id) ?? null) : null}
+        onChiudi={() => setDocumento(null)}
+        daPratica
+      />
       <FoglioEsauriti
         visibile={foglio === 'esauriti'}
         onChiudi={chiudi}
@@ -475,35 +528,60 @@ function Controparti({ pratica: p, onNuova }: { pratica: Pratica; onNuova: () =>
   );
 }
 
-function Documenti({ pratica: p }: { pratica: Pratica }) {
-  const vai = useVaiASezione();
+function Documenti({
+  pratica: p,
+  onAggiungi,
+  onApri,
+}: {
+  pratica: Pratica;
+  onAggiungi: () => void;
+  onApri: (d: DocumentoStudio) => void;
+}) {
+  const { documenti, categorie } = useStudio();
   const { t, lingua } = useTesti();
+  const suoi = documentiDi(documenti, { praticaId: p.id });
   return (
     <View style={{ gap: 12 }}>
       <View style={stili.titoloSezione}>
-        <Eyebrow>{t('studio.pratica.documenti.titolo', { n: p.documenti.length })}</Eyebrow>
+        <Eyebrow>{t('documenti.pratica.titolo', { n: suoi.length })}</Eyebrow>
         <Pulsante
-          titolo={t('studio.pratica.documenti.aggiungi')}
+          titolo={t('documenti.pratica.aggiungi')}
           icona="piu"
           variante="linea"
           piccolo
-          onPress={() => vai('/archivio')}
+          onPress={onAggiungi}
         />
       </View>
-      {p.documenti.length === 0 ? (
+      {suoi.length === 0 ? (
         <Testo tipo="small" colore={colori.fg3}>
-          {t('studio.pratica.documenti.vuoto')}
+          {t('documenti.pratica.vuoto')}
         </Testo>
       ) : null}
       <View style={{ marginHorizontal: -20 }}>
-        {p.documenti.map((d) => (
+        {suoi.map((d) => (
           <Riga
             key={d.id}
-            stretta
+            inAlto
             sinistra={<IconaQuadrata nome="documento" tenue />}
             titolo={d.titolo}
-            sottotitolo={dataCompleta(d.quando, lingua)}
-            destra={d.archivio ? <Badge>{t('studio.pratica.documenti.archivio')}</Badge> : undefined}
+            sottotitolo={[percorsoCategoria(categorie, d), dataCompleta(d.quando, lingua), d.dimensione]
+              .filter(Boolean)
+              .join(' · ')}
+            sotto={
+              d.origine || d.soloPratica || d.stato !== 'Indicizzato' ? (
+                <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                  {d.origine === 'atto' ? <Badge tono="oro">{t('documenti.archivio.atto')}</Badge> : null}
+                  {d.origine === 'fattura' ? (
+                    <Badge tono="oro">{t('documenti.archivio.fattura')}</Badge>
+                  ) : null}
+                  {d.soloPratica ? <Badge>{t('documenti.pratica.soloPratica')}</Badge> : null}
+                  {d.stato !== 'Indicizzato' ? (
+                    <Badge tono="warn">{t(`archivio.stati.${d.stato}`)}</Badge>
+                  ) : null}
+                </View>
+              ) : undefined
+            }
+            onPress={() => onApri(d)}
           />
         ))}
       </View>
@@ -558,17 +636,26 @@ function SchedaLex({
   cliente,
   paese,
   onEsauriti,
+  onDocumenti,
 }: {
   pratica: Pratica;
   cliente: string;
   paese: string;
   onEsauriti: () => void;
+  onDocumenti: () => void;
 }) {
   const { conto, azioni } = useStato();
+  const studio = useStudio();
+  const [salvato, setSalvato] = useState<string | null>(null);
   const { t, lingua } = useTesti();
   const offline = useOffline();
   const [bozza, setBozza] = useState('');
-  const [richiesta, setRichiesta] = useState<{ testo: string; passo: number; pronta: boolean } | null>(null);
+  const [richiesta, setRichiesta] = useState<{
+    testo: string;
+    passo: number;
+    pronta: boolean;
+    atto?: string; // l'atto chiesto: alla fine si salva in PDF nella pratica
+  } | null>(null);
 
   useEffect(() => {
     if (!richiesta || richiesta.pronta) return;
@@ -582,13 +669,14 @@ function SchedaLex({
     return () => clearTimeout(t);
   }, [richiesta, azioni]);
 
-  const chiedi = (testo: string) => {
+  const chiedi = (testo: string, atto?: string) => {
     if (!testo.trim() || offline || (richiesta && !richiesta.pronta)) return;
     if (conto.crediti <= 0) {
       onEsauriti();
       return;
     }
-    setRichiesta({ testo: testo.trim(), passo: 0, pronta: false });
+    setRichiesta({ testo: testo.trim(), passo: 0, pronta: false, atto });
+    setSalvato(null);
     setBozza('');
   };
 
@@ -603,7 +691,7 @@ function SchedaLex({
             cliente,
             controparti: p.controparti.length,
             udienze: p.udienze.length,
-            documenti: p.documenti.length,
+            documenti: documentiDi(studio.documenti, { praticaId: p.id }).length,
             ricerche: p.ricerche.length,
           }),
         ],
@@ -629,7 +717,7 @@ function SchedaLex({
                 <Tag
                   key={a}
                   titolo={a}
-                  onPress={() => chiedi(t('studio.pratica.lex.prepara', { atto: a }))}
+                  onPress={() => chiedi(t('studio.pratica.lex.prepara', { atto: a }), a)}
                 />
               ))}
             </View>
@@ -643,6 +731,30 @@ function SchedaLex({
             ) : (
               <Passi passi={passiLex.map((k) => t(k))} attivo={richiesta.passo} />
             )}
+            {richiesta.pronta && richiesta.atto ? (
+              salvato ? (
+                <View style={{ gap: 8 }}>
+                  <Avviso tono="info" testo={t('documenti.atto.salvato', { titolo: salvato })} />
+                  <Pulsante
+                    titolo={t('documenti.atto.apri')}
+                    variante="linea"
+                    piccolo
+                    onPress={onDocumenti}
+                  />
+                </View>
+              ) : (
+                <Pulsante
+                  titolo={t('documenti.atto.salva')}
+                  icona="scarica"
+                  piccolo
+                  onPress={() => {
+                    const titolo = `${richiesta.atto} – ${p.titolo}`;
+                    studio.azioni.salvaAtto(p.id, titolo);
+                    setSalvato(titolo);
+                  }}
+                />
+              )
+            ) : null}
             {richiesta.pronta ? (
               <Pulsante
                 titolo={t('studio.pratica.lex.nuovaDomanda')}
