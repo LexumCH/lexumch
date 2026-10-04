@@ -23,6 +23,20 @@ Ultimo aggiornamento: 03-10-2026.
 
 - [ ] **Verifica in due passaggi per i privati, sul sito** (deciso il 04-10-2026). Il backend la regge già per tutti, in IT e in CH. Le due patch sono pronte e provate (build dei due siti riuscita): `docs/proposte/2fa-privati/` (`LEGGIMI.md`, `sito-it.patch`, `sito-ch.patch`). Aggiungono il riquadro 2FA al Profilo dei privati, come quello dei professionisti. Testi: in Svizzera gli stessi dei professionisti, in it/de/fr; in Italia un testo nuovo da approvare (nel LEGGIMI). Nota: in IT la tabella `mfa_backup_codes` non ha una policy di DELETE, quindi «Disattiva 2FA» lascia i vecchi codici nel database (succede già oggi per tutti).
 
+## Siti e backend: problemi trovati studiando l'area professionisti (04-10-2026)
+
+Dettagli in `docs/professionisti/fatture.md` e `docs/professionisti/pratiche-e-calendario.md`. Si sistemano sui siti e sul backend, non da qui.
+
+- [ ] **Fattura italiana:** il sito fa solo un PDF, senza XML FatturaPA né invio allo SDI. Decidi se chiamarlo «avviso di parcella / pro forma» oppure collegare un intermediario SDI.
+- [ ] **Dati fiscali dei professionisti:** P.IVA, codice fiscale, indirizzo, IBAN e regime non si possono inserire dal Profilo del professionista (in IT ce li hanno 0 su 7). In CH indirizzo, IBAN e numero IVA non hanno nessuna schermata.
+- [ ] **Cliente italiano:** il codice destinatario SDI e la PEC di fatturazione non sono nel modulo cliente; la P.IVA c'è solo per le persone giuridiche.
+- [ ] **QR-fattura svizzera:** non conforme agli indirizzi «S» (obbligatori dal 21.11.2025), paese fisso «CH», IBAN preso dal profilo e non dalla fattura, niente QR-IBAN.
+- [ ] **Fiduciari (CH):** vedono «Fatturazione», ma `crea-fattura` accetta solo gli avvocati.
+- [ ] **IVA svizzera:** l'8.1% si applica anche a chi non è assoggettato (`iva_attiva` non usato).
+- [ ] **Calendario IT:** il DB vuole sempre il cliente in un appuntamento, ma il modulo lo dice facoltativo.
+- [ ] **Promemoria CH:** manca il job giornaliero di `genera-notifiche`, e la funzione cerca una colonna `luogo` che non esiste.
+- [ ] **Collaboratori di pratica (IT):** mancano le regole per aggiungerli o toglierli; `pratiche.studio_id` non viene riempito.
+
 ## Sentry (segnalazione dei crash)
 
 - [ ] **Account e progetto.** Crea l'account su sentry.io scegliendo la **regione dati europea**, poi un progetto «React Native».
