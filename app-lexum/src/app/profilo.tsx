@@ -23,8 +23,8 @@ import { FoglioDuePassaggi } from '@/fogli/FoglioDuePassaggi';
 import { FoglioElimina } from '@/fogli/FoglioElimina';
 import { FoglioPaese } from '@/fogli/FoglioPaese';
 import { FoglioProfessionista } from '@/fogli/FoglioProfessionista';
+import { useTesti } from '@/lingue/useTesti';
 import { apriSito, ricominciaDa } from '@/navigazione';
-import { contenuti } from '@/paesi/contenuti';
 import { dominio, paesePredefinito, trovaPaese } from '@/paesi/registro';
 import { gruppoRuolo, nomeRuolo, strumentiStudio } from '@/ruoli';
 import { mancanoAlProfessionista } from '@/studio/fatturazione';
@@ -42,6 +42,9 @@ const nomiLingue: Record<string, string> = { it: 'Italiano', de: 'Deutsch', fr: 
 // Niente pagamenti nell'app: i pulsanti aprono il sito.
 export default function Profilo() {
   const { paese, conto, lingua, accessi, telefono, dueFattori, ruoli, utente, azioni } = useStato();
+  // «lingua» è quella scelta (per il selettore); i testi usano quella del paese («linguaTesti»).
+  const { t, lingua: linguaTesti } = useTesti();
+  const p = paese as 'IT' | 'CH';
   const ruolo = ruoli[paese] ?? 'user';
   const gruppo = gruppoRuolo(ruolo);
   const strumenti = strumentiStudio(ruolo);
@@ -54,27 +57,33 @@ export default function Profilo() {
   const foglio = parametri.foglio ?? null;
   const setFoglio = (f: Foglio | null) => router.setParams({ foglio: f ?? undefined, verso: undefined });
   const datiPaese = trovaPaese(paese);
-  const testi = contenuti[paese];
+  const sito = dominio(datiPaese);
 
   const chiudi = () => setFoglio(null);
-  const archivio = `${formatoMB(conto.archivioUsatoMB)} di ${formatoMB(conto.archivioTotaleMB)}`;
+  const archivio = t('archivio.spazio', {
+    usato: formatoMB(conto.archivioUsatoMB),
+    totale: formatoMB(conto.archivioTotaleMB),
+  });
   const dettaglioCrediti = conto.scadenzaPiano
-    ? `Del piano, valgono fino al ${conto.scadenzaPiano}`
-    : `Benvenuto ${conto.creditiBenvenuto} · acquistati ${conto.creditiAcquistati} · non scadono`;
+    ? t('profilo.crediti.delPiano', { data: conto.scadenzaPiano })
+    : t('profilo.crediti.dettaglio', {
+        benvenuto: conto.creditiBenvenuto,
+        acquistati: conto.creditiAcquistati,
+      });
   const dettaglioPiano = conto.scadenzaPiano
-    ? `Fino al ${conto.scadenzaPiano} · archivio ${archivio}`
-    : `Archivio: ${archivio}`;
+    ? t('profilo.crediti.finoAl', { data: conto.scadenzaPiano, archivio })
+    : t('profilo.crediti.archivio', { archivio });
 
   return (
     <Schermata>
-      <Intestazione sinistra={<BottoneMenu />} titolo="Profilo" />
+      <Intestazione sinistra={<BottoneMenu />} titolo={t('profilo.titolo')} />
       <ScrollView style={{ flex: 1 }}>
         <View style={stili.testa}>
           <Iniziale lettera={(utente.nome || utente.email).charAt(0).toUpperCase()} grande />
           <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
             <Text style={stili.nome}>{`${utente.nome} ${utente.cognome}`.trim() || utente.email}</Text>
             <Testo tipo="cap">
-              {gruppo === 'privato' ? utente.email : `${utente.email} · ${nomeRuolo(ruolo)}`}
+              {gruppo === 'privato' ? utente.email : `${utente.email} · ${nomeRuolo(ruolo, linguaTesti)}`}
             </Testo>
           </View>
         </View>
@@ -82,19 +91,19 @@ export default function Profilo() {
         <Riga
           bordoSopra
           sinistra={<BadgePaese codice={paese} />}
-          titolo="Paese e banca dati"
-          sottotitolo={`${datiPaese.nome} · ${dominio(datiPaese)}`}
-          valore="Cambia"
+          titolo={t('profilo.paese')}
+          sottotitolo={`${t(`paesi.${p}`)} · ${sito}`}
+          valore={t('profilo.cambia')}
           valoreOro
           onPress={() => setFoglio('paese')}
         />
 
         {datiPaese.lingue.length > 1 ? (
           <>
-            <TitoloSezione>Lingua dell'app</TitoloSezione>
+            <TitoloSezione>{t('profilo.lingua')}</TitoloSezione>
             <View style={{ paddingHorizontal: 20 }}>
               <Segmentato
-                etichetta="Lingua dell'app"
+                etichetta={t('profilo.lingua')}
                 valore={lingua}
                 onCambia={(l) => azioni.impostaLingua(l as LinguaCH)}
                 opzioni={datiPaese.lingue.map((l) => ({ valore: l as LinguaCH, titolo: nomiLingue[l] ?? l }))}
@@ -103,12 +112,12 @@ export default function Profilo() {
           </>
         ) : null}
 
-        <TitoloSezione>Crediti e piano</TitoloSezione>
+        <TitoloSezione>{t('profilo.crediti.titolo')}</TitoloSezione>
         <View style={{ paddingHorizontal: 20, gap: 10 }}>
           <Scheda stile={{ gap: 14 }}>
             <View style={stili.rigaScheda}>
               <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-                <Testo tipo="cap">Crediti disponibili</Testo>
+                <Testo tipo="cap">{t('profilo.crediti.disponibili')}</Testo>
                 <Testo tipo="dL" style={{ fontSize: 40, lineHeight: 42 }}>
                   {conto.crediti}
                 </Testo>
@@ -116,7 +125,7 @@ export default function Profilo() {
               </View>
               {mostraAcquisti ? (
                 <Pulsante
-                  titolo="Aggiungi crediti"
+                  titolo={t('profilo.crediti.aggiungi')}
                   piccolo
                   ruolo="link"
                   stile={{ alignSelf: 'center' }}
@@ -127,7 +136,7 @@ export default function Profilo() {
             <Separatore />
             <View style={stili.rigaScheda}>
               <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-                <Testo tipo="cap">Il tuo piano</Testo>
+                <Testo tipo="cap">{t('profilo.crediti.piano')}</Testo>
                 <Testo medio style={{ fontSize: 17 }}>
                   {conto.piano}
                 </Testo>
@@ -135,7 +144,7 @@ export default function Profilo() {
               </View>
               {mostraAcquisti ? (
                 <Pulsante
-                  titolo="Fai upgrade"
+                  titolo={t('profilo.crediti.upgrade')}
                   variante="linea"
                   piccolo
                   ruolo="link"
@@ -145,24 +154,23 @@ export default function Profilo() {
               ) : null}
             </View>
           </Scheda>
-          {mostraAcquisti ? (
-            <Testo tipo="cap">
-              Si paga sul sito con lo stesso account: crediti e piano arrivano qui da soli.
-            </Testo>
-          ) : null}
+          {mostraAcquisti ? <Testo tipo="cap">{t('profilo.crediti.nota')}</Testo> : null}
         </View>
 
-        <TitoloSezione>Account</TitoloSezione>
-        <Riga stretta titolo="Dati personali" sottotitolo="Nome, telefono, password" freccia="avanti" />
+        <TitoloSezione>{t('profilo.account.titolo')}</TitoloSezione>
         <Riga
           stretta
-          titolo="Verifica in due passaggi"
+          titolo={t('profilo.account.dati')}
+          sottotitolo={t('profilo.account.datiTesto')}
+          freccia="avanti"
+        />
+        <Riga
+          stretta
+          titolo={t('profilo.account.dueFattori')}
           sottotitolo={
-            dueFattori[paese]
-              ? `Attiva · vale anche su ${dominio(datiPaese)}`
-              : "Spenta · codice da un'app di autenticazione"
+            dueFattori[paese] ? t('profilo.account.dueAttiva', { sito }) : t('profilo.account.dueSpenta')
           }
-          valore={dueFattori[paese] ? 'Attiva' : undefined}
+          valore={dueFattori[paese] ? t('profilo.account.attiva') : undefined}
           valoreOro
           freccia="avanti"
           onPress={() => setFoglio('due-passaggi')}
@@ -170,29 +178,34 @@ export default function Profilo() {
         {strumenti.includes('fatture') ? (
           <Riga
             stretta
-            titolo="Dati di fatturazione"
+            titolo={t('profilo.account.fatturazione')}
             sottotitolo={
               datiMancanti
-                ? 'Da completare: servono per emettere le fatture'
+                ? t('profilo.account.fatturazioneMancano')
                 : paese === 'CH'
-                  ? 'Indirizzo, IBAN per la QR-fattura, IVA'
-                  : 'Partita IVA, codice fiscale, indirizzo, IBAN'
+                  ? t('profilo.account.fatturazioneTesto.CH')
+                  : t('profilo.account.fatturazioneTesto.IT')
             }
-            valore={datiMancanti ? 'Mancano' : undefined}
+            valore={datiMancanti ? t('profilo.account.mancano') : undefined}
             freccia="avanti"
             onPress={() => router.push('/fatture/dati')}
           />
         ) : null}
-        <Riga stretta titolo="Notifiche" sottotitolo="Quando la risposta di Lex è pronta" freccia="avanti" />
         <Riga
           stretta
-          titolo="Privacy e termini"
+          titolo={t('profilo.account.notifiche')}
+          sottotitolo={t('profilo.account.notificheTesto')}
+          freccia="avanti"
+        />
+        <Riga
+          stretta
+          titolo={t('profilo.account.privacy')}
           freccia="avanti"
           onPress={() => apriSito(`${datiPaese.sito}/privacy`)}
         />
         <Riga
           stretta
-          titolo="Esci"
+          titolo={t('profilo.account.esci')}
           destra={<Icona nome="esci" dimensione={18} colore={colori.fg3} />}
           onPress={() => {
             azioni.esci();
@@ -204,13 +217,13 @@ export default function Profilo() {
           }}
         />
 
-        <TitoloSezione>Su questo telefono</TitoloSezione>
+        <TitoloSezione>{t('profilo.telefono.titolo')}</TitoloSezione>
         <Riga
           stretta
           ruolo="switch"
           selezionata={telefono.blocco}
-          titolo="Blocca con Face ID o impronta"
-          sottotitolo="Chiede lo sblocco ogni volta che apri l'app"
+          titolo={t('profilo.telefono.blocco')}
+          sottotitolo={t('profilo.telefono.bloccoTesto')}
           destra={<Interruttore acceso={telefono.blocco} />}
           onPress={() => azioni.impostaTelefono('blocco', !telefono.blocco)}
         />
@@ -218,11 +231,11 @@ export default function Profilo() {
           stretta
           ruolo="switch"
           selezionata={telefono.ricercheOffline}
-          titolo="Ricerche anche senza rete"
+          titolo={t('profilo.telefono.offline')}
           sottotitolo={
             telefono.ricercheOffline
-              ? 'Chat, norme e appunti salvati restano sul telefono'
-              : 'Spenta: Ricerche si apre solo con la connessione'
+              ? t('profilo.telefono.offlineAcceso')
+              : t('profilo.telefono.offlineSpento')
           }
           destra={<Interruttore acceso={telefono.ricercheOffline} />}
           onPress={() => azioni.impostaTelefono('ricercheOffline', !telefono.ricercheOffline)}
@@ -231,13 +244,13 @@ export default function Profilo() {
         <View style={{ paddingTop: 18, paddingHorizontal: 20, paddingBottom: 16 }}>
           {gruppo === 'privato' ? (
             <Scheda tono="oro" stile={{ backgroundColor: colori.bg2, gap: 10 }}>
-              <Eyebrow colore={colori.accentText}>Completa il profilo</Eyebrow>
-              <Testo tipo="dS">{testi.domandaProfessione}</Testo>
+              <Eyebrow colore={colori.accentText}>{t('profilo.completa.sopratitolo')}</Eyebrow>
+              <Testo tipo="dS">{t(`profilo.completa.domanda.${p}`)}</Testo>
               <Testo tipo="small" colore={colori.fg2}>
-                {testi.testoProfessione}
+                {t(`profilo.completa.testo.${p}`)}
               </Testo>
               <Pulsante
-                titolo="Che professionista sei?"
+                titolo={t('profilo.completa.pulsante')}
                 variante="linea"
                 piccolo
                 iconaDopo="avanti"
@@ -249,27 +262,27 @@ export default function Profilo() {
             // Account professionale (o cliente di uno studio, o interno): entra come tutti,
             // e qui trova il rimando al sito per gli strumenti che l'app non ha.
             <Scheda tono="oro" stile={{ backgroundColor: colori.bg2, gap: 10 }}>
-              <Eyebrow colore={colori.accentText}>{nomeRuolo(ruolo)}</Eyebrow>
+              <Eyebrow colore={colori.accentText}>{nomeRuolo(ruolo, linguaTesti)}</Eyebrow>
               <Testo tipo="dS">
                 {gruppo === 'cliente'
-                  ? 'Il portale del tuo studio è sul sito'
+                  ? t('profilo.studio.titoloCliente')
                   : gruppo === 'interno'
-                    ? 'Il pannello di gestione è sul sito'
+                    ? t('profilo.studio.titoloInterno')
                     : strumenti.length > 0
-                      ? 'Il tuo studio è anche qui'
-                      : 'I tuoi strumenti professionali sono sul sito'}
+                      ? t('profilo.studio.titoloStudio')
+                      : t('profilo.studio.titoloSito')}
               </Testo>
               <Testo tipo="small" colore={colori.fg2}>
                 {strumenti.includes('mandati')
-                  ? `Pratiche, calendario e fatture sono nel menù. Clienti, documenti dello studio e statistiche restano su ${dominio(datiPaese)}.`
+                  ? t('profilo.studio.testoMandati', { sito })
                   : strumenti.length > 0
-                    ? `Calendario e fatture sono nel menù. Clienti, mandati e il resto restano su ${dominio(datiPaese)}.`
+                    ? t('profilo.studio.testoStrumenti', { sito })
                     : gruppo === 'professionista'
-                      ? `Qui hai Lex, la Banca dati, le tue ricerche e l'archivio. Pratiche, clienti, scadenze e fatture restano su ${dominio(datiPaese)}.`
-                      : `Qui hai Lex, la Banca dati, le tue ricerche e l'archivio. Il resto lo trovi su ${dominio(datiPaese)}, con lo stesso account.`}
+                      ? t('profilo.studio.testoProfessionista', { sito })
+                      : t('profilo.studio.testoAltri', { sito })}
               </Testo>
               <Pulsante
-                titolo={`Apri ${dominio(datiPaese)}`}
+                titolo={t('profilo.studio.apri', { sito })}
                 variante="linea"
                 piccolo
                 iconaDopo="esterno"
@@ -284,8 +297,10 @@ export default function Profilo() {
         <View style={{ paddingHorizontal: 20, paddingBottom: 32 }}>
           <Riga
             stretta
-            titolo={paese === paesePredefinito ? 'Elimina account' : `Elimina account ${testi.aggettivo}`}
-            sottotitolo={`Cancella l'accesso e i dati ${testi.in}`}
+            titolo={
+              paese === paesePredefinito ? t('profilo.elimina.titolo') : t(`profilo.elimina.titoloPaese.${p}`)
+            }
+            sottotitolo={t(`profilo.elimina.testo.${p}`)}
             titoloStile={{ color: colori.danger }}
             freccia="avanti"
             stile={{ paddingHorizontal: 16, borderWidth: 1, borderColor: colori.dangerLine }}

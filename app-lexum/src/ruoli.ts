@@ -3,6 +3,8 @@
 // Nell'app entra chiunque abbia un account del sito, con le stesse schermate: nessun ruolo viene
 // respinto e non compare mai un errore del tipo «non sei un utente» (deciso da Antonino il 03-10-2026).
 
+import { traduci, type Lingua } from '@/lingue';
+
 export type GruppoRuolo = 'privato' | 'professionista' | 'cliente' | 'interno';
 
 const gruppi: Record<string, GruppoRuolo> = {
@@ -16,24 +18,18 @@ const gruppi: Record<string, GruppoRuolo> = {
   admin: 'interno',
 };
 
-const nomi: Record<string, string> = {
-  user: 'Privato',
-  avvocato: 'Avvocato',
-  commercialista: 'Commercialista',
-  fiduciario: 'Fiduciario',
-  progettista: 'Progettista',
-  cliente: 'Cliente di uno studio',
-  commerciale: 'Commerciale',
-  admin: 'Amministratore',
-};
-
 // Un ruolo nuovo, che l'app non conosce ancora, entra come gli altri: lo trattiamo da professionista.
 export function gruppoRuolo(ruolo: string): GruppoRuolo {
   return gruppi[ruolo] ?? 'professionista';
 }
 
-export function nomeRuolo(ruolo: string): string {
-  return nomi[ruolo] ?? 'Account professionale';
+// Il nome del ruolo nella lingua chiesta (i testi stanno in src/lingue/sezioni/profilo.ts, «ruoli»).
+type RuoloNoto =
+  'user' | 'avvocato' | 'commercialista' | 'fiduciario' | 'progettista' | 'cliente' | 'commerciale' | 'admin';
+
+export function nomeRuolo(ruolo: string, lingua: Lingua = 'it'): string {
+  const noto = Object.prototype.hasOwnProperty.call(gruppi, ruolo) ? (ruolo as RuoloNoto) : 'altro';
+  return traduci(lingua, `profilo.ruoli.${noto}`);
 }
 
 // Strumenti dello studio nell'app, per ruolo (deciso da Antonino il 04-10-2026):

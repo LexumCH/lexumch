@@ -7,6 +7,8 @@ import { Foglio } from '@/componenti/Foglio';
 import { Icona } from '@/componenti/Icona';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Testo } from '@/componenti/Testo';
+import type { Chiave } from '@/lingue';
+import { useTesti } from '@/lingue/useTesti';
 import { useStato } from '@/stato/Stato';
 import { colori, coloriEtichette, nomiColoriEtichette } from '@/tema';
 
@@ -19,6 +21,7 @@ type Props = {
 // D1 · «+ Etichetta» in Ricerche: nome e colore, come sul sito.
 export function FoglioNuovaEtichetta({ visibile, onChiudi, onCreata }: Props) {
   const { etichetteAttive, azioni } = useStato();
+  const { t } = useTesti();
   const prossimo = coloriEtichette[etichetteAttive.length % coloriEtichette.length];
   const [nome, setNome] = useState('');
   const [colore, setColore] = useState<string>(prossimo);
@@ -36,6 +39,12 @@ export function FoglioNuovaEtichetta({ visibile, onChiudi, onCreata }: Props) {
   const esiste = etichetteAttive.some((e) => e.nome.toLowerCase() === pulito.toLowerCase());
   const pronta = !!pulito && !esiste;
 
+  // Il nome del colore per il lettore dello schermo, nella lingua dell'app.
+  const nomeColore = (c: string) => {
+    const nome = nomiColoriEtichette[c];
+    return nome ? t(`ricerche.colori.${nome}` as Chiave) : c;
+  };
+
   const crea = () => {
     if (!pronta) return;
     const e = azioni.creaEtichetta(pulito, colore);
@@ -45,14 +54,14 @@ export function FoglioNuovaEtichetta({ visibile, onChiudi, onCreata }: Props) {
   return (
     <Foglio visibile={visibile} onChiudi={onChiudi} spazio={18}>
       <View style={{ gap: 6 }}>
-        <Testo tipo="dS">Nuova etichetta</Testo>
+        <Testo tipo="dS">{t('ricerche.nuovaEtichetta')}</Testo>
         <Testo tipo="small" colore={colori.fg2}>
-          Raccoglie chat, norme e sentenze sullo stesso tema. La ritrovi anche sul sito.
+          {t('ricerche.etichette.nuovaTesto')}
         </Testo>
       </View>
       <Campo
-        etichetta="Nome"
-        placeholder="Es. Casa, Lavoro, Multe…"
+        etichetta={t('ricerche.etichette.nome')}
+        placeholder={t('ricerche.etichette.nomeSegnaposto')}
         value={nome}
         onChangeText={setNome}
         onSubmitEditing={crea}
@@ -61,14 +70,18 @@ export function FoglioNuovaEtichetta({ visibile, onChiudi, onCreata }: Props) {
       />
       {esiste ? (
         <Testo tipo="small" colore={colori.danger}>
-          Esiste già un'etichetta con questo nome.
+          {t('ricerche.etichette.doppione')}
         </Testo>
       ) : null}
       <View style={{ gap: 10 }}>
         <Testo tipo="small" colore={colori.fg2}>
-          Colore
+          {t('ricerche.etichette.colore')}
         </Testo>
-        <View style={stili.colori} accessibilityRole="radiogroup" accessibilityLabel="Colore">
+        <View
+          style={stili.colori}
+          accessibilityRole="radiogroup"
+          accessibilityLabel={t('ricerche.etichette.colore')}
+        >
           {coloriEtichette.map((c) => {
             const scelto = c === colore;
             return (
@@ -77,7 +90,7 @@ export function FoglioNuovaEtichetta({ visibile, onChiudi, onCreata }: Props) {
                 onPress={() => setColore(c)}
                 accessibilityRole="radio"
                 aria-checked={scelto}
-                accessibilityLabel={`Colore ${nomiColoriEtichette[c] ?? c}`}
+                accessibilityLabel={t('ricerche.etichette.coloreNome', { nome: nomeColore(c) })}
                 hitSlop={4}
                 style={[stili.colore, { backgroundColor: c }, scelto && stili.scelto]}
               >
@@ -88,12 +101,12 @@ export function FoglioNuovaEtichetta({ visibile, onChiudi, onCreata }: Props) {
         </View>
       </View>
       <View style={{ gap: 8 }}>
-        <Testo tipo="cap">Anteprima</Testo>
+        <Testo tipo="cap">{t('ricerche.etichette.anteprima')}</Testo>
         <View style={{ flexDirection: 'row' }}>
-          <Tag titolo={pulito || 'Nuova etichetta'} colore={colore} />
+          <Tag titolo={pulito || t('ricerche.nuovaEtichetta')} colore={colore} />
         </View>
       </View>
-      <Pulsante titolo="Crea etichetta" disabilitato={!pronta} onPress={crea} />
+      <Pulsante titolo={t('ricerche.etichette.crea')} disabilitato={!pronta} onPress={crea} />
     </Foglio>
   );
 }

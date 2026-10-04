@@ -7,6 +7,7 @@ import { Foglio } from '@/componenti/Foglio';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Eyebrow, Testo } from '@/componenti/Testo';
 import { categorieFinte, fileCondivisoFinto } from '@/dati-finti/archivio';
+import { useTesti } from '@/lingue/useTesti';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
 
@@ -20,6 +21,7 @@ type Props = {
 // con il nome e la categoria che scegli. Poi segue lo stesso caricamento di «Carica».
 export function FoglioCondiviso({ visibile, onChiudi, onSalvato }: Props) {
   const { paese, azioni } = useStato();
+  const { t } = useTesti();
   const file = fileCondivisoFinto[paese];
   const categorie = categorieFinte[paese] ?? [];
   const [titolo, setTitolo] = useState(file.titolo);
@@ -36,8 +38,8 @@ export function FoglioCondiviso({ visibile, onChiudi, onSalvato }: Props) {
   return (
     <Foglio visibile={visibile} onChiudi={onChiudi} spazio={16}>
       <View style={{ gap: 6 }}>
-        <Eyebrow>Condividi in Lexum</Eyebrow>
-        <Testo tipo="dS">Un documento da un'altra app</Testo>
+        <Eyebrow>{t('archivio.condiviso.sopratitolo')}</Eyebrow>
+        <Testo tipo="dS">{t('archivio.condiviso.titolo')}</Testo>
       </View>
       <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
         <IconaQuadrata nome="documento" tenue />
@@ -48,10 +50,15 @@ export function FoglioCondiviso({ visibile, onChiudi, onSalvato }: Props) {
           </Testo>
         </View>
       </View>
-      <Campo etichetta="Nome nel tuo archivio" value={titolo} onChangeText={setTitolo} maxLength={80} />
+      <Campo
+        etichetta={t('archivio.condiviso.nome')}
+        value={titolo}
+        onChangeText={setTitolo}
+        maxLength={80}
+      />
       <View style={{ gap: 8 }}>
         <Testo tipo="small" colore={colori.fg2}>
-          Categoria
+          {t('archivio.condiviso.categoria')}
         </Testo>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {categorie.map((c) => (
@@ -65,7 +72,7 @@ export function FoglioCondiviso({ visibile, onChiudi, onSalvato }: Props) {
         </View>
       </View>
       <Pulsante
-        titolo="Salva in Archivio"
+        titolo={t('archivio.condiviso.salva')}
         icona="archivio"
         disabilitato={!titolo.trim()}
         onPress={() => {
@@ -78,7 +85,7 @@ export function FoglioCondiviso({ visibile, onChiudi, onSalvato }: Props) {
           onSalvato();
         }}
       />
-      <Testo tipo="cap">Lex lo legge e lo usa quando gli fai una domanda.</Testo>
+      <Testo tipo="cap">{t('archivio.condiviso.nota')}</Testo>
     </Foglio>
   );
 }

@@ -4,6 +4,7 @@ import { Logo } from '@/componenti/Elementi';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
+import { useTesti } from '@/lingue/useTesti';
 import { indietro } from '@/navigazione';
 import { colori } from '@/tema';
 
@@ -11,23 +12,24 @@ import { colori } from '@/tema';
 // Dalla tappa 6 «Sblocca» chiede davvero Face ID o l'impronta (expo-local-authentication);
 // se non va, il telefono propone il suo codice. Qui, nell'anteprima, torna solo indietro.
 export default function Blocco() {
+  const { t } = useTesti();
   return (
     <Schermata hero alone={120} senzaAvvisoOffline>
       <View style={stili.centro}>
         <Logo medio />
         <View style={{ gap: 8, alignItems: 'center' }}>
           <Testo tipo="dM" centrato accessibilityRole="header">
-            Lexum è bloccata
+            {t('profilo.blocco.titolo')}
           </Testo>
           <Testo colore={colori.fg2} centrato>
-            Usa Face ID o l'impronta per aprirla.
+            {t('profilo.blocco.testo')}
           </Testo>
         </View>
       </View>
       <View style={stili.fondo}>
-        <Pulsante titolo="Sblocca" icona="lucchetto" onPress={() => indietro('/chat')} />
+        <Pulsante titolo={t('profilo.blocco.sblocca')} icona="lucchetto" onPress={() => indietro('/chat')} />
         <Testo tipo="cap" centrato>
-          Se non funziona, il telefono ti chiede il suo codice. Il blocco si spegne dal Profilo.
+          {t('profilo.blocco.nota')}
         </Testo>
       </View>
     </Schermata>

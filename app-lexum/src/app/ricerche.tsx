@@ -18,6 +18,7 @@ import { FoglioAppunti } from '@/fogli/FoglioAppunti';
 import { FoglioGestioneEtichette } from '@/fogli/FoglioGestioneEtichette';
 import { FoglioNuovaEtichetta } from '@/fogli/FoglioNuovaEtichetta';
 import { FoglioNuovaRicerca } from '@/fogli/FoglioNuovaRicerca';
+import { useTesti } from '@/lingue/useTesti';
 import { useVaiASezione } from '@/navigazione';
 import { useOffline } from '@/stato/connessione';
 import { useStato } from '@/stato/Stato';
@@ -28,6 +29,7 @@ const tonoBadge = { 'Chat con Lex': 'oro', Norma: 'neutro', Sentenza: 'ok', Appu
 // D1 · Ricerche: quello che hai chiesto a Lex e salvato, diviso per etichette (come sul sito).
 export default function Ricerche() {
   const { etichetteAttive, elementiAttivi, simula, telefono } = useStato();
+  const { t } = useTesti();
   // Senza rete Ricerche si legge solo se l'utente l'ha scelto nel Profilo («Ricerche anche senza rete»).
   const offline = useOffline();
   const chiusaOffline = offline && !telefono.ricercheOffline;
@@ -86,21 +88,21 @@ export default function Ricerche() {
     <Schermata>
       <Intestazione
         sinistra={<BottoneMenu />}
-        titolo="Ricerche"
-        destra={<PulsanteIcona icona="piu" etichetta="Nuova ricerca" onPress={nuovaRicerca} />}
+        titolo={t('ricerche.titolo')}
+        destra={<PulsanteIcona icona="piu" etichetta={t('ricerche.nuova')} onPress={nuovaRicerca} />}
       />
       <View style={stili.testa}>
         <Testo tipo="small" colore={colori.fg2}>
-          Tutto quello che hai chiesto a Lex e salvato: chat, appunti, norme, sentenze e prassi.
+          {t('ricerche.intro')}
         </Testo>
         {offline && telefono.ricercheOffline ? (
           <Testo tipo="cap" colore={colori.ok}>
-            Senza rete: stai leggendo la copia salvata sul telefono.
+            {t('ricerche.copiaOffline')}
           </Testo>
         ) : null}
         <CampoCerca
-          etichetta="Cerca tra le tue ricerche"
-          placeholder="Cerca tra le tue ricerche…"
+          etichetta={t('ricerche.cerca')}
+          placeholder={t('ricerche.cercaSegnaposto')}
           alto={46}
           value={testo}
           onChangeText={setTesto}
@@ -118,21 +120,24 @@ export default function Ricerche() {
             />
           ))}
           <Tag
-            titolo="Etichetta"
-            etichetta="Nuova etichetta"
+            titolo={t('ricerche.etichetta')}
+            etichetta={t('ricerche.nuovaEtichetta')}
             aggiungi
             onPress={() => router.setParams({ foglio: 'etichetta' })}
           />
         </ScrollView>
         {selezione ? (
           <Testo tipo="cap" colore={colori.accentText}>
-            Scegli da 2 a {MAX_CONFRONTO} elementi, anche da etichette diverse · {selezione.length} /{' '}
-            {MAX_CONFRONTO} selezionati
+            {t('ricerche.sceltaConfronto', { max: MAX_CONFRONTO, n: selezione.length })}
           </Testo>
         ) : etichetta ? (
           <View style={stili.didascalia}>
             <Testo tipo="cap" style={{ flex: 1 }}>
-              Etichetta «{etichetta.nome}» · {totale === 1 ? '1 elemento' : `${totale} elementi`}
+              {t('ricerche.didascalia', {
+                nome: etichetta.nome,
+                elementi:
+                  totale === 1 ? t('ricerche.elementiUno') : t('ricerche.elementiMolti', { n: totale }),
+              })}
             </Testo>
             <Pressable
               onPress={() => router.setParams({ foglio: 'gestisci' })}
@@ -140,7 +145,7 @@ export default function Ricerche() {
               hitSlop={{ top: 14, bottom: 14, left: 8, right: 8 }}
             >
               <Testo tipo="cap" colore={colori.accentText}>
-                Gestisci etichette
+                {t('ricerche.gestisci')}
               </Testo>
             </Pressable>
           </View>
@@ -153,17 +158,17 @@ export default function Ricerche() {
         {!simula.caricamento && chiusaOffline ? (
           <StatoVuoto
             icona="offline"
-            titolo="Ricerche si apre con la connessione"
-            testo="Per leggere chat, norme e appunti salvati anche senza rete, accendi «Ricerche anche senza rete» nel Profilo."
-            azione={{ titolo: 'Vai al Profilo', onPress: () => vai('/profilo') }}
+            titolo={t('ricerche.offlineTitolo')}
+            testo={t('ricerche.offlineTesto')}
+            azione={{ titolo: t('ricerche.vaiProfilo'), onPress: () => vai('/profilo') }}
           />
         ) : null}
         {!attesa && etichetteAttive.length === 0 ? (
           <StatoVuoto
             icona="segnalibro"
-            titolo="Non hai ancora salvato niente"
-            testo="Quando una risposta di Lex ti serve, salvala con un'etichetta: la ritrovi qui e sul sito."
-            azione={{ titolo: 'Chiedi a Lex', onPress: () => vai('/chat') }}
+            titolo={t('ricerche.vuotoTitolo')}
+            testo={t('ricerche.vuotoTesto')}
+            azione={{ titolo: t('ricerche.chiedi'), onPress: () => vai('/chat') }}
           />
         ) : null}
         {(attesa ? [] : elementi).map((e) => {
@@ -172,7 +177,7 @@ export default function Ricerche() {
           const testi = (
             <>
               <View style={stili.tipo}>
-                <Badge tono={tonoBadge[e.tipo]}>{e.tipo}</Badge>
+                <Badge tono={tonoBadge[e.tipo]}>{t(`ricerche.tipi.${e.tipo}`)}</Badge>
                 <Testo tipo="mini">{e.quando}</Testo>
               </View>
               <Text style={stili.ttl}>{e.titolo}</Text>
@@ -213,12 +218,8 @@ export default function Ricerche() {
         {!attesa && etichetta && elementi.length === 0 ? (
           <StatoVuoto
             icona={q ? 'cerca' : 'etichetta'}
-            titolo={q ? 'Nessun elemento con queste parole' : "In questa etichetta non c'è ancora niente"}
-            testo={
-              q
-                ? 'Prova con altre parole.'
-                : 'Salva qui chat, norme e sentenze, o scrivi i tuoi appunti con «+».'
-            }
+            titolo={q ? t('ricerche.nessunRisultatoTitolo') : t('ricerche.etichettaVuotaTitolo')}
+            testo={q ? t('ricerche.nessunRisultatoTesto') : t('ricerche.etichettaVuotaTesto')}
           />
         ) : null}
       </ScrollView>
@@ -226,13 +227,13 @@ export default function Ricerche() {
       {selezione ? (
         <BarraAzioni>
           <Pulsante
-            titolo="Annulla"
+            titolo={t('comune.annulla')}
             variante="linea"
             stile={{ alignSelf: 'auto', paddingHorizontal: 16 }}
             onPress={() => setSelezione(null)}
           />
           <Pulsante
-            titolo="Confronta affiancati"
+            titolo={t('ricerche.confrontaAffiancati')}
             icona="confronta"
             stile={{ flex: 1 }}
             disabilitato={selezione.length < 2}
@@ -242,15 +243,15 @@ export default function Ricerche() {
       ) : (
         <BarraAzioni>
           <Pulsante
-            titolo={etichetta ? `Chiedi a Lex su «${etichetta.nome}»` : 'Chiedi a Lex'}
+            titolo={etichetta ? t('ricerche.chiediSu', { nome: etichetta.nome }) : t('ricerche.chiedi')}
             icona="stella"
             righe={2}
             stile={{ flex: 1 }}
             onPress={() => vai('/chat')}
           />
           <Pulsante
-            titolo="Confronta"
-            etichetta="Confronta due o tre elementi"
+            titolo={t('ricerche.confronta')}
+            etichetta={t('ricerche.confrontaDueOTre')}
             icona="confronta"
             variante="linea"
             stile={{ alignSelf: 'auto', paddingHorizontal: 14 }}
@@ -285,7 +286,7 @@ export default function Ricerche() {
       />
       <FoglioNorma
         norma={norma ? trovaNorma(norma) : null}
-        eyebrow="Norma salvata"
+        eyebrow={t('ricerche.normaSalvata')}
         onChiudi={() => setNorma(null)}
         onApriLegge={(id) => {
           setNorma(null);

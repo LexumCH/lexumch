@@ -32,6 +32,26 @@ test.describe('telefono in tedesco, in Svizzera', () => {
   });
 });
 
+test.describe('avvocato svizzero con il telefono in tedesco', () => {
+  test.use({ locale: 'de-CH' });
+
+  test('menù, Profilo e Fatture in tedesco', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/');
+    await tocca(page, 'S5 · Fatture (CH)');
+    await vedo(page, 'Rechnungen', true);
+    await vedo(
+      page,
+      'Im Jahr 2026 ausgestellte Rechnungen'.replace('2026', String(new Date().getFullYear())),
+    );
+    await etichetta(page, 'Menü öffnen').click();
+    await vedo(page, 'Datenbank', true);
+    await vedo(page, 'Dossiers', true);
+    await tocca(page, 'Profil', true);
+    await vedo(page, 'Credits hinzufügen', true);
+  });
+});
+
 test.describe('telefono in francese, in Svizzera', () => {
   test.use({ locale: 'fr-CH' });
 

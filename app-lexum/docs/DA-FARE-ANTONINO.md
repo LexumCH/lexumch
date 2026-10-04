@@ -82,6 +82,13 @@ Con `npx expo start` e l'app Expo Go: inquadri il QR e l'app si apre sul telefon
   - le fonti italiane in tedesco e francese, che si vedono solo su un telefono in quelle lingue (`src/paesi/contenuti.ts`, in fondo).
 
   Il benvenuto A0–A3 è quello che avevi già approvato.
+- [ ] **Rileggi tedesco e francese del resto dell'app** (04-10-2026): sezioni in `src/lingue/sezioni/` (interfaccia, chat, Banca dati, Ricerche, Archivio, Profilo, Studio, Fatture). Dove il sito svizzero aveva già il testo, è quello. Le scelte su cui ho più dubbi:
+  - nomi: «Dossiers» per Pratiche (de e fr), «Kanzlei» / «Étude» per Studio, «Mandant» per cliente, «Recherchen» / «Recherches», «Archiv» / «Archives»;
+  - fatture: «steuerbefreit» / «exonérée» per «esente» (per la legge svizzera «non assoggettato» ed «escluso» non sono «befreit»), «Nettobetrag» / «Montant net» per «imponibile»;
+  - chat: il saluto «Hallo» / «Bonjour»; «chat» al maschile in francese; la domanda d'esempio «Bis wann kann ich die Steuerveranlagung anfechten?» (in Svizzera si dice spesso «Einsprache erheben»);
+  - Banca dati: «Normen» / «Normes» per «Norme» (il sito usa anche «Erlasse»), «Arrêt» per sentenza;
+  - Profilo: «Upgrade» / «Changer de plan», «Steuerberater» ed «Expert-comptable» per commercialista, «Projeteur» per progettista.
+- [ ] **Motivo d'esenzione IVA (CH) sul PDF:** nel database si salva in italiano; sul PDF va scritto nella lingua del professionista? Oggi l'app lo mostra tradotto.
 - [x] Domande frequenti, conferma «Elimina account» e benvenuto svizzero: inseriti come nel tuo documento (`docs/testi/`).
 - [ ] **Rileggi le risposte di prova delle domande d'esempio** (`src/dati-finti/chat.ts`). Sono finte, ma citano articoli veri e qualcuno le vedrà nelle anteprime:
   - Italia: legittima difesa (c.p. artt. 52 e 55), cauzione dell'affitto (L. 392/1978 art. 11, c.c. art. 1590, D.Lgs. 28/2010 art. 5), multa arrivata tardi (C.d.S. artt. 201–204-bis, D.Lgs. 150/2011 art. 7);

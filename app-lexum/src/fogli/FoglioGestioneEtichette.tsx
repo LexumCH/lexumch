@@ -8,6 +8,8 @@ import { Icona } from '@/componenti/Icona';
 import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Testo } from '@/componenti/Testo';
 import type { Etichetta } from '@/dati-finti/ricerche';
+import type { Chiave } from '@/lingue';
+import { useTesti } from '@/lingue/useTesti';
 import { useStato } from '@/stato/Stato';
 import { colori, coloriEtichette, nomiColoriEtichette } from '@/tema';
 
@@ -22,6 +24,7 @@ type Azione = { tipo: 'modifica' | 'elimina'; id: string } | null;
 // eliminando un'etichetta, chat, norme e appunti restano ma perdono quell'etichetta.
 export function FoglioGestioneEtichette({ visibile, onChiudi }: Props) {
   const { etichetteAttive, elementiAttivi, azioni } = useStato();
+  const { t } = useTesti();
   const [azione, setAzione] = useState<Azione>(null);
   const [nome, setNome] = useState('');
   const [colore, setColore] = useState<string>(coloriEtichette[0]);
@@ -37,6 +40,12 @@ export function FoglioGestioneEtichette({ visibile, onChiudi }: Props) {
     setColore(e.colore);
   };
 
+  // Il nome del colore per il lettore dello schermo, nella lingua dell'app.
+  const nomeColore = (c: string) => {
+    const n = nomiColoriEtichette[c];
+    return n ? t(`ricerche.colori.${n}` as Chiave) : c;
+  };
+
   const pulito = nome.trim();
   const doppione = etichetteAttive.some(
     (e) => e.id !== azione?.id && e.nome.toLowerCase() === pulito.toLowerCase(),
@@ -46,42 +55,51 @@ export function FoglioGestioneEtichette({ visibile, onChiudi }: Props) {
     <Foglio visibile={visibile} onChiudi={onChiudi}>
       <View style={stili.testa}>
         <View style={{ flex: 1, gap: 6 }}>
-          <Testo tipo="dS">Gestisci etichette</Testo>
+          <Testo tipo="dS">{t('ricerche.gestisci')}</Testo>
           <Testo tipo="small" colore={colori.fg2}>
-            Le modifiche valgono anche sul sito.
+            {t('ricerche.etichette.gestisciTesto')}
           </Testo>
         </View>
-        <PulsanteIcona icona="chiudi" etichetta="Chiudi" onPress={onChiudi} />
+        <PulsanteIcona icona="chiudi" etichetta={t('interfaccia.chiudi')} onPress={onChiudi} />
       </View>
 
       {etichetteAttive.length === 0 ? (
         <Testo tipo="small" colore={colori.fg3}>
-          Nessuna etichetta da gestire.
+          {t('ricerche.etichette.nessuna')}
         </Testo>
       ) : null}
 
       <View style={{ gap: 8 }}>
         {etichetteAttive.map((e) => {
           const quanti = elementiAttivi.filter((x) => x.etichetta === e.id).length;
-          const voci = quanti === 1 ? '1 elemento' : `${quanti} elementi`;
+          const voci = quanti === 1 ? t('ricerche.elementiUno') : t('ricerche.elementiMolti', { n: quanti });
 
           if (azione?.id === e.id && azione.tipo === 'modifica') {
             return (
               <View key={e.id} style={[stili.voce, stili.voceAperta]}>
-                <Campo etichetta="Nome" value={nome} onChangeText={setNome} maxLength={40} />
+                <Campo
+                  etichetta={t('ricerche.etichette.nome')}
+                  value={nome}
+                  onChangeText={setNome}
+                  maxLength={40}
+                />
                 {doppione ? (
                   <Testo tipo="small" colore={colori.danger}>
-                    Esiste già un'etichetta con questo nome.
+                    {t('ricerche.etichette.doppione')}
                   </Testo>
                 ) : null}
-                <View style={stili.colori} accessibilityRole="radiogroup" accessibilityLabel="Colore">
+                <View
+                  style={stili.colori}
+                  accessibilityRole="radiogroup"
+                  accessibilityLabel={t('ricerche.etichette.colore')}
+                >
                   {coloriEtichette.map((c) => (
                     <Pressable
                       key={c}
                       onPress={() => setColore(c)}
                       accessibilityRole="radio"
                       aria-checked={c === colore}
-                      accessibilityLabel={`Colore ${nomiColoriEtichette[c] ?? c}`}
+                      accessibilityLabel={t('ricerche.etichette.coloreNome', { nome: nomeColore(c) })}
                       hitSlop={4}
                       style={[stili.colore, { backgroundColor: c }, c === colore && stili.scelto]}
                     >
@@ -91,14 +109,14 @@ export function FoglioGestioneEtichette({ visibile, onChiudi }: Props) {
                 </View>
                 <View style={stili.pulsanti}>
                   <Pulsante
-                    titolo="Annulla"
+                    titolo={t('comune.annulla')}
                     variante="linea"
                     piccolo
                     stile={{ flex: 1 }}
                     onPress={() => setAzione(null)}
                   />
                   <Pulsante
-                    titolo="Salva"
+                    titolo={t('ricerche.etichette.salva')}
                     piccolo
                     stile={{ flex: 1 }}
                     disabilitato={!pulito || doppione}
@@ -115,22 +133,24 @@ export function FoglioGestioneEtichette({ visibile, onChiudi }: Props) {
           if (azione?.id === e.id && azione.tipo === 'elimina') {
             return (
               <View key={e.id} style={[stili.voce, stili.voceAperta, { borderColor: colori.dangerLine }]}>
-                <Testo medio>Eliminare «{e.nome}»?</Testo>
+                <Testo medio>{t('ricerche.etichette.eliminaDomanda', { nome: e.nome })}</Testo>
                 <Testo tipo="small" colore={colori.fg2}>
                   {quanti === 0
-                    ? "L'etichetta è vuota."
-                    : `${quanti === 1 ? "L'elemento resta" : `I ${quanti} elementi restano`}: ${quanti === 1 ? 'perde' : 'perdono'} solo questa etichetta. Sul sito le ricerche senza etichetta sono al massimo 20: oltre, le più vecchie si cancellano da sole.`}
+                    ? t('ricerche.etichette.vuota')
+                    : quanti === 1
+                      ? t('ricerche.etichette.restaUno')
+                      : t('ricerche.etichette.restanoMolti', { n: quanti })}
                 </Testo>
                 <View style={stili.pulsanti}>
                   <Pulsante
-                    titolo="Annulla"
+                    titolo={t('comune.annulla')}
                     variante="linea"
                     piccolo
                     stile={{ flex: 1 }}
                     onPress={() => setAzione(null)}
                   />
                   <Pulsante
-                    titolo="Elimina"
+                    titolo={t('ricerche.etichette.elimina')}
                     variante="pericolo"
                     piccolo
                     stile={{ flex: 1 }}
@@ -154,13 +174,13 @@ export function FoglioGestioneEtichette({ visibile, onChiudi }: Props) {
                 </View>
                 <PulsanteIcona
                   icona="modifica"
-                  etichetta={`Modifica «${e.nome}»`}
+                  etichetta={t('ricerche.etichette.modifica', { nome: e.nome })}
                   dimensione={18}
                   onPress={() => modifica(e)}
                 />
                 <PulsanteIcona
                   icona="cestino"
-                  etichetta={`Elimina «${e.nome}»`}
+                  etichetta={t('ricerche.etichette.eliminaNome', { nome: e.nome })}
                   dimensione={18}
                   onPress={() => setAzione({ tipo: 'elimina', id: e.id })}
                 />

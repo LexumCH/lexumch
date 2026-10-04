@@ -4,6 +4,7 @@ import { BadgePaese, Scheda } from '@/componenti/Elementi';
 import { Foglio } from '@/componenti/Foglio';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Testo } from '@/componenti/Testo';
+import { useTesti } from '@/lingue/useTesti';
 import { useStato } from '@/stato/Stato';
 import { testiEliminaPer } from '@/testi/elimina-account';
 import { colori } from '@/tema';
@@ -18,8 +19,9 @@ type Props = {
 // Nell'app vera serve una funzione del backend che oggi non c'è (vedi docs/DA-FARE-ANTONINO.md).
 export function FoglioElimina({ visibile, onChiudi, onElimina }: Props) {
   const { paese, accessi } = useStato();
-  // Per ora sempre in italiano: tedesco e francese arrivano con la lingua dell'app (tappa 2).
-  const t = testiEliminaPer(paese, 'it');
+  // Testi approvati, nella lingua dell'app (in Italia sempre italiano).
+  const { lingua } = useTesti();
+  const t = testiEliminaPer(paese, lingua);
   const altroAccesso = Object.entries(accessi).some(([codice, attivo]) => codice !== paese && attivo);
   return (
     <Foglio visibile={visibile} onChiudi={onChiudi} spazio={16}>

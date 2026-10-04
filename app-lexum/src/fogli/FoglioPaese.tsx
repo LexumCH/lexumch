@@ -7,7 +7,7 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { Scelta } from '@/componenti/Scelta';
 import { Eyebrow, Testo } from '@/componenti/Testo';
 import { formatoMB } from '@/dati-finti/conti';
-import { contenuti } from '@/paesi/contenuti';
+import { useTesti } from '@/lingue/useTesti';
 import { paesi } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
@@ -26,6 +26,7 @@ type Props = {
 // G2 · Se nel paese scelto non c'è ancora un accesso: crealo o accedi.
 export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAccedi, iniziale }: Props) {
   const { paese, accessi, conti, utenti } = useStato();
+  const { t } = useTesti();
   const [scelto, setScelto] = useState(iniziale ?? paese);
   const [eraVisibile, setEraVisibile] = useState(visibile);
   // a ogni apertura si riparte dal paese attuale: «sono qui e vado lì»
@@ -34,20 +35,23 @@ export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAcce
     if (visibile) setScelto(iniziale ?? paese);
   }
 
-  const testi = contenuti[scelto];
-  const testiAttuale = contenuti[paese];
+  // I testi cambiano con il paese scelto (s) e con quello in cui sei (a).
+  const s = scelto as 'IT' | 'CH';
+  const a = paese as 'IT' | 'CH';
   const attuale = scelto === paese;
   const senzaAccesso = !attuale && !accessi[scelto];
   const conto = conti[scelto];
-  const piano = conto.scadenzaPiano ? `${conto.piano} · fino al ${conto.scadenzaPiano}` : conto.piano;
+  const piano = conto.scadenzaPiano
+    ? t('profilo.cambioPaese.pianoFino', { piano: conto.piano, data: conto.scadenzaPiano })
+    : conto.piano;
 
   return (
     <Foglio visibile={visibile} onChiudi={onChiudi}>
       <View style={{ gap: 6 }}>
-        <Eyebrow>Paese e banca dati</Eyebrow>
-        <Testo tipo="dS">Dove vuoi lavorare?</Testo>
+        <Eyebrow>{t('profilo.paese')}</Eyebrow>
+        <Testo tipo="dS">{t('profilo.cambioPaese.titolo')}</Testo>
       </View>
-      <View style={{ gap: 8 }} accessibilityRole="radiogroup" accessibilityLabel="Paese">
+      <View style={{ gap: 8 }} accessibilityRole="radiogroup" accessibilityLabel={t('avvio.paese.gruppo')}>
         {paesi.map((p) => (
           <Scelta
             key={p.codice}
@@ -55,13 +59,13 @@ export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAcce
             attiva={p.codice === scelto}
             onPress={() => setScelto(p.codice)}
             sinistra={<BadgePaese codice={p.codice} />}
-            titolo={p.nome}
+            titolo={t(`paesi.${p.codice as 'IT' | 'CH'}`)}
             sottotitolo={
               p.codice === paese
-                ? 'Sei qui · banca dati attuale'
+                ? t('profilo.cambioPaese.qui')
                 : accessi[p.codice]
-                  ? `Accesso già creato con ${utenti[p.codice]?.email ?? ''}`
-                  : 'Nessun accesso, per ora'
+                  ? t('profilo.cambioPaese.accessoCon', { email: utenti[p.codice]?.email ?? '' })
+                  : t('profilo.cambioPaese.nessunAccesso')
             }
           />
         ))}
@@ -70,24 +74,26 @@ export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAcce
       {senzaAccesso ? (
         <>
           <View style={{ gap: 8 }}>
-            <Testo medio>Non hai ancora un accesso {testi.in}</Testo>
+            <Testo medio>{t(`profilo.cambioPaese.senzaAccesso.${s}`)}</Testo>
             <Testo tipo="small" colore={colori.fg2}>
-              La banca dati {testi.aggettivoFemminile} ha un account suo: crediti, piano e archivio sono
-              separati da quelli {testiAttuale.aggettivoPlurale}. Si crea in un minuto, e anche lì la prima
-              ricerca è gratuita.
+              {t(`profilo.cambioPaese.senzaAccessoTesto.${s}`)}
             </Testo>
           </View>
-          <Pulsante titolo={`Crea l'accesso ${testi.aggettivo}`} onPress={() => onCreaAccesso(scelto)} />
-          <Pulsante titolo="Ho già un accesso: accedi" variante="linea" onPress={() => onAccedi(scelto)} />
+          <Pulsante titolo={t(`profilo.cambioPaese.crea.${s}`)} onPress={() => onCreaAccesso(scelto)} />
+          <Pulsante
+            titolo={t('profilo.cambioPaese.hoAccesso')}
+            variante="linea"
+            onPress={() => onAccedi(scelto)}
+          />
           <Testo tipo="cap" centrato>
-            Puoi usare la stessa email.
+            {t('profilo.cambioPaese.stessaEmail')}
           </Testo>
         </>
       ) : (
         <>
           <View style={{ gap: 8 }}>
             <Testo tipo="cap">
-              {attuale ? `Il tuo account ${testi.aggettivo} · in uso` : `Il tuo account ${testi.aggettivo}`}
+              {attuale ? t(`profilo.cambioPaese.accountInUso.${s}`) : t(`profilo.cambioPaese.account.${s}`)}
             </Testo>
             <ElencoDefinizioni
               stile={{
@@ -98,27 +104,36 @@ export function FoglioPaese({ visibile, onChiudi, onPassa, onCreaAccesso, onAcce
                 paddingHorizontal: 16,
               }}
               voci={[
-                ['Piano', piano],
-                ['Crediti', conto.crediti === 1 ? '1 rimanente' : `${conto.crediti} rimanenti`],
-                ['Archivio', `${formatoMB(conto.archivioUsatoMB)} di ${formatoMB(conto.archivioTotaleMB)}`],
+                [t('profilo.cambioPaese.piano'), piano],
+                [
+                  t('profilo.cambioPaese.crediti'),
+                  conto.crediti === 1
+                    ? t('profilo.cambioPaese.rimanenteUno')
+                    : t('profilo.cambioPaese.rimanentiMolti', { n: conto.crediti }),
+                ],
+                [
+                  t('archivio.titolo'),
+                  t('archivio.spazio', {
+                    usato: formatoMB(conto.archivioUsatoMB),
+                    totale: formatoMB(conto.archivioTotaleMB),
+                  }),
+                ],
               ]}
             />
             <Testo tipo="cap">
-              {attuale
-                ? "Scegli l'altro paese per vedere il suo account e passare lì."
-                : "È un account separato: crediti, piano e archivio non passano da un paese all'altro."}
+              {attuale ? t('profilo.cambioPaese.altroPaese') : t('profilo.cambioPaese.separato')}
             </Testo>
           </View>
           {attuale ? null : (
             <>
-              <Testo medio>Vuoi passare al database legale {testi.aggettivo}?</Testo>
-              <Pulsante titolo={`Sì, passa ${testi.a}`} onPress={() => onPassa(scelto)} />
+              <Testo medio>{t(`profilo.cambioPaese.domanda.${s}`)}</Testo>
+              <Pulsante titolo={t(`profilo.cambioPaese.passa.${s}`)} onPress={() => onPassa(scelto)} />
             </>
           )}
         </>
       )}
       <Pulsante
-        titolo={attuale ? 'Chiudi' : `Resta ${testiAttuale.in}`}
+        titolo={attuale ? t('comune.chiudi') : t(`profilo.cambioPaese.resta.${a}`)}
         variante="tenue"
         stile={{ height: 44 }}
         onPress={onChiudi}

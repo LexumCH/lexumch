@@ -13,6 +13,7 @@ import { trovaNorma } from '@/dati-finti/banca-dati';
 import { messaggiDi } from '@/dati-finti/ricerche';
 import { FoglioNorma } from '@/fogli/FoglioNorma';
 import { FoglioNuovaChat } from '@/fogli/FoglioNuovaChat';
+import { useTesti } from '@/lingue/useTesti';
 import { indietro, useVaiASezione } from '@/navigazione';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
@@ -22,6 +23,7 @@ import { colori } from '@/tema';
 export default function ChatSalvata() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { elementiAttivi, etichetteAttive, chat, chatDaSalvare, azioni } = useStato();
+  const { t } = useTesti();
   const vai = useVaiASezione();
   const [norma, setNorma] = useState<string | null>(null);
   const [avviso, setAvviso] = useState(false);
@@ -41,15 +43,15 @@ export default function ChatSalvata() {
   return (
     <Schermata>
       <Intestazione
-        sinistra={<BottoneIndietro ripiego={ripiego} etichetta="Torna a Ricerche" />}
-        titolo={elemento?.titolo ?? 'Chat salvata'}
+        sinistra={<BottoneIndietro ripiego={ripiego} etichetta={t('ricerche.tornaRicerche')} />}
+        titolo={elemento?.titolo ?? t('ricerche.chatSalvata.titolo')}
       />
       {!elemento ? (
         <StatoVuoto
           icona="segnalibro"
-          titolo="Questa chat non c'è più"
-          testo="Forse l'hai tolta dall'etichetta, qui o sul sito."
-          azione={{ titolo: 'Torna a Ricerche', onPress: () => indietro(ripiego) }}
+          titolo={t('ricerche.chatSalvata.sparitaTitolo')}
+          testo={t('ricerche.chatSalvata.sparitaTesto')}
+          azione={{ titolo: t('ricerche.tornaRicerche'), onPress: () => indietro(ripiego) }}
         />
       ) : (
         <>
@@ -58,7 +60,7 @@ export default function ChatSalvata() {
               <View style={stili.dove}>
                 <Pallino colore={etichetta.colore} />
                 <Testo tipo="small" colore={colori.fg2}>
-                  Salvata in «{etichetta.nome}» · {elemento.quando}
+                  {t('ricerche.chatSalvata.salvataIn', { nome: etichetta.nome, quando: elemento.quando })}
                 </Testo>
               </View>
             ) : null}
@@ -75,7 +77,7 @@ export default function ChatSalvata() {
           </ScrollView>
           <BarraAzioni>
             <Pulsante
-              titolo="Continua la chat"
+              titolo={t('ricerche.chatSalvata.continua')}
               icona="stella"
               stile={{ flex: 1 }}
               onPress={() => (chatDaSalvare ? setAvviso(true) : apri())}

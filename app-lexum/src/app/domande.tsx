@@ -10,6 +10,7 @@ import { Schermata } from '@/componenti/Schermata';
 import { Caricamento } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
 import { richiesteFinte } from '@/dati-finti/domande';
+import { useTesti } from '@/lingue/useTesti';
 import { useStato } from '@/stato/Stato';
 import { domandePer, type DomandaFrequente } from '@/testi/domande';
 import { colori, famiglie } from '@/tema';
@@ -17,22 +18,22 @@ import { colori, famiglie } from '@/tema';
 // D3 · Domande: domande frequenti (testi veri, per paese) e richieste di assistenza (ticket, tappa 6).
 export default function Domande() {
   const { paese, simula } = useStato();
-  // Per ora sempre in italiano: tedesco e francese arrivano con la lingua dell'app (tappa 2).
-  const domande = domandePer(paese, 'it');
+  const { t, lingua } = useTesti();
+  const domande = domandePer(paese, lingua);
   const [aperta, setAperta] = useState<string | null>(null);
 
   return (
     <Schermata>
-      <Intestazione sinistra={<BottoneMenu />} titolo="Domande?" />
+      <Intestazione sinistra={<BottoneMenu />} titolo={t('profilo.domande.titolo')} />
       <ScrollView style={{ flex: 1 }}>
         <Testo
           tipo="dM"
           style={{ paddingTop: 10, paddingHorizontal: 20, paddingBottom: 4 }}
           accessibilityRole="header"
         >
-          Come possiamo aiutarti?
+          {t('profilo.domande.aiuto')}
         </Testo>
-        <TitoloSezione>Domande frequenti</TitoloSezione>
+        <TitoloSezione>{t('profilo.domande.frequenti')}</TitoloSezione>
         {domande.map((d) => (
           <VoceDomanda
             key={d.domanda}
@@ -41,24 +42,30 @@ export default function Domande() {
             onPress={() => setAperta((a) => (a === d.domanda ? null : d.domanda))}
           />
         ))}
-        <TitoloSezione>Le tue richieste</TitoloSezione>
+        <TitoloSezione>{t('profilo.domande.richieste')}</TitoloSezione>
         {simula.caricamento ? <Caricamento righe={2} /> : null}
         {(simula.caricamento ? [] : richiesteFinte).map((r) => (
           <Riga
             key={r.id}
             titolo={
               <View style={stili.titolo}>
-                {r.nuovo ? <View style={stili.nuovo} accessibilityLabel="Risposta nuova" /> : null}
+                {r.nuovo ? (
+                  <View style={stili.nuovo} accessibilityLabel={t('profilo.domande.rispostaNuova')} />
+                ) : null}
                 <Text style={stili.titoloTesto}>{r.titolo}</Text>
               </View>
             }
             sottotitolo={r.aggiornato}
-            destra={<Badge tono={r.aperto ? 'ok' : 'neutro'}>{r.aperto ? 'Aperto' : 'Chiuso'}</Badge>}
+            destra={
+              <Badge tono={r.aperto ? 'ok' : 'neutro'}>
+                {r.aperto ? t('profilo.domande.aperto') : t('profilo.domande.chiuso')}
+              </Badge>
+            }
           />
         ))}
       </ScrollView>
       <BarraAzioni>
-        <Pulsante titolo="Scrivi al supporto" icona="fumetto" stile={{ flex: 1 }} />
+        <Pulsante titolo={t('profilo.domande.scrivi')} icona="fumetto" stile={{ flex: 1 }} />
       </BarraAzioni>
     </Schermata>
   );

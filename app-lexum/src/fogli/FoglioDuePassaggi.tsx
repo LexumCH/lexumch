@@ -6,7 +6,7 @@ import { Avviso, IconaQuadrata, Scheda } from '@/componenti/Elementi';
 import { Foglio } from '@/componenti/Foglio';
 import { Pulsante, PulsanteIcona } from '@/componenti/Pulsante';
 import { Eyebrow, Testo } from '@/componenti/Testo';
-import { contenuti } from '@/paesi/contenuti';
+import { useTesti } from '@/lingue/useTesti';
 import { dominio, trovaPaese } from '@/paesi/registro';
 import { useStato } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
@@ -38,8 +38,9 @@ type Props = {
 // È la stessa del sito: il fattore sta nell'account del paese, quindi lo stesso codice vale su app e sito.
 export function FoglioDuePassaggi({ visibile, onChiudi }: Props) {
   const { paese, dueFattori, utente, azioni } = useStato();
+  const { t } = useTesti();
+  const p = paese as 'IT' | 'CH';
   const attiva = !!dueFattori[paese];
-  const testi = contenuti[paese];
   const sito = dominio(trovaPaese(paese));
   const nomeNellApp = `Lexum ${paese}`;
   const [passo, setPasso] = useState<Passo>(attiva ? 'gestisci' : 'spiega');
@@ -61,7 +62,7 @@ export function FoglioDuePassaggi({ visibile, onChiudi }: Props) {
   const verifica = () => {
     if (codice.length !== 6) return;
     if (codice === '000000') {
-      setErrore("Codice non valido. Controlla che l'ora del telefono sia giusta e riprova.");
+      setErrore(t('errori.codiceNonValido'));
       setCodice('');
       return;
     }
@@ -70,79 +71,82 @@ export function FoglioDuePassaggi({ visibile, onChiudi }: Props) {
   };
 
   const condividiCodici = () => {
-    Share.share({ message: `Codici di recupero ${nomeNellApp}:\n${codiciFinti.join('\n')}` }).catch(
-      () => undefined,
-    );
+    Share.share({
+      message: t('profilo.dueFattori.condividiTesto', { nome: nomeNellApp, codici: codiciFinti.join('\n') }),
+    }).catch(() => undefined);
   };
 
   return (
     <Foglio visibile={visibile} onChiudi={onChiudi} spazio={16}>
       <View style={stili.testa}>
         <View style={{ flex: 1, gap: 6 }}>
-          <Eyebrow>Verifica in due passaggi</Eyebrow>
+          <Eyebrow>{t('profilo.account.dueFattori')}</Eyebrow>
           <Testo tipo="dS">
             {passo === 'spiega'
-              ? 'Un codice in più, oltre alla password'
+              ? t('profilo.dueFattori.titoloSpiega')
               : passo === 'aggiungi'
-                ? 'Collega la tua app di autenticazione'
+                ? t('profilo.dueFattori.titoloAggiungi')
                 : passo === 'codici'
-                  ? 'Salva i codici di recupero'
+                  ? t('profilo.dueFattori.titoloCodici')
                   : passo === 'disattiva'
-                    ? 'Spegnere la verifica?'
-                    : 'Attiva'}
+                    ? t('profilo.dueFattori.titoloDisattiva')
+                    : t('profilo.dueFattori.titoloGestisci')}
           </Testo>
         </View>
-        <PulsanteIcona icona="chiudi" etichetta="Chiudi" onPress={onChiudi} />
+        <PulsanteIcona icona="chiudi" etichetta={t('interfaccia.chiudi')} onPress={onChiudi} />
       </View>
 
       {passo === 'spiega' ? (
         <>
-          <Testo colore={colori.fg2}>
-            Quando accedi, oltre alla password ti chiediamo un codice di 6 cifre che cambia ogni 30 secondi.
-            Lo genera un'app di autenticazione: Google Authenticator, Microsoft Authenticator, 1Password…
-          </Testo>
+          <Testo colore={colori.fg2}>{t('profilo.dueFattori.spiega')}</Testo>
           <Scheda stile={{ gap: 4 }}>
-            <Testo medio>Vale anche su {sito}</Testo>
+            <Testo medio>{t('profilo.dueFattori.valeSu', { sito })}</Testo>
             <Testo tipo="small" colore={colori.fg2}>
-              È lo stesso account {testi.aggettivo}: lo stesso codice serve sull'app e sul sito. Se l'hai già
-              attivata sul sito, qui risulta già attiva.
+              {t(`profilo.dueFattori.stessoAccount.${p}`)}
             </Testo>
           </Scheda>
-          <Pulsante titolo="Attiva" icona="lucchetto" onPress={() => setPasso('aggiungi')} />
+          <Pulsante
+            titolo={t('profilo.dueFattori.attiva')}
+            icona="lucchetto"
+            onPress={() => setPasso('aggiungi')}
+          />
         </>
       ) : null}
 
       {passo === 'aggiungi' ? (
         <>
           <View style={{ gap: 10 }}>
-            <Testo medio>1. Aggiungi Lexum alla tua app di autenticazione</Testo>
+            <Testo medio>{t('profilo.dueFattori.passo1')}</Testo>
             <Pulsante
-              titolo="Apri l'app di autenticazione"
+              titolo={t('profilo.dueFattori.apriApp')}
               variante="linea"
               icona="esterno"
               onPress={() => setAperta(true)}
             />
             {aperta ? (
               <Testo tipo="small" colore={colori.ok}>
-                Nell'app di autenticazione trovi «{nomeNellApp}» con {utente.email}. Torna qui e scrivi il
-                codice che mostra.
+                {t('profilo.dueFattori.trovi', { nome: nomeNellApp, email: utente.email })}
               </Testo>
             ) : null}
             <Testo tipo="small" colore={colori.fg2}>
-              Oppure aggiungila a mano con questa chiave:
+              {t('profilo.dueFattori.aMano')}
             </Testo>
-            <Text selectable style={stili.chiave} accessibilityLabel={`Chiave: ${chiaveFinta}`}>
+            <Text
+              selectable
+              style={stili.chiave}
+              accessibilityLabel={t('profilo.dueFattori.chiave', { chiave: chiaveFinta })}
+            >
               {chiaveFinta}
             </Text>
           </View>
           <View style={{ gap: 10 }}>
-            <Testo medio>2. Scrivi il codice di 6 cifre</Testo>
+            <Testo medio>{t('profilo.dueFattori.passo2')}</Testo>
             <Campo
-              etichetta="Codice di 6 cifre"
+              etichetta={t('avvio.verifica.campo')}
               placeholder="123456"
               value={codice}
-              onChangeText={(t) => {
-                setCodice(t.replace(/\D/g, '').slice(0, 6));
+              onChangeText={(testo) => {
+                setCodice(testo.replace(/\D/g, '').slice(0, 6));
                 setErrore(null);
               }}
               keyboardType="number-pad"
@@ -153,25 +157,31 @@ export function FoglioDuePassaggi({ visibile, onChiudi }: Props) {
             />
           </View>
           {errore ? <Avviso testo={errore} /> : null}
-          <Pulsante titolo="Verifica e attiva" disabilitato={codice.length !== 6} onPress={verifica} />
+          <Pulsante
+            titolo={t('profilo.dueFattori.verifica')}
+            disabilitato={codice.length !== 6}
+            onPress={verifica}
+          />
         </>
       ) : null}
 
       {passo === 'codici' ? (
         <>
-          <Testo colore={colori.fg2}>
-            Ti servono se perdi il telefono. Ognuno vale una volta sola. Salvali fuori dal telefono, in un
-            posto sicuro.
-          </Testo>
-          <View style={stili.codici} accessibilityLabel="Codici di recupero">
+          <Testo colore={colori.fg2}>{t('profilo.dueFattori.codiciTesto')}</Testo>
+          <View style={stili.codici} accessibilityLabel={t('profilo.dueFattori.codici')}>
             {codiciFinti.map((c) => (
               <Text key={c} selectable style={stili.codice}>
                 {c}
               </Text>
             ))}
           </View>
-          <Pulsante titolo="Condividi o salva" variante="linea" icona="condividi" onPress={condividiCodici} />
-          <Pulsante titolo="Ho salvato i codici" onPress={() => setPasso('gestisci')} />
+          <Pulsante
+            titolo={t('profilo.dueFattori.condividi')}
+            variante="linea"
+            icona="condividi"
+            onPress={condividiCodici}
+          />
+          <Pulsante titolo={t('profilo.dueFattori.hoSalvato')} onPress={() => setPasso('gestisci')} />
         </>
       ) : null}
 
@@ -180,32 +190,37 @@ export function FoglioDuePassaggi({ visibile, onChiudi }: Props) {
           <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
             <IconaQuadrata nome="lucchetto" />
             <View style={{ flex: 1, gap: 3 }}>
-              <Testo medio>Attiva sull'app e su {sito}</Testo>
+              <Testo medio>{t('profilo.dueFattori.attivaSu', { sito })}</Testo>
               <Testo tipo="small" colore={colori.fg2}>
-                All'accesso ti chiediamo il codice di «{nomeNellApp}».
+                {t('profilo.dueFattori.chiediamo', { nome: nomeNellApp })}
               </Testo>
             </View>
           </View>
-          <Pulsante titolo="Nuovi codici di recupero" variante="linea" onPress={() => setPasso('codici')} />
-          <Pulsante titolo="Spegni la verifica" variante="pericolo" onPress={() => setPasso('disattiva')} />
+          <Pulsante
+            titolo={t('profilo.dueFattori.nuoviCodici')}
+            variante="linea"
+            onPress={() => setPasso('codici')}
+          />
+          <Pulsante
+            titolo={t('profilo.dueFattori.spegniVerifica')}
+            variante="pericolo"
+            onPress={() => setPasso('disattiva')}
+          />
         </>
       ) : null}
 
       {passo === 'disattiva' ? (
         <>
-          <Testo colore={colori.fg2}>
-            Il tuo account {testi.aggettivo} sarà protetto solo dalla password, anche su {sito}. I codici di
-            recupero non varranno più.
-          </Testo>
+          <Testo colore={colori.fg2}>{t(`profilo.dueFattori.disattivaTesto.${p}`, { sito })}</Testo>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Pulsante
-              titolo="Annulla"
+              titolo={t('comune.annulla')}
               variante="linea"
               stile={{ flex: 1 }}
               onPress={() => setPasso('gestisci')}
             />
             <Pulsante
-              titolo="Spegni"
+              titolo={t('profilo.dueFattori.spegni')}
               variante="pericolo"
               stile={{ flex: 1 }}
               onPress={() => {

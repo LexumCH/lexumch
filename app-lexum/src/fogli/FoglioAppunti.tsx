@@ -6,6 +6,7 @@ import { Foglio } from '@/componenti/Foglio';
 import { PulsanteIcona } from '@/componenti/Pulsante';
 import { Testo } from '@/componenti/Testo';
 import type { Elemento, Etichetta } from '@/dati-finti/ricerche';
+import { useTesti } from '@/lingue/useTesti';
 import { colori } from '@/tema';
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 
 // D1 · Appunti salvati in Ricerche: si leggono per intero.
 export function FoglioAppunti({ elemento, etichetta, onChiudi }: Props) {
+  const { t } = useTesti();
   // tiene gli appunti durante l'animazione di chiusura
   const [ultimo, setUltimo] = useState(elemento);
   if (elemento && elemento !== ultimo) setUltimo(elemento);
@@ -27,18 +29,18 @@ export function FoglioAppunti({ elemento, etichetta, onChiudi }: Props) {
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
             <View style={{ flex: 1, gap: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Badge tono="neutro">{e.tipo}</Badge>
+                <Badge tono="neutro">{t(`ricerche.tipi.${e.tipo}`)}</Badge>
                 <Testo tipo="mini">{e.quando}</Testo>
               </View>
               <Testo tipo="dS">{e.titolo}</Testo>
             </View>
-            <PulsanteIcona icona="chiudi" etichetta="Chiudi" onPress={onChiudi} />
+            <PulsanteIcona icona="chiudi" etichetta={t('interfaccia.chiudi')} onPress={onChiudi} />
           </View>
           {etichetta ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Pallino colore={etichetta.colore} />
               <Testo tipo="small" colore={colori.fg2}>
-                In «{etichetta.nome}»
+                {t('ricerche.appunti.inEtichetta', { nome: etichetta.nome })}
               </Testo>
             </View>
           ) : null}

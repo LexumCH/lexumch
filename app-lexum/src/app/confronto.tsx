@@ -17,6 +17,7 @@ import {
 } from '@/dati-finti/confronto';
 import type { Elemento } from '@/dati-finti/ricerche';
 import { FoglioEsauriti } from '@/fogli/FoglioEsauriti';
+import { useTesti } from '@/lingue/useTesti';
 import { indietro, useVaiASezione } from '@/navigazione';
 import { useOffline } from '@/stato/connessione';
 import { useStato } from '@/stato/Stato';
@@ -31,6 +32,7 @@ type Richiesta = { azione: AzioneConfronto; passo: number; pronta: boolean };
 export default function Confronto() {
   const { ids } = useLocalSearchParams<{ ids?: string }>();
   const { elementiAttivi, etichetteAttive, conto, azioni } = useStato();
+  const { t } = useTesti();
   const vai = useVaiASezione();
   const offline = useOffline();
   const [richiesta, setRichiesta] = useState<Richiesta | null>(null);
@@ -45,7 +47,7 @@ export default function Confronto() {
   // Passi dell'attesa; all'ultimo arriva la risposta e si scala il credito.
   useEffect(() => {
     if (!richiesta || richiesta.pronta) return;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       if (richiesta.passo + 1 < passiConfronto.length) {
         setRichiesta({ ...richiesta, passo: richiesta.passo + 1 });
       } else {
@@ -53,7 +55,7 @@ export default function Confronto() {
         azioni.usaCredito();
       }
     }, DURATA_PASSO_MS);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [richiesta, azioni]);
 
   // la risposta (e l'attesa) si vedono senza dover scorrere
@@ -76,34 +78,34 @@ export default function Confronto() {
   return (
     <Schermata>
       <Intestazione
-        sinistra={<BottoneIndietro ripiego="/ricerche" etichetta="Torna a Ricerche" />}
-        titolo="Confronto"
+        sinistra={<BottoneIndietro ripiego="/ricerche" etichetta={t('ricerche.tornaRicerche')} />}
+        titolo={t('ricerche.confronto.titolo')}
         destra={<ContatoreCrediti />}
       />
       {elementi.length < 2 ? (
         <StatoVuoto
           icona="confronta"
-          titolo="Scegli almeno due elementi"
-          testo="In Ricerche tocca «Confronta» e scegli da 2 a 3 elementi."
-          azione={{ titolo: 'Torna a Ricerche', onPress: torna }}
+          titolo={t('ricerche.confronto.vuotoTitolo')}
+          testo={t('ricerche.confronto.vuotoTesto')}
+          azione={{ titolo: t('ricerche.tornaRicerche'), onPress: torna }}
         />
       ) : (
         <ScrollView ref={scorre} contentContainerStyle={stili.corpo}>
           <Testo tipo="cap" style={{ paddingHorizontal: 20 }}>
-            Confronto · {elementi.length} elementi
+            {t('ricerche.confronto.conteggio', { n: elementi.length })}
           </Testo>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={stili.colonne}
-            accessibilityLabel="Elementi a confronto"
+            accessibilityLabel={t('ricerche.confronto.elementi')}
           >
             {elementi.map((e) => {
               const etichetta = etichetteAttive.find((x) => x.id === e.etichetta);
               return (
                 <View key={e.id} style={stili.colonna}>
                   <View style={stili.tipo}>
-                    <Badge tono={tonoBadge[e.tipo]}>{e.tipo}</Badge>
+                    <Badge tono={tonoBadge[e.tipo]}>{t(`ricerche.tipi.${e.tipo}`)}</Badge>
                     {etichetta ? (
                       <View style={stili.etichetta}>
                         <Pallino colore={etichetta.colore} />
@@ -121,9 +123,9 @@ export default function Confronto() {
           </ScrollView>
 
           <View style={stili.sezione}>
-            <Eyebrow>Chiedi a Lex</Eyebrow>
+            <Eyebrow>{t('ricerche.chiedi')}</Eyebrow>
             <Testo tipo="small" colore={colori.fg2}>
-              Lex legge gli elementi scelti e li mette a confronto. Usa i crediti, come una domanda.
+              {t('ricerche.confronto.spiega')}
             </Testo>
           </View>
           <View>
@@ -132,8 +134,8 @@ export default function Confronto() {
               return (
                 <Riga
                   key={a.id}
-                  titolo={a.titolo}
-                  sottotitolo={a.descrizione}
+                  titolo={t(`ricerche.confronto.azioni.${a.id}.titolo`)}
+                  sottotitolo={t(`ricerche.confronto.azioni.${a.id}.descrizione`)}
                   freccia="avanti"
                   evidenziata={scelta}
                   bordoSopra={a.id === azioniConfronto[0].id}
@@ -153,7 +155,7 @@ export default function Confronto() {
                 />
               ) : (
                 <>
-                  <Testo colore={colori.fg2}>Lex sta confrontando gli elementi</Testo>
+                  <Testo colore={colori.fg2}>{t('ricerche.confronto.attesa')}</Testo>
                   <Passi passi={passiConfronto} attivo={richiesta.passo} />
                 </>
               )}

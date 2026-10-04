@@ -13,9 +13,11 @@ import { Testo } from '@/componenti/Testo';
 import { categorieFinte } from '@/dati-finti/archivio';
 import { formatoMB } from '@/dati-finti/conti';
 import { FoglioCondiviso } from '@/fogli/FoglioCondiviso';
+import { useTesti } from '@/lingue/useTesti';
 import { useStato } from '@/stato/Stato';
 import { colori } from '@/tema';
 
+// Valori interni dei due filtri fissi; il nome che si vede viene dalla lingua.
 const TUTTE = 'Tutte';
 const SENZA = 'Senza categoria';
 
@@ -23,6 +25,7 @@ const SENZA = 'Senza categoria';
 // Scanner, caricamento, categorie nuove e «Condividi in Lexum» arrivano con la tappa 6.
 export default function Archivio() {
   const { paese, conto, documentiAttivi: documenti, simula } = useStato();
+  const { t } = useTesti();
   // ?condiviso=1: è arrivato un file da «Condividi in Lexum» di un'altra app.
   const { condiviso } = useLocalSearchParams<{ condiviso?: string }>();
   const [categoria, setCategoria] = useState(TUTTE);
@@ -37,29 +40,32 @@ export default function Archivio() {
       (categoria === TUTTE || (categoria === SENZA ? !d.categoria : d.categoria === categoria)) &&
       (!q || d.titolo.toLowerCase().includes(q)),
   );
+  const nomeCategoria = (c: string) =>
+    c === TUTTE ? t('archivio.tutte') : c === SENZA ? t('archivio.senzaCategoria') : c;
 
   return (
     <Schermata>
       <Intestazione
         sinistra={<BottoneMenu />}
-        titolo="Archivio"
-        destra={<PulsanteIcona icona="cartella" etichetta="Categorie" dimensione={21} />}
+        titolo={t('archivio.titolo')}
+        destra={<PulsanteIcona icona="cartella" etichetta={t('archivio.categorie')} dimensione={21} />}
       />
       <View style={stili.testa}>
         <View style={{ gap: 8 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Testo tipo="small">
-              {documenti.length} documenti · {indicizzati} indicizzati
-            </Testo>
+            <Testo tipo="small">{t('archivio.conteggio', { n: documenti.length, indicizzati })}</Testo>
             <Testo tipo="small" colore={colori.fg2}>
-              {formatoMB(conto.archivioUsatoMB)} di {formatoMB(conto.archivioTotaleMB)}
+              {t('archivio.spazio', {
+                usato: formatoMB(conto.archivioUsatoMB),
+                totale: formatoMB(conto.archivioTotaleMB),
+              })}
             </Testo>
           </View>
           <Barra percento={percento} />
         </View>
         <CampoCerca
-          etichetta="Cerca tra i tuoi documenti"
-          placeholder="Cerca tra i tuoi documenti…"
+          etichetta={t('archivio.cerca')}
+          placeholder={t('archivio.cercaSegnaposto')}
           alto={46}
           value={testo}
           onChangeText={setTesto}
@@ -67,9 +73,9 @@ export default function Archivio() {
         />
         <View style={stili.filtri}>
           {categorie.map((c) => (
-            <Tag key={c} titolo={c} attivo={c === categoria} onPress={() => setCategoria(c)} />
+            <Tag key={c} titolo={nomeCategoria(c)} attivo={c === categoria} onPress={() => setCategoria(c)} />
           ))}
-          <Tag titolo="+ Categoria" tratteggiato />
+          <Tag titolo={t('archivio.nuovaCategoria')} tratteggiato />
         </View>
       </View>
       <Separatore />
@@ -82,36 +88,39 @@ export default function Archivio() {
             inAlto
             sinistra={<IconaQuadrata nome="documento" tenue />}
             titolo={d.titolo}
-            sottotitolo={[d.categoria ?? SENZA, d.data, d.scansione ? 'scansione' : null, d.dimensione]
+            sottotitolo={[
+              d.categoria ?? t('archivio.senzaCategoria'),
+              d.data,
+              d.scansione ? t('archivio.scansione') : null,
+              d.dimensione,
+            ]
               .filter(Boolean)
               .join(' · ')}
             sotto={
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
                 <Badge>{d.tipo}</Badge>
-                <Badge tono={d.stato === 'Indicizzato' ? 'ok' : 'warn'}>{d.stato}</Badge>
+                <Badge tono={d.stato === 'Indicizzato' ? 'ok' : 'warn'}>
+                  {t(`archivio.stati.${d.stato}`)}
+                </Badge>
               </View>
             }
           />
         ))}
         {!simula.caricamento && documenti.length === 0 ? (
-          <StatoVuoto
-            icona="archivio"
-            titolo="L'archivio è vuoto"
-            testo="Carica o scansiona un documento: Lex lo legge quando gli fai una domanda."
-          />
+          <StatoVuoto icona="archivio" titolo={t('archivio.vuotoTitolo')} testo={t('archivio.vuotoTesto')} />
         ) : null}
         {!simula.caricamento && documenti.length > 0 && visibili.length === 0 ? (
           <StatoVuoto
             icona="cartella"
-            titolo="Nessun documento qui"
-            testo="Prova un'altra categoria o altre parole."
+            titolo={t('archivio.nessunoTitolo')}
+            testo={t('archivio.nessunoTesto')}
           />
         ) : null}
       </ScrollView>
 
       <BarraAzioni>
-        <Pulsante titolo="Scansiona" icona="fotocamera" variante="linea" stile={{ flex: 1 }} />
-        <Pulsante titolo="Carica" icona="carica" stile={{ flex: 1 }} />
+        <Pulsante titolo={t('archivio.scansiona')} icona="fotocamera" variante="linea" stile={{ flex: 1 }} />
+        <Pulsante titolo={t('archivio.carica')} icona="carica" stile={{ flex: 1 }} />
       </BarraAzioni>
 
       <FoglioCondiviso
