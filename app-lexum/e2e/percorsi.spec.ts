@@ -28,7 +28,7 @@ test('primo avvio: paese, benvenuto, registrazione, codice, chat', async ({ page
   await tocca(page, 'Registrati', true);
   await vedo(page, 'Controlla la tua email');
   await tocca(page, 'Conferma', true);
-  await vedo(page, 'Di cosa hai bisogno?');
+  await vedo(page, 'Per iniziare, prova con:');
   await vedo(page, '1 credito di benvenuto');
 });
 
@@ -55,7 +55,7 @@ test('accesso: errore, password dimenticata, ingresso', async ({ page }) => {
   await tocca(page, "Torna all'accesso", true);
   await etichetta(page, 'Password').fill('una-password');
   await tocca(page, 'Accedi', true);
-  await vedo(page, 'Di cosa hai bisogno?');
+  await vedo(page, 'Per iniziare, prova con:');
 });
 
 test('nuova password: minimo 8 caratteri e uguali', async ({ page }) => {
@@ -230,7 +230,7 @@ test('verifica in due passaggi all’accesso: codice o codice di recupero', asyn
   await tocca(page, 'Accedi di nuovo', true);
   await etichetta(page, 'Password').fill('una-password');
   await tocca(page, 'Accedi', true);
-  await vedo(page, 'Di cosa hai bisogno?');
+  await vedo(page, 'Per iniziare, prova con:');
 });
 
 test('un avvocato entra con le stesse schermate, senza errori di ruolo', async ({ page }) => {
@@ -243,7 +243,7 @@ test('un avvocato entra con le stesse schermate, senza errori di ruolo', async (
   await vedo(page, 'Verifica in due passaggi', true);
   await etichetta(page, 'Codice di 6 cifre').fill('482913');
   await tocca(page, 'Verifica e accedi', true);
-  await vedo(page, 'Di cosa hai bisogno?');
+  await vedo(page, 'Per iniziare, prova con:');
   await expect(page.getByText(/non sei un|non autorizzat|accesso negato/i)).toHaveCount(0);
   await etichetta(page, 'Apri il menù').click();
   await tocca(page, 'Profilo', true);

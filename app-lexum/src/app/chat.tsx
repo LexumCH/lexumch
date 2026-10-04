@@ -84,12 +84,10 @@ export default function Chat() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         {vuota ? (
           <ScrollView contentContainerStyle={stili.home} keyboardShouldPersistTaps="handled">
-            <View style={{ gap: 10 }}>
-              <Testo tipo="dL" accessibilityRole="header">
-                Ciao {utenteFinto.nome}.{'\n'}
-                <Evidenza oro corsivo>
-                  Di cosa hai bisogno?
-                </Evidenza>
+            <View style={{ gap: 8 }}>
+              {/* Saluto più discreto (Antonino, 04-10-2026): «Ciao» in bianco, il nome in oro. */}
+              <Testo tipo="dM" accessibilityRole="header">
+                Ciao <Evidenza oro>{utenteFinto.nome}</Evidenza>
               </Testo>
               <Testo colore={colori.fg2}>{testi.homeSottotitolo}</Testo>
             </View>
