@@ -17,6 +17,8 @@ Ultimo aggiornamento: 03-10-2026.
   2. poi cancella l'utente.
 
   Va fatta in IT e in CH, e ognuna cancella solo il suo paese. Nell'app la conferma (D6) è già pronta con i tuoi testi. Decidi tu cosa fare se c'è un piano ancora attivo.
+
+  Decidi anche cosa fare con gli account professionali (avvocati, commercialisti…), che ora entrano nell'app come tutti: cancellare l'account dall'app cancellerebbe anche pratiche e clienti dello studio. Per loro «Elimina account» potrebbe rimandare al sito.
 - [ ] (Solo se scegli il codice di 6 cifre, decisione aperta n. 1 del piano) cambiare il modello email di conferma.
 
 - [ ] **Verifica in due passaggi per i privati, sul sito** (facoltativo, fuori da questo repo). Il backend la regge già per tutti (`supabase.auth.mfa` e la funzione `mfa-backup-codes`, in IT e in CH). Ma sul sito il riquadro per attivarla c'è solo nei profili di avvocati, commercialisti e admin, non in quello dei privati. Se un privato la attiva dall'app, il sito gliela chiede all'accesso (lo fa già `ProtectedRoute`), ma non può gestirla dal suo Profilo sul sito. Proposta: aggiungere `BoxSicurezza2FA` anche al Profilo dei privati dei due siti.

@@ -233,6 +233,24 @@ test('verifica in due passaggi all’accesso: codice o codice di recupero', asyn
   await vedo(page, 'Di cosa hai bisogno?');
 });
 
+test('un avvocato entra con le stesse schermate, senza errori di ruolo', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/');
+  await tocca(page, 'A11 · Accesso di un avvocato');
+  await vedo(page, 'Bentornato');
+  await etichetta(page, 'Password').fill('una-password');
+  await tocca(page, 'Accedi', true);
+  await vedo(page, 'Verifica in due passaggi', true);
+  await etichetta(page, 'Codice di 6 cifre').fill('482913');
+  await tocca(page, 'Verifica e accedi', true);
+  await vedo(page, 'Di cosa hai bisogno?');
+  await expect(page.getByText(/non sei un|non autorizzat|accesso negato/i)).toHaveCount(0);
+  await etichetta(page, 'Apri il menù').click();
+  await tocca(page, 'Profilo', true);
+  await vedo(page, 'I tuoi strumenti professionali sono sul sito');
+  await vedo(page, 'Apri lexum.it', true);
+});
+
 test('Banca dati: ricerca, filtro, sentenza, sfoglia', async ({ page }) => {
   await page.goto('/banca-dati');
   await vedo(page, 'Codici, leggi, sentenze e prassi');

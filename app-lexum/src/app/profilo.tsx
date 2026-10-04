@@ -26,6 +26,7 @@ import { FoglioProfessionista } from '@/fogli/FoglioProfessionista';
 import { apriSito, ricominciaDa } from '@/navigazione';
 import { contenuti } from '@/paesi/contenuti';
 import { dominio, paesePredefinito, trovaPaese } from '@/paesi/registro';
+import { gruppoRuolo, nomeRuolo } from '@/ruoli';
 import { useStato, type LinguaCH } from '@/stato/Stato';
 import { colori, famiglie } from '@/tema';
 
@@ -34,10 +35,13 @@ type Foglio = 'paese' | 'professionista' | 'elimina' | 'due-passaggi';
 const nomiLingue: Record<string, string> = { it: 'Italiano', de: 'Deutsch', fr: 'Français' };
 
 // D4 e G6 · Profilo, in quest'ordine: intestazione, paese e banca dati, lingua (solo dove ce n'è più d'una),
-// crediti e piano, account, «Su questo telefono», «Completa il profilo» e, ultimo, «Elimina account».
+// crediti e piano, account, «Su questo telefono», «Completa il profilo» (per un professionista: il rimando
+// ai suoi strumenti sul sito) e, ultimo, «Elimina account».
 // Niente pagamenti nell'app: i pulsanti aprono il sito.
 export default function Profilo() {
-  const { paese, conto, lingua, accessi, telefono, dueFattori, azioni } = useStato();
+  const { paese, conto, lingua, accessi, telefono, dueFattori, ruoli, azioni } = useStato();
+  const ruolo = ruoli[paese] ?? 'user';
+  const gruppo = gruppoRuolo(ruolo);
   // Il foglio aperto sta nei parametri dell'indirizzo (?foglio=paese), come nella chat.
   // ?verso=CH apre il cambio paese con l'altro paese già scelto (solo per l'elenco delle schermate).
   const parametri = useLocalSearchParams<{ foglio?: Foglio; verso?: string }>();
@@ -65,7 +69,9 @@ export default function Profilo() {
             <Text style={stili.nome}>
               {utenteFinto.nome} {utenteFinto.cognome}
             </Text>
-            <Testo tipo="cap">{utenteFinto.email}</Testo>
+            <Testo tipo="cap">
+              {gruppo === 'privato' ? utenteFinto.email : `${utenteFinto.email} · ${nomeRuolo(ruolo)}`}
+            </Testo>
           </View>
         </View>
 
@@ -199,21 +205,50 @@ export default function Profilo() {
         />
 
         <View style={{ paddingTop: 18, paddingHorizontal: 20, paddingBottom: 16 }}>
-          <Scheda tono="oro" stile={{ backgroundColor: colori.bg2, gap: 10 }}>
-            <Eyebrow colore={colori.accentText}>Completa il profilo</Eyebrow>
-            <Testo tipo="dS">{testi.domandaProfessione}</Testo>
-            <Testo tipo="small" colore={colori.fg2}>
-              {testi.testoProfessione}
-            </Testo>
-            <Pulsante
-              titolo="Che professionista sei?"
-              variante="linea"
-              piccolo
-              iconaDopo="avanti"
-              stile={{ gap: 8 }}
-              onPress={() => setFoglio('professionista')}
-            />
-          </Scheda>
+          {gruppo === 'privato' ? (
+            <Scheda tono="oro" stile={{ backgroundColor: colori.bg2, gap: 10 }}>
+              <Eyebrow colore={colori.accentText}>Completa il profilo</Eyebrow>
+              <Testo tipo="dS">{testi.domandaProfessione}</Testo>
+              <Testo tipo="small" colore={colori.fg2}>
+                {testi.testoProfessione}
+              </Testo>
+              <Pulsante
+                titolo="Che professionista sei?"
+                variante="linea"
+                piccolo
+                iconaDopo="avanti"
+                stile={{ gap: 8 }}
+                onPress={() => setFoglio('professionista')}
+              />
+            </Scheda>
+          ) : (
+            // Account professionale (o cliente di uno studio, o interno): entra come tutti,
+            // e qui trova il rimando al sito per gli strumenti che l'app non ha.
+            <Scheda tono="oro" stile={{ backgroundColor: colori.bg2, gap: 10 }}>
+              <Eyebrow colore={colori.accentText}>{nomeRuolo(ruolo)}</Eyebrow>
+              <Testo tipo="dS">
+                {gruppo === 'cliente'
+                  ? 'Il portale del tuo studio è sul sito'
+                  : gruppo === 'interno'
+                    ? 'Il pannello di gestione è sul sito'
+                    : 'I tuoi strumenti professionali sono sul sito'}
+              </Testo>
+              <Testo tipo="small" colore={colori.fg2}>
+                {gruppo === 'professionista'
+                  ? `Qui hai Lex, la Banca dati, le tue ricerche e l'archivio. Pratiche, clienti, scadenze e fatture restano su ${dominio(datiPaese)}.`
+                  : `Qui hai Lex, la Banca dati, le tue ricerche e l'archivio. Il resto lo trovi su ${dominio(datiPaese)}, con lo stesso account.`}
+              </Testo>
+              <Pulsante
+                titolo={`Apri ${dominio(datiPaese)}`}
+                variante="linea"
+                piccolo
+                iconaDopo="esterno"
+                ruolo="link"
+                stile={{ gap: 8 }}
+                onPress={() => apriSito(datiPaese.sito)}
+              />
+            </Scheda>
+          )}
         </View>
 
         <View style={{ paddingHorizontal: 20, paddingBottom: 32 }}>

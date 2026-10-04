@@ -34,6 +34,7 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
     - «Gestisci etichette» in Ricerche: nome, colore, elimina, come sul sito;
     - Archivio: foglio «Salva in Archivio» per un file arrivato da «Condividi in Lexum».
   - Verifica in due passaggi, come sul sito (03-10-2026), per ora solo da vedere: schermata del codice all'accesso (A10) e foglio per attivarla e gestirla dal Profilo.
+  - Accesso di un avvocato (A11) con le stesse schermate, senza errori; nel suo Profilo il rimando agli strumenti professionali sul sito.
 
 - [ ] **2. Paesi e accesso.**
   - Per prima cosa: spostare tutti i testi in file di traduzione (it/de/fr). Quelli già tradotti sono in `docs/testi/`.
@@ -43,6 +44,7 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Cambio paese da Profilo, con anteprima del conto e conferma.
   - Se manca l'account in quel paese: crealo o accedi.
   - In Svizzera, scelta della lingua (it/de/fr). I testi vengono da `public/locales/` di `LexumCH/lexumch`.
+  - Accesso per tutti i ruoli dei siti (`profiles.role`: user, cliente, avvocato, commercialista, commerciale, admin; in CH anche fiduciario e progettista). Stesse schermate per tutti; nessun ruolo viene respinto e non compare mai un errore «non sei un utente». Il sito manda ogni ruolo alla sua area, l'app no: un professionista trova in Profilo il rimando ai suoi strumenti sul sito. Da verificare: da dove il sito legge crediti e piano per i professionisti (può essere diverso dai privati), e che le tabelle usate dall'app (ricerche, etichette, archivio) rispondano anche per loro.
   - Verifica in due passaggi all'accesso, come `Verifica2FA` del sito: codice di 6 cifre dell'app di autenticazione (`supabase.auth.mfa.challengeAndVerify`) oppure codice di recupero (funzione `mfa-backup-codes`, «verify», che spegne la verifica). È la stessa del sito: lo stesso codice vale su app e sito, un fattore per account di paese.
   - È finita quando si entra con un account IT e uno CH e si passa dall'uno all'altro senza rifare l'accesso.
 

@@ -119,6 +119,7 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
   - Ricerche anche senza rete: si sceglie dal Profilo, spenta di base;
   - gestione delle etichette come sul sito;
   - verifica in due passaggi con un'app di autenticazione, la stessa del sito: un fattore per account di paese, lo stesso codice vale su app e sito (`supabase.auth.mfa` e `mfa-backup-codes`).
+- **Accesso per tutti** (deciso da Antonino il 03-10-2026): nell'app entra chiunque abbia un account del sito, privato o professionista (avvocato, commercialista, fiduciario, progettista, cliente di uno studio, admin). Stesse schermate, mai un errore «non sei un utente». Un professionista trova in Profilo il rimando ai suoi strumenti sul sito. I ruoli sono in `src/ruoli.ts`.
 - **Elimina account:** deve esistere nell'app, perché Apple lo pretende.
 - **White-label:** nei messaggi d'errore non compaiono mai nomi di fornitori AI (OpenAI, Anthropic, Mistral), modelli o indirizzi tecnici. Si mostra un messaggio generico.
 

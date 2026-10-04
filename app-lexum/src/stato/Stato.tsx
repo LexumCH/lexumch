@@ -49,6 +49,7 @@ export type Scenario =
   | 'offline-it'
   | 'offline-ricerche-it'
   | 'due-passaggi-it'
+  | 'avvocato-it'
   | 'caricamento-it'
   | 'vuoto-it'
   | 'senza-accesso-ch'
@@ -68,6 +69,8 @@ type Stato = {
   // Verifica in due passaggi (codice di un'app di autenticazione), per account di paese:
   // è la stessa del sito, perché il fattore sta nell'account (Supabase MFA).
   dueFattori: Record<string, boolean>;
+  // Ruolo dell'account in ogni paese (user, avvocato, cliente…): non blocca mai l'accesso.
+  ruoli: Record<string, string>;
 };
 
 // Impostazioni di questo telefono (Profilo → «Su questo telefono»): valgono per tutti i paesi,
@@ -98,6 +101,7 @@ const statoIniziale = (): Stato => ({
   simula: nessunaSimulazione,
   telefono: { blocco: false, ricercheOffline: false },
   dueFattori: { IT: false, CH: false },
+  ruoli: { IT: 'user', CH: 'user' },
 });
 
 function copia<T>(v: T): T {
@@ -469,6 +473,12 @@ function costruisciScenario(nome: Scenario): Stato {
       return concludi({ ...inAttesa(base, 0), simula: { ...base.simula, erroreLex: true } });
     case 'offline-it':
       return { ...base, simula: { ...base.simula, offline: true } };
+    case 'avvocato-it':
+      return {
+        ...base,
+        ruoli: { ...base.ruoli, IT: 'avvocato' },
+        dueFattori: { ...base.dueFattori, IT: true },
+      };
     case 'due-passaggi-it':
       return { ...base, dueFattori: { ...base.dueFattori, IT: true } };
     case 'offline-ricerche-it':

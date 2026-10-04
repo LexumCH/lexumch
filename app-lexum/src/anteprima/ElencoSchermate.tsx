@@ -84,6 +84,12 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
         scenario: 'due-passaggi-it',
         percorso: ['/avvio/paese', '/avvio/accesso', '/avvio/verifica'],
       },
+      {
+        codice: 'A11',
+        titolo: 'Accesso di un avvocato',
+        scenario: 'avvocato-it',
+        percorso: ['/avvio/paese', '/avvio/accesso'],
+      },
     ],
   },
   {
@@ -217,6 +223,12 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
         codice: 'D4',
         titolo: 'Profilo: paese, crediti e piano',
         scenario: 'risposta-it',
+        percorso: ['/chat', '/profilo'],
+      },
+      {
+        codice: 'D4',
+        titolo: 'Profilo di un avvocato',
+        scenario: 'avvocato-it',
         percorso: ['/chat', '/profilo'],
       },
       {
