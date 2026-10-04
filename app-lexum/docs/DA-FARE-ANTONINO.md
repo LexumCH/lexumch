@@ -21,7 +21,7 @@ Ultimo aggiornamento: 03-10-2026.
   Decidi anche cosa fare con gli account professionali (avvocati, commercialisti…), che ora entrano nell'app come tutti: cancellare l'account dall'app cancellerebbe anche pratiche e clienti dello studio. Per loro «Elimina account» potrebbe rimandare al sito.
 - [ ] (Solo se scegli il codice di 6 cifre, decisione aperta n. 1 del piano) cambiare il modello email di conferma.
 
-- [ ] **Verifica in due passaggi per i privati, sul sito** (facoltativo, fuori da questo repo). Il backend la regge già per tutti (`supabase.auth.mfa` e la funzione `mfa-backup-codes`, in IT e in CH). Ma sul sito il riquadro per attivarla c'è solo nei profili di avvocati, commercialisti e admin, non in quello dei privati. Se un privato la attiva dall'app, il sito gliela chiede all'accesso (lo fa già `ProtectedRoute`), ma non può gestirla dal suo Profilo sul sito. Proposta: aggiungere `BoxSicurezza2FA` anche al Profilo dei privati dei due siti.
+- [ ] **Verifica in due passaggi per i privati, sul sito** (deciso il 04-10-2026). Il backend la regge già per tutti, in IT e in CH. Le due patch sono pronte e provate (build dei due siti riuscita): `docs/proposte/2fa-privati/` (`LEGGIMI.md`, `sito-it.patch`, `sito-ch.patch`). Aggiungono il riquadro 2FA al Profilo dei privati, come quello dei professionisti. Testi: in Svizzera gli stessi dei professionisti, in it/de/fr; in Italia un testo nuovo da approvare (nel LEGGIMI). Nota: in IT la tabella `mfa_backup_codes` non ha una policy di DELETE, quindi «Disattiva 2FA» lascia i vecchi codici nel database (succede già oggi per tutti).
 
 ## Sentry (segnalazione dei crash)
 
