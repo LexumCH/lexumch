@@ -55,6 +55,17 @@ Dettagli in `docs/professionisti/clienti-e-documenti.md`. Nell'app sono già evi
 - [ ] Elimina cliente: i file restano nello storage; in CH restano anche i documenti del portale (`documenti`).
 - [ ] Due funzioni diverse per la password del cliente (`cliente-reset-password` e `avvocato-cliente-actions`): conviene tenerne una.
 
+## Dashboard: problemi trovati sui siti (04-10-2026)
+
+Dettagli in `docs/professionisti/dashboard.md`. Nell'app sono già evitati; sul sito restano:
+
+- [ ] Avvocato IT, «Pratiche che richiedono attenzione»: il filtro sulla prossima udienza usa «o» invece di «e», quindi prende tutte le pratiche con un'udienza, anche lontana o passata.
+- [ ] Avvocato, «Da incassare»: somma il netto intero delle fatture aperte, senza togliere i pagamenti parziali e le note di credito (la pagina Fatture invece li toglie).
+- [ ] Avvocato, «Pratiche chiuse»: si contano con `updated_at`, quindi una modifica a una pratica chiusa la sposta nel periodo della modifica. Servirebbe una colonna con la data di chiusura (proposta per il backend).
+- [ ] Avvocato CH: tra le fatture in scadenza il titolo usa `f.anno`, che non esiste; tra le scadute compaiono anche le annullate.
+- [ ] Fiduciario CH: il «Fatturato» dell'anno conta anche le bozze.
+- [ ] Commercialista IT: con una nota di credito la barra di un mese può diventare negativa.
+
 ## Sentry (segnalazione dei crash)
 
 - [ ] **Account e progetto.** Crea l'account su sentry.io scegliendo la **regione dati europea**, poi un progetto «React Native».
@@ -96,6 +107,7 @@ Con `npx expo start` e l'app Expo Go: inquadri il QR e l'app si apre sul telefon
   - Banca dati: «Normen» / «Normes» per «Norme» (il sito usa anche «Erlasse»), «Arrêt» per sentenza;
   - Profilo: «Upgrade» / «Changer de plan», «Steuerberater» ed «Expert-comptable» per commercialista, «Projeteur» per progettista.
   - Clienti e documenti (04-10-2026): «Mandant», «Mandantenportal», «AHV-Nummer», «UID-Nummer», «PLZ» dal sito; nuovi «Gespräche» / «Conversations» per i messaggi e «Akte von Lex» / «Acte de Lex» per l'atto preparato da Lex.
+  - Dashboard (04-10-2026): quasi tutto dal sito svizzero (`avv_dashboard.json`, `fid_dashboard.json`); nuove le frasi sul periodo, il «Banco di lavoro» («Arbeitsplatz» / «Poste de travail») e quelle del commercialista, che in Svizzera non c'è.
 - [ ] **Nomi delle fonti mentre Lex lavora** (04-10-2026): `lex-lead` manda i nomi tecnici delle fonti consultate; nell'app li mostro così, controlla che siano giusti, soprattutto i primi due:
   - `norme_archivio` → «Norme storiche», `bdgt_mef` → «Giurisprudenza tributaria»;
   - `norme_core` → «Codici e leggi», `norme_ue` / `eu` → «Diritto UE», `giurisprudenza`, `prassi`, `deontologia`;

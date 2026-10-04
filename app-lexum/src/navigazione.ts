@@ -3,7 +3,8 @@ import * as WebBrowser from 'expo-web-browser';
 import { useCallback } from 'react';
 
 // Le voci del menù. La chat è la home: le altre si aprono sopra di lei.
-// Gli strumenti dello Studio (clienti, pratiche, calendario, fatture) ci sono solo per alcuni ruoli: vedi src/ruoli.ts.
+// Gli strumenti dello Studio (Dashboard, clienti, pratiche, calendario, fatture) ci sono solo per alcuni ruoli:
+// vedi src/ruoli.ts.
 export type Sezione =
   | '/chat'
   | '/banca-dati'
@@ -11,6 +12,7 @@ export type Sezione =
   | '/archivio'
   | '/domande'
   | '/profilo'
+  | '/dashboard'
   | '/clienti'
   | '/pratiche'
   | '/calendario'
@@ -23,6 +25,7 @@ export const sezioni: Sezione[] = [
   '/archivio',
   '/domande',
   '/profilo',
+  '/dashboard',
   '/clienti',
   '/pratiche',
   '/calendario',

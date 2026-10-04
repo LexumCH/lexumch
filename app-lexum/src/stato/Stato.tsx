@@ -64,6 +64,7 @@ export type Scenario =
   | 'due-passaggi-it'
   | 'avvocato-it'
   | 'avvocato-ch'
+  | 'avvocato-prova-it'
   | 'commercialista-it'
   | 'fiduciario-ch'
   | 'caricamento-it'
@@ -561,6 +562,12 @@ function costruisciScenario(nome: Scenario): Stato {
       };
     case 'avvocato-ch':
       return { ...base, paese: 'CH', ruoli: { ...base.ruoli, CH: 'avvocato' } };
+    case 'avvocato-prova-it':
+      return {
+        ...base,
+        ruoli: { ...base.ruoli, IT: 'avvocato' },
+        conti: { ...base.conti, IT: { ...base.conti.IT, provaScaduta: true } },
+      };
     case 'commercialista-it':
       return { ...base, ruoli: { ...base.ruoli, IT: 'commercialista' } };
     case 'fiduciario-ch':

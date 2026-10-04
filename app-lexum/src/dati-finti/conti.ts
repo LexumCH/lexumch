@@ -10,6 +10,9 @@ export type Conto = {
   archivioUsatoMB: number;
   archivioTotaleMB: number;
   documentiArchivio: number;
+  // Prova gratuita usata e finita, senza un piano (sul sito: prova_gratuita_usata, abbonamento_scadenza
+  // passata e piano_id vuoto): la Dashboard dei professionisti lo dice.
+  provaScaduta?: boolean;
 };
 
 export const contiFinti: Record<string, Conto> = {

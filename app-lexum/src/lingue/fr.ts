@@ -9,6 +9,7 @@ import { studio } from './sezioni/studio';
 import { fatture } from './sezioni/fatture';
 import { clienti } from './sezioni/clienti';
 import { documenti } from './sezioni/documenti';
+import { dashboard } from './sezioni/dashboard';
 
 // Français (Suisse) : « vous ». Là où le texte existe déjà sur lexum.ch (public/locales/fr/auth.json),
 // il est repris ; le reste est nouveau et attend l'approbation d'Antonino.
@@ -25,6 +26,7 @@ export const fr: Traduzione = {
   fatture: fatture.fr,
   clienti: clienti.fr,
   documenti: documenti.fr,
+  dashboard: dashboard.fr,
   paesi: { IT: 'Italie', CH: 'Suisse' },
   comune: {
     continua: 'Continuer',

@@ -146,6 +146,7 @@ export type Pratica = {
   stato: 'aperta' | 'chiusa';
   esito?: Esito;
   creata: string; // ISO
+  chiusa?: string; // ISO, quando è stata chiusa (sul sito `updated_at` della pratica chiusa)
   note?: string; // note interne: Lex non le legge
   oreDedicate?: number; // solo IT
   controparti: Controparte[];
@@ -246,6 +247,30 @@ export type DatiFatturazione = {
   iban?: string;
 };
 
+// Mandati e scadenze di commercialisti (IT) e fiduciari (CH): nell'app per ora si vedono solo nella
+// Dashboard; si gestiscono sul sito («Banco di lavoro»). Tabelle `mandati`, IT `scadenze_mandato`
+// (stato 'aperta'), CH `scadenze_fiduciarie` (stato 'in_corso').
+export type Mandato = {
+  id: string;
+  clienteId: string;
+  titolo: string;
+  stato: 'attivo' | 'sospeso' | 'chiuso';
+};
+export type TipoScadenzaIT = 'iva' | 'lipe' | 'dichiarativo' | 'acconto' | 'imu';
+export type ScadenzaMandato = {
+  id: string;
+  titolo: string;
+  tipo?: string; // IT uno di TipoScadenzaIT; CH testo libero
+  scadenza: string; // ISO
+  clienteId: string;
+  mandatoId?: string;
+  aperta: boolean;
+};
+// Conto economico di un cliente del fiduciario (CH), anno in corso: dai suoi movimenti (`movimenti`,
+// solo effettivi) e dagli stipendi dei dipendenti e soci attivi (`clienti_dipendenti`, annualizzati).
+// Ogni cliente è a sé: non si somma mai.
+export type ContoCliente = { clienteId: string; entrate: number; costi: number; stipendi: number };
+
 export type DatiStudio = {
   clienti: Cliente[];
   pratiche: Pratica[];
@@ -258,6 +283,9 @@ export type DatiStudio = {
   categorie: CategoriaStudio[];
   documenti: DocumentoStudio[];
   limiteClienti?: number; // clienti del piano più quelli comprati in aggiunta
+  mandati?: Mandato[];
+  scadenze?: ScadenzaMandato[];
+  contiClienti?: ContoCliente[];
 };
 
 // Le parti dello studio che non tutti i ruoli hanno ancora nell'app.
@@ -451,6 +479,7 @@ function avvocatoIT(): DatiStudio {
         stato: 'chiusa',
         esito: 'Transatta',
         creata: giorno(-210),
+        chiusa: giorno(-1, 18),
         controparti: [],
         termini: [],
         udienze: [],
@@ -1079,7 +1108,7 @@ function avvocatoCH(): DatiStudio {
   };
 }
 
-// ——— Commercialista, Italia: per ora calendario e fatture ———
+// ——— Commercialista, Italia: calendario e fatture; mandati e scadenze solo nella Dashboard ———
 function commercialistaIT(): DatiStudio {
   return {
     clienti: [
@@ -1132,13 +1161,94 @@ function commercialistaIT(): DatiStudio {
         metodo: 'Bonifico',
         pagamenti: [],
       },
+      {
+        id: 'f2',
+        numero: 'F-2026-011',
+        clienteId: 'c2',
+        emessa: giorno(-50),
+        scadenza: giorno(-20),
+        stato: 'in_attesa',
+        righe: [{ id: 'fr2', descrizione: 'Modello 730 e consulenza', quantita: 1, prezzo: 250 }],
+        cpa: 4,
+        iva: 22,
+        metodo: 'Bonifico',
+        pagamenti: [],
+      },
+      {
+        id: 'f3',
+        numero: 'F-2026-009',
+        clienteId: 'c1',
+        emessa: giorno(-80),
+        scadenza: giorno(-50),
+        stato: 'pagata',
+        righe: [
+          { id: 'fr3', descrizione: 'Tenuta della contabilità: secondo trimestre', quantita: 1, prezzo: 900 },
+        ],
+        cpa: 4,
+        iva: 22,
+        ritenuta: 20,
+        metodo: 'Bonifico',
+        pagamenti: [{ id: 'pg1', data: giorno(-55), importo: 961.92, metodo: 'Bonifico' }],
+      },
     ],
     fatturazione: { paese: 'IT', cassa: 'cnpadc', regime: 'RF01' },
+    mandati: [
+      { id: 'm1', clienteId: 'c1', titolo: 'Contabilità e dichiarativi 2026', stato: 'attivo' },
+      { id: 'm2', clienteId: 'c2', titolo: 'Dichiarazione dei redditi 2026', stato: 'attivo' },
+      { id: 'm3', clienteId: 'c2', titolo: 'Successione Conti', stato: 'chiuso' },
+    ],
+    scadenze: [
+      {
+        id: 'sc1',
+        titolo: 'Saldo e acconto imposte: rata di settembre',
+        tipo: 'acconto',
+        scadenza: giorno(-2),
+        clienteId: 'c1',
+        mandatoId: 'm1',
+        aperta: true,
+      },
+      {
+        id: 'sc2',
+        titolo: 'F24 IVA mensile',
+        tipo: 'iva',
+        scadenza: giorno(4),
+        clienteId: 'c1',
+        mandatoId: 'm1',
+        aperta: true,
+      },
+      {
+        id: 'sc3',
+        titolo: 'Dichiarazione redditi (Modello Redditi)',
+        tipo: 'dichiarativo',
+        scadenza: giorno(12),
+        clienteId: 'c2',
+        mandatoId: 'm2',
+        aperta: true,
+      },
+      {
+        id: 'sc4',
+        titolo: 'LIPE 3° trimestre',
+        tipo: 'lipe',
+        scadenza: giorno(40),
+        clienteId: 'c1',
+        mandatoId: 'm1',
+        aperta: true,
+      },
+      {
+        id: 'sc5',
+        titolo: 'IMU: acconto',
+        tipo: 'imu',
+        scadenza: giorno(-110),
+        clienteId: 'c2',
+        mandatoId: 'm2',
+        aperta: false,
+      },
+    ],
     ...senzaDocumenti,
   };
 }
 
-// ——— Fiduciario, Svizzera: per ora calendario e fatture ———
+// ——— Fiduciario, Svizzera: calendario e fatture; mandati, scadenze e conti dei clienti solo nella Dashboard ———
 function fiduciarioCH(): DatiStudio {
   return {
     clienti: [
@@ -1185,6 +1295,43 @@ function fiduciarioCH(): DatiStudio {
     ],
     fatture: [],
     fatturazione: { paese: 'CH' },
+    mandati: [
+      { id: 'm1', clienteId: 'c1', titolo: 'Dichiarazione e consulenza fiscale', stato: 'attivo' },
+      { id: 'm2', clienteId: 'c2', titolo: 'Contabilità, IVA e salari', stato: 'attivo' },
+    ],
+    scadenze: [
+      {
+        id: 'sc1',
+        titolo: 'Conteggio AVS del 3° trimestre',
+        tipo: 'AVS',
+        scadenza: giorno(-3),
+        clienteId: 'c2',
+        mandatoId: 'm2',
+        aperta: true,
+      },
+      {
+        id: 'sc2',
+        titolo: 'Dichiarazione d’imposta 2025',
+        tipo: 'Imposte',
+        scadenza: giorno(6),
+        clienteId: 'c1',
+        mandatoId: 'm1',
+        aperta: true,
+      },
+      {
+        id: 'sc3',
+        titolo: 'Rendiconto IVA del 3° trimestre',
+        tipo: 'IVA',
+        scadenza: giorno(27),
+        clienteId: 'c2',
+        mandatoId: 'm2',
+        aperta: true,
+      },
+    ],
+    contiClienti: [
+      { clienteId: 'c1', entrate: 124000, costi: 88400, stipendi: 0 },
+      { clienteId: 'c2', entrate: 412500, costi: 268300, stipendi: 168000 },
+    ],
     ...senzaDocumenti,
   };
 }

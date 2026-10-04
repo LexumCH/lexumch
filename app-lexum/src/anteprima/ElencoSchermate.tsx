@@ -306,6 +306,36 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
     titolo: 'Studio dei professionisti (senza mockup)',
     voci: [
       {
+        codice: 'S0',
+        titolo: 'Dashboard (avvocato IT)',
+        scenario: 'avvocato-it',
+        percorso: ['/chat', '/dashboard'],
+      },
+      {
+        codice: 'S0',
+        titolo: 'Dashboard: prova gratuita scaduta',
+        scenario: 'avvocato-prova-it',
+        percorso: ['/chat', '/dashboard'],
+      },
+      {
+        codice: 'S0',
+        titolo: 'Dashboard (avvocato CH)',
+        scenario: 'avvocato-ch',
+        percorso: ['/chat', '/dashboard'],
+      },
+      {
+        codice: 'S0',
+        titolo: 'Dashboard del commercialista',
+        scenario: 'commercialista-it',
+        percorso: ['/chat', '/dashboard'],
+      },
+      {
+        codice: 'S0',
+        titolo: 'Dashboard del fiduciario',
+        scenario: 'fiduciario-ch',
+        percorso: ['/chat', '/dashboard'],
+      },
+      {
         codice: 'S10',
         titolo: 'Clienti (avvocato IT)',
         scenario: 'avvocato-it',

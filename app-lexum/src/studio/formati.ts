@@ -84,6 +84,11 @@ const mesiBrevi: Record<Lingua, string[]> = {
   fr: ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'],
 };
 
+// «ott» · «Okt.» · «oct.»: il mese abbreviato (mese da 0 a 11).
+export function meseBreve(mese: number, lingua: Lingua = 'it'): string {
+  return mesiBrevi[lingua][mese];
+}
+
 // Il giorno del mese: in francese il primo si scrive «1er».
 function giornoDelMese(d: Date, lingua: Lingua): string {
   return lingua === 'fr' && d.getDate() === 1 ? '1er' : String(d.getDate());

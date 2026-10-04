@@ -19,11 +19,11 @@
 Sotto le voci, il menù mostra le etichette dell'utente (non uno storico delle chat). Non c'è una voce «Acquisti».
 
 Per i professionisti il menù ha in più il gruppo «Studio» (deciso da Antonino il 04-10-2026):
-- avvocati: Clienti, Pratiche, Calendario, Fatture; l'Archivio dell'avvocato è quello dello studio (documenti collegati a clienti e pratiche);
-- commercialisti e fiduciari: per ora solo Calendario e Fatture;
+- avvocati: Dashboard, Clienti, Pratiche, Calendario, Fatture; l'Archivio dell'avvocato è quello dello studio (documenti collegati a clienti e pratiche);
+- commercialisti e fiduciari: Dashboard, Calendario e Fatture (mandati e scadenze si vedono nella Dashboard, ma si gestiscono sul sito);
 - progettisti: niente.
 
-Le funzioni del sito vanno riportate tutte nell'app (Antonino, 04-10-2026). Quelle che mancano ancora (Fisco, Dashboard, Studio e collaboratori, mandati di commercialisti e fiduciari) per ora restano sul sito, e l'app ci rimanda.
+Le funzioni del sito vanno riportate tutte nell'app (Antonino, 04-10-2026). Quelle che mancano ancora (Fisco, Studio e collaboratori, mandati di commercialisti e fiduciari) per ora restano sul sito, e l'app ci rimanda.
 
 È un'app sola per più paesi. Oggi ce ne sono due:
 - Italia: lexum.it, database IT;

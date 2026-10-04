@@ -158,8 +158,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
     return {
       creaPratica,
-      chiudiPratica: (id, esito) => conPratica(id, (p) => ({ ...p, stato: 'chiusa', esito })),
-      riapriPratica: (id) => conPratica(id, (p) => ({ ...p, stato: 'aperta', esito: undefined })),
+      chiudiPratica: (id, esito) =>
+        conPratica(id, (p) => ({ ...p, stato: 'chiusa', esito, chiusa: new Date().toISOString() })),
+      riapriPratica: (id) =>
+        conPratica(id, (p) => ({ ...p, stato: 'aperta', esito: undefined, chiusa: undefined })),
       salvaNotePratica: (id, note) => conPratica(id, (p) => ({ ...p, note: note.trim() || undefined })),
       // Come l'edge function `elimina-pratica`: non si elimina se ci sono fatture collegate.
       eliminaPratica: (id) => {
