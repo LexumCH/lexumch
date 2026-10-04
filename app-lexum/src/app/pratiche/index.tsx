@@ -11,8 +11,9 @@ import { Schermata } from '@/componenti/Schermata';
 import { StatoVuoto } from '@/componenti/Stati';
 import { Testo } from '@/componenti/Testo';
 import type { Pratica } from '@/dati-finti/studio';
+import { useTesti } from '@/lingue/useTesti';
 import { dataBreve, urgenza } from '@/studio/formati';
-import { prossimaUdienza, prossimoTermine } from '@/studio/pratiche';
+import { nomeEsito, nomeTipoCausa, prossimaUdienza, prossimoTermine } from '@/studio/pratiche';
 import { nomeCliente, useStudio } from '@/stato/Studio';
 import { colori, famiglie } from '@/tema';
 
@@ -29,6 +30,7 @@ const coloreUrgenza = {
 // e per ognuna la prossima udienza e il primo termine da rispettare.
 export default function Pratiche() {
   const { pratiche, clienti } = useStudio();
+  const { t } = useTesti();
   const [filtro, setFiltro] = useState<Filtro>('aperta');
   const [testo, setTesto] = useState('');
 
@@ -47,19 +49,19 @@ export default function Pratiche() {
     <Schermata>
       <Intestazione
         sinistra={<BottoneMenu />}
-        titolo="Pratiche"
+        titolo={t('studio.pratiche.titolo')}
         destra={
           <PulsanteIcona
             icona="piu"
-            etichetta="Nuova pratica"
+            etichetta={t('studio.pratiche.nuova')}
             onPress={() => router.push('/pratiche/nuova')}
           />
         }
       />
       <View style={stili.testa}>
         <CampoCerca
-          etichetta="Cerca pratica o cliente"
-          placeholder="Cerca pratica o cliente…"
+          etichetta={t('studio.pratiche.cerca')}
+          placeholder={t('studio.pratiche.cercaSegnaposto')}
           alto={46}
           value={testo}
           onChangeText={setTesto}
@@ -67,17 +69,17 @@ export default function Pratiche() {
         />
         <View style={stili.filtri}>
           <Tag
-            titolo={`Aperte · ${conta('aperta')}`}
+            titolo={t('studio.pratiche.aperte', { n: conta('aperta') })}
             attivo={filtro === 'aperta'}
             onPress={() => setFiltro('aperta')}
           />
           <Tag
-            titolo={`Chiuse · ${conta('chiusa')}`}
+            titolo={t('studio.pratiche.chiuse', { n: conta('chiusa') })}
             attivo={filtro === 'chiusa'}
             onPress={() => setFiltro('chiusa')}
           />
           <Tag
-            titolo={`Tutte · ${conta('tutte')}`}
+            titolo={t('studio.pratiche.tutte', { n: conta('tutte') })}
             attivo={filtro === 'tutte'}
             onPress={() => setFiltro('tutte')}
           />
@@ -96,12 +98,12 @@ export default function Pratiche() {
         {visibili.length === 0 ? (
           <StatoVuoto
             icona={q ? 'cerca' : 'bilancia'}
-            titolo={q ? 'Nessuna pratica con queste parole' : 'Nessuna pratica qui'}
-            testo={
-              q ? 'Prova con il nome del cliente o con altre parole.' : 'Crea una pratica con «+» in alto.'
-            }
+            titolo={q ? t('studio.pratiche.vuotoCercaTitolo') : t('studio.pratiche.vuotoTitolo')}
+            testo={q ? t('studio.pratiche.vuotoCercaTesto') : t('studio.pratiche.vuotoTesto')}
             azione={
-              q ? undefined : { titolo: 'Nuova pratica', onPress: () => router.push('/pratiche/nuova') }
+              q
+                ? undefined
+                : { titolo: t('studio.pratiche.nuova'), onPress: () => router.push('/pratiche/nuova') }
             }
           />
         ) : null}
@@ -119,9 +121,11 @@ function RigaPratica({
   cliente: string;
   onPress: () => void;
 }) {
+  const { t, lingua } = useTesti();
   const udienza = p.stato === 'aperta' ? prossimaUdienza(p) : undefined;
   const termine = p.stato === 'aperta' ? prossimoTermine(p) : undefined;
-  const u = termine ? urgenza(termine.scadenza) : null;
+  const u = termine ? urgenza(termine.scadenza, lingua) : null;
+  const tipo = nomeTipoCausa(p.tipo, lingua);
   return (
     <Pressable
       onPress={onPress}
@@ -130,9 +134,9 @@ function RigaPratica({
     >
       <View style={stili.tipo}>
         <Badge tono={p.stato === 'aperta' ? 'ok' : 'neutro'}>
-          {p.stato === 'aperta' ? 'Aperta' : 'Chiusa'}
+          {p.stato === 'aperta' ? t('studio.statiPratica.aperta') : t('studio.statiPratica.chiusa')}
         </Badge>
-        <Testo tipo="mini">{p.esito ? `${p.tipo} · ${p.esito}` : p.tipo}</Testo>
+        <Testo tipo="mini">{p.esito ? `${tipo} · ${nomeEsito(p.esito, lingua)}` : tipo}</Testo>
       </View>
       <Text style={stili.titolo}>{p.titolo}</Text>
       <Text style={stili.cliente}>{cliente}</Text>
@@ -142,7 +146,7 @@ function RigaPratica({
             <View style={stili.prossimo}>
               <Icona nome="tribunale" dimensione={14} colore={colori.accentText} />
               <Text style={[stili.prossimoTesto, { color: colori.accentText }]}>
-                Udienza {dataBreve(udienza.dataOra)}
+                {t('studio.pratiche.udienza', { data: dataBreve(udienza.dataOra, lingua) })}
               </Text>
             </View>
           ) : null}
@@ -150,7 +154,10 @@ function RigaPratica({
             <View style={stili.prossimo}>
               <Icona nome="orologio" dimensione={14} colore={coloreUrgenza[u.tono]} />
               <Text style={[stili.prossimoTesto, { color: coloreUrgenza[u.tono] }]}>
-                Termine: {u.testo.toLowerCase()}
+                {t('studio.pratiche.termine', {
+                  // in tedesco i nomi restano maiuscoli («In 3 Tagen»)
+                  quando: lingua === 'de' ? u.testo : u.testo.toLowerCase(),
+                })}
               </Text>
             </View>
           ) : null}

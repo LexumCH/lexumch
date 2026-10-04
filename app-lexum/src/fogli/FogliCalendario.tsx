@@ -8,16 +8,17 @@ import { Foglio } from '@/componenti/Foglio';
 import { Pulsante } from '@/componenti/Pulsante';
 import { Eyebrow, Testo } from '@/componenti/Testo';
 import type { Appuntamento, TipoEvento } from '@/dati-finti/studio';
+import { useTesti } from '@/lingue/useTesti';
 import { CampoData, CampoOra, Scelta, leggiData, leggiOra, useRiapertura } from '@/studio/Campi';
 import { dataCompleta, dataNumerica, ora } from '@/studio/formati';
-import { tipiEvento } from '@/studio/pratiche';
+import { nomeTipoEvento, tipiEvento } from '@/studio/pratiche';
 import { nomeCliente, useStudio } from '@/stato/Studio';
 import { colori } from '@/tema';
 
-const statiEvento = {
-  programmato: { testo: 'Programmato', tono: 'oro' },
-  concluso: { testo: 'Concluso', tono: 'ok' },
-  annullato: { testo: 'Annullato', tono: 'pericolo' },
+const toniEvento = {
+  programmato: 'oro',
+  concluso: 'ok',
+  annullato: 'pericolo',
 } as const;
 
 // Dettaglio di un evento del calendario, con le azioni.
@@ -31,6 +32,7 @@ export function FoglioEvento({
   onModifica: (e: Appuntamento) => void;
 }) {
   const { clienti, pratiche, azioni } = useStudio();
+  const { t, lingua } = useTesti();
   const [ultimo, setUltimo] = useState(evento);
   if (evento && evento !== ultimo) setUltimo(evento);
   const e = evento ?? ultimo;
@@ -41,16 +43,20 @@ export function FoglioEvento({
       </Foglio>
     );
 
-  const tipo = tipiEvento[e.tipo];
+  const tipo = { ...tipiEvento[e.tipo], nome: nomeTipoEvento(e.tipo, lingua) };
   const pratica = pratiche.find((p) => p.id === e.praticaId);
   const voci: [string, string][] = [
-    ['Quando', `${dataCompleta(e.inizio)} · ${ora(e.inizio)}–${ora(e.fine)}`],
-    ['Tipo', tipo.nome],
+    [t('studio.fogli.evento.quando'), `${dataCompleta(e.inizio, lingua)} · ${ora(e.inizio)}–${ora(e.fine)}`],
+    [t('studio.fogli.evento.tipo'), tipo.nome],
   ];
-  if (e.clienteId) voci.push(['Cliente', nomeCliente(clienti, e.clienteId)]);
-  if (pratica) voci.push(['Pratica', pratica.titolo]);
-  if (e.noteInterne) voci.push([e.tipo === 'udienza' ? 'Sede' : 'Note interne', e.noteInterne]);
-  if (e.noteCliente) voci.push(['Note per il cliente', e.noteCliente]);
+  if (e.clienteId) voci.push([t('studio.fogli.evento.cliente'), nomeCliente(clienti, e.clienteId)]);
+  if (pratica) voci.push([t('studio.fogli.evento.pratica'), pratica.titolo]);
+  if (e.noteInterne)
+    voci.push([
+      e.tipo === 'udienza' ? t('studio.fogli.evento.sede') : t('studio.fogli.evento.noteInterne'),
+      e.noteInterne,
+    ]);
+  if (e.noteCliente) voci.push([t('studio.fogli.evento.noteCliente'), e.noteCliente]);
   const gestibile = !e.origine;
   const programmato = e.stato === 'programmato';
 
@@ -60,29 +66,29 @@ export function FoglioEvento({
         <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
           <View style={{ width: 10, height: 10, backgroundColor: tipo.colore }} />
           <Eyebrow colore={colori.fg3}>{tipo.nome}</Eyebrow>
-          <Badge tono={statiEvento[e.stato].tono}>{statiEvento[e.stato].testo}</Badge>
+          <Badge tono={toniEvento[e.stato]}>{t(`studio.statiEvento.${e.stato}`)}</Badge>
         </View>
         <Testo tipo="dS">{e.titolo}</Testo>
       </View>
       <ElencoDefinizioni voci={voci} larghezzaTermine={96} />
       {e.origine === 'termine' ? (
         <Testo tipo="small" colore={colori.fg2}>
-          È la scadenza di un termine: si segna come compiuto nella pratica.
+          {t('studio.fogli.evento.daTermine')}
         </Testo>
       ) : null}
       {e.origine === 'udienza' ? (
         <Testo tipo="small" colore={colori.fg2}>
-          L'udienza si gestisce nella pratica: esito, rinvio, sede.
+          {t('studio.fogli.evento.daUdienza')}
         </Testo>
       ) : null}
       {e.origine === 'mandato' ? (
         <Testo tipo="small" colore={colori.fg2}>
-          Scadenza del mandato del cliente: si gestisce sul sito.
+          {t('studio.fogli.evento.daMandato')}
         </Testo>
       ) : null}
       {e.link && programmato ? (
         <Pulsante
-          titolo="Apri la videocall"
+          titolo={t('studio.fogli.evento.videocall')}
           icona="esterno"
           variante="linea"
           onPress={() => void Linking.openURL(e.link as string).catch(() => undefined)}
@@ -90,7 +96,7 @@ export function FoglioEvento({
       ) : null}
       {pratica ? (
         <Pulsante
-          titolo="Apri la pratica"
+          titolo={t('studio.fogli.evento.apriPratica')}
           variante="linea"
           onPress={() => {
             onChiudi();
@@ -103,10 +109,14 @@ export function FoglioEvento({
       ) : null}
       {gestibile && programmato ? (
         <>
-          <Pulsante titolo="Modifica" variante="linea" onPress={() => onModifica(e)} />
+          <Pulsante
+            titolo={t('studio.fogli.evento.modifica')}
+            variante="linea"
+            onPress={() => onModifica(e)}
+          />
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Pulsante
-              titolo="Concluso"
+              titolo={t('studio.fogli.evento.concluso')}
               icona="spunta"
               stile={{ flex: 1 }}
               onPress={() => {
@@ -115,7 +125,7 @@ export function FoglioEvento({
               }}
             />
             <Pulsante
-              titolo="Annulla"
+              titolo={t('studio.fogli.evento.annulla')}
               variante="pericolo"
               stile={{ flex: 1 }}
               onPress={() => {
@@ -147,6 +157,7 @@ export function FoglioNuovoEvento({
   conUdienze: boolean; // solo per gli avvocati
 }) {
   const { clienti, pratiche, azioni } = useStudio();
+  const { t } = useTesti();
   const [titolo, setTitolo] = useState('');
   const [tipo, setTipo] = useState<TipoEvento>('presenza');
   const [data, setData] = useState('');
@@ -178,11 +189,11 @@ export function FoglioNuovoEvento({
   const praticheCliente = pratiche.filter((p) => p.clienteId === clienteId && p.stato === 'aperta');
 
   const tipi: { valore: TipoEvento; titolo: string }[] = [
-    { valore: 'presenza', titolo: 'In presenza' },
-    { valore: 'videocall', titolo: 'Videocall' },
-    { valore: 'telefonico', titolo: 'Telefonico' },
+    { valore: 'presenza', titolo: t('studio.tipiEvento.presenza') },
+    { valore: 'videocall', titolo: t('studio.tipiEvento.videocall') },
+    { valore: 'telefonico', titolo: t('studio.tipiEvento.telefonico') },
   ];
-  if (conUdienze) tipi.push({ valore: 'udienza', titolo: 'Udienza' });
+  if (conUdienze) tipi.push({ valore: 'udienza', titolo: t('studio.tipiEvento.udienza') });
 
   const salva = () => {
     if (!giorno || !hi || !hf) return;
@@ -207,36 +218,45 @@ export function FoglioNuovoEvento({
 
   return (
     <Foglio visibile={visibile} onChiudi={onChiudi}>
-      <Testo tipo="dS">{evento ? 'Modifica appuntamento' : 'Nuovo appuntamento'}</Testo>
+      <Testo tipo="dS">
+        {evento ? t('studio.fogli.nuovoEvento.modifica') : t('studio.fogli.nuovoEvento.nuovo')}
+      </Testo>
       <Campo
-        etichetta="Titolo"
-        placeholder="Es. Incontro con il cliente"
+        etichetta={t('studio.fogli.nuovoEvento.titolo')}
+        placeholder={t('studio.fogli.nuovoEvento.titoloEsempio')}
         value={titolo}
         onChangeText={setTitolo}
       />
-      <Scelta voci={tipi} valore={tipo} onCambia={setTipo} etichettaGruppo="Tipo" />
+      <Scelta
+        voci={tipi}
+        valore={tipo}
+        onCambia={setTipo}
+        etichettaGruppo={t('studio.fogli.nuovoEvento.tipo')}
+      />
       <CampoData
-        etichetta="Giorno"
+        etichetta={t('studio.fogli.nuovoEvento.giorno')}
         valore={data}
         onCambia={setData}
         scorciatoie={[
-          { titolo: 'Oggi', giorni: 0 },
-          { titolo: 'Domani', giorni: 1 },
-          { titolo: 'Tra una settimana', giorni: 7 },
+          { titolo: t('studio.fogli.nuovoEvento.oggi'), giorni: 0 },
+          { titolo: t('studio.fogli.nuovoEvento.domani'), giorni: 1 },
+          { titolo: t('studio.fogli.nuovoEvento.settimana'), giorni: 7 },
         ]}
       />
       <View style={{ flexDirection: 'row', gap: 10 }}>
-        <CampoOra etichetta="Inizio" valore={inizio} onCambia={setInizio} />
-        <CampoOra etichetta="Fine" valore={fine} onCambia={setFine} />
+        <CampoOra etichetta={t('studio.fogli.nuovoEvento.inizio')} valore={inizio} onCambia={setInizio} />
+        <CampoOra etichetta={t('studio.fogli.nuovoEvento.fine')} valore={fine} onCambia={setFine} />
       </View>
       {hi && hf && !orariValidi ? (
         <Testo tipo="small" colore={colori.danger}>
-          La fine deve venire dopo l'inizio.
+          {t('studio.fogli.nuovoEvento.orari')}
         </Testo>
       ) : null}
       <View style={{ gap: 8 }}>
         <Testo tipo="small" colore={colori.fg2}>
-          {clienteObbligatorio ? 'Cliente' : 'Cliente (facoltativo)'}
+          {clienteObbligatorio
+            ? t('studio.fogli.nuovoEvento.cliente')
+            : t('studio.fogli.nuovoEvento.clienteFacoltativo')}
         </Testo>
         <Scelta
           voci={clienti.map((c) => ({ valore: c.id, titolo: c.nome }))}
@@ -245,39 +265,41 @@ export function FoglioNuovoEvento({
             setClienteId(id);
             setPraticaId(null);
           }}
-          etichettaGruppo="Cliente"
+          etichettaGruppo={t('studio.fogli.nuovoEvento.cliente')}
         />
       </View>
       {praticheCliente.length > 0 ? (
         <View style={{ gap: 8 }}>
           <Testo tipo="small" colore={colori.fg2}>
-            Pratica (facoltativa)
+            {t('studio.fogli.nuovoEvento.praticaFacoltativa')}
           </Testo>
           <Scelta
             voci={praticheCliente.map((p) => ({ valore: p.id, titolo: p.titolo }))}
             valore={praticaId}
             onCambia={setPraticaId}
-            etichettaGruppo="Pratica"
+            etichettaGruppo={t('studio.fogli.nuovoEvento.pratica')}
           />
         </View>
       ) : null}
       {tipo === 'videocall' || tipo === 'udienza' ? (
         <Campo
-          etichetta={tipo === 'videocall' ? 'Link della videocall' : 'Tribunale e aula'}
-          placeholder={tipo === 'videocall' ? 'https://…' : 'Es. Tribunale di Milano, aula 12'}
+          etichetta={
+            tipo === 'videocall' ? t('studio.fogli.nuovoEvento.link') : t('studio.fogli.nuovoEvento.aula')
+          }
+          placeholder={tipo === 'videocall' ? 'https://…' : t('studio.fogli.nuovoEvento.aulaEsempio')}
           value={luogo}
           onChangeText={setLuogo}
           autoCapitalize={tipo === 'videocall' ? 'none' : 'sentences'}
         />
       ) : null}
       <Campo
-        etichetta="Note per il cliente (facoltative)"
-        placeholder="Le vede anche il cliente"
+        etichetta={t('studio.fogli.nuovoEvento.noteCliente')}
+        placeholder={t('studio.fogli.nuovoEvento.noteClienteSegnaposto')}
         value={noteCliente}
         onChangeText={setNoteCliente}
       />
       <Pulsante
-        titolo={evento ? 'Salva le modifiche' : 'Aggiungi al calendario'}
+        titolo={evento ? t('studio.fogli.nuovoEvento.salva') : t('studio.fogli.nuovoEvento.aggiungi')}
         disabilitato={!pronto}
         onPress={salva}
       />

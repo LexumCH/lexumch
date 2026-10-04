@@ -15,7 +15,7 @@ import { Schermata } from '@/componenti/Schermata';
 import { StatoVuoto } from '@/componenti/Stati';
 import { Eyebrow, Testo } from '@/componenti/Testo';
 import type { RispostaFinta } from '@/dati-finti/chat';
-import type { Pratica } from '@/dati-finti/studio';
+import type { Pratica, RicercaPratica } from '@/dati-finti/studio';
 import { FoglioEsauriti } from '@/fogli/FoglioEsauriti';
 import {
   FoglioChiudiPratica,
@@ -25,9 +25,18 @@ import {
   FoglioTermine,
   FoglioUdienza,
 } from '@/fogli/FogliPratica';
+import type { Chiave } from '@/lingue';
+import { useTesti } from '@/lingue/useTesti';
 import { indietro, useVaiASezione } from '@/navigazione';
 import { dataCompleta, ora, urgenza, type Urgenza } from '@/studio/formati';
-import { attiLex, prossimaUdienza, prossimoTermine } from '@/studio/pratiche';
+import {
+  attiLex,
+  nomeEsito,
+  nomeRuolo,
+  nomeTipoCausa,
+  prossimaUdienza,
+  prossimoTermine,
+} from '@/studio/pratiche';
 import { useOffline } from '@/stato/connessione';
 import { useStato } from '@/stato/Stato';
 import { nomeCliente, useStudio } from '@/stato/Studio';
@@ -37,14 +46,7 @@ type SchedaPratica = 'panoramica' | 'scadenze' | 'controparti' | 'documenti' | '
 type FoglioPratica =
   'azioni' | 'note' | 'chiudi' | 'elimina' | 'termine' | 'udienza' | 'controparte' | 'esauriti';
 
-const schede: { valore: SchedaPratica; titolo: string }[] = [
-  { valore: 'panoramica', titolo: 'Panoramica' },
-  { valore: 'scadenze', titolo: 'Scadenze' },
-  { valore: 'controparti', titolo: 'Controparti' },
-  { valore: 'documenti', titolo: 'Documenti' },
-  { valore: 'ricerche', titolo: 'Ricerche' },
-  { valore: 'lex', titolo: 'Lex' },
-];
+const schede: SchedaPratica[] = ['panoramica', 'scadenze', 'controparti', 'documenti', 'ricerche', 'lex'];
 
 const tonoUrgenza: Record<Urgenza['tono'], 'pericolo' | 'warn' | 'ok' | 'neutro'> = {
   pericolo: 'pericolo',
@@ -53,12 +55,19 @@ const tonoUrgenza: Record<Urgenza['tono'], 'pericolo' | 'warn' | 'ok' | 'neutro'
   neutro: 'neutro',
 };
 
-const statiUdienza = {
-  programmata: { testo: 'Programmata', tono: 'oro' },
-  svolta: { testo: 'Svolta', tono: 'ok' },
-  rinviata: { testo: 'Rinviata', tono: 'warn' },
-  annullata: { testo: 'Annullata', tono: 'neutro' },
+const toniUdienza = {
+  programmata: 'oro',
+  svolta: 'ok',
+  rinviata: 'warn',
+  annullata: 'neutro',
 } as const;
+
+// I tipi di ricerca si salvano in italiano: qui solo come si mostrano.
+const tipiRicerca: Record<RicercaPratica['tipo'], Chiave> = {
+  'Chat con Lex': 'studio.pratica.ricerche.chat',
+  'Ricerca AI': 'studio.pratica.ricerche.ai',
+  Appunti: 'studio.pratica.ricerche.appunti',
+};
 
 // S2 · Dettaglio della pratica. Sul sito è una pagina lunga; qui è divisa in schede.
 // La scheda attiva sta nell'indirizzo (?scheda=scadenze), così la apre anche l'elenco delle schermate.
@@ -66,6 +75,7 @@ export default function DettaglioPratica() {
   const { id, scheda } = useLocalSearchParams<{ id: string; scheda?: SchedaPratica }>();
   const { pratiche, clienti, azioni } = useStudio();
   const { paese } = useStato();
+  const { t } = useTesti();
   const pratica = pratiche.find((p) => p.id === id);
   const attiva: SchedaPratica = scheda ?? 'panoramica';
   const [foglio, setFoglio] = useState<FoglioPratica | null>(null);
@@ -74,11 +84,14 @@ export default function DettaglioPratica() {
   if (!pratica) {
     return (
       <Schermata>
-        <Intestazione sinistra={<BottoneIndietro ripiego="/pratiche" />} titolo="Pratica" />
+        <Intestazione
+          sinistra={<BottoneIndietro ripiego="/pratiche" />}
+          titolo={t('studio.pratica.titolo')}
+        />
         <StatoVuoto
           icona="bilancia"
-          titolo="Questa pratica non c'è più"
-          azione={{ titolo: 'Torna alle pratiche', onPress: () => indietro('/pratiche') }}
+          titolo={t('studio.pratica.nonCe')}
+          azione={{ titolo: t('studio.pratica.torna'), onPress: () => indietro('/pratiche') }}
         />
       </Schermata>
     );
@@ -89,11 +102,21 @@ export default function DettaglioPratica() {
   return (
     <Schermata>
       <Intestazione
-        sinistra={<BottoneIndietro ripiego="/pratiche" etichetta="Torna alle pratiche" />}
+        sinistra={<BottoneIndietro ripiego="/pratiche" etichetta={t('studio.pratica.torna')} />}
         titolo={pratica.titolo}
-        destra={<PulsanteIcona icona="altro" etichetta="Altre azioni" onPress={() => setFoglio('azioni')} />}
+        destra={
+          <PulsanteIcona
+            icona="altro"
+            etichetta={t('studio.pratica.altreAzioni')}
+            onPress={() => setFoglio('azioni')}
+          />
+        }
       />
-      <Schede voci={schede} attiva={attiva} onCambia={(s) => router.setParams({ scheda: s })} />
+      <Schede
+        voci={schede.map((s) => ({ valore: s, titolo: t(`studio.pratica.schede.${s}`) }))}
+        attiva={attiva}
+        onCambia={(s) => router.setParams({ scheda: s })}
+      />
 
       {attiva === 'lex' ? (
         <SchedaLex
@@ -134,15 +157,15 @@ export default function DettaglioPratica() {
           <Riga
             stretta
             sinistra={<Icona nome="modifica" dimensione={20} colore={colori.fg2} />}
-            titolo="Note interne"
-            sottotitolo="Le vedi solo tu: Lex non le legge"
+            titolo={t('studio.pratica.azioni.note')}
+            sottotitolo={t('studio.pratica.azioni.noteTesto')}
             onPress={() => setFoglio('note')}
           />
           <Riga
             stretta
             sinistra={<Icona nome="ricevuta" dimensione={20} colore={colori.fg2} />}
-            titolo="Nuova fattura"
-            sottotitolo={`Per ${cliente}, collegata a questa pratica`}
+            titolo={t('studio.pratica.azioni.fattura')}
+            sottotitolo={t('studio.pratica.azioni.fatturaTesto', { cliente })}
             onPress={() => {
               chiudi();
               router.push({
@@ -155,15 +178,15 @@ export default function DettaglioPratica() {
             <Riga
               stretta
               sinistra={<Icona nome="spunta" dimensione={20} colore={colori.fg2} />}
-              titolo="Chiudi la pratica"
-              sottotitolo="Con l'esito: vinta, persa, transatta, archiviata"
+              titolo={t('studio.pratica.azioni.chiudi')}
+              sottotitolo={t('studio.pratica.azioni.chiudiTesto')}
               onPress={() => setFoglio('chiudi')}
             />
           ) : (
             <Riga
               stretta
               sinistra={<Icona nome="riprova" dimensione={20} colore={colori.fg2} />}
-              titolo="Riapri la pratica"
+              titolo={t('studio.pratica.azioni.riapri')}
               onPress={() => {
                 azioni.riapriPratica(pratica.id);
                 chiudi();
@@ -173,7 +196,7 @@ export default function DettaglioPratica() {
           <Riga
             stretta
             sinistra={<Icona nome="cestino" dimensione={20} colore={colori.danger} />}
-            titolo="Elimina la pratica"
+            titolo={t('studio.pratica.azioni.elimina')}
             titoloStile={{ color: colori.danger }}
             onPress={() => setFoglio('elimina')}
           />
@@ -218,40 +241,46 @@ function Panoramica({
   onNote: () => void;
   onScadenze: () => void;
 }) {
+  const { t, lingua } = useTesti();
   const udienza = prossimaUdienza(p);
   const termine = prossimoTermine(p);
-  const u = termine ? urgenza(termine.scadenza) : null;
+  const u = termine ? urgenza(termine.scadenza, lingua) : null;
+  const tipo = nomeTipoCausa(p.tipo, lingua);
+  const esito = p.esito ? nomeEsito(p.esito, lingua) : null;
   const voci: [string, string][] = [
-    ['Cliente', cliente],
-    ['Tipo', p.tipo],
-    ['Creata il', dataCompleta(p.creata)],
+    [t('studio.pratica.panoramica.cliente'), cliente],
+    [t('studio.pratica.panoramica.tipo'), tipo],
+    [t('studio.pratica.panoramica.creata'), dataCompleta(p.creata, lingua)],
   ];
-  if (p.esito) voci.push(['Esito', p.esito]);
+  if (esito) voci.push([t('studio.pratica.panoramica.esito'), esito]);
   if (paese === 'IT')
-    voci.push(['Ore dedicate', p.oreDedicate != null ? `${p.oreDedicate}`.replace('.', ',') : '—']);
+    voci.push([
+      t('studio.pratica.panoramica.ore'),
+      p.oreDedicate != null ? `${p.oreDedicate}`.replace('.', ',') : '—',
+    ]);
   return (
     <View style={{ gap: 16 }}>
       <View style={{ gap: 8 }}>
         <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
           <Badge tono={p.stato === 'aperta' ? 'ok' : 'neutro'}>
-            {p.stato === 'aperta' ? 'Aperta' : 'Chiusa'}
+            {p.stato === 'aperta' ? t('studio.statiPratica.aperta') : t('studio.statiPratica.chiusa')}
           </Badge>
-          {p.esito ? <Badge tono="oro">{p.esito}</Badge> : null}
+          {esito ? <Badge tono="oro">{esito}</Badge> : null}
         </View>
         <Testo tipo="dS">{p.titolo}</Testo>
         <Testo tipo="small" colore={colori.fg2}>
-          {cliente} · {p.tipo}
+          {cliente} · {tipo}
         </Testo>
       </View>
 
       <Pressable onPress={onScadenze} accessibilityRole="button" style={stili.riquadro}>
         <IconaQuadrata nome="tribunale" />
         <View style={{ flex: 1, gap: 3 }}>
-          <Testo tipo="cap">Prossima udienza</Testo>
+          <Testo tipo="cap">{t('studio.pratica.panoramica.prossimaUdienza')}</Testo>
           {udienza ? (
             <>
               <Testo medio>
-                {dataCompleta(udienza.dataOra)} · {ora(udienza.dataOra)}
+                {dataCompleta(udienza.dataOra, lingua)} · {ora(udienza.dataOra)}
               </Testo>
               <Testo tipo="small" colore={colori.fg2}>
                 {udienza.tipo}
@@ -260,7 +289,7 @@ function Panoramica({
             </>
           ) : (
             <Testo tipo="small" colore={colori.fg2}>
-              Nessuna udienza in programma
+              {t('studio.pratica.panoramica.nessunaUdienza')}
             </Testo>
           )}
         </View>
@@ -269,18 +298,18 @@ function Panoramica({
       <Pressable onPress={onScadenze} accessibilityRole="button" style={stili.riquadro}>
         <IconaQuadrata nome="orologio" />
         <View style={{ flex: 1, gap: 3 }}>
-          <Testo tipo="cap">Primo termine</Testo>
+          <Testo tipo="cap">{t('studio.pratica.panoramica.primoTermine')}</Testo>
           {termine && u ? (
             <>
               <Testo medio>{termine.titolo}</Testo>
               <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                 <Badge tono={tonoUrgenza[u.tono]}>{u.testo}</Badge>
-                <Testo tipo="mini">{dataCompleta(termine.scadenza)}</Testo>
+                <Testo tipo="mini">{dataCompleta(termine.scadenza, lingua)}</Testo>
               </View>
             </>
           ) : (
             <Testo tipo="small" colore={colori.fg2}>
-              Nessun termine da rispettare
+              {t('studio.pratica.panoramica.nessunTermine')}
             </Testo>
           )}
         </View>
@@ -290,13 +319,13 @@ function Panoramica({
 
       <Pressable onPress={onNote} accessibilityRole="button" style={stili.note}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Eyebrow colore={colori.fg3}>Note interne</Eyebrow>
+          <Eyebrow colore={colori.fg3}>{t('studio.pratica.panoramica.note')}</Eyebrow>
           <Testo tipo="cap" colore={colori.accentText}>
-            {p.note ? 'Modifica' : 'Aggiungi'}
+            {p.note ? t('studio.pratica.panoramica.modifica') : t('studio.pratica.panoramica.aggiungi')}
           </Testo>
         </View>
         <Testo tipo="small" colore={p.note ? colori.fg : colori.fg3}>
-          {p.note ?? 'Nessuna nota. Le vedi solo tu: Lex non le legge.'}
+          {p.note ?? t('studio.pratica.panoramica.nessunaNota')}
         </Testo>
       </Pressable>
     </View>
@@ -313,6 +342,7 @@ function Scadenze({
   onUdienza: () => void;
 }) {
   const { azioni } = useStudio();
+  const { t, lingua } = useTesti();
   const inCorso = p.termini
     .filter((t) => t.stato === 'in_corso')
     .sort((a, b) => a.scadenza.localeCompare(b.scadenza));
@@ -321,64 +351,82 @@ function Scadenze({
   return (
     <View style={{ gap: 14 }}>
       <View style={stili.titoloSezione}>
-        <Eyebrow>Termini · {inCorso.length}</Eyebrow>
-        <Pulsante titolo="Termine" icona="piu" variante="linea" piccolo onPress={onTermine} />
+        <Eyebrow>{t('studio.pratica.scadenze.termini', { n: inCorso.length })}</Eyebrow>
+        <Pulsante
+          titolo={t('studio.pratica.scadenze.termine')}
+          icona="piu"
+          variante="linea"
+          piccolo
+          onPress={onTermine}
+        />
       </View>
       {inCorso.length === 0 ? (
         <Testo tipo="small" colore={colori.fg3}>
-          Nessun termine in corso.
+          {t('studio.pratica.scadenze.nessunTermine')}
         </Testo>
       ) : null}
-      {inCorso.map((t) => {
-        const u = urgenza(t.scadenza);
+      {inCorso.map((termine) => {
+        const u = urgenza(termine.scadenza, lingua);
         return (
-          <View key={t.id} style={stili.voce}>
+          <View key={termine.id} style={stili.voce}>
             <View style={{ flex: 1, gap: 4 }}>
               <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                 <Badge tono={tonoUrgenza[u.tono]}>{u.testo}</Badge>
-                <Testo tipo="mini">{dataCompleta(t.scadenza)}</Testo>
+                <Testo tipo="mini">{dataCompleta(termine.scadenza, lingua)}</Testo>
               </View>
-              <Text style={stili.voceTitolo}>{t.titolo}</Text>
-              {t.evento ? <Testo tipo="cap">Da: {t.evento}</Testo> : null}
+              <Text style={stili.voceTitolo}>{termine.titolo}</Text>
+              {termine.evento ? (
+                <Testo tipo="cap">{t('studio.pratica.scadenze.da', { evento: termine.evento })}</Testo>
+              ) : null}
             </View>
             <PulsanteIcona
               icona="spunta"
-              etichetta={`Segna come compiuto: ${t.titolo}`}
-              onPress={() => azioni.compiTermine(p.id, t.id)}
+              etichetta={t('studio.pratica.scadenze.segnaCompiuto', { titolo: termine.titolo })}
+              onPress={() => azioni.compiTermine(p.id, termine.id)}
             />
             <PulsanteIcona
               icona="cestino"
-              etichetta={`Elimina il termine: ${t.titolo}`}
-              onPress={() => azioni.eliminaTermine(p.id, t.id)}
+              etichetta={t('studio.pratica.scadenze.eliminaTermine', { titolo: termine.titolo })}
+              onPress={() => azioni.eliminaTermine(p.id, termine.id)}
             />
           </View>
         );
       })}
       {compiuti.length > 0 ? (
-        <Testo tipo="cap">Compiuti: {compiuti.map((t) => t.titolo).join(' · ')}</Testo>
+        <Testo tipo="cap">
+          {t('studio.pratica.scadenze.compiuti', { elenco: compiuti.map((c) => c.titolo).join(' · ') })}
+        </Testo>
       ) : null}
 
       <View style={[stili.titoloSezione, { marginTop: 10 }]}>
-        <Eyebrow>Udienze · {udienze.length}</Eyebrow>
-        <Pulsante titolo="Udienza" icona="piu" variante="linea" piccolo onPress={onUdienza} />
+        <Eyebrow>{t('studio.pratica.scadenze.udienze', { n: udienze.length })}</Eyebrow>
+        <Pulsante
+          titolo={t('studio.pratica.scadenze.udienza')}
+          icona="piu"
+          variante="linea"
+          piccolo
+          onPress={onUdienza}
+        />
       </View>
       {udienze.length === 0 ? (
         <Testo tipo="small" colore={colori.fg3}>
-          Nessuna udienza.
+          {t('studio.pratica.scadenze.nessunaUdienza')}
         </Testo>
       ) : null}
       {udienze.map((u) => (
         <View key={u.id} style={stili.voce}>
           <View style={{ flex: 1, gap: 4 }}>
             <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <Badge tono={statiUdienza[u.stato].tono}>{statiUdienza[u.stato].testo}</Badge>
+              <Badge tono={toniUdienza[u.stato]}>{t(`studio.pratica.statiUdienza.${u.stato}`)}</Badge>
               <Testo tipo="mini">
-                {dataCompleta(u.dataOra)} · {ora(u.dataOra)}
+                {dataCompleta(u.dataOra, lingua)} · {ora(u.dataOra)}
               </Testo>
             </View>
             <Text style={stili.voceTitolo}>{u.tipo}</Text>
             {u.sede ? <Testo tipo="cap">{u.sede}</Testo> : null}
-            {u.giudice ? <Testo tipo="cap">Giudice: {u.giudice}</Testo> : null}
+            {u.giudice ? (
+              <Testo tipo="cap">{t('studio.pratica.scadenze.giudice', { nome: u.giudice })}</Testo>
+            ) : null}
           </View>
         </View>
       ))}
@@ -387,27 +435,38 @@ function Scadenze({
 }
 
 function Controparti({ pratica: p, onNuova }: { pratica: Pratica; onNuova: () => void }) {
+  const { t, lingua } = useTesti();
   return (
     <View style={{ gap: 12 }}>
       <View style={stili.titoloSezione}>
-        <Eyebrow>Controparti · {p.controparti.length}</Eyebrow>
-        <Pulsante titolo="Controparte" icona="piu" variante="linea" piccolo onPress={onNuova} />
+        <Eyebrow>{t('studio.pratica.controparti.titolo', { n: p.controparti.length })}</Eyebrow>
+        <Pulsante
+          titolo={t('studio.pratica.controparti.aggiungi')}
+          icona="piu"
+          variante="linea"
+          piccolo
+          onPress={onNuova}
+        />
       </View>
       {p.controparti.length === 0 ? (
         <Testo tipo="small" colore={colori.fg3}>
-          Nessuna controparte. Aggiungile per generare correttamente gli atti.
+          {t('studio.pratica.controparti.vuoto')}
         </Testo>
       ) : null}
       {p.controparti.map((c) => (
         <Scheda key={c.id} stile={{ gap: 6 }}>
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-            <Badge tono="oro">{c.ruolo}</Badge>
-            <Testo tipo="mini">{c.giuridica ? 'Persona giuridica' : 'Persona fisica'}</Testo>
+            <Badge tono="oro">{nomeRuolo(c.ruolo, lingua)}</Badge>
+            <Testo tipo="mini">
+              {c.giuridica
+                ? t('studio.pratica.controparti.giuridica')
+                : t('studio.pratica.controparti.fisica')}
+            </Testo>
           </View>
           <Testo medio>{c.nome}</Testo>
           {c.legale ? (
             <Testo tipo="small" colore={colori.fg2}>
-              Legale: {c.legale}
+              {t('studio.pratica.controparti.legale', { nome: c.legale })}
             </Testo>
           ) : null}
         </Scheda>
@@ -418,15 +477,22 @@ function Controparti({ pratica: p, onNuova }: { pratica: Pratica; onNuova: () =>
 
 function Documenti({ pratica: p }: { pratica: Pratica }) {
   const vai = useVaiASezione();
+  const { t, lingua } = useTesti();
   return (
     <View style={{ gap: 12 }}>
       <View style={stili.titoloSezione}>
-        <Eyebrow>Documenti · {p.documenti.length}</Eyebrow>
-        <Pulsante titolo="Aggiungi" icona="piu" variante="linea" piccolo onPress={() => vai('/archivio')} />
+        <Eyebrow>{t('studio.pratica.documenti.titolo', { n: p.documenti.length })}</Eyebrow>
+        <Pulsante
+          titolo={t('studio.pratica.documenti.aggiungi')}
+          icona="piu"
+          variante="linea"
+          piccolo
+          onPress={() => vai('/archivio')}
+        />
       </View>
       {p.documenti.length === 0 ? (
         <Testo tipo="small" colore={colori.fg3}>
-          Nessun documento collegato a questa pratica.
+          {t('studio.pratica.documenti.vuoto')}
         </Testo>
       ) : null}
       <View style={{ marginHorizontal: -20 }}>
@@ -436,8 +502,8 @@ function Documenti({ pratica: p }: { pratica: Pratica }) {
             stretta
             sinistra={<IconaQuadrata nome="documento" tenue />}
             titolo={d.titolo}
-            sottotitolo={dataCompleta(d.quando)}
-            destra={d.archivio ? <Badge>Archivio</Badge> : undefined}
+            sottotitolo={dataCompleta(d.quando, lingua)}
+            destra={d.archivio ? <Badge>{t('studio.pratica.documenti.archivio')}</Badge> : undefined}
           />
         ))}
       </View>
@@ -447,12 +513,13 @@ function Documenti({ pratica: p }: { pratica: Pratica }) {
 
 function Ricerche({ pratica: p }: { pratica: Pratica }) {
   const vai = useVaiASezione();
+  const { t } = useTesti();
   return (
     <View style={{ gap: 12 }}>
       <View style={stili.titoloSezione}>
-        <Eyebrow>Ricerche · {p.ricerche.length}</Eyebrow>
+        <Eyebrow>{t('studio.pratica.ricerche.titolo', { n: p.ricerche.length })}</Eyebrow>
         <Pulsante
-          titolo="Banca dati"
+          titolo={t('studio.pratica.ricerche.bancaDati')}
           icona="cerca"
           variante="linea"
           piccolo
@@ -461,13 +528,15 @@ function Ricerche({ pratica: p }: { pratica: Pratica }) {
       </View>
       {p.ricerche.length === 0 ? (
         <Testo tipo="small" colore={colori.fg3}>
-          Nessuna ricerca. Le chat con Lex su questa pratica, salvate, finiscono qui.
+          {t('studio.pratica.ricerche.vuoto')}
         </Testo>
       ) : null}
       {p.ricerche.map((r) => (
         <View key={r.id} style={stili.voce}>
           <View style={{ flex: 1, gap: 4 }}>
-            <Badge tono={r.tipo === 'Chat con Lex' ? 'oro' : 'neutro'}>{r.tipo}</Badge>
+            <Badge tono={r.tipo === 'Chat con Lex' ? 'oro' : 'neutro'}>
+              {tipiRicerca[r.tipo] ? t(tipiRicerca[r.tipo]) : r.tipo}
+            </Badge>
             <Text style={stili.voceTitolo}>{r.titolo}</Text>
           </View>
         </View>
@@ -476,7 +545,11 @@ function Ricerche({ pratica: p }: { pratica: Pratica }) {
   );
 }
 
-const passiLex = ['Leggo la pratica', 'Cerco tra norme e giurisprudenza', 'Scrivo la risposta'];
+const passiLex = [
+  'studio.pratica.lex.passo1',
+  'studio.pratica.lex.passo2',
+  'studio.pratica.lex.passo3',
+] as const;
 
 // Lex per questa pratica: dalla tappa «Studio» è `lex-pratica` in streaming, come sul sito.
 // Conosce cliente, controparti, udienze, documenti e ricerche; non legge note interne e termini.
@@ -492,6 +565,7 @@ function SchedaLex({
   onEsauriti: () => void;
 }) {
   const { conto, azioni } = useStato();
+  const { t, lingua } = useTesti();
   const offline = useOffline();
   const [bozza, setBozza] = useState('');
   const [richiesta, setRichiesta] = useState<{ testo: string; passo: number; pronta: boolean } | null>(null);
@@ -520,16 +594,22 @@ function SchedaLex({
 
   const risposta: RispostaFinta = {
     titolo: '',
-    inBreve: `risposta di prova su «${p.titolo}».`,
+    inBreve: t('studio.pratica.lex.inBreve', { titolo: p.titolo }),
     punti: [
       {
-        titolo: 'Cosa so di questa pratica.',
+        titolo: t('studio.pratica.lex.cosaSo'),
         testo: [
-          ` Cliente ${cliente}; ${p.controparti.length} controparti, ${p.udienze.length} udienze, ${p.documenti.length} documenti e ${p.ricerche.length} ricerche.`,
+          t('studio.pratica.lex.cosaSoTesto', {
+            cliente,
+            controparti: p.controparti.length,
+            udienze: p.udienze.length,
+            documenti: p.documenti.length,
+            ricerche: p.ricerche.length,
+          }),
         ],
       },
     ],
-    nota: 'Dalla tappa «Studio» qui risponde Lex sulla pratica, come sul sito. Un atto generato diventa un PDF da salvare nella pratica, e costa 1 credito.',
+    nota: t('studio.pratica.lex.nota'),
   };
 
   return (
@@ -538,16 +618,19 @@ function SchedaLex({
         {!richiesta ? (
           <>
             <View style={{ gap: 6 }}>
-              <Testo tipo="dS">Lex conosce questa pratica</Testo>
+              <Testo tipo="dS">{t('studio.pratica.lex.titolo')}</Testo>
               <Testo tipo="small" colore={colori.fg2}>
-                Cliente, controparti, udienze, documenti e ricerche. Non legge le note interne. Chiedi
-                un'analisi, una strategia o un atto: ogni atto costa 1 credito.
+                {t('studio.pratica.lex.testo')}
               </Testo>
             </View>
-            <Testo tipo="cap">Atti che può preparare</Testo>
+            <Testo tipo="cap">{t('studio.pratica.lex.atti')}</Testo>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {(attiLex[paese] ?? []).map((a) => (
-                <Tag key={a} titolo={a} onPress={() => chiedi(`Prepara: ${a}`)} />
+              {attiLex(paese, lingua).map((a) => (
+                <Tag
+                  key={a}
+                  titolo={a}
+                  onPress={() => chiedi(t('studio.pratica.lex.prepara', { atto: a }))}
+                />
               ))}
             </View>
           </>
@@ -558,10 +641,15 @@ function SchedaLex({
             {richiesta.pronta ? (
               <RispostaLex risposta={risposta} onCitazione={() => undefined} />
             ) : (
-              <Passi passi={passiLex} attivo={richiesta.passo} />
+              <Passi passi={passiLex.map((k) => t(k))} attivo={richiesta.passo} />
             )}
             {richiesta.pronta ? (
-              <Pulsante titolo="Nuova domanda" variante="linea" piccolo onPress={() => setRichiesta(null)} />
+              <Pulsante
+                titolo={t('studio.pratica.lex.nuovaDomanda')}
+                variante="linea"
+                piccolo
+                onPress={() => setRichiesta(null)}
+              />
             ) : null}
           </View>
         )}
@@ -573,7 +661,7 @@ function SchedaLex({
         onAllega={() => undefined}
         occupato={!!richiesta && !richiesta.pronta}
         offline={offline}
-        segnaposto="Chiedi a Lex su questa pratica…"
+        segnaposto={t('studio.pratica.lex.segnaposto')}
       />
     </KeyboardAvoidingView>
   );

@@ -9,7 +9,9 @@ import { Pulsante } from '@/componenti/Pulsante';
 import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import { tipiCausa, type TipoCausa } from '@/dati-finti/studio';
+import { useTesti } from '@/lingue/useTesti';
 import { CampoData, Scelta, leggiData } from '@/studio/Campi';
+import { nomeTipoCausa } from '@/studio/pratiche';
 import { useStato } from '@/stato/Stato';
 import { useStudio } from '@/stato/Studio';
 import { colori } from '@/tema';
@@ -20,6 +22,7 @@ import { colori } from '@/tema';
 export default function NuovaPratica() {
   const { paese } = useStato();
   const { clienti, azioni } = useStudio();
+  const { t, lingua } = useTesti();
   const [titolo, setTitolo] = useState('');
   const [clienteId, setClienteId] = useState<string | null>(null);
   const [tipo, setTipo] = useState<TipoCausa | null>(null);
@@ -50,61 +53,71 @@ export default function NuovaPratica() {
   return (
     <Schermata>
       <Intestazione
-        sinistra={<BottoneIndietro ripiego="/pratiche" etichetta="Annulla" />}
-        titolo="Nuova pratica"
+        sinistra={<BottoneIndietro ripiego="/pratiche" etichetta={t('comune.annulla')} />}
+        titolo={t('studio.nuova.titolo')}
       />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={stili.corpo} keyboardShouldPersistTaps="handled">
           <Campo
-            etichetta="Titolo della pratica"
-            placeholder="Es. Causa civile Rossi c. Ferrari"
+            etichetta={t('studio.nuova.titoloPratica')}
+            placeholder={t('studio.nuova.titoloEsempio')}
             value={titolo}
             onChangeText={setTitolo}
           />
           <View style={{ gap: 8 }}>
             <Testo tipo="small" colore={colori.fg2}>
-              Cliente
+              {t('studio.nuova.cliente')}
             </Testo>
             {clienti.length === 0 ? (
               <Testo tipo="small" colore={colori.fg3}>
-                Non hai ancora clienti: si aggiungono dal sito, nella sezione Clienti.
+                {t('studio.nuova.senzaClienti')}
               </Testo>
             ) : (
               <Scelta
                 voci={clienti.map((c) => ({ valore: c.id, titolo: c.nome }))}
                 valore={clienteId}
                 onCambia={setClienteId}
-                etichettaGruppo="Cliente"
+                etichettaGruppo={t('studio.nuova.cliente')}
               />
             )}
           </View>
           <View style={{ gap: 8 }}>
             <Testo tipo="small" colore={colori.fg2}>
-              Tipo di causa
+              {t('studio.nuova.tipoCausa')}
             </Testo>
-            <Scelta voci={tipiCausa} valore={tipo} onCambia={setTipo} etichettaGruppo="Tipo di causa" />
+            <Scelta
+              voci={tipiCausa.map((v) => ({ valore: v, titolo: nomeTipoCausa(v, lingua) }))}
+              valore={tipo}
+              onCambia={setTipo}
+              etichettaGruppo={t('studio.nuova.tipoCausa')}
+            />
           </View>
           {paese === 'IT' ? (
             <Campo
-              etichetta="Ore dedicate (facoltative)"
-              placeholder="Es. 2,5"
+              etichetta={t('studio.nuova.ore')}
+              placeholder={t('studio.nuova.oreEsempio')}
               value={ore}
               onChangeText={setOre}
               keyboardType="decimal-pad"
             />
           ) : (
-            <CampoData etichetta="Prossima udienza (facoltativa)" valore={udienza} onCambia={setUdienza} />
+            <CampoData etichetta={t('studio.nuova.udienza')} valore={udienza} onCambia={setUdienza} />
           )}
           <Campo
-            etichetta="Note interne (facoltative)"
-            placeholder="Le vedi solo tu: Lex non le legge"
+            etichetta={t('studio.nuova.note')}
+            placeholder={t('studio.nuova.noteSegnaposto')}
             value={note}
             onChangeText={setNote}
             multiline
           />
         </ScrollView>
         <BarraAzioni>
-          <Pulsante titolo="Crea la pratica" stile={{ flex: 1 }} disabilitato={!pronta} onPress={crea} />
+          <Pulsante
+            titolo={t('studio.nuova.crea')}
+            stile={{ flex: 1 }}
+            disabilitato={!pronta}
+            onPress={crea}
+          />
         </BarraAzioni>
       </KeyboardAvoidingView>
     </Schermata>

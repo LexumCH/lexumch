@@ -9,17 +9,18 @@ import { Schermata } from '@/componenti/Schermata';
 import { Testo } from '@/componenti/Testo';
 import type { Appuntamento } from '@/dati-finti/studio';
 import { FoglioEvento, FoglioNuovoEvento } from '@/fogli/FogliCalendario';
+import { useTesti } from '@/lingue/useTesti';
 import { strumentiStudio } from '@/ruoli';
 import {
   giorniDaOggi,
-  iniziali,
+  inizialiIn,
   inizioGiorno,
   nomeMese,
   ora,
   stessoGiorno,
   titoloGiorno,
 } from '@/studio/formati';
-import { tipiEvento } from '@/studio/pratiche';
+import { nomeTipoEvento, tipiEvento } from '@/studio/pratiche';
 import { useStato } from '@/stato/Stato';
 import { nomeCliente, useStudio } from '@/stato/Studio';
 import { colori, famiglie } from '@/tema';
@@ -33,6 +34,7 @@ const GIORNI_AGENDA = 60;
 export default function Calendario() {
   const { paese, ruoli } = useStato();
   const { appuntamenti, clienti, pratiche } = useStudio();
+  const { t, lingua } = useTesti();
   const parametri = useLocalSearchParams<{ vista?: Vista }>();
   const vista: Vista = parametri.vista ?? 'agenda';
   const avvocato = strumentiStudio(ruoli[paese] ?? 'user').includes('mandati');
@@ -75,11 +77,11 @@ export default function Calendario() {
     <Schermata>
       <Intestazione
         sinistra={<BottoneMenu />}
-        titolo="Calendario"
+        titolo={t('studio.calendario.titolo')}
         destra={
           <PulsanteIcona
             icona="piu"
-            etichetta="Nuovo appuntamento"
+            etichetta={t('studio.calendario.nuovo')}
             onPress={() => setModulo({ evento: null })}
           />
         }
@@ -87,16 +89,20 @@ export default function Calendario() {
       <View style={stili.testa}>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <Tag
-            titolo="Agenda"
+            titolo={t('studio.calendario.agenda')}
             attivo={vista === 'agenda'}
             onPress={() => router.setParams({ vista: 'agenda' })}
           />
-          <Tag titolo="Mese" attivo={vista === 'mese'} onPress={() => router.setParams({ vista: 'mese' })} />
+          <Tag
+            titolo={t('studio.calendario.mese')}
+            attivo={vista === 'mese'}
+            onPress={() => router.setParams({ vista: 'mese' })}
+          />
         </View>
         <Testo tipo="cap">
           {contaProssimi === 1
-            ? '1 impegno nei prossimi 7 giorni'
-            : `${contaProssimi} impegni nei prossimi 7 giorni`}
+            ? t('studio.calendario.prossimiUno')
+            : t('studio.calendario.prossimiMolti', { n: contaProssimi })}
         </Testo>
       </View>
       <Separatore />
@@ -106,7 +112,7 @@ export default function Calendario() {
           {!passati ? (
             <Pressable onPress={() => setPassati(true)} accessibilityRole="button" style={stili.passati}>
               <Testo tipo="cap" colore={colori.accentText}>
-                Mostra anche le ultime due settimane
+                {t('studio.calendario.passati')}
               </Testo>
             </Pressable>
           ) : null}
@@ -116,7 +122,7 @@ export default function Calendario() {
               <View key={g}>
                 <View style={stili.giorno}>
                   <Text style={[stili.giornoTesto, giorniDaOggi(g) === 0 && { color: colori.accentText }]}>
-                    {titoloGiorno(g)}
+                    {titoloGiorno(g, lingua)}
                   </Text>
                 </View>
                 {eventi.length === 0 ? (
@@ -125,7 +131,7 @@ export default function Calendario() {
                     colore={colori.fg3}
                     style={{ paddingHorizontal: 20, paddingVertical: 12 }}
                   >
-                    Niente in programma.
+                    {t('studio.calendario.niente')}
                   </Testo>
                 ) : null}
                 {eventi.map((a) => (
@@ -161,11 +167,11 @@ export default function Calendario() {
             }}
           />
           <View style={stili.giorno}>
-            <Text style={stili.giornoTesto}>{titoloGiorno(scelto)}</Text>
+            <Text style={stili.giornoTesto}>{titoloGiorno(scelto, lingua)}</Text>
           </View>
           {delGiorno(scelto).length === 0 ? (
             <Testo tipo="small" colore={colori.fg3} style={{ paddingHorizontal: 20, paddingVertical: 12 }}>
-              Niente in programma.
+              {t('studio.calendario.niente')}
             </Testo>
           ) : null}
           {delGiorno(scelto).map((a) => (
@@ -203,13 +209,18 @@ function RigaEvento({
   sottotitolo: string;
   onPress: () => void;
 }) {
-  const tipo = tipiEvento[a.tipo];
+  const { t, lingua } = useTesti();
+  const tipo = { ...tipiEvento[a.tipo], nome: nomeTipoEvento(a.tipo, lingua) };
   const spento = a.stato !== 'programmato';
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${ora(a.inizio)}, ${tipo.nome}: ${a.titolo}`}
+      accessibilityLabel={t('studio.calendario.evento', {
+        ora: ora(a.inizio),
+        tipo: tipo.nome,
+        titolo: a.titolo,
+      })}
       style={({ pressed }) => [stili.evento, pressed && { backgroundColor: colori.bg2 }]}
     >
       <View style={stili.ora}>
@@ -235,7 +246,7 @@ function RigaEvento({
         {a.stato !== 'programmato' ? (
           <View style={{ flexDirection: 'row' }}>
             <Badge tono={a.stato === 'concluso' ? 'ok' : 'pericolo'}>
-              {a.stato === 'concluso' ? 'Concluso' : 'Annullato'}
+              {a.stato === 'concluso' ? t('studio.statiEvento.concluso') : t('studio.statiEvento.annullato')}
             </Badge>
           </View>
         ) : null}
@@ -261,6 +272,7 @@ function Mese({
   onCambiaMese: (delta: number) => void;
   onOggi: () => void;
 }) {
+  const { t, lingua } = useTesti();
   const primo = new Date(anno, mese, 1);
   const spostamento = (primo.getDay() + 6) % 7; // la settimana parte dal lunedì
   const giorniNelMese = new Date(anno, mese + 1, 0).getDate();
@@ -274,17 +286,25 @@ function Mese({
   return (
     <View style={stili.mese}>
       <View style={stili.meseTesta}>
-        <PulsanteIcona icona="indietro" etichetta="Mese precedente" onPress={() => onCambiaMese(-1)} />
-        <Text style={stili.meseNome}>{nomeMese(anno, mese)}</Text>
-        <PulsanteIcona icona="avanti" etichetta="Mese successivo" onPress={() => onCambiaMese(1)} />
+        <PulsanteIcona
+          icona="indietro"
+          etichetta={t('studio.calendario.mesePrecedente')}
+          onPress={() => onCambiaMese(-1)}
+        />
+        <Text style={stili.meseNome}>{nomeMese(anno, mese, lingua)}</Text>
+        <PulsanteIcona
+          icona="avanti"
+          etichetta={t('studio.calendario.meseSuccessivo')}
+          onPress={() => onCambiaMese(1)}
+        />
         <Pressable onPress={onOggi} accessibilityRole="button" style={stili.oggi}>
           <Testo tipo="cap" colore={colori.accentText}>
-            Oggi
+            {t('studio.calendario.oggi')}
           </Testo>
         </Pressable>
       </View>
       <View style={stili.settimana}>
-        {iniziali.map((g, i) => (
+        {inizialiIn(lingua).map((g, i) => (
           <Text key={`${g}${i}`} style={stili.iniziale}>
             {g}
           </Text>
@@ -303,7 +323,10 @@ function Mese({
                 key={j}
                 onPress={() => onScegli(inizioGiorno(d).toISOString())}
                 accessibilityRole="button"
-                accessibilityLabel={`${d.getDate()}, ${delGiorno.length} eventi`}
+                accessibilityLabel={t('studio.calendario.giornoEventi', {
+                  giorno: d.getDate(),
+                  n: delGiorno.length,
+                })}
                 aria-selected={on}
                 style={[stili.cella, on && stili.cellaOn]}
               >

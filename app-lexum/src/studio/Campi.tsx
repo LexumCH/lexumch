@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { Campo } from '@/componenti/Campi';
 import { Tag } from '@/componenti/Elementi';
+import { useTesti } from '@/lingue/useTesti';
 
 import { dataNumerica } from './formati';
 
@@ -39,11 +40,12 @@ type PropsData = {
 };
 
 export function CampoData({ etichetta, valore, onCambia, scorciatoie }: PropsData) {
+  const { t } = useTesti();
   return (
     <View style={{ gap: 8 }}>
       <Campo
         etichetta={etichetta}
-        placeholder="gg.mm.aaaa"
+        placeholder={t('studio.campi.formatoData')}
         value={valore}
         onChangeText={onCambia}
         keyboardType="numbers-and-punctuation"
@@ -75,12 +77,13 @@ export function CampoOra({
 }: {
   etichetta: string;
   valore: string;
-  onCambia: (t: string) => void;
+  onCambia: (testo: string) => void;
 }) {
+  const { t } = useTesti();
   return (
     <Campo
       etichetta={etichetta}
-      placeholder="hh:mm"
+      placeholder={t('studio.campi.formatoOra')}
       value={valore}
       onChangeText={onCambia}
       keyboardType="numbers-and-punctuation"
