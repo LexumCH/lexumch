@@ -124,7 +124,7 @@ export type DatiFatturazione = {
   piva?: string;
   cf?: string;
   regime?: 'ordinario' | 'forfettario';
-  cassa?: string; // TC01 Cassa Forense, TC04 CNPADC
+  cassa?: 'TC01' | 'TC04'; // TC01 Cassa Forense, TC04 CNPADC (sui siti questa colonna non c'è)
   // CH
   numeroIva?: string; // CHE-xxx.xxx.xxx IVA
   assoggettatoIva?: boolean;
@@ -186,7 +186,7 @@ function avvocatoIT(): DatiStudio {
         citta: 'Monza',
         provincia: 'MB',
         paese: 'IT',
-        piva: '04512870968',
+        piva: '04512870967',
         codiceDestinatario: 'M5UXCR1',
       },
       { id: 'c4', nome: 'Giovanni Esposito', citta: 'Milano', provincia: 'MI', paese: 'IT' },
@@ -409,9 +409,27 @@ function avvocatoIT(): DatiStudio {
         scadenza: giorno(5),
         stato: 'in_attesa',
         righe: [
-          { id: 'fr1', descrizione: 'Fase di studio della controversia', quantita: 1, prezzo: 1215 },
-          { id: 'fr2', descrizione: 'Fase introduttiva del giudizio', quantita: 1, prezzo: 777 },
-          { id: 'fr3', descrizione: 'Spese generali forfettarie 15%', quantita: 1, prezzo: 298.8 },
+          // le righe come le scrive il calcolatore: tribunale, da 5.201 a 26.000 €, valori medi
+          {
+            id: 'fr1',
+            descrizione:
+              'Compenso — Fase di studio (Medio) · Tribunale — giudizi ordinari di cognizione, Da 5.201 € a 26.000 €',
+            quantita: 1,
+            prezzo: 919,
+          },
+          {
+            id: 'fr2',
+            descrizione:
+              'Compenso — Fase introduttiva (Medio) · Tribunale — giudizi ordinari di cognizione, Da 5.201 € a 26.000 €',
+            quantita: 1,
+            prezzo: 777,
+          },
+          {
+            id: 'fr3',
+            descrizione: 'Spese generali forfettarie 15% (art. 2 DM 55/2014)',
+            quantita: 1,
+            prezzo: 254.4,
+          },
         ],
         cpa: 4,
         iva: 22,
@@ -450,8 +468,21 @@ function avvocatoIT(): DatiStudio {
         pagamenti: [],
       },
     ],
-    // Come oggi sui siti: nessun dato fiscale inserito (in IT 0 professionisti su 7 li hanno).
-    fatturazione: { paese: 'IT', cassa: 'TC01 · Cassa Forense', regime: 'ordinario' },
+    // Dati già compilati, per mostrare la nuova fattura. Sui siti oggi 0 professionisti su 7 li hanno:
+    // commercialista e fiduciario qui sotto mostrano cosa succede quando mancano.
+    fatturazione: {
+      paese: 'IT',
+      cassa: 'TC01',
+      regime: 'ordinario',
+      piva: '01234567897',
+      cf: 'RSSGLI85M41F205Z',
+      via: 'Corso di Porta Romana',
+      civico: '23',
+      cap: '20122',
+      citta: 'Milano',
+      provincia: 'MI',
+      iban: 'IT60X0542811101000000123456',
+    },
   };
 }
 
@@ -599,7 +630,16 @@ function avvocatoCH(): DatiStudio {
         pdf: true,
       },
     ],
-    fatturazione: { paese: 'CH' },
+    fatturazione: {
+      paese: 'CH',
+      via: 'Via Nassa',
+      civico: '5',
+      cap: '6900',
+      citta: 'Lugano',
+      iban: 'CH93 0076 2011 6238 5295 7',
+      assoggettatoIva: true,
+      numeroIva: 'CHE-216.874.390 IVA',
+    },
   };
 }
 
@@ -657,7 +697,7 @@ function commercialistaIT(): DatiStudio {
         pagamenti: [],
       },
     ],
-    fatturazione: { paese: 'IT', cassa: 'TC04 · CNPADC', regime: 'ordinario' },
+    fatturazione: { paese: 'IT', cassa: 'TC04', regime: 'ordinario' },
   };
 }
 

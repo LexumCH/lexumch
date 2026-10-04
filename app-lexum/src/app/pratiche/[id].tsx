@@ -138,6 +138,19 @@ export default function DettaglioPratica() {
             sottotitolo="Le vedi solo tu: Lex non le legge"
             onPress={() => setFoglio('note')}
           />
+          <Riga
+            stretta
+            sinistra={<Icona nome="ricevuta" dimensione={20} colore={colori.fg2} />}
+            titolo="Nuova fattura"
+            sottotitolo={`Per ${cliente}, collegata a questa pratica`}
+            onPress={() => {
+              chiudi();
+              router.push({
+                pathname: '/fatture/nuova',
+                params: { cliente: pratica.clienteId, pratica: pratica.id },
+              });
+            }}
+          />
           {pratica.stato === 'aperta' ? (
             <Riga
               stretta

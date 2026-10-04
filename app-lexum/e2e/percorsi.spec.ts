@@ -246,8 +246,13 @@ test('un avvocato entra con le stesse schermate, senza errori di ruolo', async (
   await vedo(page, 'Per iniziare, prova con:');
   await expect(page.getByText(/non sei un|non autorizzat|accesso negato/i)).toHaveCount(0);
   await etichetta(page, 'Apri il menù').click();
+  // nel menù c'è anche il suo Studio
+  await vedo(page, 'Pratiche', true);
+  await vedo(page, 'Calendario', true);
+  await vedo(page, 'Fatture', true);
   await tocca(page, 'Profilo', true);
-  await vedo(page, 'I tuoi strumenti professionali sono sul sito');
+  await vedo(page, 'Il tuo studio è anche qui');
+  await vedo(page, 'Dati di fatturazione', true);
   await vedo(page, 'Apri lexum.it', true);
 });
 
@@ -305,7 +310,7 @@ test('elimina account: conferma e passaggio all’accesso rimasto', async ({ pag
 test('elenco delle schermate: ogni voce si apre senza errori', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/');
-  const voci = page.getByText(/^[A-G]\d+[a-z]? · /);
+  const voci = page.getByText(/^[A-GS]\d+[a-z]? · /);
   await expect(voci.first()).toBeVisible();
   const n = await voci.count();
   expect(n).toBeGreaterThanOrEqual(40);

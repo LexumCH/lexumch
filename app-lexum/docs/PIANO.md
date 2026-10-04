@@ -83,6 +83,17 @@ Stato al 03-10-2026: i mockup sono stati rivisti da Antonino. Si comincia dalla 
   - Profilo → Account → «Verifica in due passaggi», come `ModalAttiva2FA` e `BoxSicurezza2FA` del sito: attiva (`mfa.enroll`, link `otpauth://` che apre l'app di autenticazione, oppure la chiave), codici di recupero (`mfa-backup-codes` «generate» e «regenerate»), spegni (`mfa.unenroll`).
   - Profilo → «Su questo telefono»: blocco con Face ID o impronta (`expo-local-authentication`), spento di base. Quando è acceso, l'app chiede lo sblocco all'apertura e quando torna in primo piano.
 
+- [ ] **Studio dei professionisti** (chiesto da Antonino il 04-10-2026). Le schermate ci sono, con i dati finti; studio dei siti in `docs/professionisti/`.
+  - Chi vede cosa (`src/ruoli.ts`): l'avvocato ha Pratiche, Calendario e Fatture; commercialista e fiduciario per ora solo Calendario e Fatture (Antonino sta rivedendo i loro mandati); il progettista nessuno.
+  - [x] Pratiche: elenco, dettaglio a schede (panoramica, scadenze e udienze, controparti, documenti, ricerche, Lex), nuova pratica, chiusura con esito.
+  - [x] Calendario: agenda e mese, dettaglio dell'evento, nuovo appuntamento e modifica.
+  - [x] Fatture: numeri dell'anno, scadenzario, dettaglio con pagamenti (anche parziali), PDF, annulla.
+  - [x] Nuova fattura a passi, con due processi: Italia (CPA o contributo integrativo 4%, IVA 22%, ritenuta 20%, regime forfettario) e Svizzera (IVA 8,1% o esente con il motivo, data o periodo della prestazione, QR-fattura).
+  - [x] Calcolatore della parcella (solo Italia, solo avvocati): lo stesso motore del sito (DM 55/2014, tabelle 2022), copiato in `src/studio/parametri-forensi/`.
+  - [x] «Dati di fatturazione» nel Profilo: senza quelli, e senza i dati del cliente, la fattura non parte e l'app dice cosa manca.
+  - [ ] Dati veri: tabelle `pratiche`, `controparti`, `termini_processuali`, `udienze`, `appuntamenti`, `fatture`, `righe_fattura`, `pagamenti_fattura`; edge function `crea-fattura` e `genera-fattura-pdf`; RPC `genera_numero_fattura`. I totali li calcolano i trigger del database.
+  - [ ] Prima dei dati veri servono le decisioni e le correzioni lato sito in `docs/DA-FARE-ANTONINO.md` (fattura elettronica IT, QR-fattura CH, colonne mancanti, fiduciari).
+
 - [ ] **7. Rifiniture.**
   - Notifica «risposta pronta».
   - Prove sul telefono.

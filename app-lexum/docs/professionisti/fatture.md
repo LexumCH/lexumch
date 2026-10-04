@@ -135,6 +135,10 @@ Non c'è CPA e non c'è ritenuta. In più:
 
 ## Per l'app
 
+Fatto il 04-10-2026, con i dati finti: elenco con i numeri dell'anno e lo scadenzario (`src/app/fatture/index.tsx`), dettaglio (`[id].tsx`), nuova fattura a passi (`nuova.tsx`), calcolatore (`calcolatore.tsx`), dati di fatturazione (`dati.tsx`). Le regole dei due paesi sono in `src/studio/fatturazione.ts`.
+
+Il piano di partenza:
+
 - **Si fa nell'app:**
   - elenco con scadenzario;
   - dettaglio, con «Registra pagamento» e «Apri o condividi il PDF»;

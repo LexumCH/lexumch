@@ -3,7 +3,7 @@
 Lista delle cose che l'app non può fare da sola: impostazioni dei progetti Supabase, account esterni, decisioni.
 La tengo aggiornata a ogni tappa. Quando una cosa è fatta, spuntala (o dimmelo e la spunto io).
 
-Ultimo aggiornamento: 03-10-2026.
+Ultimo aggiornamento: 04-10-2026.
 
 ## Supabase (Italia e Svizzera)
 
@@ -27,12 +27,19 @@ Ultimo aggiornamento: 03-10-2026.
 
 Dettagli in `docs/professionisti/fatture.md` e `docs/professionisti/pratiche-e-calendario.md`. Si sistemano sui siti e sul backend, non da qui.
 
-- [ ] **Fattura italiana:** il sito fa solo un PDF, senza XML FatturaPA né invio allo SDI. Decidi se chiamarlo «avviso di parcella / pro forma» oppure collegare un intermediario SDI.
+- [ ] **Fattura italiana:** il sito fa solo un PDF, senza XML FatturaPA né invio allo SDI. Decidi se chiamarlo «avviso di parcella / pro forma» oppure collegare un intermediario SDI. Nell'app, sotto ogni fattura italiana, oggi c'è scritto: «Il PDF non è una fattura elettronica: non passa dal Sistema di Interscambio (SDI).»
+- [ ] **Colonne che mancano per i dati di fatturazione** (l'app ha già la schermata «Dati di fatturazione» con questi campi):
+  - IT, professionista: la cassa di previdenza (TC01 Cassa Forense, TC04 CNPADC), il numero civico separato dalla via;
+  - CH, professionista: numero civico separato, paese (CH o LI), sapere se l'IBAN è un QR-IBAN; `iva_attiva` c'è ma non è usato;
+  - le altre colonne ci sono già in `profiles` (`partita_iva`, `cf`, `indirizzo`, `cap`, `comune`/`citta`, `provincia`, `iban`, `regime_fiscale`, `uid`): va solo controllato che l'utente possa scriverle con la sua sessione.
+- [ ] **Marca da bollo (IT, forfettari):** sopra 77,47 € va il bollo da 2 €; oggi né il sito né il trigger lo aggiungono. Nell'app per ora c'è solo l'avviso.
 - [ ] **Dati fiscali dei professionisti:** P.IVA, codice fiscale, indirizzo, IBAN e regime non si possono inserire dal Profilo del professionista (in IT ce li hanno 0 su 7). In CH indirizzo, IBAN e numero IVA non hanno nessuna schermata.
 - [ ] **Cliente italiano:** il codice destinatario SDI e la PEC di fatturazione non sono nel modulo cliente; la P.IVA c'è solo per le persone giuridiche.
 - [ ] **QR-fattura svizzera:** non conforme agli indirizzi «S» (obbligatori dal 21.11.2025), paese fisso «CH», IBAN preso dal profilo e non dalla fattura, niente QR-IBAN.
-- [ ] **Fiduciari (CH):** vedono «Fatturazione», ma `crea-fattura` accetta solo gli avvocati.
+- [ ] **Fiduciari (CH):** vedono «Fatturazione», ma `crea-fattura` accetta solo gli avvocati. Nell'app il fiduciario ha Fatture: con i dati veri gli darebbe errore finché la funzione non accetta anche il suo ruolo.
+- [ ] **Commercialisti (IT):** sul sito vedono il calcolatore forense, che per loro non vale (servirebbe il DM 140/2012). Nell'app non lo vedono.
 - [ ] **IVA svizzera:** l'8.1% si applica anche a chi non è assoggettato (`iva_attiva` non usato).
+- [ ] **Ritenuta d'acconto (IT):** se il cliente paga il netto, il trigger lascia la fattura «in attesa» per un residuo pari alla ritenuta. Nell'app la fattura passa a «pagata» quando arriva il netto: il trigger andrebbe allineato.
 - [ ] **Calendario IT:** il DB vuole sempre il cliente in un appuntamento, ma il modulo lo dice facoltativo.
 - [ ] **Promemoria CH:** manca il job giornaliero di `genera-notifiche`, e la funzione cerca una colonna `luogo` che non esiste.
 - [ ] **Collaboratori di pratica (IT):** mancano le regole per aggiungerli o toglierli; `pratiche.studio_id` non viene riempito.

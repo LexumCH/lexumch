@@ -9,6 +9,7 @@ import {
   type Esito,
   type Fattura,
   type Pratica,
+  type RigaFattura,
   type StatoEvento,
   type TipoCausa,
 } from '@/dati-finti/studio';
@@ -31,6 +32,9 @@ export type NuovaPratica = {
 
 export type NuovaFattura = Omit<Fattura, 'id' | 'numero' | 'stato' | 'pagamenti' | 'pdf'>;
 
+// Righe calcolate dal calcolatore della parcella, in attesa che la nuova fattura le prenda.
+export type Parcella = { righe: Omit<RigaFattura, 'id'>[]; modo: 'aggiungi' | 'sostituisci' };
+
 type Azioni = {
   creaPratica: (p: NuovaPratica) => string;
   chiudiPratica: (id: string, esito: Esito) => void;
@@ -45,13 +49,15 @@ type Azioni = {
   salvaAppuntamento: (a: Omit<Appuntamento, 'id' | 'stato'> & { id?: string }) => void;
   statoAppuntamento: (id: string, stato: StatoEvento) => void;
   creaFattura: (f: NuovaFattura) => string;
-  registraPagamento: (fatturaId: string, importo: number, metodo: string) => void;
+  registraPagamento: (fatturaId: string, importo: number, metodo: string, data?: string) => void;
   annullaFattura: (fatturaId: string) => void;
   generaPdf: (fatturaId: string) => void;
   salvaDatiFatturazione: (d: DatiFatturazione) => void;
+  preparaParcella: (p: Parcella) => void;
+  scartaParcella: () => void;
 };
 
-type Valore = DatiStudio & { azioni: Azioni };
+type Valore = DatiStudio & { azioni: Azioni; parcella: Parcella | null };
 
 const Contesto = createContext<Valore | null>(null);
 
@@ -68,6 +74,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }
 
   const dati = useMemo(() => mappa[chiave] ?? studioFinto(paese, ruolo), [mappa, chiave, paese, ruolo]);
+  const [parcella, setParcella] = useState<Parcella | null>(null);
 
   const aggiorna = useCallback(
     (fn: (d: DatiStudio) => DatiStudio) => {
@@ -227,14 +234,14 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         return id;
       },
       // Come il trigger `trg_aggiorna_stato_da_pagamenti`, ma confrontando con quanto il cliente paga davvero.
-      registraPagamento: (fatturaId, importo, metodo) =>
+      registraPagamento: (fatturaId, importo, metodo, data) =>
         aggiorna((d) => ({
           ...d,
           fatture: d.fatture.map((f) => {
             if (f.id !== fatturaId) return f;
             const pagamenti = [
               ...f.pagamenti,
-              { id: nuovoId('pg'), data: new Date().toISOString(), importo, metodo },
+              { id: nuovoId('pg'), data: data ?? new Date().toISOString(), importo, metodo },
             ];
             const t = totaliFattura({ ...f, pagamenti }, paese);
             return { ...f, pagamenti, stato: t.residuo <= 0.01 ? 'pagata' : f.stato };
@@ -251,10 +258,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           fatture: d.fatture.map((f) => (f.id === fatturaId ? { ...f, pdf: true } : f)),
         })),
       salvaDatiFatturazione: (fatturazione) => aggiorna((d) => ({ ...d, fatturazione })),
+      preparaParcella: (p) => setParcella(p),
+      scartaParcella: () => setParcella(null),
     };
   }, [aggiorna, conPratica, dati, paese]);
 
-  const valore = useMemo<Valore>(() => ({ ...dati, azioni }), [dati, azioni]);
+  const valore = useMemo<Valore>(() => ({ ...dati, azioni, parcella }), [dati, azioni, parcella]);
   return <Contesto.Provider value={valore}>{children}</Contesto.Provider>;
 }
 

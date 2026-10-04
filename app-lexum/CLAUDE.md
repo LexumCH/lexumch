@@ -18,7 +18,12 @@
 
 Sotto le voci, il menù mostra le etichette dell'utente (non uno storico delle chat). Non c'è una voce «Acquisti».
 
-Gli strumenti per avvocati, commercialisti, fiduciari e progettisti restano sul sito, e l'app ci rimanda.
+Per i professionisti il menù ha in più il gruppo «Studio» (deciso da Antonino il 04-10-2026):
+- avvocati: Pratiche, Calendario, Fatture;
+- commercialisti e fiduciari: per ora solo Calendario e Fatture;
+- progettisti: niente.
+
+Il resto degli strumenti professionali (clienti, mandati, documenti dello studio, statistiche) resta sul sito, e l'app ci rimanda.
 
 È un'app sola per più paesi. Oggi ce ne sono due:
 - Italia: lexum.it, database IT;
@@ -50,6 +55,7 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
 - `src/paesi/`: registro dei paesi (da `docs/paesi.json`), testi per paese, numeri provvisori delle fonti (`numeri.ts`).
 - `src/stato/`: stato dell'app (paese attivo, conto, chat in corso) e menù.
 - `src/dati-finti/`: i dati finti della tappa 1. Si tolgono man mano che arrivano i dati veri.
+- `src/studio/`: regole e pezzi dello Studio dei professionisti (date, campi, fatture, calcolatore della parcella); lo stato è in `src/stato/Studio.tsx`.
 - `src/anteprima/`: solo per il browser, la sagoma del telefono e l'elenco delle schermate per la revisione.
 - `src/testi/`: testi approvati da Antonino (domande frequenti, «Elimina account»), anche in tedesco e francese. Le fonti sono in `docs/testi/`: non cambiarli senza di lui.
 - `src/errori.ts`: messaggi d'errore white-label, la stessa regola di `sanitizzaErrore.js` del sito.
@@ -96,7 +102,7 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
   2. «Paese e banca dati»;
   3. solo in Svizzera, la lingua dell'app (italiano, Deutsch, français), che cambia tutti i testi;
   4. «Crediti e piano»;
-  5. account;
+  5. account (per chi fattura, anche «Dati di fatturazione»);
   6. «Su questo telefono»: blocco con Face ID o impronta e Ricerche anche senza rete, tutti e due spenti finché l'utente non li accende;
   7. la parte «Completa il profilo / Che professionista sei?», che rimanda al sito;
   8. ultimo, in un riquadro suo, «Elimina account».
@@ -119,7 +125,12 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
   - Ricerche anche senza rete: si sceglie dal Profilo, spenta di base;
   - gestione delle etichette come sul sito;
   - verifica in due passaggi con un'app di autenticazione, la stessa del sito: un fattore per account di paese, lo stesso codice vale su app e sito (`supabase.auth.mfa` e `mfa-backup-codes`).
-- **Accesso per tutti** (deciso da Antonino il 03-10-2026): nell'app entra chiunque abbia un account del sito, privato o professionista (avvocato, commercialista, fiduciario, progettista, cliente di uno studio, admin). Stesse schermate, mai un errore «non sei un utente». Un professionista trova in Profilo il rimando ai suoi strumenti sul sito. I ruoli sono in `src/ruoli.ts`.
+- **Accesso per tutti** (deciso da Antonino il 03-10-2026): nell'app entra chiunque abbia un account del sito, privato o professionista (avvocato, commercialista, fiduciario, progettista, cliente di uno studio, admin). Stesse schermate, mai un errore «non sei un utente». Un professionista trova nel menù il suo Studio e in Profilo il rimando al resto sul sito. I ruoli e gli strumenti di ognuno sono in `src/ruoli.ts`.
+- **Fatture, due processi** (dal 04-10-2026): Italia e Svizzera fatturano in modo diverso, anche nel database.
+  - Italia: CPA (o contributo integrativo) 4% sull'imponibile, IVA 22% su imponibile + CPA, ritenuta 20% sull'imponibile se il cliente è sostituto d'imposta. Calcolatore della parcella solo per gli avvocati.
+  - Svizzera: IVA 8,1% sull'imponibile oppure esente con il motivo; data o periodo della prestazione obbligatori; QR-fattura.
+  - Le regole stanno in `src/studio/fatturazione.ts` e `src/studio/calcoli.ts`; il calcolatore in `src/studio/parametri-forensi/` è una copia del sito: se il sito cambia, va aggiornato.
+  - Senza i dati di fatturazione del professionista o quelli del cliente, la nuova fattura non parte e dice cosa manca.
 - **Elimina account:** deve esistere nell'app, perché Apple lo pretende.
 - **White-label:** nei messaggi d'errore non compaiono mai nomi di fornitori AI (OpenAI, Anthropic, Mistral), modelli o indirizzi tecnici. Si mostra un messaggio generico.
 

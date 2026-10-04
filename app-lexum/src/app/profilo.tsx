@@ -26,8 +26,10 @@ import { FoglioProfessionista } from '@/fogli/FoglioProfessionista';
 import { apriSito, ricominciaDa } from '@/navigazione';
 import { contenuti } from '@/paesi/contenuti';
 import { dominio, paesePredefinito, trovaPaese } from '@/paesi/registro';
-import { gruppoRuolo, nomeRuolo } from '@/ruoli';
+import { gruppoRuolo, nomeRuolo, strumentiStudio } from '@/ruoli';
+import { mancanoAlProfessionista } from '@/studio/fatturazione';
 import { useStato, type LinguaCH } from '@/stato/Stato';
+import { useStudio } from '@/stato/Studio';
 import { colori, famiglie } from '@/tema';
 
 type Foglio = 'paese' | 'professionista' | 'elimina' | 'due-passaggi';
@@ -35,13 +37,17 @@ type Foglio = 'paese' | 'professionista' | 'elimina' | 'due-passaggi';
 const nomiLingue: Record<string, string> = { it: 'Italiano', de: 'Deutsch', fr: 'Français' };
 
 // D4 e G6 · Profilo, in quest'ordine: intestazione, paese e banca dati, lingua (solo dove ce n'è più d'una),
-// crediti e piano, account, «Su questo telefono», «Completa il profilo» (per un professionista: il rimando
-// ai suoi strumenti sul sito) e, ultimo, «Elimina account».
+// crediti e piano, account (per chi fattura anche «Dati di fatturazione»), «Su questo telefono»,
+// «Completa il profilo» (per un professionista: cosa trova nell'app e cosa sul sito) e, ultimo, «Elimina account».
 // Niente pagamenti nell'app: i pulsanti aprono il sito.
 export default function Profilo() {
   const { paese, conto, lingua, accessi, telefono, dueFattori, ruoli, azioni } = useStato();
   const ruolo = ruoli[paese] ?? 'user';
   const gruppo = gruppoRuolo(ruolo);
+  const strumenti = strumentiStudio(ruolo);
+  const { fatturazione } = useStudio();
+  const datiMancanti =
+    strumenti.includes('fatture') && mancanoAlProfessionista(fatturazione, paese).length > 0;
   // Il foglio aperto sta nei parametri dell'indirizzo (?foglio=paese), come nella chat.
   // ?verso=CH apre il cambio paese con l'altro paese già scelto (solo per l'elenco delle schermate).
   const parametri = useLocalSearchParams<{ foglio?: Foglio; verso?: string }>();
@@ -163,6 +169,22 @@ export default function Profilo() {
           freccia="avanti"
           onPress={() => setFoglio('due-passaggi')}
         />
+        {strumenti.includes('fatture') ? (
+          <Riga
+            stretta
+            titolo="Dati di fatturazione"
+            sottotitolo={
+              datiMancanti
+                ? 'Da completare: servono per emettere le fatture'
+                : paese === 'CH'
+                  ? 'Indirizzo, IBAN per la QR-fattura, IVA'
+                  : 'Partita IVA, codice fiscale, indirizzo, IBAN'
+            }
+            valore={datiMancanti ? 'Mancano' : undefined}
+            freccia="avanti"
+            onPress={() => router.push('/fatture/dati')}
+          />
+        ) : null}
         <Riga stretta titolo="Notifiche" sottotitolo="Quando la risposta di Lex è pronta" freccia="avanti" />
         <Riga
           stretta
@@ -231,12 +253,18 @@ export default function Profilo() {
                   ? 'Il portale del tuo studio è sul sito'
                   : gruppo === 'interno'
                     ? 'Il pannello di gestione è sul sito'
-                    : 'I tuoi strumenti professionali sono sul sito'}
+                    : strumenti.length > 0
+                      ? 'Il tuo studio è anche qui'
+                      : 'I tuoi strumenti professionali sono sul sito'}
               </Testo>
               <Testo tipo="small" colore={colori.fg2}>
-                {gruppo === 'professionista'
-                  ? `Qui hai Lex, la Banca dati, le tue ricerche e l'archivio. Pratiche, clienti, scadenze e fatture restano su ${dominio(datiPaese)}.`
-                  : `Qui hai Lex, la Banca dati, le tue ricerche e l'archivio. Il resto lo trovi su ${dominio(datiPaese)}, con lo stesso account.`}
+                {strumenti.includes('mandati')
+                  ? `Pratiche, calendario e fatture sono nel menù. Clienti, documenti dello studio e statistiche restano su ${dominio(datiPaese)}.`
+                  : strumenti.length > 0
+                    ? `Calendario e fatture sono nel menù. Clienti, mandati e il resto restano su ${dominio(datiPaese)}.`
+                    : gruppo === 'professionista'
+                      ? `Qui hai Lex, la Banca dati, le tue ricerche e l'archivio. Pratiche, clienti, scadenze e fatture restano su ${dominio(datiPaese)}.`
+                      : `Qui hai Lex, la Banca dati, le tue ricerche e l'archivio. Il resto lo trovi su ${dominio(datiPaese)}, con lo stesso account.`}
               </Testo>
               <Pulsante
                 titolo={`Apri ${dominio(datiPaese)}`}
