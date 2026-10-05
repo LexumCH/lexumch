@@ -47,7 +47,7 @@ jest.mock('expo-linking', () => ({
     `lexum:/${percorso}${o?.queryParams ? `?${new URLSearchParams(o.queryParams).toString()}` : ''}`,
 }));
 
-const utente = { id: 'u1', email: 'test1@gmail.com' };
+const utente = { id: 'u1', email: 'avvocato@example.com' };
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -57,10 +57,10 @@ beforeEach(() => {
 describe('accesso con email e password', () => {
   it('entra con il ruolo letto dal profilo, nel database del paese giusto', async () => {
     mockClient.auth.signInWithPassword.mockResolvedValueOnce({ data: { user: utente }, error: null });
-    const esito = await accedi('CH', '  test1@gmail.com ', 'segreta');
+    const esito = await accedi('CH', '  avvocato@example.com ', 'segreta');
     expect(clientDi).toHaveBeenCalledWith('CH');
     expect(mockClient.auth.signInWithPassword).toHaveBeenCalledWith({
-      email: 'test1@gmail.com',
+      email: 'avvocato@example.com',
       password: 'segreta',
     });
     expect(esito).toEqual({
@@ -68,14 +68,14 @@ describe('accesso con email e password', () => {
       ruolo: 'avvocato',
       nome: 'Laura',
       cognome: 'Rossi',
-      email: 'test1@gmail.com',
+      email: 'avvocato@example.com',
     });
   });
 
   it('senza profilo leggibile entra come privato: mai un errore di ruolo', async () => {
     mockProfilo.data = null;
     mockClient.auth.signInWithPassword.mockResolvedValueOnce({ data: { user: utente }, error: null });
-    const esito = await accedi('IT', 'test1@gmail.com', 'x');
+    const esito = await accedi('IT', 'avvocato@example.com', 'x');
     expect(esito).toMatchObject({ esito: 'ok', ruolo: 'user' });
   });
 
@@ -84,7 +84,7 @@ describe('accesso con email e password', () => {
     mockClient.auth.mfa.getAuthenticatorAssuranceLevel.mockResolvedValueOnce({
       data: { currentLevel: 'aal1', nextLevel: 'aal2' },
     });
-    expect(await accedi('IT', 'test1@gmail.com', 'x')).toEqual({ esito: 'due-passaggi' });
+    expect(await accedi('IT', 'avvocato@example.com', 'x')).toEqual({ esito: 'due-passaggi' });
   });
 
   it('password sbagliata, email da confermare, rete: frasi per l’utente', async () => {
@@ -193,7 +193,7 @@ describe('registrazione e link delle email', () => {
       'lexum://avvio/nuova-password?paese=IT#access_token=a1&refresh_token=r1&type=recovery',
     );
     expect(mockClient.auth.setSession).toHaveBeenCalledWith({ access_token: 'a1', refresh_token: 'r1' });
-    expect(ok).toMatchObject({ esito: 'ok', email: 'test1@gmail.com' });
+    expect(ok).toMatchObject({ esito: 'ok', email: 'avvocato@example.com' });
     const ko = await sessioneDaLink(
       'IT',
       'lexum://avvio/nuova-password#error=access_denied&error_description=expired',
