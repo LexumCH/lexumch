@@ -1,0 +1,300 @@
+diff --git a/public/locales/de/user_profilo.json b/public/locales/de/user_profilo.json
+index eec83b9..bf18903 100644
+--- a/public/locales/de/user_profilo.json
++++ b/public/locales/de/user_profilo.json
+@@ -40,5 +40,24 @@
+     "aggiorna": "Passwort aktualisieren",
+     "err_min": "Mindestens 8 Zeichen",
+     "err_mismatch": "Die Passwörter stimmen nicht überein"
++  },
++  "sicurezza": {
++    "titolo": "Sicherheit",
++    "due_fattori": "Zwei-Faktor-Authentifizierung (2FA)",
++    "attiva_dal": "Aktiv seit {{data}}. Beim Login werden Sie nach einem Code aus der Authenticator-App gefragt.",
++    "descrizione": "Schützen Sie Ihr Konto mit einem Code aus Apps wie Google Authenticator, Authy oder 1Password.",
++    "attivo": "Aktiv",
++    "non_attivo": "Nicht aktiv",
++    "codici_recupero": "Wiederherstellungscodes",
++    "codici_disponibili": "{{n}} von 10 verfügbar",
++    "codici_quasi_esauriti": "Codes fast aufgebraucht — generieren Sie sie zur Sicherheit neu.",
++    "rigenero": "Wird neu generiert…",
++    "rigenera": "Codes neu generieren",
++    "errore_generico": "Fehler",
++    "attiva_2fa": "2FA aktivieren",
++    "disattivo": "Wird deaktiviert…",
++    "disattiva_2fa": "2FA deaktivieren",
++    "conferma_rigenera": "Wiederherstellungscodes neu generieren? Die bisherigen Codes werden ungültig.",
++    "conferma_disattiva": "2FA deaktivieren? Ihr Konto wird dadurch weniger sicher."
+   }
+ }
+diff --git a/public/locales/fr/user_profilo.json b/public/locales/fr/user_profilo.json
+index d03ef6d..4c4ba6f 100644
+--- a/public/locales/fr/user_profilo.json
++++ b/public/locales/fr/user_profilo.json
+@@ -40,5 +40,24 @@
+     "aggiorna": "Mettre à jour le mot de passe",
+     "err_min": "Minimum 8 caractères",
+     "err_mismatch": "Les mots de passe ne correspondent pas"
++  },
++  "sicurezza": {
++    "titolo": "Sécurité",
++    "due_fattori": "Authentification à deux facteurs (2FA)",
++    "attiva_dal": "Active depuis le {{data}}. Lors de la connexion, un code de l'application d'authentification vous sera demandé.",
++    "descrizione": "Protégez votre compte avec un code généré par des applications comme Google Authenticator, Authy ou 1Password.",
++    "attivo": "Actif",
++    "non_attivo": "Inactif",
++    "codici_recupero": "Codes de récupération",
++    "codici_disponibili": "{{n}} sur 10 disponibles",
++    "codici_quasi_esauriti": "Codes presque épuisés — régénérez-les par sécurité.",
++    "rigenero": "Régénération…",
++    "rigenera": "Régénérer les codes",
++    "errore_generico": "Erreur",
++    "attiva_2fa": "Activer la 2FA",
++    "disattivo": "Désactivation…",
++    "disattiva_2fa": "Désactiver la 2FA",
++    "conferma_rigenera": "Régénérer les codes de récupération ? Les codes précédents deviendront invalides.",
++    "conferma_disattiva": "Désactiver la 2FA ? Votre compte sera moins sécurisé."
+   }
+ }
+diff --git a/public/locales/it/user_profilo.json b/public/locales/it/user_profilo.json
+index ab71331..1fad086 100644
+--- a/public/locales/it/user_profilo.json
++++ b/public/locales/it/user_profilo.json
+@@ -40,5 +40,24 @@
+     "aggiorna": "Aggiorna password",
+     "err_min": "Minimo 8 caratteri",
+     "err_mismatch": "Le password non corrispondono"
++  },
++  "sicurezza": {
++    "titolo": "Sicurezza",
++    "due_fattori": "Autenticazione a due fattori (2FA)",
++    "attiva_dal": "Attiva dal {{data}}. Al login ti verrà chiesto un codice dall'app autenticatore.",
++    "descrizione": "Proteggi il tuo account con un codice generato da app come Google Authenticator, Authy o 1Password.",
++    "attivo": "Attivo",
++    "non_attivo": "Non attivo",
++    "codici_recupero": "Codici di recupero",
++    "codici_disponibili": "{{n}} su 10 disponibili",
++    "codici_quasi_esauriti": "Codici quasi esauriti — rigenerali per sicurezza.",
++    "rigenero": "Rigenero…",
++    "rigenera": "Rigenera codici",
++    "errore_generico": "Errore",
++    "attiva_2fa": "Attiva 2FA",
++    "disattivo": "Disattivo…",
++    "disattiva_2fa": "Disattiva 2FA",
++    "conferma_rigenera": "Rigenerare i codici di recupero? I codici precedenti diventeranno invalidi.",
++    "conferma_disattiva": "Disattivare il 2FA? Il tuo account sarà meno sicuro."
+   }
+ }
+diff --git a/src/pages/user/Profilo.jsx b/src/pages/user/Profilo.jsx
+index fb90784..a7d5778 100644
+--- a/src/pages/user/Profilo.jsx
++++ b/src/pages/user/Profilo.jsx
+@@ -3,12 +3,16 @@ import { useTranslation } from 'react-i18next'
+ import { useAuth } from '@/context/AuthContext'
+ import { supabase } from '@/lib/supabase'
+ import { PageHeader, InputField, Badge } from '@/components/shared'
+-import { Check, CheckCircle, AlertCircle, Scale, Clock, Loader2 } from 'lucide-react'
++import { Check, CheckCircle, AlertCircle, Scale, Clock, Loader2, Shield, ShieldCheck } from 'lucide-react'
+ import SelectLingua from '@/components/SelectLingua'
++import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
++import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
+ 
+ export default function UserProfilo() {
+     const { t, i18n } = useTranslation('user_profilo')
+     const { profile } = useAuth()
++    const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
++    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+ 
+     // ── Dati personali ──
+     const [form, setForm] = useState({
+@@ -43,6 +47,51 @@ export default function UserProfilo() {
+     const [okPwd, setOkPwd] = useState(false)
+     const [errPwd, setErrPwd] = useState('')
+ 
++    // ── 2FA ──
++    const [mfaAttivo, setMfaAttivo] = useState(false)
++    const [mfaAttivatoAt, setMfaAttivatoAt] = useState(null)
++    const [codiciRestanti, setCodiciRestanti] = useState(null)
++    const [modal2FA, setModal2FA] = useState(false)
++    const [codiciDaMostrare, setCodiciDaMostrare] = useState(null)
++    const [rigenerando, setRigenerando] = useState(false)
++    const [disattivando, setDisattivando] = useState(false)
++    const [err2FA, setErr2FA] = useState('')
++
++    // Stato 2FA letto da profiles, come nel profilo avvocato
++    useEffect(() => {
++        let annullato = false
++        async function caricaMfa() {
++            try {
++                const { data: { user } } = await supabase.auth.getUser()
++                if (!user) return
++                const { data: profilo } = await supabase
++                    .from('profiles')
++                    .select('mfa_attivo, mfa_attivato_at')
++                    .eq('id', user.id)
++                    .single()
++                if (annullato || !profilo) return
++
++                setMfaAttivo(profilo.mfa_attivo ?? false)
++                setMfaAttivatoAt(profilo.mfa_attivato_at ?? null)
++
++                if (profilo.mfa_attivo) {
++                    try {
++                        const { data } = await supabase.functions.invoke('mfa-backup-codes', {
++                            body: { action: 'status' }
++                        })
++                        if (!annullato && data?.ok) setCodiciRestanti(data.restanti)
++                    } catch (err) {
++                        console.error('Status backup codes:', err)
++                    }
++                }
++            } catch (err) {
++                console.error('Stato 2FA:', err)
++            }
++        }
++        caricaMfa()
++        return () => { annullato = true }
++    }, [])
++
+     const f = k => ({
+         value: form[k],
+         onChange: e => { setForm(p => ({ ...p, [k]: e.target.value })); setErrDati('') }
+@@ -109,6 +158,48 @@ export default function UserProfilo() {
+         }
+     }
+ 
++    // ── 2FA ──
++    async function handleAttiva2FASuccess(codici) {
++        setModal2FA(false)
++        setMfaAttivo(true)
++        setMfaAttivatoAt(new Date().toISOString())
++        setCodiciDaMostrare(codici)
++        setCodiciRestanti(codici.length)
++    }
++
++    async function handleRigeneraCodici() {
++        if (!confirm(t('sicurezza.conferma_rigenera'))) return
++        setRigenerando(true); setErr2FA('')
++        try {
++            const { data, error } = await supabase.functions.invoke('mfa-backup-codes', {
++                body: { action: 'regenerate' }
++            })
++            if (error) throw new Error(error.message)
++            if (!data?.ok) throw new Error(data?.error ?? t('sicurezza.errore_generico'))
++            setCodiciDaMostrare(data.codici)
++            setCodiciRestanti(data.codici.length)
++        } catch (err) { setErr2FA(err.message) }
++        finally { setRigenerando(false) }
++    }
++
++    async function handleDisattiva2FA() {
++        if (!confirm(t('sicurezza.conferma_disattiva'))) return
++        setDisattivando(true); setErr2FA('')
++        try {
++            const { data: factors } = await supabase.auth.mfa.listFactors()
++            for (const fattore of (factors?.totp ?? [])) {
++                await supabase.auth.mfa.unenroll({ factorId: fattore.id })
++            }
++            // Pulisci backup codes
++            const { data: { user } } = await supabase.auth.getUser()
++            await supabase.from('mfa_backup_codes').delete().eq('user_id', user.id)
++            setMfaAttivo(false)
++            setMfaAttivatoAt(null)
++            setCodiciRestanti(null)
++        } catch (err) { setErr2FA(err.message) }
++        finally { setDisattivando(false) }
++    }
++
+     return (
+         <div className="space-y-5 max-w-2xl">
+             <PageHeader label={t('header.label')} title={t('header.title')} />
+@@ -235,6 +326,88 @@ export default function UserProfilo() {
+                     </>
+                 )}
+             </div>
++
++            {/* Sicurezza — 2FA */}
++            <div className="bg-slate border border-white/5 p-6 space-y-5">
++                <div className="flex items-center gap-2">
++                    {mfaAttivo
++                        ? <ShieldCheck size={14} className="text-salvia" />
++                        : <Shield size={14} className="text-nebbia/40" />
++                    }
++                    <p className="section-label !m-0">{t('sicurezza.titolo')}</p>
++                </div>
++
++                <div className="flex items-start justify-between gap-4">
++                    <div className="flex-1 min-w-0">
++                        <p className="font-body text-sm text-nebbia mb-1">
++                            {t('sicurezza.due_fattori')}
++                        </p>
++                        <p className="font-body text-xs text-nebbia/40 leading-relaxed">
++                            {mfaAttivo
++                                ? t('sicurezza.attiva_dal', { data: mfaAttivatoAt ? new Date(mfaAttivatoAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' }) : '—' })
++                                : t('sicurezza.descrizione')
++                            }
++                        </p>
++                    </div>
++                    <span className={`font-body text-[10px] px-2 py-0.5 uppercase tracking-wider whitespace-nowrap ${mfaAttivo
++                        ? 'text-salvia border border-salvia/30 bg-salvia/5'
++                        : 'text-nebbia/40 border border-white/10 bg-white/5'
++                        }`}>
++                        {mfaAttivo ? t('sicurezza.attivo') : t('sicurezza.non_attivo')}
++                    </span>
++                </div>
++
++                {mfaAttivo && codiciRestanti !== null && (
++                    <div className="bg-petrolio border border-white/5 p-4 flex items-center justify-between">
++                        <div>
++                            <p className="font-body text-xs text-nebbia/40 uppercase tracking-widest mb-1">{t('sicurezza.codici_recupero')}</p>
++                            <p className="font-body text-sm text-nebbia">{t('sicurezza.codici_disponibili', { n: codiciRestanti })}</p>
++                            {codiciRestanti <= 3 && (
++                                <p className="font-body text-xs text-amber-400 mt-1">
++                                    {t('sicurezza.codici_quasi_esauriti')}
++                                </p>
++                            )}
++                        </div>
++                        <button onClick={handleRigeneraCodici} disabled={rigenerando}
++                            className="font-body text-xs text-oro hover:text-oro/70 border border-oro/30 hover:border-oro/60 px-3 py-1.5 disabled:opacity-40">
++                            {rigenerando ? t('sicurezza.rigenero') : t('sicurezza.rigenera')}
++                        </button>
++                    </div>
++                )}
++
++                {err2FA && (
++                    <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
++                        <AlertCircle size={14} /> {err2FA}
++                    </div>
++                )}
++
++                <div className="flex gap-2">
++                    {!mfaAttivo ? (
++                        <button onClick={() => setModal2FA(true)} className="btn-primary text-sm flex items-center gap-2">
++                            <Shield size={14} /> {t('sicurezza.attiva_2fa')}
++                        </button>
++                    ) : (
++                        <button onClick={handleDisattiva2FA} disabled={disattivando}
++                            className="font-body text-sm text-red-400/80 hover:text-red-400 border border-red-500/30 hover:border-red-500/60 px-4 py-2.5 disabled:opacity-40">
++                            {disattivando ? t('sicurezza.disattivo') : t('sicurezza.disattiva_2fa')}
++                        </button>
++                    )}
++                </div>
++            </div>
++
++            {/* Modali 2FA */}
++            {modal2FA && (
++                <ModalAttiva2FA
++                    onClose={() => setModal2FA(false)}
++                    onSuccess={handleAttiva2FASuccess}
++                />
++            )}
++            {codiciDaMostrare && (
++                <ModalBackupCodes
++                    codici={codiciDaMostrare}
++                    onClose={() => setCodiciDaMostrare(null)}
++                />
++            )}
+         </div>
+     )
+ }
+\ No newline at end of file

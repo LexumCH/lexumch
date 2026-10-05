@@ -1,0 +1,242 @@
+From 6c37896040d3d285be1aec32cc7586639b9e5c1f Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 4 Oct 2026 23:30:10 +0000
+Subject: [PATCH] dashboard avvocato CH: oggi e 7 giorni, pratiche entro 14
+ giorni, da incassare reale, messaggi
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- «Oggi» e «Prossimi 7 giorni»: la colonna è data_ora_inizio (data_inizio
+  non esiste, le sezioni restavano vuote); appuntamenti contati con i tipi
+  del database (presenza, videocall, telefonico)
+- «Pratiche che richiedono attenzione»: udienza da oggi a fra 14 giorni
+  (con .or() passavano tutte le date)
+- «Da incassare» e fatture dell'agenda: totale meno pagamenti parziali;
+  tra le scadute solo quelle da pagare (non più le annullate); l'anno
+  della fattura in scadenza da anno_numerazione
+- «Messaggi non letti»: come la pagina Assistenza (mittente o
+  destinatario, ultimo messaggio del cliente)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01Fy164qHj2S7SJwUkQko3Vq
+---
+ src/pages/avvocato/Dashboard.jsx | 116 +++++++++++++++++++++----------
+ 1 file changed, 78 insertions(+), 38 deletions(-)
+
+diff --git a/src/pages/avvocato/Dashboard.jsx b/src/pages/avvocato/Dashboard.jsx
+index ce1d436..da4d3ba 100644
+--- a/src/pages/avvocato/Dashboard.jsx
++++ b/src/pages/avvocato/Dashboard.jsx
+@@ -48,6 +48,52 @@ function badgeUrgenza(gg, t) {
+   return { label: t('badge.fra_giorni', { count: gg }), color: 'text-nebbia/50 border-white/10 bg-petrolio/40' }
+ }
+ 
++// ─────────────────────────────────────────────────────────────
++// FATTURE APERTE E MESSAGGI: helper
++// ─────────────────────────────────────────────────────────────
++
++// Quanto resta davvero da incassare, come il dettaglio della fattura: il totale meno
++// i pagamenti già registrati (pagamenti_fattura).
++async function residuiFatture(fatture) {
++  const ids = fatture.map(f => f.id)
++  if (ids.length === 0) return {}
++  const { data: pag } = await supabase.from('pagamenti_fattura').select('fattura_id, importo').in('fattura_id', ids)
++  const pagato = {}
++  for (const p of pag ?? []) pagato[p.fattura_id] = (pagato[p.fattura_id] ?? 0) + (Number(p.importo) || 0)
++  const residui = {}
++  for (const f of fatture) {
++    residui[f.id] = Math.max(0, Math.round(((Number(f.totale) || 0) - (pagato[f.id] ?? 0)) * 100) / 100)
++  }
++  return residui
++}
++
++// Ticket aperti con un cliente in cui l'ultimo messaggio è del cliente. Come la pagina
++// Assistenza: ticket_assistenza non ha cliente né avvocato, ma mittente e destinatario,
++// e `ultimo_mittente` non cambia quando si risponde, quindi conta l'autore dell'ultimo
++// messaggio (messaggi_ticket.autore_tipo).
++async function messaggiNonLetti(meId) {
++  const { data } = await supabase
++    .from('ticket_assistenza')
++    .select(`
++      id, oggetto, stato, updated_at,
++      mittente:mittente_id(nome, cognome, ragione_sociale, tipo_soggetto, role),
++      destinatario:destinatario_id(nome, cognome, ragione_sociale, tipo_soggetto, role),
++      messaggi:messaggi_ticket(autore_tipo, created_at)
++    `)
++    .or(`mittente_id.eq.${meId},destinatario_id.eq.${meId}`)
++    .eq('stato', 'aperto')
++    .order('updated_at', { ascending: false })
++  const out = []
++  for (const t of data ?? []) {
++    const cliente = t.mittente?.role === 'cliente' ? t.mittente : t.destinatario?.role === 'cliente' ? t.destinatario : null
++    if (!cliente) continue
++    const ultimo = [...(t.messaggi ?? [])].sort((a, b) => (b.created_at ?? '').localeCompare(a.created_at ?? ''))[0]
++    if (ultimo?.autore_tipo !== 'cliente') continue
++    out.push({ id: t.id, oggetto: t.oggetto, cliente, ultimo_messaggio_at: ultimo.created_at })
++  }
++  return out.sort((a, b) => (b.ultimo_messaggio_at ?? '').localeCompare(a.ultimo_messaggio_at ?? '')).slice(0, 5)
++}
++
+ // ─────────────────────────────────────────────────────────────
+ // RANGE DATE: helper
+ // ─────────────────────────────────────────────────────────────
+@@ -377,17 +423,16 @@ export default function AvvocatoDashboard() {
+     }
+ 
+     // ─── Da incassare: TUTTO il debito attivo, indipendente dal periodo ───
+-    // Tutte le fatture in attesa (anche scadute) escluso bozza/pagata/annullata
++    // Tutte le fatture in attesa (anche scadute) escluso bozza/pagata/annullata,
++    // meno i pagamenti parziali già registrati
+     const { data: fattAttive } = await supabase
+       .from('fatture')
+-      .select('totale, stato, data_scadenza')
++      .select('id, totale, stato, data_scadenza')
+       .eq('avvocato_id', profile.id)
+       .in('stato', ['in_attesa', 'scaduta'])
+ 
+-    const daIncassare = (fattAttive ?? []).reduce(
+-      (sum, f) => sum + (Number(f.totale) || 0),
+-      0
+-    )
++    const residui = await residuiFatture(fattAttive ?? [])
++    const daIncassare = Object.values(residui).reduce((sum, r) => sum + r, 0)
+ 
+     setPeriodo({
+       pratiche_chiuse: countChiuse ?? 0,
+@@ -405,26 +450,26 @@ export default function AvvocatoDashboard() {
+     const fineGiorno = new Date(oggi); fineGiorno.setHours(23, 59, 59, 999)
+     const fra7gg = new Date(oggi); fra7gg.setDate(fra7gg.getDate() + 7)
+     const fra3gg = new Date(oggi); fra3gg.setDate(fra3gg.getDate() + 3); fra3gg.setHours(23, 59, 59, 999)
+-    const fra14gg = new Date(oggi); fra14gg.setDate(fra14gg.getDate() + 14)
++    const fra14gg = new Date(oggi); fra14gg.setDate(fra14gg.getDate() + 14); fra14gg.setHours(23, 59, 59, 999)
+ 
+     // OGGI
+     const { data: appOggi } = await supabase
+       .from('appuntamenti')
+-      .select('id, titolo, data_inizio, tipo, pratica_id, pratica:pratica_id(titolo)')
++      .select('id, titolo, data_ora_inizio, tipo, pratica_id, pratica:pratica_id(titolo)')
+       .eq('avvocato_id', profile.id)
+-      .gte('data_inizio', inizioGiorno.toISOString())
+-      .lte('data_inizio', fineGiorno.toISOString())
+-      .order('data_inizio')
++      .gte('data_ora_inizio', inizioGiorno.toISOString())
++      .lte('data_ora_inizio', fineGiorno.toISOString())
++      .order('data_ora_inizio')
+ 
+     // SETTIMANA
+     const domani = new Date(oggi); domani.setDate(domani.getDate() + 1); domani.setHours(0, 0, 0, 0)
+     const { data: appSettimana } = await supabase
+       .from('appuntamenti')
+-      .select('id, titolo, data_inizio, tipo, pratica_id, pratica:pratica_id(titolo)')
++      .select('id, titolo, data_ora_inizio, tipo, pratica_id, pratica:pratica_id(titolo)')
+       .eq('avvocato_id', profile.id)
+-      .gte('data_inizio', domani.toISOString())
+-      .lte('data_inizio', fra7gg.toISOString())
+-      .order('data_inizio')
++      .gte('data_ora_inizio', domani.toISOString())
++      .lte('data_ora_inizio', fra7gg.toISOString())
++      .order('data_ora_inizio')
+       .limit(8)
+ 
+     // PRATICHE ATTENZIONE
+@@ -436,8 +481,10 @@ export default function AvvocatoDashboard() {
+             `)
+       .eq('avvocato_id', profile.id)
+       .eq('stato', 'aperta')
+-      .or(`prossima_udienza.gte.${oggi.toISOString()},prossima_udienza.lte.${fra14gg.toISOString()}`)
+-      .order('prossima_udienza', { ascending: true, nullsFirst: false })
++      // udienza da oggi a fra 14 giorni (prima con .or() passavano tutte le date)
++      .gte('prossima_udienza', inizioGiorno.toISOString())
++      .lte('prossima_udienza', fra14gg.toISOString())
++      .order('prossima_udienza', { ascending: true })
+       .limit(5)
+ 
+     // FATTURE in attesa (scadute + in scadenza 3gg) - NO range, è agenda
+@@ -454,28 +501,21 @@ export default function AvvocatoDashboard() {
+     let inScadenza = []
+ 
+     for (const f of tutteFatture ?? []) {
+-      if (f.stato === 'pagata' || f.stato === 'bozza') continue
++      // solo quelle da pagare (prima comparivano anche le annullate)
++      if (f.stato !== 'in_attesa' && f.stato !== 'scaduta') continue
+       const dataScad = f.data_scadenza ? new Date(f.data_scadenza) : null
+       if (!dataScad) continue
+       if (dataScad < inizioGiorno) scadute.push(f)
+       else if (dataScad <= fra3gg) inScadenza.push(f)
+     }
+-    scadute = scadute.slice(0, 5)
+-    inScadenza = inScadenza.slice(0, 4)
++    // quanto resta da incassare di ognuna (meno i pagamenti parziali)
++    const residuiAgenda = await residuiFatture([...scadute, ...inScadenza])
++    const conResiduo = f => ({ ...f, _residuo: residuiAgenda[f.id] ?? 0 })
++    scadute = scadute.map(conResiduo).filter(f => f._residuo > 0.01).slice(0, 5)
++    inScadenza = inScadenza.map(conResiduo).filter(f => f._residuo > 0.01).slice(0, 4)
+ 
+     // MESSAGGI
+-    const { data: tickets } = await supabase
+-      .from('ticket_assistenza')
+-      .select(`
+-                id, oggetto, ultimo_messaggio_at, stato,
+-                cliente:cliente_id(nome, cognome, ragione_sociale, tipo_soggetto),
+-                ultimo_messaggio_autore_id
+-            `)
+-      .eq('avvocato_id', profile.id)
+-      .neq('ultimo_messaggio_autore_id', profile.id)
+-      .in('stato', ['aperto', 'in_lavorazione'])
+-      .order('ultimo_messaggio_at', { ascending: false })
+-      .limit(5)
++    const tickets = await messaggiNonLetti(profile.id)
+ 
+     setEventiOggi(appOggi ?? [])
+     setEventiSettimana(appSettimana ?? [])
+@@ -494,7 +534,7 @@ export default function AvvocatoDashboard() {
+   const sommario = useMemo(() => {
+     const udienze = eventiOggi.filter(e => e.tipo === 'udienza').length
+     const termini = eventiOggi.filter(e => e.tipo === 'scadenza').length
+-    const appuntamenti = eventiOggi.filter(e => e.tipo === 'appuntamento' || e.tipo === 'chiamata').length
++    const appuntamenti = eventiOggi.filter(e => ['presenza', 'videocall', 'telefonico'].includes(e.tipo)).length
+ 
+     const parti = []
+     if (udienze > 0) parti.push(t('hero.udienze', { count: udienze }))
+@@ -622,7 +662,7 @@ export default function AvvocatoDashboard() {
+             {eventiOggi.length > 0 && (
+               <div className="space-y-0.5">
+                 {eventiOggi.map(e => {
+-                  const ora = new Date(e.data_inizio).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })
++                  const ora = new Date(e.data_ora_inizio).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })
+                   const tipoIcon = e.tipo === 'udienza' ? Scale : e.tipo === 'scadenza' ? AlertTriangle : Calendar
+                   const accent = e.tipo === 'scadenza' ? 'red' : e.tipo === 'udienza' ? 'oro' : 'salvia'
+                   return (
+@@ -673,7 +713,7 @@ export default function AvvocatoDashboard() {
+                       key={f.id}
+                       icon={FileText}
+                       titolo={t('fatturazione.fattura', { anno: f.anno_numerazione, numero: f.numero })}
+-                      sottotitolo={`${nomeCliente(f.cliente)} - CHF ${fmtEUR(f.totale)}`}
++                      sottotitolo={`${nomeCliente(f.cliente)} - CHF ${fmtEUR(f._residuo)}`}
+                       badge={badgeUrgenza(gg, t)}
+                       link="/pagamenti"
+                       accent="red"
+@@ -691,8 +731,8 @@ export default function AvvocatoDashboard() {
+                     <EventoItem
+                       key={f.id}
+                       icon={FileText}
+-                      titolo={t('fatturazione.fattura', { anno: f.anno, numero: f.numero })}
+-                      sottotitolo={`${nomeCliente(f.cliente)} - CHF ${fmtEUR(f.totale)}`}
++                      titolo={t('fatturazione.fattura', { anno: f.anno_numerazione, numero: f.numero })}
++                      sottotitolo={`${nomeCliente(f.cliente)} - CHF ${fmtEUR(f._residuo)}`}
+                       badge={badgeUrgenza(gg, t)}
+                       link="/pagamenti"
+                       accent="oro"
+@@ -718,7 +758,7 @@ export default function AvvocatoDashboard() {
+             {eventiSettimana.length > 0 && (
+               <div className="space-y-0.5">
+                 {eventiSettimana.map(e => {
+-                  const gg = giorniDa(e.data_inizio)
++                  const gg = giorniDa(e.data_ora_inizio)
+                   const tipoIcon = e.tipo === 'udienza' ? Scale : e.tipo === 'scadenza' ? AlertTriangle : Calendar
+                   const accent = e.tipo === 'scadenza' ? 'red' : e.tipo === 'udienza' ? 'oro' : 'salvia'
+                   return (
+-- 
+2.43.0
+

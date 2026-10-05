@@ -1,0 +1,62 @@
+diff --git a/src/components/sicurezza/BoxSicurezza2FA.jsx b/src/components/sicurezza/BoxSicurezza2FA.jsx
+index b325275..60f518f 100644
+--- a/src/components/sicurezza/BoxSicurezza2FA.jsx
++++ b/src/components/sicurezza/BoxSicurezza2FA.jsx
+@@ -1,6 +1,10 @@
+ // src/components/sicurezza/BoxSicurezza2FA.jsx
+ // Blocco "Sicurezza accesso" (2FA + codici di recupero) riutilizzabile da
+-// qualsiasi profilo: avvocato, commercialista, commerciale.
++// qualsiasi profilo: avvocato, commercialista, commerciale, privato.
++//
++// `descrizioneSpento` è il testo mostrato quando la 2FA non è attiva. Il valore
++// predefinito parla dei clienti (profili professionali); il profilo dei privati
++// passa un testo suo.
+ //
+ // È autosufficiente: carica da solo lo stato MFA dal profilo e il conteggio dei
+ // codici residui. Estratto da pages/avvocato/Profilo.jsx per non duplicare la
+@@ -13,7 +17,10 @@ import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
+ import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
+ import { Shield, AlertCircle } from 'lucide-react'
+ 
+-export default function BoxSicurezza2FA() {
++const DESCRIZIONE_SPENTO_PREDEFINITA =
++    'Aggiungi un secondo fattore: senza, la sola password protegge i dati dei tuoi clienti.'
++
++export default function BoxSicurezza2FA({ descrizioneSpento = DESCRIZIONE_SPENTO_PREDEFINITA }) {
+     const { user } = useAuth()
+ 
+     const [mfaAttivo, setMfaAttivo] = useState(false)
+@@ -102,7 +109,7 @@ export default function BoxSicurezza2FA() {
+                     <p className="font-body text-xs text-nebbia/40 mt-1">
+                         {mfaAttivo
+                             ? `Verifica in due passaggi attiva${mfaAttivatoAt ? ` dal ${new Date(mfaAttivatoAt).toLocaleDateString('it-IT')}` : ''}.`
+-                            : 'Aggiungi un secondo fattore: senza, la sola password protegge i dati dei tuoi clienti.'}
++                            : descrizioneSpento}
+                     </p>
+                 </div>
+                 <span className={`font-body text-[10px] px-2 py-0.5 uppercase tracking-wider whitespace-nowrap ${mfaAttivo
+diff --git a/src/pages/user/Profilo.jsx b/src/pages/user/Profilo.jsx
+index ce53fb5..88fc9f5 100644
+--- a/src/pages/user/Profilo.jsx
++++ b/src/pages/user/Profilo.jsx
+@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
+ import { useAuth } from '@/context/AuthContext'
+ import { supabase } from '@/lib/supabase'
+ import { PageHeader, InputField, Badge } from '@/components/shared'
++import BoxSicurezza2FA from '@/components/sicurezza/BoxSicurezza2FA'
+ import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale, Clock, Loader2 } from 'lucide-react'
+ 
+ export default function UserProfilo() {
+@@ -221,6 +222,11 @@ export default function UserProfilo() {
+                     </>
+                 )}
+             </div>
++
++            {/* Sicurezza accesso (2FA + codici di recupero) */}
++            <BoxSicurezza2FA
++                descrizioneSpento="Aggiungi un secondo fattore: all'accesso, oltre alla password, ti chiediamo il codice della tua app di autenticazione."
++            />
+         </div>
+     )
+ }
+\ No newline at end of file

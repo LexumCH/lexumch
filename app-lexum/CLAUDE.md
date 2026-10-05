@@ -9,7 +9,7 @@
 ## Cos'è questo repo
 È l'app nativa di Lexum per iPhone e Android. È separata dal sito: nessun codice in comune, la duplicazione è voluta.
 
-È per i privati. La home è la chat con Lex, l'AI giuridica. Il menù in alto a sinistra apre:
+È per i privati. La home è la chat con Lex, l'AI giuridica. Per i professionisti che hanno la Dashboard (avvocati, commercialisti, fiduciari) la prima schermata è la Dashboard, aperta sopra la chat: «indietro» porta alla chat (deciso da Antonino il 04-10-2026). Il menù in alto a sinistra apre:
 - Banca dati
 - Ricerche
 - Archivio
@@ -18,7 +18,12 @@
 
 Sotto le voci, il menù mostra le etichette dell'utente (non uno storico delle chat). Non c'è una voce «Acquisti».
 
-Gli strumenti per avvocati, commercialisti, fiduciari e progettisti restano sul sito, e l'app ci rimanda.
+Per i professionisti il menù ha in più il gruppo «Studio» (deciso da Antonino il 04-10-2026):
+- avvocati: Dashboard, Clienti, Pratiche, Calendario, Fatture; l'Archivio dell'avvocato è quello dello studio (documenti collegati a clienti e pratiche);
+- commercialisti e fiduciari: Dashboard, Calendario e Fatture (mandati e scadenze si vedono nella Dashboard, ma si gestiscono sul sito);
+- progettisti: niente.
+
+Le funzioni del sito vanno riportate tutte nell'app (Antonino, 04-10-2026). Quelle che mancano ancora (Fisco, Studio e collaboratori, mandati di commercialisti e fiduciari) per ora restano sul sito, e l'app ci rimanda.
 
 È un'app sola per più paesi. Oggi ce ne sono due:
 - Italia: lexum.it, database IT;
@@ -41,6 +46,28 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
 - Expo (ultimo SDK stabile), React Native, TypeScript, expo-router.
 - @supabase/supabase-js, con la sessione salvata sul telefono.
 - Si prova con `npx expo start --web` nel browser e con Expo Go sul telefono. Le build iOS e Android si fanno con EAS, non in questo ambiente.
+- Dati veri o finti: con `EXPO_PUBLIC_DATI=veri` l'app usa i database dei paesi (`src/backend/`); senza, usa i dati finti. L'anteprima web, l'elenco delle schermate e le prove automatiche restano sempre con i dati finti.
+- Account di prova: li dà Antonino in chat. Mai scriverli nel repo.
+
+## Dove sta il codice (dalla tappa 1)
+- `src/app/`: le schermate (expo-router). La chat è la home (`chat.tsx`); le voci del menù si aprono sopra di lei. Si entra nell'app sempre con `entraNellApp` (`src/navigazione.ts`), che per i professionisti apre anche la Dashboard.
+- `src/componenti/`: i componenti base (intestazione, compositore, chip, riga, foglio dal basso, menù laterale…).
+- `src/fogli/`: i fogli dal basso delle schermate (fonte citata, salva, crediti finiti, cambio paese…).
+- `src/tema/`: colori e caratteri di `lexum.css`.
+- `src/paesi/`: registro dei paesi (da `docs/paesi.json`), testi per paese, numeri provvisori delle fonti (`numeri.ts`).
+- `src/stato/`: stato dell'app (paese attivo, conto, chat in corso) e menù.
+- `src/backend/`: collegamento ai database dei paesi (client per paese, accesso, paese salvato sul telefono).
+- `src/dati-finti/`: i dati finti della tappa 1. Si tolgono man mano che arrivano i dati veri.
+- `src/studio/`: regole e pezzi dello Studio dei professionisti (date, campi, clienti, fatture, calcolatore della parcella, archivio dello studio); lo stato è in `src/stato/Studio.tsx`.
+- `src/anteprima/`: solo per il browser, la sagoma del telefono e l'elenco delle schermate per la revisione.
+- `src/lingue/`: i testi dell'app in italiano (`it.ts`, il riferimento), tedesco e francese; nelle schermate `const { t } = useTesti()`. In Italia sempre italiano, in Svizzera la lingua scelta.
+- `src/testi/`: testi approvati da Antonino (domande frequenti, «Elimina account»), anche in tedesco e francese. Le fonti sono in `docs/testi/`: non cambiarli senza di lui.
+- `src/errori.ts`: messaggi d'errore white-label, la stessa regola di `sanitizzaErrore.js` del sito.
+- `src/sentry.ts`: segnalazione dei crash, accesa solo con `EXPO_PUBLIC_SENTRY_DSN`.
+- `src/config.ts`: interruttori (per esempio `mostraAcquisti`, decisione aperta n. 4).
+- `test/` (Jest) e `e2e/` (Playwright): le prove automatiche.
+- Prima di aprire una PR: `npm run check` (TypeScript, ESLint, Prettier, Jest) e `npm run test:e2e` (percorsi nel browser).
+- Quando serve qualcosa che può fare solo Antonino (Supabase, account, decisioni), aggiungilo a `docs/DA-FARE-ANTONINO.md`.
 
 ## Paesi: il cuore dell'architettura
 - Il registro sta in `src/paesi/` e si costruisce da `docs/paesi.json`. Per ogni paese contiene:
@@ -79,8 +106,12 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
   2. «Paese e banca dati»;
   3. solo in Svizzera, la lingua dell'app (italiano, Deutsch, français), che cambia tutti i testi;
   4. «Crediti e piano»;
-  5. account;
-  6. in fondo, la parte «Completa il profilo / Che professionista sei?», che rimanda al sito.
+  5. account (per chi fattura, anche «Dati di fatturazione»);
+  6. «Su questo telefono»: blocco con Face ID o impronta e Ricerche anche senza rete, tutti e due spenti finché l'utente non li accende;
+  7. la parte «Completa il profilo / Che professionista sei?», che rimanda al sito;
+  8. ultimo, in un riquadro suo, «Elimina account».
+
+  (Punti 6 e 8 decisi da Antonino il 03-10-2026.)
 
   Nel menù il Profilo non ha badge.
 - **Archivio:** categorie con il pulsante «+ Categoria».
@@ -92,6 +123,19 @@ Ogni paese ha il suo database, i suoi account, i suoi crediti, piani, archivio e
   - Si conserva solo salvandola in Ricerche con un'etichetta (tabelle `ricerche` + `elementi_etichette`), così app e computer mostrano le stesse cose.
   - «Nuova chat» avvisa se quella in corso non è salvata.
 - **Banca dati e crediti:** la ricerca per parole nella Banca dati è gratuita. Le domande a Lex usano crediti; alla registrazione se ne riceve 1 di benvenuto.
+- **Funzioni del telefono** (decise da Antonino il 03-10-2026):
+  - «Condividi in Lexum»: i file condivisi da altre app vanno in Archivio;
+  - blocco con Face ID o impronta: si accende dal Profilo, spento di base;
+  - Ricerche anche senza rete: si sceglie dal Profilo, spenta di base;
+  - gestione delle etichette come sul sito;
+  - verifica in due passaggi con un'app di autenticazione, la stessa del sito: un fattore per account di paese, lo stesso codice vale su app e sito (`supabase.auth.mfa` e `mfa-backup-codes`).
+- **Accesso per tutti** (deciso da Antonino il 03-10-2026): nell'app entra chiunque abbia un account del sito, privato o professionista (avvocato, commercialista, fiduciario, progettista, cliente di uno studio, admin). Stesse schermate, mai un errore «non sei un utente». Un professionista trova nel menù il suo Studio e in Profilo il rimando al resto sul sito. I ruoli e gli strumenti di ognuno sono in `src/ruoli.ts`.
+- **Fatture, due processi** (dal 04-10-2026): Italia e Svizzera fatturano in modo diverso, anche nel database.
+  - Italia: cassa (CPA o contributo integrativo) 4% sull'imponibile, IVA 22% su imponibile + cassa, ritenuta 20% sull'imponibile se il cliente è sostituto d'imposta; forfettario (RF19) senza IVA (natura N2.2) e senza ritenuta; IVA 0 con la natura; spese anticipate (N1) fuori da cassa, IVA e ritenuta; bollo da 2 € sopra 77,47 € senza IVA. Il cliente paga il netto, meno le note di credito (TD04). XML FatturaPA dal dettaglio. Calcolatore della parcella solo per gli avvocati.
+  - Svizzera: IVA 8,1% (o 2,6%, 3,8%) sull'imponibile oppure esente con il motivo; chi non è iscritto nel registro IVA fattura sempre senza IVA; data o periodo della prestazione obbligatori; lingua della fattura; QR-fattura.
+  - Una fattura emessa (PDF generato) non si elimina: in Italia si storna con una nota di credito, in Svizzera si annulla.
+  - Le regole stanno in `src/studio/fatturazione.ts` e `src/studio/calcoli.ts`; il calcolatore in `src/studio/parametri-forensi/` è una copia del sito: se il sito cambia, va aggiornato.
+  - Senza i dati di fatturazione del professionista o quelli del cliente, la nuova fattura non parte e dice cosa manca.
 - **Elimina account:** deve esistere nell'app, perché Apple lo pretende.
 - **White-label:** nei messaggi d'errore non compaiono mai nomi di fornitori AI (OpenAI, Anthropic, Mistral), modelli o indirizzi tecnici. Si mostra un messaggio generico.
 
