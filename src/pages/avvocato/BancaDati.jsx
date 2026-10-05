@@ -506,6 +506,11 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                         client_conversation_id: clientConversationId,
                         documento_id: documento?.id ?? null,
                         lingua_interfaccia: lingua,
+                        // Lingua in cui rispondere prima che la pre-analisi la riconosca (fasi, errori).
+                        // Per un approfondimento la pre-analisi non c'e': lingua e cantoni sono quelli
+                        // della risposta da cui nasce, altrimenti Lex rispondeva sempre in italiano (05/10/2026).
+                        lingua_domanda: opzioni.linguaDomanda ?? lingua,
+                        cantoni_rilevanti: opzioni.cantoni ?? undefined,
                     }),
                     signal: abortControllerRef.current.signal,
                 }
@@ -627,11 +632,13 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
         if (onAggiornaMessaggi) onAggiornaMessaggi([])
     }
 
-    function approfondisci(filtro_key, label, subagent_source) {
+    function approfondisci(filtro_key, label, subagent_source, meta) {
         cerca(t('lex.approfondisci_prefix', { label }), {
             tipoRichiesta: 'approfondimento',
             subagentTarget: subagent_source,
             filtroApprofondimento: filtro_key,
+            linguaDomanda: meta?.lingua_domanda,
+            cantoni: Array.isArray(meta?.cantoni_rilevanti) ? meta.cantoni_rilevanti : undefined,
         })
     }
 
@@ -712,7 +719,7 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                                 {m.meta.approfondimenti_disponibili.map((a, idx) => (
                                                     <button key={idx}
-                                                        onClick={() => approfondisci(a.filtro_key, a.label, a.subagent_source)}
+                                                        onClick={() => approfondisci(a.filtro_key, a.label, a.subagent_source, m.meta)}
                                                         disabled={cercando}
                                                         className="text-left bg-petrolio border border-salvia/15 hover:border-salvia/40 p-3 transition-colors disabled:opacity-40 group">
                                                         <div className="flex items-start justify-between gap-2 mb-1">
