@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Lex AI — L'IA suisse qui raisonne sur tout le droit suisse | Lexum",
-    "description": "Lex AI : l'intelligence artificielle suisse qui raisonne sur plus de 1,6 million de documents vérifiés — droit fédéral, cantonal, jurisprudence, pratique des autorités et droit UE — dans une plateforme complète pour avocats et fiduciaires. Base de données gratuite.",
+    "description": "Lex AI : l'intelligence artificielle suisse qui raisonne sur plus de 1,9 million de documents vérifiés — droit fédéral, cantonal, jurisprudence, pratique des autorités et droit UE — dans une plateforme complète pour avocats et fiduciaires. Base de données gratuite.",
     "og_title": "Lex AI — L'IA suisse qui raisonne sur tout le droit suisse",
     "og_description": "Raisonnement juridique et fiscal sur sources vérifiées, base de données suisse gratuite, gestion de cabinet et portail clients. Pour avocats et fiduciaires.",
     "twitter_description": "L'IA suisse qui raisonne sur tout le droit suisse. Sources vérifiées, plateforme complète pour avocats et fiduciaires."
@@ -11,7 +11,7 @@
     "title_part1": "L'IA suisse qui raisonne sur",
     "title_highlight": "tout le droit suisse",
     "title_part2": "",
-    "subtitle": "Sources vérifiées, plus de 1,6 million de documents juridiques et fiscaux, raisonnement structuré. Dans une plateforme complète pour avocats, fiduciaires et concepteurs suisses.",
+    "subtitle": "Sources vérifiées, plus de 1,9 million de documents juridiques et fiscaux, raisonnement structuré. Dans une plateforme complète pour avocats, fiduciaires et concepteurs suisses.",
     "box_status": "Actif",
     "box_session": "Exemple de session",
     "cta_primary": "Commencer gratuitement avec la base de données",
@@ -20,13 +20,13 @@
   },
   "database_hero": {
     "label": "Base de données suisse",
-    "count": "1'632'000",
+    "count": "1'900'000",
     "count_plus": "+",
     "headline": "documents juridiques suisses et européens.",
     "description": "Droit fédéral, cantonal, arrêts du Tribunal fédéral et des organes administratifs, pratique des autorités.",
     "open_access": "Ouverte à tous, gratuitement. Sans abonnements par domaine, sans limites de consultation.",
     "weekly_badge": "Droit fédéral et des 26 cantons aligné chaque semaine sur le texte en vigueur.",
-    "anti_noise": "Lex AI consulte plus de 1,6 million de documents vérifiés, répartis entre jurisprudence, législation, pratique des autorités et contributions professionnelles. Aucune recherche web aléatoire, aucune source généraliste.",
+    "anti_noise": "Lex AI consulte plus de 1,9 million de documents vérifiés, répartis entre jurisprudence, législation, pratique des autorités et contributions professionnelles. Aucune recherche web aléatoire, aucune source généraliste.",
     "items": [
       {
         "t": "Droit fédéral (Fedlex)",
@@ -66,7 +66,7 @@
     "intro2": "Lex AI ne cherche pas partout et n'essaie pas de tout faire. Il a été conçu pour mieux travailler dans un périmètre plus contrôlé : sources vérifiées, contexte juridique et fiscal suisse et matériaux concrets.",
     "libera_badge": "Sans contexte",
     "libera_title": "Recherche libre",
-    "libera_text": "Des questions sur tout le droit suisse, avec une réponse raisonnée sur plus de 1,6 million de sources vérifiées. Pour explorer, vérifier, approfondir.",
+    "libera_text": "Des questions sur tout le droit suisse, avec une réponse raisonnée sur plus de 1,9 million de sources vérifiées. Pour explorer, vérifier, approfondir.",
     "contesto_badge": "Avec contexte",
     "contesto_title": "Lex dans le dossier, le mandat et le projet",
     "contesto_text": "Dans le dossier de l'avocat, le mandat du fiduciaire ou le projet du concepteur, Lex lit les actes, documents, plans, échéances, recherches et données du cas : analyses et stratégies sur votre cas — et des actes et documents générés, déjà remplis avec les données réelles.",
@@ -269,7 +269,7 @@
     "title_highlight": "à portée de main.",
     "subtitle": "Si vous avez des clients basés en Italie, des causes transfrontalières ou des entreprises qui opèrent sur les deux marchés, Lexum CH vous donne accès aussi au corpus juridique italien.",
     "feature_title": "Corpus juridique italien en consultation",
-    "feature_text": "Plus de 4 millions de documents entre Cassation, législation, pratique et droit UE. Disponible en italien pour consultation et droit comparé. Utile pour cabinets avec clientèle internationale ou fiduciaires qui assistent des sociétés opérant en Italie.",
+    "feature_text": "Plus de 4,5 millions de documents entre Cassation, législation, pratique et droit UE. Disponible en italien pour consultation et droit comparé. Utile pour cabinets avec clientèle internationale ou fiduciaires qui assistent des sociétés opérant en Italie.",
     "feature_points": [
       "Jurisprudence italienne (Cassation, Cours d'appel)",
       "Législation italienne consolidée",
@@ -318,7 +318,7 @@
     "label": "Commencer maintenant",
     "title_part1": "La base de données suisse est gratuite.",
     "title_highlight": "Faites votre première recherche.",
-    "subtitle": "Inscrivez-vous et commencez immédiatement. Plus de 1,6 million de documents suisses, droit UE et accès au corpus italien. Lex AI avec crédits de bienvenue. Logiciel de gestion et portail clients prêts.",
+    "subtitle": "Inscrivez-vous et commencez immédiatement. Plus de 1,9 million de documents suisses, droit UE et accès au corpus italien. Lex AI avec crédits de bienvenue. Logiciel de gestion et portail clients prêts.",
     "cta_primary": "Commencer gratuitement",
     "login_link": "Avez-vous déjà un compte ? Connectez-vous",
     "avvocati_link": "Découvrir Lexum pour avocats",

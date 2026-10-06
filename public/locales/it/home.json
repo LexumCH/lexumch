@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Lex AI — L'AI svizzera che ragiona su tutto il diritto svizzero | Lexum",
-    "description": "Lex AI: l'intelligenza artificiale svizzera che ragiona su oltre 1,6 milioni di documenti verificati — diritto federale, cantonale, giurisprudenza, prassi delle autorità e diritto UE — dentro una piattaforma completa per avvocati e fiduciari. Banca dati gratuita.",
+    "description": "Lex AI: l'intelligenza artificiale svizzera che ragiona su oltre 1,9 milioni di documenti verificati — diritto federale, cantonale, giurisprudenza, prassi delle autorità e diritto UE — dentro una piattaforma completa per avvocati e fiduciari. Banca dati gratuita.",
     "og_title": "Lex AI — L'AI svizzera che ragiona su tutto il diritto svizzero",
     "og_description": "Ragionamento giuridico e fiscale su fonti verificate, banca dati svizzera gratuita, gestionale e portale clienti. Per avvocati e fiduciari.",
     "twitter_description": "L'AI svizzera che ragiona su tutto il diritto svizzero. Fonti verificate, piattaforma completa per avvocati e fiduciari."
@@ -11,7 +11,7 @@
     "title_part1": "L'AI svizzera che ragiona su",
     "title_highlight": "tutto il diritto svizzero",
     "title_part2": "",
-    "subtitle": "Fonti verificate, oltre 1,6 milioni di documenti giuridici e fiscali, ragionamento strutturato. Dentro una piattaforma completa per avvocati, fiduciari e progettisti.",
+    "subtitle": "Fonti verificate, oltre 1,9 milioni di documenti giuridici e fiscali, ragionamento strutturato. Dentro una piattaforma completa per avvocati, fiduciari e progettisti.",
     "box_status": "Attivo",
     "box_session": "Esempio di sessione",
     "cta_primary": "Inizia gratis con la banca dati",
@@ -20,13 +20,13 @@
   },
   "database_hero": {
     "label": "Banca dati svizzera",
-    "count": "1.635.000",
+    "count": "1.900.000",
     "count_plus": "+",
     "headline": "documenti giuridici svizzeri ed europei.",
     "description": "Diritto federale, cantonale, sentenze del Tribunale federale e degli organi amministrativi, prassi delle autorità.",
     "open_access": "Aperta a chiunque, gratis. Senza abbonamenti per area, senza limiti di consultazione.",
     "weekly_badge": "Normativa federale e dei 26 cantoni allineata al testo vigente ogni settimana.",
-    "anti_noise": "Lex AI consulta oltre 1,6 milioni di documenti verificati, suddivisi tra giurisprudenza, normativa, prassi delle autorità e contributi professionali. Niente ricerca web casuale, niente fonti generaliste.",
+    "anti_noise": "Lex AI consulta oltre 1,9 milioni di documenti verificati, suddivisi tra giurisprudenza, normativa, prassi delle autorità e contributi professionali. Niente ricerca web casuale, niente fonti generaliste.",
     "items": [
       {
         "t": "Diritto federale (Fedlex)",
@@ -66,7 +66,7 @@
     "intro2": "Lex AI non cerca ovunque e non prova a fare tutto. È stata progettata per lavorare meglio in un perimetro più controllato: fonti verificate, contesto giuridico e fiscale svizzero e materiali concreti.",
     "libera_badge": "Senza contesto",
     "libera_title": "Ricerca libera",
-    "libera_text": "Domande su tutto il diritto svizzero, con risposta ragionata su oltre 1,6 milioni di fonti verificate. Per esplorare, verificare, approfondire.",
+    "libera_text": "Domande su tutto il diritto svizzero, con risposta ragionata su oltre 1,9 milioni di fonti verificate. Per esplorare, verificare, approfondire.",
     "contesto_badge": "Con contesto",
     "contesto_title": "Lex nella pratica, nel mandato e nel progetto",
     "contesto_text": "Dentro la pratica dell'avvocato, il mandato del fiduciario o il progetto del progettista, Lex legge atti, documenti, disegni, scadenze, ricerche e dati del caso: analisi e strategie sul tuo caso, e atti e documenti generati già compilati con i dati reali.",
@@ -269,7 +269,7 @@
     "title_highlight": "sotto mano.",
     "subtitle": "Se hai clienti con sede in Italia, cause transfrontaliere o aziende che operano nei due mercati, Lexum CH ti dà accesso anche al corpus giuridico italiano.",
     "feature_title": "Corpus giuridico italiano in consultazione",
-    "feature_text": "Oltre 4 milioni di documenti tra Giurisprudenza, normativa, prassi e diritto UE. Disponibile in italiano per consultazione e diritto comparato. Utile per studi con clientela internazionale o fiduciari che assistono società operanti in Italia.",
+    "feature_text": "Oltre 4,5 milioni di documenti tra Giurisprudenza, normativa, prassi e diritto UE. Disponibile in italiano per consultazione e diritto comparato. Utile per studi con clientela internazionale o fiduciari che assistono società operanti in Italia.",
     "feature_points": [
       "Giurisprudenza italiana",
       "Normativa italiana consolidata",
@@ -318,7 +318,7 @@
     "label": "Inizia ora",
     "title_part1": "La banca dati svizzera è gratuita.",
     "title_highlight": "Fai la tua prima ricerca.",
-    "subtitle": "Registrati e inizia subito. Oltre 1,6 milioni di documenti svizzeri, diritto UE e accesso al corpus italiano. Lex AI con crediti di benvenuto. Gestionale e portale clienti pronti.",
+    "subtitle": "Registrati e inizia subito. Oltre 1,9 milioni di documenti svizzeri, diritto UE e accesso al corpus italiano. Lex AI con crediti di benvenuto. Gestionale e portale clienti pronti.",
     "cta_primary": "Inizia gratis",
     "login_link": "Hai già un account? Accedi",
     "avvocati_link": "Scopri Lexum per avvocati",

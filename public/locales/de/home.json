@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Lex AI — Die Schweizer KI, die das gesamte Schweizer Recht durchdenkt | Lexum",
-    "description": "Lex AI: die Schweizer künstliche Intelligenz, die auf über 1,6 Millionen geprüften Dokumenten argumentiert — Bundesrecht, kantonales Recht, Rechtsprechung, Praxis der Behörden und EU-Recht — in einer vollständigen Plattform für Anwälte und Treuhänder. Kostenlose Datenbank.",
+    "description": "Lex AI: die Schweizer künstliche Intelligenz, die auf über 1,9 Millionen geprüften Dokumenten argumentiert — Bundesrecht, kantonales Recht, Rechtsprechung, Praxis der Behörden und EU-Recht — in einer vollständigen Plattform für Anwälte und Treuhänder. Kostenlose Datenbank.",
     "og_title": "Lex AI — Die Schweizer KI, die das gesamte Schweizer Recht durchdenkt",
     "og_description": "Rechtliche und steuerliche Argumentation auf geprüften Quellen, kostenlose Schweizer Datenbank, Kanzleimanagement und Mandantenportal. Für Anwälte und Treuhänder.",
     "twitter_description": "Die Schweizer KI, die das gesamte Schweizer Recht durchdenkt. Geprüfte Quellen, vollständige Plattform für Anwälte und Treuhänder."
@@ -11,7 +11,7 @@
     "title_part1": "Die Schweizer KI, die",
     "title_highlight": "das gesamte Schweizer Recht",
     "title_part2": "durchdenkt",
-    "subtitle": "Geprüfte Quellen, über 1,6 Millionen juristische und steuerliche Dokumente, strukturierte Argumentation. In einer vollständigen Plattform für Schweizer Anwälte, Treuhänder und Planer.",
+    "subtitle": "Geprüfte Quellen, über 1,9 Millionen juristische und steuerliche Dokumente, strukturierte Argumentation. In einer vollständigen Plattform für Schweizer Anwälte, Treuhänder und Planer.",
     "box_status": "Aktiv",
     "box_session": "Beispielsitzung",
     "cta_primary": "Gratis starten mit der Datenbank",
@@ -20,13 +20,13 @@
   },
   "database_hero": {
     "label": "Schweizer Datenbank",
-    "count": "1'632'000",
+    "count": "1'900'000",
     "count_plus": "+",
     "headline": "Schweizer und europäische Rechtsdokumente.",
     "description": "Bundesrecht, kantonales Recht, Entscheide des Bundesgerichts und der Verwaltungsbehörden, Praxis der Behörden.",
     "open_access": "Offen für alle, gratis. Ohne Abonnements pro Rechtsgebiet, ohne Konsultationsgrenzen.",
     "weekly_badge": "Bundes- und kantonales Recht (26 Kantone) wöchentlich auf dem geltenden Stand.",
-    "anti_noise": "Lex AI durchsucht über 1,6 Millionen geprüfte Dokumente, aufgeteilt in Rechtsprechung, Gesetzgebung, Praxis der Behörden und fachliche Beiträge. Keine zufällige Websuche, keine generischen Quellen.",
+    "anti_noise": "Lex AI durchsucht über 1,9 Millionen geprüfte Dokumente, aufgeteilt in Rechtsprechung, Gesetzgebung, Praxis der Behörden und fachliche Beiträge. Keine zufällige Websuche, keine generischen Quellen.",
     "items": [
       {
         "t": "Bundesrecht (Fedlex)",
@@ -66,7 +66,7 @@
     "intro2": "Lex AI sucht nicht überall und versucht nicht, alles zu tun. Sie wurde entwickelt, um in einem kontrollierteren Rahmen besser zu arbeiten: geprüfte Quellen, Schweizer rechtlicher und steuerlicher Kontext und konkrete Materialien.",
     "libera_badge": "Ohne Kontext",
     "libera_title": "Freie Recherche",
-    "libera_text": "Fragen zum gesamten Schweizer Recht, mit begründeter Antwort auf über 1,6 Millionen geprüften Quellen. Zum Erkunden, Prüfen, Vertiefen.",
+    "libera_text": "Fragen zum gesamten Schweizer Recht, mit begründeter Antwort auf über 1,9 Millionen geprüften Quellen. Zum Erkunden, Prüfen, Vertiefen.",
     "contesto_badge": "Mit Kontext",
     "contesto_title": "Lex im Dossier, im Mandat und im Projekt",
     "contesto_text": "Im Dossier des Anwalts, im Mandat des Treuhänders oder im Projekt des Planers liest Lex Eingaben, Dokumente, Pläne, Fristen, Recherchen und Falldaten: Analysen und Strategien zu Ihrem Fall — und generierte Akten und Dokumente, bereits mit den echten Daten ausgefüllt.",
@@ -269,7 +269,7 @@
     "title_highlight": "zur Hand.",
     "subtitle": "Wenn Sie Mandanten mit Sitz in Italien haben, grenzüberschreitende Fälle oder Unternehmen die in beiden Märkten tätig sind, gibt Ihnen Lexum CH auch Zugang zum italienischen Rechtskorpus.",
     "feature_title": "Italienisches Rechtskorpus zur Konsultation",
-    "feature_text": "Über 4 Millionen Dokumente zwischen Kassationshof, Gesetzgebung, Praxis und EU-Recht. Verfügbar auf Italienisch zur Konsultation und für Rechtsvergleichung. Nützlich für Kanzleien mit internationaler Klientel oder Treuhänder die Gesellschaften betreuen welche in Italien tätig sind.",
+    "feature_text": "Über 4,5 Millionen Dokumente zwischen Kassationshof, Gesetzgebung, Praxis und EU-Recht. Verfügbar auf Italienisch zur Konsultation und für Rechtsvergleichung. Nützlich für Kanzleien mit internationaler Klientel oder Treuhänder die Gesellschaften betreuen welche in Italien tätig sind.",
     "feature_points": [
       "Italienische Rechtsprechung (Kassationshof, Berufungsgerichte)",
       "Konsolidierte italienische Gesetzgebung",
@@ -318,7 +318,7 @@
     "label": "Jetzt starten",
     "title_part1": "Die Schweizer Datenbank ist kostenlos.",
     "title_highlight": "Machen Sie Ihre erste Recherche.",
-    "subtitle": "Registrieren Sie sich und beginnen Sie sofort. Über 1,6 Millionen Schweizer Dokumente, EU-Recht und Zugang zum italienischen Corpus. Lex AI mit Willkommens-Credits. Kanzleimanagement und Mandantenportal bereit.",
+    "subtitle": "Registrieren Sie sich und beginnen Sie sofort. Über 1,9 Millionen Schweizer Dokumente, EU-Recht und Zugang zum italienischen Corpus. Lex AI mit Willkommens-Credits. Kanzleimanagement und Mandantenportal bereit.",
     "cta_primary": "Gratis starten",
     "login_link": "Haben Sie bereits ein Konto? Anmelden",
     "avvocati_link": "Lexum für Anwälte entdecken",
