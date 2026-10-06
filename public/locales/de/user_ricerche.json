@@ -90,7 +90,13 @@
     "nessuna_etichetta": "Kein Etikett verfügbar",
     "apri_etichetta": "Etikett \"{{nome}}\" öffnen",
     "conferma_elimina_ricerca": "Diese Recherche löschen? Der Vorgang ist unwiderruflich.",
-    "conferma_rimuovi_tag": "Alle Tags von diesem Element entfernen?\nDas Originalelement ({{tipo}}) wird nicht gelöscht."
+    "conferma_rimuovi_tag": "Alle Tags von diesem Element entfernen?\nDas Originalelement ({{tipo}}) wird nicht gelöscht.",
+    "documento": "Dokument",
+    "documento_apri": "«{{nome}}» im Archiv öffnen",
+    "documento_eliminato": "Dokument gelöscht",
+    "documento_eliminato_titolo": "Die Antwort stammt aus «{{nome}}», das inzwischen aus dem Archiv gelöscht wurde",
+    "documento_non_salvato": "nicht im Archiv gespeichert",
+    "documento_non_salvato_titolo": "Die Antwort stammt aus diesem Dokument, das nicht im Archiv gespeichert wurde"
   },
   "azioni_confronto": {
     "sintesi_unificata_label": "Vereinheitlichte Synthese",

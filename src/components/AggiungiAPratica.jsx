@@ -14,6 +14,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import { campiDocumentoOrigine } from '@/lib/documentoOrigine'
 import { FileText, FolderOpen, Search, X, Sparkles } from 'lucide-react'
 
 // Config che astrae le differenze pratica/mandato.
@@ -49,6 +50,7 @@ export default function AggiungiAPratica({
     ricercaSalvataId,
     setRicercaSalvataId,
     variant = 'default',
+    documentoOrigine = null,   // 07-10-2026: { archivioId, nome } del documento allegato da cui è nata la risposta
 }) {
     const { t } = useTranslation('comp_aggiungi_pratica')
     const { profile } = useAuth()
@@ -134,7 +136,8 @@ export default function AggiungiAPratica({
                             sentenze: ricerca.sentenze ?? false,
                             codice: ricerca.codice ?? null,
                             ts: new Date().toISOString(),
-                        }
+                        },
+                        ...(ricerca.tipo === 'ricerca_ai' ? campiDocumentoOrigine(documentoOrigine) : {}),
                     })
                     .select('id')
                     .single()

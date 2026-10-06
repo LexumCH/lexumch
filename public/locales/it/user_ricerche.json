@@ -90,7 +90,13 @@
     "nessuna_etichetta": "Nessuna etichetta disponibile",
     "apri_etichetta": "Apri etichetta \"{{nome}}\"",
     "conferma_elimina_ricerca": "Eliminare questa ricerca? L'azione è irreversibile.",
-    "conferma_rimuovi_tag": "Rimuovere tutti i tag da questo elemento?\nL'elemento originale ({{tipo}}) non verrà cancellato."
+    "conferma_rimuovi_tag": "Rimuovere tutti i tag da questo elemento?\nL'elemento originale ({{tipo}}) non verrà cancellato.",
+    "documento": "Documento",
+    "documento_apri": "Apri «{{nome}}» nell'archivio",
+    "documento_eliminato": "Documento eliminato",
+    "documento_eliminato_titolo": "La risposta è nata da «{{nome}}», poi eliminato dall'archivio",
+    "documento_non_salvato": "non salvato nell'archivio",
+    "documento_non_salvato_titolo": "La risposta è nata da questo documento, che non è stato salvato nell'archivio"
   },
   "azioni_confronto": {
     "sintesi_unificata_label": "Sintesi unificata",

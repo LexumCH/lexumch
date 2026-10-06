@@ -90,7 +90,13 @@
     "nessuna_etichetta": "Aucune étiquette disponible",
     "apri_etichetta": "Ouvrir l'étiquette \"{{nome}}\"",
     "conferma_elimina_ricerca": "Supprimer cette recherche ? L'action est irréversible.",
-    "conferma_rimuovi_tag": "Retirer tous les tags de cet élément ?\nL'élément original ({{tipo}}) ne sera pas supprimé."
+    "conferma_rimuovi_tag": "Retirer tous les tags de cet élément ?\nL'élément original ({{tipo}}) ne sera pas supprimé.",
+    "documento": "Document",
+    "documento_apri": "Ouvrir «{{nome}}» dans l'archive",
+    "documento_eliminato": "Document supprimé",
+    "documento_eliminato_titolo": "La réponse provient de «{{nome}}», qui a été supprimé de l'archive",
+    "documento_non_salvato": "non enregistré dans l'archive",
+    "documento_non_salvato_titolo": "La réponse provient de ce document, qui n'a pas été enregistré dans l'archive"
   },
   "azioni_confronto": {
     "sintesi_unificata_label": "Synthèse unifiée",

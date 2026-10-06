@@ -251,6 +251,9 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
     const [pdf, setPdf] = useState({ indice: null, lavoro: false, messaggio: '' })
     const [clientConversationId, setClientConversationId] = useState(() => crypto.randomUUID())
     const [ricercaSalvataId, setRicercaSalvataId] = useState(null)
+    // 07-10-2026: il documento allegato quando la conversazione è stata salvata (per collegarle il documento
+    // dell'archivio se lo si salva dopo)
+    const documentoRicercaRef = useRef(null)
     const abortControllerRef = useRef(null)
 
     // ── Pacchetto Lampo (30/09/2026, come su IT): popup quando i crediti finiscono,
@@ -445,6 +448,14 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
             })
             daSalvareRef.current = null
             setDocumento(d => (d ? { ...d, origine: 'archivio', archivioId: doc.id } : d))
+            // 07-10-2026: la conversazione era già salvata con questo documento: ora punta al documento dell'archivio
+            if (ricercaSalvataId && documento?.id && documentoRicercaRef.current === documento.id) {
+                const { error } = await supabase
+                    .from('ricerche')
+                    .update({ archivio_documento_id: doc.id })
+                    .eq('id', ricercaSalvataId)
+                if (error) console.warn('collegamento ricerca-documento non salvato:', error.message)
+            }
             setSalvataggio({
                 fase: 'salvato',
                 categoria: scelta.categorie.find(c => c.id === scelta.categoriaId)?.nome ?? t('documento.senza_categoria'),
@@ -629,8 +640,19 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
         if (abortControllerRef.current) abortControllerRef.current.abort()
         setConversazione([]); setStreamingTesto(''); setFaseCorrente(null)
         setClientConversationId(crypto.randomUUID())
+        // 07-10-2026: la nuova conversazione non è ancora salvata (prima i pulsanti puntavano ancora alla vecchia)
+        setRicercaSalvataId(null)
+        documentoRicercaRef.current = null
         if (onAggiornaMessaggi) onAggiornaMessaggi([])
     }
+
+    // Conversazione salvata (in una pratica o in un'etichetta): si ricorda quale documento era allegato
+    function ricercaSalvata(id) {
+        setRicercaSalvataId(id)
+        documentoRicercaRef.current = documento?.id ?? null
+    }
+
+    const documentoOrigine = documento ? { archivioId: documento.archivioId ?? null, nome: documento.nome } : null
 
     function approfondisci(filtro_key, label, subagent_source, meta) {
         cerca(t('lex.approfondisci_prefix', { label }), {
@@ -787,14 +809,17 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                             risposta: conversazione.filter(m => m.role === 'assistant').map(m => m.content).join('\n\n---\n\n'),
                         }}
                         ricercaSalvataId={ricercaSalvataId}
-                        setRicercaSalvataId={setRicercaSalvataId}
+                        setRicercaSalvataId={ricercaSalvata}
+                        documentoOrigine={documentoOrigine}
                     />
                     <AggiungiAEtichetta
+                        key={clientConversationId}
                         elemento={{ tipo: 'ricerca_ai' }}
                         domanda={conversazione[0]?.content ?? ''}
                         risposta={conversazione.filter(m => m.role === 'assistant').map(m => m.content).join('\n\n---\n\n')}
                         ricercaIdEsterno={ricercaSalvataId}
-                        onRicercaCreata={setRicercaSalvataId}
+                        onRicercaCreata={ricercaSalvata}
+                        documentoOrigine={documentoOrigine}
                     />
                 </div>
             )}
