@@ -135,6 +135,22 @@ function HeroDatabaseCard({ t }) {
           <p className="font-body text-sm text-oro/80 leading-relaxed">
             {t('database_hero.open_access')}
           </p>
+
+          {/* Aggiornamento settimanale e claim anti-rumore, sotto «aperta a chiunque» */}
+          <div className="mt-5 space-y-3">
+            <div className="bg-salvia/5 border border-salvia/20 p-4 flex items-start gap-3">
+              <RefreshCw size={15} className="text-salvia shrink-0 mt-0.5" />
+              <p className="font-body text-sm text-salvia/90 font-medium leading-relaxed">
+                {t('database_hero.weekly_badge')}
+              </p>
+            </div>
+            <div className="bg-oro/5 border border-oro/15 p-4 flex items-start gap-3">
+              <Library size={15} className="text-oro shrink-0 mt-0.5" />
+              <p className="font-body text-sm text-nebbia/55 leading-relaxed">
+                {t('database_hero.anti_noise')}
+              </p>
+            </div>
+          </div>
         </div>
         <div className="space-y-2">
           {items.map(({ t: title, s }) => (
@@ -349,29 +365,9 @@ export default function Home() {
 
       {/* 2. FONTI + AGGIORNAMENTO SETTIMANALE */}
       <section id="fonti" className="py-24 px-6 border-t border-white/5 scroll-mt-28">
-        <div className="max-w-5xl mx-auto space-y-4">
+        <div className="max-w-5xl mx-auto">
           <FadeIn>
             <HeroDatabaseCard t={t} />
-          </FadeIn>
-
-          {/* Badge aggiornamento settimanale */}
-          <FadeIn delay={0.1}>
-            <div className="bg-salvia/5 border border-salvia/20 p-5 flex items-center gap-3">
-              <RefreshCw size={15} className="text-salvia shrink-0" />
-              <p className="font-body text-sm text-salvia/90 font-medium leading-relaxed">
-                {t('database_hero.weekly_badge')}
-              </p>
-            </div>
-          </FadeIn>
-
-          {/* Claim anti-rumore */}
-          <FadeIn delay={0.15}>
-            <div className="bg-oro/5 border border-oro/15 p-5 flex items-center gap-3">
-              <Library size={15} className="text-oro shrink-0" />
-              <p className="font-body text-sm text-nebbia/55 leading-relaxed">
-                {t('database_hero.anti_noise')}
-              </p>
-            </div>
           </FadeIn>
         </div>
       </section>
