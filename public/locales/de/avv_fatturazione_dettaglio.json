@@ -22,13 +22,17 @@
     "qr": "QR-Rechnung",
     "contanti": "Bar",
     "carta": "Karte / TWINT",
-    "altro": "Andere"
+    "altro": "Andere",
+    "qr_bill": "QR-Rechnung",
+    "twint": "TWINT",
+    "pos": "Debit- oder Kreditkarte"
   },
   "header": {
     "fattura": "Rechnung",
     "emessa_il": "Ausgestellt am",
     "scadenza": "Fälligkeit",
-    "archiviata": "Archiviert"
+    "archiviata": "Archiviert",
+    "periodo": "Leistung:"
   },
   "azioni": {
     "registra_pagamento": "Zahlung erfassen",

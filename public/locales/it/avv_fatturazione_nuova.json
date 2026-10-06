@@ -36,7 +36,10 @@
   "date": {
     "titolo": "Date",
     "emissione_label": "Data emissione *",
-    "scadenza_label": "Scadenza pagamento"
+    "scadenza_label": "Scadenza pagamento",
+    "periodo_label": "Data o periodo della prestazione",
+    "periodo_hint": "(va in fattura per l’IVA)",
+    "periodo_ph": "es. settembre 2026, oppure 1.–30.09.2026"
   },
   "prestazioni": {
     "titolo": "Prestazioni",

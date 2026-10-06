@@ -188,6 +188,7 @@ export default function AvvocatoFatturazioneNuova() {
         mandato_id: mandatoPreselezionato ?? '',
         data_emissione: oggi,
         data_scadenza: tra30giorni,
+        periodo_prestazione: '',
         aliquota_iva: ALIQUOTA_IVA_DEFAULT,
         esente_iva: false,
         esente_iva_motivo: '',
@@ -377,6 +378,7 @@ export default function AvvocatoFatturazioneNuova() {
                     mandato_id: (isFiduciario && form.mandato_id) || null,
                     data_emissione: form.data_emissione,
                     data_scadenza: form.data_scadenza || null,
+                    periodo_prestazione: form.periodo_prestazione?.trim() || null,
                     aliquota_iva: Number(form.aliquota_iva),
                     esente_iva: form.esente_iva,
                     esente_iva_motivo: form.esente_iva && !nonAssoggettato ? (form.esente_iva_motivo?.trim() || null) : null,
@@ -541,6 +543,20 @@ export default function AvvocatoFatturazioneNuova() {
                                     className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50"
                                 />
                             </div>
+                        </div>
+                        {/* Data o periodo della prestazione: va in fattura (art. 26 cpv. 2 LIVA) */}
+                        <div>
+                            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
+                                {t('date.periodo_label')} <span className="text-nebbia/25 normal-case tracking-normal">{t('date.periodo_hint')}</span>
+                            </label>
+                            <input
+                                type="text"
+                                maxLength={120}
+                                placeholder={t('date.periodo_ph')}
+                                value={form.periodo_prestazione}
+                                onChange={e => setForm(p => ({ ...p, periodo_prestazione: e.target.value }))}
+                                className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25"
+                            />
                         </div>
                     </div>
 

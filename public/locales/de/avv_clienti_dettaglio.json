@@ -21,7 +21,10 @@
     "qr": "QR-Rechnung",
     "contanti": "Bargeld",
     "carta": "Karte / TWINT",
-    "altro": "Andere"
+    "altro": "Andere",
+    "qr_bill": "QR-Rechnung",
+    "twint": "TWINT",
+    "pos": "Debit- oder Kreditkarte"
   },
   "switcher": {
     "persona_fisica": "Natürliche Person",

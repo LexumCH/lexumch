@@ -36,7 +36,10 @@
   "date": {
     "titolo": "Dates",
     "emissione_label": "Date d'émission *",
-    "scadenza_label": "Délai de paiement"
+    "scadenza_label": "Délai de paiement",
+    "periodo_label": "Date ou période de la prestation",
+    "periodo_hint": "(figure sur la facture pour la TVA)",
+    "periodo_ph": "p. ex. septembre 2026, ou 1er–30.09.2026"
   },
   "prestazioni": {
     "titolo": "Prestations",

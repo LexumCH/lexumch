@@ -22,13 +22,17 @@
     "qr": "QR-facture",
     "contanti": "Espèces",
     "carta": "Carte / TWINT",
-    "altro": "Autre"
+    "altro": "Autre",
+    "qr_bill": "QR-facture",
+    "twint": "TWINT",
+    "pos": "Carte de débit ou de crédit"
   },
   "header": {
     "fattura": "Facture",
     "emessa_il": "Émise le",
     "scadenza": "Échéance",
-    "archiviata": "Archivée"
+    "archiviata": "Archivée",
+    "periodo": "Prestation :"
   },
   "azioni": {
     "registra_pagamento": "Enregistrer un paiement",

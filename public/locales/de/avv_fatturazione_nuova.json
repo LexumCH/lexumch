@@ -36,7 +36,10 @@
   "date": {
     "titolo": "Daten",
     "emissione_label": "Ausstellungsdatum *",
-    "scadenza_label": "Zahlungsfrist"
+    "scadenza_label": "Zahlungsfrist",
+    "periodo_label": "Datum oder Zeitraum der Leistung",
+    "periodo_hint": "(gehört für die MWST auf die Rechnung)",
+    "periodo_ph": "z. B. September 2026 oder 1.–30.09.2026"
   },
   "prestazioni": {
     "titolo": "Leistungen",

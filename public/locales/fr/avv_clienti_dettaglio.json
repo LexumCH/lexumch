@@ -21,7 +21,10 @@
     "qr": "QR-facture",
     "contanti": "Espèces",
     "carta": "Carte / TWINT",
-    "altro": "Autre"
+    "altro": "Autre",
+    "qr_bill": "QR-facture",
+    "twint": "TWINT",
+    "pos": "Carte de débit ou de crédit"
   },
   "switcher": {
     "persona_fisica": "Personne physique",

@@ -33,7 +33,8 @@ const STATO_CONFIG = {
 }
 
 // value salvati su DB — label tradotta a render via t('metodi.<value>')
-const METODI_PAGAMENTO_VALUES = ['bonifico', 'qr', 'contanti', 'carta', 'altro']
+// 06-10-2026: i valori del vincolo pagamenti_fattura_metodo_check (prima 'qr' e 'carta', che il DB rifiutava)
+const METODI_PAGAMENTO_VALUES = ['bonifico', 'qr_bill', 'contanti', 'twint', 'pos', 'altro']
 
 const toArray = (v) => Array.isArray(v) ? v : []
 
@@ -680,6 +681,9 @@ export default function AvvocatoFatturazioneDettaglio() {
                         {t('header.emessa_il')} {new Date(fattura.data_emissione).toLocaleDateString(dateLocale, { day: '2-digit', month: 'long', year: 'numeric' })}
                         {fattura.data_scadenza && (
                             <> · {t('header.scadenza')} {new Date(fattura.data_scadenza).toLocaleDateString(dateLocale)}</>
+                        )}
+                        {fattura.periodo_prestazione && (
+                            <> · {t('header.periodo')} {fattura.periodo_prestazione}</>
                         )}
                     </p>
                 </div>

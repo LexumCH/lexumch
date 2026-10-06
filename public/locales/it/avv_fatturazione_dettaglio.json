@@ -22,13 +22,17 @@
     "qr": "QR-fattura",
     "contanti": "Contanti",
     "carta": "Carta / TWINT",
-    "altro": "Altro"
+    "altro": "Altro",
+    "qr_bill": "QR-fattura",
+    "twint": "TWINT",
+    "pos": "Carta di debito o di credito"
   },
   "header": {
     "fattura": "Fattura",
     "emessa_il": "Emessa il",
     "scadenza": "Scadenza",
-    "archiviata": "Archiviata"
+    "archiviata": "Archiviata",
+    "periodo": "Prestazione:"
   },
   "azioni": {
     "registra_pagamento": "Registra pagamento",

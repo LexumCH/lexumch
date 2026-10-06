@@ -63,11 +63,13 @@ const STATUS_OCR = {
 
 // Metodi pagamento svizzeri (allineati a FatturazioneDettaglio CH)
 // value = valore salvato su DB (invariato); labelKey = chiave i18n
+// 06-10-2026: i valori del vincolo pagamenti_fattura_metodo_check (prima 'qr' e 'carta', che il DB rifiutava)
 const METODI_PAGAMENTO = [
     { value: 'bonifico', labelKey: 'metodi_pagamento.bonifico' },
-    { value: 'qr', labelKey: 'metodi_pagamento.qr' },
+    { value: 'qr_bill', labelKey: 'metodi_pagamento.qr_bill' },
     { value: 'contanti', labelKey: 'metodi_pagamento.contanti' },
-    { value: 'carta', labelKey: 'metodi_pagamento.carta' },
+    { value: 'twint', labelKey: 'metodi_pagamento.twint' },
+    { value: 'pos', labelKey: 'metodi_pagamento.pos' },
     { value: 'altro', labelKey: 'metodi_pagamento.altro' },
 ]
 

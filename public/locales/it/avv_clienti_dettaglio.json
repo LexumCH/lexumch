@@ -21,7 +21,10 @@
     "qr": "QR-fattura",
     "contanti": "Contanti",
     "carta": "Carta / TWINT",
-    "altro": "Altro"
+    "altro": "Altro",
+    "qr_bill": "QR-fattura",
+    "twint": "TWINT",
+    "pos": "Carta di debito o di credito"
   },
   "switcher": {
     "persona_fisica": "Persona fisica",
