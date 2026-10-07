@@ -52,6 +52,20 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (!doc) return jsonOut({ ok: false, error: "documento non trovato" }, 404);
 
+    // 07-10-2026: storage_path arriva da una riga scrivibile dal client, ma il
+    // download usa il service role → confinare al prefisso dell'utente (anti
+    // cross-tenant), come lex-vision-zone e lex-vision-raster. In più solo
+    // caratteri sicuri e niente segmenti "." o "..": l'URL di download li
+    // risolverebbe uscendo dal prefisso (es. "<utente>/../<altro>/file.pdf").
+    const percorso = String(doc.storage_path ?? "");
+    if (
+      !percorso.startsWith(`${user.id}/`) ||
+      !/^[A-Za-z0-9._\/-]+$/.test(percorso) ||
+      percorso.split("/").some((s) => s === "." || s === "..")
+    ) {
+      return jsonOut({ ok: false, error: "percorso del documento non valido" }, 403);
+    }
+
     const { data: progetto } = await supabase
       .from("progetti").select("nome").eq("id", doc.progetto_id).maybeSingle();
 

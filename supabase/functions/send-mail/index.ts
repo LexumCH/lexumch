@@ -1,3 +1,4 @@
+// 07-10-2026 (controllo di sicurezza): le azioni admin vogliono la verifica in due passaggi completata (aal2).
 // supabase/functions/send-mail/index.ts
 //
 // Wrapper generico per invio email tramite Postmark Templates.
@@ -118,6 +119,17 @@ async function risolviUserId(email: string): Promise<string | null> {
   return data?.id ?? null;
 }
 
+// Il livello della sessione dal token (già verificato da getUser): «aal1» o «aal2».
+function livelloDelToken(token: string): string {
+  try {
+    const parte = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(parte.padEnd(Math.ceil(parte.length / 4) * 4, "=")));
+    return typeof payload.aal === "string" ? payload.aal : "aal1";
+  } catch {
+    return "aal1";
+  }
+}
+
 // ─── HANDLER ────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -154,6 +166,9 @@ Deno.serve(async (req) => {
         .from("profiles").select("role").eq("id", user.id).maybeSingle();
       if (profilo?.role !== "admin") {
         return jsonResponse({ ok: false, error: "Riservato agli amministratori" }, 403);
+      }
+      if (livelloDelToken(chiave) !== "aal2") {
+        return jsonResponse({ ok: false, error: "Serve la verifica in due passaggi" }, 403);
       }
       chiamanteId = user.id;
     }

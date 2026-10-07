@@ -1,3 +1,4 @@
+// 07-10-2026 (controllo di sicurezza): le azioni admin vogliono la verifica in due passaggi completata (aal2).
 // supabase/functions/admin-attiva-prodotto/index.ts
 //
 // Attivazione manuale di un prodotto da parte dell'admin (versione CH).
@@ -7,6 +8,20 @@
 //   - ruoloTarget: promozione a fiduciario, avvocato o progettista (override via body.ruolo_target)
 //   - valuta CHF
 //   - audit_log.dettaglio come jsonb strutturato (in CH la colonna è jsonb, non text)
+//
+// FIX SCADENZA (bug prova gratuita CH): il calcolo scadenza usava
+//   s.setMonth(s.getMonth() + prodotto.durata_mesi)
+// che accetta SOLO mesi interi: per un trial con durata_mesi frazionaria (0.24 ≈ 7 giorni)
+// veniva troncato a 0 mesi -> scadenza = adesso -> prova scaduta all'istante.
+// Ora: mesi interi come mesi di calendario + parte frazionaria convertita in giorni (30/mese).
+//
+// FIX VERIFICA (bug prova non poteva creare pratiche): l'attivazione impostava role +
+// abbonamento_stato ma NON verification_status, lasciandolo 'none' -> is_professionista()
+// = false -> la RLS pratiche_insert rifiutava l'INSERT. Ora l'attivazione manuale admin
+// imposta verification_status='approved' (l'admin fa da garante della verifica).
+//
+// PIANO PERSONALE (02-10-2026): tipo 'piano_privato' per i privati (ruolo 'user'),
+// stessa RPC del pagamento Stripe (attiva_piano_privato), senza cambiare ruolo.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
@@ -28,13 +43,39 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
   });
 }
 
+// Calcola la data di scadenza a partire da una durata in mesi eventualmente FRAZIONARIA.
+// - mesi interi -> mesi di calendario (setMonth), scadenza "pulita" per abbonamenti mensili/annuali
+// - resto frazionario -> giorni (30 giorni/mese), cosi' un trial di 0.24 mesi = ~7 giorni funziona
+// Ritorna null se durata assente/0.
+function calcolaScadenza(durataMesiRaw: unknown): string | null {
+  const mesi = Number(durataMesiRaw);
+  if (!Number.isFinite(mesi) || mesi <= 0) return null;
+  const mesiInteri = Math.floor(mesi);
+  const giorniResto = Math.round((mesi - mesiInteri) * 30);
+  const s = new Date();
+  if (mesiInteri > 0) s.setMonth(s.getMonth() + mesiInteri);
+  if (giorniResto > 0) s.setDate(s.getDate() + giorniResto);
+  return s.toISOString();
+}
+
+// Il livello della sessione dal token (già verificato da getUser): «aal1» o «aal2».
+function livelloDelToken(token: string): string {
+  try {
+    const parte = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(parte.padEnd(Math.ceil(parte.length / 4) * 4, "=")));
+    return typeof payload.aal === "string" ? payload.aal : "aal1";
+  } catch {
+    return "aal1";
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // ─── Auth check: solo admin ────────────────────────────
+    // ─── Auth check: solo admin ────────────────────────
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Non autorizzato");
 
@@ -50,8 +91,11 @@ Deno.serve(async (req) => {
       .single();
 
     if (adminProfile?.role !== "admin") throw new Error("Accesso negato");
+    if (livelloDelToken(authHeader.replace("Bearer ", "")) !== "aal2") {
+      return jsonResponse({ ok: false, error: "Serve la verifica in due passaggi" }, 403);
+    }
 
-    // ─── Parse body ────────────────────────────────────────
+    // ─── Parse body ────────────────────────────────────
     const body = await req.json();
     const { user_id, prodotto_id, importo, motivo, sentenza_id } = body;
 
@@ -61,7 +105,7 @@ Deno.serve(async (req) => {
     if (importo < 0) throw new Error("importo non puo essere negativo");
     if (!motivo?.trim()) throw new Error("motivo obbligatorio per tracciabilita");
 
-    // ─── Carica prodotto ───────────────────────────────────
+    // ─── Carica prodotto ───────────────────────────────
     const { data: prodotto, error: prodErr } = await supabase
       .from("prodotti")
       .select("*")
@@ -113,13 +157,8 @@ Deno.serve(async (req) => {
     const prodottoTipo = prodotto.tipo;
     const isOmaggio = Number(importo) === 0;
 
-    // Scadenza generica se il prodotto ha durata
-    let scadenza: string | null = null;
-    if (prodotto.durata_mesi) {
-      const s = new Date();
-      s.setMonth(s.getMonth() + prodotto.durata_mesi);
-      scadenza = s.toISOString();
-    }
+    // Scadenza generica se il prodotto ha durata (gestisce durate FRAZIONARIE: vedi calcolaScadenza)
+    const scadenza: string | null = calcolaScadenza(prodotto.durata_mesi);
 
     const adminNome = `${adminProfile.nome ?? ""} ${adminProfile.cognome ?? ""}`.trim() || "Admin";
     const metadatiTx = {
@@ -130,9 +169,9 @@ Deno.serve(async (req) => {
       omaggio: isOmaggio,
     };
 
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     // SEAT ADD-ON
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     if (prodottoTipo === "seat_addon") {
       if (!profilo.studio_id) throw new Error("Seat add-on richiede uno studio gia attivo");
 
@@ -176,9 +215,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     // ABBONAMENTO
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     else if (prodottoTipo === "abbonamento") {
       const posti = prodotto.posti ?? 1;
       const tipoAccount = posti === 1 ? "singolo" : "titolare";
@@ -200,6 +239,7 @@ Deno.serve(async (req) => {
         abbonamento_tipo: prodotto.nome,
         abbonamento_scadenza: scadenza,
         abbonamento_stato: "attivo",
+        verification_status: "approved", // FIX: admin attiva manualmente = garante della verifica -> sblocca is_professionista() (creazione pratiche RLS)
         grazia_fino_al: null,
         spazio_gb_piano: prodotto.spazio_gb ?? 0,
         posti_acquistati: posti,
@@ -290,9 +330,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     // ACCESSO SINGOLO SENTENZA (marketplace — non attivo in CH)
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     else if (prodottoTipo === "accesso_singolo") {
       if (!sentenza_id) throw new Error("sentenza_id obbligatorio per accesso_singolo");
 
@@ -328,9 +368,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     // CREDITI AI (top-up — NON scadono mai)
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     else if (prodottoTipo === "crediti_ai") {
       const creditiAcquistati = prodotto.crediti_ai_mensili ?? 0;
       if (creditiAcquistati <= 0) throw new Error("Prodotto crediti senza quantita configurata");
@@ -366,9 +406,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     // SPAZIO ARCHIVIAZIONE (top-up GB con scadenza)
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     else if (prodottoTipo === "spazio_archiviazione") {
       const gb = prodotto.spazio_gb ?? 0;
       const durataMesi = prodotto.durata_mesi ?? 1;
@@ -376,8 +416,10 @@ Deno.serve(async (req) => {
       if (gb <= 0) throw new Error("Prodotto storage senza GB configurati");
 
       const inizioPeriodo = new Date();
-      const finePeriodo = new Date();
-      finePeriodo.setMonth(finePeriodo.getMonth() + durataMesi);
+      // FIX: usa calcolaScadenza per gestire durate frazionarie anche qui
+      const finePeriodoIso = calcolaScadenza(durataMesi) ?? (() => {
+        const d = new Date(); d.setMonth(d.getMonth() + 1); return d.toISOString();
+      })();
 
       const { data: profProprietario } = await supabase
         .from("profiles")
@@ -411,7 +453,7 @@ Deno.serve(async (req) => {
         prodotto_id,
         transazione_id: nuovaTx?.id ?? null,
         periodo_inizio: inizioPeriodo.toISOString(),
-        periodo_fine: finePeriodo.toISOString(),
+        periodo_fine: finePeriodoIso,
       });
 
       if (profProprietario.studio_id) {
@@ -426,7 +468,7 @@ Deno.serve(async (req) => {
             tipo: "spazio_archiviazione",
             gb,
             durata_mesi: durataMesi,
-            scadenza: finePeriodo.toISOString(),
+            scadenza: finePeriodoIso,
             importo,
             valuta: "CHF",
             destinatario: `${profProprietario.nome} ${profProprietario.cognome}`,
@@ -444,9 +486,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     // GRATUITO (prova/trial)
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     else if (prodottoTipo === "gratuito") {
       const posti = prodotto.posti ?? 1;
       const tipoAccount = posti === 1 ? "singolo" : "titolare";
@@ -468,6 +510,7 @@ Deno.serve(async (req) => {
         abbonamento_tipo: prodotto.nome,
         abbonamento_scadenza: scadenza,
         abbonamento_stato: "attivo",
+        verification_status: "approved", // FIX: admin attiva manualmente = garante della verifica -> sblocca is_professionista() (creazione pratiche RLS)
         grazia_fino_al: null,
         spazio_gb_piano: prodotto.spazio_gb ?? 0,
         posti_acquistati: posti,
@@ -554,16 +597,56 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    // PIANO PERSONALE (privati) — 02-10-2026
+    // Stessa funzione del pagamento Stripe: crediti + GB in una transazione,
+    // senza cambiare ruolo. Solo per i privati (ruolo 'user').
+    // ═══════════════════════════════════════════════════════
+    else if (prodottoTipo === "piano_privato") {
+      if (profilo.role !== "user") {
+        throw new Error("Il Piano Personale si attiva solo per gli utenti privati");
+      }
+      const { data: att, error: attErr } = await supabase.rpc("attiva_piano_privato", {
+        p_user:     user_id,
+        p_prodotto: prodotto_id,
+        p_sessione: `admin_${crypto.randomUUID()}`,
+      });
+      if (attErr) throw new Error(`Attivazione Piano Personale non riuscita: ${attErr.message}`);
+      const esito = Array.isArray(att) ? att[0] : att;
+
+      if (profilo.studio_id) {
+        await supabase.from("audit_log").insert({
+          studio_id: profilo.studio_id,
+          user_id: user.id,
+          user_nome: adminNome,
+          azione: `Attivazione manuale: Piano Personale ${isOmaggio ? "(omaggio)" : ""}`.trim(),
+          entita_tipo: "prodotti",
+          entita_id: prodotto_id,
+          dettaglio: {
+            tipo: "piano_privato",
+            prodotto: prodotto.nome,
+            scadenza: esito?.scadenza ?? null,
+            crediti: esito?.crediti ?? null,
+            importo,
+            valuta: "CHF",
+            destinatario: `${profilo.nome} ${profilo.cognome}`,
+            omaggio: isOmaggio,
+            motivo: motivo.trim(),
+          },
+        });
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════
     // Tipo sconosciuto
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     else {
       throw new Error(`Tipo prodotto non supportato: ${prodottoTipo}`);
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     // SALVA TRANSAZIONE (tutti i tipi tranne spazio_archiviazione)
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
     const studioIdTx = profilo.studio_id ?? (
       await supabase.from("profiles").select("studio_id").eq("id", user_id).single()
     ).data?.studio_id;

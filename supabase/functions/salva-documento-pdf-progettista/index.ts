@@ -399,6 +399,12 @@ Deno.serve(async (req) => {
       throw new Error("Parametri obbligatori: progetto_id, tipo_codice, tipo_nome, markdown_finale");
     }
 
+    // 07-10-2026: tipo_codice entra nel percorso del file su storage:
+    // ammessi solo minuscole, cifre, trattino e trattino basso.
+    if (typeof tipo_codice !== "string" || !/^[a-z0-9_-]+$/.test(tipo_codice)) {
+      throw new Error("tipo_codice non valido");
+    }
+
     // Verifica che il progetto appartenga al progettista autenticato
     const { data: progetto, error: pErr } = await supabase
       .from("progetti")
