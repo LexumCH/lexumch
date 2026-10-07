@@ -156,9 +156,9 @@ async function consumoRecente(userId: string, disegnoId: string): Promise<'ok' |
   if (error) return 'errore'
   for (const r of (data ?? [])) {
     const d = (r as any).metadati?.disegno_id
-    // null/assente = frontend PRE-tagging (build vecchia in transizione): accettato
-    // finche' il nuovo frontend che tagga disegno_id non e' ovunque in produzione.
-    if (!d || d === disegnoId) return 'ok'
+    // 07-10-2026: vale solo il consumo pagato per QUESTO disegno. Prima un consumo senza
+    // disegno (build di luglio pre-tagging) apriva qualunque disegno per 15 minuti.
+    if (d === disegnoId) return 'ok'
   }
   return 'assente'
 }
@@ -261,7 +261,9 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}))
     const disegno_id = body.disegno_id
     const lingua = linguaSicura(body.lingua)
-    const forza = body.forza === true
+    // 07-10-2026: `forza` non salta piu' la cache. Col lasciapassare di 15 minuti ogni
+    // chiamata forzata rifaceva il lavoro AI gratis; il sito non lo manda mai.
+    const forza = false
     if (!disegno_id) {
       return new Response(JSON.stringify({ ok: false, error: 'disegno_id obbligatorio' }),
         { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } })

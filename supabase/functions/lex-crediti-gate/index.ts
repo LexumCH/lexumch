@@ -99,8 +99,9 @@ Deno.serve(async (req) => {
     // ── RIMBORSO — ANCORATO AI LOG (lex_logs è scritto SOLO dal service role:
     // le colonne di progetto_disegni sono client-writable e NON fidabili per il
     // denaro). Si rimborsa solo se: (1) esiste un CONSUMO loggato recente per
-    // questo disegno; (2) NESSUN narra riuscito dopo quel consumo (= il bundle
-    // ha davvero fallito); (3) nessun rimborso già emesso dopo quel consumo.
+    // questo disegno; (2) NESSUN risultato riuscito di una delle 5 funzioni AI per
+    // questo disegno dopo quel consumo (07-10-2026; prima: solo il narra); (3) nessun
+    // rimborso già emesso dopo quel consumo e, contro i doppioni in parallelo, consumo spento.
     // Il riaccredito va sulla STESSA riga di crediti_ai del consumo.
     if (rimborsa) {
       const disegnoId = String(body.disegno_id ?? '')
@@ -131,11 +132,15 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ ok: false, error: 'consumo_mancante' }),
           { status: 409, headers: { ...CORS, 'Content-Type': 'application/json' } })
       }
-      // (2) il bundle NON deve essere riuscito: nessun narra ok dopo il consumo
+      // (2) 07-10-2026: niente rimborso se dopo il consumo UNA QUALUNQUE delle 5 funzioni AI
+      // ha prodotto un risultato riuscito per questo disegno (prima contava solo la narra).
+      // La riga esito 'ok' ognuna la scrive solo a risultato pronto, subito prima di
+      // restituirlo (dopo il salvataggio in cache), con il disegno nei metadati. Se tutte
+      // le chiamate sono fallite il credito torna, come oggi: rifiuto = niente credito.
       const { data: successi, error: nErr } = await supabase
         .from('lex_logs')
         .select('id')
-        .eq('endpoint', 'narra_disegno')
+        .in('endpoint', ['vision_zone', 'vision_raster', 'normativa_cantonale', 'norme_sia', 'narra_disegno'])
         .eq('esito', 'ok')
         .eq('user_id', user.id)
         .gte('created_at', consumo.created_at)
@@ -167,6 +172,24 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ ok: false, error: 'rimborso_recente' }),
           { status: 429, headers: { ...CORS, 'Content-Type': 'application/json' } })
       }
+      // (3-bis) 07-10-2026: rimborsi in parallelo. Il consumo si spegne con un UPDATE
+      // condizionato (credito_scalato true → false) che riesce a UNA sola richiesta: le
+      // altre trovano 0 righe e si fermano qui. Spento, il consumo non vale piu' nemmeno
+      // come lasciapassare delle funzioni AI.
+      const { data: spento, error: spErr } = await supabase
+        .from('lex_logs')
+        .update({ credito_scalato: false })
+        .eq('id', consumo.id)
+        .eq('credito_scalato', true)
+        .select('id')
+      if (spErr) {
+        return new Response(JSON.stringify({ ok: false, error: 'gate non disponibile' }),
+          { status: 500, headers: { ...CORS, 'Content-Type': 'application/json' } })
+      }
+      if ((spento ?? []).length === 0) {
+        return new Response(JSON.stringify({ ok: false, error: 'rimborso_recente' }),
+          { status: 429, headers: { ...CORS, 'Content-Type': 'application/json' } })
+      }
       // (4) riaccredito sulla riga del consumo, con esito verificato
       const rowId = consumo.metadati?.crediti_row_id ?? null
       let rimborsato = false
@@ -194,6 +217,13 @@ Deno.serve(async (req) => {
       })
       return new Response(JSON.stringify({ ok: true, rimborsato }),
         { headers: { ...CORS, 'Content-Type': 'application/json' } })
+    }
+
+    // 07-10-2026: il consumo vale solo per il suo disegno (lasciapassare e rimborso):
+    // senza disegno_id non si scala nulla, il credito andrebbe perso.
+    if (consuma && !String(body.disegno_id ?? '')) {
+      return new Response(JSON.stringify({ ok: false, error: 'disegno_id obbligatorio' }),
+        { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } })
     }
 
     const info = await verificaCrediti(user.id)
