@@ -21,5 +21,13 @@
     "privacy": "Privacy Policy",
     "terms": "Termini di servizio",
     "other_site": "Lexum Italia · lexum.it"
+  },
+  "social": {
+    "title": "Seguici",
+    "instagram": "Lexum su Instagram",
+    "tiktok": "Lexum su TikTok",
+    "instagram_nome": "Instagram",
+    "tiktok_nome": "TikTok",
+    "profilo": "@lexum.it"
   }
 }

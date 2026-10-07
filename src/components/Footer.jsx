@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Mail, Shield, Lock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import logo from '@/assets/logo.png'
+import { SOCIAL, IconaInstagram, IconaTikTok } from '@/components/Social'
 
 export default function Footer() {
   const { t } = useTranslation('comp_footer')
@@ -25,7 +26,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/5 bg-petrolio">
       <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
 
           {/* Brand */}
           <div>
@@ -63,6 +64,29 @@ export default function Footer() {
                     <Icon size={12} className="text-salvia" />
                   </div>
                   <span className="font-body text-sm text-nebbia/40">{text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Social */}
+          <div>
+            <p className="font-body text-xs text-nebbia/30 tracking-[0.25em] uppercase mb-5">{t('social.title')}</p>
+            <ul className="space-y-4">
+              {[
+                { href: SOCIAL.instagram, key: 'instagram', Icona: IconaInstagram },
+                { href: SOCIAL.tiktok, key: 'tiktok', Icona: IconaTikTok },
+              ].map(({ href, key, Icona }) => (
+                <li key={key}>
+                  <a href={href} target="_blank" rel="noopener noreferrer" aria-label={t(`social.${key}`)}
+                    className="group flex items-center gap-3">
+                    <span className="w-7 h-7 flex items-center justify-center shrink-0">
+                      <Icona size={24} />
+                    </span>
+                    <span className="font-body text-sm text-nebbia/40 group-hover:text-oro transition-colors">
+                      {t(`social.${key}_nome`)} <span className="text-nebbia/25">{t('social.profilo')}</span>
+                    </span>
+                  </a>
                 </li>
               ))}
             </ul>

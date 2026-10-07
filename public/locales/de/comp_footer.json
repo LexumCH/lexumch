@@ -21,5 +21,13 @@
     "privacy": "Datenschutzerklärung",
     "terms": "Nutzungsbedingungen",
     "other_site": "Lexum Italien · lexum.it"
+  },
+  "social": {
+    "title": "Folgen Sie uns",
+    "instagram": "Lexum auf Instagram",
+    "tiktok": "Lexum auf TikTok",
+    "instagram_nome": "Instagram",
+    "tiktok_nome": "TikTok",
+    "profilo": "@lexum.it"
   }
 }
