@@ -171,19 +171,22 @@ function HeroDatabaseCard({ t }) {
 // Le tre sessioni Lex dell'hero, in ordine di colonna/slide
 const DEMO_VARIANTS = ['avvocato', 'fiduciario', 'progettista']
 
-// Box di una sessione Lex: header (Lex AI) + animazione della professione
+// Box di una sessione Lex, aspetto «chat»: finestra già alla sua altezza finale,
+// campo per scrivere in basso, la conversazione scorre sopra. La pagina non si muove.
 function LexDemoBox({ variant, startDelay = 0 }) {
   return (
-    <div className="bg-slate border border-oro/20 overflow-hidden shadow-2xl shadow-oro/5 h-full">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-petrolio/60">
-        <div className="flex items-center gap-2">
-          <Sparkles size={13} className="text-salvia" />
-          <span className="font-body text-xs text-salvia">Lex AI</span>
-          <div className="w-1.5 h-1.5 rounded-full bg-salvia animate-pulse ml-1" />
+    <div className="bg-slate/80 border border-oro/15 overflow-hidden shadow-2xl shadow-black/30 flex flex-col h-[480px] sm:h-[540px] lg:h-[600px]"
+      style={{ backgroundImage: 'radial-gradient(600px 300px at 100% 0%, rgba(201,164,92,0.06), transparent 70%)' }}>
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/5 shrink-0">
+        <div className="flex items-center gap-2.5">
+          <Sparkles size={13} className="text-oro" />
+          <span className="font-display text-lg text-nebbia/90 leading-none">Lex</span>
+          <span className="font-body text-[10px] uppercase tracking-[0.22em] text-nebbia/30 mt-0.5">AI</span>
         </div>
+        <div className="w-1.5 h-1.5 rounded-full bg-salvia animate-pulse" />
       </div>
-      <div className="p-5">
-        <LexAnimatedDemo variant={variant} startDelay={startDelay} />
+      <div className="flex-1 min-h-0">
+        <LexAnimatedDemo variant={variant} startDelay={startDelay} aspetto="chat" />
       </div>
     </div>
   )
@@ -273,29 +276,44 @@ export default function Home() {
           }} />
         </div>
 
-        <div className="relative max-w-5xl mx-auto px-6 w-full" style={{ animation: 'heroIn 1s cubic-bezier(.4,0,.2,1) both' }}>
-          <div className="text-center">
+        <div className="relative max-w-7xl mx-auto px-6 w-full" style={{ animation: 'heroIn 1s cubic-bezier(.4,0,.2,1) both' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+
+            {/* Sinistra: titolo, sottotitolo, pulsanti */}
+            <div className="lg:col-span-6 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-2 border border-salvia/25 bg-salvia/5 mb-8">
               <Sparkles size={11} className="text-salvia" />
               <span className="font-body text-xs text-nebbia/50 tracking-widest uppercase">{t('hero.badge')}</span>
             </div>
 
-            <h1 className="font-display text-5xl md:text-7xl font-light text-nebbia leading-[1.1] mb-6">
+            <h1 className="font-display text-5xl md:text-6xl xl:text-7xl font-light text-nebbia leading-[1.08] mb-6">
               {t('hero.title_part1')}{' '}
-              <br className="hidden md:block" />
+              <br className="hidden md:block lg:hidden" />
               <span className="text-oro-shimmer">{t('hero.title_highlight')}</span>
               {heroTitlePart2 && <>{' '}{heroTitlePart2}</>}
             </h1>
 
-            <p className="font-body text-base md:text-lg text-nebbia/50 leading-relaxed max-w-2xl mx-auto mb-10">
+            <p className="font-body text-base md:text-lg text-nebbia/50 leading-relaxed max-w-xl mx-auto lg:mx-0 mb-10">
               {t('hero.subtitle')}
             </p>
-          </div>
 
-          {/* Carosello Lex: una sessione alla volta (avvocato → fiduciario → progettista).
-              Frecce o scorrimento col dito cambiano professione e rimontano il box: l'animazione riparte da capo. */}
-          <FadeIn delay={0.1}>
-            <div className="mb-10">
+              <div className="hidden lg:block">
+            <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4 mb-5">
+              <Link to="/registrati" className="flex items-center gap-2.5 px-8 py-4 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-all hover:scale-[1.02] shadow-lg shadow-oro/20">
+                {t('hero.cta_primary')} <ArrowRight size={15} />
+              </Link>
+              <a href="#differenza" className="flex items-center gap-2 px-8 py-4 border border-white/10 text-nebbia/50 font-body text-sm hover:border-white/25 hover:text-nebbia transition-colors">
+                {t('hero.cta_secondary')}
+              </a>
+            </div>
+            <p className="font-body text-xs text-nebbia/25">
+              {t('hero.no_card')}
+            </p>
+              </div>
+            </div>
+
+            {/* Destra: la chat di Lex, già aperta (avvocato → fiduciario → progettista) */}
+            <div className="lg:col-span-6 w-full max-w-[560px] mx-auto lg:mr-0">
               <div className="relative" onTouchStart={onToccoInizio} onTouchEnd={onToccoFine}
                 style={{ touchAction: 'pan-y pinch-zoom' }}>
                 {/* Slide con transizione direzionale: il remount (key) fa ripartire l'animazione */}
@@ -340,10 +358,10 @@ export default function Home() {
                   />
                 ))}
               </div>
-            </div>
-          </FadeIn>
+                        </div>
 
-          <div className="text-center">
+            {/* Telefono: i pulsanti sotto la chat */}
+            <div className="lg:hidden text-center">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
               <Link to="/registrati" className="flex items-center gap-2.5 px-8 py-4 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-all hover:scale-[1.02] shadow-lg shadow-oro/20">
                 {t('hero.cta_primary')} <ArrowRight size={15} />
@@ -355,6 +373,7 @@ export default function Home() {
             <p className="font-body text-xs text-nebbia/25">
               {t('hero.no_card')}
             </p>
+            </div>
           </div>
         </div>
 

@@ -63,7 +63,8 @@
     "lex_label": "Lex AI",
     "action_pratica": "Zu Dossier hinzufügen",
     "action_etichetta": "Zu Etikett hinzufügen",
-    "action": "Zu Dossier hinzufügen"
+    "action": "Zu Dossier hinzufügen",
+    "vuoto_titolo": "Fragen Sie Lex"
   },
   "meta": {
     "title": "Lex AI — Rechts- und Steuerrecherche auf geprüften Quellen",

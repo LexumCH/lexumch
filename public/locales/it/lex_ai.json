@@ -63,7 +63,8 @@
     "lex_label": "Lex AI",
     "action_pratica": "Aggiungi a pratica",
     "action_etichetta": "Aggiungi a etichetta",
-    "action": "Aggiungi a pratica"
+    "action": "Aggiungi a pratica",
+    "vuoto_titolo": "Chiedi a Lex"
   },
   "meta": {
     "title": "Lex AI — La ricerca legale e fiscale su fonti verificate",
