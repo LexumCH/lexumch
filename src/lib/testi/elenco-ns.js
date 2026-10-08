@@ -83,6 +83,7 @@ export const ELENCO_NS = [
   "comp_progettista_norme_sia",
   "comp_prossimo_appuntamento",
   "comp_risposta_lex_clienti",
+  "comp_risposte_recuperate",
   "comp_scegli_archivio",
   "comp_shared",
   "comp_udienza_modal",
