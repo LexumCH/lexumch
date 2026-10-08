@@ -195,7 +195,7 @@
     "piani": {
       "label_cambia": "Changer de forfait",
       "label_scegli": "Choisissez votre forfait",
-      "differenza": "Différence :",
+      "da_pagare_oggi": "À payer aujourd'hui :",
       "accessi_one": "{{count}} accès",
       "accessi_other": "{{count}} accès",
       "mesi_one": "{{count}} mois",
@@ -207,7 +207,11 @@
       "upgrade_a": "Mise à niveau vers ",
       "acquisto": "Achat : ",
       "importo_da_pagare": "Montant à payer :",
-      "scadenza_invariata": "échéance inchangée",
+      "spiegazione_upgrade_one": "Vous payez le nouveau forfait moins la partie non encore utilisée du forfait actuel ({{count}} jour).",
+      "spiegazione_upgrade_other": "Vous payez le nouveau forfait moins la partie non encore utilisée du forfait actuel ({{count}} jours).",
+      "durata_da_oggi_one": "Le nouveau forfait dure {{count}} mois à partir d'aujourd'hui.",
+      "durata_da_oggi_other": "Le nouveau forfait dure {{count}} mois à partir d'aujourd'hui.",
+      "solo_piu_caro": "Tant que le forfait actuel est actif, vous ne pouvez passer qu'à un forfait plus cher.",
       "procedi": "Procéder au paiement"
     },
     "seat": {

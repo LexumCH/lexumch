@@ -27,6 +27,38 @@ function giorniAllaScadenza(dataStr) {
     return Math.ceil((new Date(dataStr) - new Date()) / (1000 * 60 * 60 * 24))
 }
 
+// ─────────────────────────────────────────────────────────────
+// UPGRADE A GIORNI (08-10-2026) — stessa regola di stripe-checkout, che decide l'importo vero.
+// Col piano attuale (abbonamento) ancora attivo, un piano più caro costa il suo prezzo meno la
+// parte non usata di quello attuale: periodo = scadenza − durata del piano attuale, giorni
+// rimanenti per eccesso (tra 0 e i giorni del periodo), credito mai oltre il prezzo attuale.
+// Piano scaduto (o prova): prezzo pieno. Piano uguale o più economico col piano attivo: rifiutato.
+// Il nuovo piano dura i suoi mesi pieni da oggi (stripe-webhook).
+// ─────────────────────────────────────────────────────────────
+const MS_GIORNO = 24 * 60 * 60 * 1000
+
+function creditoUpgrade(prezzoAttuale, durataMesiAttuale, scadenzaAttuale) {
+    const prezzo = Number(prezzoAttuale) || 0
+    const fine = new Date(scadenzaAttuale)
+    const inizio = new Date(fine.getTime())
+    inizio.setUTCMonth(inizio.getUTCMonth() - Math.trunc(Number(durataMesiAttuale) || 0))
+    const giorniPeriodo = Math.round((fine.getTime() - inizio.getTime()) / MS_GIORNO)
+    if (!(prezzo > 0) || !(giorniPeriodo > 0)) return { credito: 0, giorni: 0 }
+    const giorni = Math.min(giorniPeriodo, Math.max(0, Math.ceil((fine.getTime() - Date.now()) / MS_GIORNO)))
+    const credito = Math.min(prezzo, Math.round(prezzo * giorni / giorniPeriodo * 100) / 100)
+    return { credito, giorni }
+}
+
+/** Costo oggi del piano p per chi ha già un piano: { importo, upgrade, giorni } o { rifiutato: true }. */
+function costoCambioPiano(p, { prezzoAttuale, durataAttuale, tipoAttuale, scadenzaAttuale }) {
+    const prezzo = Number(p.prezzo) || 0
+    const attivo = tipoAttuale === 'abbonamento' && !!scadenzaAttuale && new Date(scadenzaAttuale) > new Date()
+    if (!attivo) return { importo: prezzo, upgrade: false }
+    if (prezzo <= (Number(prezzoAttuale) || 0)) return { rifiutato: true }
+    const { credito, giorni } = creditoUpgrade(prezzoAttuale, durataAttuale, scadenzaAttuale)
+    return { importo: Math.round((prezzo - credito) * 100) / 100, upgrade: true, giorni }
+}
+
 function formatGB(bytes) {
     if (!bytes || bytes < 0) return '0 GB'
     const gb = bytes / (1024 * 1024 * 1024)
@@ -88,7 +120,7 @@ function BannerAlert({ tone = 'warning', icon: Icon, titolo, descrizione, ctaLab
 // ─────────────────────────────────────────────────────────────
 // SEZIONE ACQUISTO — esportata, riusabile
 // ─────────────────────────────────────────────────────────────
-export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scadenzaAttuale = null, postiAttuali = 0, isUser = false, pianoScaduto = false }) {
+export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, durataAttuale = null, tipoAttuale = null, scadenzaAttuale = null, postiAttuali = 0, isUser = false, pianoScaduto = false }) {
     const { t, i18n } = useTranslation('avv_studio')
     const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
@@ -109,6 +141,9 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
     const [trialAttivato, setTrialAttivato] = useState(false)
 
     const haPianoAttivo = !!pianoAttualeId && !pianoScaduto
+    // 08-10-2026: costo del cambio piano con la regola del server (upgrade a giorni)
+    const pianoAttualeDati = { prezzoAttuale, durataAttuale, tipoAttuale, scadenzaAttuale }
+    const costoProposto = pianoProposto && pianoAttualeId ? costoCambioPiano(pianoProposto, pianoAttualeDati) : null
 
     useEffect(() => {
         async function carica() {
@@ -251,7 +286,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {piani.map(p => {
                             const isSelezionato = pianoProposto?.id === p.id
-                            const differenza = pianoAttualeId ? p.prezzo - prezzoAttuale : null
+                            const costo = pianoAttualeId ? costoCambioPiano(p, pianoAttualeDati) : null
                             return (
                                 <button key={p.id}
                                     onClick={() => setPianoProposto(isSelezionato ? null : p)}
@@ -259,9 +294,9 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                                 >
                                     <p className="font-body text-sm font-medium text-nebbia mb-1">{p.nome}</p>
                                     <p className="font-display text-2xl font-light text-oro mb-1">CHF {p.prezzo}</p>
-                                    {differenza !== null && (
+                                    {costo?.upgrade && (
                                         <p className="font-body text-xs text-nebbia/40 mb-2">
-                                            {t('acquisto.piani.differenza')} <span className={differenza > 0 ? 'text-amber-400' : 'text-salvia'}>CHF {Math.abs(differenza)}</span>
+                                            {t('acquisto.piani.da_pagare_oggi')} <span className="text-amber-400">CHF {costo.importo.toFixed(2)}</span>
                                         </p>
                                     )}
                                     <p className="font-body text-xs text-nebbia/40 mb-2">{etichettaDurata(p, tv)}</p>
@@ -285,17 +320,30 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, scad
                                     {pianoAttualeId ? t('acquisto.piani.upgrade_a') : t('acquisto.piani.acquisto')}
                                     <span className="font-medium text-oro">{pianoProposto.nome}</span>
                                 </p>
-                                <p className="font-body text-xs text-nebbia/40 mt-0.5">
-                                    {t('acquisto.piani.importo_da_pagare')}{' '}
-                                    <span className="text-nebbia/70">
-                                        CHF {pianoAttualeId ? Math.max(pianoProposto.prezzo - prezzoAttuale, 0) : pianoProposto.prezzo}
-                                    </span>
-                                    {pianoAttualeId && <span className="text-nebbia/30"> · {t('acquisto.piani.scadenza_invariata')}</span>}
-                                </p>
+                                {costoProposto?.rifiutato ? (
+                                    <p className="font-body text-xs text-amber-400 mt-0.5">
+                                        {t('acquisto.piani.solo_piu_caro')}
+                                    </p>
+                                ) : (
+                                    <>
+                                        <p className="font-body text-xs text-nebbia/40 mt-0.5">
+                                            {t('acquisto.piani.importo_da_pagare')}{' '}
+                                            <span className="text-nebbia/70">
+                                                CHF {costoProposto ? costoProposto.importo.toFixed(2) : pianoProposto.prezzo}
+                                            </span>
+                                        </p>
+                                        {costoProposto && (
+                                            <p className="font-body text-xs text-nebbia/30 mt-0.5">
+                                                {costoProposto.upgrade && `${t('acquisto.piani.spiegazione_upgrade', { count: costoProposto.giorni })} `}
+                                                {Number(pianoProposto.durata_mesi) > 0 && t('acquisto.piani.durata_da_oggi', { count: Number(pianoProposto.durata_mesi) })}
+                                            </p>
+                                        )}
+                                    </>
+                                )}
                             </div>
                             <button
                                 onClick={() => acquista(pianoProposto.id, !!pianoAttualeId)}
-                                disabled={acquistando === pianoProposto.id}
+                                disabled={acquistando === pianoProposto.id || !!costoProposto?.rifiutato}
                                 className="btn-primary text-sm disabled:opacity-40"
                             >
                                 {acquistando === pianoProposto.id
@@ -573,6 +621,7 @@ export default function AvvocatoStudio() {
     const [loading, setLoading] = useState(true)
     const [inviatoOk, setInviatoOk] = useState(false)
     const [prezzoAttuale, setPrezzoAttuale] = useState(0)
+    const [pianoAttualeInfo, setPianoAttualeInfo] = useState(null)   // durata e tipo, per l'upgrade a giorni
     const [showInvita, setShowInvita] = useState(false)
     const [emailInvito, setEmailInvito] = useState('')
     const [inviando, setInviando] = useState(false)
@@ -693,8 +742,11 @@ export default function AvvocatoStudio() {
 
     useEffect(() => {
         if (!profilo?.piano_id) return
-        supabase.from('prodotti').select('prezzo').eq('id', profilo.piano_id).single()
-            .then(({ data }) => setPrezzoAttuale(data?.prezzo ?? 0))
+        supabase.from('prodotti').select('prezzo, durata_mesi, tipo').eq('id', profilo.piano_id).single()
+            .then(({ data }) => {
+                setPrezzoAttuale(data?.prezzo ?? 0)
+                setPianoAttualeInfo(data ?? null)
+            })
     }, [profilo?.piano_id])
 
     // ── LOGICA ────────────────────────────────────────────────
@@ -1221,6 +1273,8 @@ export default function AvvocatoStudio() {
                 <SezioneAcquisto
                     pianoAttualeId={isUser ? null : (profilo?.piano_id ?? null)}
                     prezzoAttuale={isUser ? 0 : prezzoAttuale}
+                    durataAttuale={isUser ? null : (pianoAttualeInfo?.durata_mesi ?? null)}
+                    tipoAttuale={isUser ? null : (pianoAttualeInfo?.tipo ?? null)}
                     scadenzaAttuale={profilo?.abbonamento_scadenza}
                     postiAttuali={postiAcquistati}
                     isUser={isUser}

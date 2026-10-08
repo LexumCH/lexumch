@@ -195,7 +195,7 @@
     "piani": {
       "label_cambia": "Plan wechseln",
       "label_scegli": "Wählen Sie Ihren Plan",
-      "differenza": "Differenz:",
+      "da_pagare_oggi": "Heute zu zahlen:",
       "accessi_one": "{{count}} Zugang",
       "accessi_other": "{{count}} Zugänge",
       "mesi_one": "{{count}} Monat",
@@ -207,7 +207,11 @@
       "upgrade_a": "Upgrade auf ",
       "acquisto": "Kauf: ",
       "importo_da_pagare": "Zu zahlender Betrag:",
-      "scadenza_invariata": "Ablauf unverändert",
+      "spiegazione_upgrade_one": "Sie zahlen den neuen Plan abzüglich des noch nicht genutzten Teils des aktuellen Plans ({{count}} Tag).",
+      "spiegazione_upgrade_other": "Sie zahlen den neuen Plan abzüglich des noch nicht genutzten Teils des aktuellen Plans ({{count}} Tage).",
+      "durata_da_oggi_one": "Der neue Plan gilt ab heute für {{count}} Monat.",
+      "durata_da_oggi_other": "Der neue Plan gilt ab heute für {{count}} Monate.",
+      "solo_piu_caro": "Solange der aktuelle Plan aktiv ist, können Sie nur zu einem teureren Plan wechseln.",
       "procedi": "Zur Zahlung"
     },
     "seat": {

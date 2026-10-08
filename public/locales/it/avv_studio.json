@@ -195,7 +195,7 @@
     "piani": {
       "label_cambia": "Cambia piano",
       "label_scegli": "Scegli il tuo piano",
-      "differenza": "Differenza:",
+      "da_pagare_oggi": "Da pagare oggi:",
       "accessi_one": "{{count}} accesso",
       "accessi_other": "{{count}} accessi",
       "mesi_one": "{{count}} mese",
@@ -207,7 +207,11 @@
       "upgrade_a": "Upgrade a ",
       "acquisto": "Acquisto: ",
       "importo_da_pagare": "Importo da pagare:",
-      "scadenza_invariata": "scadenza invariata",
+      "spiegazione_upgrade_one": "Paghi il nuovo piano meno la parte non ancora usata di quello attuale ({{count}} giorno).",
+      "spiegazione_upgrade_other": "Paghi il nuovo piano meno la parte non ancora usata di quello attuale ({{count}} giorni).",
+      "durata_da_oggi_one": "Il nuovo piano dura {{count}} mese da oggi.",
+      "durata_da_oggi_other": "Il nuovo piano dura {{count}} mesi da oggi.",
+      "solo_piu_caro": "Con il piano attuale ancora attivo puoi passare solo a un piano più caro.",
       "procedi": "Procedi al pagamento"
     },
     "seat": {
