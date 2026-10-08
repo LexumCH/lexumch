@@ -354,6 +354,7 @@ export default function MandatoDettaglio() {
 
             {/* ═══════════ RIGA 4 — Chat AI (full width) ═══════════ */}
             <ChatMandato
+                titoloMandato={mandato.titolo}
                 mandatoId={mandato.id}
                 clienteId={mandato.cliente_id}
                 onDocumentoSalvato={() => setRefreshDocumenti(k => k + 1)}

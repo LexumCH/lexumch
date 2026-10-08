@@ -39,6 +39,7 @@ import {
     Plus, FolderOpen, Upload, Save, Check
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import DocumentoLex from '@/components/DocumentoLex'
 
 // ═══════════════════════════════════════════════════════════════
 // CONFIG
@@ -51,7 +52,7 @@ const LEAD_ENDPOINT = 'lex-lead'
 // Le chiavi (codici fase) restano costanti; le etichette sono tradotte via i18n.
 const FASI_KEYS = [
     'analisi', 'instradamento', 'norme_federali', 'norme_cantonali',
-    'giurisprudenza', 'prassi', 'eu', 'sintesi',
+    'giurisprudenza', 'prassi', 'eu', 'sintesi', 'scrittura',
 ]
 
 // ═══════════════════════════════════════════════════════════════
@@ -572,8 +573,9 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                         try {
                             const data = JSON.parse(payload)
                             if (eventoCorrente === 'fase') {
+                                // 08-10-2026: documento: true = Lex sta scrivendo un documento (modalità atto)
                                 setFaseCorrente(
-                                    (data.fase === 'rigetto' || data.fase === 'no_copertura') ? null : data.fase
+                                    (data.fase === 'rigetto' || data.fase === 'no_copertura') ? null : data.documento ? 'scrittura' : data.fase
                                 )
                             }
                             if (eventoCorrente === 'chunk') {
@@ -739,9 +741,12 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                 <p className="font-body text-sm text-nebbia/60 leading-relaxed">{m.content}</p>
                             ) : (
                                 <div className="font-body text-sm text-nebbia/80 leading-relaxed space-y-2">
-                                    <ReactMarkdown components={markdownComponents}>{m.content}</ReactMarkdown>
+                                    {/* 08-10-2026: un documento scritto da Lex (modalità atto) si apre nel foglio */}
+                                    {m.meta?.documento
+                                        ? <DocumentoLex markdown={m.content} tipo={m.meta.documento.tipo} />
+                                        : <ReactMarkdown components={markdownComponents}>{m.content}</ReactMarkdown>}
 
-                                    {m.meta?.approfondimenti_disponibili?.length > 0 && (
+                                    {!m.meta?.documento && m.meta?.approfondimenti_disponibili?.length > 0 && (
                                         <div className="mt-5 pt-4 border-t border-white/5 space-y-3">
                                             <div className="flex items-center gap-2">
                                                 <Sparkles size={12} className="text-salvia" />
@@ -764,7 +769,7 @@ function ChatLex({ crediti, setCrediti, messaggi, onAggiornaMessaggi }) {
                                         </div>
                                     )}
 
-                                    {m.content && !m.interrotta && m.tipo_risposta !== 'rigettata' && m.tipo_risposta !== 'messaggio_standard' && (
+                                    {m.content && !m.interrotta && !m.meta?.documento && m.tipo_risposta !== 'rigettata' && m.tipo_risposta !== 'messaggio_standard' && (
                                         <div className="mt-5 flex flex-wrap items-center gap-3">
                                             <button
                                                 onClick={() => scaricaPdf(i)}

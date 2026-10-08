@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import ReactMarkdown from 'react-markdown'
+import DocumentoLex from '@/components/DocumentoLex'
 import {
     Sparkles, Send, Save, Plus, AlertCircle, X, CheckCircle,
     Loader2, FileText, HelpCircle, Edit2, Eye, Download, Info
@@ -198,7 +199,7 @@ function LexAnimazione({ frasi }) {
 // ─────────────────────────────────────────────────────────────
 function trascriviConversazione(messaggi, t, dateLocale) {
     return messaggi.map(m => {
-        if (m.tipo === 'documento') {
+        if (m.tipo === 'documento' || m.tipo === 'documento_lex') {
             const ts = m.ts ? new Date(m.ts).toLocaleString(dateLocale, {
                 day: '2-digit', month: '2-digit', year: 'numeric',
                 hour: '2-digit', minute: '2-digit'
@@ -657,8 +658,9 @@ function BollaDocumento({ messaggio, mandatoId, onDocumentoSalvato }) {
 // ─────────────────────────────────────────────────────────────
 // COMPONENTE PRINCIPALE
 // ─────────────────────────────────────────────────────────────
-export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSalvato, onRicercaSalvata }) {
+export default function ChatMandato({ mandatoId, titoloMandato, clienteId = null, onDocumentoSalvato, onRicercaSalvata }) {
     const { t, i18n } = useTranslation('comp_fid_chat_mandato')
+    const { t: tDoc } = useTranslation('comp_documento_lex')
     const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
@@ -749,6 +751,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
 
             const url = `${supabaseUrl}${ENDPOINT_MANDATO}`
 
+            // 08-10-2026: anche i documenti scritti da Lex, così si possono chiedere modifiche
             const storia = conversazione
                 .filter(m => m.tipo !== 'documento')
                 .map(m => ({ role: m.role, content: m.content }))
@@ -791,6 +794,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
             let documentoMarkdown = null
             let tipoDocumento = null
             let tipoNome = null
+            let documentoLex = null   // 08-10-2026: done.meta.documento, documento scritto da Lex (modalità atto)
 
             while (true) {
                 const { value, done } = await reader.read()
@@ -818,6 +822,12 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                                 setIsDocumentoStreaming(true)
                             }
 
+                            // 08-10-2026: Lex scrive un documento (modalità atto): il testo va sul foglio
+                            if (eventoCorrente === 'fase' && data.documento) {
+                                setStatoGenerazione(data.descrizione ?? '')
+                                setIsDocumentoStreaming(true)
+                            }
+
                             if (eventoCorrente === 'chunk') {
                                 testoAccumulato += data.text ?? ''
                                 setStreamingTesto(testoAccumulato)
@@ -825,6 +835,7 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
 
                             if (eventoCorrente === 'done') {
                                 if (data.crediti_rimasti !== undefined) creditiRimasti = data.crediti_rimasti
+                                if (data.meta?.documento) documentoLex = data.meta.documento
                                 if (data.documento_markdown) {
                                     documentoMarkdown = data.documento_markdown
                                     tipoDocumento = data.tipo_documento ?? null
@@ -868,6 +879,14 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
                     content: documentoMarkdown,
                     tipo_documento: tipoDocumento,
                     tipo_nome: tipoNome,
+                    ts: new Date().toISOString(),
+                }
+            } else if (documentoLex) {
+                messaggioFinale = {
+                    role: 'assistant',
+                    tipo: 'documento_lex',
+                    content: testoAccumulato,
+                    tipo_nome: documentoLex.tipo ?? null,
                     ts: new Date().toISOString(),
                 }
             } else {
@@ -1107,6 +1126,12 @@ export default function ChatMandato({ mandatoId, clienteId = null, onDocumentoSa
 
                         {m.role === 'user' ? (
                             <p className="font-body text-sm text-nebbia/60 leading-relaxed">{m.content}</p>
+                        ) : m.tipo === 'documento_lex' ? (
+                            <div>
+                                <DocumentoLex markdown={m.content} tipo={m.tipo_nome} corrente={{ id: mandatoId, titolo: titoloMandato }} />
+                                {/* Trasparenza AI — art. 50 AI Act */}
+                                <p className="mt-3 font-body text-[11px] text-nebbia/35 leading-relaxed">{tDoc('trasparenza')}</p>
+                            </div>
                         ) : m.tipo === 'documento' ? (
                             <BollaDocumento
                                 messaggio={m}
