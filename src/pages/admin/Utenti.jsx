@@ -8,6 +8,7 @@ import {
   UserPlus, X, Copy, Check, ShieldAlert
 } from 'lucide-react'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
+import { apriFile } from '@/lib/fileSpazio'
 import { caricaContatoriAdmin, riquadriPerRuolo, descriviStati } from '@/lib/contatoriAdmin'
 
 const ROLE_BADGE = {
@@ -538,11 +539,10 @@ function DocumentiVerifica({ userId }) {
     carica()
   }, [userId])
 
-  async function apriDoc(path) {
-    const { data } = await supabase.storage
-      .from('verification-docs')
-      .createSignedUrl(`${userId}/${path}`, 3600)
-    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+  // 08-10-2026: il documento si apre con l'accesso dell'admin, senza collegamento
+  // temporaneo (lib/fileSpazio). Se non si apre, come prima non succede niente.
+  function apriDoc(path) {
+    apriFile({ bucket: 'verification-docs', percorso: `${userId}/${path}`, nome: path }).catch(() => { })
   }
 
   const LABEL = {

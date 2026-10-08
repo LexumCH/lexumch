@@ -18,6 +18,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, supabaseKey, getAccessToken, invocaLex } from '@/lib/supabase'
+import { scaricaFile, useIndirizzoDi } from '@/lib/fileSpazio'
 import {
   Upload, FileText, Play, Loader2, CheckCircle2, AlertTriangle, XCircle,
   Info, ChevronDown, ChevronUp, Trash2, Languages, Landmark, ScanSearch, BookMarked
@@ -857,7 +858,6 @@ function LetturaRaster({ disegno: d, t, lingua }) {
   )
 }
 
-// Miniatura del ritaglio (bucket privato → signed URL con il JWT dell'utente)
 // Numero della segnalazione: lo STESSO che compare nel cerchio rosso sulla
 // panoramica e sul ritaglio. È l'aggancio che permette al progettista di
 // ritrovare sul disegno il punto di cui parla il testo.
@@ -871,16 +871,16 @@ function BadgeAncora({ n }) {
   )
 }
 
+// Miniatura del ritaglio (bucket privato). 08-10-2026: il file si scarica con l'accesso
+// dell'utente (lib/fileSpazio), senza collegamento temporaneo, e resta in cache come dato;
+// ogni miniatura lo mostra da un suo indirizzo locale, revocato quando la miniatura si chiude.
 function CropImg({ path, big = false, numero = null }) {
-  const { data: url } = useQuery({
-    queryKey: ['crop_url', path],
-    queryFn: async () => {
-      const { data, error } = await supabase.storage.from('disegni').createSignedUrl(path, 3600)
-      if (error) throw error
-      return data.signedUrl
-    },
+  const { data: file } = useQuery({
+    queryKey: ['crop_file', path],
+    queryFn: () => scaricaFile({ bucket: 'disegni', percorso: path }),
     staleTime: 30 * 60 * 1000,
   })
+  const url = useIndirizzoDi(file)
   if (!url) {
     return <div className={`${big ? 'w-full h-48' : 'w-32 h-24 shrink-0'} bg-slate border border-white/5 animate-pulse`} />
   }

@@ -29,6 +29,7 @@
   "originale": {
     "titolo": "Original",
     "nessun_file": "Aucun fichier disponible",
+    "anteprima_non_disponibile": "Aperçu non disponible pour ce format",
     "apri_nuova_scheda": "Ouvrir dans un nouvel onglet"
   },
   "testo": {

@@ -13,6 +13,7 @@ import AggiungiAEtichetta from '@/components/AggiungiAEtichetta'
 import AssegnaDocumento from '@/components/AssegnaDocumento'
 import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
 import { supabase, supabaseUrl } from '@/lib/supabase'
+import { useAnteprimaFile } from '@/lib/fileSpazio'
 import {
     leggiSpazioArchivio, formattaSpazio, rottaAcquisti, codiceErroreArchivio,
 } from '@/lib/archivio'
@@ -908,7 +909,9 @@ function CardDocumento({
         .map(eid => etichetteUtente.find(e => e.id === eid))
         .filter(Boolean)
     const [aperto, setAperto] = useState(false)
-    const [pdfUrl, setPdfUrl] = useState(null)
+    // 08-10-2026: l'anteprima si scarica con l'accesso dell'utente e si mostra da un indirizzo
+    // locale del browser, senza collegamento temporaneo (lib/fileSpazio)
+    const { anteprima, carica: caricaAnteprima, svuota: svuotaAnteprima } = useAnteprimaFile()
     const [testoFile, setTestoFile] = useState(null)
     const [caricandoAnteprima, setCaricandoAnteprima] = useState(false)
     const cliente = clienti.find(c => c.id === doc.cliente_id)
@@ -998,21 +1001,17 @@ function CardDocumento({
                 return
             }
 
-            const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(path, 3600)
-            if (!signed?.signedUrl) {
+            // Se il file non si scarica l'anteprima resta vuota, come prima
+            const file = await caricaAnteprima({ bucket, percorso: path, nome: doc.titolo }).catch(() => null)
+            if (!file) {
                 setCaricandoAnteprima(false)
                 return
             }
 
-            setPdfUrl(signed.signedUrl)
-
-            // Per i .txt scarichiamo il contenuto e lo renderizziamo come <pre>
+            // Per i .txt il contenuto (già scaricato) si mostra come <pre>
             if (doc.tipo === 'txt') {
                 try {
-                    const res = await fetch(signed.signedUrl)
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-                    const text = await res.text()
-                    setTestoFile(text)
+                    setTestoFile(await file.blob.text())
                 } catch (err) {
                     setTestoFile(t('anteprima.errore_contenuto', { message: err.message }))
                 }
@@ -1268,7 +1267,7 @@ function CardDocumento({
                 <div className="border-t border-white/5 p-4">
                     <div className="flex items-center justify-between mb-3">
                         <p className="font-body text-xs text-nebbia/40">{t('anteprima.titolo')}</p>
-                        <button onClick={() => { setAperto(false); setPdfUrl(null); setTestoFile(null) }}
+                        <button onClick={() => { setAperto(false); svuotaAnteprima(); setTestoFile(null) }}
                             className="text-nebbia/25 hover:text-nebbia transition-colors">
                             <X size={14} />
                         </button>
@@ -1282,18 +1281,20 @@ function CardDocumento({
                         <pre className="bg-petrolio/40 border border-white/5 p-4 text-nebbia/70 font-mono text-xs leading-relaxed whitespace-pre-wrap max-h-[500px] overflow-y-auto">
                             {testoFile}
                         </pre>
-                    ) : pdfUrl && (doc.tipo === 'pdf' || !doc.tipo) ? (
-                        <iframe src={pdfUrl} className="w-full rounded" style={{ height: 500 }} title={doc.titolo} />
-                    ) : pdfUrl ? (
+                    ) : anteprima?.mostrabile && (doc.tipo === 'pdf' || !doc.tipo) ? (
+                        <iframe src={anteprima.url} className="w-full rounded" style={{ height: 500 }} title={doc.titolo} />
+                    ) : anteprima ? (
                         <div className="bg-petrolio/40 border border-white/5 p-6 text-center space-y-3">
                             <FileText size={32} className="text-nebbia/20 mx-auto" />
                             <p className="font-body text-xs text-nebbia/40">
                                 {t('anteprima.non_disponibile')}
                             </p>
+                            {/* se il browser non sa mostrare il file, si salva con il suo nome */}
                             <a
-                                href={pdfUrl}
+                                href={anteprima.url}
                                 target="_blank"
                                 rel="noreferrer"
+                                download={anteprima.mostrabile ? undefined : anteprima.nome}
                                 className="inline-flex items-center gap-2 font-body text-xs text-oro border border-oro/30 px-3 py-1.5 hover:bg-oro/10 transition-colors"
                             >
                                 {t('anteprima.apri_nuova_scheda')}

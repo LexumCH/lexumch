@@ -20,6 +20,7 @@ import {
     FileSignature, Wallet, Archive
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { apriFile } from '@/lib/fileSpazio'
 import { erroreFunzione } from '@/lib/fatturazione'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
@@ -611,17 +612,15 @@ export default function AvvocatoFatturazioneDettaglio() {
         }
     }
 
+    // 08-10-2026: il PDF si apre con l'accesso dell'utente, senza collegamento
+    // temporaneo con l'indirizzo del server (lib/fileSpazio)
     async function scaricaPdf() {
         if (!fattura?.pdf_storage_path) { generaPdf(); return }
         setScaricandoPdf(true)
         try {
-            const { data, error } = await supabase.storage
-                .from('fatture')
-                .createSignedUrl(fattura.pdf_storage_path, 3600)
-            if (error || !data?.signedUrl) throw new Error(t('pdf.err_download'))
-            window.open(data.signedUrl, '_blank')
-        } catch (err) {
-            setErrore(err.message)
+            await apriFile({ bucket: 'fatture', percorso: fattura.pdf_storage_path })
+        } catch {
+            setErrore(t('pdf.err_download'))
         } finally {
             setScaricandoPdf(false)
         }

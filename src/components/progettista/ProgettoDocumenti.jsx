@@ -11,6 +11,7 @@ import { useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { apriFile } from '@/lib/fileSpazio'
 import { Upload, FileText, Loader2, ExternalLink, Trash2, FolderOpen, ChevronDown } from 'lucide-react'
 import GeneraDocumentoProgetto from './GeneraDocumentoProgetto'
 
@@ -103,14 +104,12 @@ export default function ProgettoDocumenti({ progettoId }) {
     }
   }
 
+  // 08-10-2026: il documento si apre con l'accesso dell'utente, senza collegamento
+  // temporaneo (lib/fileSpazio); se non si apre, l'errore si vede come prima
   async function apri(doc) {
     setErrore(null)
     try {
-      const { data, error } = await supabase.storage
-        .from('progetto-documenti')
-        .createSignedUrl(doc.storage_path, 60)
-      if (error) throw error
-      window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
+      await apriFile({ bucket: 'progetto-documenti', percorso: doc.storage_path, nome: doc.nome_file })
     } catch (e) {
       setErrore(e.message)
     }

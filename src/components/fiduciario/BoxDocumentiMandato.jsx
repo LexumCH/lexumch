@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Plus, FileText, Download, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { apriFile } from '@/lib/fileSpazio'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
@@ -47,11 +48,10 @@ export default function BoxDocumentiMandato({ mandatoId, clienteId, refreshTrigg
         setLoading(false)
     }
 
-    async function scaricaDocumento(doc) {
-        const { data } = await supabase.storage
-            .from('archivio')
-            .createSignedUrl(doc.storage_path, 3600)
-        if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+    // 08-10-2026: il documento si apre con l'accesso dell'utente, senza collegamento
+    // temporaneo (lib/fileSpazio). Se non si apre, come prima non succede niente.
+    function scaricaDocumento(doc) {
+        apriFile({ bucket: 'archivio', percorso: doc.storage_path, nome: doc.nome_file }).catch(() => { })
     }
 
     async function scollegaDocumento(doc) {

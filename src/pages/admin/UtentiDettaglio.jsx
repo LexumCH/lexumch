@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
+import { apriFile } from '@/lib/fileSpazio'
 
 // ─────────────────────────────────────────────────────────────
 // COSTANTI
@@ -484,11 +485,10 @@ function SezioneUser({ utente, onDecision }) {
     caricaDati()
   }, [utente.id])
 
-  async function apriDoc(name) {
-    const { data } = await supabase.storage
-      .from('verification-docs')
-      .createSignedUrl(`${utente.id}/${name}`, 3600)
-    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+  // 08-10-2026: il documento si apre con l'accesso dell'admin, senza collegamento
+  // temporaneo (lib/fileSpazio). Se non si apre, come prima non succede niente.
+  function apriDoc(name) {
+    apriFile({ bucket: 'verification-docs', percorso: `${utente.id}/${name}`, nome: name }).catch(() => { })
   }
 
   async function handleDecisione(tipo) {

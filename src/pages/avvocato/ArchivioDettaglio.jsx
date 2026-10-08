@@ -8,6 +8,7 @@ import {
     EyeOff, Download, Tag, User, FolderOpen, Edit2, X
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useAnteprimaFile } from '@/lib/fileSpazio'
 import AssegnaMovimento from '@/components/fiduciario/AssegnaMovimento'
 import { useAuth } from '@/context/AuthContext'
 import { rottaArchivio } from '@/lib/archivio'
@@ -40,7 +41,10 @@ export default function ArchivioDettaglio() {
 
     const [doc, setDoc] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [pdfUrl, setPdfUrl] = useState(null)
+    // 08-10-2026: l'originale si scarica con l'accesso dell'utente e si mostra da un indirizzo
+    // locale del browser, senza collegamento temporaneo (lib/fileSpazio); la pagina non lo aspetta
+    const { anteprima: pdf, caricando: caricandoPdf, carica: caricaPdf } = useAnteprimaFile()
+    const pdfUrl = pdf?.url ?? null
     const [mostraPdf, setMostraPdf] = useState(true)
     const [clienti, setClienti] = useState([])
     const [pratiche, setPratiche] = useState([])
@@ -91,12 +95,9 @@ export default function ArchivioDettaglio() {
                     pratica_id: d.pratica_id ?? '',
                 })
 
-                // Carica URL PDF
+                // Carica l'originale
                 if (d.storage_path) {
-                    const { data: url } = await supabase.storage
-                        .from('archivio')
-                        .createSignedUrl(d.storage_path, 3600)
-                    if (url?.signedUrl) setPdfUrl(url.signedUrl)
+                    caricaPdf({ bucket: 'archivio', percorso: d.storage_path, nome: d.titolo }).catch(() => { })
                 }
             }
 
@@ -257,13 +258,22 @@ export default function ArchivioDettaglio() {
                             <span className="font-body text-xs text-nebbia/50 truncate">{doc.titolo}</span>
                         </div>
 
-                        {mostraPdf && pdfUrl ? (
+                        {mostraPdf && caricandoPdf ? (
+                            <div className="flex items-center justify-center py-8 border border-dashed border-white/10">
+                                <span className="animate-spin w-4 h-4 border-2 border-oro border-t-transparent rounded-full" />
+                            </div>
+                        ) : mostraPdf && pdf?.mostrabile ? (
                             <iframe
                                 src={pdfUrl}
                                 className="w-full border border-white/5"
                                 style={{ height: 400 }}
                                 title={doc.titolo}
                             />
+                        ) : mostraPdf && pdf ? (
+                            // Word, Excel e gli altri formati che il browser non mostra: si salvano dal collegamento
+                            <div className="flex items-center justify-center py-8 border border-dashed border-white/10">
+                                <p className="font-body text-xs text-nebbia/25">{t('originale.anteprima_non_disponibile')}</p>
+                            </div>
                         ) : mostraPdf && !pdfUrl ? (
                             <div className="flex items-center justify-center py-8 border border-dashed border-white/10">
                                 <p className="font-body text-xs text-nebbia/25">{t('originale.nessun_file')}</p>
@@ -275,6 +285,7 @@ export default function ArchivioDettaglio() {
                                 href={pdfUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                download={pdf.mostrabile ? undefined : pdf.nome}
                                 className="flex items-center gap-2 mt-3 font-body text-xs text-nebbia/30 hover:text-oro transition-colors"
                             >
                                 <Download size={11} /> {t('originale.apri_nuova_scheda')}

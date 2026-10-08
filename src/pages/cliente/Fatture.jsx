@@ -3,12 +3,15 @@
 // 04-10-2026: su CH l'importo sta in "totale" (la colonna "importo" non esiste:
 // la lista restava vuota); da pagare = in attesa + scadute; PDF scaricabile
 // (policy fatture_pdf_select_cliente).
+// 08-10-2026: il PDF si apre con l'accesso del cliente, senza collegamento
+// temporaneo con l'indirizzo del server (lib/fileSpazio).
 
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageHeader, Badge } from '@/components/shared'
 import { CreditCard, Download } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { apriFile } from '@/lib/fileSpazio'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
@@ -50,11 +53,9 @@ export default function ClienteFatture() {
     async function scaricaPdf(f) {
         setErrore(''); setScaricando(f.id)
         try {
-            const { data, error } = await supabase.storage.from('fatture').createSignedUrl(f.pdf_storage_path, 3600)
-            if (error || !data?.signedUrl) throw new Error(t('errori.download'))
-            window.open(data.signedUrl, '_blank')
-        } catch (err) {
-            setErrore(err.message)
+            await apriFile({ bucket: 'fatture', percorso: f.pdf_storage_path })
+        } catch {
+            setErrore(t('errori.download'))
         } finally {
             setScaricando(null)
         }
