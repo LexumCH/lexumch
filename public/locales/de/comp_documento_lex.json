@@ -25,6 +25,22 @@
     "punti_one": "({{count}} Stelle)",
     "togli": "Diese Angabe entfernen",
     "trasparenza": "Mit künstlicher Intelligenz verfasstes Dokument. Lex kann Fehler machen: Lesen Sie es nochmals durch und prüfen Sie Angaben und Quellen vor der Unterschrift.",
+    "correggi": {
+        "placeholder": "Z. B. der Mieter heisst Marco, nicht Mario",
+        "pulsante": "Korrigieren",
+        "modifica": "Text bearbeiten",
+        "annulla_ultima": "Letzte Änderung rückgängig machen",
+        "gratis": "Korrekturen und Änderungen von Hand sind kostenlos. Um einen Teil neu schreiben zu lassen, fragen Sie Lex im Chat: 1 Guthaben.",
+        "fatte_one": "1 Korrektur vorgenommen.",
+        "fatte_other": "{{count}} Korrekturen vorgenommen.",
+        "scartate_one": "Eine konnte nicht übernommen werden: Prüfen Sie den Text.",
+        "scartate_other": "{{count}} konnten nicht übernommen werden: Prüfen Sie den Text.",
+        "niente": "Ich habe nichts zu korrigieren gefunden: Formulieren Sie es anders oder bearbeiten Sie den Text von Hand.",
+        "errore": "Die Korrektur ist nicht gelungen. Bitte versuchen Sie es gleich noch einmal.",
+        "markdown": "Der Text verwendet Markdown: ** vor und nach fett gedruckten Wörtern, # am Zeilenanfang für Titel.",
+        "salva": "Änderungen speichern",
+        "annulla_modifica": "Abbrechen"
+    },
     "carta": {
         "titolo_avvocato": "RA",
         "albo": "Anwaltsregister {{cantone}}",

@@ -25,6 +25,22 @@
     "punti_one": "({{count}} punto)",
     "togli": "Togli questo dato",
     "trasparenza": "Documento scritto con intelligenza artificiale. Lex può commettere errori: rileggilo e verifica dati e fonti prima di firmarlo.",
+    "correggi": {
+        "placeholder": "Es. il conduttore è Marco, non Mario",
+        "pulsante": "Correggi",
+        "modifica": "Modifica il testo",
+        "annulla_ultima": "Annulla l'ultima modifica",
+        "gratis": "Correzioni e modifiche a mano sono gratis. Per riscrivere una parte chiedilo a Lex nella chat: 1 credito.",
+        "fatte_one": "1 correzione fatta.",
+        "fatte_other": "{{count}} correzioni fatte.",
+        "scartate_one": "Una non si è potuta applicare: controlla il testo.",
+        "scartate_other": "{{count}} non si sono potute applicare: controlla il testo.",
+        "niente": "Non ho trovato niente da correggere: prova a dirlo con altre parole o modifica il testo a mano.",
+        "errore": "Non sono riuscito a fare la correzione. Riprova tra qualche istante.",
+        "markdown": "Il testo usa il Markdown: ** prima e dopo le parole in grassetto, # all'inizio della riga per i titoli.",
+        "salva": "Salva le modifiche",
+        "annulla_modifica": "Annulla"
+    },
     "carta": {
         "titolo_avvocato": "Avv.",
         "albo": "Albo degli avvocati {{cantone}}",

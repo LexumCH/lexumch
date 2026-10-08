@@ -1119,7 +1119,8 @@ export default function ChatPratica({ praticaId, titoloPratica, onDocumentoSalva
                             <p className="font-body text-sm text-nebbia/60 leading-relaxed">{m.content}</p>
                         ) : m.tipo === 'documento_lex' ? (
                             <div>
-                                <DocumentoLex markdown={m.content} tipo={m.tipo_nome} corrente={{ id: praticaId, titolo: titoloPratica }} />
+                                <DocumentoLex markdown={m.content} tipo={m.tipo_nome} corrente={{ id: praticaId, titolo: titoloPratica }}
+                                    onModifica={(nuovo) => setConversazione((c) => c.map((x, k) => (k === i ? { ...x, content: nuovo } : x)))} />
                                 {/* Trasparenza AI — art. 50 AI Act */}
                                 <p className="mt-3 font-body text-[11px] text-nebbia/35 leading-relaxed">{tDoc('trasparenza')}</p>
                             </div>
