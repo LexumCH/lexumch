@@ -91,6 +91,8 @@ export function PrassiDettaglio() {
     if (prassi.testo) corpo.push({ titolo: t('testo'), testo: prassi.testo })
 
     const badge = []
+    // 08-10-2026: tolto dalla fonte (per esempio un contratto collettivo scaduto): resta consultabile, ma Lex non lo usa
+    if (prassi.stato === 'non_in_vigore') badge.push({ txt: t('prassi.non_in_vigore'), cls: 'text-red-300/80 border-red-400/30' })
     if (prassi.tipo_documento) badge.push({ txt: prassi.tipo_documento, cls: 'text-oro/70 border-oro/20' })
     if (prassi.numero) badge.push({ txt: `${t('prassi.n_prefix')} ${prassi.numero}`, cls: 'text-nebbia/50 border-white/10' })
     if (prassi.lingua && LINGUE_LABEL[prassi.lingua]) badge.push({ txt: LINGUE_LABEL[prassi.lingua], cls: 'text-salvia/60 border-salvia/20' })
