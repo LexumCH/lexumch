@@ -231,6 +231,9 @@
       "in_lettura": "L'archivio sta ancora leggendo questo documento: riprova tra qualche istante.",
       "senza_testo": "Da questo documento l'archivio non è riuscito a leggere il testo.",
       "non_segmentabile": "Non è stato possibile suddividere il documento per l'analisi.",
+      "troppo_lungo": "Il documento è troppo lungo per l'analisi (oltre circa 400 pagine): carica solo la parte che ti serve.",
+      "limite_giornaliero": "Hai raggiunto il limite giornaliero di documenti analizzati: riprova domani.",
+      "non_disponibile": "Il servizio è temporaneamente non disponibile: riprova tra poco.",
       "errore": "Analisi del documento non riuscita: riprova."
     }
   }

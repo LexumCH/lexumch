@@ -231,6 +231,9 @@
       "in_lettura": "L'archive est encore en train de lire ce document : réessayez dans quelques instants.",
       "senza_testo": "L'archive n'a pas réussi à lire le texte de ce document.",
       "non_segmentabile": "Le document n'a pas pu être découpé pour l'analyse.",
+      "troppo_lungo": "Le document est trop long pour l'analyse (plus de 400 pages environ) : importez seulement la partie utile.",
+      "limite_giornaliero": "Vous avez atteint la limite quotidienne de documents analysés : réessayez demain.",
+      "non_disponibile": "Le service est temporairement indisponible : réessayez dans un instant.",
       "errore": "L'analyse du document a échoué : veuillez réessayer."
     }
   }

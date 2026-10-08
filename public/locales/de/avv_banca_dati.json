@@ -231,6 +231,9 @@
       "in_lettura": "Das Archiv liest dieses Dokument noch: Versuchen Sie es in einigen Augenblicken erneut.",
       "senza_testo": "Das Archiv konnte den Text dieses Dokuments nicht lesen.",
       "non_segmentabile": "Das Dokument konnte für die Analyse nicht aufgeteilt werden.",
+      "troppo_lungo": "Das Dokument ist für die Analyse zu lang (mehr als etwa 400 Seiten): Laden Sie nur den benötigten Teil hoch.",
+      "limite_giornaliero": "Sie haben das Tageslimit für analysierte Dokumente erreicht: Versuchen Sie es morgen erneut.",
+      "non_disponibile": "Der Dienst ist vorübergehend nicht verfügbar: Bitte versuchen Sie es gleich erneut.",
       "errore": "Die Analyse des Dokuments ist fehlgeschlagen: Bitte versuchen Sie es erneut."
     }
   }
