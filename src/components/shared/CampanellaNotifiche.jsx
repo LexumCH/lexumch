@@ -95,7 +95,7 @@ export default function CampanellaNotifiche() {
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-2 w-96 max-h-[32rem] bg-slate border border-white/10 shadow-2xl z-50 flex flex-col">
+                <div className="absolute right-0 mt-2 w-[min(24rem,calc(100vw-2rem))] max-h-[70vh] sm:max-h-[32rem] bg-slate border border-white/10 shadow-2xl z-50 flex flex-col">
                     {/* Header */}
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 shrink-0">
                         <div>
