@@ -20,8 +20,8 @@ const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 const toArray = (v) => Array.isArray(v) ? v : []
 
 // Icone indicizzate per posizione (mai nel JSON)
-const TIPI_IDS = ['tutti', 'ricerca_ai', 'norma_federale', 'norma_cantonale', 'norma_ue', 'giurisprudenza', 'sentenza_ue', 'prassi']
-const TIPI_ICONS = [Tag, Sparkles, Landmark, MapPin, Globe, Scale, Globe, ScrollText]
+const TIPI_IDS = ['tutti', 'ricerca_ai', 'norma_federale', 'norma_cantonale', 'norma_ue', 'giurisprudenza', 'sentenza_ue', 'prassi', 'archivio_documento']
+const TIPI_ICONS = [Tag, Sparkles, Landmark, MapPin, Globe, Scale, Globe, ScrollText, FileText]
 
 const TIPI_RICERCA = ['ricerca_ai', 'ricerca_manuale', 'chat_lex']
 
@@ -245,6 +245,15 @@ export default function EtichettaDettaglio() {
                 return { ...rel, dati: { ...data, fonte_label: labelFontePrassi(data, tIst) }, kindFiltro: 'prassi' }
             }
 
+            // 09-10-2026: documenti dell'Archivio (come IT)
+            if (rel.tipo === 'archivio_documento') {
+                const { data } = await supabase
+                    .from('archivio_documenti')
+                    .select('id, titolo, tipo, dimensione, ocr_status, metadati, created_at')
+                    .eq('id', rel.elemento_id).maybeSingle()
+                return data ? { ...rel, dati: data, kindFiltro: 'archivio_documento' } : null
+            }
+
             return null
         } catch (e) {
             return null
@@ -287,6 +296,10 @@ export default function EtichettaDettaglio() {
         if (c.tipo === 'prassi') {
             return (`${c.dati.oggetto ?? ''} ${c.dati.titolo ?? ''} ${c.dati.fonte_label ?? ''}`).toLowerCase().includes(q)
         }
+        if (c.tipo === 'archivio_documento') {
+            const sugg = c.dati.metadati?.suggeriti ?? {}
+            return (`${c.dati.titolo ?? ''} ${sugg.riepilogo ?? ''} ${toArray(sugg.tags).join(' ')}`).toLowerCase().includes(q)
+        }
         return false
     })
 
@@ -299,6 +312,7 @@ export default function EtichettaDettaglio() {
         giurisprudenza: contenuti.filter(c => c.kindFiltro === 'giurisprudenza').length,
         sentenza_ue: contenuti.filter(c => c.kindFiltro === 'sentenza_ue').length,
         prassi: contenuti.filter(c => c.kindFiltro === 'prassi').length,
+        archivio_documento: contenuti.filter(c => c.kindFiltro === 'archivio_documento').length,
     }
 
     if (loading) return (
@@ -640,6 +654,48 @@ function CardContenuto({ contenuto: c, onRimuovi, eliminando, aperto, onToggleAp
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                         <ExternalLink size={11} className="text-nebbia/20 group-hover:text-salvia transition-colors" />
+                        <button onClick={(e) => { e.preventDefault(); onRimuovi() }} disabled={eliminando}
+                            className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
+                            title={t('card.rimuovi_tag')}>
+                            {eliminando ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                        </button>
+                    </div>
+                </div>
+            </Link>
+        )
+    }
+
+    // ── Documento dell'Archivio (09-10-2026, come IT) ──
+    if (c.tipo === 'archivio_documento') {
+        const sugg = c.dati.metadati?.suggeriti ?? {}
+        return (
+            <Link to={`${basePathBancaDati === '/area' ? '/area/archivio' : '/archivio'}/${c.dati.id}`}
+                className="block bg-slate border border-white/5 hover:border-oro/20 transition-colors p-4 group">
+                <div className="flex items-start gap-3">
+                    <FileText size={14} className="text-oro/70 shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <p className="font-body text-sm font-medium text-nebbia group-hover:text-oro transition-colors leading-snug break-words">
+                                {c.dati.titolo}
+                            </p>
+                            {sugg.tipo_documento && sugg.tipo_documento !== 'altro' && (
+                                <span className="font-body text-[10px] px-1.5 py-0.5 bg-salvia/5 border border-salvia/20 text-salvia uppercase tracking-wider shrink-0">
+                                    {sugg.tipo_documento}
+                                </span>
+                            )}
+                        </div>
+                        {sugg.riepilogo && (
+                            <p className="font-body text-xs text-nebbia/55 leading-relaxed line-clamp-2 mb-1">
+                                {sugg.riepilogo}
+                            </p>
+                        )}
+                        <p className="font-body text-xs text-nebbia/30">
+                            {t('card.documento_archivio')} · {new Date(c.dati.created_at).toLocaleDateString(dateLocale)}
+                            {c.dati.dimensione ? ` · ${(c.dati.dimensione / 1024).toFixed(0)} KB` : ''}
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                        <ExternalLink size={11} className="text-nebbia/20 group-hover:text-oro transition-colors" />
                         <button onClick={(e) => { e.preventDefault(); onRimuovi() }} disabled={eliminando}
                             className="text-nebbia/25 hover:text-red-400 transition-colors p-1 disabled:opacity-40"
                             title={t('card.rimuovi_tag')}>
@@ -1172,6 +1228,10 @@ function titoloElementoEt(c) {
         const parti = [c.dati.fonte_label, c.dati.numero && `n. ${c.dati.numero}`, c.dati.anno].filter(Boolean)
         return parti.join(' · ')
     }
+    if (c.tipo === 'archivio_documento') {
+        const sugg = c.dati.metadati?.suggeriti ?? {}
+        return c.dati.titolo + (sugg.tipo_documento && sugg.tipo_documento !== 'altro' ? ` (${sugg.tipo_documento})` : '')
+    }
     return ''
 }
 
@@ -1181,6 +1241,16 @@ function contenutoElementoEt(c) {
     if (c.tipo === 'giurisprudenza') return [c.dati.oggetto, c.dati.principio_diritto].filter(Boolean).join('\n\n')
     if (c.tipo === 'sentenza_ue') return [c.dati.oggetto, c.dati.parti].filter(Boolean).join('\n\n')
     if (c.tipo === 'prassi') return [c.dati.titolo, c.dati.oggetto].filter(Boolean).join('\n\n')
+    if (c.tipo === 'archivio_documento') {
+        const sugg = c.dati.metadati?.suggeriti ?? {}
+        const parti = []
+        if (sugg.riepilogo) parti.push(`Riepilogo: ${sugg.riepilogo}`)
+        if (toArray(sugg.tags).length > 0) parti.push(`Tag: ${sugg.tags.join(', ')}`)
+        if (toArray(sugg.soggetti).length > 0) {
+            parti.push(`Soggetti: ${sugg.soggetti.map(x => x.nome + (x.ruolo ? ` (${x.ruolo})` : '')).join('; ')}`)
+        }
+        return parti.join('\n\n') || '(documento senza riepilogo)'
+    }
     return ''
 }
 

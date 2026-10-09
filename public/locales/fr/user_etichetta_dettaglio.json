@@ -19,7 +19,8 @@
     "norma_ue": "Normes UE",
     "giurisprudenza": "Jurisprudence",
     "sentenza_ue": "Arrêts UE",
-    "prassi": "Pratique"
+    "prassi": "Pratique",
+    "archivio_documento": "Archives"
   },
   "vuoto": {
     "nessun_contenuto": "Aucun contenu dans cette étiquette pour l'instant",
@@ -27,7 +28,7 @@
     "istruzioni": "Pour ajouter des contenus, rendez-vous dans la base de données et cliquez sur \"Ajouter à l'étiquette\" sur la jurisprudence, les normes ou la pratique. Vous pouvez aussi étiqueter vos recherches depuis la page Recherches."
   },
   "conferma": {
-    "rimuovi": "Retirer cet élément de l'étiquette ?\n\nL'élément original (recherche, jurisprudence, norme, pratique) n'est pas supprimé."
+    "rimuovi": "Retirer cet élément de l'étiquette ?\n\nL'élément original (recherche, jurisprudence, norme, pratique, document) n'est pas supprimé."
   },
   "card": {
     "tipo_ricerca_ai": "Recherche IA",
@@ -36,6 +37,7 @@
     "apri": "Ouvrir",
     "chiudi": "Fermer",
     "rimuovi_tag": "Retirer l'étiquette",
+    "documento_archivio": "Document d'archive",
     "norma": "Norme",
     "sentenza": "Arrêt",
     "sentenza_ue": "Arrêt UE",

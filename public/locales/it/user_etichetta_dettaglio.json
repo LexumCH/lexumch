@@ -19,7 +19,8 @@
     "norma_ue": "Norme UE",
     "giurisprudenza": "Giurisprudenza",
     "sentenza_ue": "Sentenze UE",
-    "prassi": "Prassi"
+    "prassi": "Prassi",
+    "archivio_documento": "Archivio"
   },
   "vuoto": {
     "nessun_contenuto": "Nessun contenuto in questa etichetta ancora",
@@ -27,7 +28,7 @@
     "istruzioni": "Per aggiungere contenuti, vai nella banca dati e clicca \"Aggiungi a etichetta\" su giurisprudenza, norme o prassi. Puoi anche taggare le tue ricerche dalla pagina Ricerche."
   },
   "conferma": {
-    "rimuovi": "Rimuovere questo elemento dall'etichetta?\n\nL'elemento originale (ricerca, giurisprudenza, norma, prassi) non viene cancellato."
+    "rimuovi": "Rimuovere questo elemento dall'etichetta?\n\nL'elemento originale (ricerca, giurisprudenza, norma, prassi, documento) non viene cancellato."
   },
   "card": {
     "tipo_ricerca_ai": "Ricerca AI",
@@ -36,6 +37,7 @@
     "apri": "Apri",
     "chiudi": "Chiudi",
     "rimuovi_tag": "Rimuovi tag",
+    "documento_archivio": "Documento d'archivio",
     "norma": "Norma",
     "sentenza": "Sentenza",
     "sentenza_ue": "Sentenza UE",

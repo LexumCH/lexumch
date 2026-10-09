@@ -19,7 +19,8 @@
     "norma_ue": "EU-Normen",
     "giurisprudenza": "Rechtsprechung",
     "sentenza_ue": "EU-Urteile",
-    "prassi": "Praxis"
+    "prassi": "Praxis",
+    "archivio_documento": "Archiv"
   },
   "vuoto": {
     "nessun_contenuto": "Noch keine Inhalte in dieser Etikette",
@@ -27,7 +28,7 @@
     "istruzioni": "Um Inhalte hinzuzufügen, gehen Sie in die Datenbank und klicken Sie bei Rechtsprechung, Normen oder Praxis auf \"Zur Etikette hinzufügen\". Sie können auch Ihre Recherchen auf der Seite Recherchen mit Etiketten versehen."
   },
   "conferma": {
-    "rimuovi": "Dieses Element aus der Etikette entfernen?\n\nDas Originalelement (Recherche, Rechtsprechung, Norm, Praxis) wird nicht gelöscht."
+    "rimuovi": "Dieses Element aus der Etikette entfernen?\n\nDas Originalelement (Recherche, Rechtsprechung, Norm, Praxis, Dokument) wird nicht gelöscht."
   },
   "card": {
     "tipo_ricerca_ai": "KI-Recherche",
@@ -36,6 +37,7 @@
     "apri": "Öffnen",
     "chiudi": "Schliessen",
     "rimuovi_tag": "Etikett entfernen",
+    "documento_archivio": "Archivdokument",
     "norma": "Norm",
     "sentenza": "Urteil",
     "sentenza_ue": "EU-Urteil",
