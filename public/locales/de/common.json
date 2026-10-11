@@ -26,5 +26,7 @@
     "indietro": "Zurück",
     "avanti": "Weiter",
     "chiudi": "Schliessen"
-  }
+  },
+  "pallino_da_rispondere_one": "{{count}} Unterhaltung wartet auf Ihre Antwort",
+  "pallino_da_rispondere_other": "{{count}} Unterhaltungen warten auf Ihre Antwort"
 }

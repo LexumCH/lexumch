@@ -17,3 +17,19 @@ export async function idsSupporto() {
     if (error) return new Set()
     return new Set(data ?? [])
 }
+
+// Quanti ticket aperti aspettano la MIA risposta (il pallino nel menu), per qualunque
+// ruolo: lo calcola il database (ticket_da_rispondere, migrazione 20261011, identica su
+// IT), così il sito e l'app contano allo stesso modo. Un ticket aspetta la mia risposta
+// quando l'ultimo messaggio è dell'altra parte; senza messaggi, se l'ha aperto un altro.
+export async function contaTicketDaRispondere() {
+    const { data, error } = await supabase.rpc('ticket_da_rispondere')
+    if (error) return 0
+    return data ?? 0
+}
+
+// Dopo una risposta o un cambio di stato il pallino si aggiorna subito.
+export const EVENTO_TICKET_AGGIORNATO = 'lexum:ticket-aggiornato'
+export function segnalaTicketAggiornato() {
+    window.dispatchEvent(new Event(EVENTO_TICKET_AGGIORNATO))
+}

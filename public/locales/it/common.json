@@ -26,5 +26,7 @@
     "indietro": "Indietro",
     "avanti": "Avanti",
     "chiudi": "Chiudi"
-  }
+  },
+  "pallino_da_rispondere_one": "{{count}} conversazione aspetta la tua risposta",
+  "pallino_da_rispondere_other": "{{count}} conversazioni aspettano la tua risposta"
 }

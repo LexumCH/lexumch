@@ -26,5 +26,7 @@
     "indietro": "Retour",
     "avanti": "Suivant",
     "chiudi": "Fermer"
-  }
+  },
+  "pallino_da_rispondere_one": "{{count}} conversation attend votre réponse",
+  "pallino_da_rispondere_other": "{{count}} conversations attendent votre réponse"
 }

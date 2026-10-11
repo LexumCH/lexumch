@@ -9,8 +9,12 @@ import {
 } from 'lucide-react'
 import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 import RisposteRecuperate from '@/components/shared/RisposteRecuperate'
+import PallinoTicket from '@/components/shared/PallinoTicket'
+import { useTicketDaRispondere } from '@/hooks/useTicketDaRispondere'
 
 export default function AdminLayout({ children }) {
+  // Pallino su «Assistenza»: conversazioni aperte in cui l'ultimo messaggio è dell'altra persona.
+  const daRispondere = useTicketDaRispondere()
   const [open, setOpen] = useState(false)
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
@@ -65,6 +69,7 @@ export default function AdminLayout({ children }) {
             >
               <Icon size={16} strokeWidth={1.5} />
               <span className="flex-1">{label}</span>
+              {path === '/admin/assistenza' && <PallinoTicket n={daRispondere} />}
               <ChevronRight size={13} className="opacity-0 group-hover:opacity-30 transition-opacity" />
             </NavLink>
           ))}
@@ -94,8 +99,9 @@ export default function AdminLayout({ children }) {
 
       <div className="flex-1 flex flex-col min-w-0">
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-white/5 bg-slate">
-          <button onClick={() => setOpen(true)} className="text-nebbia/50 hover:text-nebbia">
+          <button onClick={() => setOpen(true)} className="relative text-nebbia/50 hover:text-nebbia">
             <Menu size={20} />
+            <PallinoTicket n={daRispondere} className="absolute -top-0.5 -right-0.5" />
           </button>
           <img src={logo} alt="Lexum" className="h-10 w-auto" />
           <div className="ml-auto">

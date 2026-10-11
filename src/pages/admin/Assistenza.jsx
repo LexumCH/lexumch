@@ -9,6 +9,7 @@ import {
   Plus, X, Trash2
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { segnalaTicketAggiornato } from '@/lib/supporto'
 
 // ─────────────────────────────────────────────────────────────
 // HELPERS
@@ -524,6 +525,7 @@ export function AdminAssistenzaDettaglio() {
 
       await supabase.from('ticket_assistenza').update({ ultimo_mittente: 'admin' }).eq('id', id)
       setMessaggi(prev => [...prev, data])
+      segnalaTicketAggiornato()
       setTesto('')
     } catch (err) {
       setErrore(err.message)
@@ -535,6 +537,7 @@ export function AdminAssistenzaDettaglio() {
   async function aggiornaStato(nuovoStato) {
     await supabase.from('ticket_assistenza').update({ stato: nuovoStato }).eq('id', id)
     setStato(nuovoStato)
+    segnalaTicketAggiornato()
   }
 
   async function eliminaMessaggio(msgId) {
@@ -549,6 +552,7 @@ export function AdminAssistenzaDettaglio() {
       return
     }
     setMessaggi(prev => prev.filter(m => m.id !== msgId))
+    segnalaTicketAggiornato()
   }
 
   if (loading) {

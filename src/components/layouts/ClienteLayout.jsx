@@ -10,6 +10,8 @@ import {
 } from 'lucide-react'
 import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 import RisposteRecuperate from '@/components/shared/RisposteRecuperate'
+import PallinoTicket from '@/components/shared/PallinoTicket'
+import { useTicketDaRispondere } from '@/hooks/useTicketDaRispondere'
 
 // Menu comune a tutti i tipi di studio
 const NAV_COMUNE = [
@@ -28,6 +30,8 @@ const NAV_FIDUCIARIO = [
 ]
 
 export default function ClienteLayout({ children }) {
+  // Pallino su «Comunicazioni»: conversazioni aperte in cui l'ultimo messaggio è dell'altra persona.
+  const daRispondere = useTicketDaRispondere()
   const { t } = useTranslation('comp_layout_cliente')
   const { profile, signOut } = useAuth()
   const { isFiduciario } = useTipoStudio()
@@ -68,7 +72,8 @@ export default function ClienteLayout({ children }) {
                 }`
               }>
               <Icon size={16} strokeWidth={1.5} />
-              {t(labelKey)}
+              <span className="flex-1">{t(labelKey)}</span>
+              {path === '/portale/comunicazioni' && <PallinoTicket n={daRispondere} />}
             </NavLink>
           ))}
         </nav>
@@ -102,7 +107,10 @@ export default function ClienteLayout({ children }) {
 
         {/* Header mobile */}
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-white/5 bg-slate">
-          <button onClick={() => setOpen(true)} className="text-nebbia/50 hover:text-nebbia"><Menu size={20} /></button>
+          <button onClick={() => setOpen(true)} className="relative text-nebbia/50 hover:text-nebbia">
+            <Menu size={20} />
+            <PallinoTicket n={daRispondere} className="absolute -top-0.5 -right-0.5" />
+          </button>
           <img src={logo} alt="Lexum" className="h-10 w-auto" />
           <div className="ml-auto">
             <CampanellaNotifiche />

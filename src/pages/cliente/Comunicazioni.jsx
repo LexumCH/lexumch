@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { segnalaTicketAggiornato } from '@/lib/supporto'
 import { PageHeader, BackButton, Badge } from '@/components/shared'
 import { Plus, Send, Search, MessageSquare, Loader2, AlertCircle } from 'lucide-react'
 
@@ -233,6 +234,7 @@ export function ClienteComunicazioniDettaglio() {
                 .eq('id', id)
 
             setMessaggi(prev => [...prev, newMsg])
+            segnalaTicketAggiornato()
             setMsg('')
         } catch (err) {
             setErrore(err.message)

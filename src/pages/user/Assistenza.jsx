@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '@/lib/supabase'
+import { segnalaTicketAggiornato } from '@/lib/supporto'
 import { PageHeader, BackButton, Badge } from '@/components/shared'
 import { Plus, Send, Search, Loader2, AlertCircle } from 'lucide-react'
 
@@ -27,8 +28,8 @@ export function UserAssistenza() {
             const { data, error } = await supabase
                 .from('ticket_assistenza')
                 .select('id, oggetto, stato, created_at, updated_at, messaggi:messaggi_ticket(id, autore_tipo, created_at)')
-                .eq('mittente_id', user.id)
-                .eq('mittente_ruolo', 'user')
+                // Anche i ticket che Lexum gli ha aperto (prima restavano invisibili).
+                .or(`and(mittente_id.eq.${user.id},mittente_ruolo.eq.user),destinatario_id.eq.${user.id}`)
                 .order('updated_at', { ascending: false })
 
             if (!error) setTickets(data ?? [])
@@ -302,6 +303,7 @@ export function UserAssistenzaDettaglio() {
                 .eq('id', id)
 
             setMessaggi(prev => [...prev, newMsg])
+            segnalaTicketAggiornato()
             setMsg('')
         } catch (err) {
             setErrore(err.message)
