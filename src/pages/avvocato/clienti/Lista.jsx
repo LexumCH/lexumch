@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
+import { messaggioErroreInvoke } from '@/lib/password'
 import RispostaLexClienti from '@/components/avvocato/RispostaLexClienti'
 
 // ─────────────────────────────────────────────────────────────
@@ -60,8 +61,8 @@ function ModalEliminaCliente({ cliente, onClose, onEliminato }) {
             const { data, error } = await supabase.functions.invoke('avvocato-cliente-actions', {
                 body: { action: 'elimina-cliente', cliente_id: cliente.id }
             })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('errori.generico'))
+            // Con una risposta non 2xx il testo vero sta nel corpo: mai «Edge Function returned…»
+            if (error || !data?.ok) throw new Error(await messaggioErroreInvoke(error, data, { generico: t('errori.generico') }))
             setRisultato(data)
         } catch (err) {
             setErrore(err.message)

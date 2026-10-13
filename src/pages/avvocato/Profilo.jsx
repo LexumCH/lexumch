@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { PageHeader, Badge } from '@/components/shared'
 import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale, ArrowRight, Shield, ShieldCheck, Receipt } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword } from '@/lib/password'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, messaggioErroreInvoke } from '@/lib/password'
 import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
 import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
 import SelectLingua, { nomeLingua } from '@/components/SelectLingua'
@@ -321,8 +321,8 @@ export default function AvvocatoProfilo() {
             const { data, error } = await supabase.functions.invoke('mfa-backup-codes', {
                 body: { action: 'regenerate' }
             })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('sicurezza.errore_generico'))
+            // Con una risposta non 2xx il testo vero sta nel corpo: mai «Edge Function returned…»
+            if (error || !data?.ok) throw new Error(await messaggioErroreInvoke(error, data, { generico: t('sicurezza.errore_generico') }))
             setCodiciDaMostrare(data.codici)
             setCodiciRestanti(data.codici.length)
         } catch (err) { setErr2FA(err.message) }

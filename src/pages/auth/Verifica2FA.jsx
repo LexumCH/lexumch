@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Shield, AlertCircle, KeyRound, LogOut } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { messaggioErroreInvoke } from '@/lib/password'
 import { useAuth } from '@/context/AuthContext'
 
 export default function Verifica2FA() {
@@ -98,8 +99,13 @@ export default function Verifica2FA() {
             const { data, error } = await supabase.functions.invoke('mfa-backup-codes', {
                 body: { action: 'verify', code: backupCode.trim() }
             })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('tfa.err_backup_invalid'))
+            // Con una risposta non 2xx il testo vero sta nel corpo: mai «Edge Function returned…».
+            // Codice rifiutato senza testo: «Codice non valido»; rete o altro: il messaggio generico
+            if (error || !data?.ok) {
+                throw new Error(await messaggioErroreInvoke(error, data, {
+                    generico: data ? t('tfa.err_backup_invalid') : t('errori.generico'),
+                }))
+            }
 
             // MFA resettato. Per pulizia di sessione: signOut e redirect a login
             // L'utente dovra fare login e ri-attivare 2FA dal profilo.

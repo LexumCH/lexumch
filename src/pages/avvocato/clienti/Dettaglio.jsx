@@ -27,7 +27,7 @@ import {
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { apriFile } from '@/lib/fileSpazio'
 import { CANTONI } from '@/lib/fatturazione'
-import { messaggioPassword, passwordValida, suggerimentoPassword, messaggioErroreInvoke } from '@/lib/password'
+import { messaggioPassword, passwordValida, suggerimentoPassword, messaggioErroreInvoke, messaggioErroreServer } from '@/lib/password'
 import { useAuth } from '@/context/AuthContext'
 import DocumentiPortale from '@/components/shared/DocumentiPortale'
 import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
@@ -1543,9 +1543,10 @@ export default function AvvocatoClientiDettaglio() {
                         avvocato_id: avvocatoId || null,
                     }),
                 }
-            )
-            const json = await res.json()
-            if (!json.ok) throw new Error(json.error)
+            ).catch(() => null)  // senza rete: niente «Failed to fetch»
+            const json = await res?.json().catch(() => null)
+            // Il testo del server se è leggibile, altrimenti un messaggio generico: mai l'inglese
+            if (!json?.ok) throw new Error(messaggioErroreServer(json, { generico: t('anagrafica.errore_salvataggio') }))
             setCliente(json.cliente)
             setFormCliente(json.cliente)
             setEditPanoramica(false)

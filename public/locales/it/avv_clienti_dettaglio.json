@@ -224,7 +224,8 @@
     "no": "No",
     "avvocato_assegnato": "Avvocato assegnato",
     "numero": "Numero",
-    "paese": "Paese"
+    "paese": "Paese",
+    "errore_salvataggio": "Non è stato possibile salvare i dati del cliente. Riprova."
   },
   "pratiche": {
     "nuova_pratica": "Nuova pratica",

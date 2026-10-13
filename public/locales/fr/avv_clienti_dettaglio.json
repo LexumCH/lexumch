@@ -224,7 +224,8 @@
     "no": "Non",
     "avvocato_assegnato": "Avocat attribué",
     "numero": "N°",
-    "paese": "Pays"
+    "paese": "Pays",
+    "errore_salvataggio": "Les données du client n'ont pas pu être enregistrées. Veuillez réessayer."
   },
   "pratiche": {
     "nuova_pratica": "Nouveau dossier",

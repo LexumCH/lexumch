@@ -120,8 +120,8 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
             password: passwordScelta || undefined,
           }),
         }
-      )
-      const json = await res.json().catch(() => null)
+      ).catch(() => null)  // senza rete: niente «Failed to fetch»
+      const json = await res?.json().catch(() => null)
       // Prima il traduttore delle password, poi il testo del server se è leggibile
       if (!json?.ok) {
         throw new Error(messaggioErroreServer(json, { password: passwordScelta || null, t: tPwd, generico: "Non è stato possibile creare l'utente." }))
@@ -622,9 +622,10 @@ function TabVerifiche({ data, loading, onDecision }) {
           headers: { 'Content-Type': 'application/json', 'apikey': supabaseKey, 'Authorization': `Bearer ${session.access_token}` },
           body: JSON.stringify({ user_id: userId, motivazione }),
         }
-      )
-      const json = await res.json()
-      if (!json.ok) throw new Error(json.error)
+      ).catch(() => null)  // senza rete: niente «Failed to fetch»
+      const json = await res?.json().catch(() => null)
+      // Il testo del server se è leggibile, altrimenti un messaggio generico: mai l'inglese
+      if (!json?.ok) throw new Error(messaggioErroreServer(json, { generico: 'Non è stato possibile salvare la decisione. Riprova.' }))
       onDecision(userId, tipo)
       setSelected(null); setMotivazione('')
     } catch (err) { setErrore(err.message) } finally { setElaborando(false) }

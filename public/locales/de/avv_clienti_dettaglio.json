@@ -224,7 +224,8 @@
     "no": "Nein",
     "avvocato_assegnato": "Zugewiesener Anwalt",
     "numero": "Nr.",
-    "paese": "Land"
+    "paese": "Land",
+    "errore_salvataggio": "Die Daten des Mandanten konnten nicht gespeichert werden. Bitte versuchen Sie es erneut."
   },
   "pratiche": {
     "nuova_pratica": "Neues Dossier",

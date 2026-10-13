@@ -311,8 +311,8 @@ export default function AvvocatoClientiNuovo() {
                     },
                     body: JSON.stringify(payload),
                 }
-            )
-            const json = await res.json().catch(() => ({}))
+            ).catch(() => null)  // senza rete: niente «Failed to fetch»
+            const json = (await res?.json().catch(() => null)) ?? {}
 
             if (!json.ok) {
                 // Race condition: tra apertura form e submit qualcuno ha sforato il limite

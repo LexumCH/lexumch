@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/shared'
 import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Shield, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword } from '@/lib/password'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, messaggioErroreInvoke } from '@/lib/password'
 import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
 import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
 
@@ -158,8 +158,8 @@ export default function AdminProfilo() {
             const { data, error } = await supabase.functions.invoke('mfa-backup-codes', {
                 body: { action: 'regenerate' }
             })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? 'Errore')
+            // Con una risposta non 2xx il testo vero sta nel corpo: mai «Edge Function returned…»
+            if (error || !data?.ok) throw new Error(await messaggioErroreInvoke(error, data, { generico: 'Errore' }))
             setCodiciDaMostrare(data.codici)
             setCodiciRestanti(data.codici.length)
         } catch (err) {

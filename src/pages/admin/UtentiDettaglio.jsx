@@ -12,7 +12,7 @@ import {
 import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import { apriFile } from '@/lib/fileSpazio'
-import { messaggioPassword, passwordValida, suggerimentoPassword, messaggioErroreInvoke } from '@/lib/password'
+import { messaggioPassword, passwordValida, suggerimentoPassword, messaggioErroreInvoke, messaggioErroreServer } from '@/lib/password'
 
 // ─────────────────────────────────────────────────────────────
 // COSTANTI
@@ -509,9 +509,10 @@ function SezioneUser({ utente, onDecision }) {
           headers: { 'Content-Type': 'application/json', 'apikey': supabaseKey, 'Authorization': `Bearer ${session.access_token}` },
           body: JSON.stringify({ user_id: utente.id, motivazione }),
         }
-      )
-      const json = await res.json()
-      if (!json.ok) throw new Error(json.error)
+      ).catch(() => null)  // senza rete: niente «Failed to fetch»
+      const json = await res?.json().catch(() => null)
+      // Il testo del server se è leggibile, altrimenti un messaggio generico: mai l'inglese
+      if (!json?.ok) throw new Error(messaggioErroreServer(json, { generico: 'Non è stato possibile salvare la decisione. Riprova.' }))
       setDecisione(tipo); onDecision(tipo)
     } catch (err) { setErrore(err.message) } finally { setElaborando(false) }
   }

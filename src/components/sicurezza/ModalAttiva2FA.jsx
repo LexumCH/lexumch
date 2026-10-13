@@ -9,6 +9,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, AlertCircle, ShieldCheck, Copy, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { messaggioErroreInvoke } from '@/lib/password'
 
 export default function ModalAttiva2FA({ onClose, onSuccess }) {
     const { t } = useTranslation('comp_modal_attiva_2fa')
@@ -117,8 +118,8 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
             const { data, error: errBkp } = await supabase.functions.invoke('mfa-backup-codes', {
                 body: { action: 'generate' }
             })
-            if (errBkp) throw new Error(errBkp.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('errori.generazioneCodici'))
+            // Con una risposta non 2xx il testo vero sta nel corpo: mai «Edge Function returned…»
+            if (errBkp || !data?.ok) throw new Error(await messaggioErroreInvoke(errBkp, data, { generico: t('errori.generazioneCodici') }))
 
             // Marca successo per evitare cleanup unenroll
             successRef.current = true
