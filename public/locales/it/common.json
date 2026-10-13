@@ -27,6 +27,22 @@
     "avanti": "Avanti",
     "chiudi": "Chiudi"
   },
+  "password": {
+    "suggerimento": "Almeno 8 caratteri, con una lettera minuscola, una maiuscola, un numero e un simbolo (per esempio ! ? # @).",
+    "troppo_corta": "La password è troppo corta: servono almeno 8 caratteri.",
+    "troppo_lunga": "La password è troppo lunga: al massimo 72 caratteri.",
+    "manca_one": "Alla password manca {{elenco}}.",
+    "manca_other": "Alla password mancano {{elenco}}.",
+    "e": "e",
+    "tipi": {
+      "minuscola": "una lettera minuscola",
+      "maiuscola": "una lettera maiuscola",
+      "numero": "un numero",
+      "simbolo": "un simbolo (per esempio ! ? # @)"
+    },
+    "rubata": "Questa password compare negli elenchi di password rubate su internet: scegline un'altra.",
+    "uguale": "La nuova password deve essere diversa da quella di prima."
+  },
   "pallino_da_rispondere_one": "{{count}} conversazione aspetta la tua risposta",
   "pallino_da_rispondere_other": "{{count}} conversazioni aspettano la tua risposta"
 }

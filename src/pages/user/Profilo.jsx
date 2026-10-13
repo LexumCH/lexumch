@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword } from '@/lib/password'
 import { PageHeader, InputField, Badge } from '@/components/shared'
 import { Check, CheckCircle, AlertCircle, Scale, Clock, Loader2 } from 'lucide-react'
 import SelectLingua from '@/components/SelectLingua'
@@ -92,12 +93,13 @@ export default function UserProfilo() {
     async function handleCambiaPwd() {
         setErrPwd('')
         setOkPwd(false)
-        if (pwd.nuova.length < 8) return setErrPwd(t('password.err_min'))
+        const errRegola = messaggioPassword(pwd.nuova, t)
+        if (errRegola) return setErrPwd(errRegola)
         if (pwd.nuova !== pwd.conferma) return setErrPwd(t('password.err_mismatch'))
         setSalvandoPwd(true)
         try {
             const { error } = await supabase.auth.updateUser({ password: pwd.nuova })
-            if (error) throw new Error(error.message)
+            if (error) throw new Error(messaggioErroreAuthPassword(error, pwd.nuova, t) || error.message)
             setPwd({ nuova: '', conferma: '' })
             setEditingPwd(false)
             setOkPwd(true)
@@ -203,8 +205,11 @@ export default function UserProfilo() {
                     </button>
                 ) : (
                     <>
-                        <InputField label={t('password.nuova')} type="password" placeholder={t('password.nuova_placeholder')}
-                            value={pwd.nuova} onChange={e => setPwd(p => ({ ...p, nuova: e.target.value }))} />
+                        <div>
+                            <InputField label={t('password.nuova')} type="password" placeholder={t('password.nuova_placeholder')}
+                                value={pwd.nuova} onChange={e => setPwd(p => ({ ...p, nuova: e.target.value }))} />
+                            <p className="mt-1.5 font-body text-xs text-nebbia/30 leading-relaxed">{suggerimentoPassword(t)}</p>
+                        </div>
                         <InputField label={t('password.conferma')} type="password" placeholder={t('password.conferma_placeholder')}
                             value={pwd.conferma} onChange={e => setPwd(p => ({ ...p, conferma: e.target.value }))} />
 

@@ -32,7 +32,7 @@
     "aggiornata": "Passwort aktualisiert",
     "modifica": "Passwort ändern",
     "nuova": "Neues Passwort",
-    "nuova_placeholder": "Mindestens 8 Zeichen",
+    "nuova_placeholder": "••••••••",
     "conferma": "Passwort bestätigen",
     "conferma_placeholder": "Neues Passwort wiederholen",
     "annulla": "Abbrechen",

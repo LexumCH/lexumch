@@ -46,7 +46,7 @@
     "genera_desc": "12 caractères sécurisés",
     "manuale": "Manuel",
     "manuale_desc": "À votre choix",
-    "nuova_password_label": "Nouveau mot de passe (min. 8 caractères)",
+    "nuova_password_label": "Nouveau mot de passe",
     "placeholder_pwd": "........",
     "annulla": "Annuler",
     "conferma": "Confirmer le changement de mot de passe"
@@ -164,7 +164,7 @@
     "titolo": "Réinitialiser le mot de passe du client",
     "descrizione": "Définissez un nouveau mot de passe pour accéder au portail. Communiquez-le au client par le canal de votre choix. Lexum n'envoie pas d'e-mails automatiques.",
     "nuova_password_label": "Nouveau mot de passe",
-    "placeholder_pwd": "Au moins 8 caractères",
+    "placeholder_pwd": "........",
     "annulla": "Annuler",
     "imposta_password": "Définir le mot de passe"
   },

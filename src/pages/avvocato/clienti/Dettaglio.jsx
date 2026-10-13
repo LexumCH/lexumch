@@ -27,6 +27,7 @@ import {
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { apriFile } from '@/lib/fileSpazio'
 import { CANTONI } from '@/lib/fatturazione'
+import { messaggioPassword, passwordValida, suggerimentoPassword, messaggioErroreInvoke } from '@/lib/password'
 import { useAuth } from '@/context/AuthContext'
 import DocumentiPortale from '@/components/shared/DocumentiPortale'
 import GestioneDipendenti from '@/components/fiduciario/GestioneDipendenti'
@@ -146,14 +147,17 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
         try {
             const body = { action: 'set-password', cliente_id: cliente.id }
             if (modo === 'manuale') {
-                if (!pwdManuale || pwdManuale.length < 8) {
-                    throw new Error(t('cambio_password.errore_pwd_corta'))
-                }
+                const errRegola = messaggioPassword(pwdManuale, t)
+                if (errRegola) throw new Error(errRegola)
                 body.new_password = pwdManuale
             }
             const { data, error } = await supabase.functions.invoke('avvocato-cliente-actions', { body })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('cambio_password.errore_generico'))
+            // Con una risposta non 2xx il testo vero sta nel corpo: prima il traduttore delle password
+            if (error || !data?.ok) {
+                throw new Error(await messaggioErroreInvoke(error, data, {
+                    password: body.new_password, t, generico: t('cambio_password.errore_generico'),
+                }))
+            }
             setRisultato(data)
         } catch (err) {
             setErrore(err.message)
@@ -291,6 +295,7 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
                                     {showPwd ? <EyeOff size={15} /> : <EyeIcon size={15} />}
                                 </button>
                             </div>
+                            <p className="mt-1.5 font-body text-xs text-nebbia/40 leading-relaxed">{suggerimentoPassword(t)}</p>
                         </div>
                     )}
 
@@ -305,7 +310,7 @@ function ModalCambiaPasswordCliente({ cliente, onClose, onSuccess }) {
                             className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">
                             {t('cambio_password.annulla')}
                         </button>
-                        <button onClick={handleConferma} disabled={inviando || (modo === 'manuale' && pwdManuale.length < 8)}
+                        <button onClick={handleConferma} disabled={inviando || (modo === 'manuale' && !passwordValida(pwdManuale))}
                             className="btn-primary text-sm flex-1 justify-center disabled:opacity-40">
                             {inviando
                                 ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />
@@ -336,8 +341,10 @@ function SezioneStrumentiAssistenza({ cliente }) {
             const { data, error } = await supabase.functions.invoke('avvocato-cliente-actions', {
                 body: { action: 'send-reset-email', cliente_id: cliente.id }
             })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('assistenza.errore_generico'))
+            // Con una risposta non 2xx il testo vero sta nel corpo: mai «Edge Function returned…»
+            if (error || !data?.ok) {
+                throw new Error(await messaggioErroreInvoke(error, data, { t, generico: t('assistenza.errore_generico') }))
+            }
             setSuccesso(data.messaggio)
             setTimeout(() => setSuccesso(''), 5000)
         } catch (err) {
@@ -1294,15 +1301,18 @@ function ModalResetPassword({ cliente, onClose }) {
     async function eseguiReset() {
         setErrore('')
         if (!password) return setErrore(t('reset_password.errore_inserisci'))
-        if (password.length < 8) return setErrore(t('reset_password.errore_minimo'))
+        const errRegola = messaggioPassword(password, t)
+        if (errRegola) return setErrore(errRegola)
 
         setInviando(true)
         try {
             const { data, error } = await supabase.functions.invoke('cliente-reset-password', {
                 body: { cliente_id: cliente.id, nuova_password: password }
             })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('reset_password.errore_reset'))
+            // Con una risposta non 2xx il testo vero sta nel corpo: prima il traduttore delle password
+            if (error || !data?.ok) {
+                throw new Error(await messaggioErroreInvoke(error, data, { password, t, generico: t('reset_password.errore_reset') }))
+            }
             setCompletato(true)
         } catch (err) {
             setErrore(err.message)
@@ -1372,6 +1382,7 @@ function ModalResetPassword({ cliente, onClose }) {
                                 {mostraPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                             </button>
                         </div>
+                        <p className="mt-1.5 font-body text-xs text-nebbia/40 leading-relaxed">{suggerimentoPassword(t)}</p>
                     </div>
 
                     {errore && (

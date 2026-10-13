@@ -1,6 +1,7 @@
 // src/pages/admin/Utenti.jsx
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { PageHeader, Badge, StatCard } from '@/components/shared'
 import {
@@ -10,6 +11,10 @@ import {
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import { apriFile } from '@/lib/fileSpazio'
 import { caricaContatoriAdmin, riquadriPerRuolo, descriviStati } from '@/lib/contatoriAdmin'
+import { messaggioPassword, suggerimentoPassword, messaggioErroreServer } from '@/lib/password'
+
+// La pagina admin è solo in italiano: anche i testi della password
+const SOLO_ITALIANO = { lng: 'it' }
 
 const ROLE_BADGE = {
   admin: { label: 'Admin', variant: 'red' },
@@ -24,6 +29,7 @@ const ROLE_BADGE = {
 // MODAL CREA UTENTE (side panel)
 // ─────────────────────────────────────────────────────────────
 function ModalCreaUtente({ open, onClose, onCreated }) {
+  const { t: tPwd } = useTranslation('common', SOLO_ITALIANO)
   // Stati form
   const [role, setRole] = useState('user')
   const [nome, setNome] = useState('')
@@ -84,7 +90,8 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
     if (!/\S+@\S+\.\S+/.test(email)) return setErrore('Email non valida')
     if (role === 'cliente' && !avvocatoId) return setErrore('Seleziona il professionista di appartenenza')
     if (role === 'admin' && !confirmAdmin) return setErrore('Devi confermare la creazione del nuovo admin')
-    if (passwordScelta && passwordScelta.length < 8) return setErrore('La password deve avere almeno 8 caratteri')
+    const errRegola = passwordScelta ? messaggioPassword(passwordScelta, tPwd) : null
+    if (errRegola) return setErrore(errRegola)
     if (passwordScelta && passwordScelta.trim() !== passwordScelta) return setErrore('La password non può iniziare o finire con uno spazio')
 
     setLoading(true)
@@ -114,8 +121,11 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
           }),
         }
       )
-      const json = await res.json()
-      if (!json.ok) throw new Error(json.error)
+      const json = await res.json().catch(() => null)
+      // Prima il traduttore delle password, poi il testo del server se è leggibile
+      if (!json?.ok) {
+        throw new Error(messaggioErroreServer(json, { password: passwordScelta || null, t: tPwd, generico: "Non è stato possibile creare l'utente." }))
+      }
 
       setSuccesso({
         user_id: json.user_id,
@@ -296,7 +306,7 @@ function ModalCreaUtente({ open, onClose, onCreated }) {
                   placeholder="Lasciala vuota per generarla in automatico"
                   className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-3 py-2.5 outline-none focus:border-oro/50 placeholder:text-nebbia/25" />
                 <p className="font-body text-[11px] text-nebbia/30 mt-1">
-                  Almeno 8 caratteri. Alla fine la ritrovi qui sotto, da copiare.
+                  {suggerimentoPassword(tPwd)} Alla fine la ritrovi qui sotto, da copiare.
                 </p>
               </div>
 

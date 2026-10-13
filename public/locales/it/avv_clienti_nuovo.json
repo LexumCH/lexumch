@@ -88,7 +88,7 @@
     "attiva": "Attiva accesso al portale clienti",
     "descrizione": "Il cliente potrà accedere al suo portale con email e password. Potrai resettare la password in qualsiasi momento dalla scheda cliente.",
     "password_label": "Password iniziale *",
-    "password_ph": "Almeno 8 caratteri",
+    "password_ph": "........",
     "password_nota": "La password non viene mai inviata via email da Lexum. Comunicala al cliente con il canale che preferisci (telefono, whatsapp, di persona)."
   },
   "errori": {
@@ -100,7 +100,8 @@
     "password_obbligatoria": "Inserisci la password iniziale per attivare il portale",
     "password_corta": "La password deve essere di almeno 8 caratteri",
     "paese_non_valido": "Paese: codice di due lettere (es. CH)",
-    "npa_non_valido": "L'NPA ha 4 cifre"
+    "npa_non_valido": "L'NPA ha 4 cifre",
+    "generico": "Non è stato possibile salvare il cliente. Riprova."
   },
   "successo": {
     "titolo": "Cliente creato",

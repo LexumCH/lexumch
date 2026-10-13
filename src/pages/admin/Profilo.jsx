@@ -1,11 +1,16 @@
 // src/pages/admin/Profilo.jsx
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/shared'
 import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Shield, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword } from '@/lib/password'
 import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
 import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
+
+// La pagina admin è solo in italiano: anche i testi della password
+const SOLO_ITALIANO = { lng: 'it' }
 
 function Campo({ label, value, placeholder = '—', type = 'text', disabled = false, editing, onChange }) {
     if (!editing || disabled) {
@@ -29,6 +34,7 @@ function Campo({ label, value, placeholder = '—', type = 'text', disabled = fa
 }
 
 export default function AdminProfilo() {
+    const { t: tPwd } = useTranslation('common', SOLO_ITALIANO)
     const [loading, setLoading] = useState(true)
 
     // Dati personali
@@ -123,12 +129,13 @@ export default function AdminProfilo() {
 
     async function handleCambiaPwd() {
         setErrPwd(''); setOkPwd(false)
-        if (pwd.nuova.length < 8) return setErrPwd('Minimo 8 caratteri')
+        const errRegola = messaggioPassword(pwd.nuova, tPwd)
+        if (errRegola) return setErrPwd(errRegola)
         if (pwd.nuova !== pwd.conferma) return setErrPwd('Le password non corrispondono')
         setSalvandoPwd(true)
         try {
             const { error } = await supabase.auth.updateUser({ password: pwd.nuova })
-            if (error) throw new Error(error.message)
+            if (error) throw new Error(messaggioErroreAuthPassword(error, pwd.nuova, tPwd) || error.message)
             setPwd({ nuova: '', conferma: '' }); setEditingPwd(false); setOkPwd(true)
             setTimeout(() => setOkPwd(false), 3000)
         } catch (err) { setErrPwd(err.message) }
@@ -322,6 +329,7 @@ export default function AdminProfilo() {
                                         </button>
                                     )}
                                 </div>
+                                {k === 'nuova' && <p className="mt-1.5 font-body text-xs text-nebbia/30 leading-relaxed">{suggerimentoPassword(tPwd)}</p>}
                             </div>
                         ))}
                         {errPwd && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20"><AlertCircle size={14} /> {errPwd}</div>}

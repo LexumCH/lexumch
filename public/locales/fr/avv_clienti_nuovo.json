@@ -88,7 +88,7 @@
     "attiva": "Activer l'accès au portail clients",
     "descrizione": "Le client pourra accéder à son portail avec son e-mail et son mot de passe. Vous pourrez réinitialiser le mot de passe à tout moment depuis la fiche client.",
     "password_label": "Mot de passe initial *",
-    "password_ph": "Au moins 8 caractères",
+    "password_ph": "........",
     "password_nota": "Le mot de passe n'est jamais envoyé par e-mail par Lexum. Communiquez-le au client par le canal de votre choix (téléphone, WhatsApp, en personne)."
   },
   "errori": {
@@ -100,7 +100,8 @@
     "password_obbligatoria": "Saisissez le mot de passe initial pour activer le portail",
     "password_corta": "Le mot de passe doit comporter au moins 8 caractères",
     "paese_non_valido": "Pays : code à deux lettres (p. ex. CH)",
-    "npa_non_valido": "Le NPA a 4 chiffres"
+    "npa_non_valido": "Le NPA a 4 chiffres",
+    "generico": "Le client n'a pas pu être enregistré. Veuillez réessayer."
   },
   "successo": {
     "titolo": "Client créé",

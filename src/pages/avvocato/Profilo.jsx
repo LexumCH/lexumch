@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { PageHeader, Badge } from '@/components/shared'
 import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale, ArrowRight, Shield, ShieldCheck, Receipt } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword } from '@/lib/password'
 import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
 import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
 import SelectLingua, { nomeLingua } from '@/components/SelectLingua'
@@ -291,12 +292,13 @@ export default function AvvocatoProfilo() {
 
     async function handleCambiaPwd() {
         setErrPwd(''); setOkPwd(false)
-        if (pwd.nuova.length < 8) return setErrPwd(t('password.min_caratteri'))
+        const errRegola = messaggioPassword(pwd.nuova, t)
+        if (errRegola) return setErrPwd(errRegola)
         if (pwd.nuova !== pwd.conferma) return setErrPwd(t('password.non_corrispondono'))
         setSalvandoPwd(true)
         try {
             const { error } = await supabase.auth.updateUser({ password: pwd.nuova })
-            if (error) throw new Error(error.message)
+            if (error) throw new Error(messaggioErroreAuthPassword(error, pwd.nuova, t) || error.message)
             setPwd({ nuova: '', conferma: '' }); setEditingPwd(false); setOkPwd(true)
             setTimeout(() => setOkPwd(false), 3000)
         } catch (err) { setErrPwd(err.message) }
@@ -635,6 +637,7 @@ export default function AvvocatoProfilo() {
                                         </button>
                                     )}
                                 </div>
+                                {k === 'nuova' && <p className="mt-1.5 font-body text-xs text-nebbia/30 leading-relaxed">{suggerimentoPassword(t)}</p>}
                             </div>
                         ))}
                         {errPwd && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20"><AlertCircle size={14} /> {errPwd}</div>}

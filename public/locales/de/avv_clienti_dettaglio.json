@@ -46,7 +46,7 @@
     "genera_desc": "12 sichere Zeichen",
     "manuale": "Manuell",
     "manuale_desc": "Selbst wählen",
-    "nuova_password_label": "Neues Passwort (mind. 8 Zeichen)",
+    "nuova_password_label": "Neues Passwort",
     "placeholder_pwd": "........",
     "annulla": "Abbrechen",
     "conferma": "Passwortänderung bestätigen"
@@ -164,7 +164,7 @@
     "titolo": "Mandanten-Passwort zurücksetzen",
     "descrizione": "Legen Sie ein neues Passwort für den Portalzugang fest. Teilen Sie es dem Mandanten über den von Ihnen bevorzugten Kanal mit. Lexum versendet keine automatischen E-Mails.",
     "nuova_password_label": "Neues Passwort",
-    "placeholder_pwd": "Mindestens 8 Zeichen",
+    "placeholder_pwd": "........",
     "annulla": "Abbrechen",
     "imposta_password": "Passwort festlegen"
   },

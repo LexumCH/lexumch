@@ -13,6 +13,7 @@ import { PageHeader, BackButton, InputField, TextareaField, SelectField } from '
 import { AlertCircle, CheckCircle, User, Building2, Eye, EyeOff, Lock, Users, ShoppingBag } from 'lucide-react'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import { CANTONI } from '@/lib/fatturazione'
+import { messaggioPassword, suggerimentoPassword, messaggioErroreServer } from '@/lib/password'
 
 // ─────────────────────────────────────────────────────────────
 // SWITCHER PF / PG
@@ -257,7 +258,8 @@ export default function AvvocatoClientiNuovo() {
 
         if (form.attiva_portale) {
             if (!form.password_iniziale) return setErrore(t('errori.password_obbligatoria'))
-            if (form.password_iniziale.length < 8) return setErrore(t('errori.password_corta'))
+            const errRegola = messaggioPassword(form.password_iniziale, t)
+            if (errRegola) return setErrore(errRegola)
         }
 
         setLoading(true)
@@ -310,7 +312,7 @@ export default function AvvocatoClientiNuovo() {
                     body: JSON.stringify(payload),
                 }
             )
-            const json = await res.json()
+            const json = await res.json().catch(() => ({}))
 
             if (!json.ok) {
                 // Race condition: tra apertura form e submit qualcuno ha sforato il limite
@@ -332,7 +334,10 @@ export default function AvvocatoClientiNuovo() {
                     setErrore('')  // niente errore inline: il banner sopra è già esplicito
                     return
                 }
-                throw new Error(json.error)
+                // Prima il traduttore delle password, poi il testo del server se è leggibile
+                throw new Error(messaggioErroreServer(json, {
+                    password: form.attiva_portale ? form.password_iniziale : null, t, generico: t('errori.generico'),
+                }))
             }
 
             setSuccess(true)
@@ -535,6 +540,9 @@ export default function AvvocatoClientiNuovo() {
                                             {mostraPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                                         </button>
                                     </div>
+                                    <span className="block mt-1.5 font-body text-xs text-nebbia/40 leading-relaxed">
+                                        {suggerimentoPassword(t)}
+                                    </span>
                                 </label>
                                 <div className="flex items-start gap-2 px-3 py-2 bg-oro/5 border border-oro/15">
                                     <AlertCircle size={11} className="text-oro/70 mt-0.5 shrink-0" />

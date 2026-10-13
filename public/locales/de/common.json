@@ -27,6 +27,22 @@
     "avanti": "Weiter",
     "chiudi": "Schliessen"
   },
+  "password": {
+    "suggerimento": "Mindestens 8 Zeichen, mit einem Klein- und einem Grossbuchstaben, einer Zahl und einem Sonderzeichen (zum Beispiel ! ? # @).",
+    "troppo_corta": "Das Passwort ist zu kurz: Es braucht mindestens 8 Zeichen.",
+    "troppo_lunga": "Das Passwort ist zu lang: höchstens 72 Zeichen.",
+    "manca_one": "Im Passwort fehlt {{elenco}}.",
+    "manca_other": "Im Passwort fehlen {{elenco}}.",
+    "e": "und",
+    "tipi": {
+      "minuscola": "ein Kleinbuchstabe",
+      "maiuscola": "ein Grossbuchstabe",
+      "numero": "eine Zahl",
+      "simbolo": "ein Sonderzeichen (zum Beispiel ! ? # @)"
+    },
+    "rubata": "Dieses Passwort erscheint in Listen gestohlener Passwörter im Internet: Bitte wählen Sie ein anderes.",
+    "uguale": "Das neue Passwort muss sich vom bisherigen unterscheiden."
+  },
   "pallino_da_rispondere_one": "{{count}} Unterhaltung wartet auf Ihre Antwort",
   "pallino_da_rispondere_other": "{{count}} Unterhaltungen warten auf Ihre Antwort"
 }

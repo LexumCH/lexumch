@@ -1,6 +1,7 @@
 // src/pages/admin/UtentiDettaglio.jsx
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams, Link } from 'react-router-dom'
 import { BackButton, Badge, StatCard } from '@/components/shared'
 import {
@@ -11,10 +12,14 @@ import {
 import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
 import { apriFile } from '@/lib/fileSpazio'
+import { messaggioPassword, passwordValida, suggerimentoPassword, messaggioErroreInvoke } from '@/lib/password'
 
 // ─────────────────────────────────────────────────────────────
 // COSTANTI
 // ─────────────────────────────────────────────────────────────
+// La pagina admin è solo in italiano: anche i testi della password
+const SOLO_ITALIANO = { lng: 'it' }
+
 const ROLE_BADGE = {
   admin: { label: 'Admin', variant: 'red' },
   avvocato: { label: 'Avvocato', variant: 'oro' },
@@ -801,8 +806,8 @@ function SezioneStrumentiAssistenza({ utente }) {
       const { data, error } = await supabase.functions.invoke('admin-user-actions', {
         body: { action, user_id: utente.id, ...body }
       })
-      if (error) throw new Error(error.message)
-      if (!data?.ok) throw new Error(data?.error ?? 'Errore')
+      // Con una risposta non 2xx il testo vero sta nel corpo: mai «Edge Function returned…»
+      if (error || !data?.ok) throw new Error(await messaggioErroreInvoke(error, data, { generico: 'Errore' }))
       return data
     } catch (err) {
       setErrore(err.message)
@@ -926,6 +931,7 @@ function SezioneStrumentiAssistenza({ utente }) {
 // MODAL CAMBIO PASSWORD
 // ─────────────────────────────────────────────────────────────
 function ModalCambiaPassword({ utente, onClose, onSuccess }) {
+  const { t: tPwd } = useTranslation('common', SOLO_ITALIANO)
   const [modo, setModo] = useState('genera') // 'genera' | 'manuale'
   const [pwdManuale, setPwdManuale] = useState('')
   const [showPwd, setShowPwd] = useState(false)
@@ -939,14 +945,15 @@ function ModalCambiaPassword({ utente, onClose, onSuccess }) {
     try {
       const body = { action: 'set-password', user_id: utente.id }
       if (modo === 'manuale') {
-        if (!pwdManuale || pwdManuale.length < 8) {
-          throw new Error('Password minimo 8 caratteri')
-        }
+        const errRegola = messaggioPassword(pwdManuale, tPwd)
+        if (errRegola) throw new Error(errRegola)
         body.new_password = pwdManuale
       }
       const { data, error } = await supabase.functions.invoke('admin-user-actions', { body })
-      if (error) throw new Error(error.message)
-      if (!data?.ok) throw new Error(data?.error ?? 'Errore')
+      // Con una risposta non 2xx il testo vero sta nel corpo: prima il traduttore delle password
+      if (error || !data?.ok) {
+        throw new Error(await messaggioErroreInvoke(error, data, { password: body.new_password, t: tPwd, generico: 'Errore' }))
+      }
       setRisultato(data)
     } catch (err) {
       setErrore(err.message)
@@ -1071,7 +1078,7 @@ function ModalCambiaPassword({ utente, onClose, onSuccess }) {
           {modo === 'manuale' && (
             <div>
               <label className="block font-body text-xs text-nebbia/40 tracking-widest uppercase mb-2">
-                Nuova password (min 8 caratteri)
+                Nuova password
               </label>
               <div className="relative">
                 <input
@@ -1087,6 +1094,7 @@ function ModalCambiaPassword({ utente, onClose, onSuccess }) {
                   {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
+              <p className="mt-1.5 font-body text-xs text-nebbia/40 leading-relaxed">{suggerimentoPassword(tPwd)}</p>
             </div>
           )}
 
@@ -1101,7 +1109,7 @@ function ModalCambiaPassword({ utente, onClose, onSuccess }) {
               className="font-body text-sm text-nebbia/60 hover:text-nebbia border border-white/10 px-4 py-2.5 disabled:opacity-40">
               Annulla
             </button>
-            <button onClick={handleConferma} disabled={inviando || (modo === 'manuale' && pwdManuale.length < 8)}
+            <button onClick={handleConferma} disabled={inviando || (modo === 'manuale' && !passwordValida(pwdManuale))}
               className="btn-primary text-sm flex-1 justify-center disabled:opacity-40">
               {inviando
                 ? <span className="animate-spin w-4 h-4 border-2 border-petrolio border-t-transparent rounded-full" />

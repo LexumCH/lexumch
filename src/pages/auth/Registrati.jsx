@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import logo from '@/assets/logo.png'
 import { ArrowRight, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
 import SelectLingua from '@/components/SelectLingua'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, casoErroreAuth } from '@/lib/password'
 
 // La colonna profiles.lingua ha un CHECK rigido IN ('it','de','fr') senza guardia NULL/''.
 // Normalizziamo qui per non mandare mai un valore fuori-set al signup (es. 'en' da browser
@@ -30,7 +31,8 @@ export default function Registrati() {
     if (!form.nome.trim()) e.nome = t('registrati.err_required')
     if (!form.cognome.trim()) e.cognome = t('registrati.err_required')
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = t('registrati.err_email')
-    if (form.password.length < 8) e.password = t('registrati.err_min')
+    const errPassword = messaggioPassword(form.password, t)
+    if (errPassword) e.password = errPassword
     if (form.password !== form.conferma) e.conferma = t('registrati.err_mismatch')
     return e
   }
@@ -64,7 +66,13 @@ export default function Registrati() {
 
       setSuccess(true)
     } catch (err) {
-      setErrors({ global: err.message })
+      // Il rifiuto di Supabase non si mostra mai in inglese: password ed email sotto il loro campo
+      const errPassword = messaggioErroreAuthPassword(err, form.password, t)
+      const caso = casoErroreAuth(err)
+      if (errPassword) setErrors({ password: errPassword })
+      else if (caso === 'email_non_valida') setErrors({ email: t('registrati.err_email') })
+      else if (caso === 'gia_registrata') setErrors({ email: t('errori.gia_registrata') })
+      else setErrors({ global: t(caso === 'troppi_tentativi' ? 'errori.troppi_tentativi' : 'errori.generico') })
     } finally {
       setLoading(false)
     }
@@ -101,8 +109,8 @@ export default function Registrati() {
     </div>
   )
 
-  /* helper campo password con occhio */
-  const pwdField = (key, label, show, toggle) => (
+  /* helper campo password con occhio (hint: il testo sotto il campo, al posto dell'errore) */
+  const pwdField = (key, label, show, toggle, hint) => (
     <div>
       <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{label}</label>
       <div className="relative">
@@ -122,6 +130,7 @@ export default function Registrati() {
         </button>
       </div>
       {errors[key] && <p className="mt-1 font-body text-xs text-red-400 flex items-center gap-1"><AlertCircle size={11} />{errors[key]}</p>}
+      {hint && !errors[key] && <p className="mt-1.5 font-body text-xs text-nebbia/25 leading-relaxed">{hint}</p>}
     </div>
   )
 
@@ -170,7 +179,7 @@ export default function Registrati() {
             </p>
           </div>
 
-          {pwdField('password', t('registrati.password_label'), showPwd, () => setShowPwd(v => !v))}
+          {pwdField('password', t('registrati.password_label'), showPwd, () => setShowPwd(v => !v), suggerimentoPassword(t))}
           {pwdField('conferma', t('registrati.conferma_label'), showConferma, () => setShowConferma(v => !v))}
 
           {errors.global && (

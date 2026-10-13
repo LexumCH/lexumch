@@ -27,6 +27,22 @@
     "avanti": "Suivant",
     "chiudi": "Fermer"
   },
+  "password": {
+    "suggerimento": "Au moins 8 caractères, avec une minuscule, une majuscule, un chiffre et un symbole (par exemple ! ? # @).",
+    "troppo_corta": "Le mot de passe est trop court : il faut au moins 8 caractères.",
+    "troppo_lunga": "Le mot de passe est trop long : 72 caractères au maximum.",
+    "manca_one": "Il manque au mot de passe {{elenco}}.",
+    "manca_other": "Il manque au mot de passe {{elenco}}.",
+    "e": "et",
+    "tipi": {
+      "minuscola": "une minuscule",
+      "maiuscola": "une majuscule",
+      "numero": "un chiffre",
+      "simbolo": "un symbole (par exemple ! ? # @)"
+    },
+    "rubata": "Ce mot de passe figure dans des listes de mots de passe volés sur Internet : choisissez-en un autre.",
+    "uguale": "Le nouveau mot de passe doit être différent de l'ancien."
+  },
   "pallino_da_rispondere_one": "{{count}} conversation attend votre réponse",
   "pallino_da_rispondere_other": "{{count}} conversations attendent votre réponse"
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword } from '@/lib/password'
 import { PageHeader, InputField } from '@/components/shared'
 import { Check, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import SelectLingua from '@/components/SelectLingua'
@@ -67,12 +68,13 @@ export default function ClienteProfilo() {
 
     async function handleCambiaPwd() {
         setErrPwd(''); setOkPwd(false)
-        if (pwd.nuova.length < 8) return setErrPwd(t('password.min'))
+        const errRegola = messaggioPassword(pwd.nuova, t)
+        if (errRegola) return setErrPwd(errRegola)
         if (pwd.nuova !== pwd.conferma) return setErrPwd(t('password.mismatch'))
         setSalvandoPwd(true)
         try {
             const { error } = await supabase.auth.updateUser({ password: pwd.nuova })
-            if (error) throw new Error(error.message)
+            if (error) throw new Error(messaggioErroreAuthPassword(error, pwd.nuova, t) || error.message)
             setPwd({ nuova: '', conferma: '' }); setOkPwd(true)
             setTimeout(() => setOkPwd(false), 3000)
         } catch (e) { setErrPwd(e.message) }
@@ -141,6 +143,7 @@ export default function ClienteProfilo() {
                                 </button>
                             )}
                         </div>
+                        {k === 'nuova' && <p className="mt-1 font-body text-xs text-nebbia/25">{suggerimentoPassword(t)}</p>}
                     </div>
                 ))}
                 {errPwd && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20"><AlertCircle size={14} /> {errPwd}</div>}

@@ -46,7 +46,7 @@
     "genera_desc": "12 caratteri sicuri",
     "manuale": "Manuale",
     "manuale_desc": "Scegli tu",
-    "nuova_password_label": "Nuova password (min 8 caratteri)",
+    "nuova_password_label": "Nuova password",
     "placeholder_pwd": "........",
     "annulla": "Annulla",
     "conferma": "Conferma cambio password"
@@ -164,7 +164,7 @@
     "titolo": "Reset password cliente",
     "descrizione": "Imposta una nuova password per accedere al portale. Comunicala al cliente con il canale che preferisci. Lexum non invia email automatiche.",
     "nuova_password_label": "Nuova password",
-    "placeholder_pwd": "Almeno 8 caratteri",
+    "placeholder_pwd": "........",
     "annulla": "Annulla",
     "imposta_password": "Imposta password"
   },

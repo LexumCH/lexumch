@@ -32,7 +32,7 @@
     "aggiornata": "Password aggiornata",
     "modifica": "Modifica password",
     "nuova": "Nuova password",
-    "nuova_placeholder": "Minimo 8 caratteri",
+    "nuova_placeholder": "••••••••",
     "conferma": "Conferma password",
     "conferma_placeholder": "Ripeti la nuova password",
     "annulla": "Annulla",
