@@ -25,6 +25,8 @@
     "rispostaIncompleta": "Unvollständige Serverantwort",
     "codiceInvalido": "Geben Sie den 6-stelligen Code aus Ihrer App ein",
     "sessioneScaduta": "Die Aktivierungssitzung ist abgelaufen. Schliessen Sie und versuchen Sie es erneut.",
-    "generazioneCodici": "Fehler beim Generieren der Codes"
+    "generazioneCodici": "Fehler beim Generieren der Codes",
+    "codiceErrato": "Ungültiger Code. Prüfen Sie, ob die Uhrzeit Ihres Telefons stimmt, und versuchen Sie es erneut.",
+    "troppiTentativi": "Zu viele Versuche. Bitte in einigen Minuten erneut versuchen."
   }
 }

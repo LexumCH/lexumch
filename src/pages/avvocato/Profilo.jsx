@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { PageHeader, Badge } from '@/components/shared'
 import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale, ArrowRight, Shield, ShieldCheck, Receipt } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, messaggioErroreInvoke } from '@/lib/password'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, messaggioErroreInvoke, messaggioErroreServer } from '@/lib/password'
 import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
 import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
 import SelectLingua, { nomeLingua } from '@/components/SelectLingua'
@@ -219,7 +219,8 @@ export default function AvvocatoProfilo() {
                     ? dati.specializzazioni.split(',').map(s => s.trim()).filter(Boolean)
                     : null,
             }).eq('id', user.id)
-            if (error) throw new Error(error.message)
+            // Errore del database: niente testo tecnico, il messaggio generico
+            if (error) throw new Error(messaggioErroreServer(error, { generico: t('errore_salvataggio') }))
             setDatiOriginali(dati); setEditingDati(false); setOkDati(true)
             // Applica subito la lingua scelta all'interfaccia
             try { i18n.changeLanguage(dati.lingua); localStorage.setItem('lexum_lingua', dati.lingua) } catch { /* noop */ }
@@ -239,7 +240,8 @@ export default function AvvocatoProfilo() {
                 numero_albo: atti.numero_albo.trim() || null,
                 data_iscrizione_albo: atti.data_iscrizione_albo || null,
             }).eq('id', user.id)
-            if (error) throw new Error(error.message)
+            // Errore del database: niente testo tecnico, il messaggio generico
+            if (error) throw new Error(messaggioErroreServer(error, { generico: t('errore_salvataggio') }))
             setAttiOriginali(atti); setEditingAtti(false); setOkAtti(true)
             setTimeout(() => setOkAtti(false), 3000)
         } catch (err) { setErrAtti(err.message) }
@@ -280,7 +282,8 @@ export default function AvvocatoProfilo() {
                 uid: uid || null,
                 iva_attiva: v.iva_attiva === 'si',
             }).eq('id', user.id)
-            if (error) throw new Error(error.message)
+            // Errore del database: niente testo tecnico, il messaggio generico
+            if (error) throw new Error(messaggioErroreServer(error, { generico: t('errore_salvataggio') }))
             const salvati = { ...v, iban: iban ? formattaIban(iban) : '', qr_iban: qrIban ? formattaIban(qrIban) : '', uid: uid || '' }
             setFatt(salvati); setFattOriginali(salvati); setEditingFatt(false); setOkFatt(true)
             setTimeout(() => setOkFatt(false), 3000)

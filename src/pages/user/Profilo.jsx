@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword } from '@/lib/password'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, messaggioErroreServer } from '@/lib/password'
 import { PageHeader, InputField, Badge } from '@/components/shared'
 import { Check, CheckCircle, AlertCircle, Scale, Clock, Loader2 } from 'lucide-react'
 import SelectLingua from '@/components/SelectLingua'
@@ -73,7 +73,8 @@ export default function UserProfilo() {
                     lingua: linguaOk,
                 })
                 .eq('id', user.id)
-            if (error) throw new Error(error.message)
+            // Errore del database: niente testo tecnico, il messaggio generico
+            if (error) throw new Error(messaggioErroreServer(error, { generico: t('errore_salvataggio') }))
             setDatiOriginali({ ...form })
             setOkDati(true)
             try { i18n.changeLanguage(form.lingua); localStorage.setItem('lexum_lingua', form.lingua) } catch { /* noop */ }

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/shared'
 import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Shield, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, messaggioErroreInvoke } from '@/lib/password'
+import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, messaggioErroreInvoke, messaggioErroreServer } from '@/lib/password'
 import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
 import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
 
@@ -118,7 +118,8 @@ export default function AdminProfilo() {
                 cognome: dati.cognome.trim(),
                 telefono: dati.telefono.trim() || null,
             }).eq('id', user.id)
-            if (error) throw new Error(error.message)
+            // Errore del database: niente testo tecnico, il messaggio generico
+            if (error) throw new Error(messaggioErroreServer(error, { generico: 'Non è stato possibile salvare le modifiche. Riprova.' }))
             setDatiOriginali(dati); setEditingDati(false); setOkDati(true)
             setTimeout(() => setOkDati(false), 3000)
         } catch (err) { setErrDati(err.message) }

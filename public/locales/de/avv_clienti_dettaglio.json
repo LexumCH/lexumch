@@ -84,10 +84,12 @@
     "vuoto_titolo": "Keine Notizen gespeichert",
     "salva": "Speichern",
     "annulla": "Abbrechen",
-    "conferma_elimina": "Diese Notiz löschen?"
+    "conferma_elimina": "Diese Notiz löschen?",
+    "errore_salvataggio": "Die Notiz konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
   },
   "registra_pagamento": {
     "errore_importo": "Ungültiger Betrag",
+    "errore_salvataggio": "Die Zahlung konnte nicht erfasst werden. Bitte versuchen Sie es erneut.",
     "errore_data": "Zahlungsdatum erforderlich",
     "titolo": "Zahlung erfassen",
     "fattura": "Rechnung",

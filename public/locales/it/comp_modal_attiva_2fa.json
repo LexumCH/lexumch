@@ -25,6 +25,8 @@
     "rispostaIncompleta": "Risposta server incompleta",
     "codiceInvalido": "Inserisci il codice a 6 cifre dalla tua app",
     "sessioneScaduta": "Sessione di attivazione scaduta. Chiudi e riprova.",
-    "generazioneCodici": "Errore generazione codici"
+    "generazioneCodici": "Errore generazione codici",
+    "codiceErrato": "Codice non valido. Controlla che l'ora del telefono sia giusta e riprova.",
+    "troppiTentativi": "Troppi tentativi. Riprova tra qualche minuto."
   }
 }

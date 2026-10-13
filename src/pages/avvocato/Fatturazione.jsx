@@ -16,6 +16,7 @@ import {
     TrendingUp, AlertTriangle, Clock, Wallet, Trash2
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { messaggioErroreInvoke } from '@/lib/password'
 import { ModalEliminaFattura } from './FatturazioneDettaglio'
 
 // ─────────────────────────────────────────────────────────────
@@ -350,8 +351,8 @@ function TabFatture({ fatture, clienti, onReload, isFiduciario }) {
             const { data, error } = await supabase.functions.invoke('lex-pagamenti', {
                 body: { domanda: cerca.trim() }
             })
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('fatture.errore_lex'))
+            // Con una risposta non 2xx il testo vero sta nel corpo: mai «Edge Function returned…»
+            if (error || !data?.ok) throw new Error(await messaggioErroreInvoke(error, data, { generico: t('fatture.errore_lex') }))
             setIdsLex(data.fatture_ids ?? [])
             setRagionamentoLex(data.ragionamento ?? '')
         } catch (err) {

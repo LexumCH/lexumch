@@ -25,6 +25,8 @@
     "rispostaIncompleta": "Réponse du serveur incomplète",
     "codiceInvalido": "Saisissez le code à 6 chiffres de votre application",
     "sessioneScaduta": "La session d'activation a expiré. Fermez et réessayez.",
-    "generazioneCodici": "Erreur lors de la génération des codes"
+    "generazioneCodici": "Erreur lors de la génération des codes",
+    "codiceErrato": "Code invalide. Vérifiez que l'heure de votre téléphone est correcte et réessayez.",
+    "troppiTentativi": "Trop de tentatives. Réessayez dans quelques minutes."
   }
 }

@@ -84,10 +84,12 @@
     "vuoto_titolo": "Aucune note enregistrée",
     "salva": "Enregistrer",
     "annulla": "Annuler",
-    "conferma_elimina": "Supprimer cette note ?"
+    "conferma_elimina": "Supprimer cette note ?",
+    "errore_salvataggio": "La note n'a pas pu être enregistrée. Veuillez réessayer."
   },
   "registra_pagamento": {
     "errore_importo": "Montant invalide",
+    "errore_salvataggio": "Le paiement n'a pas pu être enregistré. Veuillez réessayer.",
     "errore_data": "Date de paiement obligatoire",
     "titolo": "Enregistrer le paiement",
     "fattura": "Facture",

@@ -1,4 +1,5 @@
 {
+  "errore_salvataggio": "Non è stato possibile salvare le modifiche. Riprova.",
   "header": {
     "label": "Account",
     "title": "Il mio profilo"

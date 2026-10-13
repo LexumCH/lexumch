@@ -111,15 +111,17 @@ export function messaggioErroreAuthPassword(err, password, t) {
     return parti.length ? parti.join(' ') : suggerimentoPassword(t)
 }
 
-// Gli altri rifiuti di Supabase Auth nella registrazione, nella richiesta del link e nella
-// reimpostazione: il caso, che la pagina traduce con i suoi testi ('gia_registrata',
-// 'troppi_tentativi', 'email_non_valida', 'link_scaduto'), oppure 'generico' per la rete e per tutto
-// il resto. Il messaggio inglese non si mostra mai.
+// Gli altri rifiuti di Supabase Auth nella registrazione, nella richiesta del link, nella
+// reimpostazione e nel 2FA: il caso, che la pagina traduce con i suoi testi ('gia_registrata',
+// 'troppi_tentativi', 'codice_errato', 'email_non_valida', 'link_scaduto'), oppure 'generico' per la
+// rete e per tutto il resto. Il messaggio inglese non si mostra mai.
 export function casoErroreAuth(err) {
     const codice = String(err?.code ?? err?.error_code ?? '')
     const s = typeof err === 'string' ? err : String(err?.message ?? '')
     if (codice === 'user_already_exists' || codice === 'email_exists' || /already (been )?registered|already exists/i.test(s)) return 'gia_registrata'
     if (err?.status === 429 || codice.includes('rate_limit') || /rate limit|too many|for security purposes/i.test(s)) return 'troppi_tentativi'
+    // Codice dell'app di autenticazione (TOTP) sbagliato
+    if (codice === 'mfa_verification_failed' || /invalid totp code/i.test(s)) return 'codice_errato'
     if (codice === 'email_address_invalid' || /email address.*invalid|unable to validate email|invalid format/i.test(s)) return 'email_non_valida'
     if (err?.name === 'AuthSessionMissingError' || ['session_not_found', 'session_expired', 'otp_expired', 'bad_jwt'].includes(codice)
         || /session missing|session.*(does not exist|expired)|jwt expired|invalid or has expired/i.test(s)) return 'link_scaduto'
@@ -127,10 +129,10 @@ export function casoErroreAuth(err) {
 }
 
 // Un testo del server si mostra così com'è solo se è un messaggio leggibile: in italiano, senza
-// dettagli tecnici. Le funzioni del server rispondono in italiano; l'inglese arriva quando girano
-// l'errore di Supabase o della piattaforma.
+// dettagli tecnici e senza il nome di un fornitore AI (white-label). Le funzioni del server
+// rispondono in italiano; l'inglese arriva quando girano l'errore di Supabase o della piattaforma.
 const INGLESE = /\b(the|is|are|was|be|been|has|have|not|should|cannot|can't|must|with|this|that|for|from|only|after|already|invalid|error|failed|unable|unexpected|denied|exceeded|expired|found|exists?|violates|duplicate|permission|relation|column|returned|request|security|user|email address)\b/i
-const TECNICO = /edge function|non-2xx|\bjson\b|\bjwt\b|fetch|typeerror|syntaxerror|referenceerror|undefined|\bnull\b|https?:\/\/|supabase|postgres|pgrst|sqlstate|deno/i
+const TECNICO = /edge function|non-2xx|\bjson\b|\bjwt\b|fetch|typeerror|syntaxerror|referenceerror|undefined|\bnull\b|https?:\/\/|supabase|postgres|pgrst|sqlstate|deno|openai|anthropic|mistral|\bclaude\b|claude-|\bgpt-|chatgpt|x-api-key|\bsk-/i
 
 export function testoServerLeggibile(s) {
     return typeof s === 'string' && s.trim() !== '' && !INGLESE.test(s) && !TECNICO.test(s)

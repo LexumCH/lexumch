@@ -14,6 +14,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { supabase, supabaseUrl, supabaseKey } from '@/lib/supabase'
+import { messaggioErroreInvoke } from '@/lib/password'
 import ReactMarkdown from 'react-markdown'
 import {
     X, ChevronLeft, ChevronRight, AlertCircle, CheckCircle, Loader2,
@@ -451,8 +452,8 @@ export default function GeneraDocumentoWizard({ template, praticaId, onClose, on
                 }
             })
 
-            if (error) throw new Error(error.message)
-            if (!data?.ok) throw new Error(data?.error ?? t('salva.errore_salvataggio'))
+            // Con una risposta non 2xx il testo vero sta nel corpo: mai «Edge Function returned…»
+            if (error || !data?.ok) throw new Error(await messaggioErroreInvoke(error, data, { generico: t('salva.errore_salvataggio') }))
 
             setPdfSalvato({
                 documento_id: data.documento_id,

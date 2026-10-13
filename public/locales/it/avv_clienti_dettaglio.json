@@ -84,10 +84,12 @@
     "vuoto_titolo": "Nessuna nota salvata",
     "salva": "Salva",
     "annulla": "Annulla",
-    "conferma_elimina": "Eliminare questa nota?"
+    "conferma_elimina": "Eliminare questa nota?",
+    "errore_salvataggio": "Non è stato possibile salvare la nota. Riprova."
   },
   "registra_pagamento": {
     "errore_importo": "Importo non valido",
+    "errore_salvataggio": "Non è stato possibile registrare il pagamento. Riprova.",
     "errore_data": "Data pagamento obbligatoria",
     "titolo": "Registra pagamento",
     "fattura": "Fattura",

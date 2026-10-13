@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, AlertCircle, ShieldCheck, Copy, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { messaggioErroreInvoke } from '@/lib/password'
+import { messaggioErroreInvoke, casoErroreAuth } from '@/lib/password'
 
 export default function ModalAttiva2FA({ onClose, onSuccess }) {
     const { t } = useTranslation('comp_modal_attiva_2fa')
@@ -73,7 +73,8 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
 
             if (error) {
                 console.error('[2FA] Enroll error:', error)
-                throw new Error(error.message || t('errori.attivazione'))
+                // Il rifiuto di Supabase non si mostra mai in inglese
+                throw new Error(t(casoErroreAuth(error) === 'troppi_tentativi' ? 'errori.troppiTentativi' : 'errori.attivazione'))
             }
 
             if (!data?.id || !data?.totp?.qr_code) {
@@ -110,7 +111,10 @@ export default function ModalAttiva2FA({ onClose, onSuccess }) {
             })
             if (error) {
                 console.error('[2FA] Verify error:', error)
-                throw new Error(error.message)
+                // Il rifiuto di Supabase non si mostra mai in inglese
+                const caso = casoErroreAuth(error)
+                throw new Error(t(caso === 'codice_errato' ? 'errori.codiceErrato'
+                    : caso === 'troppi_tentativi' ? 'errori.troppiTentativi' : 'errori.attivazione'))
             }
 
             // Enrollment OK -> il trigger DB ha aggiornato profiles.mfa_attivo

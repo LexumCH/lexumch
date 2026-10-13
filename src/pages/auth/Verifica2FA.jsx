@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Shield, AlertCircle, KeyRound, LogOut } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { messaggioErroreInvoke } from '@/lib/password'
+import { messaggioErroreInvoke, casoErroreAuth } from '@/lib/password'
 import { useAuth } from '@/context/AuthContext'
 
 export default function Verifica2FA() {
@@ -78,7 +78,12 @@ export default function Verifica2FA() {
                 factorId,
                 code: codice,
             })
-            if (error) throw new Error(error.message)
+            if (error) {
+                // Il rifiuto di Supabase non si mostra mai in inglese
+                const caso = casoErroreAuth(error)
+                throw new Error(t(caso === 'codice_errato' ? 'tfa.err_totp_invalid'
+                    : caso === 'troppi_tentativi' ? 'errori.troppi_tentativi' : 'errori.generico'))
+            }
             // Sessione promossa a AAL2 -> redirect home
             redirectToHome()
         } catch (e) {

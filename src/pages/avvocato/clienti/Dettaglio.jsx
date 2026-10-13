@@ -594,7 +594,8 @@ function TabNoteInterne({ clienteId }) {
             const { data, error } = await supabase.from('note_interne')
                 .insert({ cliente_id: clienteId, autore_id: user.id, testo: nuovaNota.trim() })
                 .select('id, testo, created_at, autore:autore_id(nome, cognome)').single()
-            if (error) throw new Error(error.message)
+            // Errore del database: niente testo tecnico, il messaggio generico
+            if (error) throw new Error(messaggioErroreServer(error, { generico: t('note_interne.errore_salvataggio') }))
             setNoteList(prev => [data, ...prev]); setNuovaNota('')
         } catch (err) { setErrore(err.message) } finally { setSalvando(false) }
     }
@@ -704,7 +705,8 @@ function ModalRegistraPagamento({ fattura, residuo, onClose, onSuccess }) {
                 note: form.note?.trim() || null,
                 registrato_da: user.id,
             })
-            if (error) throw new Error(error.message)
+            // Errore del database: niente testo tecnico, il messaggio generico
+            if (error) throw new Error(messaggioErroreServer(error, { generico: t('registra_pagamento.errore_salvataggio') }))
             onSuccess()
         } catch (err) {
             setErrore(err.message)
