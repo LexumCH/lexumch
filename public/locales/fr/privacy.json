@@ -90,8 +90,24 @@
     "ifpdt_link": "PFPDT",
     "footer_c": " (Préposé fédéral à la protection des données et à la transparence) ou, si vous résidez dans l'UE, à l'autorité de contrôle de votre État."
   },
+  "elimina": {
+    "title": "7. Supprimer le compte",
+    "intro": "Vous pouvez supprimer à tout moment votre compte Lexum et les données associées, même sans l'application.",
+    "app_title": "Dans l'application Lexum",
+    "app_text": "Ouvrez le Profil, touchez « Supprimer le compte » et confirmez. Les comptes privés sont supprimés immédiatement ; si vous avez activé la vérification en deux étapes, nous vous demandons le code.",
+    "senza_title": "Sans l'application",
+    "senza_a": "Écrivez à",
+    "senza_b": "depuis l'adresse e-mail de votre compte, avec l'objet « Suppression du compte ». Nous supprimons le compte dans un délai de 30 jours et vous confirmons la suppression.",
+    "pro_title": "Comptes professionnels et d'études",
+    "pro_a": "Pour les avocats, les fiduciaires et les études, la suppression passe par l'assistance, car le compte contient des données de clients, des mandats et des factures à clôturer ou à exporter au préalable. Dans l'application, « Supprimer le compte » envoie la demande à l'assistance ; vous pouvez aussi écrire à",
+    "pro_b": ".",
+    "cancellati_title": "Ce que nous supprimons",
+    "cancellati_items": ["Le profil et les données d'accès", "Les recherches, les chats enregistrés et les étiquettes", "Les documents de l'archive", "Les questions posées à Lex", "Les notifications et les demandes d'assistance"],
+    "conservati_title": "Ce que nous conservons",
+    "conservati_text": "Les données de paiement et de facturation, pour les obligations comptables et fiscales (10 ans), et le journal technique des e-mails envoyés, dans les limites de la section 5. Ces données ne sont plus liées à votre compte."
+  },
   "sicurezza": {
-    "title": "7. Sécurité des données",
+    "title": "8. Sécurité des données",
     "p1": "Nous prenons des mesures techniques et organisationnelles appropriées pour protéger les données personnelles contre tout accès non autorisé, perte, destruction ou divulgation. En particulier :",
     "items": [
       "Chiffrement des données en transit (TLS 1.2+) et au repos",
@@ -104,11 +120,11 @@
     "p2": "En cas de violation de la sécurité des données personnelles entraînant un risque élevé pour la personnalité ou les droits fondamentaux des personnes concernées, nous la notifierons dans les meilleurs délais au PFPDT et, lorsque le RGPD s'applique, dans les 72 heures à l'autorité de contrôle compétente, en informant si nécessaire les personnes concernées."
   },
   "cookie": {
-    "title": "8. Cookies et technologies de suivi",
+    "title": "9. Cookies et technologies de suivi",
     "p1": "La plateforme Lexum utilise exclusivement des cookies techniques strictement nécessaires au fonctionnement du service (p. ex. cookies de session pour l'authentification). Nous n'utilisons pas de cookies de profilage ni de cookies tiers à des fins publicitaires."
   },
   "modifiche": {
-    "title": "9. Modifications de la présente politique",
+    "title": "10. Modifications de la présente politique",
     "p1": "Nous nous réservons le droit de mettre à jour la présente politique en cas de modifications légales ou du service. Les modifications substantielles seront communiquées par e-mail au moins 30 jours avant leur entrée en vigueur. L'utilisation continue de la plateforme après ce délai vaut acceptation des modifications."
   },
   "footer_box": {

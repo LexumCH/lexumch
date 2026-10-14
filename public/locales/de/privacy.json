@@ -90,8 +90,24 @@
     "ifpdt_link": "EDÖB",
     "footer_c": " (Eidgenössischer Datenschutz- und Öffentlichkeitsbeauftragter) oder, falls Sie in der EU wohnhaft sind, an die Aufsichtsbehörde Ihres Staates."
   },
+  "elimina": {
+    "title": "7. Konto löschen",
+    "intro": "Sie können Ihr Lexum-Konto und die zugehörigen Daten jederzeit löschen, auch ohne die App.",
+    "app_title": "In der Lexum-App",
+    "app_text": "Öffnen Sie das Profil, tippen Sie auf «Konto löschen» und bestätigen Sie. Private Konten werden sofort gelöscht; wenn Sie die Zwei-Faktor-Authentifizierung aktiviert haben, fragen wir nach dem Code.",
+    "senza_title": "Ohne die App",
+    "senza_a": "Schreiben Sie an",
+    "senza_b": "von der E-Mail-Adresse Ihres Kontos, mit dem Betreff «Kontolöschung». Wir löschen das Konto innerhalb von 30 Tagen und bestätigen Ihnen die Löschung.",
+    "pro_title": "Konten von Fachpersonen und Kanzleien",
+    "pro_a": "Bei Anwältinnen und Anwälten, Treuhänderinnen und Treuhändern sowie Kanzleien erfolgt die Löschung über den Support, weil das Konto Kundendaten, Mandate und Rechnungen enthält, die vorher abgeschlossen oder exportiert werden müssen. In der App sendet «Konto löschen» die Anfrage an den Support; alternativ schreiben Sie an",
+    "pro_b": ".",
+    "cancellati_title": "Was wir löschen",
+    "cancellati_items": ["Profil und Zugangsdaten", "Recherchen, gespeicherte Chats und Etiketten", "Dokumente im Archiv", "Fragen an Lex", "Benachrichtigungen und Supportanfragen"],
+    "conservati_title": "Was wir aufbewahren",
+    "conservati_text": "Zahlungs- und Rechnungsdaten wegen der buchhalterischen und steuerlichen Pflichten (10 Jahre) sowie das technische Protokoll der versendeten E-Mails, innerhalb der Fristen von Abschnitt 5. Diese Daten sind nicht mehr mit Ihrem Konto verbunden."
+  },
   "sicurezza": {
-    "title": "7. Datensicherheit",
+    "title": "8. Datensicherheit",
     "p1": "Wir treffen angemessene technische und organisatorische Massnahmen, um die Personendaten vor unbefugtem Zugriff, Verlust, Zerstörung oder Offenlegung zu schützen. Insbesondere:",
     "items": [
       "Verschlüsselung der Daten bei der Übertragung (TLS 1.2+) und im Ruhezustand",
@@ -104,11 +120,11 @@
     "p2": "Bei einer Verletzung der Sicherheit von Personendaten, die ein hohes Risiko für die Persönlichkeit oder die Grundrechte der betroffenen Personen mit sich bringt, melden wir diese so rasch als möglich dem EDÖB und, soweit die DSGVO anwendbar ist, innerhalb von 72 Stunden der zuständigen Aufsichtsbehörde und informieren bei Bedarf die betroffenen Personen."
   },
   "cookie": {
-    "title": "8. Cookies und Tracking-Technologien",
+    "title": "9. Cookies und Tracking-Technologien",
     "p1": "Die Plattform Lexum verwendet ausschliesslich technische Cookies, die für den Betrieb des Dienstes unbedingt erforderlich sind (z. B. Sitzungscookies für die Authentifizierung). Wir verwenden keine Profiling- oder Drittanbieter-Cookies zu Werbezwecken."
   },
   "modifiche": {
-    "title": "9. Änderungen dieser Erklärung",
+    "title": "10. Änderungen dieser Erklärung",
     "p1": "Wir behalten uns das Recht vor, diese Erklärung bei rechtlichen oder dienstbezogenen Änderungen zu aktualisieren. Wesentliche Änderungen werden mindestens 30 Tage vor Inkrafttreten per E-Mail mitgeteilt. Die fortgesetzte Nutzung der Plattform nach diesem Zeitraum gilt als Annahme der Änderungen."
   },
   "footer_box": {

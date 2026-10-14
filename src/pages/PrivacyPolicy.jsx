@@ -1,4 +1,5 @@
 // src/pages/PrivacyPolicy.jsx
+import { useEffect } from 'react'
 import { Shield, Lock, Eye, Server, Mail, FileText } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
@@ -11,9 +12,9 @@ const COMPANY_ADDRESS = 'Via Cantonale 1, 6900 Lugano, Svizzera'
 const IFPDT_URL = 'https://www.edoeb.admin.ch'
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
-function Section({ title, children }) {
+function Section({ id, title, children }) {
     return (
-        <div className="space-y-4">
+        <div id={id} className="space-y-4 scroll-mt-24">
             <h2 className="font-display text-2xl font-light text-nebbia border-b border-white/5 pb-3">{title}</h2>
             <div className="font-body text-sm text-nebbia/60 leading-relaxed space-y-3">
                 {children}
@@ -42,6 +43,18 @@ export default function PrivacyPolicy() {
     const conservazioneItems = toArray(t('conservazione.items', { returnObjects: true }))
     const dirittiItems = toArray(t('diritti.items', { returnObjects: true }))
     const sicurezzaItems = toArray(t('sicurezza.items', { returnObjects: true }))
+    const cancellatiItems = toArray(t('elimina.cancellati_items', { returnObjects: true }))
+
+    // /privacy#elimina-account (link di Google Play per l'eliminazione dell'account): la pagina si apre lì.
+    // ScrollToTop la riporta in cima e la pagina si assesta dopo il primo disegno: si riprova nel primo secondo.
+    useEffect(() => {
+        const id = window.location.hash.slice(1)
+        if (!/^[\w-]+$/.test(id)) return
+        const timer = [0, 200, 600, 1200].map((ms) =>
+            setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' }), ms),
+        )
+        return () => timer.forEach(clearTimeout)
+    }, [])
 
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const updated = new Date().toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })
@@ -157,7 +170,37 @@ export default function PrivacyPolicy() {
                     </p>
                 </Section>
 
-                {/* 7. Sicurezza */}
+                {/* 7. Eliminare l'account (15-10-2026, richiesto da Google Play) */}
+                <Section id="elimina-account" title={t('elimina.title')}>
+                    <p>{t('elimina.intro')}</p>
+                    <Sub title={t('elimina.app_title')}>
+                        <p>{t('elimina.app_text')}</p>
+                    </Sub>
+                    <Sub title={t('elimina.senza_title')}>
+                        <p>
+                            {t('elimina.senza_a')}{' '}
+                            <a href={`mailto:${PRIVACY_EMAIL}`} className="text-oro hover:text-oro/70 transition-colors">{PRIVACY_EMAIL}</a>
+                            {' '}{t('elimina.senza_b')}
+                        </p>
+                    </Sub>
+                    <Sub title={t('elimina.pro_title')}>
+                        <p>
+                            {t('elimina.pro_a')}{' '}
+                            <a href={`mailto:${PRIVACY_EMAIL}`} className="text-oro hover:text-oro/70 transition-colors">{PRIVACY_EMAIL}</a>
+                            {t('elimina.pro_b')}
+                        </p>
+                    </Sub>
+                    <Sub title={t('elimina.cancellati_title')}>
+                        <ul className="list-disc list-inside space-y-1 pl-2">
+                            {cancellatiItems.map((it, i) => <li key={i}>{it}</li>)}
+                        </ul>
+                    </Sub>
+                    <Sub title={t('elimina.conservati_title')}>
+                        <p>{t('elimina.conservati_text')}</p>
+                    </Sub>
+                </Section>
+
+                {/* 8. Sicurezza */}
                 <Section title={t('sicurezza.title')}>
                     <p>{t('sicurezza.p1')}</p>
                     <ul className="list-disc list-inside space-y-1 pl-2">
@@ -166,12 +209,12 @@ export default function PrivacyPolicy() {
                     <p>{t('sicurezza.p2')}</p>
                 </Section>
 
-                {/* 8. Cookie */}
+                {/* 9. Cookie */}
                 <Section title={t('cookie.title')}>
                     <p>{t('cookie.p1')}</p>
                 </Section>
 
-                {/* 9. Modifiche */}
+                {/* 10. Modifiche */}
                 <Section title={t('modifiche.title')}>
                     <p>{t('modifiche.p1')}</p>
                 </Section>
