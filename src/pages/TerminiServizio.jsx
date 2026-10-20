@@ -106,6 +106,11 @@ export default function TerminiServizio() {
           <Sub title={t('piani.sub43_title')}><p>{t('piani.sub43_text')}</p></Sub>
           <Sub title={t('piani.sub44_title')}><p>{t('piani.sub44_text')}</p></Sub>
           <Sub title={t('piani.sub45_title')}><p>{t('piani.sub45_text')}</p></Sub>
+          {/* 4.6 Recesso dei consumatori (20-10-2026) */}
+          <Sub title={t('piani.sub_recesso_title')}>
+            <p>{t('piani.sub_recesso_text')}</p>
+            <p>{t('piani.sub_recesso_prof')}</p>
+          </Sub>
           <Sub title={t('piani.sub46_title')}><p>{t('piani.sub46_text')}</p></Sub>
           <Sub title={t('piani.sub47_title')}>
             <p>{t('piani.sub47_intro')}</p>
