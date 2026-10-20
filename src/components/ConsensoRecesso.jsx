@@ -1,7 +1,8 @@
 // src/components/ConsensoRecesso.jsx
 //
 // La casella del recesso (20-10-2026). Chi compra come privato (ruolo «user») crediti, pacchetti o un piano
-// chiede l'attivazione immediata e prende atto di cosa succede al recesso: Termini, punto 4.6. Il diritto
+// chiede l'attivazione immediata e prende atto di cosa succede al recesso: Termini, punto 4.6 (come per
+// Anthropic e OpenAI, entro 14 giorni si rimborsa la parte non usata). Il diritto
 // svizzero non ha il recesso per gli acquisti online, ma i consumatori residenti nell'UE sì (direttiva
 // 2011/83/UE). Senza la spunta il pagamento non parte; la scelta viaggia con la richiesta di pagamento
 // (consenso_recesso), così il server la registra e la ricevuta la conferma.
