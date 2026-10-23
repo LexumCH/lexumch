@@ -30,3 +30,6 @@ as $$
   end
 $$;
 revoke all on function public.provenienza_visita(text, text) from public, anon, authenticated;
+
+-- (23-10) La funzione del trigger non serve a nessuno da fuori: niente EXECUTE per anon/authenticated
+revoke all on function public.novita_prepara() from public, anon, authenticated;
