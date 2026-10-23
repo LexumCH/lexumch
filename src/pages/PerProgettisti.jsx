@@ -14,6 +14,7 @@ import {
     XCircle, AlertTriangle, Building2, EyeOff, Activity, Library,
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
+import { testataLingue } from '@/lib/seo'
 
 const LEXAI_ICONS = [Scale, Ruler, ScrollText, Building2]
 const SICUREZZA_ICONS = [ShieldCheck, Building2, Activity, EyeOff]
@@ -101,7 +102,7 @@ const ESITO_CLS = { conforme: 'text-salvia', da_verificare: 'text-amber-400', no
 
 // ─────────────────────────────────────────────────────────────
 export default function PerProgettisti() {
-    const { t } = useTranslation('per_progettisti')
+    const { t, i18n } = useTranslation('per_progettisti')
     const toArray = (val) => Array.isArray(val) ? val : []
 
     const analisiPoints = toArray(t('analisi.points', { returnObjects: true }))
@@ -124,9 +125,8 @@ export default function PerProgettisti() {
             <Helmet>
                 <title>{t('meta.title')}</title>
                 <meta name="description" content={t('meta.description')} />
-                <link rel="canonical" href="https://www.lexum.ch/progettisti" />
+                {testataLingue('/progettisti', i18n.language)}
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://www.lexum.ch/progettisti" />
                 <meta property="og:title" content={t('meta.og_title')} />
                 <meta property="og:description" content={t('meta.og_description')} />
                 <meta property="og:image" content="https://www.lexum.ch/logo.png" />

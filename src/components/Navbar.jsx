@@ -44,6 +44,7 @@ export default function Navbar() {
     { path: `/${langAttiva}/avvocati`, label: t('navbar.avvocati') },
     { path: `/${langAttiva}/fiduciari`, label: t('navbar.fiduciari') },
     { path: `/${langAttiva}/progettisti`, label: t('navbar.progettisti') },
+    { path: `/${langAttiva}/novita`, label: t('navbar.novita') },
     { path: `/${langAttiva}/contatti`, label: t('navbar.contatti') },
   ]
 
@@ -60,15 +61,15 @@ export default function Navbar() {
           <img src={logo} alt="Lexum" className="h-16 w-auto" />
         </NavLink>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-7">
+        {/* Desktop nav: da 1120 px; sotto, con le voci in tedesco e francese non ci sta in una riga, si usa il menu a tendina */}
+        <nav className="hidden min-[1120px]:flex items-center gap-4 xl:gap-7">
           {navLinks.map(({ path, label, exact }) => (
             <NavLink
               key={path}
               to={path}
               end={exact}
               className={({ isActive }) =>
-                `font-body text-xs tracking-widest uppercase transition-colors ${isActive ? 'text-oro' : 'text-nebbia/40 hover:text-nebbia'
+                `font-body text-xs tracking-widest uppercase whitespace-nowrap transition-colors ${isActive ? 'text-oro' : 'text-nebbia/40 hover:text-nebbia'
                 }`
               }
             >
@@ -78,7 +79,7 @@ export default function Navbar() {
         </nav>
 
         {/* CTA Desktop + LanguageSwitcher */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden min-[1120px]:flex items-center gap-4">
           <LanguageSwitcher variant="desktop" />
 
           <div className="w-px h-4 bg-white/10" />
@@ -107,7 +108,7 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden text-nebbia/50 hover:text-nebbia transition-colors"
+          className="min-[1120px]:hidden text-nebbia/50 hover:text-nebbia transition-colors"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -115,7 +116,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      <div className={`md:hidden transition-all duration-300 overflow-hidden ${menuOpen ? 'max-h-[28rem] opacity-100' : 'max-h-0 opacity-0'
+      <div className={`min-[1120px]:hidden transition-all duration-300 overflow-hidden ${menuOpen ? 'max-h-[28rem] opacity-100' : 'max-h-0 opacity-0'
         }`}>
         <div className="bg-petrolio/95 backdrop-blur-sm border-t border-white/5 px-6 py-4 flex flex-col gap-1">
 

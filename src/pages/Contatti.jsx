@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Helmet } from 'react-helmet-async'
+import { testataLingue } from '@/lib/seo'
 import {
   ArrowRight, Mail, MessageSquare, Calendar,
   Plus, Minus, Shield, Lock, Globe, EyeOff,
@@ -79,7 +80,7 @@ function FaqItem({ q, a, defaultOpen = false }) {
 
 // ─────────────────────────────────────────────────────────────
 export default function Contatti() {
-  const { t } = useTranslation('contatti')
+  const { t, i18n } = useTranslation('contatti')
   const toArray = (val) => Array.isArray(val) ? val : []
 
   const faqItems = toArray(t('faq.items', { returnObjects: true }))
@@ -90,10 +91,9 @@ export default function Contatti() {
       <Helmet>
         <title>{t('meta.title')}</title>
         <meta name="description" content={t('meta.description')} />
-        <link rel="canonical" href="https://www.lexum.ch/contatti" />
+        {testataLingue('/contatti', i18n.language)}
 
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.lexum.ch/contatti" />
         <meta property="og:title" content={t('meta.og_title')} />
         <meta property="og:description" content={t('meta.og_description')} />
         <meta property="og:image" content="https://www.lexum.ch/logo.png" />

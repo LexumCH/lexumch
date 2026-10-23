@@ -11,6 +11,7 @@ export default function Footer() {
     { to: '/', key: 'home' },
     { to: '/per-avvocati', key: 'lawyers' },
     { to: '/#lexai', key: 'lex_ai' },
+    { to: '/novita', key: 'news' },
     { to: '/contatti', key: 'contacts' },
   ]
 

@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "title": "Aktuelles — Lexum",
+    "description": "Schweizer Recht einfach erklärt: häufige Fragen, Gesetze und Urteile sowie Neuigkeiten von Lexum."
+  },
+  "hero": {
+    "badge": "Aktuelles",
+    "title_part1": "Schweizer Recht",
+    "title_highlight": "in der Praxis",
+    "title_part2": ".",
+    "subtitle": "Häufige Fragen, Gesetze und Urteile einfach erklärt, dazu Neuigkeiten von Lexum."
+  },
+  "vuoto": {
+    "title": "Noch keine Beiträge",
+    "text": "Schauen Sie bald wieder vorbei: Der erste Beitrag ist unterwegs."
+  },
+  "articolo": {
+    "indietro": "Aktuelles",
+    "non_trovato": "Beitrag nicht gefunden",
+    "non_trovato_testo": "Vielleicht wurde er verschoben oder ist nicht mehr veröffentlicht.",
+    "torna": "Zurück zu Aktuelles",
+    "altre_lingue": "Lesen auf",
+    "social": "Mehr dazu in den sozialen Medien:",
+    "instagram": "Beitrag auf Instagram ansehen",
+    "tiktok": "Video auf TikTok ansehen",
+    "cta_testo": "Haben Sie eine ähnliche Frage? Stellen Sie sie Lex.",
+    "cta": "Jetzt starten"
+  }
+}

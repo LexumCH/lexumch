@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { LINGUE_SUPPORTATE, LINGUA_DEFAULT } from '@/i18n'
+import { testataLingue } from '@/lib/seo'
 
 // Mapping icone per le lexai features (l'ordine corrisponde all'array lexai.features nel JSON)
 const LEXAI_FEATURE_ICONS = [Search, Scale, Brain, Sparkles, BookOpen, FileSignature]
@@ -251,10 +252,9 @@ export default function Home() {
       <Helmet>
         <title>{t('meta.title')}</title>
         <meta name="description" content={t('meta.description')} />
-        <link rel="canonical" href="https://www.lexum.ch/" />
+        {testataLingue('', i18n.language)}
 
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.lexum.ch/" />
         <meta property="og:title" content={t('meta.og_title')} />
         <meta property="og:description" content={t('meta.og_description')} />
         <meta property="og:image" content="https://www.lexum.ch/logo.png" />

@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { Shield, Lock, Eye, Server, Mail, FileText } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
+import { testataLingue } from '@/lib/seo'
 
 // Dati del titolare (costanti, identici in tutte le lingue)
 const PRIVACY_EMAIL = 'privacy@lexum.ch'
@@ -66,7 +67,7 @@ export default function PrivacyPolicy() {
                     <title>{t('meta.title')}</title>
                     <meta name="description" content={t('meta.description')} />
                     <meta name="robots" content="noindex, follow" />
-                    <link rel="canonical" href="https://www.lexum.ch/privacy" />
+                    {testataLingue('/privacy', i18n.language)}
                 </Helmet>
 
                 {/* Header */}

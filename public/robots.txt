@@ -1,39 +1,44 @@
-# robots.txt per Lexum
-# https://www.lexum.it
+# robots.txt per Lexum Svizzera
+# https://www.lexum.ch
 
 User-agent: *
 
-# Pagine vetrina pubbliche (esplicitamente consentite)
+# Vetrina pubblica nelle tre lingue (home, pagine per professione, blog, contatti)
 Allow: /$
-Allow: /per-avvocati
-Allow: /contatti
-Allow: /privacy
-Allow: /termini
+Allow: /it
+Allow: /de
+Allow: /fr
 
 # Aree riservate (dietro autenticazione)
-Disallow: /dashboard
-Disallow: /clienti
-Disallow: /pratiche
-Disallow: /calendario
-Disallow: /sentenze
-Disallow: /pagamenti
-Disallow: /assistenza
-Disallow: /archivio
-Disallow: /profilo
-Disallow: /ricerche
-Disallow: /banca-dati
-Disallow: /studio
-Disallow: /portale
-Disallow: /area
-Disallow: /verifica
 Disallow: /admin
+Disallow: /abbonamenti
+Disallow: /archivio
+Disallow: /area
+Disallow: /assistenza
+Disallow: /banca-dati
+Disallow: /banco-lavoro
+Disallow: /calendario
+Disallow: /clienti
+Disallow: /dashboard
+Disallow: /etichette
+Disallow: /fatturazione
+Disallow: /normativa
+Disallow: /pagamenti
+Disallow: /portale
+Disallow: /pratiche
+Disallow: /profilo
+Disallow: /progetti
+Disallow: /ricerche
+Disallow: /studio
+Disallow: /user
+Disallow: /verifica
 
-# Auth
+# Accesso
 Disallow: /login
 Disallow: /registrati
 Disallow: /recupera-password
 Disallow: /reset-password
 Disallow: /email-verificata
 
-# Sitemap
-Sitemap: https://www.lexum.it/sitemap.xml
+# Sitemap (rigenerata a ogni rilascio con tutte le pagine, le lingue e gli articoli)
+Sitemap: https://www.lexum.ch/sitemap.xml

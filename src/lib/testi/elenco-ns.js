@@ -98,6 +98,7 @@ export const ELENCO_NS = [
   "istituzioni",
   "lex_ai",
   "lex_demo",
+  "novita",
   "per_avvocati",
   "per_fiduciari",
   "per_progettisti",

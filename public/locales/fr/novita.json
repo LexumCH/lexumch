@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "title": "Actualités — Lexum",
+    "description": "Le droit suisse expliqué simplement : questions fréquentes, lois et arrêts, et les nouveautés de Lexum."
+  },
+  "hero": {
+    "badge": "Actualités",
+    "title_part1": "Le droit suisse,",
+    "title_highlight": "en pratique",
+    "title_part2": ".",
+    "subtitle": "Questions fréquentes, lois et arrêts expliqués simplement, et les nouveautés de Lexum."
+  },
+  "vuoto": {
+    "title": "Pas encore d’article",
+    "text": "Revenez bientôt : le premier article arrive."
+  },
+  "articolo": {
+    "indietro": "Actualités",
+    "non_trovato": "Article introuvable",
+    "non_trovato_testo": "Il a peut-être été déplacé ou n’est plus publié.",
+    "torna": "Retour aux actualités",
+    "altre_lingue": "Lire en",
+    "social": "Nous en parlons aussi sur les réseaux sociaux :",
+    "instagram": "Voir la publication sur Instagram",
+    "tiktok": "Voir la vidéo sur TikTok",
+    "cta_testo": "Vous avez une question semblable ? Posez-la à Lex.",
+    "cta": "Commencer"
+  }
+}

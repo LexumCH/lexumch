@@ -2,6 +2,7 @@
 import { FileText, AlertCircle, Shield, CreditCard } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
+import { testataLingue } from '@/lib/seo'
 
 // Costanti (identiche in tutte le lingue)
 const TERMINI_EMAIL = 'info@lexum.ch'
@@ -30,7 +31,7 @@ function Sub({ title, children }) {
 }
 
 export default function TerminiServizio() {
-  const { t } = useTranslation('termini')
+  const { t, i18n } = useTranslation('termini')
   const toArray = (val) => Array.isArray(val) ? val : []
 
   const descrizioneItems = toArray(t('descrizione.items', { returnObjects: true }))
@@ -48,7 +49,7 @@ export default function TerminiServizio() {
           <title>{t('meta.title')}</title>
           <meta name="description" content={t('meta.description')} />
           <meta name="robots" content="noindex, follow" />
-          <link rel="canonical" href="https://www.lexum.ch/termini" />
+          {testataLingue('/termini', i18n.language)}
         </Helmet>
 
         {/* Header */}

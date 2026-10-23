@@ -28,6 +28,9 @@ import PerProgettisti from './pages/PerProgettisti'
 import Contatti from './pages/Contatti'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import TerminiServizio from '@/pages/TerminiServizio'
+import Novita from './pages/Novita'
+import NovitaArticolo from './pages/NovitaArticolo'
+import ContaVisite from './components/ContaVisite'
 
 // ── Auth ──
 import Login from './pages/auth/Login'
@@ -48,6 +51,7 @@ import AdminCalendario from './pages/admin/Calendario'
 import AdminProfilo from './pages/admin/Profilo'
 import NormativaAggiornamentiCH from './pages/admin/NormativaAggiornamenti'
 import AdminTesti from './pages/admin/Testi'
+import AdminNovita from './pages/admin/Novita'
 
 // ── Avvocato ──
 import AvvocatoDashboard from './pages/avvocato/Dashboard'
@@ -110,6 +114,7 @@ function VetrinaLayout({ children }) {
       <main className="flex-1">{children}</main>
       <Footer />
       <Analytics />
+      <ContaVisite />
     </div>
   )
 }
@@ -122,6 +127,7 @@ function AuthLayout({ children }) {
     <>
       {children}
       <Analytics />
+      <ContaVisite />
     </>
   )
 }
@@ -199,6 +205,8 @@ export default function App() {
               <Route path="/:lang/contatti" element={<Vet><Contatti /></Vet>} />
               <Route path="/:lang/privacy" element={<Vet><PrivacyPolicy /></Vet>} />
               <Route path="/:lang/termini" element={<Vet><TerminiServizio /></Vet>} />
+              <Route path="/:lang/novita" element={<Vet><Novita /></Vet>} />
+              <Route path="/:lang/novita/:slug" element={<Vet><NovitaArticolo /></Vet>} />
 
               {/* Retrocompat: vecchie rotte senza prefisso → redirect alla lingua giusta */}
               <Route path="/avvocati" element={<RootRedirect to="/avvocati" />} />
@@ -208,6 +216,7 @@ export default function App() {
               <Route path="/contatti" element={<RootRedirect to="/contatti" />} />
               <Route path="/privacy" element={<RootRedirect to="/privacy" />} />
               <Route path="/termini" element={<RootRedirect to="/termini" />} />
+              <Route path="/novita" element={<RootRedirect to="/novita" />} />
 
               {/* Retrocompat vecchie URL "per-avvocati" / "per-fiduciari" senza prefisso */}
               <Route path="/per-avvocati" element={<RootRedirect to="/avvocati" />} />
@@ -245,6 +254,7 @@ export default function App() {
               <Route path="/admin/calendario" element={<Adm><AdminCalendario /></Adm>} />
               <Route path="/admin/normativa" element={<Adm><NormativaAggiornamentiCH /></Adm>} />
               <Route path="/admin/testi" element={<Adm><AdminTesti /></Adm>} />
+              <Route path="/admin/novita" element={<Adm><AdminNovita /></Adm>} />
               <Route path="/admin/profilo" element={<Adm><AdminProfilo /></Adm>} />
 
               {/* ═══════════════════════════════════════════════════════

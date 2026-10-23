@@ -15,6 +15,7 @@ import {
     Library, Receipt, Calculator, BarChart3, Building2,
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
+import { testataLingue } from '@/lib/seo'
 
 // Mapping icone (l'ordine corrisponde agli array nel JSON)
 const LEXAI_ICONS = [FileSignature, BarChart3, Scale, Search, Brain, Building2]
@@ -106,7 +107,7 @@ function FeatureRow({ icon: Icon, title, text, points, reverse = false, accent =
 
 // ─────────────────────────────────────────────────────────────
 export default function PerFiduciari() {
-    const { t } = useTranslation('per_fiduciari')
+    const { t, i18n } = useTranslation('per_fiduciari')
     const toArray = (val) => Array.isArray(val) ? val : []
 
     const lexaiFeatures = toArray(t('lexai.features', { returnObjects: true }))
@@ -137,10 +138,9 @@ export default function PerFiduciari() {
             <Helmet>
                 <title>{t('meta.title')}</title>
                 <meta name="description" content={t('meta.description')} />
-                <link rel="canonical" href="https://www.lexum.ch/fiduciari" />
+                {testataLingue('/fiduciari', i18n.language)}
 
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://www.lexum.ch/fiduciari" />
                 <meta property="og:title" content={t('meta.og_title')} />
                 <meta property="og:description" content={t('meta.og_description')} />
                 <meta property="og:image" content="https://www.lexum.ch/logo.png" />

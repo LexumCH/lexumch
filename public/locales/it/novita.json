@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "title": "Novità — Lexum",
+    "description": "Il diritto svizzero spiegato in parole semplici: domande frequenti, norme e sentenze, e le novità di Lexum."
+  },
+  "hero": {
+    "badge": "Novità",
+    "title_part1": "Il diritto svizzero,",
+    "title_highlight": "in pratica",
+    "title_part2": ".",
+    "subtitle": "Domande frequenti, norme e sentenze spiegate in parole semplici, e le novità di Lexum."
+  },
+  "vuoto": {
+    "title": "Ancora nessun articolo",
+    "text": "Torna presto: il primo articolo è in arrivo."
+  },
+  "articolo": {
+    "indietro": "Novità",
+    "non_trovato": "Articolo non trovato",
+    "non_trovato_testo": "Forse è stato spostato o non è più pubblicato.",
+    "torna": "Torna alle novità",
+    "altre_lingue": "Leggi in",
+    "social": "Ne parliamo anche sui social:",
+    "instagram": "Guarda il post su Instagram",
+    "tiktok": "Guarda il video su TikTok",
+    "cta_testo": "Hai una domanda simile? Chiedila a Lex.",
+    "cta": "Inizia ora"
+  }
+}

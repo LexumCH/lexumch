@@ -12,6 +12,7 @@ import {
     Library, Receipt,
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
+import { testataLingue } from '@/lib/seo'
 
 // Mapping icone Lex AI (l'ordine corrisponde all'array lexai.features nel JSON)
 const LEXAI_FEATURE_ICONS = [Search, Scale, Brain, Sparkles, BookOpen, FileSignature]
@@ -105,7 +106,7 @@ function FeatureRow({ icon: Icon, title, text, points, reverse = false, accent =
 
 // ─────────────────────────────────────────────────────────────
 export default function PerAvvocati() {
-    const { t } = useTranslation('per_avvocati')
+    const { t, i18n } = useTranslation('per_avvocati')
     const toArray = (val) => Array.isArray(val) ? val : []
 
     const multiPoints = toArray(t('multi.points', { returnObjects: true }))
@@ -139,10 +140,9 @@ export default function PerAvvocati() {
             <Helmet>
                 <title>{t('meta.title')}</title>
                 <meta name="description" content={t('meta.description')} />
-                <link rel="canonical" href="https://www.lexum.ch/per-avvocati" />
+                {testataLingue('/avvocati', i18n.language)}
 
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://www.lexum.ch/per-avvocati" />
                 <meta property="og:title" content={t('meta.og_title')} />
                 <meta property="og:description" content={t('meta.og_description')} />
                 <meta property="og:image" content="https://www.lexum.ch/logo.png" />
