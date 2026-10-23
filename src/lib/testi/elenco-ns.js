@@ -56,6 +56,7 @@ export const ELENCO_NS = [
   "comp_fid_budget_scostamenti",
   "comp_fid_chat_mandato",
   "comp_fid_contabilita",
+  "comp_fid_conto_annuale",
   "comp_fid_entrate_uscite",
   "comp_fid_form_dipendente",
   "comp_fid_form_movimento",

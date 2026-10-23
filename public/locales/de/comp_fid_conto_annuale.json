@@ -1,0 +1,311 @@
+{
+  "intestazione": {
+    "titolo": "Gesellschaft",
+    "ditta": "Firma",
+    "forma": "Rechtsform",
+    "sede": "Sitz",
+    "idi": "UID",
+    "manca": "fehlt",
+    "facoltativo": "nicht angegeben",
+    "completa": "Ergänzen Sie die Kundendaten (Firma, Rechtsform, Sitz): Sie erscheinen im Kopf der Jahresrechnung."
+  },
+  "forme": {
+    "sa": "Aktiengesellschaft",
+    "sagl": "Gesellschaft mit beschränkter Haftung",
+    "cooperativa": "Genossenschaft",
+    "fondazione": "Stiftung",
+    "associazione": "Verein",
+    "ditta": "Einzelunternehmen",
+    "societa_persone": "Personengesellschaft",
+    "altro": "Rechtsform nicht erkannt"
+  },
+  "obblighi": {
+    "persona_giuridica": "Juristische Person: vollständige Jahresrechnung mit Anhang, unterzeichnet vom Präsidenten des obersten Leitungs- oder Verwaltungsorgans und von der für die Rechnungslegung zuständigen Person, innert sechs Monaten nach Ablauf des Geschäftsjahres (Art. 958 OR).",
+    "persona_fisica": "Einzelunternehmen oder Personengesellschaft: Die vollständige Jahresrechnung ist ab einem Umsatzerlös von 500'000 CHF im letzten Geschäftsjahr Pflicht; darunter genügt eine Buchhaltung über Einnahmen, Ausgaben und Vermögenslage (Art. 957 OR). Der Anhang ist freiwillig (Art. 959c Abs. 3 OR).",
+    "altro": "Rechtsform nicht erkannt: Erfassen Sie sie in den Kundendaten (z. B. AG, GmbH, Einzelunternehmen). Bis dahin wird die Jahresrechnung wie für eine juristische Person erstellt."
+  },
+  "vuoto": {
+    "titolo": "Keine Jahresrechnung für das Geschäftsjahr {{esercizio}}.",
+    "spiegazione": "Die Jahresrechnung (Art. 958 OR) umfasst Bilanz, Erfolgsrechnung und Anhang, mit den Zahlen des Vorjahres. Die Zahlen stammen aus dem Hauptbuch; den Anhang schreibt Lex aus Ihren Antworten, und Sie prüfen ihn. Definitiv wird sie, wenn das Geschäftsjahr abgeschlossen ist.",
+    "avvia": "Jahresrechnung vorbereiten",
+    "riprendi_superato": "Aus der überholten Fassung übernehmen"
+  },
+  "definitivo": {
+    "titolo": "Jahresrechnung definitiv seit {{data}}",
+    "firma": "Das PDF liegt im Archiv des Kunden. Es muss ausgedruckt, vom Präsidenten des obersten Leitungs- oder Verwaltungsorgans und von der für die Rechnungslegung zuständigen Person unterzeichnet (Art. 958 Abs. 3 OR) und unterzeichnet zehn Jahre aufbewahrt werden (Art. 958f OR).",
+    "totale_attivo": "Total Aktiven",
+    "risultato": "Ergebnis",
+    "capitale_proprio": "Eigenkapital",
+    "lingua": "Sprache",
+    "scarica": "PDF zum Unterzeichnen herunterladen",
+    "modificare": "Die Zahlen sind festgehalten. Für eine Änderung öffnen Sie das Geschäftsjahr wieder (Berichte → Wieder öffnen, mit Grund): Diese Fassung wird «überholt» und bleibt im Archiv."
+  },
+  "lingua": {
+    "etichetta": "Sprache des Dokuments"
+  },
+  "lingue": {
+    "it": "Italienisch",
+    "de": "Deutsch",
+    "fr": "Französisch",
+    "en": "Englisch"
+  },
+  "riepilogo": {
+    "totale_attivo": "Total Aktiven",
+    "totale_passivo": "Total Passiven",
+    "risultato": "Gewinn / Verlust",
+    "capitale_proprio": "Eigenkapital"
+  },
+  "controlli": {
+    "titolo": "Kontrollen vor der Unterzeichnung",
+    "tutto_ok": "Keine Probleme gefunden.",
+    "vai_chiusura": "Geschäftsjahr abschliessen",
+    "bilancio_non_quadra": "Die Bilanz ist nicht ausgeglichen (Differenz {{differenza}}): Prüfen Sie die Buchungen.",
+    "conti_senza_posta": "Konten mit Saldo, aber ohne gesetzliche Position: {{conti}}. Weisen Sie die Position im Kontenplan zu.",
+    "registrazioni_fuori_esercizio": "{{n}} Buchungen liegen in keinem Geschäftsjahr.",
+    "eccedenza_debiti": "Negatives Eigenkapital ({{importo}}): Es besteht die Gefahr einer Überschuldung. Der Verwaltungsrat muss unverzüglich handeln (Art. 725b OR).",
+    "capitale_negativo": "Negatives Eigenkapital ({{importo}}).",
+    "perdita_capitale": "Kapitalverlust: Das Eigenkapital ({{capitale}}) deckt die Hälfte von Kapital und gesetzlichen Reserven ({{meta}}) nicht mehr. Der Verwaltungsrat muss Massnahmen ergreifen (Art. 725a OR).",
+    "liquidita_negativa": "Negative flüssige Mittel ({{importo}}): Ein überzogenes Bankkonto gehört zu den kurzfristigen verzinslichen Verbindlichkeiten.",
+    "senza_ammortamenti": "Es gibt Anlagevermögen ({{importo}}), aber keine Abschreibungen im Geschäftsjahr.",
+    "senza_imposte": "Gewinn vor Steuern von {{importo}}, aber keine direkten Steuern erfasst: Fehlt die Steuerrückstellung?",
+    "spiegare_straordinari": "Es gibt ausserordentliche, einmalige oder periodenfremde Positionen: Der Anhang muss sie erläutern (Art. 959c Abs. 2 Ziff. 12 OR).",
+    "precedente_non_quadra": "Die von Hand erfassten Vorjahreszahlen sind nicht ausgeglichen (Differenz {{differenza}}).",
+    "precedente_risultato_diverso": "Vorjahr: Der Gewinn in der Bilanz ({{bilancio}}) weicht vom Ergebnis der Erfolgsrechnung ({{ce}}) ab.",
+    "senza_precedente": "Es fehlen die Vorjahreszahlen, die neben denen des Geschäftsjahres Pflicht sind (Art. 958d Abs. 2 OR): Erfassen Sie sie unten oder markieren Sie das erste Geschäftsjahr.",
+    "esercizio_aperto": "Das Geschäftsjahr ist noch offen: Der Entwurf kann schon vorbereitet werden, definitiv wird die Jahresrechnung nach dem Abschluss."
+  },
+  "precedente": {
+    "titolo": "Vorjahr {{esercizio}}",
+    "dal_mastro": "aus dem Hauptbuch",
+    "a_mano": "von Hand erfasst",
+    "primo": "erstes Geschäftsjahr",
+    "mancano": "Zahlen fehlen",
+    "primo_esercizio": "Es ist das erste Geschäftsjahr der Gesellschaft: Es gibt keine Vorjahreszahlen.",
+    "usa_manuali": "Das Vorjahr ist nur teilweise in Lexum (Kunde während des Jahres übernommen): Die von Hand erfassten Zahlen verwenden.",
+    "istruzioni": "Übernehmen Sie die Zahlen aus der Jahresrechnung des Vorjahres. Leere Positionen gelten als null.",
+    "da_apertura": "Bilanz aus den Eröffnungssalden übernehmen",
+    "nessuna_apertura": "Keine Eröffnungsbuchung in den ersten Tagen des Geschäftsjahres: Erfassen Sie die Bilanz von Hand.",
+    "bilancio": "Bilanz",
+    "conto_economico": "Erfolgsrechnung",
+    "segni": "Aufwand mit Minuszeichen, wie in der Erfolgsrechnung (z. B. -12000).",
+    "riepilogo": "Vorjahr: Aktiven {{attivo}}, Passiven {{passivo}}, Ergebnis {{risultato}}."
+  },
+  "questionario": {
+    "titolo": "Anhang: Angaben der Treuhänderin / des Treuhänders",
+    "redigi_allegato": "Den Anhang trotzdem erstellen (für Einzelunternehmen und Personengesellschaften freiwillig, Art. 959c Abs. 3 OR).",
+    "istruzioni": "Beantworten Sie nur, was die Gesellschaft betrifft; leere Felder werden weggelassen. Beträge in Franken: Lex fügt keine Zahlen hinzu, die es nicht hier oder in der Buchhaltung findet.",
+    "posti_lavoro": {
+      "etichetta": "Vollzeitstellen im Jahresdurchschnitt (Art. 959c Abs. 2 Ziff. 2 OR)",
+      "scegli": "— auswählen —",
+      "fino_10": "nicht über 10",
+      "fino_50": "nicht über 50",
+      "fino_250": "nicht über 250",
+      "oltre_250": "über 250"
+    },
+    "campi": {
+      "principi": {
+        "etichetta": "Besondere Bewertungsgrundsätze",
+        "aiuto": "Nur wenn nötig, z. B. Abschreibungen nach steuerlichen Sätzen oder Bewertung der Vorräte. Leer: Standardsatz zu den Grundsätzen des OR."
+      },
+      "spiegazioni_poste": {
+        "etichetta": "Erläuterungen zu Positionen der Bilanz oder Erfolgsrechnung",
+        "aiuto": "Z. B. Zusammensetzung der übrigen kurzfristigen Verbindlichkeiten. Freiwillig (Art. 959c Abs. 1 Ziff. 2 OR)."
+      },
+      "partecipazioni": {
+        "etichetta": "Beteiligungen",
+        "aiuto": "Firma, Rechtsform, Sitz, Kapital- und Stimmenanteil der Beteiligungsgesellschaften (Ziff. 3)."
+      },
+      "quote_proprie": {
+        "etichetta": "Eigene Anteile",
+        "aiuto": "Anzahl gehaltener Anteile, Käufe und Verkäufe im Geschäftsjahr und ihre Bedingungen (Ziff. 4 und 5)."
+      },
+      "leasing": {
+        "etichetta": "Leasingverbindlichkeiten",
+        "aiuto": "Restbetrag der Leasingverträge, die nicht innert 12 Monaten auslaufen oder kündbar sind (Ziff. 6): Betrag in CHF oder «keine»."
+      },
+      "debiti_previdenza": {
+        "etichetta": "Verbindlichkeiten gegenüber Vorsorgeeinrichtungen",
+        "aiuto": "Betrag in CHF am Bilanzstichtag oder «keine» (Ziff. 7)."
+      },
+      "garanzie_terzi": {
+        "etichetta": "Sicherheiten für Verbindlichkeiten Dritter",
+        "aiuto": "Gesamtbetrag in CHF und zugunsten von wem, oder «keine» (Ziff. 8)."
+      },
+      "attivi_in_garanzia": {
+        "etichetta": "Zur Sicherung eigener Verbindlichkeiten verwendete Aktiven und Aktiven unter Eigentumsvorbehalt",
+        "aiuto": "Betrag in CHF und welche Aktiven (z. B. Schuldbriefe), oder «keine» (Ziff. 9)."
+      },
+      "impegni_condizionali": {
+        "etichetta": "Eventualverbindlichkeiten",
+        "aiuto": "Verpflichtungen mit unwahrscheinlichem oder nicht schätzbarem Mittelabfluss, z. B. ein laufender Prozess (Ziff. 10)."
+      },
+      "diritti_partecipazione": {
+        "etichetta": "Beteiligungsrechte für Organe und Mitarbeitende",
+        "aiuto": "Anzahl und Wert der zugeteilten Aktien oder Optionen (Ziff. 11)."
+      },
+      "straordinari": {
+        "etichetta": "Erläuterung der ausserordentlichen Positionen",
+        "aiuto": "Warum es ausserordentliche, einmalige oder periodenfremde Aufwände oder Erträge gibt (Ziff. 12). Positionen und Beträge übergibt Lexum."
+      },
+      "eventi_successivi": {
+        "etichetta": "Wesentliche Ereignisse nach dem Bilanzstichtag",
+        "aiuto": "Tatsachen nach dem Abschluss, die für die Leser der Jahresrechnung wichtig sind, oder «keine» (Ziff. 13)."
+      },
+      "crediti_debiti_partecipanti": {
+        "etichetta": "Forderungen und Verbindlichkeiten gegenüber Beteiligten und Organen",
+        "aiuto": "Z. B. Aktionärsdarlehen oder Kontokorrent des Geschäftsführers, mit Beträgen, falls nicht in der Bilanz getrennt ausgewiesen (Art. 959a Abs. 4 OR)."
+      },
+      "revisione_dimissioni": {
+        "etichetta": "Rücktritt oder Abberufung der Revisionsstelle",
+        "aiuto": "Nur wenn die Revisionsstelle vor Ablauf der Amtsdauer zurückgetreten ist: die Gründe (Ziff. 14)."
+      },
+      "margine_capitale": {
+        "etichetta": "Kapitalband",
+        "aiuto": "Vom Verwaltungsrat im Rahmen des Kapitalbands beschlossene Erhöhungen und Herabsetzungen (Ziff. 15)."
+      },
+      "riserve_latenti": {
+        "etichetta": "Netto-Auflösung stiller Reserven",
+        "aiuto": "Betrag in CHF, wenn die aufgelösten stillen Reserven die neu gebildeten übersteigen und das Ergebnis dadurch besser erscheint (Art. 959c Abs. 1 Ziff. 3 OR)."
+      },
+      "prestiti_obbligazionari": {
+        "etichetta": "Anleihensobligationen",
+        "aiuto": "Betrag, Zinssatz, Fälligkeit und übrige Bedingungen (Art. 959c Abs. 4 OR)."
+      },
+      "altre_informazioni": {
+        "etichetta": "Weitere Angaben",
+        "aiuto": "Was das Leitungsorgan den Lesern der Jahresrechnung mitteilen möchte."
+      }
+    }
+  },
+  "allegato": {
+    "scrivi": "Anhang mit Lex schreiben (1 Guthaben)",
+    "riscrivi": "Mit Lex neu schreiben (1 Guthaben)",
+    "in_corso": "Lex schreibt den Anhang aus Ihren Antworten: Das dauert weniger als eine Minute.",
+    "numeri_da_verificare": "Im Anhang stehen Zahlen, die weder in Ihren Antworten noch in der Buchhaltung vorkommen: {{numeri}}. Prüfen Sie sie vor der Unterzeichnung.",
+    "vuoto": "Füllen Sie den Fragebogen aus und lassen Sie Lex den Anhang schreiben, oder schreiben Sie ihn selbst: Dann prüfen Sie ihn hier, mit «Text bearbeiten» oder mit «Korrigieren» (kostenlos)."
+  },
+  "firme": {
+    "titolo": "Unterschriften",
+    "spiegazione": "Es unterzeichnen der Präsident des obersten Leitungs- oder Verwaltungsorgans und die für die Rechnungslegung zuständige Person (Art. 958 Abs. 3 OR).",
+    "nome": "Vor- und Nachname",
+    "luogo": "Ort",
+    "termine": "Gesetzliche Frist für die Erstellung der Jahresrechnung: {{data}} (sechs Monate nach dem Abschluss)."
+  },
+  "esiti": {
+    "salvato": "Entwurf gespeichert.",
+    "allegato_scritto": "Anhang geschrieben: Lesen Sie ihn auf dem Blatt, bevor Sie die Jahresrechnung definitiv machen.",
+    "definitivo": "Jahresrechnung definitiv: Das PDF liegt im Archiv des Kunden.",
+    "firma_elettronica_one": "Unterzeichnete Fassung hochgeladen: 1 elektronische Signatur gefunden.",
+    "firma_elettronica_other": "Unterzeichnete Fassung hochgeladen: {{count}} elektronische Signaturen gefunden.",
+    "firma_autografa": "Unterzeichnete Fassung hochgeladen (keine elektronische Signatur in der Datei: von Hand unterzeichnete Kopie)."
+  },
+  "azioni": {
+    "salva": "Entwurf speichern",
+    "salvato": "Entwurf gespeichert",
+    "anteprima": "PDF herunterladen (Entwurf)",
+    "definitivo": "Definitiv machen",
+    "annulla": "Abbrechen"
+  },
+  "blocchi": {
+    "esercizio_aperto": "Für die definitive Fassung schliessen Sie zuerst das Geschäftsjahr ab.",
+    "ditta": "In den Kundendaten fehlt die Firma.",
+    "numeri": "Es gibt Fehler in den Zahlen (siehe Kontrollen).",
+    "allegato": "Der Anhang fehlt.",
+    "segnaposti_one": "Im Anhang ist noch 1 Angabe zu ergänzen.",
+    "segnaposti_other": "Im Anhang sind noch {{n}} Angaben zu ergänzen.",
+    "firme": "Die Namen der Unterzeichnenden fehlen.",
+    "impiego": "Der Antrag über die Verwendung des Bilanzgewinnes enthält Fehler."
+  },
+  "conferma": {
+    "titolo": "Jahresrechnung {{esercizio}} definitiv",
+    "testo": "Die Zahlen werden festgehalten, das PDF ohne «Entwurf» erstellt und im Archiv des Kunden gespeichert. Danach kann sie nicht mehr geändert werden: Dafür muss das Geschäftsjahr wieder geöffnet werden, was im Protokoll bleibt.",
+    "avvisi": "Die Kontrollen enthalten noch Hinweise: Lesen Sie sie vor der Bestätigung.",
+    "conferma": "Definitiv machen"
+  },
+  "superati": {
+    "titolo": "Überholte Fassungen",
+    "riga": "Definitiv am {{definitivo}}, überholt am {{superato}}"
+  },
+  "errori": {
+    "generico": "Vorgang fehlgeschlagen. Bitte versuchen Sie es gleich noch einmal.",
+    "allegato": "Der Anhang konnte nicht geschrieben werden. Bitte versuchen Sie es gleich noch einmal.",
+    "pdf": "Das PDF konnte nicht erstellt werden. Bitte versuchen Sie es gleich noch einmal.",
+    "archivio_mancante": "Das PDF ist nicht mehr im Archiv."
+  },
+  "archivio": {
+    "server_spazio_esaurito": "Der Archivspeicher ist voll: Geben Sie Speicher frei oder fügen Sie ein Paket hinzu und versuchen Sie es erneut.",
+    "server_sola_lettura": "Das Archiv ist schreibgeschützt (Abo abgelaufen): Erneuern Sie das Abo, um die Jahresrechnung zu speichern.",
+    "server_rifiutato": "Das Archiv hat die Datei abgelehnt: Prüfen Sie den verfügbaren Speicher und versuchen Sie es erneut.",
+    "server_generico": "Das PDF konnte nicht im Archiv gespeichert werden. Bitte versuchen Sie es gleich noch einmal."
+  },
+  "impiego": {
+    "titolo_scheda": "Antrag über die Verwendung des Bilanzgewinnes",
+    "includi": "Den Antrag über die Verwendung des Bilanzgewinnes zur Jahresrechnung hinzufügen (die Versammlung entscheidet: Art. 698 Abs. 2 Ziff. 4 und 804 Abs. 2 Ziff. 5 OR).",
+    "spiegazione": "Die Zuweisung an die gesetzliche Gewinnreserve wird nach Art. 672 OR vorgeschlagen: 5 % des Jahresgewinns, nach Beseitigung eines Verlustvortrags, bis sie zusammen mit der gesetzlichen Kapitalreserve die Hälfte des Kapitals erreicht. Der Vortrag auf neue Rechnung ist der Rest.",
+    "holding": "Holdinggesellschaft (die gesetzliche Gewinnreserve wird bis 20 % des Kapitals geäufnet)",
+    "campi": {
+      "riserva_legale": "Zuweisung an die gesetzliche Gewinnreserve",
+      "dividendo": "Dividende",
+      "riserve_facoltative": "Zuweisung an die freiwilligen Gewinnreserven",
+      "prelievo_riserve": "Entnahme aus den freiwilligen Gewinnreserven"
+    },
+    "minimo": "gesetzliches Minimum {{importo}}",
+    "righe": {
+      "riportato": "Gewinn- / Verlustvortrag",
+      "esercizio": "Jahresgewinn / Jahresverlust",
+      "utile_bilancio": "Bilanzgewinn / Bilanzverlust",
+      "prelievo": "Entnahme aus den freiwilligen Gewinnreserven",
+      "disponibile": "Verfügbarer Betrag",
+      "riserva": "Gesetzliche Gewinnreserve",
+      "dividendo": "Dividende",
+      "facoltative": "Freiwillige Gewinnreserven",
+      "riporto": "Vortrag auf neue Rechnung"
+    },
+    "percentuale": "{{perc}} % des Kapitals",
+    "errori": {
+      "importi_negativi": "Die Beträge des Antrags dürfen nicht negativ sein.",
+      "prelievo_oltre_riserve": "Die Entnahme übersteigt die freiwilligen Gewinnreserven der Bilanz.",
+      "supera_disponibile": "Die Zuweisungen übersteigen den verfügbaren Gewinn: Der Vortrag auf neue Rechnung wäre negativ.",
+      "riserva_sotto_minimo": "Bei einer Dividende muss der gesetzlichen Gewinnreserve mindestens das gesetzliche Minimum ({{minimo}}) zugewiesen werden: Art. 672 und 675 Abs. 3 OR."
+    },
+    "avvisi": {
+      "riserva_sotto_minimo": "Die Zuweisung an die gesetzliche Gewinnreserve liegt unter dem gesetzlichen Minimum ({{minimo}}, Art. 672 OR)."
+    }
+  },
+  "registra_impiego": {
+    "pulsante": "Von der Versammlung beschlossene Verwendung verbuchen",
+    "spiegazione": "Nach der Versammlung: Eine Buchung im Journal überträgt den Gewinn auf die gesetzliche Reserve, die beschlossenen Ausschüttungen, die freiwilligen Reserven und den Vortrag auf neue Rechnung, verknüpft mit dieser Jahresrechnung.",
+    "titolo": "Gewinnverwendung {{esercizio}}",
+    "istruzioni": "Datum der Versammlung und beschlossene Beträge (vorausgefüllt mit dem Antrag: ändern Sie sie, wenn die Versammlung anders entschieden hat). Der Vortrag auf neue Rechnung ist der Rest.",
+    "data": "Datum der Versammlung",
+    "anteprima": "Buchung",
+    "riporto": "Vortrag auf neue Rechnung: {{importo}}",
+    "mancanti": "Im Kontenplan fehlen: {{conti}}. Fügen Sie sie unter Buchhaltung → Kontenplan → «Fehlende Standardkonten hinzufügen» hinzu.",
+    "conferma": "Verbuchen",
+    "registrato": "Gewinnverwendung am {{data}} im Journal verbucht.",
+    "descrizione": "Gewinnverwendung {{esercizio}} (Versammlung vom {{data}})"
+  },
+  "firma": {
+    "titolo": "Unterzeichnung",
+    "spiegazione": "Die Jahresrechnung wird auf dem Ausdruck von Hand unterzeichnet. Alternativ (freiwillig) wird das PDF bei einem anerkannten Anbieter qualifiziert elektronisch signiert, was der eigenhändigen Unterschrift gleichgestellt ist (Art. 14 Abs. 2bis OR). Laden Sie danach hier die signierte Fassung oder den Scan der von Hand unterzeichneten Kopie hoch: Sie bleibt im Archiv des Kunden.",
+    "carica": "Unterzeichnete Fassung hochladen (PDF)",
+    "in_corso": "Signaturen werden gelesen…",
+    "sostituisci": "Unterzeichnete Fassung ersetzen",
+    "firmato": "unterzeichnet",
+    "elettronica_one": "Elektronisch signiert: 1 Signatur",
+    "elettronica_other": "Elektronisch signiert: {{count}} Signaturen",
+    "senza_nome": "Name in der Datei nicht angegeben",
+    "marche_one": "Mit 1 Zeitstempel.",
+    "marche_other": "Mit {{count}} Zeitstempeln.",
+    "stesso_si": "Die signierte Datei enthält das definitive PDF von Lexum unverändert.",
+    "stesso_no": "Die signierte Datei enthält das definitive PDF von Lexum nicht unverändert (neu erzeugt oder ein anderes Dokument): Prüfen Sie, ob es diese Jahresrechnung ist.",
+    "validatore": "Prüfen, ob die Signatur qualifiziert ist (Validator des Bundes)",
+    "autografa": "Von Hand unterzeichnete Kopie hochgeladen am {{data}}.",
+    "conserva": "Bewahren Sie das unterzeichnete Original auf Papier zehn Jahre auf (Art. 958f OR).",
+    "scarica": "Unterzeichnete Fassung herunterladen",
+    "errori": {
+      "formato": "Laden Sie eine PDF-Datei hoch.",
+      "troppo_grande": "Die Datei ist zu gross (höchstens 25 MB)."
+    }
+  }
+}

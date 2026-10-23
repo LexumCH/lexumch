@@ -1,61 +1,129 @@
 {
-  "anno": "Année",
   "vuoto": "Aucune écriture : les rapports se remplissent à partir du journal.",
-  "nota_finale": "Compte de résultat = flux de l'année ; Bilan et Balance de vérification = soldes cumulés à fin {{anno}}. Tant que vous ne clôturez pas l'exercice, le résultat reste sur les comptes de résultat ; la clôture le porte au compte 2979.",
+  "nota_finale": "Compte de résultat = mouvements du {{inizio}} au {{fine}} ; Bilan et Balance de vérification = soldes au {{fine}}. Les postes suivent les art. 959a et 959b CO ; le poste de chaque compte se modifie dans le plan comptable.",
   "tab": {
     "ce": "Compte de résultat",
     "bilancio": "Bilan",
+    "conto_annuale": "Comptes annuels",
     "iva": "TVA",
-    "verifica": "Balance de vérification"
+    "verifica": "Balance de vérification",
+    "traccia": "Journal des modifications"
   },
-  "sezione": {
-    "nessun_movimento": "Aucun mouvement.",
-    "totale": "Total {{sezione}}"
+  "esercizio": {
+    "etichetta": "Exercice",
+    "chiuso_breve": "clôturé",
+    "periodo": "Exercice du {{inizio}} au {{fine}}",
+    "stato_aperto": "ouvert",
+    "stato_chiuso": "clôturé le {{data}} : écritures verrouillées",
+    "date": "Dates de l'exercice",
+    "chiudi": "Clôturer l'exercice",
+    "riapri": "Rouvrir"
+  },
+  "colonne": {
+    "posta": "Poste"
   },
   "ce": {
-    "ricavi": "Produits",
-    "costi": "Charges",
-    "risultato": "Résultat de l'exercice {{anno}}",
-    "nota_chiusura": "La clôture remet à zéro les comptes de résultat et porte le résultat au compte 2979.",
-    "chiudi_esercizio": "Clôturer l'exercice {{anno}}"
+    "nota": "Compte de résultat par nature (art. 959b al. 2 CO) : produits positifs, charges avec le signe moins. Cliquez sur un poste pour voir les comptes."
   },
   "bilancio": {
-    "attivo": "Actif",
-    "passivo": "Passif",
-    "risultato_cumulato": "Résultat de l'exercice (cumulé)",
-    "totale_passivo_risultato": "Total passif + résultat",
-    "quadrato": "Bilan équilibré : Actif {{attivo}} = Passif + Résultat {{passivoRisultato}}.",
-    "non_quadrato": "Bilan NON équilibré (différence {{differenza}}). Vérifiez les écritures / soldes d'ouverture."
+    "quadrato": "Bilan équilibré : actifs = passifs = {{totale}}.",
+    "non_quadrato": "Bilan NON équilibré (différence {{differenza}}) : vérifiez les écritures et les soldes d'ouverture.",
+    "senza_posta": "Comptes avec un solde mais sans poste légal : {{conti}}. Attribuez le poste dans le plan comptable."
   },
   "iva": {
-    "dovuta": "TVA due (à payer) {{anno}}",
+    "dovuta": "TVA due (à payer)",
     "precedente": "Impôt préalable (à crédit)",
     "da_versare": "TVA à verser",
     "a_credito": "TVA en crédit",
-    "colonne": ["Trimestre", "Due", "Préalable", "Solde"],
+    "colonne": [
+      "Trimestre",
+      "Due",
+      "Préalable",
+      "Solde"
+    ],
     "trimestre_riga": "{{q}}e trimestre {{anno}}",
-    "nota": "Solde = TVA due (compte 2200) − Impôt préalable (1170). Positif = à verser à l'AFC ; négatif = à crédit. Le versement s'enregistre manuellement (journal)."
+    "nota": "Solde = TVA due (compte 2200) − impôt préalable (1170, 1171). Positif = à verser à l'AFC ; négatif = à crédit. Le versement s'enregistre manuellement dans le journal."
   },
   "verifica": {
-    "colonne": ["Compte", "Débit", "Crédit", "Solde"],
+    "colonne": [
+      "Compte",
+      "Débit",
+      "Crédit",
+      "Solde"
+    ],
     "totali": "Totaux",
     "quadra": "· équilibré ✓",
     "non_quadra": "· NON équilibré"
   },
   "chiusura": {
-    "titolo": "Clôture de l'exercice {{anno}}",
-    "descrizione": "Je génère une écriture de clôture au 31.12.{{anno}} : elle remet à zéro les comptes de résultat (classes 3–8) et porte le résultat (<risultato>{{risultato}}</risultato>) au compte 2979. Il s'agit d'une écriture : pour l'annuler, supprimez-la du journal.",
-    "annulla": "Annuler",
-    "conferma": "Clôturer l'exercice",
-    "in_corso": "Clôture en cours...",
-    "descrizione_registrazione": "Clôture de l'exercice {{anno}}",
-    "esito_chiuso": "Exercice {{anno}} clôturé : {{tipo}} {{importo}} porté à 2979.",
+    "titolo": "Clôture de l'exercice {{esercizio}}",
+    "descrizione": "L'écriture de clôture au {{fine}} remet à zéro les comptes de résultat (classes 3–8) et porte le résultat (<risultato>{{risultato}}</risultato>) au compte 2979. Ensuite l'exercice est verrouillé : ses écritures ne peuvent plus être créées, modifiées ou supprimées. Pour corriger, vous le rouvrez d'un clic en indiquant le motif, qui reste dans le journal des modifications.",
+    "conferma": "Clôturer et verrouiller",
+    "descrizione_registrazione": "Clôture de l'exercice {{periodo}}",
+    "esito_chiuso": "Exercice {{esercizio}} clôturé et verrouillé : {{tipo}} de {{importo}} au compte 2979.",
     "utile": "bénéfice",
-    "perdita": "perte",
-    "errori": {
-      "conto2979_assente": "Compte 2979 (Bénéfice/perte de l'exercice) absent du plan comptable.",
-      "gia_chiuso": "Exercice {{anno}} déjà clôturé.",
-      "nessun_conto": "Aucun compte de résultat à clôturer pour {{anno}}."
-    }
+    "perdita": "perte"
+  },
+  "riapertura": {
+    "titolo": "Rouvrir l'exercice {{esercizio}}",
+    "descrizione": "L'écriture de clôture est supprimée et les écritures redeviennent modifiables. Des comptes annuels définitifs deviennent « remplacés » : après la correction, clôturez à nouveau l'exercice et refaites les comptes annuels. Le motif reste dans le journal des modifications.",
+    "motivo_placeholder": "Motif (obligatoire), p. ex. il manque une facture de décembre",
+    "conferma": "Rouvrir",
+    "esito": "Exercice {{esercizio}} rouvert : les écritures sont de nouveau modifiables.",
+    "esito_superato": "Exercice {{esercizio}} rouvert : les comptes annuels définitifs sont maintenant « remplacés ». Après les corrections, clôturez l'exercice et refaites-les."
+  },
+  "date": {
+    "titolo": "Dates de l'exercice {{esercizio}}",
+    "descrizione": "Pour un exercice qui ne correspond pas à l'année civile (p. ex. du 1er juillet au 30 juin) ou pour le premier exercice, qui peut durer plus de 12 mois (au maximum deux ans). Les exercices suivants sont proposés sur 12 mois.",
+    "inizio": "Début",
+    "fine": "Fin",
+    "conferma": "Enregistrer les dates",
+    "esito": "Exercice fixé du {{inizio}} au {{fine}}."
+  },
+  "azioni": {
+    "annulla": "Annuler"
+  },
+  "errori_db": {
+    "ESERCIZIO_CHIUSO": "L'exercice du {{inizio}} au {{fine}} est clôturé : ses écritures ne peuvent pas être créées, modifiées ou supprimées. Pour corriger, rouvrez-le dans les rapports.",
+    "ESERCIZIO_PRECEDENTE_APERTO": "Clôturez d'abord l'exercice précédent : il y a des écritures d'une période antérieure encore ouverte.",
+    "ESERCIZIO_GIA_CHIUSO": "Cet exercice est déjà clôturé.",
+    "ESERCIZIO_SUCCESSIVO_CHIUSO": "Rouvrez d'abord l'exercice suivant : on rouvre toujours le dernier exercice clôturé.",
+    "ESERCIZIO_NON_CHIUSO": "L'exercice n'est pas clôturé.",
+    "ESERCIZIO_INESISTENTE": "Exercice introuvable : rechargez la page.",
+    "ESERCIZI_SOVRAPPOSTI": "Les dates chevauchent un autre exercice de ce client.",
+    "ESERCIZIO_APERTO": "Les comptes annuels ne deviennent définitifs qu'après la clôture de l'exercice : clôturez-le d'abord.",
+    "CONTO_2979_ASSENTE": "Le compte 2979 (Bénéfice/perte de l'exercice) manque dans le plan comptable : ajoutez-le dans le plan comptable.",
+    "PIANO_CONTI_ASSENTE": "Ce client n'a pas encore de plan comptable.",
+    "MOTIVO_OBBLIGATORIO": "Indiquez le motif de la réouverture (au moins 10 caractères).",
+    "DATE_NON_VALIDE": "Dates non valables : la fin doit suivre le début et un exercice dure au maximum deux ans.",
+    "CONTO_ANNUALE_DEFINITIVO": "Les comptes annuels sont définitifs et ne se modifient plus. Pour les changer, rouvrez l'exercice.",
+    "DATI_MANCANTI": "Les chiffres des comptes annuels manquent.",
+    "STATO_NON_VALIDO": "Opération non admise pour ces comptes annuels.",
+    "NON_AUTORIZZATO": "Vous ne pouvez pas effectuer cette opération : la comptabilité de ce client est tenue par un autre professionnel.",
+    "CONTO_ANNUALE_ESISTENTE": "Des comptes annuels sont déjà en cours pour cet exercice : rechargez la page.",
+    "generico": "L'opération a échoué. Réessayez dans quelques instants."
+  },
+  "traccia": {
+    "intro": "Chaque modification ou suppression d'une écriture, chaque clôture et réouverture (avec le motif) et chaque version définitive des comptes annuels restent ici, comme l'exige l'ordonnance concernant la tenue et la conservation des livres de comptes (art. 3 : toute modification doit pouvoir être constatée). Ce journal ne peut pas être effacé.",
+    "vuota": "Aucune modification enregistrée pour l'instant.",
+    "tu": "vous",
+    "altro_utente": "un autre utilisateur de l'étude",
+    "sistema": "système",
+    "risultato": "Résultat porté au 2979 : {{importo}}",
+    "motivo": "Motif : {{motivo}}",
+    "eventi": {
+      "registrazione_modificata": "Écriture modifiée",
+      "registrazione_eliminata": "Écriture supprimée",
+      "riga_aggiunta": "Ligne ajoutée à une écriture",
+      "riga_modificata": "Ligne modifiée",
+      "riga_eliminata": "Ligne supprimée",
+      "esercizio_chiuso": "Exercice clôturé",
+      "esercizio_riaperto": "Exercice rouvert",
+      "conto_annuale_definitivo": "Comptes annuels définitifs",
+      "conto_annuale_superato": "Comptes annuels remplacés",
+      "conto_annuale_firmato": "Comptes annuels signés (version chargée)"
+    },
+    "firma_elettronica": "Signature électronique : {{nomi}}",
+    "firma_autografa": "Copie signée à la main"
   }
 }

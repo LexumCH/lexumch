@@ -1,61 +1,129 @@
 {
-  "anno": "Jahr",
   "vuoto": "Keine Buchung: Die Berichte werden aus dem Journal befüllt.",
-  "nota_finale": "Erfolgsrechnung = Flüsse des Jahres; Bilanz und Saldenbilanz = kumulierte Salden per Ende {{anno}}. Solange Sie das Geschäftsjahr nicht abschliessen, bleibt das Ergebnis auf den Erfolgskonten; der Abschluss überträgt es auf das Konto 2979.",
+  "nota_finale": "Erfolgsrechnung = Bewegungen vom {{inizio}} bis {{fine}}; Bilanz und Saldenbilanz = Salden per {{fine}}. Die Positionen folgen Art. 959a und 959b OR; die Position jedes Kontos ändern Sie im Kontenplan.",
   "tab": {
     "ce": "Erfolgsrechnung",
     "bilancio": "Bilanz",
+    "conto_annuale": "Jahresrechnung",
     "iva": "MWST",
-    "verifica": "Saldenbilanz"
+    "verifica": "Saldenbilanz",
+    "traccia": "Protokoll"
   },
-  "sezione": {
-    "nessun_movimento": "Keine Bewegung.",
-    "totale": "Total {{sezione}}"
+  "esercizio": {
+    "etichetta": "Geschäftsjahr",
+    "chiuso_breve": "abgeschlossen",
+    "periodo": "Geschäftsjahr vom {{inizio}} bis {{fine}}",
+    "stato_aperto": "offen",
+    "stato_chiuso": "abgeschlossen am {{data}}: Buchungen gesperrt",
+    "date": "Daten des Geschäftsjahres",
+    "chiudi": "Geschäftsjahr abschliessen",
+    "riapri": "Wieder öffnen"
+  },
+  "colonne": {
+    "posta": "Position"
   },
   "ce": {
-    "ricavi": "Erträge",
-    "costi": "Aufwand",
-    "risultato": "Jahresergebnis {{anno}}",
-    "nota_chiusura": "Der Abschluss setzt die Erfolgskonten zurück und überträgt das Ergebnis auf das Konto 2979.",
-    "chiudi_esercizio": "Geschäftsjahr {{anno}} abschliessen"
+    "nota": "Produktionserfolgsrechnung (Art. 959b Abs. 2 OR): Erträge positiv, Aufwand mit Minuszeichen. Klicken Sie auf eine Position, um die Konten zu sehen."
   },
   "bilancio": {
-    "attivo": "Aktiven",
-    "passivo": "Passiven",
-    "risultato_cumulato": "Jahresergebnis (kumuliert)",
-    "totale_passivo_risultato": "Total Passiven + Ergebnis",
-    "quadrato": "Bilanz ausgeglichen: Aktiven {{attivo}} = Passiven + Ergebnis {{passivoRisultato}}.",
-    "non_quadrato": "Bilanz NICHT ausgeglichen (Differenz {{differenza}}). Prüfen Sie die Buchungen / Eröffnungssalden."
+    "quadrato": "Bilanz ausgeglichen: Aktiven = Passiven = {{totale}}.",
+    "non_quadrato": "Bilanz NICHT ausgeglichen (Differenz {{differenza}}): Prüfen Sie die Buchungen und die Eröffnungssalden.",
+    "senza_posta": "Konten mit Saldo, aber ohne gesetzliche Position: {{conti}}. Weisen Sie die Position im Kontenplan zu."
   },
   "iva": {
-    "dovuta": "Geschuldete MWST (Umsatzsteuer) {{anno}}",
+    "dovuta": "Geschuldete MWST (Umsatzsteuer)",
     "precedente": "Vorsteuer (Guthaben)",
     "da_versare": "Zu entrichtende MWST",
     "a_credito": "MWST-Guthaben",
-    "colonne": ["Quartal", "Geschuldet", "Vorsteuer", "Saldo"],
+    "colonne": [
+      "Quartal",
+      "Geschuldet",
+      "Vorsteuer",
+      "Saldo"
+    ],
     "trimestre_riga": "{{q}}. Quartal {{anno}}",
-    "nota": "Saldo = Geschuldete MWST (Konto 2200) − Vorsteuer (1170). Positiv = an die ESTV zu entrichten; negativ = Guthaben. Die Zahlung wird manuell erfasst (Journal)."
+    "nota": "Saldo = geschuldete MWST (Konto 2200) − Vorsteuer (1170, 1171). Positiv = an die ESTV zu entrichten; negativ = Guthaben. Die Zahlung wird manuell im Journal erfasst."
   },
   "verifica": {
-    "colonne": ["Konto", "Soll", "Haben", "Saldo"],
+    "colonne": [
+      "Konto",
+      "Soll",
+      "Haben",
+      "Saldo"
+    ],
     "totali": "Totale",
     "quadra": "· ausgeglichen ✓",
     "non_quadra": "· NICHT ausgeglichen"
   },
   "chiusura": {
-    "titolo": "Abschluss Geschäftsjahr {{anno}}",
-    "descrizione": "Es wird eine Abschlussbuchung per 31.12.{{anno}} erzeugt: Sie setzt die Erfolgskonten (Klassen 3–8) zurück und überträgt das Ergebnis (<risultato>{{risultato}}</risultato>) auf das Konto 2979. Es handelt sich um eine Buchung: Um sie rückgängig zu machen, löschen Sie sie im Journal.",
-    "annulla": "Abbrechen",
-    "conferma": "Geschäftsjahr abschliessen",
-    "in_corso": "Abschluss läuft...",
-    "descrizione_registrazione": "Abschluss Geschäftsjahr {{anno}}",
-    "esito_chiuso": "Geschäftsjahr {{anno}} abgeschlossen: {{tipo}} {{importo}} auf 2979 übertragen.",
+    "titolo": "Abschluss des Geschäftsjahres {{esercizio}}",
+    "descrizione": "Die Abschlussbuchung per {{fine}} setzt die Erfolgskonten (Klassen 3–8) auf null und überträgt das Ergebnis (<risultato>{{risultato}}</risultato>) auf das Konto 2979. Danach ist das Geschäftsjahr gesperrt: Seine Buchungen können weder erfasst noch geändert oder gelöscht werden. Für eine Korrektur öffnen Sie es mit einem Klick wieder und geben den Grund an, der im Protokoll bleibt.",
+    "conferma": "Abschliessen und sperren",
+    "descrizione_registrazione": "Abschluss Geschäftsjahr {{periodo}}",
+    "esito_chiuso": "Geschäftsjahr {{esercizio}} abgeschlossen und gesperrt: {{tipo}} von {{importo}} auf Konto 2979.",
     "utile": "Gewinn",
-    "perdita": "Verlust",
-    "errori": {
-      "conto2979_assente": "Konto 2979 (Jahresgewinn/-verlust) fehlt im Kontenplan.",
-      "gia_chiuso": "Geschäftsjahr {{anno}} bereits abgeschlossen.",
-      "nessun_conto": "Kein Erfolgskonto zum Abschliessen für {{anno}}."
-    }
+    "perdita": "Verlust"
+  },
+  "riapertura": {
+    "titolo": "Geschäftsjahr {{esercizio}} wieder öffnen",
+    "descrizione": "Die Abschlussbuchung wird entfernt, die Buchungen sind wieder änderbar. Eine definitive Jahresrechnung wird «überholt»: Schliessen Sie das Geschäftsjahr nach der Korrektur wieder ab und erstellen Sie die Jahresrechnung neu. Der Grund bleibt im Protokoll.",
+    "motivo_placeholder": "Grund (Pflichtfeld), z. B. eine Dezemberrechnung fehlt",
+    "conferma": "Wieder öffnen",
+    "esito": "Geschäftsjahr {{esercizio}} wieder geöffnet: Die Buchungen sind wieder änderbar.",
+    "esito_superato": "Geschäftsjahr {{esercizio}} wieder geöffnet: Die definitive Jahresrechnung ist jetzt «überholt». Schliessen Sie das Geschäftsjahr nach den Korrekturen ab und erstellen Sie sie neu."
+  },
+  "date": {
+    "titolo": "Daten des Geschäftsjahres {{esercizio}}",
+    "descrizione": "Für ein Geschäftsjahr, das nicht dem Kalenderjahr entspricht (z. B. 1. Juli bis 30. Juni), oder für das erste Geschäftsjahr, das länger als 12 Monate dauern kann (höchstens zwei Jahre). Die folgenden Geschäftsjahre werden mit 12 Monaten vorgeschlagen.",
+    "inizio": "Beginn",
+    "fine": "Ende",
+    "conferma": "Daten speichern",
+    "esito": "Geschäftsjahr vom {{inizio}} bis {{fine}} festgelegt."
+  },
+  "azioni": {
+    "annulla": "Abbrechen"
+  },
+  "errori_db": {
+    "ESERCIZIO_CHIUSO": "Das Geschäftsjahr vom {{inizio}} bis {{fine}} ist abgeschlossen: Seine Buchungen können weder erfasst noch geändert oder gelöscht werden. Für eine Korrektur öffnen Sie es in den Berichten wieder.",
+    "ESERCIZIO_PRECEDENTE_APERTO": "Schliessen Sie zuerst das vorherige Geschäftsjahr ab: Es gibt Buchungen aus einer früheren, noch offenen Periode.",
+    "ESERCIZIO_GIA_CHIUSO": "Dieses Geschäftsjahr ist bereits abgeschlossen.",
+    "ESERCIZIO_SUCCESSIVO_CHIUSO": "Öffnen Sie zuerst das nachfolgende Geschäftsjahr wieder: Es wird immer das zuletzt abgeschlossene geöffnet.",
+    "ESERCIZIO_NON_CHIUSO": "Das Geschäftsjahr ist nicht abgeschlossen.",
+    "ESERCIZIO_INESISTENTE": "Geschäftsjahr nicht gefunden: Laden Sie die Seite neu.",
+    "ESERCIZI_SOVRAPPOSTI": "Die Daten überschneiden sich mit einem anderen Geschäftsjahr dieses Kunden.",
+    "ESERCIZIO_APERTO": "Die Jahresrechnung wird erst nach dem Abschluss des Geschäftsjahres definitiv: Schliessen Sie es zuerst ab.",
+    "CONTO_2979_ASSENTE": "Im Kontenplan fehlt das Konto 2979 (Jahresgewinn/-verlust): Fügen Sie es im Kontenplan hinzu.",
+    "PIANO_CONTI_ASSENTE": "Dieser Kunde hat noch keinen Kontenplan.",
+    "MOTIVO_OBBLIGATORIO": "Geben Sie den Grund für das Wiederöffnen an (mindestens 10 Zeichen).",
+    "DATE_NON_VALIDE": "Ungültige Daten: Das Ende muss nach dem Beginn liegen, und ein Geschäftsjahr dauert höchstens zwei Jahre.",
+    "CONTO_ANNUALE_DEFINITIVO": "Die Jahresrechnung ist definitiv und kann nicht mehr geändert werden. Öffnen Sie dafür das Geschäftsjahr wieder.",
+    "DATI_MANCANTI": "Die Zahlen der Jahresrechnung fehlen.",
+    "STATO_NON_VALIDO": "Dieser Vorgang ist für diese Jahresrechnung nicht zulässig.",
+    "NON_AUTORIZZATO": "Sie können diesen Vorgang nicht ausführen: Die Buchhaltung dieses Kunden führt eine andere Fachperson.",
+    "CONTO_ANNUALE_ESISTENTE": "Für dieses Geschäftsjahr ist bereits eine Jahresrechnung in Arbeit: Laden Sie die Seite neu.",
+    "generico": "Vorgang fehlgeschlagen. Bitte versuchen Sie es gleich noch einmal."
+  },
+  "traccia": {
+    "intro": "Jede Änderung oder Löschung einer Buchung, jeder Abschluss und jedes Wiederöffnen (mit Grund) und jede definitive Jahresrechnung bleiben hier, wie es die Geschäftsbücherverordnung verlangt (Art. 3: jede Änderung muss feststellbar sein). Das Protokoll kann nicht gelöscht werden.",
+    "vuota": "Bisher keine Änderungen erfasst.",
+    "tu": "Sie",
+    "altro_utente": "ein anderer Benutzer der Kanzlei",
+    "sistema": "System",
+    "risultato": "Auf 2979 übertragenes Ergebnis: {{importo}}",
+    "motivo": "Grund: {{motivo}}",
+    "eventi": {
+      "registrazione_modificata": "Buchung geändert",
+      "registrazione_eliminata": "Buchung gelöscht",
+      "riga_aggiunta": "Zeile zu einer Buchung hinzugefügt",
+      "riga_modificata": "Zeile geändert",
+      "riga_eliminata": "Zeile gelöscht",
+      "esercizio_chiuso": "Geschäftsjahr abgeschlossen",
+      "esercizio_riaperto": "Geschäftsjahr wieder geöffnet",
+      "conto_annuale_definitivo": "Jahresrechnung definitiv",
+      "conto_annuale_superato": "Jahresrechnung überholt",
+      "conto_annuale_firmato": "Jahresrechnung unterzeichnet (Fassung hochgeladen)"
+    },
+    "firma_elettronica": "Elektronische Signatur: {{nomi}}",
+    "firma_autografa": "Von Hand unterzeichnete Kopie"
   }
 }

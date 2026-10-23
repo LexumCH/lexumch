@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { BackButton, Badge, InputField, SelectField, EmptyState } from '@/components/shared'
 import {
     Plus, Search, Send, Lock, FileText, MessageSquare,
@@ -1461,6 +1461,13 @@ export default function AvvocatoClientiDettaglio() {
         ]
     const [cliente, setCliente] = useState(null)
     const [tab, setTab] = useState('panoramica')
+    // 09-10-2026: ?tab=contabilita (dal mandato: «Apri la contabilità»), solo se la scheda esiste per il ruolo
+    const [searchParams] = useSearchParams()
+    const tabDaIndirizzo = searchParams.get('tab')
+    useEffect(() => {
+        if (tabDaIndirizzo && TABS.some(x => x.id === tabDaIndirizzo)) setTab(tabDaIndirizzo)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tabDaIndirizzo, role])
     const [refreshMovimenti, setRefreshMovimenti] = useState(0)
     const [pratiche, setPratiche] = useState([])
     const [collaboratori, setCollaboratori] = useState([])

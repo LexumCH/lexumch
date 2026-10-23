@@ -98,7 +98,8 @@ function erroreArchivio(err) {
 // Salva un file nell'archivio dello studio. Se il testo è già stato letto
 // (Banca Dati, dopo l'analisi) lo si passa: l'archivio lo indicizza senza
 // rileggere il file né rifare l'OCR. In errore lancia un Error con `codice`.
-export async function salvaInArchivio({ file, testo = null, titolareId, userId, categoriaId = null, titolo = null }) {
+// 09-10-2026: cliente, mandato e metadati facoltativi (conto annuale CO dei fiduciari).
+export async function salvaInArchivio({ file, testo = null, titolareId, userId, categoriaId = null, titolo = null, clienteId = null, mandatoId = null, metadati = null }) {
     const ext = (file.name.split('.').pop() || '').toLowerCase() || 'bin'
     const tipo = tipoDaFile(file)
     const path = `${titolareId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
@@ -123,7 +124,9 @@ export async function salvaInArchivio({ file, testo = null, titolareId, userId, 
             tags: [],
             testo_estratto: haTesto ? testo : null,
             ocr_status: (haTesto || tipo === 'pdf' || tipo === 'txt') ? 'pending' : 'skipped',
-            metadati: { origine: haTesto ? 'banca_dati' : 'caricamento' },
+            metadati: metadati ?? { origine: haTesto ? 'banca_dati' : 'caricamento' },
+            ...(clienteId ? { cliente_id: clienteId } : {}),
+            ...(mandatoId ? { mandato_id: mandatoId } : {}),
         })
         .select()
         .single()

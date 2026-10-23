@@ -10,6 +10,8 @@
 // Correzioni gratis per tutti (decisione dell'utente dell'08-10, come IT): «Modifica il testo» a mano e
 // «Correggi un dettaglio» (lex-correggi-documento, solo sostituzioni precise); ogni riscrittura di Lex costa 1
 // credito. Il testo corretto torna al contenitore con onModifica, così Lex lo vede nella conversazione.
+// 09-10-2026: `soloRevisione` (allegato del conto annuale CO): solo foglio e correzioni, senza carta intestata,
+// compilazione e download: il documento finale lo stampa chi lo contiene.
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -134,7 +136,7 @@ function perAppunti(blocchi) {
 
 const LINGUA_WORD = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
-export default function DocumentoLex({ markdown, tipo, corrente = null, onModifica }) {
+export default function DocumentoLex({ markdown, tipo, corrente = null, onModifica, soloRevisione = false }) {
     const { profile } = useAuth()
     const { t, i18n } = useTranslation('comp_documento_lex')
     const lingua = ['de', 'fr'].includes(i18n.language) ? i18n.language : 'it'
@@ -184,7 +186,7 @@ export default function DocumentoLex({ markdown, tipo, corrente = null, onModifi
     const finali = useMemo(() => blocchiCompilati(numerati, valori), [numerati, valori])
     const daCompletare = useMemo(() => new Set(segnaposti.filter((s) => valori[s.n] == null).map((s) => s.segnaposto)).size, [segnaposti, valori])
 
-    const cartaUsata = professionista && conCarta ? carta : null
+    const cartaUsata = !soloRevisione && professionista && conCarta ? carta : null
     const titolo = tipo ? tipo.charAt(0).toUpperCase() + tipo.slice(1) : t('documento')
 
     function togliDato(gruppo) {
@@ -318,7 +320,7 @@ export default function DocumentoLex({ markdown, tipo, corrente = null, onModifi
                 )}
             </div>
 
-            {RUOLI_COMPILAZIONE.includes(profile?.role) && segnaposti.length > 0 && !modificaManuale && (
+            {!soloRevisione && RUOLI_COMPILAZIONE.includes(profile?.role) && segnaposti.length > 0 && !modificaManuale && (
                 <div className="space-y-2">
                     <CompilaDocumentoLex
                         ruolo={profile?.role}
@@ -384,6 +386,7 @@ export default function DocumentoLex({ markdown, tipo, corrente = null, onModifi
             <>
             <Foglio blocchi={numerati} carta={cartaUsata} valori={valori} />
 
+            {!soloRevisione && (<>
             <div className="flex flex-wrap items-center gap-2">
                 <button type="button" onClick={scaricaWord} disabled={!!lavoro} className={pulsante}>
                     {lavoro === 'word' ? <Loader2 size={12} className="animate-spin" /> : <FileDown size={12} />} {t('scarica_word')}
@@ -407,6 +410,7 @@ export default function DocumentoLex({ markdown, tipo, corrente = null, onModifi
                 </p>
             )}
             {avviso && <p className="font-body text-xs text-red-400/80">{avviso}</p>}
+            </>)}
 
             {/* Correzioni gratis: con Haiku o a mano. Le riscritture si chiedono a Lex (1 credito) */}
             <div className="space-y-1.5">

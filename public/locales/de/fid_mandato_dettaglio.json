@@ -31,5 +31,9 @@
   "dipendenti": {
     "titolo": "Mitarbeitende des Kunden",
     "nessun_cliente": "Kein Kunde mit dem Mandat verknüpft — Mitarbeitende können nicht angezeigt werden."
+  },
+  "conto_annuale": {
+    "testo": "Dies ist die Einnahmen-Ausgaben-Übersicht des Mandats. Die Jahresrechnung nach OR (Bilanz, Erfolgsrechnung und Anhang, Art. 958) erstellen Sie in der Buchhaltung des Kunden.",
+    "link": "Buchhaltung öffnen"
   }
 }

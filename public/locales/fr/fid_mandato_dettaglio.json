@@ -31,5 +31,9 @@
   "dipendenti": {
     "titolo": "Employés du client",
     "nessun_cliente": "Aucun client lié au mandat — impossible d'afficher les employés."
+  },
+  "conto_annuale": {
+    "testo": "Ceci est le relevé des recettes et des dépenses du mandat. Les comptes annuels selon le CO (bilan, compte de résultat et annexe, art. 958) se préparent dans la comptabilité du client.",
+    "link": "Ouvrir la comptabilité"
   }
 }

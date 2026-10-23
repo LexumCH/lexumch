@@ -56,5 +56,37 @@
     "sessione_scaduta": "Sitzung abgelaufen.",
     "descrizione_obbligatoria": "Geben Sie eine Beschreibung ein.",
     "non_bilanciata": "Die Buchung muss ausgeglichen sein (Σ Soll = Σ Haben) mit mindestens 2 Zeilen."
+  },
+  "esercizio_chiuso": "Geschäftsjahr abgeschlossen: Diese Buchung kann nicht geändert werden. Für eine Korrektur öffnen Sie das Geschäftsjahr in den Berichten wieder (der Grund bleibt im Protokoll).",
+  "piano": {
+    "intro": "Jedes Konto hat seine gesetzliche Position (Art. 959a und 959b OR): Sie bestimmt, wo es in der Bilanz oder der Erfolgsrechnung der Jahresrechnung erscheint. Sie wird aus der Kontonummer vorgeschlagen (KMU-Kontenrahmen); ändern Sie sie nur, wenn das Konto anders verwendet wird.",
+    "aggiungi_standard_one": "1 fehlendes Standardkonto hinzufügen",
+    "aggiungi_standard_other": "{{count}} fehlende Standardkonten hinzufügen",
+    "nuovo_conto": "Neues Konto",
+    "numero": "Nummer (4 Ziffern)",
+    "nome": "Kontobezeichnung",
+    "scegli_posta": "— gesetzliche Position —",
+    "posta_proposta": "Die Position wird aus der Kontonummer vorgeschlagen: Wählen Sie für die Klasse 7 und für betriebsfremde oder ausserordentliche Konten, ob es Aufwand oder Ertrag ist.",
+    "aggiungi": "Konto hinzufügen",
+    "posta": "Gesetzliche Position",
+    "senza_posta": "— ohne Position —",
+    "gruppi_poste": {
+      "attivo": "Bilanz · Aktiven",
+      "passivo": "Bilanz · Fremdkapital",
+      "capitale": "Bilanz · Eigenkapital",
+      "conto_economico": "Erfolgsrechnung"
+    },
+    "errori": {
+      "numero": "Die Kontonummer hat 4 Ziffern.",
+      "esiste": "Das Konto {{numero}} gibt es bereits.",
+      "nome": "Geben Sie die Kontobezeichnung ein.",
+      "posta": "Wählen Sie die gesetzliche Position des Kontos."
+    },
+    "lingua_nomi": "Bezeichnungen der Standardkonten:",
+    "rinomina_one": "1 Konto umbenennen",
+    "rinomina_other": "{{count}} Konten umbenennen",
+    "rinominati_one": "1 Konto umbenannt.",
+    "rinominati_other": "{{count}} Konten umbenannt.",
+    "nessuno_da_rinominare": "Bereits in dieser Sprache"
   }
 }

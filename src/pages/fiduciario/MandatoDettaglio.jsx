@@ -309,6 +309,13 @@ export default function MandatoDettaglio() {
                 anno={mandato.anno_riferimento}
                 refreshTrigger={refreshMovimenti}
             />
+            {/* 09-10-2026: il report qui sopra è di cassa; il conto annuale CO (bilancio, conto economico e
+                allegato) si prepara dal libro mastro, nella contabilità del cliente */}
+            <Link to={`/clienti/${mandato.cliente_id}?tab=contabilita`}
+                className="flex items-center justify-between gap-3 px-4 py-3 border border-oro/20 bg-oro/5 hover:bg-oro/10 transition-colors flex-wrap">
+                <span className="font-body text-xs text-nebbia/70">{t('conto_annuale.testo')}</span>
+                <span className="font-body text-xs text-oro whitespace-nowrap">{t('conto_annuale.link')} →</span>
+            </Link>
 
             {/* ═══════════ Liquidità + Budget (2 colonne su schermi larghi) ═══════════ */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">

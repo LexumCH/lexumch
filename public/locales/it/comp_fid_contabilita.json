@@ -56,5 +56,37 @@
     "sessione_scaduta": "Sessione scaduta.",
     "descrizione_obbligatoria": "Inserisci una descrizione.",
     "non_bilanciata": "La scrittura deve bilanciare (Σ dare = Σ avere) con almeno 2 righe."
+  },
+  "esercizio_chiuso": "Esercizio chiuso: questa registrazione non si modifica. Per correggere riapri l'esercizio nei Report (il motivo resta nella traccia).",
+  "piano": {
+    "intro": "Ogni conto ha la sua posta di legge (art. 959a e 959b CO): decide dove va nel bilancio o nel conto economico del conto annuale. La propone il numero del conto (piano svizzero PMI); cambiala solo se il conto ha un uso diverso.",
+    "aggiungi_standard_one": "Aggiungi 1 conto standard mancante",
+    "aggiungi_standard_other": "Aggiungi {{count}} conti standard mancanti",
+    "nuovo_conto": "Nuovo conto",
+    "numero": "Numero (4 cifre)",
+    "nome": "Nome del conto",
+    "scegli_posta": "— posta di legge —",
+    "posta_proposta": "La posta è proposta dal numero del conto: per la classe 7 e per i conti estranei o straordinari scegli se è un costo o un ricavo.",
+    "aggiungi": "Aggiungi il conto",
+    "posta": "Posta di legge",
+    "senza_posta": "— senza posta —",
+    "gruppi_poste": {
+      "attivo": "Bilancio · attivi",
+      "passivo": "Bilancio · capitale di terzi",
+      "capitale": "Bilancio · capitale proprio",
+      "conto_economico": "Conto economico"
+    },
+    "errori": {
+      "numero": "Il numero del conto ha 4 cifre.",
+      "esiste": "Il conto {{numero}} c'è già.",
+      "nome": "Scrivi il nome del conto.",
+      "posta": "Scegli la posta di legge del conto."
+    },
+    "lingua_nomi": "Nomi dei conti standard:",
+    "rinomina_one": "Rinomina 1 conto",
+    "rinomina_other": "Rinomina {{count}} conti",
+    "rinominati_one": "1 conto rinominato.",
+    "rinominati_other": "{{count}} conti rinominati.",
+    "nessuno_da_rinominare": "Già in questa lingua"
   }
 }

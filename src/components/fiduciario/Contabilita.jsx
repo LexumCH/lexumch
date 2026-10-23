@@ -5,6 +5,10 @@
 //   - Libro giornale: registrazioni con righe dare/avere bilanciate (incl. conti IVA)
 //
 // I report Bilancio / Conto economico sono la Fase B (dai saldi dei conti).
+// 09-10-2026 (conto annuale CO): ogni conto ha la sua posta di legge (si vede e si cambia nel piano dei conti,
+// si possono aggiungere conti e i conti standard che mancano); le registrazioni di un esercizio chiuso hanno il
+// lucchetto e non si cancellano (lo blocca il database, si riapre dai Report con il motivo); il tipo «chiusura»
+// lo scrive solo la chiusura dell'esercizio.
 //
 // Props:
 //   clienteId  (string)       - cliente-azienda (obbligatorio)
@@ -12,22 +16,36 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
-import { BookOpen, Plus, Trash2, Loader2, AlertCircle, X, ListTree, Check } from 'lucide-react'
+import { BookOpen, Plus, Trash2, Loader2, AlertCircle, X, ListTree, Check, Lock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/context/AuthContext'
 import { fmtCHF } from '@/lib/calcoloSalari'
-import { righeSeedPiano, NOME_CLASSE } from '@/lib/pianoContiKMU'
+import { righeSeedPiano, nomeClasse, nomeContoStandard, eNomeStandard, TUTTE_LE_POSTE, postaPredefinita, classeDiConto } from '@/lib/pianoContiKMU'
+import { etichettaPosta } from '@/lib/contoAnnualeTesti'
+import { codiceErroreContabilita, periodoErrore } from '@/lib/contabilitaDati'
+import { dataCH } from '@/lib/contoAnnuale'
 import ReportContabili from './ReportContabili'
 import Imputazioni from './Imputazioni'
+
+// Il messaggio per un errore del database della contabilità (esercizio chiuso...), altrimenti il testo dell'errore
+function testoErrore(e, t) {
+    const codice = codiceErroreContabilita(e)
+    if (!codice) return e?.message ?? ''
+    const p = periodoErrore(e)
+    return t(`errori_db.${codice}`, { ns: 'comp_fid_report_contabili', ...(p ? { inizio: dataCH(p.inizio), fine: dataCH(p.fine) } : {}) })
+}
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 const num = (v) => { const x = Number(String(v ?? '').replace(',', '.')); return isNaN(x) ? 0 : x }
 const oggiISO = () => new Date().toISOString().slice(0, 10)
 
 export default function Contabilita({ clienteId, mandatoId = null }) {
-    const { t, i18n } = useTranslation('comp_fid_contabilita')
+    const { t, i18n } = useTranslation(['comp_fid_contabilita', 'comp_fid_report_contabili'])
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    const lingua = ['de', 'fr'].includes(i18n.language) ? i18n.language : 'it'
     const [conti, setConti] = useState([])
     const [registrazioni, setRegistrazioni] = useState([])
+    const [chiusi, setChiusi] = useState([])         // esercizi chiusi: { inizio, fine }
     const [loading, setLoading] = useState(true)
     const [tabellaMancante, setTabellaMancante] = useState(false)
     const [errore, setErrore] = useState('')
@@ -40,11 +58,12 @@ export default function Contabilita({ clienteId, mandatoId = null }) {
 
     async function carica() {
         setLoading(true); setErrore('')
-        const [{ data: pc, error: errPc }, { data: reg }] = await Promise.all([
-            supabase.from('piano_conti').select('id, numero, nome, classe, tipo, attivo').eq('cliente_id', clienteId).order('numero'),
+        const [{ data: pc, error: errPc }, { data: reg }, { data: es }] = await Promise.all([
+            supabase.from('piano_conti').select('id, numero, nome, classe, tipo, attivo, posta_co').eq('cliente_id', clienteId).order('numero'),
             supabase.from('registrazioni')
                 .select('id, data, descrizione, tipo, numero, righe:righe_registrazione(id, dare, avere, descrizione, conto:conto_id(numero, nome))')
                 .eq('cliente_id', clienteId).order('data', { ascending: false }).limit(100),
+            supabase.from('esercizi_contabili').select('inizio, fine').eq('cliente_id', clienteId).eq('stato', 'chiuso'),
         ])
         if (errPc && (errPc.code === '42P01' || /piano_conti/i.test(errPc.message ?? ''))) {
             setTabellaMancante(true); setConti([]); setRegistrazioni([]); setLoading(false); return
@@ -52,15 +71,18 @@ export default function Contabilita({ clienteId, mandatoId = null }) {
         setTabellaMancante(false)
         setConti(pc ?? [])
         setRegistrazioni(reg ?? [])
+        setChiusi(es ?? [])
         setLoading(false)
     }
+
+    const inEsercizioChiuso = (data) => chiusi.some(e => data >= e.inizio && data <= e.fine)
 
     async function inizializzaPiano() {
         setInizializzando(true); setErrore('')
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { setErrore(t('errori.sessione_scaduta')); setInizializzando(false); return }
         const { data: profilo } = await supabase.from('profiles').select('studio_id').eq('id', user.id).single()
-        const righe = righeSeedPiano().map(r => ({
+        const righe = righeSeedPiano(null, lingua).map(r => ({
             ...r, cliente_id: clienteId, avvocato_id: user.id, studio_id: profilo?.studio_id ?? null,
             creato_da: user.id, aggiornato_da: user.id,
         }))
@@ -73,7 +95,7 @@ export default function Contabilita({ clienteId, mandatoId = null }) {
     async function elimina() {
         if (!daEliminare) return
         const { error } = await supabase.from('registrazioni').delete().eq('id', daEliminare.id)
-        if (error) { setErrore(error.message); return }
+        if (error) { setErrore(testoErrore(error, t)); setDaEliminare(null); return }
         setDaEliminare(null)
         carica()
     }
@@ -133,11 +155,11 @@ export default function Contabilita({ clienteId, mandatoId = null }) {
                     </button>
                 </div>
             ) : vista === 'report' ? (
-                <ReportContabili clienteId={clienteId} conti={conti} />
+                <ReportContabili clienteId={clienteId} />
             ) : vista === 'imputazioni' ? (
                 <Imputazioni clienteId={clienteId} conti={conti} />
             ) : vista === 'conti' ? (
-                <PianoContiVista conti={conti} />
+                <PianoContiVista conti={conti} clienteId={clienteId} onCambiato={carica} />
             ) : (
                 <div className="space-y-2">
                     {registrazioni.length === 0 ? (
@@ -158,8 +180,12 @@ export default function Contabilita({ clienteId, mandatoId = null }) {
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0">
                                     <span className="font-display text-sm text-oro">{fmtCHF(totaleRiga(r.righe))}</span>
-                                    <button onClick={() => setDaEliminare(r)} title={t('azioni.elimina_registrazione')}
-                                        className="w-6 h-6 flex items-center justify-center text-nebbia/30 hover:text-red-400 transition-colors"><Trash2 size={12} /></button>
+                                    {inEsercizioChiuso(r.data) ? (
+                                        <span title={t('esercizio_chiuso')} className="w-6 h-6 flex items-center justify-center text-salvia/60"><Lock size={12} /></span>
+                                    ) : (
+                                        <button onClick={() => setDaEliminare(r)} title={t('azioni.elimina_registrazione')}
+                                            className="w-6 h-6 flex items-center justify-center text-nebbia/30 hover:text-red-400 transition-colors"><Trash2 size={12} /></button>
+                                    )}
                                 </div>
                             </div>
                             <div className="mt-2 border-t border-white/5 pt-2 space-y-0.5">
@@ -213,22 +239,158 @@ export default function Contabilita({ clienteId, mandatoId = null }) {
 }
 
 // ─── Vista piano dei conti (raggruppato per classe) ───
-function PianoContiVista({ conti }) {
-    const { t } = useTranslation('comp_fid_contabilita')
+// 09-10-2026: la posta di legge di ogni conto (art. 959a/959b CO), che decide dove va nel conto annuale;
+// aggiunta di un conto (posta proposta dal numero) e dei conti standard che mancano.
+function PianoContiVista({ conti, clienteId, onCambiato }) {
+    const { t, i18n } = useTranslation('comp_fid_contabilita')
+    const { user, profile } = useAuth()
+    const lingua = ['de', 'fr'].includes(i18n.language) ? i18n.language : 'it'
     const classi = [...new Set(conti.map(c => c.classe))].sort((a, b) => a - b)
+    const mancanti = righeSeedPiano(conti.map(c => c.numero), lingua)
+    const [nuovo, setNuovo] = useState(null)   // { numero, nome, posta }
+    const [lavoro, setLavoro] = useState(false)
+    const [errore, setErrore] = useState('')
+    const [esito, setEsito] = useState('')
+    // 10-10-2026: i conti standard nella lingua scelta; i nomi scelti dal fiduciario non si toccano
+    const [linguaNomi, setLinguaNomi] = useState(lingua)
+    const daRinominare = conti.filter(c => eNomeStandard(c.numero, c.nome) && nomeContoStandard(c.numero, linguaNomi) !== c.nome)
+    const etichetta = (p) => etichettaPosta(lingua, p, 'altro')
+    const selCls = 'bg-petrolio border border-white/10 text-nebbia/80 font-body text-[11px] px-1.5 py-1 outline-none focus:border-oro/50 max-w-[260px] w-full'
+
+    const opzioniPoste = (
+        <>
+            {[['att_', t('piano.gruppi_poste.attivo')], ['pas_', t('piano.gruppi_poste.passivo')], ['cp_', t('piano.gruppi_poste.capitale')], ['ce_', t('piano.gruppi_poste.conto_economico')]].map(([pref, nomeGruppo]) => (
+                <optgroup key={pref} label={nomeGruppo}>
+                    {TUTTE_LE_POSTE.filter(p => p.startsWith(pref)).map(p => <option key={p} value={p}>{etichetta(p)}</option>)}
+                </optgroup>
+            ))}
+            <option value="tecnico">{etichetta('tecnico')}</option>
+        </>
+    )
+
+    async function cambiaPosta(conto, posta) {
+        setErrore('')
+        const { error } = await supabase.from('piano_conti').update({ posta_co: posta, aggiornato_da: user?.id }).eq('id', conto.id)
+        if (error) { setErrore(error.message); return }
+        onCambiato()
+    }
+
+    async function aggiungi() {
+        const numero = String(nuovo?.numero ?? '').trim()
+        const nome = String(nuovo?.nome ?? '').trim()
+        const posta = nuovo?.posta || postaPredefinita(numero)
+        if (!/^\d{4}$/.test(numero)) { setErrore(t('piano.errori.numero')); return }
+        if (conti.some(c => c.numero === numero)) { setErrore(t('piano.errori.esiste', { numero })); return }
+        if (!nome) { setErrore(t('piano.errori.nome')); return }
+        if (!posta) { setErrore(t('piano.errori.posta')); return }
+        setLavoro(true); setErrore('')
+        const { error } = await supabase.from('piano_conti').insert({
+            cliente_id: clienteId, numero, nome, classe: classeDiConto(numero), tipo: 'costo', posta_co: posta, attivo: true,
+            avvocato_id: user?.id, studio_id: profile?.studio_id ?? null, creato_da: user?.id, aggiornato_da: user?.id,
+        })
+        setLavoro(false)
+        if (error) { setErrore(error.message); return }
+        setNuovo(null)
+        onCambiato()
+    }
+
+    async function rinomina() {
+        setLavoro(true); setErrore(''); setEsito('')
+        let fatti = 0
+        for (let i = 0; i < daRinominare.length; i += 8) {
+            const gruppo = daRinominare.slice(i, i + 8)
+            const esiti = await Promise.all(gruppo.map(c => supabase.from('piano_conti')
+                .update({ nome: nomeContoStandard(c.numero, linguaNomi), aggiornato_da: user?.id }).eq('id', c.id)))
+            const errato = esiti.find(e => e.error)?.error
+            if (errato) { setErrore(errato.message); break }
+            fatti += gruppo.length
+        }
+        setLavoro(false)
+        if (fatti) setEsito(t('piano.rinominati', { count: fatti }))
+        onCambiato()
+    }
+
+    async function aggiungiStandard() {
+        setLavoro(true); setErrore('')
+        const { error } = await supabase.from('piano_conti').insert(mancanti.map(r => ({
+            ...r, cliente_id: clienteId, avvocato_id: user?.id, studio_id: profile?.studio_id ?? null, creato_da: user?.id, aggiornato_da: user?.id,
+        })))
+        setLavoro(false)
+        if (error) { setErrore(error.message); return }
+        onCambiato()
+    }
+
+    const inputCls = 'bg-petrolio border border-white/10 text-nebbia font-body text-sm px-2.5 py-1.5 outline-none focus:border-oro/50'
     return (
         <div className="space-y-4">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+                <p className="font-body text-xs text-nebbia/40 max-w-2xl">{t('piano.intro')}</p>
+                <div className="flex items-center gap-2">
+                    {mancanti.length > 0 && (
+                        <button onClick={aggiungiStandard} disabled={lavoro} className="flex items-center gap-1.5 px-3 py-1.5 border border-white/10 text-nebbia/60 font-body text-xs hover:border-oro/30 hover:text-oro transition-colors disabled:opacity-40">
+                            <ListTree size={11} /> {t('piano.aggiungi_standard', { count: mancanti.length })}
+                        </button>
+                    )}
+                    <button onClick={() => { setErrore(''); setNuovo({ numero: '', nome: '', posta: '' }) }} disabled={lavoro} className="flex items-center gap-1.5 px-3 py-1.5 bg-oro/10 border border-oro/30 text-oro font-body text-xs hover:bg-oro/20 transition-colors disabled:opacity-40">
+                        <Plus size={11} /> {t('piano.nuovo_conto')}
+                    </button>
+                </div>
+            </div>
+
+            {nuovo && (
+                <div className="bg-slate border border-oro/20 p-4 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-[110px_1fr_1fr] gap-3">
+                        <input value={nuovo.numero} onChange={e => setNuovo(n => ({ ...n, numero: e.target.value.replace(/\D/g, '').slice(0, 4), posta: '' }))}
+                            inputMode="numeric" placeholder={t('piano.numero')} className={inputCls} autoFocus />
+                        <input value={nuovo.nome} onChange={e => setNuovo(n => ({ ...n, nome: e.target.value }))} placeholder={t('piano.nome')} className={inputCls} />
+                        <select value={nuovo.posta || postaPredefinita(nuovo.numero) || ''} onChange={e => setNuovo(n => ({ ...n, posta: e.target.value }))} className={inputCls}>
+                            <option value="">{t('piano.scegli_posta')}</option>
+                            {opzioniPoste}
+                        </select>
+                    </div>
+                    <p className="font-body text-[11px] text-nebbia/35">{t('piano.posta_proposta')}</p>
+                    <div className="flex gap-2">
+                        <button onClick={() => setNuovo(null)} disabled={lavoro} className="font-body text-xs text-nebbia/60 hover:text-nebbia border border-white/10 px-3 py-1.5">{t('azioni.annulla')}</button>
+                        <button onClick={aggiungi} disabled={lavoro} className="flex items-center gap-1.5 px-4 py-1.5 bg-oro text-petrolio font-body text-xs font-medium hover:bg-oro/90 transition-colors disabled:opacity-40">
+                            {lavoro ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} {t('piano.aggiungi')}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-body text-[11px] text-nebbia/40">{t('piano.lingua_nomi')}</span>
+                <select value={linguaNomi} onChange={e => setLinguaNomi(e.target.value)}
+                    className="bg-petrolio border border-white/10 text-nebbia font-body text-xs px-2 py-1 outline-none focus:border-oro/50">
+                    <option value="it">Italiano</option>
+                    <option value="de">Deutsch</option>
+                    <option value="fr">Français</option>
+                </select>
+                <button onClick={rinomina} disabled={lavoro || !daRinominare.length}
+                    className="px-2.5 py-1 border border-white/10 text-nebbia/60 font-body text-[11px] hover:border-oro/30 hover:text-oro transition-colors disabled:opacity-40">
+                    {daRinominare.length ? t('piano.rinomina', { count: daRinominare.length }) : t('piano.nessuno_da_rinominare')}
+                </button>
+            </div>
+
+            {errore && <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20"><AlertCircle size={14} /> {errore}</div>}
+            {esito && <div className="flex items-center gap-2 text-salvia text-xs font-body p-3 bg-salvia/5 border border-salvia/20"><Check size={14} /> {esito}</div>}
+
             {classi.map(cl => (
                 <div key={cl} className="bg-slate border border-white/5">
-                    <div className="px-4 py-2 border-b border-white/5">
-                        <p className="section-label !m-0">{cl} — {NOME_CLASSE[cl] ?? t('classe_altro')}</p>
+                    <div className="px-4 py-2 border-b border-white/5 flex items-center justify-between gap-3">
+                        <p className="section-label !m-0">{cl} — {nomeClasse(cl, lingua) ?? t('classe_altro')}</p>
+                        <span className="font-body text-[10px] uppercase tracking-widest text-nebbia/30">{t('piano.posta')}</span>
                     </div>
                     <div className="divide-y divide-white/5">
                         {conti.filter(c => c.classe === cl).map(c => (
-                            <div key={c.id} className="flex items-center gap-3 px-4 py-1.5">
+                            <div key={c.id} className="flex items-center gap-3 px-4 py-1.5 flex-wrap sm:flex-nowrap">
                                 <span className="font-mono text-xs text-oro/70 w-12">{c.numero}</span>
-                                <span className="font-body text-sm text-nebbia/70 flex-1">{c.nome}</span>
+                                <span className="font-body text-sm text-nebbia/70 flex-1 min-w-[140px]">{c.nome}</span>
                                 {!c.attivo && <span className="font-body text-[10px] text-nebbia/25">{t('disattivo')}</span>}
+                                <select value={c.posta_co ?? ''} onChange={e => cambiaPosta(c, e.target.value)} className={selCls} title={t('piano.posta')}>
+                                    {!c.posta_co && <option value="">{t('piano.senza_posta')}</option>}
+                                    {opzioniPoste}
+                                </select>
                             </div>
                         ))}
                     </div>
@@ -240,7 +402,7 @@ function PianoContiVista({ conti }) {
 
 // ─── Form nuova registrazione (libro giornale) ───
 function FormRegistrazione({ clienteId, mandatoId, conti, onClose, onSaved }) {
-    const { t } = useTranslation('comp_fid_contabilita')
+    const { t } = useTranslation(['comp_fid_contabilita', 'comp_fid_report_contabili'])
     const [data, setData] = useState(oggiISO())
     const [descrizione, setDescrizione] = useState('')
     const [tipo, setTipo] = useState('ordinaria')
@@ -276,7 +438,7 @@ function FormRegistrazione({ clienteId, mandatoId, conti, onClose, onSaved }) {
             cliente_id: clienteId, mandato_id: mandatoId ?? null, data, descrizione: descrizione.trim(), tipo,
             avvocato_id: user.id, studio_id: profilo?.studio_id ?? null, creato_da: user.id, aggiornato_da: user.id,
         }).select('id').single()
-        if (errReg) { setErrore(errReg.message); setSalvando(false); return }
+        if (errReg) { setErrore(testoErrore(errReg, t)); setSalvando(false); return }
 
         const payload = valide.map((r, i) => ({
             registrazione_id: reg.id, conto_id: r.conto_id,
@@ -287,7 +449,7 @@ function FormRegistrazione({ clienteId, mandatoId, conti, onClose, onSaved }) {
         if (errRighe) {
             // rollback testata se le righe falliscono (es. sbilanciamento dal trigger)
             await supabase.from('registrazioni').delete().eq('id', reg.id)
-            setErrore(errRighe.message)
+            setErrore(testoErrore(errRighe, t))
             return
         }
         onSaved()
@@ -322,7 +484,6 @@ function FormRegistrazione({ clienteId, mandatoId, conti, onClose, onSaved }) {
                                 <option value="ordinaria">{t('tipo.ordinaria')}</option>
                                 <option value="apertura">{t('tipo.apertura')}</option>
                                 <option value="rettifica">{t('tipo.rettifica')}</option>
-                                <option value="chiusura">{t('tipo.chiusura')}</option>
                             </select>
                         </div>
                     </div>

@@ -26,7 +26,8 @@ const LARGHEZZA = 455   // A4 (595 pt) meno i margini laterali di 70
 
 const testo = (pezzi) => pezzi.map((p) => ({ text: p.testo, bold: !!p.grassetto, italics: !!p.corsivo }))
 
-function contenuto(blocchi) {
+// Esportata anche per l'allegato del conto annuale (pdfContoAnnuale.js): stessi stili titolo1-3, paragrafo, citazione
+export function contenuto(blocchi) {
     const out = []
     for (const b of blocchi) {
         if (b.tipo === 'titolo') out.push({ text: testo(b.pezzi), style: `titolo${b.livello}` })

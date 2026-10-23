@@ -31,5 +31,9 @@
   "dipendenti": {
     "titolo": "Dipendenti del cliente",
     "nessun_cliente": "Nessun cliente collegato al mandato — impossibile mostrare i dipendenti."
+  },
+  "conto_annuale": {
+    "testo": "Questo è il rendiconto di cassa del mandato (entrate e uscite). Il conto annuale secondo il CO (bilancio, conto economico e allegato, art. 958) si prepara nella contabilità del cliente.",
+    "link": "Apri la contabilità"
   }
 }

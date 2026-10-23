@@ -1,0 +1,311 @@
+{
+  "intestazione": {
+    "titolo": "Società",
+    "ditta": "Ditta",
+    "forma": "Forma giuridica",
+    "sede": "Sede",
+    "idi": "IDI",
+    "manca": "manca",
+    "facoltativo": "non indicato",
+    "completa": "Completa la scheda del cliente (ditta, forma giuridica, sede): vanno nell'intestazione del conto annuale."
+  },
+  "forme": {
+    "sa": "società anonima",
+    "sagl": "società a garanzia limitata",
+    "cooperativa": "società cooperativa",
+    "fondazione": "fondazione",
+    "associazione": "associazione",
+    "ditta": "impresa individuale",
+    "societa_persone": "società di persone",
+    "altro": "forma non riconosciuta"
+  },
+  "obblighi": {
+    "persona_giuridica": "Persona giuridica: conto annuale completo con allegato, firmato dal presidente dell'organo superiore di direzione e dalla persona responsabile della presentazione dei conti, entro sei mesi dalla chiusura (art. 958 CO).",
+    "persona_fisica": "Impresa individuale o società di persone: il conto annuale completo è obbligatorio con una cifra d'affari di almeno 500'000 CHF nell'ultimo esercizio; sotto basta la contabilità delle entrate, delle uscite e della situazione patrimoniale (art. 957 CO). L'allegato è facoltativo (art. 959c cpv. 3 CO).",
+    "altro": "Forma giuridica non riconosciuta: scrivila nella scheda del cliente (per esempio SA, Sagl, ditta individuale). Intanto il conto annuale si prepara come per una persona giuridica."
+  },
+  "vuoto": {
+    "titolo": "Nessun conto annuale per l'esercizio {{esercizio}}.",
+    "spiegazione": "Il conto annuale (art. 958 CO) riunisce bilancio, conto economico e allegato, con le cifre dell'esercizio precedente. I numeri vengono dal libro mastro; l'allegato lo scrive Lex dalle tue risposte e tu lo rivedi. Diventa definitivo quando l'esercizio è chiuso.",
+    "avvia": "Prepara il conto annuale",
+    "riprendi_superato": "Riprendi dalla versione superata"
+  },
+  "definitivo": {
+    "titolo": "Conto annuale definitivo dal {{data}}",
+    "firma": "Il PDF è nell'archivio del cliente. Va stampato, firmato dal presidente dell'organo superiore di direzione e dalla persona responsabile della presentazione dei conti (art. 958 cpv. 3 CO) e conservato firmato per dieci anni (art. 958f CO).",
+    "totale_attivo": "Totale attivi",
+    "risultato": "Risultato",
+    "capitale_proprio": "Capitale proprio",
+    "lingua": "Lingua",
+    "scarica": "Scarica il PDF da firmare",
+    "modificare": "I numeri sono fissati. Per cambiare qualcosa riapri l'esercizio (Report → Riapri, con il motivo): questa versione diventa «superata» e resta nell'archivio."
+  },
+  "lingua": {
+    "etichetta": "Lingua del documento"
+  },
+  "lingue": {
+    "it": "Italiano",
+    "de": "Tedesco",
+    "fr": "Francese",
+    "en": "Inglese"
+  },
+  "riepilogo": {
+    "totale_attivo": "Totale attivi",
+    "totale_passivo": "Totale passivi",
+    "risultato": "Utile / perdita",
+    "capitale_proprio": "Capitale proprio"
+  },
+  "controlli": {
+    "titolo": "Controlli prima della firma",
+    "tutto_ok": "Nessun problema trovato.",
+    "vai_chiusura": "Chiudi l'esercizio",
+    "bilancio_non_quadra": "Il bilancio non quadra (differenza {{differenza}}): controlla le registrazioni.",
+    "conti_senza_posta": "Conti con saldo ma senza posta di legge: {{conti}}. Assegna la posta nel piano dei conti.",
+    "registrazioni_fuori_esercizio": "{{n}} registrazioni non cadono in nessun esercizio.",
+    "eccedenza_debiti": "Capitale proprio negativo ({{importo}}): c'è il rischio di eccedenza di debiti. Il consiglio d'amministrazione deve agire senza indugio (art. 725b CO).",
+    "capitale_negativo": "Capitale proprio negativo ({{importo}}).",
+    "perdita_capitale": "Perdita di capitale: il capitale proprio ({{capitale}}) non copre la metà del capitale e delle riserve legali ({{meta}}). Il consiglio d'amministrazione deve prendere misure (art. 725a CO).",
+    "liquidita_negativa": "Liquidità negativa ({{importo}}): un conto bancario in rosso va tra i debiti onerosi a breve termine.",
+    "senza_ammortamenti": "Ci sono immobilizzazioni ({{importo}}) ma nessun ammortamento nell'esercizio.",
+    "senza_imposte": "Utile prima delle imposte di {{importo}} ma nessuna imposta diretta registrata: manca l'accantonamento delle imposte?",
+    "spiegare_straordinari": "Ci sono poste straordinarie, uniche o di altri periodi: l'allegato deve spiegarle (art. 959c cpv. 2 n. 12 CO).",
+    "precedente_non_quadra": "Le cifre dell'anno precedente inserite a mano non quadrano (differenza {{differenza}}).",
+    "precedente_risultato_diverso": "Anno precedente: l'utile nel bilancio ({{bilancio}}) è diverso dal risultato del conto economico ({{ce}}).",
+    "senza_precedente": "Mancano le cifre dell'esercizio precedente, obbligatorie accanto a quelle dell'anno (art. 958d cpv. 2 CO): inseriscile qui sotto o segna che è il primo esercizio.",
+    "esercizio_aperto": "L'esercizio è ancora aperto: la bozza si prepara già, il conto annuale diventa definitivo dopo la chiusura."
+  },
+  "precedente": {
+    "titolo": "Esercizio precedente {{esercizio}}",
+    "dal_mastro": "dal libro mastro",
+    "a_mano": "inserito a mano",
+    "primo": "primo esercizio",
+    "mancano": "mancano le cifre",
+    "primo_esercizio": "È il primo esercizio della società: non ci sono cifre dell'esercizio precedente.",
+    "usa_manuali": "L'esercizio precedente è in Lexum solo in parte (cliente arrivato durante l'anno): uso le cifre inserite a mano.",
+    "istruzioni": "Riporta le cifre dal conto annuale dell'anno precedente. Le poste vuote valgono zero.",
+    "da_apertura": "Riprendi il bilancio dai saldi d'apertura",
+    "nessuna_apertura": "Nessuna registrazione di apertura nei primi giorni dell'esercizio: inserisci il bilancio a mano.",
+    "bilancio": "Bilancio",
+    "conto_economico": "Conto economico",
+    "segni": "Costi con il segno meno, come nel conto economico (es. -12000).",
+    "riepilogo": "Anno precedente: attivi {{attivo}}, passivi {{passivo}}, risultato {{risultato}}."
+  },
+  "questionario": {
+    "titolo": "Allegato: le informazioni del fiduciario",
+    "redigi_allegato": "Redigi comunque l'allegato (per un'impresa individuale o una società di persone è facoltativo, art. 959c cpv. 3 CO).",
+    "istruzioni": "Rispondi solo a quello che riguarda la società; i campi vuoti si omettono. Scrivi gli importi in franchi: Lex non aggiunge cifre che non trova qui o nella contabilità.",
+    "posti_lavoro": {
+      "etichetta": "Posti di lavoro a tempo pieno, media annua (art. 959c cpv. 2 n. 2)",
+      "scegli": "— scegli —",
+      "fino_10": "non più di 10",
+      "fino_50": "non più di 50",
+      "fino_250": "non più di 250",
+      "oltre_250": "più di 250"
+    },
+    "campi": {
+      "principi": {
+        "etichetta": "Criteri di valutazione particolari",
+        "aiuto": "Solo se servono, per esempio ammortamenti alle aliquote fiscali o valutazione delle scorte. Vuoto: frase standard sui principi del CO."
+      },
+      "spiegazioni_poste": {
+        "etichetta": "Spiegazioni su poste del bilancio o del conto economico",
+        "aiuto": "Per esempio la composizione degli altri debiti a breve termine. Facoltativo (art. 959c cpv. 1 n. 2)."
+      },
+      "partecipazioni": {
+        "etichetta": "Partecipazioni",
+        "aiuto": "Ditta, forma giuridica, sede, quota di capitale e di voti delle imprese partecipate (n. 3)."
+      },
+      "quote_proprie": {
+        "etichetta": "Quote proprie",
+        "aiuto": "Numero detenuto, acquisti e vendite nell'esercizio e loro condizioni (n. 4 e 5)."
+      },
+      "leasing": {
+        "etichetta": "Debiti da leasing",
+        "aiuto": "Saldo dei leasing che non scadono né si possono disdire entro 12 mesi (n. 6): importo in CHF o «nessuno»."
+      },
+      "debiti_previdenza": {
+        "etichetta": "Debiti verso istituti di previdenza",
+        "aiuto": "Importo in CHF alla data di chiusura, o «nessuno» (n. 7)."
+      },
+      "garanzie_terzi": {
+        "etichetta": "Garanzie per debiti di terzi",
+        "aiuto": "Importo totale in CHF e a favore di chi, o «nessuna» (n. 8)."
+      },
+      "attivi_in_garanzia": {
+        "etichetta": "Attivi a garanzia di debiti propri o sotto riserva di proprietà",
+        "aiuto": "Importo in CHF e quali attivi (per esempio cartelle ipotecarie), o «nessuno» (n. 9)."
+      },
+      "impegni_condizionali": {
+        "etichetta": "Impegni condizionali",
+        "aiuto": "Obblighi con un'uscita improbabile o non stimabile, per esempio una causa in corso (n. 10)."
+      },
+      "diritti_partecipazione": {
+        "etichetta": "Diritti di partecipazione a organi e lavoratori",
+        "aiuto": "Numero e valore delle azioni o opzioni attribuite (n. 11)."
+      },
+      "straordinari": {
+        "etichetta": "Spiegazione delle poste straordinarie",
+        "aiuto": "Perché ci sono costi o ricavi straordinari, unici o di altri periodi (n. 12). Le poste e gli importi li passa Lexum."
+      },
+      "eventi_successivi": {
+        "etichetta": "Eventi importanti dopo la data di chiusura",
+        "aiuto": "Fatti dopo la chiusura che contano per chi legge il conto annuale, o «nessuno» (n. 13)."
+      },
+      "crediti_debiti_partecipanti": {
+        "etichetta": "Crediti e debiti verso partecipanti e organi",
+        "aiuto": "Per esempio il prestito dell'azionista o il conto corrente del gerente, con gli importi, se non sono separati nel bilancio (art. 959a cpv. 4 CO)."
+      },
+      "revisione_dimissioni": {
+        "etichetta": "Dimissioni o revoca dell'ufficio di revisione",
+        "aiuto": "Solo se l'ufficio di revisione se n'è andato prima della scadenza: i motivi (n. 14)."
+      },
+      "margine_capitale": {
+        "etichetta": "Margine di variazione del capitale",
+        "aiuto": "Aumenti e riduzioni decisi dal consiglio d'amministrazione nel margine (n. 15)."
+      },
+      "riserve_latenti": {
+        "etichetta": "Scioglimento netto di riserve latenti",
+        "aiuto": "Importo in CHF, se le riserve latenti sciolte superano quelle nuove e il risultato appare migliore (art. 959c cpv. 1 n. 3 CO)."
+      },
+      "prestiti_obbligazionari": {
+        "etichetta": "Prestiti in obbligazioni",
+        "aiuto": "Importo, tasso d'interesse, scadenza e altre condizioni (art. 959c cpv. 4 CO)."
+      },
+      "altre_informazioni": {
+        "etichetta": "Altre informazioni",
+        "aiuto": "Quello che l'organo di direzione vuole far sapere a chi legge il conto annuale."
+      }
+    }
+  },
+  "allegato": {
+    "scrivi": "Scrivi l'allegato con Lex (1 credito)",
+    "riscrivi": "Riscrivi con Lex (1 credito)",
+    "in_corso": "Lex sta scrivendo l'allegato dalle tue risposte: ci vuole meno di un minuto.",
+    "numeri_da_verificare": "Nell'allegato ci sono cifre che non sono nelle tue risposte né nella contabilità: {{numeri}}. Controllale prima della firma.",
+    "vuoto": "Compila il questionario e fai scrivere l'allegato a Lex, oppure scrivilo tu: poi lo rivedi qui, con «Modifica il testo» o con «Correggi» (gratis)."
+  },
+  "firme": {
+    "titolo": "Firme",
+    "spiegazione": "Firmano il presidente dell'organo superiore di direzione o di amministrazione e la persona responsabile della presentazione dei conti (art. 958 cpv. 3 CO).",
+    "nome": "Nome e cognome",
+    "luogo": "Luogo",
+    "termine": "Termine di legge per allestire il conto annuale: {{data}} (sei mesi dalla chiusura)."
+  },
+  "esiti": {
+    "salvato": "Bozza salvata.",
+    "allegato_scritto": "Allegato scritto: rileggilo sul foglio prima di renderlo definitivo.",
+    "definitivo": "Conto annuale definitivo: il PDF è nell'archivio del cliente.",
+    "firma_elettronica_one": "Versione firmata caricata: 1 firma elettronica trovata.",
+    "firma_elettronica_other": "Versione firmata caricata: {{count}} firme elettroniche trovate.",
+    "firma_autografa": "Versione firmata caricata (nessuna firma elettronica nel file: copia firmata a mano)."
+  },
+  "azioni": {
+    "salva": "Salva la bozza",
+    "salvato": "Bozza salvata",
+    "anteprima": "Scarica il PDF (bozza)",
+    "definitivo": "Rendi definitivo",
+    "annulla": "Annulla"
+  },
+  "blocchi": {
+    "esercizio_aperto": "Per il definitivo chiudi prima l'esercizio.",
+    "ditta": "Manca la ditta nella scheda del cliente.",
+    "numeri": "Ci sono errori nei numeri (vedi i controlli).",
+    "allegato": "Manca l'allegato.",
+    "segnaposti_one": "Nell'allegato c'è ancora 1 dato da completare.",
+    "segnaposti_other": "Nell'allegato ci sono ancora {{n}} dati da completare.",
+    "firme": "Mancano i nomi di chi firma.",
+    "impiego": "La proposta d'impiego dell'utile ha errori."
+  },
+  "conferma": {
+    "titolo": "Conto annuale {{esercizio}} definitivo",
+    "testo": "Fisso i numeri, creo il PDF senza la scritta «bozza» e lo salvo nell'archivio del cliente. Dopo non si modifica più: per cambiarlo bisognerà riaprire l'esercizio, e resterà nella traccia.",
+    "avvisi": "Ci sono ancora avvisi nei controlli: rileggili prima di confermare.",
+    "conferma": "Rendi definitivo"
+  },
+  "superati": {
+    "titolo": "Versioni superate",
+    "riga": "Definitivo il {{definitivo}}, superato il {{superato}}"
+  },
+  "errori": {
+    "generico": "Operazione non riuscita. Riprova tra qualche istante.",
+    "allegato": "Non sono riuscito a scrivere l'allegato. Riprova tra qualche istante.",
+    "pdf": "Non sono riuscito a creare il PDF. Riprova tra qualche istante.",
+    "archivio_mancante": "Il PDF non è più nell'archivio."
+  },
+  "archivio": {
+    "server_spazio_esaurito": "Lo spazio dell'archivio è esaurito: libera spazio o aggiungi un pacchetto, poi riprova.",
+    "server_sola_lettura": "L'archivio è in sola lettura (piano scaduto): rinnova il piano per salvare il conto annuale.",
+    "server_rifiutato": "L'archivio ha rifiutato il file: controlla lo spazio disponibile e riprova.",
+    "server_generico": "Non sono riuscito a salvare il PDF nell'archivio. Riprova tra qualche istante."
+  },
+  "impiego": {
+    "titolo_scheda": "Proposta d'impiego dell'utile",
+    "includi": "Aggiungi al conto annuale la proposta d'impiego dell'utile risultante dal bilancio (la decide l'assemblea: art. 698 cpv. 2 n. 4 e 804 cpv. 2 n. 5 CO).",
+    "spiegazione": "La riserva legale da utili è proposta secondo l'art. 672 CO: 5% dell'utile dell'esercizio, dopo aver coperto la perdita riportata, finché con la riserva legale da capitale arriva alla metà del capitale. Il riporto a nuovo è quello che resta.",
+    "holding": "Società holding (la riserva legale si alimenta fino al 20% del capitale)",
+    "campi": {
+      "riserva_legale": "Attribuzione alla riserva legale da utili",
+      "dividendo": "Dividendo",
+      "riserve_facoltative": "Attribuzione alle riserve facoltative da utili",
+      "prelievo_riserve": "Prelievo dalle riserve facoltative da utili"
+    },
+    "minimo": "minimo di legge {{importo}}",
+    "righe": {
+      "riportato": "Utile / perdita riportato",
+      "esercizio": "Utile / perdita dell'esercizio",
+      "utile_bilancio": "Utile / perdita risultante dal bilancio",
+      "prelievo": "Prelievo dalle riserve facoltative",
+      "disponibile": "Importo a disposizione",
+      "riserva": "Riserva legale da utili",
+      "dividendo": "Dividendo",
+      "facoltative": "Riserve facoltative da utili",
+      "riporto": "Riporto a nuovo"
+    },
+    "percentuale": "{{perc}} % del capitale",
+    "errori": {
+      "importi_negativi": "Gli importi della proposta non possono essere negativi.",
+      "prelievo_oltre_riserve": "Il prelievo supera le riserve facoltative da utili del bilancio.",
+      "supera_disponibile": "Le attribuzioni superano l'utile a disposizione: il riporto a nuovo sarebbe negativo.",
+      "riserva_sotto_minimo": "Con un dividendo, alla riserva legale da utili va attribuito almeno il minimo di legge ({{minimo}}): art. 672 e 675 cpv. 3 CO."
+    },
+    "avvisi": {
+      "riserva_sotto_minimo": "L'attribuzione alla riserva legale da utili è sotto il minimo di legge ({{minimo}}, art. 672 CO)."
+    }
+  },
+  "registra_impiego": {
+    "pulsante": "Registra l'impiego deciso dall'assemblea",
+    "spiegazione": "Dopo l'assemblea: una registrazione nel libro giornale porta l'utile sulla riserva legale, sui dividendi deliberati, sulle riserve facoltative e sul riporto a nuovo, collegata a questo conto annuale.",
+    "titolo": "Impiego dell'utile {{esercizio}}",
+    "istruzioni": "Data dell'assemblea e importi decisi (sono quelli della proposta: cambiali se l'assemblea ha deciso diversamente). Il riporto a nuovo è quello che resta.",
+    "data": "Data dell'assemblea",
+    "anteprima": "Registrazione",
+    "riporto": "Riporto a nuovo: {{importo}}",
+    "mancanti": "Mancano nel piano dei conti: {{conti}}. Aggiungili da Contabilità → Piano dei conti → «Aggiungi i conti standard mancanti».",
+    "conferma": "Registra",
+    "registrato": "Impiego registrato nel libro giornale il {{data}}.",
+    "descrizione": "Impiego dell'utile {{esercizio}} (assemblea del {{data}})"
+  },
+  "firma": {
+    "titolo": "Firma",
+    "spiegazione": "Il conto annuale si firma a mano sulla stampa. In alternativa (facoltativo) si firma il PDF con una firma elettronica qualificata presso un prestatore riconosciuto, che vale come firma a mano (art. 14 cpv. 2bis CO). Poi carica qui la versione firmata, o la scansione della copia firmata a mano: resta nell'archivio del cliente.",
+    "carica": "Carica la versione firmata (PDF)",
+    "in_corso": "Lettura delle firme…",
+    "sostituisci": "Sostituisci la versione firmata",
+    "firmato": "firmato",
+    "elettronica_one": "Firmato elettronicamente: 1 firma",
+    "elettronica_other": "Firmato elettronicamente: {{count}} firme",
+    "senza_nome": "nome non indicato nel file",
+    "marche_one": "Con 1 marca temporale.",
+    "marche_other": "Con {{count}} marche temporali.",
+    "stesso_si": "Il file firmato contiene intatto il PDF definitivo di Lexum.",
+    "stesso_no": "Il file firmato non contiene intatto il PDF definitivo di Lexum (è stato rigenerato o è un altro documento): controlla che sia questo conto annuale.",
+    "validatore": "Verifica se la firma è qualificata (validatore della Confederazione)",
+    "autografa": "Copia firmata a mano caricata il {{data}}.",
+    "conserva": "Conserva l'originale firmato su carta per dieci anni (art. 958f CO).",
+    "scarica": "Scarica la versione firmata",
+    "errori": {
+      "formato": "Carica un file PDF.",
+      "troppo_grande": "Il file è troppo grande (al massimo 25 MB)."
+    }
+  }
+}

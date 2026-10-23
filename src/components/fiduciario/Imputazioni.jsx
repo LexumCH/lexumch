@@ -46,8 +46,10 @@ export default function Imputazioni({ clienteId, conti }) {
         setLoading(false)
     }
 
-    const contiRicavo = conti.filter(c => c.classe === 3 && c.attivo)
-    const contiCosto = conti.filter(c => c.classe >= 4 && c.classe <= 8 && c.attivo)
+    // 09-10-2026: per tipo e non per classe (il tipo segue la posta di legge): un'entrata può andare anche sui
+    // ricavi finanziari (6950), estranei o straordinari, un'uscita sui loro costi
+    const contiRicavo = conti.filter(c => c.tipo === 'ricavo' && c.attivo)
+    const contiCosto = conti.filter(c => c.tipo === 'costo' && c.attivo)
     const contiCassa = conti.filter(c => c.classe === 1 && c.attivo)
 
     const setLocal = (key, campo, val) => setMappings(m => ({ ...m, [key]: { ...(m[key] ?? {}), [campo]: val } }))

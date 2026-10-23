@@ -56,5 +56,37 @@
     "sessione_scaduta": "Session expirée.",
     "descrizione_obbligatoria": "Saisissez une description.",
     "non_bilanciata": "L'écriture doit être équilibrée (Σ débit = Σ crédit) avec au moins 2 lignes."
+  },
+  "esercizio_chiuso": "Exercice clôturé : cette écriture ne peut pas être modifiée. Pour corriger, rouvrez l'exercice dans les rapports (le motif reste dans le journal des modifications).",
+  "piano": {
+    "intro": "Chaque compte a son poste légal (art. 959a et 959b CO) : il détermine où il figure dans le bilan ou le compte de résultat des comptes annuels. Il est proposé à partir du numéro du compte (plan comptable suisse PME) ; ne le modifiez que si le compte a un autre usage.",
+    "aggiungi_standard_one": "Ajouter 1 compte standard manquant",
+    "aggiungi_standard_other": "Ajouter {{count}} comptes standard manquants",
+    "nuovo_conto": "Nouveau compte",
+    "numero": "Numéro (4 chiffres)",
+    "nome": "Nom du compte",
+    "scegli_posta": "— poste légal —",
+    "posta_proposta": "Le poste est proposé à partir du numéro du compte : pour la classe 7 et pour les comptes hors exploitation ou exceptionnels, choisissez s'il s'agit d'une charge ou d'un produit.",
+    "aggiungi": "Ajouter le compte",
+    "posta": "Poste légal",
+    "senza_posta": "— sans poste —",
+    "gruppi_poste": {
+      "attivo": "Bilan · actifs",
+      "passivo": "Bilan · capitaux étrangers",
+      "capitale": "Bilan · capitaux propres",
+      "conto_economico": "Compte de résultat"
+    },
+    "errori": {
+      "numero": "Le numéro du compte a 4 chiffres.",
+      "esiste": "Le compte {{numero}} existe déjà.",
+      "nome": "Indiquez le nom du compte.",
+      "posta": "Choisissez le poste légal du compte."
+    },
+    "lingua_nomi": "Noms des comptes standard :",
+    "rinomina_one": "Renommer 1 compte",
+    "rinomina_other": "Renommer {{count}} comptes",
+    "rinominati_one": "1 compte renommé.",
+    "rinominati_other": "{{count}} comptes renommés.",
+    "nessuno_da_rinominare": "Déjà dans cette langue"
   }
 }

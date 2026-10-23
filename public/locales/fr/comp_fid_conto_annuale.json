@@ -1,0 +1,311 @@
+{
+  "intestazione": {
+    "titolo": "Société",
+    "ditta": "Raison sociale",
+    "forma": "Forme juridique",
+    "sede": "Siège",
+    "idi": "IDE",
+    "manca": "manquant",
+    "facoltativo": "non indiqué",
+    "completa": "Complétez la fiche du client (raison sociale, forme juridique, siège) : ces données figurent en tête des comptes annuels."
+  },
+  "forme": {
+    "sa": "société anonyme",
+    "sagl": "société à responsabilité limitée",
+    "cooperativa": "société coopérative",
+    "fondazione": "fondation",
+    "associazione": "association",
+    "ditta": "entreprise individuelle",
+    "societa_persone": "société de personnes",
+    "altro": "forme non reconnue"
+  },
+  "obblighi": {
+    "persona_giuridica": "Personne morale : comptes annuels complets avec annexe, signés par le président de l'organe supérieur de direction ou d'administration et par la personne responsable de la présentation des comptes, dans les six mois qui suivent la clôture de l'exercice (art. 958 CO).",
+    "persona_fisica": "Entreprise individuelle ou société de personnes : les comptes annuels complets sont obligatoires dès un chiffre d'affaires de 500 000 CHF lors du dernier exercice ; en dessous, une comptabilité des recettes, des dépenses et du patrimoine suffit (art. 957 CO). L'annexe est facultative (art. 959c al. 3 CO).",
+    "altro": "Forme juridique non reconnue : indiquez-la dans la fiche du client (p. ex. SA, Sàrl, entreprise individuelle). En attendant, les comptes annuels sont préparés comme pour une personne morale."
+  },
+  "vuoto": {
+    "titolo": "Pas de comptes annuels pour l'exercice {{esercizio}}.",
+    "spiegazione": "Les comptes annuels (art. 958 CO) réunissent le bilan, le compte de résultat et l'annexe, avec les chiffres de l'exercice précédent. Les chiffres viennent du grand livre ; l'annexe est rédigée par Lex à partir de vos réponses, et vous la relisez. Ils deviennent définitifs lorsque l'exercice est clôturé.",
+    "avvia": "Préparer les comptes annuels",
+    "riprendi_superato": "Reprendre la version remplacée"
+  },
+  "definitivo": {
+    "titolo": "Comptes annuels définitifs depuis le {{data}}",
+    "firma": "Le PDF se trouve dans l'archive du client. Il doit être imprimé, signé par le président de l'organe supérieur de direction ou d'administration et par la personne responsable de la présentation des comptes (art. 958 al. 3 CO) et conservé signé pendant dix ans (art. 958f CO).",
+    "totale_attivo": "Total des actifs",
+    "risultato": "Résultat",
+    "capitale_proprio": "Capitaux propres",
+    "lingua": "Langue",
+    "scarica": "Télécharger le PDF à signer",
+    "modificare": "Les chiffres sont figés. Pour modifier quelque chose, rouvrez l'exercice (Rapports → Rouvrir, avec le motif) : cette version devient « remplacée » et reste dans l'archive."
+  },
+  "lingua": {
+    "etichetta": "Langue du document"
+  },
+  "lingue": {
+    "it": "Italien",
+    "de": "Allemand",
+    "fr": "Français",
+    "en": "Anglais"
+  },
+  "riepilogo": {
+    "totale_attivo": "Total des actifs",
+    "totale_passivo": "Total des passifs",
+    "risultato": "Bénéfice / perte",
+    "capitale_proprio": "Capitaux propres"
+  },
+  "controlli": {
+    "titolo": "Contrôles avant la signature",
+    "tutto_ok": "Aucun problème trouvé.",
+    "vai_chiusura": "Clôturer l'exercice",
+    "bilancio_non_quadra": "Le bilan n'est pas équilibré (différence {{differenza}}) : vérifiez les écritures.",
+    "conti_senza_posta": "Comptes avec un solde mais sans poste légal : {{conti}}. Attribuez le poste dans le plan comptable.",
+    "registrazioni_fuori_esercizio": "{{n}} écritures ne tombent dans aucun exercice.",
+    "eccedenza_debiti": "Capitaux propres négatifs ({{importo}}) : il y a un risque de surendettement. Le conseil d'administration doit agir sans délai (art. 725b CO).",
+    "capitale_negativo": "Capitaux propres négatifs ({{importo}}).",
+    "perdita_capitale": "Perte de capital : les capitaux propres ({{capitale}}) ne couvrent plus la moitié du capital et des réserves légales ({{meta}}). Le conseil d'administration doit prendre des mesures (art. 725a CO).",
+    "liquidita_negativa": "Trésorerie négative ({{importo}}) : un compte bancaire débiteur fait partie des dettes à court terme portant intérêt.",
+    "senza_ammortamenti": "Il y a des immobilisations ({{importo}}) mais aucun amortissement sur l'exercice.",
+    "senza_imposte": "Bénéfice avant impôts de {{importo}} mais aucun impôt direct enregistré : manque-t-il la provision pour impôts ?",
+    "spiegare_straordinari": "Il y a des postes exceptionnels, uniques ou hors période : l'annexe doit les expliquer (art. 959c al. 2 ch. 12 CO).",
+    "precedente_non_quadra": "Les chiffres de l'exercice précédent saisis à la main ne sont pas équilibrés (différence {{differenza}}).",
+    "precedente_risultato_diverso": "Exercice précédent : le bénéfice au bilan ({{bilancio}}) diffère du résultat du compte de résultat ({{ce}}).",
+    "senza_precedente": "Il manque les chiffres de l'exercice précédent, obligatoires à côté de ceux de l'exercice (art. 958d al. 2 CO) : saisissez-les ci-dessous ou indiquez qu'il s'agit du premier exercice.",
+    "esercizio_aperto": "L'exercice est encore ouvert : le projet peut déjà être préparé, les comptes annuels deviennent définitifs après la clôture."
+  },
+  "precedente": {
+    "titolo": "Exercice précédent {{esercizio}}",
+    "dal_mastro": "du grand livre",
+    "a_mano": "saisi à la main",
+    "primo": "premier exercice",
+    "mancano": "chiffres manquants",
+    "primo_esercizio": "C'est le premier exercice de la société : il n'y a pas de chiffres de l'exercice précédent.",
+    "usa_manuali": "L'exercice précédent n'est que partiellement dans Lexum (client repris en cours d'année) : utiliser les chiffres saisis à la main.",
+    "istruzioni": "Reprenez les chiffres des comptes annuels de l'exercice précédent. Les postes vides valent zéro.",
+    "da_apertura": "Reprendre le bilan des soldes d'ouverture",
+    "nessuna_apertura": "Aucune écriture d'ouverture dans les premiers jours de l'exercice : saisissez le bilan à la main.",
+    "bilancio": "Bilan",
+    "conto_economico": "Compte de résultat",
+    "segni": "Charges avec le signe moins, comme dans le compte de résultat (p. ex. -12000).",
+    "riepilogo": "Exercice précédent : actifs {{attivo}}, passifs {{passivo}}, résultat {{risultato}}."
+  },
+  "questionario": {
+    "titolo": "Annexe : les informations de la fiduciaire",
+    "redigi_allegato": "Rédiger quand même l'annexe (facultative pour une entreprise individuelle ou une société de personnes, art. 959c al. 3 CO).",
+    "istruzioni": "Répondez seulement à ce qui concerne la société ; les champs vides sont omis. Montants en francs : Lex n'ajoute pas de chiffres qu'il ne trouve ni ici ni dans la comptabilité.",
+    "posti_lavoro": {
+      "etichetta": "Emplois à plein temps en moyenne annuelle (art. 959c al. 2 ch. 2 CO)",
+      "scegli": "— choisir —",
+      "fino_10": "pas plus de 10",
+      "fino_50": "pas plus de 50",
+      "fino_250": "pas plus de 250",
+      "oltre_250": "plus de 250"
+    },
+    "campi": {
+      "principi": {
+        "etichetta": "Principes d'évaluation particuliers",
+        "aiuto": "Seulement si nécessaire, p. ex. amortissements aux taux fiscaux ou évaluation des stocks. Vide : phrase standard sur les principes du CO."
+      },
+      "spiegazioni_poste": {
+        "etichetta": "Explications sur des postes du bilan ou du compte de résultat",
+        "aiuto": "P. ex. la composition des autres dettes à court terme. Facultatif (art. 959c al. 1 ch. 2 CO)."
+      },
+      "partecipazioni": {
+        "etichetta": "Participations",
+        "aiuto": "Raison sociale, forme juridique, siège, part du capital et des droits de vote des entreprises détenues (ch. 3)."
+      },
+      "quote_proprie": {
+        "etichetta": "Propres parts du capital",
+        "aiuto": "Nombre détenu, acquisitions et aliénations de l'exercice et leurs conditions (ch. 4 et 5)."
+      },
+      "leasing": {
+        "etichetta": "Dettes de leasing",
+        "aiuto": "Solde des contrats de leasing qui n'échoient pas et ne peuvent pas être résiliés dans les 12 mois (ch. 6) : montant en CHF ou « aucune »."
+      },
+      "debiti_previdenza": {
+        "etichetta": "Dettes envers des institutions de prévoyance",
+        "aiuto": "Montant en CHF à la date du bilan, ou « aucune » (ch. 7)."
+      },
+      "garanzie_terzi": {
+        "etichetta": "Sûretés constituées en faveur de tiers",
+        "aiuto": "Montant total en CHF et en faveur de qui, ou « aucune » (ch. 8)."
+      },
+      "attivi_in_garanzia": {
+        "etichetta": "Actifs engagés en garantie des dettes de l'entreprise et actifs grevés d'une réserve de propriété",
+        "aiuto": "Montant en CHF et quels actifs (p. ex. cédules hypothécaires), ou « aucun » (ch. 9)."
+      },
+      "impegni_condizionali": {
+        "etichetta": "Engagements conditionnels",
+        "aiuto": "Obligations dont la sortie de fonds est improbable ou ne peut être estimée, p. ex. un procès en cours (ch. 10)."
+      },
+      "diritti_partecipazione": {
+        "etichetta": "Droits de participation attribués aux organes et aux collaborateurs",
+        "aiuto": "Nombre et valeur des actions ou options attribuées (ch. 11)."
+      },
+      "straordinari": {
+        "etichetta": "Explication des postes exceptionnels",
+        "aiuto": "Pourquoi il y a des charges ou produits exceptionnels, uniques ou hors période (ch. 12). Lexum transmet les postes et les montants."
+      },
+      "eventi_successivi": {
+        "etichetta": "Événements importants survenus après la date du bilan",
+        "aiuto": "Faits postérieurs à la clôture qui comptent pour les lecteurs des comptes annuels, ou « aucun » (ch. 13)."
+      },
+      "crediti_debiti_partecipanti": {
+        "etichetta": "Créances et dettes envers les détenteurs de participations et les organes",
+        "aiuto": "P. ex. prêt de l'actionnaire ou compte courant du gérant, avec les montants, s'ils ne sont pas présentés séparément au bilan (art. 959a al. 4 CO)."
+      },
+      "revisione_dimissioni": {
+        "etichetta": "Démission ou révocation de l'organe de révision",
+        "aiuto": "Seulement si l'organe de révision est parti avant le terme de son mandat : les motifs (ch. 14)."
+      },
+      "margine_capitale": {
+        "etichetta": "Marge de fluctuation du capital",
+        "aiuto": "Augmentations et réductions décidées par le conseil d'administration dans le cadre de la marge (ch. 15)."
+      },
+      "riserve_latenti": {
+        "etichetta": "Dissolution nette de réserves latentes",
+        "aiuto": "Montant en CHF si les réserves latentes dissoutes dépassent celles constituées et que le résultat paraît ainsi meilleur (art. 959c al. 1 ch. 3 CO)."
+      },
+      "prestiti_obbligazionari": {
+        "etichetta": "Emprunts obligataires",
+        "aiuto": "Montant, taux d'intérêt, échéance et autres conditions (art. 959c al. 4 CO)."
+      },
+      "altre_informazioni": {
+        "etichetta": "Autres informations",
+        "aiuto": "Ce que l'organe de direction souhaite communiquer aux lecteurs des comptes annuels."
+      }
+    }
+  },
+  "allegato": {
+    "scrivi": "Rédiger l'annexe avec Lex (1 crédit)",
+    "riscrivi": "Réécrire avec Lex (1 crédit)",
+    "in_corso": "Lex rédige l'annexe à partir de vos réponses : cela prend moins d'une minute.",
+    "numeri_da_verificare": "L'annexe contient des chiffres qui ne figurent ni dans vos réponses ni dans la comptabilité : {{numeri}}. Vérifiez-les avant la signature.",
+    "vuoto": "Remplissez le questionnaire et faites rédiger l'annexe par Lex, ou rédigez-la vous-même : ensuite vous la relisez ici, avec « Modifier le texte » ou « Corriger » (gratuit)."
+  },
+  "firme": {
+    "titolo": "Signatures",
+    "spiegazione": "Signent le président de l'organe supérieur de direction ou d'administration et la personne responsable de la présentation des comptes (art. 958 al. 3 CO).",
+    "nome": "Prénom et nom",
+    "luogo": "Lieu",
+    "termine": "Délai légal pour établir les comptes annuels : {{data}} (six mois après la clôture)."
+  },
+  "esiti": {
+    "salvato": "Projet enregistré.",
+    "allegato_scritto": "Annexe rédigée : relisez-la sur la feuille avant de rendre les comptes définitifs.",
+    "definitivo": "Comptes annuels définitifs : le PDF se trouve dans l'archive du client.",
+    "firma_elettronica_one": "Version signée chargée : 1 signature électronique trouvée.",
+    "firma_elettronica_other": "Version signée chargée : {{count}} signatures électroniques trouvées.",
+    "firma_autografa": "Version signée chargée (aucune signature électronique dans le fichier : copie signée à la main)."
+  },
+  "azioni": {
+    "salva": "Enregistrer le projet",
+    "salvato": "Projet enregistré",
+    "anteprima": "Télécharger le PDF (projet)",
+    "definitivo": "Rendre définitif",
+    "annulla": "Annuler"
+  },
+  "blocchi": {
+    "esercizio_aperto": "Pour la version définitive, clôturez d'abord l'exercice.",
+    "ditta": "La raison sociale manque dans la fiche du client.",
+    "numeri": "Il y a des erreurs dans les chiffres (voir les contrôles).",
+    "allegato": "L'annexe manque.",
+    "segnaposti_one": "Il reste 1 donnée à compléter dans l'annexe.",
+    "segnaposti_other": "Il reste {{n}} données à compléter dans l'annexe.",
+    "firme": "Les noms des signataires manquent.",
+    "impiego": "La proposition relative à l'emploi du bénéfice contient des erreurs."
+  },
+  "conferma": {
+    "titolo": "Comptes annuels {{esercizio}} définitifs",
+    "testo": "Les chiffres sont figés, le PDF est créé sans la mention « projet » et enregistré dans l'archive du client. Ensuite il ne se modifie plus : il faudra rouvrir l'exercice, ce qui restera dans le journal des modifications.",
+    "avvisi": "Les contrôles contiennent encore des avertissements : relisez-les avant de confirmer.",
+    "conferma": "Rendre définitif"
+  },
+  "superati": {
+    "titolo": "Versions remplacées",
+    "riga": "Définitive le {{definitivo}}, remplacée le {{superato}}"
+  },
+  "errori": {
+    "generico": "L'opération a échoué. Réessayez dans quelques instants.",
+    "allegato": "Impossible de rédiger l'annexe. Réessayez dans quelques instants.",
+    "pdf": "Impossible de créer le PDF. Réessayez dans quelques instants.",
+    "archivio_mancante": "Le PDF n'est plus dans l'archive."
+  },
+  "archivio": {
+    "server_spazio_esaurito": "L'espace de l'archive est épuisé : libérez de l'espace ou ajoutez un forfait, puis réessayez.",
+    "server_sola_lettura": "L'archive est en lecture seule (abonnement expiré) : renouvelez l'abonnement pour enregistrer les comptes annuels.",
+    "server_rifiutato": "L'archive a refusé le fichier : vérifiez l'espace disponible et réessayez.",
+    "server_generico": "Impossible d'enregistrer le PDF dans l'archive. Réessayez dans quelques instants."
+  },
+  "impiego": {
+    "titolo_scheda": "Proposition relative à l'emploi du bénéfice",
+    "includi": "Ajouter aux comptes annuels la proposition relative à l'emploi du bénéfice résultant du bilan (l'assemblée décide : art. 698 al. 2 ch. 4 et 804 al. 2 ch. 5 CO).",
+    "spiegazione": "L'attribution à la réserve légale issue du bénéfice est proposée selon l'art. 672 CO : 5 % du bénéfice de l'exercice, après compensation d'une perte reportée, jusqu'à ce qu'elle atteigne, avec la réserve légale issue du capital, la moitié du capital. Le report à compte nouveau est le solde.",
+    "holding": "Société holding (la réserve légale est alimentée jusqu'à 20 % du capital)",
+    "campi": {
+      "riserva_legale": "Attribution à la réserve légale issue du bénéfice",
+      "dividendo": "Dividende",
+      "riserve_facoltative": "Attribution aux réserves facultatives issues du bénéfice",
+      "prelievo_riserve": "Prélèvement sur les réserves facultatives issues du bénéfice"
+    },
+    "minimo": "minimum légal {{importo}}",
+    "righe": {
+      "riportato": "Bénéfice / perte reporté",
+      "esercizio": "Bénéfice / perte de l'exercice",
+      "utile_bilancio": "Bénéfice / perte résultant du bilan",
+      "prelievo": "Prélèvement sur les réserves facultatives",
+      "disponibile": "Montant à disposition",
+      "riserva": "Réserve légale issue du bénéfice",
+      "dividendo": "Dividende",
+      "facoltative": "Réserves facultatives issues du bénéfice",
+      "riporto": "Report à compte nouveau"
+    },
+    "percentuale": "{{perc}} % du capital",
+    "errori": {
+      "importi_negativi": "Les montants de la proposition ne peuvent pas être négatifs.",
+      "prelievo_oltre_riserve": "Le prélèvement dépasse les réserves facultatives issues du bénéfice du bilan.",
+      "supera_disponibile": "Les attributions dépassent le bénéfice à disposition : le report à compte nouveau serait négatif.",
+      "riserva_sotto_minimo": "Avec un dividende, il faut attribuer à la réserve légale issue du bénéfice au moins le minimum légal ({{minimo}}) : art. 672 et 675 al. 3 CO."
+    },
+    "avvisi": {
+      "riserva_sotto_minimo": "L'attribution à la réserve légale issue du bénéfice est inférieure au minimum légal ({{minimo}}, art. 672 CO)."
+    }
+  },
+  "registra_impiego": {
+    "pulsante": "Comptabiliser l'emploi décidé par l'assemblée",
+    "spiegazione": "Après l'assemblée : une écriture au journal porte le bénéfice à la réserve légale, aux dividendes décidés, aux réserves facultatives et au report à compte nouveau, liée à ces comptes annuels.",
+    "titolo": "Emploi du bénéfice {{esercizio}}",
+    "istruzioni": "Date de l'assemblée et montants décidés (repris de la proposition : modifiez-les si l'assemblée a décidé autrement). Le report à compte nouveau est le solde.",
+    "data": "Date de l'assemblée",
+    "anteprima": "Écriture",
+    "riporto": "Report à compte nouveau : {{importo}}",
+    "mancanti": "Il manque dans le plan comptable : {{conti}}. Ajoutez-les sous Comptabilité → Plan comptable → « Ajouter les comptes standard manquants ».",
+    "conferma": "Comptabiliser",
+    "registrato": "Emploi du bénéfice comptabilisé au journal le {{data}}.",
+    "descrizione": "Emploi du bénéfice {{esercizio}} (assemblée du {{data}})"
+  },
+  "firma": {
+    "titolo": "Signature",
+    "spiegazione": "Les comptes annuels se signent à la main sur l'impression. En alternative (facultatif), le PDF est signé avec une signature électronique qualifiée auprès d'un fournisseur reconnu, assimilée à la signature manuscrite (art. 14 al. 2bis CO). Chargez ensuite ici la version signée, ou le scan de la copie signée à la main : elle reste dans l'archive du client.",
+    "carica": "Charger la version signée (PDF)",
+    "in_corso": "Lecture des signatures…",
+    "sostituisci": "Remplacer la version signée",
+    "firmato": "signé",
+    "elettronica_one": "Signé électroniquement : 1 signature",
+    "elettronica_other": "Signé électroniquement : {{count}} signatures",
+    "senza_nome": "nom non indiqué dans le fichier",
+    "marche_one": "Avec 1 horodatage.",
+    "marche_other": "Avec {{count}} horodatages.",
+    "stesso_si": "Le fichier signé contient intact le PDF définitif de Lexum.",
+    "stesso_no": "Le fichier signé ne contient pas intact le PDF définitif de Lexum (régénéré ou autre document) : vérifiez qu'il s'agit bien de ces comptes annuels.",
+    "validatore": "Vérifier si la signature est qualifiée (validateur de la Confédération)",
+    "autografa": "Copie signée à la main chargée le {{data}}.",
+    "conserva": "Conservez l'original signé sur papier pendant dix ans (art. 958f CO).",
+    "scarica": "Télécharger la version signée",
+    "errori": {
+      "formato": "Chargez un fichier PDF.",
+      "troppo_grande": "Le fichier est trop volumineux (25 Mo au maximum)."
+    }
+  }
+}
