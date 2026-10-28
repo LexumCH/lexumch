@@ -5,148 +5,91 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
 import CodiceSconto, { useCodiceSconto, PrezzoScontato } from '@/components/CodiceSconto'
+import { useContoPrivato, RiquadroConto, SezionePiani, SezioneArchivioInPiu, FinestraGestisci, gestisciAbbonamento } from '@/components/ContoPrivato'
 import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 import { vociPiano, etichettaDurata, periodoPrezzo } from '@/lib/vociPiano'
 import {
-    Sparkles, ShoppingBag, CreditCard, ArrowRight, CheckCircle,
-    AlertCircle, Loader2, Info, Shield, Zap, X, Tag
+    Sparkles, CreditCard, ArrowRight, CheckCircle,
+    AlertCircle, Loader2, Shield
 } from 'lucide-react'
 
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 export default function Acquista() {
-    const { t, i18n } = useTranslation('user_acquista')
-    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
+    const { t } = useTranslation('user_acquista')
+    const { t: tc } = useTranslation('comp_conto_privato')
     const { profile } = useAuth()
     const location = useLocation()
 
-    // Saldo crediti per tipo
-    const [crediti, setCrediti] = useState({
-        benvenuto: 0, piano: 0, topup: 0, totale: 0,
-        piano_scadenza: null,
-    })
-    const [loadingCrediti, setLoadingCrediti] = useState(true)
+    // Crediti, archivio e abbonamento (28-10-2026): il riquadro «Crediti e archivio» (src/components/ContoPrivato.jsx)
+    const conto = useContoPrivato(profile)
 
-    // Prodotti
-    // Piano Personale dei privati (02-10-2026): crediti del mese + GB di archivio
-    const isPrivato = profile?.role === 'user'
-    const [pianoPersonale, setPianoPersonale] = useState(null)
-    const [pianoScadenza, setPianoScadenza] = useState(null)
+    // Prodotti: i tre piani personali e l'archivio in più (abbonamenti che si rinnovano ogni mese), i pacchetti di
+    // crediti (una volta, non scadono) e, per chi è verificato, i piani per lo studio.
+    const [piani, setPiani] = useState([])
+    const [archivioMensile, setArchivioMensile] = useState([])
     const [pacchettiCrediti, setPacchettiCrediti] = useState([])
     const [abbonamenti, setAbbonamenti] = useState([])
     const [seatAddon, setSeatAddon] = useState([])
+    const [loadingProdotti, setLoadingProdotti] = useState(true)
     // Codice sconto: vale per i prodotti di questa pagina che l'admin ha scelto (src/components/CodiceSconto.jsx)
     const sconto = useCodiceSconto([
-        pianoPersonale?.id, ...pacchettiCrediti.map(p => p.id), ...abbonamenti.map(p => p.id), ...seatAddon.map(p => p.id),
+        ...piani.map(p => p.id), ...archivioMensile.map(p => p.id), ...pacchettiCrediti.map(p => p.id),
+        ...abbonamenti.map(p => p.id), ...seatAddon.map(p => p.id),
     ])
-    const [loadingProdotti, setLoadingProdotti] = useState(true)
 
     // Acquisto in corso
     const [acquistando, setAcquistando] = useState(null)
     const [errore, setErrore] = useState('')
+    const [avviso, setAvviso] = useState('')
+    const [gestisciAperta, setGestisciAperta] = useState(false)
     const consenso = useConsensoRecesso()
     const datiFatt = useDatiFatturazione()
 
-    // Tab attivo: "crediti" (sempre visibile), "abbonamenti" (solo verificato)
     const isApproved = profile?.verification_status === 'approved'
     const haPianoStudio = profile?.posti_acquistati > 1
-    const [tabAttivo, setTabAttivo] = useState('crediti')
 
-    // Banner success da Stripe
+    // Ritorno dalla cassa
     const isSuccess = new URLSearchParams(location.search).get('success') === '1'
 
     useEffect(() => {
         if (isSuccess) {
             window.history.replaceState({}, '', '/area/acquista')
         }
-        if (profile?.id) {
-            caricaCrediti()
-            caricaProdotti()
-            caricaPiano()
-        }
+        if (profile?.id) caricaProdotti()
     }, [profile?.id])
 
-    // Al ritorno da Stripe i crediti li accredita il webhook, spesso qualche secondo DOPO il
-    // ritorno: senza questo controllo il saldo restava quello vecchio (30/09/2026).
+    // Al ritorno dalla cassa l'acquisto lo accredita il webhook, spesso qualche secondo DOPO il ritorno: senza
+    // questo controllo il saldo restava quello vecchio (30/09/2026).
     useEffect(() => {
         if (!isSuccess || !profile?.id) return
         let volte = 0
         const timer = setInterval(() => {
             volte += 1
-            caricaCrediti()
-            caricaPiano()
+            conto.ricarica()
             if (volte >= 10) clearInterval(timer)
         }, 3000)
         return () => clearInterval(timer)
     }, [isSuccess, profile?.id])
 
-    async function caricaCrediti() {
-        setLoadingCrediti(true)
-        const now = new Date().toISOString()
-        const { data, error } = await supabase
-            .from('crediti_ai')
-            .select('crediti_totali, crediti_usati, tipo, periodo_fine')
-            .eq('user_id', profile.id)
-            .or(`periodo_fine.is.null,periodo_fine.gte.${now}`)
-        if (error) console.error('caricaCrediti:', error)
-
-        const map = { benvenuto: 0, piano: 0, topup: 0 }
-        let pianoScad = null
-        for (const c of data ?? []) {
-            const rimasti = c.crediti_totali - c.crediti_usati
-            if (rimasti > 0 && map[c.tipo] !== undefined) {
-                map[c.tipo] += rimasti
-                if (c.tipo === 'piano' && c.periodo_fine) pianoScad = c.periodo_fine
-            }
-        }
-        setCrediti({
-            ...map,
-            totale: map.benvenuto + map.piano + map.topup,
-            piano_scadenza: pianoScad,
-        })
-        setLoadingCrediti(false)
-    }
-
-    // Scadenza del Piano Personale letta dal DB (il profilo in memoria non si aggiorna da solo dopo il pagamento)
-    async function caricaPiano() {
-        if (profile?.role !== 'user') return
-        const { data } = await supabase
-            .from('profiles')
-            .select('piano_id, abbonamento_scadenza')
-            .eq('id', profile.id)
-            .single()
-        setPianoScadenza(data?.piano_id && data?.abbonamento_scadenza ? data.abbonamento_scadenza : null)
-    }
-
     async function caricaProdotti() {
         setLoadingProdotti(true)
         setErrore('')
         try {
-            if (profile?.role === 'user') {
-                const { data: piano } = await supabase
-                    .from('prodotti')
-                    .select('id, prezzo, durata_mesi, crediti_ai_mensili, spazio_gb')
-                    .eq('tipo', 'piano_privato')
-                    .eq('attivo', true)
-                    .order('prezzo')
-                    .limit(1)
-                setPianoPersonale(piano?.[0] ?? null)
-            }
-
-            // Pacchetti crediti AI
-            const { data: cred, error: errCred } = await supabase
+            const { data: tutti, error } = await supabase
                 .from('prodotti')
-                .select('id, nome, prezzo, crediti_ai_mensili')
-                .eq('tipo', 'crediti_ai')
+                .select('id, nome, tipo, prezzo, durata_mesi, crediti_ai_mensili, spazio_gb, target_role, codice')
                 .eq('attivo', true)
+                .in('tipo', ['piano_privato', 'spazio_archiviazione', 'crediti_ai'])
                 .order('prezzo')
-            if (errCred) throw new Error(`Errore caricamento crediti: ${errCred.message}`)
-            setPacchettiCrediti(cred ?? [])
+            if (error) throw new Error(`Errore caricamento prodotti: ${error.message}`)
+            setPiani((tutti ?? []).filter(p => p.tipo === 'piano_privato'))
+            setArchivioMensile((tutti ?? []).filter(p => p.tipo === 'spazio_archiviazione' && p.target_role === 'user'))
+            setPacchettiCrediti((tutti ?? []).filter(p => p.tipo === 'crediti_ai'))
 
-            // Abbonamenti (solo se verificato) — filtrati per direzione professionale
+            // Piani per lo studio (solo se verificato) — filtrati per direzione professionale
             if (isApproved) {
-                // La direzione dell'utente: fiduciario o avvocato (default avvocato se non impostata)
                 const direzione = profile?.tipo_richiesta ?? 'avvocato'
                 const { data: abb, error: errAbb } = await supabase
                     .from('prodotti')
@@ -158,7 +101,7 @@ export default function Acquista() {
                 if (errAbb) throw new Error(`Errore caricamento abbonamenti: ${errAbb.message}`)
                 setAbbonamenti(abb ?? [])
 
-                // Seat addon (solo se ha piano studio)
+                // Posti aggiuntivi (solo se ha un piano studio)
                 if (haPianoStudio) {
                     const { data: seats, error: errSeats } = await supabase
                         .from('prodotti')
@@ -178,8 +121,9 @@ export default function Acquista() {
         }
     }
 
-    async function acquista(prodottoId, contesto = '') {
+    async function acquista(prodottoId) {
         setErrore('')
+        setAvviso('')
         if (!consenso.ok) {
             setErrore(consenso.errore)
             document.getElementById('consenso-recesso')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -223,166 +167,103 @@ export default function Acquista() {
         }
     }
 
+    // Piano più piccolo: dal mese dopo, se i file ci stanno (abbonamento-gestisci)
+    async function passaA(piano) {
+        if (!conto.piano) return
+        setErrore('')
+        setAvviso('')
+        const r = await gestisciAbbonamento('cambia', conto.piano.id, piano.id)
+        if (r.checkout) return acquista(piano.id)
+        if (!r.ok) { setErrore(r.error ?? tc('errore_generico')); return }
+        setAvviso(r.messaggio)
+        conto.ricarica()
+    }
+
+    async function gestisciArchivio(a) {
+        setErrore('')
+        setAvviso('')
+        const r = await gestisciAbbonamento(a.stato === 'disdetto' ? 'riattiva' : 'disdici', a.id)
+        if (!r.ok) { setErrore(r.error ?? tc('errore_generico')); return }
+        setAvviso(r.messaggio)
+        conto.ricarica()
+    }
+
+    const vai = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
     return (
         <div className="space-y-6 max-w-5xl">
 
             {/* Header */}
             <div>
                 <p className="section-label mb-2">{t('header.label')}</p>
-                <h1 className="font-display text-4xl font-light text-nebbia">
-                    {isApproved ? t('header.titolo_completo') : t('header.titolo_base')}
-                </h1>
-                <p className="font-body text-sm text-nebbia/40 mt-1">
-                    {isApproved
-                        ? t('header.sottotitolo_completo')
-                        : t('header.sottotitolo_base')
-                    }
-                </p>
+                <h1 className="font-display text-4xl font-light text-nebbia">{tc('titolo_pagina')}</h1>
             </div>
 
             {/* Banner successo */}
             {isSuccess && (
                 <div className="flex items-center gap-3 p-4 bg-salvia/10 border border-salvia/25">
                     <CheckCircle size={18} className="text-salvia shrink-0" />
-                    <p className="font-body text-sm font-medium text-salvia">
-                        {t('successo.messaggio')}
-                    </p>
+                    <p className="font-body text-sm font-medium text-salvia">{t('successo.messaggio')}</p>
                 </div>
             )}
 
-            {/* Saldo crediti — sempre visibile */}
-            <div className="bg-slate border border-salvia/20 p-5">
-                <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                        <Sparkles size={14} className="text-salvia" />
-                        <p className="font-body text-sm font-medium text-nebbia">{t('saldo.titolo')}</p>
-                    </div>
-                    {loadingCrediti && <Loader2 size={13} className="animate-spin text-salvia/50" />}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                    <div className="sm:col-span-1 bg-petrolio/60 border border-salvia/30 p-4">
-                        <p className="font-body text-xs text-salvia/70 uppercase tracking-widest mb-1">{t('saldo.totale')}</p>
-                        <p className="font-display text-4xl font-light text-salvia">{crediti.totale}</p>
-                        <p className="font-body text-xs text-nebbia/40 mt-0.5">{t('saldo.crediti_disponibili')}</p>
-                    </div>
-
-                    <div className="sm:col-span-3 grid grid-cols-3 gap-3">
-                        <div className="bg-petrolio/40 border border-white/5 p-3">
-                            <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">{t('saldo.piano')}</p>
-                            <p className="font-display text-2xl font-light text-oro">{crediti.piano}</p>
-                            {crediti.piano_scadenza && (
-                                <p className="font-body text-[10px] text-nebbia/30 mt-0.5">
-                                    {t('saldo.scad', { data: new Date(crediti.piano_scadenza).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short' }) })}
-                                </p>
-                            )}
-                        </div>
-                        <div className="bg-petrolio/40 border border-white/5 p-3">
-                            <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">{t('saldo.acquistati')}</p>
-                            <p className="font-display text-2xl font-light text-nebbia/80">{crediti.topup}</p>
-                            <p className="font-body text-[10px] text-nebbia/30 mt-0.5">{t('saldo.non_scadono')}</p>
-                        </div>
-                        <div className="bg-petrolio/40 border border-white/5 p-3">
-                            <p className="font-body text-[10px] text-nebbia/40 uppercase tracking-widest mb-1">{t('saldo.benvenuto')}</p>
-                            <p className="font-display text-2xl font-light text-nebbia/80">{crediti.benvenuto}</p>
-                            <p className="font-body text-[10px] text-nebbia/30 mt-0.5">{t('saldo.non_scadono')}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Box trasparenza */}
-            <div className="bg-slate/40 border border-white/5 p-4 flex items-start gap-3">
-                <Info size={14} className="text-salvia/60 shrink-0 mt-0.5" />
-                <div className="space-y-1.5 font-body text-xs text-nebbia/55 leading-relaxed">
-                    <p><strong className="text-nebbia/80">{t('trasparenza.titolo')}</strong></p>
-                    {isPrivato ? (
-                        <p>
-                            {t('trasparenza.piano_privato_pre')}
-                            <span className="text-oro">{t('trasparenza.piano_privato_evidenza')}</span>
-                            {t('trasparenza.piano_privato_post')}
-                        </p>
-                    ) : (
-                        <p>
-                            {t('trasparenza.piano_pre')}
-                            <span className="text-oro">{t('trasparenza.piano_evidenza')}</span>
-                            {t('trasparenza.piano_post')}
-                        </p>
-                    )}
-                    <p>
-                        {t('trasparenza.separati_pre')}
-                        <span className="text-nebbia/80">{t('trasparenza.separati_evidenza')}</span>
-                        {t('trasparenza.separati_mid')}
-                        <span className="text-nebbia/80">{t('trasparenza.benvenuto_evidenza')}</span>
-                        {t('trasparenza.separati_post')}
-                    </p>
-                    <p>{t('trasparenza.consumo')}</p>
-                </div>
-            </div>
+            <RiquadroConto
+                conto={conto}
+                prezzoDa={piani[0]?.prezzo}
+                onAggiungiCrediti={() => vai('crediti')}
+                onAggiungiArchivio={() => vai('archivio-in-piu')}
+                onAbbonamento={() => vai('abbonamenti')}
+                onGestisci={() => setGestisciAperta(true)}
+            />
 
             {/* Prima dei prodotti: dati di fatturazione, attivazione immediata e recesso (la frase che
                 accompagna i pulsanti «Paga e attiva subito»), codice sconto */}
             <AvvisoDatiFatturazione profile={profile} />
 
-            {/* Attivazione immediata e recesso (solo privati) */}
             <div id="consenso-recesso">
                 <ConsensoRecesso consenso={consenso} className="bg-slate border border-white/5 p-4" />
             </div>
 
             <CodiceSconto sconto={sconto} className="bg-slate border border-white/5 p-4" />
 
-            {/* Piano Personale: solo per i privati */}
-            {isPrivato && pianoPersonale && (
-                <SezionePianoPersonale
-                    prodotto={pianoPersonale}
-                    attivoFino={pianoScadenza}
-                    acquistando={acquistando}
-                    onAcquista={acquista}
-                    conAbbonamenti={isApproved}
-                    sconto={sconto}
-                    paga={consenso.pulsante}
-                />
-            )}
-
-            {/* Tab navigation (solo se verificato per mostrare entrambi) */}
-            {isApproved && (
-                <div className="flex gap-1 bg-slate border border-white/5 p-1 w-fit">
-                    <button
-                        onClick={() => setTabAttivo('crediti')}
-                        className={`flex items-center gap-2 px-4 py-2 font-body text-sm transition-colors ${tabAttivo === 'crediti' ? 'bg-salvia/10 text-salvia border border-salvia/30' : 'text-nebbia/40 hover:text-nebbia'
-                            }`}
-                    >
-                        <Sparkles size={13} /> {t('tab.crediti')}
-                    </button>
-                    <button
-                        onClick={() => setTabAttivo('abbonamenti')}
-                        className={`flex items-center gap-2 px-4 py-2 font-body text-sm transition-colors ${tabAttivo === 'abbonamenti' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'
-                            }`}
-                    >
-                        <Tag size={13} /> {t('tab.abbonamenti')}
-                    </button>
-                    {haPianoStudio && seatAddon.length > 0 && (
-                        <button
-                            onClick={() => setTabAttivo('seat')}
-                            className={`flex items-center gap-2 px-4 py-2 font-body text-sm transition-colors ${tabAttivo === 'seat' ? 'bg-oro/10 text-oro border border-oro/30' : 'text-nebbia/40 hover:text-nebbia'
-                                }`}
-                        >
-                            <CreditCard size={13} /> {t('tab.posti')}
-                        </button>
-                    )}
-                </div>
-            )}
-
-
-            {/* Errore acquisto */}
+            {/* Errore e avvisi */}
             {errore && (
                 <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
                     <AlertCircle size={14} /> {errore}
                 </div>
             )}
+            {avviso && (
+                <div className="flex items-center gap-2 text-salvia text-xs font-body p-3 bg-salvia/10 border border-salvia/25">
+                    <CheckCircle size={14} /> {avviso}
+                </div>
+            )}
 
-            {/* ── TAB CREDITI ── */}
-            {tabAttivo === 'crediti' && (
+            {piani.length > 0 && (
+                <SezionePiani
+                    piani={piani}
+                    conto={conto}
+                    acquistando={acquistando}
+                    onAcquista={acquista}
+                    onCambia={passaA}
+                    paga={consenso.pulsante}
+                    sconto={sconto}
+                    PrezzoScontato={PrezzoScontato}
+                />
+            )}
+
+            <SezioneArchivioInPiu
+                prodotti={archivioMensile}
+                conto={conto}
+                acquistando={acquistando}
+                onAcquista={acquista}
+                onGestisciUno={gestisciArchivio}
+                paga={consenso.pulsante}
+                sconto={sconto}
+                PrezzoScontato={PrezzoScontato}
+            />
+
+            <div id="crediti" className="space-y-3 scroll-mt-24">
+                <p className="section-label">{tc('sez_crediti')}</p>
                 <SezioneCrediti
                     pacchetti={pacchettiCrediti}
                     loading={loadingProdotti}
@@ -391,35 +272,37 @@ export default function Acquista() {
                     sconto={sconto}
                     paga={consenso.pulsante}
                 />
-            )}
+            </div>
 
-            {/* ── TAB ABBONAMENTI (solo verificato) ── */}
-            {tabAttivo === 'abbonamenti' && isApproved && (
-                <SezioneAbbonamenti
-                    piani={abbonamenti}
-                    loading={loadingProdotti}
-                    acquistando={acquistando}
-                    onAcquista={acquista}
-                    // Il Piano Personale non è un piano professionale e non viene
-                    // sostituito: resta valido fino alla sua scadenza
-                    piano_attivo={!isPrivato && !!profile?.piano_id}
-                    sconto={sconto}
-                    paga={consenso.pulsante}
-                />
+            {/* Piani per lo studio (solo se verificato) */}
+            {isApproved && abbonamenti.length > 0 && (
+                <div className="space-y-3">
+                    <p className="section-label">{tc('sez_studio')}</p>
+                    <SezioneAbbonamenti
+                        piani={abbonamenti}
+                        loading={loadingProdotti}
+                        acquistando={acquistando}
+                        onAcquista={acquista}
+                        piano_attivo={false}
+                        sconto={sconto}
+                        paga={consenso.pulsante}
+                    />
+                </div>
             )}
-
-            {/* ── TAB SEAT ADDON ── */}
-            {tabAttivo === 'seat' && haPianoStudio && (
-                <SezioneSeat
-                    seats={seatAddon}
-                    loading={loadingProdotti}
-                    acquistando={acquistando}
-                    onAcquista={acquista}
-                    posti_acquistati={profile?.posti_acquistati}
-                    posti_usati={profile?.posti_usati}
-                    sconto={sconto}
-                    paga={consenso.pulsante}
-                />
+            {isApproved && haPianoStudio && seatAddon.length > 0 && (
+                <div className="space-y-3">
+                    <p className="section-label">{tc('sez_posti')}</p>
+                    <SezioneSeat
+                        seats={seatAddon}
+                        loading={loadingProdotti}
+                        acquistando={acquistando}
+                        onAcquista={acquista}
+                        posti_acquistati={profile?.posti_acquistati}
+                        posti_usati={profile?.posti_usati}
+                        sconto={sconto}
+                        paga={consenso.pulsante}
+                    />
+                </div>
             )}
 
             {/* CTA verifica — varia in base allo stato */}
@@ -481,71 +364,14 @@ export default function Acquista() {
             <p className="font-body text-xs text-nebbia/20 text-center pt-4">
                 {t('footer.trust')}
             </p>
-        </div>
-    )
-}
 
-// ═══════════════════════════════════════════════════════════════
-// PIANO PERSONALE (privati) — crediti del mese + GB di archivio
-// Pagamento mese per mese, senza rinnovo automatico: chi rinnova prima della
-// scadenza aggiunge un mese da quella data (lo decide il webhook).
-// ═══════════════════════════════════════════════════════════════
-function SezionePianoPersonale({ prodotto, attivoFino, acquistando, onAcquista, conAbbonamenti, sconto, paga }) {
-    const { t, i18n } = useTranslation('user_acquista')
-    const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
-    const isLoading = acquistando === prodotto.id
-    const attivo = !!attivoFino && new Date(attivoFino) > new Date()
-    const mesi = Number(prodotto.durata_mesi ?? 1) || 1
-    const voci = [
-        mesi === 1
-            ? t('piano_personale.voce_crediti_mese', { crediti: prodotto.crediti_ai_mensili })
-            : t('piano_personale.voce_crediti_mesi', { crediti: prodotto.crediti_ai_mensili, mesi }),
-        t('piano_personale.voce_archivio', { gb: prodotto.spazio_gb }),
-        t('piano_personale.voce_rinnovo'),
-    ]
-    return (
-        <div className="bg-slate border border-oro/30 p-5 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
-                <div className="min-w-0">
-                    <p className="font-body text-xs text-oro tracking-widest uppercase mb-2">{t('piano_personale.nome')}</p>
-                    <p className="font-display text-4xl font-light text-oro">
-                        <PrezzoScontato prezzo={prodotto.prezzo} scontato={sconto.prezzo(prodotto.id, prodotto.prezzo)} />
-                        <span className="font-body text-sm text-nebbia/40 ml-2">
-                            {mesi === 1 ? t('piano_personale.al_mese') : t('piano_personale.per_mesi', { mesi })}
-                        </span>
-                    </p>
-                    <ul className="mt-4 space-y-2">
-                        {voci.map(v => (
-                            <li key={v} className="flex items-start gap-2 font-body text-xs text-nebbia/60">
-                                <CheckCircle size={11} className="text-salvia shrink-0 mt-0.5" />
-                                <span>{v}</span>
-                            </li>
-                        ))}
-                    </ul>
-                    {conAbbonamenti && (
-                        <p className="font-body text-xs text-nebbia/35 mt-3">{t('piano_personale.per_professionisti')}</p>
-                    )}
-                </div>
-                <div className="sm:text-right shrink-0">
-                    {attivo && (
-                        <p className="font-body text-xs text-salvia mb-2 flex items-center gap-1.5 sm:justify-end">
-                            <CheckCircle size={12} /> {t('piano_personale.attivo_fino', { data: new Date(attivoFino).toLocaleDateString(dateLocale) })}
-                        </p>
-                    )}
-                    <button
-                        onClick={() => onAcquista(prodotto.id)}
-                        disabled={isLoading}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 lg:py-2.5 bg-oro text-petrolio font-body text-sm hover:bg-oro/90 transition-colors disabled:opacity-40"
-                    >
-                        {isLoading
-                            ? <Loader2 size={14} className="animate-spin" />
-                            : <>{paga(attivo ? t('piano_personale.aggiungi_mese') : t('piano_personale.attiva'))} <ArrowRight size={12} /></>}
-                    </button>
-                    {attivo && (
-                        <p className="font-body text-xs text-nebbia/35 mt-2">{t('piano_personale.nota_rinnovo')}</p>
-                    )}
-                </div>
-            </div>
+            <FinestraGestisci
+                conto={conto}
+                aperta={gestisciAperta}
+                onChiudi={() => setGestisciAperta(false)}
+                onFatto={() => conto.ricarica()}
+                onScegliPiano={() => { setGestisciAperta(false); vai('abbonamenti') }}
+            />
         </div>
     )
 }
