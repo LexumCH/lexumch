@@ -13,6 +13,7 @@ import {
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { vociPiano, etichettaDurata } from '@/lib/vociPiano'
 import { useAuth } from '@/context/AuthContext'
+import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 
 // ─────────────────────────────────────────────────────────────
 // COSTANTI / HELPERS
@@ -127,6 +128,8 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
     // Voci delle schede dai dati del prodotto (lib/vociPiano), testi in comp_voci_piano
     const { t: tv } = useTranslation('comp_voci_piano')
     const localeNumeri = dateLocale
+    const { profile } = useAuth()
+    const datiFatt = useDatiFatturazione()
     const [piani, setPiani] = useState([])
     const [addons, setAddons] = useState([])
     const [clientiAddons, setClientiAddons] = useState([])
@@ -203,8 +206,15 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
     }
 
     async function acquista(prodottoId, isUpgrade) {
-        setAcquistando(prodottoId)
         setErrore('')
+        // indirizzo di fatturazione: lo chiediamo noi prima della cassa (src/lib/datiFatturazione.jsx)
+        const mancanti = mancantiAcquisto(profile)
+        if (mancanti.length) {
+            setErrore(datiFatt.messaggio(mancanti))
+            document.getElementById('dati-fatturazione')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            return
+        }
+        setAcquistando(prodottoId)
         try {
             await chiamaStripe(prodottoId, isUpgrade)
         } catch (err) {
@@ -221,6 +231,8 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
 
     return (
         <div className="space-y-8">
+            <AvvisoDatiFatturazione profile={profile} />
+
             {errore && (
                 <div className="flex items-center gap-2 text-red-400 text-xs font-body p-3 bg-red-900/10 border border-red-500/20">
                     <AlertCircle size={14} /> {errore}

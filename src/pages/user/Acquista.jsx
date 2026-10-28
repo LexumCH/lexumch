@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
+import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 import { vociPiano, etichettaDurata, periodoPrezzo } from '@/lib/vociPiano'
 import {
     Sparkles, ShoppingBag, CreditCard, ArrowRight, CheckCircle,
@@ -39,6 +40,7 @@ export default function Acquista() {
     const [acquistando, setAcquistando] = useState(null)
     const [errore, setErrore] = useState('')
     const consenso = useConsensoRecesso()
+    const datiFatt = useDatiFatturazione()
 
     // Tab attivo: "crediti" (sempre visibile), "abbonamenti" (solo verificato)
     const isApproved = profile?.verification_status === 'approved'
@@ -175,6 +177,13 @@ export default function Acquista() {
         if (!consenso.ok) {
             setErrore(consenso.errore)
             document.getElementById('consenso-recesso')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            return
+        }
+        // indirizzo di fatturazione: lo chiediamo noi prima della cassa (src/lib/datiFatturazione.jsx)
+        const mancanti = mancantiAcquisto(profile)
+        if (mancanti.length) {
+            setErrore(datiFatt.messaggio(mancanti))
+            document.getElementById('dati-fatturazione')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
             return
         }
         setAcquistando(prodottoId)
@@ -341,6 +350,8 @@ export default function Acquista() {
                     )}
                 </div>
             )}
+
+            <AvvisoDatiFatturazione profile={profile} />
 
             {/* Attivazione immediata e recesso (solo privati) */}
             <div id="consenso-recesso">

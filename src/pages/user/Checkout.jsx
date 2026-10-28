@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext'
 import { AlertCircle, Lock } from 'lucide-react'
 import { supabaseUrl, getAccessToken } from '@/lib/supabase'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
+import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 
 export default function UserCheckout() {
     const { t } = useTranslation('user_checkout')
@@ -18,6 +19,7 @@ export default function UserCheckout() {
     const [loading, setLoading] = useState(false)
     const [errore, setErrore] = useState('')
     const consenso = useConsensoRecesso()
+    const datiFatt = useDatiFatturazione()
 
     if (!prodotto) {
         return (
@@ -33,6 +35,8 @@ export default function UserCheckout() {
     async function handlePagamento() {
         setErrore('')
         if (!consenso.ok) { setErrore(consenso.errore); return }
+        const mancanti = mancantiAcquisto(profile)
+        if (mancanti.length) { setErrore(datiFatt.messaggio(mancanti)); return }
         setLoading(true)
 
         try {
@@ -130,6 +134,8 @@ export default function UserCheckout() {
                 </p>
             </div>
 
+            <AvvisoDatiFatturazione profile={profile} />
+
             <ConsensoRecesso consenso={consenso} className="px-1" />
 
             {/* Errore */}
@@ -142,7 +148,7 @@ export default function UserCheckout() {
             {/* CTA */}
             <button
                 onClick={handlePagamento}
-                disabled={loading || !consenso.ok}
+                disabled={loading || !consenso.ok || mancantiAcquisto(profile).length > 0}
                 className="btn-primary w-full justify-center text-sm disabled:opacity-60"
             >
                 {loading ? (

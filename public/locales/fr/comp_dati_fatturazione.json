@@ -1,0 +1,13 @@
+{
+  "testo": "Pour acheter, nous avons besoin de vos données de facturation. Il manque : {{campi}}.",
+  "link": "Compléter les données",
+  "errore": "Pour acheter, complétez les données de facturation dans votre profil : {{campi}}.",
+  "campi": {
+    "nome": "Prénom",
+    "cognome": "Nom",
+    "indirizzo": "Adresse",
+    "cap": "NPA",
+    "citta": "Localité",
+    "paese": "Pays"
+  }
+}

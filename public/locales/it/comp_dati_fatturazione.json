@@ -1,0 +1,13 @@
+{
+  "testo": "Per acquistare servono i tuoi dati di fatturazione. Mancano: {{campi}}.",
+  "link": "Completa i dati",
+  "errore": "Per acquistare completa i dati di fatturazione nel profilo: {{campi}}.",
+  "campi": {
+    "nome": "Nome",
+    "cognome": "Cognome",
+    "indirizzo": "Indirizzo",
+    "cap": "NPA",
+    "citta": "Località",
+    "paese": "Paese"
+  }
+}

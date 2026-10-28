@@ -26,7 +26,14 @@
     "annulla": "Abbrechen",
     "salvataggio": "Wird gespeichert…",
     "salva": "Änderungen speichern",
-    "lingua": "Sprache"
+    "lingua": "Sprache",
+    "fatturazione_titolo": "Rechnungsadresse",
+    "fatturazione_testo": "Nötig für den Kauf von Credits und Plänen: Sie erscheint auf der Quittung.",
+    "indirizzo": "Strasse und Hausnummer",
+    "indirizzo_placeholder": "Bahnhofstrasse 1",
+    "cap": "PLZ",
+    "citta": "Ort",
+    "paese": "Land"
   },
   "password": {
     "titolo": "Passwort ändern",

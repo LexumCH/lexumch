@@ -26,7 +26,14 @@
     "annulla": "Annulla",
     "salvataggio": "Salvataggio…",
     "salva": "Salva modifiche",
-    "lingua": "Lingua"
+    "lingua": "Lingua",
+    "fatturazione_titolo": "Indirizzo di fatturazione",
+    "fatturazione_testo": "Serve per acquistare crediti e piani: compare nella ricevuta.",
+    "indirizzo": "Indirizzo e numero civico",
+    "indirizzo_placeholder": "Via Nassa 1",
+    "cap": "NPA",
+    "citta": "Località",
+    "paese": "Paese"
   },
   "password": {
     "titolo": "Cambia password",

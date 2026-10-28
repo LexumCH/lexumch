@@ -26,7 +26,14 @@
     "annulla": "Annuler",
     "salvataggio": "Enregistrement…",
     "salva": "Enregistrer les modifications",
-    "lingua": "Langue"
+    "lingua": "Langue",
+    "fatturazione_titolo": "Adresse de facturation",
+    "fatturazione_testo": "Nécessaire pour acheter des crédits et des plans : elle figure sur le reçu.",
+    "indirizzo": "Rue et numéro",
+    "indirizzo_placeholder": "Rue du Rhône 1",
+    "cap": "NPA",
+    "citta": "Localité",
+    "paese": "Pays"
   },
   "password": {
     "titolo": "Changer le mot de passe",

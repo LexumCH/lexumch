@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { PageHeader, Badge } from '@/components/shared'
 import { Edit2, Check, X, CheckCircle, AlertCircle, Eye, EyeOff, Scale, ArrowRight, Shield, ShieldCheck, Receipt } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/context/AuthContext'
 import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, messaggioErroreInvoke, messaggioErroreServer } from '@/lib/password'
 import ModalAttiva2FA from '@/components/sicurezza/ModalAttiva2FA'
 import ModalBackupCodes from '@/components/sicurezza/ModalBackupCodes'
@@ -63,6 +64,7 @@ const FATT_VUOTO = {
 
 export default function AvvocatoProfilo() {
     const { t, i18n } = useTranslation('avv_profilo')
+    const { reloadProfile } = useAuth()
     const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
@@ -286,6 +288,8 @@ export default function AvvocatoProfilo() {
             if (error) throw new Error(messaggioErroreServer(error, { generico: t('errore_salvataggio') }))
             const salvati = { ...v, iban: iban ? formattaIban(iban) : '', qr_iban: qrIban ? formattaIban(qrIban) : '', uid: uid || '' }
             setFatt(salvati); setFattOriginali(salvati); setEditingFatt(false); setOkFatt(true)
+            // il profilo in memoria si aggiorna: i pulsanti «Paga» vedono subito l'indirizzo
+            reloadProfile?.()
             setTimeout(() => setOkFatt(false), 3000)
         } catch (err) { setErrFatt(err.message) }
         finally { setSalvandoFatt(false) }

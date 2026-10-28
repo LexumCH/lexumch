@@ -7,9 +7,15 @@ import { PageHeader, InputField, Badge } from '@/components/shared'
 import { Check, CheckCircle, AlertCircle, Scale, Clock, Loader2 } from 'lucide-react'
 import SelectLingua from '@/components/SelectLingua'
 
+// Paesi dell'indirizzo di fatturazione: la Svizzera e i vicini (nomi nella lingua del sito).
+const PAESI = ['CH', 'LI', 'IT', 'DE', 'FR', 'AT']
+function nomePaese(codice, lingua) {
+    try { return new Intl.DisplayNames([lingua || 'it'], { type: 'region' }).of(codice) } catch { return codice }
+}
+
 export default function UserProfilo() {
     const { t, i18n } = useTranslation('user_profilo')
-    const { profile } = useAuth()
+    const { profile, reloadProfile } = useAuth()
 
     // ── Dati personali ──
     const [form, setForm] = useState({
@@ -17,6 +23,11 @@ export default function UserProfilo() {
         cognome: profile?.cognome ?? '',
         telefono: profile?.telefono ?? '',
         lingua: profile?.lingua ?? 'it',
+        // indirizzo di fatturazione: serve per pagare (src/lib/datiFatturazione.jsx)
+        indirizzo: profile?.indirizzo ?? '',
+        cap: profile?.cap ?? '',
+        citta: profile?.citta ?? '',
+        paese: profile?.paese ?? 'CH',
     })
     const [datiOriginali, setDatiOriginali] = useState({ ...form })
 
@@ -28,6 +39,10 @@ export default function UserProfilo() {
                 cognome: profile.cognome ?? '',
                 telefono: profile.telefono ?? '',
                 lingua: profile.lingua ?? 'it',
+                indirizzo: profile.indirizzo ?? '',
+                cap: profile.cap ?? '',
+                citta: profile.citta ?? '',
+                paese: profile.paese ?? 'CH',
             }
             setForm(init)
             setDatiOriginali(init)
@@ -71,12 +86,18 @@ export default function UserProfilo() {
                     cognome: form.cognome.trim(),
                     telefono: form.telefono.trim() || null,
                     lingua: linguaOk,
+                    indirizzo: form.indirizzo.trim() || null,
+                    cap: form.cap.trim() || null,
+                    citta: form.citta.trim() || null,
+                    paese: form.paese || 'CH',
                 })
                 .eq('id', user.id)
             // Errore del database: niente testo tecnico, il messaggio generico
             if (error) throw new Error(messaggioErroreServer(error, { generico: t('errore_salvataggio') }))
             setDatiOriginali({ ...form })
             setOkDati(true)
+            // il profilo in memoria si aggiorna: i pulsanti «Paga» vedono subito l'indirizzo
+            reloadProfile?.()
             try { i18n.changeLanguage(form.lingua); localStorage.setItem('lexum_lingua', form.lingua) } catch { /* noop */ }
             setTimeout(() => setOkDati(false), 3000)
         } catch (err) {
@@ -161,6 +182,27 @@ export default function UserProfilo() {
                     <InputField label={t('dati.cognome')} {...f('cognome')} />
                 </div>
                 <InputField label={t('dati.telefono')} placeholder={t('dati.telefono_placeholder')} {...f('telefono')} />
+                <div className="pt-2 space-y-4">
+                    <div>
+                        <p className="font-body text-sm text-nebbia">{t('dati.fatturazione_titolo')}</p>
+                        <p className="font-body text-xs text-nebbia/40 mt-0.5">{t('dati.fatturazione_testo')}</p>
+                    </div>
+                    <InputField label={t('dati.indirizzo')} placeholder={t('dati.indirizzo_placeholder')} {...f('indirizzo')} />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <InputField label={t('dati.cap')} placeholder="6900" {...f('cap')} />
+                        <InputField label={t('dati.citta')} placeholder="Lugano" {...f('citta')} />
+                        <div>
+                            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('dati.paese')}</label>
+                            <select
+                                value={form.paese}
+                                onChange={e => { setForm(p => ({ ...p, paese: e.target.value })); setErrDati('') }}
+                                className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50"
+                            >
+                                {PAESI.map(c => <option key={c} value={c}>{nomePaese(c, i18n.language)}</option>)}
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('dati.lingua')}</label>
                     <SelectLingua value={form.lingua} onChange={v => { setForm(p => ({ ...p, lingua: v })); setErrDati('') }} />

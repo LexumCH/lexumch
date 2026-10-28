@@ -1,0 +1,13 @@
+{
+  "testo": "Für einen Kauf brauchen wir Ihre Rechnungsdaten. Es fehlen: {{campi}}.",
+  "link": "Daten ergänzen",
+  "errore": "Für einen Kauf ergänzen Sie bitte die Rechnungsdaten im Profil: {{campi}}.",
+  "campi": {
+    "nome": "Vorname",
+    "cognome": "Nachname",
+    "indirizzo": "Adresse",
+    "cap": "PLZ",
+    "citta": "Ort",
+    "paese": "Land"
+  }
+}

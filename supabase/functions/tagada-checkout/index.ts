@@ -48,6 +48,7 @@ function linguaDi(l: unknown): Lingua {
 const TESTI: Record<Lingua, {
   soloPrivati: string; recesso: string; nonDisponibile: string; accessoScaduto: string;
   soloPiuCaro: string; mese: (n: number) => string;
+  datiMancanti: (campi: string) => string; campi: Record<string, string>;
 }> = {
   it: {
     soloPrivati: "Il Piano Personale è riservato agli utenti privati.",
@@ -56,6 +57,8 @@ const TESTI: Record<Lingua, {
     accessoScaduto: "Accesso scaduto: entra di nuovo.",
     soloPiuCaro: "Con il piano attuale ancora attivo puoi passare solo a un piano più caro.",
     mese: (n) => (n === 1 ? "1 mese" : `${n} mesi`),
+    datiMancanti: (c) => `Per acquistare completa i dati di fatturazione nel profilo: ${c}.`,
+    campi: { nome: "Nome", cognome: "Cognome", indirizzo: "Indirizzo", cap: "NPA", citta: "Località", paese: "Paese" },
   },
   de: {
     soloPrivati: "Der Persönliche Plan ist Privatpersonen vorbehalten.",
@@ -64,6 +67,8 @@ const TESTI: Record<Lingua, {
     accessoScaduto: "Sitzung abgelaufen: Bitte melden Sie sich erneut an.",
     soloPiuCaro: "Solange Ihr aktueller Plan aktiv ist, können Sie nur zu einem teureren Plan wechseln.",
     mese: (n) => (n === 1 ? "1 Monat" : `${n} Monate`),
+    datiMancanti: (c) => `Um zu kaufen, ergänzen Sie die Rechnungsangaben im Profil: ${c}.`,
+    campi: { nome: "Vorname", cognome: "Nachname", indirizzo: "Adresse", cap: "PLZ", citta: "Ort", paese: "Land" },
   },
   fr: {
     soloPrivati: "Le Plan personnel est réservé aux particuliers.",
@@ -72,6 +77,8 @@ const TESTI: Record<Lingua, {
     accessoScaduto: "Session expirée : reconnectez-vous.",
     soloPiuCaro: "Tant que votre plan actuel est actif, vous ne pouvez passer qu'à un plan plus cher.",
     mese: (n) => `${n} mois`,
+    datiMancanti: (c) => `Pour acheter, complétez les données de facturation dans le profil : ${c}.`,
+    campi: { nome: "Prénom", cognome: "Nom", indirizzo: "Adresse", cap: "NPA", citta: "Localité", paese: "Pays" },
   },
 };
 
@@ -219,7 +226,7 @@ Deno.serve(async (req) => {
 
     const { data: profilo } = await supabase
       .from("profiles")
-      .select("email, nome, cognome, role, lingua, piano_id, abbonamento_scadenza")
+      .select("email, nome, cognome, role, lingua, piano_id, abbonamento_scadenza, telefono, indirizzo, numero_civico, cap, citta, cantone, paese")
       .eq("id", user.id).single();
     lingua = linguaDi(profilo?.lingua);
     const t = TESTI[lingua];
@@ -230,6 +237,14 @@ Deno.serve(async (req) => {
     // I privati chiedono l'attivazione immediata (Termini, punto 4.6): senza la spunta non si paga.
     if (profilo?.role === "user" && consenso_recesso !== true) {
       return risposta({ ok: false, error: t.recesso }, 400);
+    }
+    // Dati di fatturazione: li chiede Lexum prima del pulsante (src/lib/datiFatturazione.jsx, stessi campi);
+    // qui il controllo vale per chi arriva da una pagina vecchia o dall'app.
+    const CAMPI = ["nome", "cognome", "indirizzo", "cap", "citta", "paese"] as const;
+    // deno-lint-ignore no-explicit-any
+    const mancanti = CAMPI.filter((k) => !String((profilo as any)?.[k] ?? "").trim());
+    if (mancanti.length) {
+      return risposta({ ok: false, error: t.datiMancanti(mancanti.map((k) => t.campi[k]).join(", ")), campi_mancanti: mancanti }, 400);
     }
 
     // Prezzo di oggi, con le regole di stripe-checkout CH
@@ -285,6 +300,20 @@ Deno.serve(async (req) => {
     if (profilo?.email ?? user.email) q.set("customerEmail", profilo?.email ?? user.email!);
     if (profilo?.nome) q.set("customerFirstName", profilo.nome);
     if (profilo?.cognome) q.set("customerLastName", profilo.cognome);
+    if (profilo?.telefono) q.set("customerPhone", profilo.telefono);
+    // Indirizzo di fatturazione già compilato (per i prodotti digitali Tagadapay vale anche come fatturazione)
+    const paese = (String(profilo?.paese ?? "").trim().toUpperCase() || "CH").slice(0, 2);
+    q.set("shippingCountry", paese);
+    q.set("shippingAddress", JSON.stringify({
+      firstName: profilo?.nome ?? "",
+      lastName: profilo?.cognome ?? "",
+      line1: [profilo?.indirizzo, profilo?.numero_civico].filter(Boolean).join(" "),
+      city: profilo?.citta ?? "",
+      state: String(profilo?.cantone ?? "").toUpperCase(),
+      postalCode: profilo?.cap ?? "",
+      country: paese,
+      ...(profilo?.telefono ? { phone: profilo.telefono } : {}),
+    }));
 
     // /checkout/init risponde con un rinvio (307) alla pagina di pagamento: lo leggiamo qui, così un
     // negozio chiuso o una cassa non pubblicata si vedono subito invece che nel browser.

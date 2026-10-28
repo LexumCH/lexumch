@@ -45,6 +45,7 @@ export const ELENCO_NS = [
   "comp_chat_widget",
   "comp_consenso_recesso",
   "comp_controparti",
+  "comp_dati_fatturazione",
   "comp_documenti_portale",
   "comp_documento_lex",
   "comp_etichette_assegnate",

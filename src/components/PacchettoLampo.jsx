@@ -17,6 +17,7 @@ import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
+import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 
 const CHIAVE_SOSPESA = 'lex_ricerca_in_sospeso'
 const DURATA_SOSPESA_MS = 60 * 60 * 1000   // una ricerca lasciata per pagare si ritrova entro un'ora
@@ -83,6 +84,7 @@ export default function PacchettoLampo({ aperto, onChiudi, motivo = 'esauriti', 
     const [pagando, setPagando] = useState(false)
     const [errore, setErrore] = useState('')
     const consenso = useConsensoRecesso()
+    const datiFatt = useDatiFatturazione()
 
     useEffect(() => {
         if (!aperto) return
@@ -121,6 +123,8 @@ export default function PacchettoLampo({ aperto, onChiudi, motivo = 'esauriti', 
     async function paga() {
         if (!prodotto || pagando) return
         if (!consenso.ok) { setErrore(consenso.errore); return }
+        const mancanti = mancantiAcquisto(profile)
+        if (mancanti.length) { setErrore(datiFatt.messaggio(mancanti)); return }
         setPagando(true)
         setErrore('')
         try {
@@ -198,6 +202,8 @@ export default function PacchettoLampo({ aperto, onChiudi, motivo = 'esauriti', 
                                 <p className="font-display text-3xl font-light text-oro whitespace-nowrap">{prezzo}</p>
                             </div>
 
+                            <AvvisoDatiFatturazione profile={profile} />
+
                             <ConsensoRecesso consenso={consenso} />
 
                             {errore && (
@@ -208,7 +214,7 @@ export default function PacchettoLampo({ aperto, onChiudi, motivo = 'esauriti', 
 
                             <button
                                 onClick={paga}
-                                disabled={pagando || !consenso.ok}
+                                disabled={pagando || !consenso.ok || mancantiAcquisto(profile).length > 0}
                                 className="flex items-center justify-center gap-2 w-full min-h-[44px] py-3 bg-oro/15 border border-oro/40 text-oro font-body text-sm hover:bg-oro/25 transition-colors disabled:opacity-50"
                             >
                                 {pagando
