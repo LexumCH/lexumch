@@ -6,12 +6,7 @@ import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, m
 import { PageHeader, InputField, Badge } from '@/components/shared'
 import { Check, CheckCircle, AlertCircle, Scale, Clock, Loader2 } from 'lucide-react'
 import SelectLingua from '@/components/SelectLingua'
-
-// Paesi dell'indirizzo di fatturazione: la Svizzera e i vicini (nomi nella lingua del sito).
-const PAESI = ['CH', 'LI', 'IT', 'DE', 'FR', 'AT']
-function nomePaese(codice, lingua) {
-    try { return new Intl.DisplayNames([lingua || 'it'], { type: 'region' }).of(codice) } catch { return codice }
-}
+import { elencoPaesi } from '@/lib/paesi'
 
 export default function UserProfilo() {
     const { t, i18n } = useTranslation('user_profilo')
@@ -198,7 +193,7 @@ export default function UserProfilo() {
                                 onChange={e => { setForm(p => ({ ...p, paese: e.target.value })); setErrDati('') }}
                                 className="w-full bg-petrolio border border-white/10 text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50"
                             >
-                                {PAESI.map(c => <option key={c} value={c}>{nomePaese(c, i18n.language)}</option>)}
+                                {elencoPaesi(i18n.language, 'CH').map(p => <option key={p.codice} value={p.codice}>{p.nome}</option>)}
                             </select>
                         </div>
                     </div>
