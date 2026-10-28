@@ -28,10 +28,10 @@
     "label": "Montant à payer"
   },
   "info": {
-    "testo": "Paiement unique — aucun renouvellement automatique. Vous recevrez un reçu par e-mail. Vous serez redirigé vers Stripe pour finaliser le paiement en toute sécurité."
+    "testo": "Paiement unique — aucun renouvellement automatique. Vous recevrez un reçu par e-mail. Vous serez redirigé vers la page de paiement sécurisée."
   },
   "cta": {
     "procedi": "Procéder au paiement",
-    "ssl": "Paiement géré par Stripe — Connexion chiffrée SSL"
+    "ssl": "Paiement par carte — connexion chiffrée"
   }
 }

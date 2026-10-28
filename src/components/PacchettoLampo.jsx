@@ -126,7 +126,7 @@ export default function PacchettoLampo({ aperto, onChiudi, motivo = 'esauriti', 
         try {
             const accessToken = await getAccessToken()
             const ritorno = `${window.location.origin}${window.location.pathname}`
-            const res = await fetch(`${supabaseUrl}/functions/v1/stripe-checkout`, {
+            const res = await fetch(`${supabaseUrl}/functions/v1/tagada-checkout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

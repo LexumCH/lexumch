@@ -97,6 +97,6 @@
     "cta_link": "Verifizierung starten"
   },
   "footer": {
-    "trust": "Sichere Zahlung über Stripe. Die Produkte werden unmittelbar nach der Zahlung aktiviert."
+    "trust": "Sichere Zahlung per Karte. Die Produkte werden unmittelbar nach der Zahlung aktiviert."
   }
 }

@@ -72,7 +72,7 @@ function bytesToGB(bytes) {
 async function chiamaStripe(prodottoId, isUpgrade = false) {
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch(
-        `${supabaseUrl}/functions/v1/stripe-checkout`,
+        `${supabaseUrl}/functions/v1/tagada-checkout`,
         {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },

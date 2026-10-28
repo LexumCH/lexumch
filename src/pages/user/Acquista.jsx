@@ -181,7 +181,7 @@ export default function Acquista() {
         try {
             const accessToken = await getAccessToken()
             const res = await fetch(
-                `${supabaseUrl}/functions/v1/stripe-checkout`,
+                `${supabaseUrl}/functions/v1/tagada-checkout`,
                 {
                     method: 'POST',
                     headers: {

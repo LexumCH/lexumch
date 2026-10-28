@@ -28,10 +28,10 @@
     "label": "Zu zahlender Betrag"
   },
   "info": {
-    "testo": "Einmalige Zahlung — keine automatische Verlängerung. Sie erhalten eine Quittung per E-Mail. Sie werden zu Stripe weitergeleitet, um die Zahlung sicher abzuschliessen."
+    "testo": "Einmalige Zahlung — keine automatische Verlängerung. Sie erhalten eine Quittung per E-Mail. Sie werden zur sicheren Zahlungsseite weitergeleitet."
   },
   "cta": {
     "procedi": "Zur Zahlung",
-    "ssl": "Zahlung über Stripe abgewickelt — SSL-verschlüsselte Verbindung"
+    "ssl": "Zahlung per Karte — verschlüsselte Verbindung"
   }
 }

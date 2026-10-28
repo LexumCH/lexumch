@@ -97,6 +97,6 @@
     "cta_link": "Démarrer la vérification"
   },
   "footer": {
-    "trust": "Paiement sécurisé via Stripe. Les produits sont activés immédiatement après le paiement."
+    "trust": "Paiement sécurisé par carte. Les produits sont activés immédiatement après le paiement."
   }
 }

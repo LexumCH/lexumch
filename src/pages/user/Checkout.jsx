@@ -39,7 +39,7 @@ export default function UserCheckout() {
             const accessToken = await getAccessToken()
 
             const res = await fetch(
-                `${supabaseUrl}/functions/v1/stripe-checkout`,
+                `${supabaseUrl}/functions/v1/tagada-checkout`,
                 {
                     method: 'POST',
                     headers: {

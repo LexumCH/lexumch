@@ -28,10 +28,10 @@
     "label": "Totale da pagare"
   },
   "info": {
-    "testo": "Pagamento unico — nessun rinnovo automatico. Riceverai una ricevuta via email. Sarai reindirizzato a Stripe per completare il pagamento in modo sicuro."
+    "testo": "Pagamento unico — nessun rinnovo automatico. Riceverai una ricevuta via email. Sarai reindirizzato alla pagina di pagamento sicura."
   },
   "cta": {
     "procedi": "Procedi al pagamento",
-    "ssl": "Pagamento gestito da Stripe — Connessione cifrata SSL"
+    "ssl": "Pagamento con carta — connessione cifrata"
   }
 }

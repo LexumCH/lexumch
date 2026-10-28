@@ -9,7 +9,7 @@
     "n_ricerche_other": "{{count}} ricerche con Lex",
     "apro_pagamento": "Apro il pagamento...",
     "continua_con": "Continua con {{prezzo}}",
-    "nota_pagamento": "Pagamento con carta tramite Stripe. Poi torni qui e riprendi la ricerca da dove eri.",
+    "nota_pagamento": "Pagamento con carta in modo sicuro. Poi torni qui e riprendi la ricerca da dove eri.",
     "senza_prodotto": "Hai usato le ricerche disponibili. Per continuare con Lex scegli un pacchetto di crediti.",
     "tutti_pacchetti": "Vedi tutti i pacchetti",
     "non_ora": "Non ora",

@@ -9,7 +9,7 @@
     "n_ricerche_other": "{{count}} Recherchen mit Lex",
     "apro_pagamento": "Zahlung wird geöffnet...",
     "continua_con": "Weiter für {{prezzo}}",
-    "nota_pagamento": "Zahlung per Karte über Stripe. Danach kehren Sie hierher zurück und setzen die Recherche dort fort, wo Sie aufgehört haben.",
+    "nota_pagamento": "Sichere Zahlung per Karte. Danach kehren Sie hierher zurück und setzen die Recherche dort fort, wo Sie aufgehört haben.",
     "senza_prodotto": "Sie haben Ihre verfügbaren Recherchen aufgebraucht. Um mit Lex weiterzumachen, wählen Sie ein Guthabenpaket.",
     "tutti_pacchetti": "Alle Pakete ansehen",
     "non_ora": "Nicht jetzt",
