@@ -28,6 +28,7 @@ import PerProgettisti from './pages/PerProgettisti'
 import Contatti from './pages/Contatti'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import TerminiServizio from '@/pages/TerminiServizio'
+import PagamentoEsito from './pages/PagamentoEsito'
 import Novita from './pages/Novita'
 import NovitaArticolo from './pages/NovitaArticolo'
 import ContaVisite from './components/ContaVisite'
@@ -336,6 +337,9 @@ export default function App() {
               <Route path="/area/assistenza/nuovo" element={<Usr><UserAssistenzaNuovo /></Usr>} />
               <Route path="/area/assistenza/:id" element={<Usr><UserAssistenzaDettaglio /></Usr>} />
               <Route path="/area/profilo" element={<Usr><UserProfilo /></Usr>} />
+
+              {/* Rientro dalla cassa Tagadapay (28-10-2026): «Custom Thank-You URL» del negozio */}
+              <Route path="/pagamento/esito" element={<PagamentoEsito />} />
 
               {/* Banca dati dettagli per user */}
               <Route path="/area/norma-federale/:id" element={<Usr><NormaDettaglio /></Usr>} />

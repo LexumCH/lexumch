@@ -17,6 +17,7 @@ import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
+import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 
 const CHIAVE_SOSPESA = 'lex_ricerca_in_sospeso'
@@ -146,6 +147,7 @@ export default function PacchettoLampo({ aperto, onChiudi, motivo = 'esauriti', 
             const json = await res.json().catch(() => ({}))
             if (!json.ok || !json.url) throw new Error(json.error ?? t('errore_pagamento'))
             if (primaDiPagare) primaDiPagare()
+            ricordaRitorno(`${ritorno}?lampo=ok`)
             window.location.href = json.url
         } catch (e) {
             setErrore(sanitizzaErrore(e) ?? t('errore_pagamento'))

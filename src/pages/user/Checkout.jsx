@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext'
 import { AlertCircle, Lock } from 'lucide-react'
 import { supabaseUrl, getAccessToken } from '@/lib/supabase'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
+import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 
 export default function UserCheckout() {
@@ -62,7 +63,8 @@ export default function UserCheckout() {
             const json = await res.json().catch(() => null)
             if (!res.ok || !json?.ok) throw new Error(json?.error || `Errore checkout (HTTP ${res.status})`)
 
-            // Redirect a Stripe Checkout
+            // Alla cassa Tagadapay; dopo il pagamento /pagamento/esito riporta qui (src/lib/ritornoCassa.js)
+            ricordaRitorno('/abbonamenti?success=1')
             window.location.href = json.url
 
         } catch (err) {

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
+import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 import { vociPiano, etichettaDurata, periodoPrezzo } from '@/lib/vociPiano'
 import {
@@ -207,6 +208,8 @@ export default function Acquista() {
             )
             const json = await res.json().catch(() => null)
             if (!res.ok || !json?.ok) throw new Error(json?.error || `Errore checkout (HTTP ${res.status})`)
+            // dopo il pagamento Tagadapay manda a /pagamento/esito, che riporta qui (src/lib/ritornoCassa.js)
+            ricordaRitorno('/area/acquista?success=1')
             window.location.href = json.url
         } catch (err) {
             setErrore(err.message)

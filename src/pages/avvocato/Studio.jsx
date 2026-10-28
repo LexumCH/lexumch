@@ -13,6 +13,7 @@ import {
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { vociPiano, etichettaDurata } from '@/lib/vociPiano'
 import { useAuth } from '@/context/AuthContext'
+import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 
 // ─────────────────────────────────────────────────────────────
@@ -87,6 +88,8 @@ async function chiamaStripe(prodottoId, isUpgrade = false) {
     )
     const json = await res.json()
     if (!json.ok) throw new Error(json.error)
+    // dopo il pagamento Tagadapay manda a /pagamento/esito, che riporta qui (src/lib/ritornoCassa.js)
+    ricordaRitorno('/studio?success=1')
     window.location.href = json.url
 }
 
