@@ -1,6 +1,7 @@
 {
-  "testo_a": "Ich verlange die sofortige Aktivierung meines Kaufs. Mir ist bewusst, dass mir – soweit mir ein gesetzliches Widerrufsrecht zusteht – bei einem Widerruf innert 14 Tagen nur die noch nicht verwendeten Guthaben oder der noch nicht erbrachte Teil des Abonnements erstattet werden und dass ein Widerruf nicht mehr möglich ist, wenn ich alles verwendet habe (",
+  "pulsante": "Bezahlen und sofort aktivieren",
+  "testo_a": "Mit «Bezahlen und sofort aktivieren» verlangen Sie die sofortige Aktivierung Ihres Kaufs. Soweit Ihnen ein gesetzliches Widerrufsrecht zusteht, werden Ihnen bei einem Widerruf innert 14 Tagen nur die noch nicht verwendeten Guthaben oder der noch nicht erbrachte Teil des Abonnements erstattet, und ein Widerruf ist nicht mehr möglich, wenn Sie alles verwendet haben (",
   "link": "AGB, Ziffer 4.6",
   "testo_b": ").",
-  "errore": "Um fortzufahren, kreuzen Sie bitte das Feld zur sofortigen Aktivierung an."
+  "errore": "Um fortzufahren, verlangen Sie die sofortige Aktivierung."
 }

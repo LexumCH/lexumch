@@ -141,7 +141,6 @@ export default function UserCheckout() {
 
             <AvvisoDatiFatturazione profile={profile} />
 
-            <ConsensoRecesso consenso={consenso} className="px-1" />
             <CodiceSconto sconto={sconto} perProdotto={prodotto.nome} className="px-1" />
 
             {/* Errore */}
@@ -162,10 +161,11 @@ export default function UserCheckout() {
                 ) : (
                     <>
                         <Lock size={14} />
-                        {t('cta.procedi')}
+                        {consenso.pulsante(t('cta.procedi'))}
                     </>
                 )}
             </button>
+            <ConsensoRecesso consenso={consenso} className="px-1" />
 
             <p className="font-body text-xs text-nebbia/20 text-center flex items-center justify-center gap-1">
                 <Lock size={10} /> {t('cta.ssl')}

@@ -1,6 +1,7 @@
 {
-  "testo_a": "Je demande l'activation immédiate de mon achat. Je sais que, lorsque la loi me donne un droit de rétractation, en cas de rétractation dans les 14 jours seuls les crédits non encore utilisés ou la partie de l'abonnement non encore fournie me sont remboursés, et que la rétractation n'est plus possible lorsque j'ai tout utilisé (",
+  "pulsante": "Payer et activer maintenant",
+  "testo_a": "Avec « Payer et activer maintenant », vous demandez l'activation immédiate de votre achat. Lorsque la loi vous donne un droit de rétractation, en cas de rétractation dans les 14 jours seuls les crédits non encore utilisés ou la partie de l'abonnement non encore fournie vous sont remboursés, et la rétractation n'est plus possible lorsque vous avez tout utilisé (",
   "link": "Conditions, point 4.6",
   "testo_b": ").",
-  "errore": "Pour continuer, cochez la case relative à l'activation immédiate."
+  "errore": "Pour continuer, demandez l'activation immédiate."
 }

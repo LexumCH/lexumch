@@ -1,6 +1,7 @@
 {
-  "testo_a": "Chiedo che l'acquisto sia attivato subito. So che, dove la legge mi dà un diritto di recesso, se recedo entro 14 giorni mi vengono rimborsati solo i crediti non ancora usati o la parte di abbonamento non ancora fornita, e che il recesso non è più possibile quando ho usato tutto (",
+  "pulsante": "Paga e attiva subito",
+  "testo_a": "Con «Paga e attiva subito» chiedi che l'acquisto sia attivato subito. Dove la legge ti dà un diritto di recesso, se recedi entro 14 giorni ti vengono rimborsati solo i crediti non ancora usati o la parte di abbonamento non ancora fornita, e il recesso non è più possibile quando hai usato tutto (",
   "link": "Termini, punto 4.6",
   "testo_b": ").",
-  "errore": "Per procedere spunta la casella sull'attivazione immediata."
+  "errore": "Per procedere chiedi l'attivazione immediata."
 }

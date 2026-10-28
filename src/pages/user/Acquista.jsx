@@ -320,6 +320,17 @@ export default function Acquista() {
                 </div>
             </div>
 
+            {/* Prima dei prodotti: dati di fatturazione, attivazione immediata e recesso (la frase che
+                accompagna i pulsanti «Paga e attiva subito»), codice sconto */}
+            <AvvisoDatiFatturazione profile={profile} />
+
+            {/* Attivazione immediata e recesso (solo privati) */}
+            <div id="consenso-recesso">
+                <ConsensoRecesso consenso={consenso} className="bg-slate border border-white/5 p-4" />
+            </div>
+
+            <CodiceSconto sconto={sconto} className="bg-slate border border-white/5 p-4" />
+
             {/* Piano Personale: solo per i privati */}
             {isPrivato && pianoPersonale && (
                 <SezionePianoPersonale
@@ -329,6 +340,7 @@ export default function Acquista() {
                     onAcquista={acquista}
                     conAbbonamenti={isApproved}
                     sconto={sconto}
+                    paga={consenso.pulsante}
                 />
             )}
 
@@ -361,14 +373,6 @@ export default function Acquista() {
                 </div>
             )}
 
-            <AvvisoDatiFatturazione profile={profile} />
-
-            {/* Attivazione immediata e recesso (solo privati) */}
-            <div id="consenso-recesso">
-                <ConsensoRecesso consenso={consenso} className="bg-slate border border-white/5 p-4" />
-            </div>
-
-            <CodiceSconto sconto={sconto} className="bg-slate border border-white/5 p-4" />
 
             {/* Errore acquisto */}
             {errore && (
@@ -385,6 +389,7 @@ export default function Acquista() {
                     acquistando={acquistando}
                     onAcquista={acquista}
                     sconto={sconto}
+                    paga={consenso.pulsante}
                 />
             )}
 
@@ -399,6 +404,7 @@ export default function Acquista() {
                     // sostituito: resta valido fino alla sua scadenza
                     piano_attivo={!isPrivato && !!profile?.piano_id}
                     sconto={sconto}
+                    paga={consenso.pulsante}
                 />
             )}
 
@@ -412,6 +418,7 @@ export default function Acquista() {
                     posti_acquistati={profile?.posti_acquistati}
                     posti_usati={profile?.posti_usati}
                     sconto={sconto}
+                    paga={consenso.pulsante}
                 />
             )}
 
@@ -483,7 +490,7 @@ export default function Acquista() {
 // Pagamento mese per mese, senza rinnovo automatico: chi rinnova prima della
 // scadenza aggiunge un mese da quella data (lo decide il webhook).
 // ═══════════════════════════════════════════════════════════════
-function SezionePianoPersonale({ prodotto, attivoFino, acquistando, onAcquista, conAbbonamenti, sconto }) {
+function SezionePianoPersonale({ prodotto, attivoFino, acquistando, onAcquista, conAbbonamenti, sconto, paga }) {
     const { t, i18n } = useTranslation('user_acquista')
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
     const isLoading = acquistando === prodotto.id
@@ -532,7 +539,7 @@ function SezionePianoPersonale({ prodotto, attivoFino, acquistando, onAcquista, 
                     >
                         {isLoading
                             ? <Loader2 size={14} className="animate-spin" />
-                            : <>{attivo ? t('piano_personale.aggiungi_mese') : t('piano_personale.attiva')} <ArrowRight size={12} /></>}
+                            : <>{paga(attivo ? t('piano_personale.aggiungi_mese') : t('piano_personale.attiva'))} <ArrowRight size={12} /></>}
                     </button>
                     {attivo && (
                         <p className="font-body text-xs text-nebbia/35 mt-2">{t('piano_personale.nota_rinnovo')}</p>
@@ -546,7 +553,7 @@ function SezionePianoPersonale({ prodotto, attivoFino, acquistando, onAcquista, 
 // ═══════════════════════════════════════════════════════════════
 // SEZIONE PACCHETTI CREDITI
 // ═══════════════════════════════════════════════════════════════
-function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista, sconto }) {
+function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista, sconto, paga }) {
     const { t } = useTranslation('user_acquista')
 
     if (loading) return (
@@ -584,7 +591,7 @@ function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista, sconto })
                         >
                             {isLoading
                                 ? <Loader2 size={14} className="animate-spin" />
-                                : <>{t('crediti.acquista')} <ArrowRight size={12} /></>
+                                : <>{paga(t('crediti.acquista'))} <ArrowRight size={12} /></>
                             }
                         </button>
                     </div>
@@ -597,7 +604,7 @@ function SezioneCrediti({ pacchetti, loading, acquistando, onAcquista, sconto })
 // ═══════════════════════════════════════════════════════════════
 // SEZIONE ABBONAMENTI
 // ═══════════════════════════════════════════════════════════════
-function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_attivo, sconto }) {
+function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_attivo, sconto, paga }) {
     const { t, i18n } = useTranslation('user_acquista')
     // Voci della scheda dai dati del prodotto (lib/vociPiano), testi in comp_voci_piano
     const { t: tv } = useTranslation('comp_voci_piano')
@@ -657,7 +664,7 @@ function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_att
                             >
                                 {isLoading
                                     ? <Loader2 size={14} className="animate-spin" />
-                                    : <>{t('abbonamenti.acquista')} <ArrowRight size={12} /></>
+                                    : <>{paga(t('abbonamenti.acquista'))} <ArrowRight size={12} /></>
                                 }
                             </button>
                         </div>
@@ -671,7 +678,7 @@ function SezioneAbbonamenti({ piani, loading, acquistando, onAcquista, piano_att
 // ═══════════════════════════════════════════════════════════════
 // SEZIONE SEAT ADDON (avvocati con piano studio)
 // ═══════════════════════════════════════════════════════════════
-function SezioneSeat({ seats, loading, acquistando, onAcquista, posti_acquistati, posti_usati, sconto }) {
+function SezioneSeat({ seats, loading, acquistando, onAcquista, posti_acquistati, posti_usati, sconto, paga }) {
     const { t } = useTranslation('user_acquista')
 
     if (loading) return (
@@ -714,7 +721,7 @@ function SezioneSeat({ seats, loading, acquistando, onAcquista, posti_acquistati
                                 >
                                     {isLoading
                                         ? <Loader2 size={14} className="animate-spin" />
-                                        : <>{t('seat.acquista')} <ArrowRight size={12} /></>
+                                        : <>{paga(t('seat.acquista'))} <ArrowRight size={12} /></>
                                     }
                                 </button>
                             </div>
