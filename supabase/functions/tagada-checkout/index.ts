@@ -59,7 +59,7 @@ const TESTI: Record<Lingua, {
   soloPiuCaro: string; mese: (n: number) => string;
   datiMancanti: (campi: string) => string; campi: Record<string, string>;
   sconto: (percentuale: string, codice: string) => string; motiviSconto: Record<string, string>;
-  mensile: string; archivioSoloPrivati: string; archivioSenzaPiano: string; giaTuo: string; piuPiccolo: string;
+  mensile: string; archivioSoloPrivati: string; archivioSenzaPiano: string; giaTuo: string; piuPiccolo: string; suIphone: string;
 }> = {
   it: {
     soloPrivati: "Il Piano Personale è riservato agli utenti privati.",
@@ -86,6 +86,7 @@ const TESTI: Record<Lingua, {
     archivioSenzaPiano: "Per aggiungere archivio serve un abbonamento attivo.",
     giaTuo: "Hai già questo abbonamento: lo trovi in «Gestisci».",
     piuPiccolo: "Per passare a un piano più piccolo usa «Gestisci»: parte alla fine del mese già pagato.",
+    suIphone: "Il tuo abbonamento è stato preso su iPhone: per cambiarlo usa le impostazioni dell'iPhone, alla voce Abbonamenti.",
   },
   de: {
     soloPrivati: "Der Persönliche Plan ist Privatpersonen vorbehalten.",
@@ -112,6 +113,7 @@ const TESTI: Record<Lingua, {
     archivioSenzaPiano: "Für zusätzliches Archiv braucht es ein aktives Abonnement.",
     giaTuo: "Sie haben dieses Abonnement bereits: Sie finden es unter «Verwalten».",
     piuPiccolo: "Für einen kleineren Plan nutzen Sie «Verwalten»: er beginnt am Ende des bezahlten Monats.",
+    suIphone: "Ihr Abonnement wurde auf dem iPhone abgeschlossen: Ändern Sie es in den iPhone-Einstellungen unter Abonnements.",
   },
   fr: {
     soloPrivati: "Le Plan personnel est réservé aux particuliers.",
@@ -138,6 +140,7 @@ const TESTI: Record<Lingua, {
     archivioSenzaPiano: "Pour ajouter de l'archive, il faut un abonnement actif.",
     giaTuo: "Vous avez déjà cet abonnement : vous le trouvez sous « Gérer ».",
     piuPiccolo: "Pour passer à un plan plus petit, utilisez « Gérer » : il commence à la fin du mois déjà payé.",
+    suIphone: "Votre abonnement a été souscrit sur iPhone : pour le modifier, utilisez les réglages de l'iPhone, sous Abonnements.",
   },
 };
 
@@ -339,10 +342,12 @@ Deno.serve(async (req) => {
     let sostituisce: string | null = null;
     if (prodotto.tipo === "piano_privato" && ricorrente) {
       const { data: inCorso } = await supabase
-        .from("abbonamenti").select("id, prodotto_id, prodotti:prodotto_id(prezzo)")
+        .from("abbonamenti").select("id, fornitore, prodotto_id, prodotti:prodotto_id(prezzo)")
         .eq("user_id", user.id).eq("genere", "piano").neq("stato", "chiuso").gt("periodo_fine", new Date().toISOString())
         .order("periodo_fine", { ascending: false }).limit(1).maybeSingle();
       if (inCorso) {
+        // quello di Apple non si chiude da qui: si pagherebbero due abbonamenti
+        if (inCorso.fornitore === "apple") return risposta({ ok: false, error: t.suIphone }, 400);
         if (inCorso.prodotto_id === prodotto.id) return risposta({ ok: false, error: t.giaTuo }, 400);
         // deno-lint-ignore no-explicit-any
         if (Number(prodotto.prezzo) < Number((inCorso as any).prodotti?.prezzo ?? 0)) return risposta({ ok: false, error: t.piuPiccolo }, 400);
