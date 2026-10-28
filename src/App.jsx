@@ -44,6 +44,7 @@ import AdminDashboard from './pages/admin/Dashboard'
 import AdminUtenti from './pages/admin/Utenti'
 import AdminUtentiDettaglio from './pages/admin/UtentiDettaglio'
 import { AdminProdotti, AdminProdottiForm } from './pages/admin/Prodotti'
+import AdminCodiciSconto from './pages/admin/CodiciSconto'
 import { AdminPagamenti } from './pages/admin/Pagamenti'
 import { AdminAssistenza, AdminAssistenzaDettaglio } from './pages/admin/Assistenza'
 import LexLogs from './pages/admin/LexLogs'
@@ -245,6 +246,7 @@ export default function App() {
               <Route path="/admin/utenti" element={<Adm><AdminUtenti /></Adm>} />
               <Route path="/admin/utenti/:id" element={<Adm><AdminUtentiDettaglio /></Adm>} />
               <Route path="/admin/prodotti" element={<Adm><AdminProdotti /></Adm>} />
+              <Route path="/admin/codici-sconto" element={<Adm><AdminCodiciSconto /></Adm>} />
               <Route path="/admin/prodotti/nuovo" element={<Adm><AdminProdottiForm /></Adm>} />
               <Route path="/admin/prodotti/:id" element={<Adm><AdminProdottiForm /></Adm>} />
               <Route path="/admin/pagamenti" element={<Adm><AdminPagamenti /></Adm>} />

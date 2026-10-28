@@ -1,0 +1,22 @@
+{
+  "placeholder": "Code de réduction",
+  "applica": "Appliquer",
+  "richiedi": "Demander votre code",
+  "applicato": "Code {{codice}} appliqué : remise de {{percentuale}} %",
+  "togli": "Retirer le code",
+  "titolo": "Vous avez un code de réduction ?",
+  "errore_verifica": "Impossible de vérifier le code : réessayez.",
+  "ticket_oggetto": "Demande de code de réduction",
+  "ticket_messaggio": "Bonjour, je souhaiterais recevoir un code de réduction. Merci.",
+  "ticket_messaggio_per": "Bonjour, je souhaiterais recevoir un code de réduction pour « {{prodotto}} ». Merci.",
+  "motivi": {
+    "inesistente": "Code de réduction non valable.",
+    "non_ancora": "Ce code de réduction n'est pas encore valable.",
+    "scaduto": "Ce code de réduction a expiré.",
+    "esaurito": "Ce code de réduction est épuisé.",
+    "gia_usato": "Vous avez déjà utilisé ce code de réduction.",
+    "non_tuo": "Ce code de réduction est réservé à une autre personne.",
+    "non_per_te": "Ce code de réduction n'est pas valable pour votre compte.",
+    "non_vale": "Ce code de réduction n'est pas valable pour ces achats."
+  }
+}

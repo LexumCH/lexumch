@@ -1,0 +1,22 @@
+{
+  "placeholder": "Codice sconto",
+  "applica": "Applica",
+  "richiedi": "Richiedi il tuo codice",
+  "applicato": "Codice {{codice}} applicato: sconto del {{percentuale}}%",
+  "togli": "Togli il codice",
+  "titolo": "Hai un codice sconto?",
+  "errore_verifica": "Non riesco a controllare il codice: riprova.",
+  "ticket_oggetto": "Richiesta codice sconto",
+  "ticket_messaggio": "Buongiorno, vorrei ricevere un codice sconto. Grazie.",
+  "ticket_messaggio_per": "Buongiorno, vorrei ricevere un codice sconto per «{{prodotto}}». Grazie.",
+  "motivi": {
+    "inesistente": "Codice sconto non valido.",
+    "non_ancora": "Questo codice sconto non è ancora valido.",
+    "scaduto": "Questo codice sconto è scaduto.",
+    "esaurito": "Questo codice sconto è esaurito.",
+    "gia_usato": "Hai già usato questo codice sconto.",
+    "non_tuo": "Questo codice sconto è riservato a un'altra persona.",
+    "non_per_te": "Questo codice sconto non vale per il tuo account.",
+    "non_vale": "Questo codice sconto non vale per questi acquisti."
+  }
+}

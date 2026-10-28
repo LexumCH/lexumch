@@ -17,6 +17,7 @@ import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { sanitizzaErrore } from '@/lib/sanitizzaErrore'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
+import CodiceSconto, { useCodiceSconto, PrezzoScontato } from '@/components/CodiceSconto'
 import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 
@@ -86,6 +87,7 @@ export default function PacchettoLampo({ aperto, onChiudi, motivo = 'esauriti', 
     const [errore, setErrore] = useState('')
     const consenso = useConsensoRecesso()
     const datiFatt = useDatiFatturazione()
+    const sconto = useCodiceSconto(prodotto ? [prodotto.id] : [])
 
     useEffect(() => {
         if (!aperto) return
@@ -140,6 +142,7 @@ export default function PacchettoLampo({ aperto, onChiudi, motivo = 'esauriti', 
                 body: JSON.stringify({
                     prodotto_id: prodotto.id,
                     ...consenso.campo,
+                    ...sconto.campo(prodotto.id),
                     success_url: `${ritorno}?lampo=ok`,
                     cancel_url: `${ritorno}?lampo=annullato`,
                 }),
@@ -201,12 +204,14 @@ export default function PacchettoLampo({ aperto, onChiudi, motivo = 'esauriti', 
                                     <p className="font-body text-xs text-oro/80 uppercase tracking-widest">{t('nome_pacchetto')}</p>
                                     <p className="font-body text-sm text-nebbia/70 mt-1">{t('n_ricerche', { count: ricerche })}</p>
                                 </div>
-                                <p className="font-display text-3xl font-light text-oro whitespace-nowrap">{prezzo}</p>
+                                <p className="font-display text-3xl font-light text-oro whitespace-nowrap">{sconto.prezzo(prodotto.id, prodotto.prezzo) == null ? prezzo : <PrezzoScontato prezzo={prodotto.prezzo} scontato={sconto.prezzo(prodotto.id, prodotto.prezzo)} />}</p>
                             </div>
 
                             <AvvisoDatiFatturazione profile={profile} />
 
                             <ConsensoRecesso consenso={consenso} />
+
+                            <CodiceSconto sconto={sconto} perProdotto={prodotto.nome} />
 
                             {errore && (
                                 <p className="font-body text-xs text-red-400 flex items-center gap-1.5">

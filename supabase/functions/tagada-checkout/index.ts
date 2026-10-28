@@ -12,7 +12,10 @@
 //
 // Ogni passaggio alla cassa crea una riga in tagada_ordini; il suo id viaggia nell'indirizzo come
 // lexum_tx e torna nella notifica order/paid (tagada-webhook), che accredita l'acquisto.
-// Corpo come stripe-checkout: { prodotto_id, is_upgrade?, consenso_recesso?, success_url?, cancel_url? }
+// Codice sconto (28-10-2026): il server lo riverifica (codice_sconto_esito) e toglie la percentuale dal
+// prezzo di oggi, upgrade e pro-rata compresi; l'ordine lo ricorda e a pagamento fatto l'uso si conta da
+// sé (trigger su tagada_ordini).
+// Corpo come stripe-checkout: { prodotto_id, is_upgrade?, consenso_recesso?, codice_sconto?, success_url?, cancel_url? }
 // Risposta: { ok: true, url } | { ok: false, error }
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
@@ -51,6 +54,7 @@ const TESTI: Record<Lingua, {
   soloPrivati: string; recesso: string; nonDisponibile: string; accessoScaduto: string;
   soloPiuCaro: string; mese: (n: number) => string;
   datiMancanti: (campi: string) => string; campi: Record<string, string>;
+  sconto: (percentuale: string, codice: string) => string; motiviSconto: Record<string, string>;
 }> = {
   it: {
     soloPrivati: "Il Piano Personale è riservato agli utenti privati.",
@@ -61,6 +65,17 @@ const TESTI: Record<Lingua, {
     mese: (n) => (n === 1 ? "1 mese" : `${n} mesi`),
     datiMancanti: (c) => `Per acquistare completa i dati di fatturazione nel profilo: ${c}.`,
     campi: { nome: "Nome", cognome: "Cognome", indirizzo: "Indirizzo", cap: "NPA", citta: "Località", paese: "Paese" },
+    sconto: (p, c) => `sconto ${p}% (${c})`,
+    motiviSconto: {
+      inesistente: "Codice sconto non valido.",
+      non_ancora: "Questo codice sconto non è ancora valido.",
+      scaduto: "Questo codice sconto è scaduto.",
+      esaurito: "Questo codice sconto è esaurito.",
+      gia_usato: "Hai già usato questo codice sconto.",
+      non_tuo: "Questo codice sconto è riservato a un'altra persona.",
+      non_per_te: "Questo codice sconto non vale per il tuo account.",
+      non_vale: "Questo codice sconto non vale per questo acquisto.",
+    },
   },
   de: {
     soloPrivati: "Der Persönliche Plan ist Privatpersonen vorbehalten.",
@@ -71,6 +86,17 @@ const TESTI: Record<Lingua, {
     mese: (n) => (n === 1 ? "1 Monat" : `${n} Monate`),
     datiMancanti: (c) => `Um zu kaufen, ergänzen Sie die Rechnungsangaben im Profil: ${c}.`,
     campi: { nome: "Vorname", cognome: "Nachname", indirizzo: "Adresse", cap: "PLZ", citta: "Ort", paese: "Land" },
+    sconto: (p, c) => `${p}% Rabatt (${c})`,
+    motiviSconto: {
+      inesistente: "Ungültiger Rabattcode.",
+      non_ancora: "Dieser Rabattcode ist noch nicht gültig.",
+      scaduto: "Dieser Rabattcode ist abgelaufen.",
+      esaurito: "Dieser Rabattcode ist aufgebraucht.",
+      gia_usato: "Sie haben diesen Rabattcode bereits verwendet.",
+      non_tuo: "Dieser Rabattcode ist für eine andere Person reserviert.",
+      non_per_te: "Dieser Rabattcode gilt nicht für Ihr Konto.",
+      non_vale: "Dieser Rabattcode gilt nicht für diesen Kauf.",
+    },
   },
   fr: {
     soloPrivati: "Le Plan personnel est réservé aux particuliers.",
@@ -81,6 +107,17 @@ const TESTI: Record<Lingua, {
     mese: (n) => `${n} mois`,
     datiMancanti: (c) => `Pour acheter, complétez les données de facturation dans le profil : ${c}.`,
     campi: { nome: "Prénom", cognome: "Nom", indirizzo: "Adresse", cap: "NPA", citta: "Localité", paese: "Pays" },
+    sconto: (p, c) => `remise ${p} % (${c})`,
+    motiviSconto: {
+      inesistente: "Code de réduction non valable.",
+      non_ancora: "Ce code de réduction n'est pas encore valable.",
+      scaduto: "Ce code de réduction a expiré.",
+      esaurito: "Ce code de réduction est épuisé.",
+      gia_usato: "Vous avez déjà utilisé ce code de réduction.",
+      non_tuo: "Ce code de réduction est réservé à une autre personne.",
+      non_per_te: "Ce code de réduction n'est pas valable pour votre compte.",
+      non_vale: "Ce code de réduction n'est pas valable pour cet achat.",
+    },
   },
 };
 
@@ -247,7 +284,7 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return risposta({ ok: false, error: TESTI.it.accessoScaduto }, 401);
 
-    const { prodotto_id, is_upgrade, consenso_recesso, success_url } = await req.json().catch(() => ({}));
+    const { prodotto_id, is_upgrade, consenso_recesso, codice_sconto, success_url } = await req.json().catch(() => ({}));
     if (!prodotto_id) return risposta({ ok: false, error: "prodotto_id obbligatorio" }, 400);
 
     const { data: prodotto } = await supabase
@@ -300,7 +337,25 @@ Deno.serve(async (req) => {
     if (!(importo > 0)) return risposta({ ok: false, error: t.soloPiuCaro }, 400);
     if (!CHIAVE || !NEGOZIO || !PERCORSO || !PAGINA_CASSA) throw new Error("Cassa Tagadapay CH non configurata");
 
-    const { nome, testo } = articolo(prodotto, lingua, upgrade, prorataMesi);
+    // Codice sconto: si riverifica qui (la pagina lo ha già controllato, ma decide il server)
+    let sconto: { id: string; codice: string; percentuale: number } | null = null;
+    const importoListino = importo;
+    if (typeof codice_sconto === "string" && codice_sconto.trim()) {
+      const { data: esito, error: scErr } = await supabase.rpc("codice_sconto_esito", {
+        p_user: user.id, p_codice: codice_sconto.trim(), p_prodotti: [prodotto.id],
+      });
+      if (scErr) throw new Error(`Verifica codice sconto: ${scErr.message}`);
+      if (!esito?.valido) {
+        return risposta({ ok: false, error: t.motiviSconto[esito?.motivo] ?? t.motiviSconto.inesistente, codice_sconto: esito?.motivo ?? "inesistente" }, 400);
+      }
+      sconto = { id: esito.codice_id, codice: esito.codice, percentuale: Number(esito.percentuale) };
+      importo = Math.round(importo * (100 - sconto.percentuale)) / 100;
+      if (!(importo > 0)) return risposta({ ok: false, error: t.motiviSconto.non_vale }, 400);
+    }
+
+    const art = articolo(prodotto, lingua, upgrade, prorataMesi);
+    const nome = sconto ? `${art.nome} · ${t.sconto(sconto.percentuale.toLocaleString(lingua === "de" ? "de-CH" : lingua === "fr" ? "fr-CH" : "it-CH"), sconto.codice)}` : art.nome;
+    const testo = art.testo;
     const variantId = await variante(prodotto, importo, nome, testo);
 
     const { data: ordine, error: ordErr } = await supabase.from("tagada_ordini").insert({
@@ -314,6 +369,9 @@ Deno.serve(async (req) => {
       scadenza_addon: scadenzaAddon,
       consenso_recesso: consenso_recesso === true,
       consenso_il: consenso_recesso === true ? new Date().toISOString() : null,
+      codice_sconto_id: sconto?.id ?? null,
+      sconto_percentuale: sconto?.percentuale ?? null,
+      importo_listino: sconto ? importoListino : null,
     }).select("id").single();
     if (ordErr || !ordine) throw new Error(`Ordine non creato: ${ordErr?.message}`);
 

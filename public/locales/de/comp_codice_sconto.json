@@ -1,0 +1,22 @@
+{
+  "placeholder": "Rabattcode",
+  "applica": "Anwenden",
+  "richiedi": "Ihren Code anfordern",
+  "applicato": "Code {{codice}} angewendet: {{percentuale}}% Rabatt",
+  "togli": "Code entfernen",
+  "titolo": "Haben Sie einen Rabattcode?",
+  "errore_verifica": "Der Code konnte nicht geprüft werden: Bitte versuchen Sie es erneut.",
+  "ticket_oggetto": "Anfrage Rabattcode",
+  "ticket_messaggio": "Guten Tag, ich möchte gerne einen Rabattcode erhalten. Vielen Dank.",
+  "ticket_messaggio_per": "Guten Tag, ich möchte gerne einen Rabattcode für «{{prodotto}}» erhalten. Vielen Dank.",
+  "motivi": {
+    "inesistente": "Ungültiger Rabattcode.",
+    "non_ancora": "Dieser Rabattcode ist noch nicht gültig.",
+    "scaduto": "Dieser Rabattcode ist abgelaufen.",
+    "esaurito": "Dieser Rabattcode ist aufgebraucht.",
+    "gia_usato": "Sie haben diesen Rabattcode bereits verwendet.",
+    "non_tuo": "Dieser Rabattcode ist für eine andere Person reserviert.",
+    "non_per_te": "Dieser Rabattcode gilt nicht für Ihr Konto.",
+    "non_vale": "Dieser Rabattcode gilt nicht für diese Käufe."
+  }
+}

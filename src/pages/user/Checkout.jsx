@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext'
 import { AlertCircle, Lock } from 'lucide-react'
 import { supabaseUrl, getAccessToken } from '@/lib/supabase'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
+import CodiceSconto, { useCodiceSconto, PrezzoScontato } from '@/components/CodiceSconto'
 import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 
@@ -20,6 +21,7 @@ export default function UserCheckout() {
     const [loading, setLoading] = useState(false)
     const [errore, setErrore] = useState('')
     const consenso = useConsensoRecesso()
+    const sconto = useCodiceSconto(prodotto ? [prodotto.id] : [])
     const datiFatt = useDatiFatturazione()
 
     if (!prodotto) {
@@ -54,6 +56,7 @@ export default function UserCheckout() {
                     body: JSON.stringify({
                         prodotto_id: prodotto.id,
                         ...consenso.campo,
+                        ...sconto.campo(prodotto.id),
                         success_url: `${window.location.origin}/abbonamenti?success=1`,
                         cancel_url: `${window.location.origin}/abbonamenti/checkout`,
                     }),
@@ -126,7 +129,7 @@ export default function UserCheckout() {
             {/* Totale */}
             <div className="flex justify-between items-center px-1 py-2 border-t border-white/5">
                 <span className="font-body text-sm text-nebbia/50">{t('totale.label')}</span>
-                <span className="font-display text-3xl font-semibold text-oro">CHF {prodotto.prezzo}</span>
+                <span className="font-display text-3xl font-semibold text-oro"><PrezzoScontato prezzo={prodotto.prezzo} scontato={sconto.prezzo(prodotto.id, prodotto.prezzo)} /></span>
             </div>
 
             {/* Info */}
@@ -139,6 +142,7 @@ export default function UserCheckout() {
             <AvvisoDatiFatturazione profile={profile} />
 
             <ConsensoRecesso consenso={consenso} className="px-1" />
+            <CodiceSconto sconto={sconto} perProdotto={prodotto.nome} className="px-1" />
 
             {/* Errore */}
             {errore && (

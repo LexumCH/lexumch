@@ -15,6 +15,7 @@ import { vociPiano, etichettaDurata } from '@/lib/vociPiano'
 import { useAuth } from '@/context/AuthContext'
 import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
+import CodiceSconto, { useCodiceSconto, PrezzoScontato } from '@/components/CodiceSconto'
 
 // ─────────────────────────────────────────────────────────────
 // COSTANTI / HELPERS
@@ -71,7 +72,7 @@ function bytesToGB(bytes) {
     return (bytes ?? 0) / (1024 * 1024 * 1024)
 }
 
-async function chiamaStripe(prodottoId, isUpgrade = false) {
+async function chiamaStripe(prodottoId, isUpgrade = false, codice = {}) {
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch(
         `${supabaseUrl}/functions/v1/tagada-checkout`,
@@ -81,6 +82,7 @@ async function chiamaStripe(prodottoId, isUpgrade = false) {
             body: JSON.stringify({
                 prodotto_id: prodottoId,
                 is_upgrade: isUpgrade,
+                ...codice,
                 success_url: `${window.location.origin}/studio?success=1`,
                 cancel_url: `${window.location.origin}/studio`,
             }),
@@ -145,6 +147,8 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
     const [trialProdotto, setTrialProdotto] = useState(null)
     const [attivandoTrial, setAttivandoTrial] = useState(false)
     const [trialAttivato, setTrialAttivato] = useState(false)
+    // Codice sconto (28-10-2026): uno per la pagina, vale per i prodotti che l'admin ha scelto
+    const sconto = useCodiceSconto([...piani, ...addons, ...clientiAddons, ...pacchettiCrediti, ...pacchettiStorage].map(p => p.id))
 
     const haPianoAttivo = !!pianoAttualeId && !pianoScaduto
     // 08-10-2026: costo del cambio piano con la regola del server (upgrade a giorni)
@@ -219,7 +223,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
         }
         setAcquistando(prodottoId)
         try {
-            await chiamaStripe(prodottoId, isUpgrade)
+            await chiamaStripe(prodottoId, isUpgrade, sconto.campo(prodottoId))
         } catch (err) {
             setErrore(err.message)
             setAcquistando(null)
@@ -294,6 +298,11 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
                 </div>
             )}
 
+            {/* ── Codice sconto ── */}
+            <div className="bg-slate border border-white/5 p-4">
+                <CodiceSconto sconto={sconto} perProdotto={pianoProposto?.nome} conTitolo />
+            </div>
+
             {/* ── Piani abbonamento ── */}
             {piani.length > 0 && (
                 <div className="space-y-3">
@@ -308,10 +317,10 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
                                     className={`text-left p-4 border transition-all ${isSelezionato ? 'border-oro/50 bg-oro/10' : 'border-white/8 hover:border-oro/20'}`}
                                 >
                                     <p className="font-body text-sm font-medium text-nebbia mb-1">{p.nome}</p>
-                                    <p className="font-display text-2xl font-light text-oro mb-1">CHF {p.prezzo}</p>
+                                    <p className="font-display text-2xl font-light text-oro mb-1"><PrezzoScontato prezzo={p.prezzo} scontato={sconto.prezzo(p.id, p.prezzo)} /></p>
                                     {costo?.upgrade && (
                                         <p className="font-body text-xs text-nebbia/40 mb-2">
-                                            {t('acquisto.piani.da_pagare_oggi')} <span className="text-amber-400">CHF {costo.importo.toFixed(2)}</span>
+                                            {t('acquisto.piani.da_pagare_oggi')} <span className="text-amber-400"><PrezzoScontato prezzo={costo.importo.toFixed(2)} scontato={sconto.prezzo(p.id, costo.importo)} /></span>
                                         </p>
                                     )}
                                     <p className="font-body text-xs text-nebbia/40 mb-2">{etichettaDurata(p, tv)}</p>
@@ -344,7 +353,10 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
                                         <p className="font-body text-xs text-nebbia/40 mt-0.5">
                                             {t('acquisto.piani.importo_da_pagare')}{' '}
                                             <span className="text-nebbia/70">
-                                                CHF {costoProposto ? costoProposto.importo.toFixed(2) : pianoProposto.prezzo}
+                                                <PrezzoScontato
+                                                    prezzo={costoProposto ? costoProposto.importo.toFixed(2) : pianoProposto.prezzo}
+                                                    scontato={sconto.prezzo(pianoProposto.id, costoProposto ? costoProposto.importo : pianoProposto.prezzo)}
+                                                />
                                             </span>
                                         </p>
                                         {costoProposto && (
@@ -385,7 +397,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
                             <div key={a.id} className="bg-slate border border-white/5 p-4 space-y-3">
                                 <p className="font-body text-sm font-medium text-nebbia">{a.nome}</p>
                                 <p className="font-body text-xs text-nebbia/40">{t('acquisto.seat.piu_accessi', { count: a.posti })}</p>
-                                <p className="font-display text-2xl font-light text-oro">CHF {a.prezzo}</p>
+                                <p className="font-display text-2xl font-light text-oro"><PrezzoScontato prezzo={a.prezzo} scontato={sconto.prezzo(a.id, a.prezzo)} /></p>
                                 <p className="font-body text-xs text-nebbia/30">{t('acquisto.seat.transizione', { da: postiAttuali, a: postiAttuali + (a.posti ?? 1) })}</p>
                                 <button onClick={() => acquista(a.id, false)} disabled={acquistando === a.id}
                                     className="btn-secondary text-sm w-full justify-center disabled:opacity-40">
@@ -411,7 +423,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
                             <div key={c.id} className="bg-slate border border-white/5 hover:border-salvia/30 p-4 space-y-3 transition-colors">
                                 <p className="font-body text-sm font-medium text-nebbia">{c.nome}</p>
                                 <p className="font-body text-xs text-nebbia/40">{t('acquisto.clienti.piu_clienti', { count: c.limite_clienti })}</p>
-                                <p className="font-display text-2xl font-light text-oro">CHF {c.prezzo}</p>
+                                <p className="font-display text-2xl font-light text-oro"><PrezzoScontato prezzo={c.prezzo} scontato={sconto.prezzo(c.id, c.prezzo)} /></p>
                                 <p className="font-body text-[10px] text-nebbia/30 italic">{t('acquisto.clienti.listino')}</p>
                                 <button onClick={() => acquista(c.id, false)} disabled={acquistando === c.id}
                                     className="btn-secondary text-sm w-full justify-center disabled:opacity-40">
@@ -437,7 +449,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
                                     <Sparkles size={13} className="text-salvia" />
                                     <p className="font-body text-sm font-medium text-nebbia">{p.nome}</p>
                                 </div>
-                                <p className="font-display text-2xl font-light text-salvia">CHF {p.prezzo}</p>
+                                <p className="font-display text-2xl font-light text-salvia"><PrezzoScontato prezzo={p.prezzo} scontato={sconto.prezzo(p.id, p.prezzo)} /></p>
                                 <p className="font-body text-xs text-nebbia/40">
                                     {t('acquisto.crediti.dettaglio', { crediti: p.crediti_ai_mensili, prezzo_credito: (p.prezzo / p.crediti_ai_mensili).toFixed(2) })}
                                 </p>
@@ -478,7 +490,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
                                             <HardDrive size={13} className="text-salvia" />
                                             <p className="font-body text-sm font-medium text-nebbia">{s.nome}</p>
                                         </div>
-                                        <p className="font-display text-2xl font-light text-salvia">CHF {s.prezzo}</p>
+                                        <p className="font-display text-2xl font-light text-salvia"><PrezzoScontato prezzo={s.prezzo} scontato={sconto.prezzo(s.id, s.prezzo)} /></p>
                                         <p className="font-body text-xs text-nebbia/40">
                                             {s.spazio_gb} GB · {t('acquisto.storage.mesi', { count: s.durata_mesi })}
                                         </p>
