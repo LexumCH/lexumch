@@ -14,6 +14,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
+import { segnalaCreditiCambiati } from '@/hooks/useCreditiDisponibili'
 import { Plus, Loader2, X, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react'
 
 const MB = 1024 * 1024
@@ -105,6 +106,8 @@ export function useContoPrivato(profile) {
             : null
 
         setConto({ caricato: true, crediti, archivio, piano, prossimo, archivioInPiu, vecchioPiano })
+        // il contatore in alto segue il riquadro (anche mentre si aspetta l'accredito dopo la cassa)
+        segnalaCreditiCambiati()
     }, [profile?.id, profile?.titolare_id, profile?.piano_id, profile?.abbonamento_scadenza])
 
     useEffect(() => { carica() }, [carica])

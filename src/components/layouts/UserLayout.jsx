@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, Link, useNavigate } from 'react-router-dom'
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { supabase } from '@/lib/supabase'
 import logo from '@/assets/logo.png'
 import {
   LogOut, Menu, X, Sparkles, Plus,
@@ -13,6 +12,7 @@ import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 import RisposteRecuperate from '@/components/shared/RisposteRecuperate'
 import PallinoTicket from '@/components/shared/PallinoTicket'
 import { useTicketDaRispondere } from '@/hooks/useTicketDaRispondere'
+import { useCreditiDisponibili } from '@/hooks/useCreditiDisponibili'
 
 export default function UserLayout({ children }) {
   // Pallino su «Assistenza»: conversazioni aperte in cui l'ultimo messaggio è dell'altra persona.
@@ -21,23 +21,9 @@ export default function UserLayout({ children }) {
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
-  const [crediti, setCrediti] = useState(0)
+  const crediti = useCreditiDisponibili(profile?.id)
   const [bannerDismissed, setBannerDismissed] = useState(false)
-
-  // Carica somma totale crediti validi
-  useEffect(() => {
-    if (!profile?.id) return
-    supabase
-      .from('crediti_ai')
-      .select('crediti_totali, crediti_usati')
-      .eq('user_id', profile.id)
-      .or(`periodo_fine.is.null,periodo_fine.gte.${new Date().toISOString()}`)
-      .then(({ data }) => {
-        if (!data) return setCrediti(0)
-        const totale = data.reduce((acc, c) => acc + (c.crediti_totali - c.crediti_usati), 0)
-        setCrediti(totale)
-      })
-  }, [profile?.id])
+  const paginaAcquista = useLocation().pathname.includes('/area/acquista')
 
   // Stato verifica
   const status = profile?.verification_status
@@ -63,8 +49,8 @@ export default function UserLayout({ children }) {
     { path: '/area/profilo', label: t('nav.profilo'), icon: User },
   ]
 
-  // Banner contestuale
-  const banner = bannerDismissed ? null
+  // Banner contestuale: non sulla pagina Acquista, dove un privato sceglie già il suo abbonamento (28-10-2026)
+  const banner = bannerDismissed || paginaAcquista ? null
     : isPending ? {
       icon: Clock, color: 'amber',
       text: t('banner.pending'),
