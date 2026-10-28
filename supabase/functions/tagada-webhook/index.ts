@@ -27,6 +27,12 @@ function linguaEmail(l: unknown): Lingua {
   return l === "de" || l === "fr" ? l : "it";
 }
 const NOME_PIANO_PERSONALE: Record<Lingua, string> = { it: "Piano Personale", de: "Persönlicher Plan", fr: "Plan personnel" };
+// Il nome di un piano personale nella lingua dell'utente: «Persönlicher Plan Plus» (28-10-2026: tre piani)
+// deno-lint-ignore no-explicit-any
+function nomePianoPersonale(p: any, l: Lingua): string {
+  const extra = p?.codice === "piano_personale_plus" ? " Plus" : p?.codice === "piano_personale_pro" ? " Pro" : "";
+  return NOME_PIANO_PERSONALE[l] + extra;
+}
 
 // Date come si scrivono in Svizzera: 02.11.2026
 function dataSvizzera(d: Date): string {
@@ -110,6 +116,155 @@ function metodoPagamento(corpo: any): string {
   return ultime ? `${(marca ?? "Carta").toUpperCase()} **** ${ultime}` : "Carta";
 }
 
+// ═══ ABBONAMENTI DEI PRIVATI (rinnovo automatico, 28-10-2026, come su Lexum IT) ═══
+// Un prodotto con rinnovo_automatico si paga la prima volta come order/paid (con lexum_tx); i mesi dopo
+// arrivano come subscription/rebillSucceeded. Ogni mese pagato è un periodo (abbonamento_periodo): la
+// chiave è l'ordine di Tagadapay, così un avviso ripetuto, o il primo pagamento annunciato due volte, non
+// dà due mesi. Disdette e pagamenti non riusciti cambiano solo lo stato: quello che è pagato resta fino
+// alla fine del periodo.
+const API = "https://api.tagada.io/api/public/v1";
+const CHIAVE_API = Deno.env.get("TAGADA_API_KEY") ?? "";
+
+// deno-lint-ignore no-explicit-any
+function idAbbonamento(evento: any): string | null {
+  const d = evento?.data ?? {};
+  const diretto = d.subscriptionId ?? d.subscription?.id ?? (String(evento?.type ?? "").startsWith("subscription/") ? d.id : null);
+  return typeof diretto === "string" && diretto ? diretto : cerca(evento, "subscriptionId");
+}
+
+// L'abbonamento nato da un ordine della cassa (lo crea il primo avviso che arriva, order/paid o
+// subscription/created).
+// deno-lint-ignore no-explicit-any
+async function abbonamentoDaOrdine(ordine: any, prodotto: any, riferimento: string | null) {
+  const { data: gia } = await supabase.from("abbonamenti").select("*").eq("ordine_id", ordine.id).maybeSingle();
+  if (gia) {
+    if (riferimento && !gia.riferimento) await supabase.from("abbonamenti").update({ riferimento }).eq("id", gia.id);
+    return { ...gia, riferimento: gia.riferimento ?? riferimento };
+  }
+  const { data: nuovo, error } = await supabase.from("abbonamenti").insert({
+    user_id: ordine.user_id, fornitore: "tagada", riferimento, ordine_id: ordine.id, prodotto_id: prodotto.id,
+    genere: prodotto.tipo === "piano_privato" ? "piano" : "archivio",
+  }).select().single();
+  if (error?.code === "23505") {
+    const { data: altro } = await supabase.from("abbonamenti").select("*").eq("ordine_id", ordine.id).single();
+    return altro;
+  }
+  if (error) throw new Error(`Abbonamento non registrato: ${error.message}`);
+  return nuovo;
+}
+
+async function annullaSuTagada(riferimento: string, aFineMese: boolean) {
+  if (!CHIAVE_API) return;
+  const r = await fetch(`${API}/subscriptions/cancel`, {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${CHIAVE_API}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ subscriptionIds: [riferimento], cancelAtPeriodEnd: aFineMese }),
+  });
+  if (!r.ok) console.error(`Disdetta Tagadapay ${riferimento}: HTTP ${r.status} ${(await r.text()).slice(0, 200)}`);
+}
+
+// Passaggio a un piano più grande: pagato il nuovo, il vecchio si chiude subito (niente altri rinnovi), e
+// con lui un piano più piccolo eventualmente programmato. Quello che era già pagato resta.
+async function chiudiSostituito(abbonamentoId: string) {
+  const { data: vecchio } = await supabase.from("abbonamenti").select("*").eq("id", abbonamentoId).maybeSingle();
+  if (!vecchio || vecchio.stato === "chiuso") return;
+  if (vecchio.fornitore === "tagada" && vecchio.riferimento) await annullaSuTagada(vecchio.riferimento, false);
+  await supabase.rpc("abbonamento_chiudi", { p_abbonamento: vecchio.id, p_subito: false });
+  const { data: programmati } = await supabase.from("abbonamenti").select("id, riferimento")
+    .eq("user_id", vecchio.user_id).eq("genere", vecchio.genere).eq("fornitore", "tagada")
+    .is("periodo_fine", null).neq("stato", "chiuso").is("ordine_id", null);
+  for (const p of programmati ?? []) {
+    if (p.riferimento) await annullaSuTagada(p.riferimento, false);
+    await supabase.rpc("abbonamento_chiudi", { p_abbonamento: p.id, p_subito: false });
+  }
+}
+
+// La ricevuta di un mese pagato (il primo o un rinnovo), nella lingua dell'utente, con il prossimo rinnovo.
+// deno-lint-ignore no-explicit-any
+async function ricevutaAbbonamento(userId: string, prodotto: any, esito: any, pagamento: any, recesso: any, rinnovo: boolean) {
+  const { data: p } = await supabase.from("profiles")
+    .select("id, email, nome, cognome, indirizzo, cap, citta, uid, ragione_sociale, sede_legale, lingua")
+    .eq("id", userId).single();
+  if (!p?.email) return;
+  const l = linguaEmail(p.lingua);
+  const fine = dataSvizzera(new Date(esito?.periodo_fine ?? Date.now()));
+  const abbonamento = { automatico: true, rinnovo, prossimo_rinnovo: fine, gestisci_url: "https://www.lexum.ch/area/acquista" };
+  if (prodotto.tipo === "piano_privato") {
+    await inviaEmail(p.email, `piano-personale-attivato-${l}`, {
+      profilo: profiloRicevuta(p),
+      prodotto: { nome: nomePianoPersonale(prodotto, l), crediti_ai_mensili: prodotto.crediti_ai_mensili ?? 0, spazio_gb: prodotto.spazio_gb ?? 0 },
+      scadenza: fine, abbonamento, pagamento, recesso,
+    }, userId);
+  } else {
+    await inviaEmail(p.email, `spazio-di-archiviazione-attivato-${l}`, {
+      profilo: profiloRicevuta(p),
+      prodotto: { nome: prodotto.nome, gb_aggiunti: prodotto.spazio_gb ?? 0, durata_mesi: 1, durata_singolare: true, scadenza: fine },
+      abbonamento, pagamento, recesso,
+    }, userId);
+  }
+}
+
+// Gli avvisi subscription/* di Tagadapay.
+// deno-lint-ignore no-explicit-any
+async function eventoAbbonamento(tipo: string, evento: any, eventId: string): Promise<Response> {
+  const dati = evento?.data ?? {};
+  const riferimento = idAbbonamento(evento);
+  let { data: ab } = riferimento
+    ? await supabase.from("abbonamenti").select("*").eq("fornitore", "tagada").eq("riferimento", riferimento).maybeSingle()
+    : { data: null };
+  if (!ab) {
+    // il primo avviso dell'abbonamento può arrivare prima di order/paid: lo si lega all'ordine della cassa
+    const lexumTx = cerca(evento, "lexum_tx");
+    const ordineTagada = String(dati?.orderId ?? dati?.order?.id ?? "");
+    const { data: ordine } = lexumTx
+      ? await supabase.from("tagada_ordini").select("*").eq("id", lexumTx).maybeSingle()
+      : ordineTagada
+        ? await supabase.from("tagada_ordini").select("*").eq("order_id", ordineTagada).maybeSingle()
+        : { data: null };
+    if (ordine) {
+      const { data: prodotto } = await supabase.from("prodotti").select("*").eq("id", ordine.prodotto_id).single();
+      if (prodotto?.rinnovo_automatico) ab = await abbonamentoDaOrdine(ordine, prodotto, riferimento);
+    }
+  }
+  if (!ab) {
+    console.error(`${tipo} ${riferimento ?? "?"}: abbonamento Lexum non trovato (evento ${eventId}, nel registro)`);
+    return new Response("OK (abbonamento non trovato)", { status: 200 });
+  }
+
+  if (tipo === "subscription/rebillSucceeded") {
+    const { data: prodotto } = await supabase.from("prodotti").select("*").eq("id", ab.prodotto_id).single();
+    const centesimi = Number(dati?.amount ?? dati?.payment?.amount ?? NaN);
+    const importo = Number.isFinite(centesimi) ? centesimi / 100 : Number(prodotto?.prezzo ?? 0);
+    const chiave = `tagada:${dati?.orderId ?? dati?.paymentId ?? eventId}`;
+    const { data: esito, error } = await supabase.rpc("abbonamento_periodo", {
+      p_abbonamento: ab.id, p_chiave: chiave, p_importo: importo, p_valuta: "CHF",
+    });
+    if (error) throw new Error(`Rinnovo non registrato: ${error.message}`);
+    if (esito?.esito === "ok") {
+      await supabase.from("transazioni").insert({
+        user_id: ab.user_id, prodotto_id: ab.prodotto_id, prodotto_nome: prodotto?.nome, tipo: prodotto?.tipo,
+        importo, valuta: "CHF", stato: "completato",
+        metadati: { fornitore: "tagada", rinnovo: true, abbonamento: ab.riferimento, order_id: dati?.orderId ?? null, payment_id: dati?.paymentId ?? null },
+      });
+      await ricevutaAbbonamento(ab.user_id, prodotto, esito,
+        { data: dataSvizzera(new Date()), metodo: metodoPagamento(evento), importo: importo.toFixed(2), valuta: "CHF" }, null, true);
+    }
+    console.log(`Rinnovo ${ab.riferimento}: ${esito?.esito} fino al ${esito?.periodo_fine}`);
+  } else if (["subscription/pastDue", "subscription/rebillDeclined", "subscription/rebillCaptureFailed"].includes(tipo)) {
+    await supabase.from("abbonamenti").update({ stato: "in_ritardo", aggiornato_il: new Date().toISOString() })
+      .eq("id", ab.id).in("stato", ["attivo", "in_ritardo"]);
+  } else if (tipo === "subscription/cancelScheduled") {
+    await supabase.from("abbonamenti").update({ stato: "disdetto", aggiornato_il: new Date().toISOString() })
+      .eq("id", ab.id).neq("stato", "chiuso");
+  } else if (tipo === "subscription/canceled") {
+    await supabase.rpc("abbonamento_chiudi", { p_abbonamento: ab.id, p_subito: false });
+  } else if (tipo === "subscription/resumed") {
+    await supabase.from("abbonamenti").update({ stato: "attivo", aggiornato_il: new Date().toISOString() })
+      .eq("id", ab.id).neq("stato", "chiuso");
+  }
+  return new Response("OK", { status: 200 });
+}
+
 Deno.serve(async (req) => {
   const corpoGrezzo = await req.text();
   if (!(await firmaValida(corpoGrezzo, req.headers.get("x-tagadapay-signature")))) {
@@ -139,6 +294,7 @@ Deno.serve(async (req) => {
       console.log(`Rimborso Tagadapay registrato: ordine ${orderId}`);
       return new Response("OK", { status: 200 });
     }
+    if (tipo.startsWith("subscription/")) return await eventoAbbonamento(tipo, evento, eventId);
     if (tipo !== "order/paid") return new Response("OK (evento ignorato)", { status: 200 });
 
     if (dati?.draft === true) {
@@ -192,6 +348,28 @@ Deno.serve(async (req) => {
     const recesso = ordine.consenso_recesso
       ? { data: dataEstesa(new Date(ordine.consenso_il ?? Date.now()), lingua) }
       : null;
+
+    // ═══ ABBONAMENTI DEI PRIVATI: primo mese ═══
+    if (prodotto.rinnovo_automatico === true) {
+      const ab = await abbonamentoDaOrdine(ordine, prodotto, idAbbonamento(evento));
+      const { data: esito, error: perErr } = await supabase.rpc("abbonamento_periodo", {
+        p_abbonamento: ab.id, p_chiave: `tagada:${orderId || lexumTx}`, p_importo: importoPagato, p_valuta: "CHF",
+      });
+      if (perErr) throw new Error(`Abbonamento non attivato: ${perErr.message}`);
+      if (ordine.sostituisce_abbonamento_id) await chiudiSostituito(ordine.sostituisce_abbonamento_id);
+      if (esito?.esito === "ok") {
+        await supabase.from("transazioni").insert({
+          user_id: userId, studio_id: profilo?.studio_id ?? null, prodotto_id: prodottoId, prodotto_nome: prodotto.nome,
+          tipo: prodottoTipo, importo: importoPagato, valuta: "CHF", stato: "completato", metadati: { ...metadatiTx, abbonamento: ab.riferimento },
+        });
+        await ricevutaAbbonamento(userId, prodotto, esito, pagamento, recesso, false);
+      }
+      await supabase.from("tagada_ordini").update({
+        stato: "pagato", order_id: orderId || null, payment_id: dati?.paymentId ?? null, pagato_il: new Date().toISOString(),
+      }).eq("id", lexumTx);
+      console.log(`✅ Abbonamento ${prodotto.nome} a ${userId}: ${esito?.esito} fino al ${esito?.periodo_fine}`);
+      return new Response("OK", { status: 200 });
+    }
 
     // Scadenza: per gli add-on col pro-rata quella del piano (Modello A), altrimenti oggi + durata.
     let scadenza: string | null = null;
@@ -314,7 +492,7 @@ Deno.serve(async (req) => {
       const a = Array.isArray(att) ? att[0] : att;
       await inviaEmail(profilo?.email ?? "", `piano-personale-attivato-${lingua}`, {
         profilo: profiloRicevuta(profilo),
-        prodotto: { nome: NOME_PIANO_PERSONALE[lingua], crediti_ai_mensili: a?.crediti ?? prodotto.crediti_ai_mensili ?? 0, spazio_gb: prodotto.spazio_gb ?? 0 },
+        prodotto: { nome: nomePianoPersonale(prodotto, lingua), crediti_ai_mensili: a?.crediti ?? prodotto.crediti_ai_mensili ?? 0, spazio_gb: prodotto.spazio_gb ?? 0 },
         scadenza: dataSvizzera(new Date(a?.scadenza ?? Date.now())), pagamento, recesso,
       }, userId);
     }

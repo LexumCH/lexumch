@@ -15,6 +15,10 @@
 // Codice sconto (28-10-2026): il server lo riverifica (codice_sconto_esito) e toglie la percentuale dal
 // prezzo di oggi, upgrade e pro-rata compresi; l'ordine lo ricorda e a pagamento fatto l'uso si conta da
 // sé (trigger su tagada_ordini).
+// Abbonamenti dei privati (28-10-2026, come su Lexum IT): un prodotto con rinnovo_automatico si vende con un
+// prezzo ricorrente mensile, così Tagadapay ne fa un abbonamento che si rinnova da sé (tagada-webhook segue
+// rinnovi e disdette). Un piano più grande sostituisce quello in corso; per uno più piccolo si passa da
+// «Gestisci» (abbonamento-gestisci). L'archivio in più dei privati si compra solo con un piano attivo.
 // Corpo come stripe-checkout: { prodotto_id, is_upgrade?, consenso_recesso?, codice_sconto?, success_url?, cancel_url? }
 // Risposta: { ok: true, url } | { ok: false, error }
 
@@ -55,6 +59,7 @@ const TESTI: Record<Lingua, {
   soloPiuCaro: string; mese: (n: number) => string;
   datiMancanti: (campi: string) => string; campi: Record<string, string>;
   sconto: (percentuale: string, codice: string) => string; motiviSconto: Record<string, string>;
+  mensile: string; archivioSoloPrivati: string; archivioSenzaPiano: string; giaTuo: string; piuPiccolo: string;
 }> = {
   it: {
     soloPrivati: "Il Piano Personale è riservato agli utenti privati.",
@@ -76,6 +81,11 @@ const TESTI: Record<Lingua, {
       non_per_te: "Questo codice sconto non vale per il tuo account.",
       non_vale: "Questo codice sconto non vale per questo acquisto.",
     },
+    mensile: "Si rinnova ogni mese finché non lo disdici.",
+    archivioSoloPrivati: "L'archivio in più al mese è per gli utenti privati.",
+    archivioSenzaPiano: "Per aggiungere archivio serve un abbonamento attivo.",
+    giaTuo: "Hai già questo abbonamento: lo trovi in «Gestisci».",
+    piuPiccolo: "Per passare a un piano più piccolo usa «Gestisci»: parte alla fine del mese già pagato.",
   },
   de: {
     soloPrivati: "Der Persönliche Plan ist Privatpersonen vorbehalten.",
@@ -97,6 +107,11 @@ const TESTI: Record<Lingua, {
       non_per_te: "Dieser Rabattcode gilt nicht für Ihr Konto.",
       non_vale: "Dieser Rabattcode gilt nicht für diesen Kauf.",
     },
+    mensile: "Verlängert sich jeden Monat, bis Sie kündigen.",
+    archivioSoloPrivati: "Das monatliche Zusatzarchiv ist für Privatpersonen.",
+    archivioSenzaPiano: "Für zusätzliches Archiv braucht es ein aktives Abonnement.",
+    giaTuo: "Sie haben dieses Abonnement bereits: Sie finden es unter «Verwalten».",
+    piuPiccolo: "Für einen kleineren Plan nutzen Sie «Verwalten»: er beginnt am Ende des bezahlten Monats.",
   },
   fr: {
     soloPrivati: "Le Plan personnel est réservé aux particuliers.",
@@ -118,6 +133,11 @@ const TESTI: Record<Lingua, {
       non_per_te: "Ce code de réduction n'est pas valable pour votre compte.",
       non_vale: "Ce code de réduction n'est pas valable pour cet achat.",
     },
+    mensile: "Se renouvelle chaque mois jusqu'à résiliation.",
+    archivioSoloPrivati: "L'archive supplémentaire mensuelle est réservée aux particuliers.",
+    archivioSenzaPiano: "Pour ajouter de l'archive, il faut un abonnement actif.",
+    giaTuo: "Vous avez déjà cet abonnement : vous le trouvez sous « Gérer ».",
+    piuPiccolo: "Pour passer à un plan plus petit, utilisez « Gérer » : il commence à la fin du mois déjà payé.",
   },
 };
 
@@ -141,7 +161,8 @@ function articolo(p: any, lingua: Lingua, upgrade: boolean, prorataMesi: number 
       : lingua === "fr" ? `${crediti} recherches avec Lex AI sur Lexum. Les crédits n'expirent pas.`
       : `${crediti} ricerche con Lex AI su Lexum. I crediti non scadono.`;
   } else if (p.tipo === "piano_privato") {
-    nome = lingua === "de" ? "Persönlicher Plan" : lingua === "fr" ? "Plan personnel" : "Piano Personale";
+    const extra = p.codice === "piano_personale_plus" ? " Plus" : p.codice === "piano_personale_pro" ? " Pro" : "";
+    nome = (lingua === "de" ? "Persönlicher Plan" : lingua === "fr" ? "Plan personnel" : "Piano Personale") + extra;
     testo = lingua === "de" ? `${crediti} Lex-AI-Credits · ${gb} GB Archiv · ${t.mese(mesi || 1)}`
       : lingua === "fr" ? `${crediti} crédits Lex AI · ${gb} GB d'archive · ${t.mese(mesi || 1)}`
       : `${crediti} crediti Lex AI · ${gb} GB di archivio · ${t.mese(mesi || 1)}`;
@@ -168,6 +189,7 @@ function articolo(p: any, lingua: Lingua, upgrade: boolean, prorataMesi: number 
       : lingua === "fr" ? ". Prix du nouveau plan moins la partie non utilisée du plan actuel."
       : ". Prezzo del nuovo piano meno la parte non usata di quello attuale.";
   }
+  if (p.rinnovo_automatico === true) testo += `. ${t.mensile}`;
   if (prorataMesi) {
     testo += lingua === "de" ? ` · ${t.mese(prorataMesi)} bis zur Verlängerung des Plans`
       : lingua === "fr" ? ` · ${t.mese(prorataMesi)} jusqu'au renouvellement du plan`
@@ -206,8 +228,9 @@ async function impronta(testo: string): Promise<string> {
 // La variante Tagadapay per questo nome a questo importo: dalla tabella, oppure creata adesso.
 // deno-lint-ignore no-explicit-any
 async function variante(prodotto: any, importo: number, nome: string, testo: string): Promise<string> {
+  const ricorrente = prodotto.rinnovo_automatico === true;
   const centesimi = Math.round(importo * 100);
-  const chiave = `${prodotto.id}:${centesimi}:${await impronta(`${nome}\n${testo}`)}`;
+  const chiave = `${prodotto.id}:${centesimi}:${await impronta(`${nome}\n${testo}${ricorrente ? "\nmensile" : ""}`)}`;
 
   const { data: nota } = await supabase.from("tagada_varianti").select("variant_id").eq("chiave", chiave).maybeSingle();
   if (nota?.variant_id) return nota.variant_id;
@@ -224,7 +247,9 @@ async function variante(prodotto: any, importo: number, nome: string, testo: str
       isTaxable: false,
       variants: [{
         name: nome, active: true, default: true, sku: chiave, imageUrl: IMMAGINE, grams: 0,
-        prices: [{ currencyOptions: { [VALUTA]: { amount: centesimi } }, recurring: false, default: true }],
+        prices: [ricorrente
+          ? { currencyOptions: { [VALUTA]: { amount: centesimi } }, recurring: true, interval: "month", intervalCount: Math.max(1, Math.round(Number(prodotto.durata_mesi ?? 1))), default: true }
+          : { currencyOptions: { [VALUTA]: { amount: centesimi } }, recurring: false, default: true }],
       }],
     }),
   });
@@ -233,7 +258,9 @@ async function variante(prodotto: any, importo: number, nome: string, testo: str
   if (!res.ok || !id) throw new Error(`Articolo Tagadapay non creato: HTTP ${res.status} ${JSON.stringify(corpo).slice(0, 300)}`);
 
   // Due pagamenti insieme possono crearlo due volte: vale il primo registrato.
-  await supabase.from("tagada_varianti").insert({ chiave, variant_id: id, prodotto_id: prodotto.id, importo }).select().maybeSingle();
+  // il prezzo mensile serve a abbonamento-gestisci per far partire un piano più piccolo a fine mese
+  const priceId = ricorrente ? (corpo?.variants?.[0]?.prices?.[0]?.id ?? null) : null;
+  await supabase.from("tagada_varianti").insert({ chiave, variant_id: id, prodotto_id: prodotto.id, importo, price_id: priceId }).select().maybeSingle();
   const { data: registrata } = await supabase.from("tagada_varianti").select("variant_id").eq("chiave", chiave).single();
   return registrata?.variant_id ?? id;
 }
@@ -301,6 +328,27 @@ Deno.serve(async (req) => {
     if (prodotto.tipo === "piano_privato" && profilo?.role !== "user") {
       return risposta({ ok: false, error: t.soloPrivati }, 400);
     }
+    // Abbonamenti dei privati: archivio in più solo con un piano attivo; un piano alla volta
+    const ricorrente = prodotto.rinnovo_automatico === true;
+    const archivioPrivato = prodotto.tipo === "spazio_archiviazione" && prodotto.target_role === "user";
+    if (archivioPrivato) {
+      if (profilo?.role !== "user") return risposta({ ok: false, error: t.archivioSoloPrivati }, 400);
+      const conPiano = !!profilo?.piano_id && !!profilo?.abbonamento_scadenza && new Date(profilo.abbonamento_scadenza) > new Date();
+      if (!conPiano) return risposta({ ok: false, error: t.archivioSenzaPiano }, 400);
+    }
+    let sostituisce: string | null = null;
+    if (prodotto.tipo === "piano_privato" && ricorrente) {
+      const { data: inCorso } = await supabase
+        .from("abbonamenti").select("id, prodotto_id, prodotti:prodotto_id(prezzo)")
+        .eq("user_id", user.id).eq("genere", "piano").neq("stato", "chiuso").gt("periodo_fine", new Date().toISOString())
+        .order("periodo_fine", { ascending: false }).limit(1).maybeSingle();
+      if (inCorso) {
+        if (inCorso.prodotto_id === prodotto.id) return risposta({ ok: false, error: t.giaTuo }, 400);
+        // deno-lint-ignore no-explicit-any
+        if (Number(prodotto.prezzo) < Number((inCorso as any).prodotti?.prezzo ?? 0)) return risposta({ ok: false, error: t.piuPiccolo }, 400);
+        sostituisce = inCorso.id;
+      }
+    }
     // I privati chiedono l'attivazione immediata (Termini, punto 4.6): senza la spunta non si paga.
     if (profilo?.role === "user" && consenso_recesso !== true) {
       return risposta({ ok: false, error: t.recesso }, 400);
@@ -328,7 +376,7 @@ Deno.serve(async (req) => {
         importo = Math.round((Number(prodotto.prezzo) - creditoUpgrade(Number(attuale.prezzo), Number(attuale.durata_mesi), profilo.abbonamento_scadenza)) * 100) / 100;
         upgrade = true;
       }
-    } else if (TIPI_PRORATA.has(prodotto.tipo) && pianoAttivo) {
+    } else if (TIPI_PRORATA.has(prodotto.tipo) && pianoAttivo && !ricorrente && !archivioPrivato) {
       const p = prorata(Number(prodotto.prezzo), Number(prodotto.durata_mesi ?? 12), profilo.abbonamento_scadenza);
       importo = p.importo;
       prorataMesi = p.mesi;
@@ -372,6 +420,7 @@ Deno.serve(async (req) => {
       codice_sconto_id: sconto?.id ?? null,
       sconto_percentuale: sconto?.percentuale ?? null,
       importo_listino: sconto ? importoListino : null,
+      sostituisce_abbonamento_id: sostituisce,
     }).select("id").single();
     if (ordErr || !ordine) throw new Error(`Ordine non creato: ${ordErr?.message}`);
 
