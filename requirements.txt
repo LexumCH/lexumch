@@ -1,2 +1,4 @@
-pymupdf>=1.24
-ezdxf>=1.4
+# Versioni bloccate (28-10-2026): da PyMuPDF 2.0 (19-10) le pubblicazioni su Vercel falliscono tutte;
+# il pacchetto 2.0 pesa quasi il triplo e le funzioni di api/ usano ancora «import fitz».
+pymupdf>=1.24,<2
+ezdxf>=1.4,<1.5
