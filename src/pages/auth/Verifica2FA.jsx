@@ -63,7 +63,7 @@ export default function Verifica2FA() {
         else if (role === 'fiduciario') navigate('/dashboard', { replace: true })
         else if (role === 'progettista') navigate('/dashboard', { replace: true })
         else if (role === 'cliente') navigate('/portale', { replace: true })
-        else if (role === 'user') navigate('/area', { replace: true })
+        else if (role === 'user') navigate('/area/chat', { replace: true })
         else navigate('/', { replace: true })
     }
 

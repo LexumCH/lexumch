@@ -18,5 +18,9 @@
     "non_tuo": "Ce code de réduction est réservé à une autre personne.",
     "non_per_te": "Ce code de réduction n'est pas valable pour votre compte.",
     "non_vale": "Ce code de réduction n'est pas valable pour ces achats."
-  }
+  },
+  "su_tutti": " sur tous les achats de cette page",
+  "su_prodotti": " sur {{elenco}}",
+  "e": "et",
+  "nome_archivio": "+{{gb}} GB d'archive par mois"
 }

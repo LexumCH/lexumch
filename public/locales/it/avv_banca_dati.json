@@ -2,7 +2,7 @@
   "header": {
     "label": "Banca Dati",
     "title": "Diritto svizzero, giurisprudenza e prassi",
-    "subtitle": "Cerca con Lex AI o sfoglia diritto federale, cantonale, giurisprudenza, prassi amministrativa e diritto UE"
+    "subtitle": "Sfoglia e cerca diritto federale e cantonale, giurisprudenza, prassi amministrativa e diritto UE"
   },
   "tabs": {
     "sfoglia": "Sfoglia",
@@ -236,6 +236,13 @@
       "limite_giornaliero": "Hai raggiunto il limite giornaliero di documenti analizzati: riprova domani.",
       "non_disponibile": "Il servizio è temporaneamente non disponibile: riprova tra poco.",
       "errore": "Analisi del documento non riuscita: riprova."
+    }
+  },
+  "chat": {
+    "header": {
+      "label": "Nuova chat",
+      "title": "Chiedi a Lex AI",
+      "subtitle": "Lex cerca nelle norme, nella giurisprudenza e nella prassi e ti risponde citando le fonti"
     }
   }
 }

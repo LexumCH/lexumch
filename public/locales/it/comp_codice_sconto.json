@@ -18,5 +18,9 @@
     "non_tuo": "Questo codice sconto è riservato a un'altra persona.",
     "non_per_te": "Questo codice sconto non vale per il tuo account.",
     "non_vale": "Questo codice sconto non vale per questi acquisti."
-  }
+  },
+  "su_tutti": " su tutti gli acquisti di questa pagina",
+  "su_prodotti": " su {{elenco}}",
+  "e": "e",
+  "nome_archivio": "+{{gb}} GB di archivio al mese"
 }

@@ -1,7 +1,7 @@
 {
   "header": {
     "titolo": "Ricerche ({{count}})",
-    "cercaBancaDati": "Cerca in Banca Dati",
+    "cercaBancaDati": "Cerca con Lex",
     "aggiungi": "Aggiungi"
   },
   "form": {
@@ -16,7 +16,7 @@
   },
   "vuoto": {
     "titolo": "Nessuna ricerca",
-    "suggerimento": "Aggiungi una ricerca manuale o cerca in Banca Dati"
+    "suggerimento": "Aggiungi una ricerca manuale o cerca con Lex"
   },
   "tipi": {
     "ricercaAi": "Ricerca AI",

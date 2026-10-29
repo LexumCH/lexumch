@@ -68,8 +68,16 @@ export function PrezzoScontato({ prezzo, scontato }) {
     )
 }
 
-/** Il campo del codice, con «Richiedi il tuo codice». */
-export default function CodiceSconto({ sconto, perProdotto, conTitolo = false, className = '' }) {
+// «su Piano Personale Plus e Piano Personale Pro»
+function elenco(nomi, e) {
+    return nomi.length < 2 ? nomi.join('') : `${nomi.slice(0, -1).join(', ')} ${e} ${nomi[nomi.length - 1]}`
+}
+
+/**
+ * Il campo del codice, con «Richiedi il tuo codice». `nomi` (id → nome dei prodotti della pagina, nella lingua
+ * dell'utente) fa dire, una volta applicato, su cosa vale (29-10-2026, come su IT).
+ */
+export default function CodiceSconto({ sconto, perProdotto, nomi, conTitolo = false, className = '' }) {
     const { t, i18n } = useTranslation('comp_codice_sconto')
     const { profile } = useAuth()
     const nuovoTicket = profile?.role === 'user' ? '/area/assistenza/nuovo' : '/assistenza/nuovo'
@@ -83,8 +91,18 @@ export default function CodiceSconto({ sconto, perProdotto, conTitolo = false, c
         return (
             <div className={`flex flex-wrap items-center justify-between gap-3 ${className}`}>
                 <p className="flex items-center gap-2 font-body text-xs text-salvia">
-                    <Tag size={13} />
-                    {t('applicato', { codice: sconto.applicato.codice, percentuale })}
+                    <Tag size={13} className="shrink-0" />
+                    <span>
+                        {t('applicato', { codice: sconto.applicato.codice, percentuale })}
+                        {nomi && (() => {
+                            const tutti = Object.keys(nomi)
+                            const validi = tutti.filter(id => sconto.applicato.prodotti.has(id))
+                            if (!validi.length) return null
+                            return validi.length === tutti.length
+                                ? t('su_tutti')
+                                : t('su_prodotti', { elenco: elenco(validi.map(id => nomi[id]), t('e')) })
+                        })()}
+                    </span>
                 </p>
                 <button onClick={sconto.togli} className="font-body text-xs text-nebbia/40 hover:text-nebbia transition-colors">
                     {t('togli')}

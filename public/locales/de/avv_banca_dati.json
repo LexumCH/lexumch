@@ -2,7 +2,7 @@
   "header": {
     "label": "Datenbank",
     "title": "Schweizer Recht, Rechtsprechung und Praxis",
-    "subtitle": "Suchen Sie mit Lex AI oder durchsuchen Sie Bundesrecht, kantonales Recht, Rechtsprechung, Verwaltungspraxis und EU-Recht"
+    "subtitle": "Durchsuchen Sie Bundesrecht und kantonales Recht, Rechtsprechung, Verwaltungspraxis und EU-Recht"
   },
   "tabs": {
     "sfoglia": "Durchsuchen",
@@ -236,6 +236,13 @@
       "limite_giornaliero": "Sie haben das Tageslimit für analysierte Dokumente erreicht: Versuchen Sie es morgen erneut.",
       "non_disponibile": "Der Dienst ist vorübergehend nicht verfügbar: Bitte versuchen Sie es gleich erneut.",
       "errore": "Die Analyse des Dokuments ist fehlgeschlagen: Bitte versuchen Sie es erneut."
+    }
+  },
+  "chat": {
+    "header": {
+      "label": "Neuer Chat",
+      "title": "Fragen Sie Lex AI",
+      "subtitle": "Lex durchsucht Gesetze, Rechtsprechung und Praxis und antwortet Ihnen mit Quellenangaben"
     }
   }
 }

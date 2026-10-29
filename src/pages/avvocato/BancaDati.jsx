@@ -40,6 +40,7 @@ import {
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import DocumentoLex from '@/components/DocumentoLex'
+import { segnalaCreditiCambiati } from '@/hooks/useCreditiDisponibili'
 
 // ═══════════════════════════════════════════════════════════════
 // CONFIG
@@ -87,6 +88,12 @@ function useCreditiAI() {
         window.addEventListener('focus', onFocus)
         return () => window.removeEventListener('focus', onFocus)
     }, [])
+
+    // 29-10-2026 (come su IT): quando Lex scala un credito, anche il contatore in alto si rilegge (prima
+    // restava indietro fino al cambio di pagina)
+    useEffect(() => {
+        if (crediti !== null) segnalaCreditiCambiati()
+    }, [crediti])
 
     return { crediti, setCrediti, refreshCrediti: caricaCrediti }
 }
@@ -1117,12 +1124,37 @@ const TABS = [
 const TIPI_CEDU = ['sentenza_cedu', 'decisione_cedu', 'grande_camera', 'parere_cedu', 'altro_cedu']
 
 // ═══════════════════════════════════════════════════════════════
-// COMPONENTE PRINCIPALE
+// NUOVA CHAT — Lex (29-10-2026, come nell'app e su IT): la conversazione con Lex ha la sua pagina,
+// la Banca Dati qui sotto resta la ricerca manuale. Privati: /area/chat; professionisti: /chat.
 // ═══════════════════════════════════════════════════════════════
-export function BancaDati() {
+export function NuovaChat() {
     const { t } = useTranslation('avv_banca_dati')
     const { crediti, setCrediti } = useCreditiAI()
     const [messaggiConversazione, setMessaggiConversazione] = useState([])
+
+    return (
+        <div className="space-y-5 pb-24">
+            <PageHeader
+                label={t('chat.header.label')}
+                title={t('chat.header.title')}
+                subtitle={t('chat.header.subtitle')}
+            />
+
+            <ChatLex
+                crediti={crediti}
+                setCrediti={setCrediti}
+                messaggi={messaggiConversazione}
+                onAggiornaMessaggi={setMessaggiConversazione}
+            />
+        </div>
+    )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// COMPONENTE PRINCIPALE — la Banca Dati: la ricerca manuale (Lex sta in NuovaChat)
+// ═══════════════════════════════════════════════════════════════
+export function BancaDati() {
+    const { t } = useTranslation('avv_banca_dati')
     const [tabAttivo, setTabAttivo] = useState('federale')
 
     return (
@@ -1133,16 +1165,8 @@ export function BancaDati() {
                 subtitle={t('header.subtitle')}
             />
 
-            {/* Chat Lex — sempre in alto, cross-fonte */}
-            <ChatLex
-                crediti={crediti}
-                setCrediti={setCrediti}
-                messaggi={messaggiConversazione}
-                onAggiornaMessaggi={setMessaggiConversazione}
-            />
-
             {/* Tab corpus */}
-            <div className="!mt-10 pt-6 border-t border-white/5 space-y-5">
+            <div className="space-y-5">
                 <div className="flex items-center gap-3 flex-wrap">
                     <p className="section-label !m-0">{t('tabs.sfoglia')}</p>
                     <div className="flex gap-1 bg-slate border border-white/5 p-1 flex-wrap">

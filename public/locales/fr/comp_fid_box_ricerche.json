@@ -1,7 +1,7 @@
 {
   "header": {
     "titolo": "Recherches ({{count}})",
-    "cercaBancaDati": "Rechercher dans la base de données",
+    "cercaBancaDati": "Rechercher avec Lex",
     "aggiungi": "Ajouter"
   },
   "form": {
@@ -16,7 +16,7 @@
   },
   "vuoto": {
     "titolo": "Aucune recherche",
-    "suggerimento": "Ajoutez une recherche manuelle ou recherchez dans la base de données"
+    "suggerimento": "Ajoutez une recherche manuelle ou recherchez avec Lex"
   },
   "tipi": {
     "ricercaAi": "Recherche IA",

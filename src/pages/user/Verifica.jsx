@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { Upload, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2, Scale, Calculator, DraftingCompass } from 'lucide-react'
+import { Upload, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2, Scale, Calculator, DraftingCompass, ChevronDown, Sparkles, MessageSquare, Unlock } from 'lucide-react'
 
 const toArray = (v) => Array.isArray(v) ? v : []
 
@@ -33,11 +33,55 @@ const SET_DOCUMENTALE = {
     },
 }
 
+// ── Cosa si apre con un abbonamento (29-10-2026, come su IT) ──
+// Per ogni professione le voci della lista; quelle con la spiegazione (nota) hanno testo e nota in
+// user_verifica.json → strumenti.<chiave>.{testo,nota}. Scritte su quello che il sito CH fa davvero:
+// lex-pratica e lex-mandato leggono pratica/mandato come su IT; calendario senza Google Calendar; fatture con
+// QR-fattura; portale clienti per avvocati e fiduciari (per i progettisti non c'è).
+const DIREZIONI = [
+    {
+        chiave: 'avvocato',
+        icona: Scale,
+        strumenti: ['avv_pratiche', 'avv_calendario', 'avv_clienti', 'avv_chat', 'fatture', 'assistenza', 'crediti'],
+    },
+    {
+        chiave: 'fiduciario',
+        icona: Calculator,
+        strumenti: ['fid_mandati', 'fid_calendario', 'fid_contabilita', 'fid_chat', 'fatture', 'assistenza', 'crediti'],
+    },
+    {
+        chiave: 'progettista',
+        icona: DraftingCompass,
+        strumenti: ['prg_progetti', 'prg_disegni', 'prg_documenti', 'prg_clienti', 'fatture', 'assistenza', 'crediti'],
+    },
+]
+
+// una voce della lista: il testo e, se c'è, la sua spiegazione
+function useVoce() {
+    const { t } = useTranslation('user_verifica')
+    return (k) => ({ testo: t(`strumenti.${k}.testo`), nota: t(`strumenti.${k}.nota`, { defaultValue: '' }) })
+}
+
+// La consulenza: un ticket già scritto, come «Richiedi il tuo codice»
+function linkConsulenza(t, chiave) {
+    const richiesta = new URLSearchParams({
+        oggetto: t('vantaggi.consulenza_oggetto'),
+        messaggio: t('vantaggi.consulenza_messaggio', { titolo: t(`scelta.${chiave}.titolo`) }),
+    })
+    return `/area/assistenza/nuovo?${richiesta}`
+}
+
 // ── SCELTA DIREZIONE (se tipo_richiesta non ancora impostato) ──
+// Tre card a tutta larghezza (29-10-2026, come su IT): «Scopri di più» apre la tendina con quello che si apre
+// con un abbonamento, come funziona la verifica, il pulsante per andare avanti e «Richiedi una consulenza».
+// Ogni card si apre e si chiude da sola (aprirne una non chiude le altre).
 function SceltaDirezione({ onScelta, loading }) {
     const { t } = useTranslation('user_verifica')
+    const voce = useVoce()
+    const [aperte, setAperte] = useState([])
+
     return (
-        <div className="space-y-6 max-w-2xl">
+        <div className="space-y-6">
             <div>
                 <p className="section-label mb-3">{t('scelta.label')}</p>
                 <h1 className="font-display text-4xl font-light text-nebbia mb-2">{t('scelta.titolo')}</h1>
@@ -46,42 +90,62 @@ function SceltaDirezione({ onScelta, loading }) {
                 </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <button
-                    disabled={loading}
-                    onClick={() => onScelta('avvocato')}
-                    className="bg-slate border border-white/5 hover:border-oro/40 p-6 text-left transition-colors group disabled:opacity-40"
-                >
-                    <Scale size={28} className="text-oro mb-4" />
-                    <p className="font-display text-xl text-nebbia mb-2">{t('scelta.avvocato.titolo')}</p>
-                    <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                        {t('scelta.avvocato.desc')}
-                    </p>
-                </button>
+            <div className="grid lg:grid-cols-3 gap-6 items-start">
+                {DIREZIONI.map(({ chiave, icona: Icona, strumenti }) => {
+                    const apertaQui = aperte.includes(chiave)
+                    return (
+                        <div key={chiave} className={`bg-slate border transition-colors ${apertaQui ? 'border-oro/40' : 'border-white/5 hover:border-oro/30'}`}>
+                            <div className="p-8">
+                                <Icona size={32} className="text-oro mb-5" />
+                                <p className="font-display text-2xl text-nebbia mb-2">{t(`scelta.${chiave}.titolo`)}</p>
+                                <p className="font-body text-sm text-nebbia/50 leading-relaxed">{t(`scelta.${chiave}.desc`)}</p>
+                                <button
+                                    onClick={() => setAperte(a => (apertaQui ? a.filter(k => k !== chiave) : [...a, chiave]))}
+                                    aria-expanded={apertaQui}
+                                    className="mt-6 inline-flex items-center gap-2 font-body text-sm text-oro hover:text-oro/70 transition-colors"
+                                >
+                                    {t('vantaggi.scopri')}
+                                    <ChevronDown size={15} className={`transition-transform ${apertaQui ? 'rotate-180' : ''}`} />
+                                </button>
+                            </div>
 
-                <button
-                    disabled={loading}
-                    onClick={() => onScelta('fiduciario')}
-                    className="bg-slate border border-white/5 hover:border-oro/40 p-6 text-left transition-colors group disabled:opacity-40"
-                >
-                    <Calculator size={28} className="text-oro mb-4" />
-                    <p className="font-display text-xl text-nebbia mb-2">{t('scelta.fiduciario.titolo')}</p>
-                    <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                        {t('scelta.fiduciario.desc')}
-                    </p>
-                </button>
-
-                <button
-                    disabled={loading}
-                    onClick={() => onScelta('progettista')}
-                    className="bg-slate border border-white/5 hover:border-oro/40 p-6 text-left transition-colors group disabled:opacity-40"
-                >
-                    <DraftingCompass size={28} className="text-oro mb-4" />
-                    <p className="font-display text-xl text-nebbia mb-2">{t('scelta.progettista.titolo')}</p>
-                    <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                        {t('scelta.progettista.desc')}
-                    </p>
-                </button>
+                            {apertaQui && (
+                                <div className="border-t border-white/5 px-8 py-6 space-y-5">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Sparkles size={15} className="text-oro" />
+                                            <p className="font-body text-sm font-medium text-oro">{t('vantaggi.si_apre')}</p>
+                                        </div>
+                                        <ul className="space-y-2 font-body text-sm text-nebbia/70 leading-relaxed">
+                                            {strumenti.map(voce).map(({ testo, nota }) => (
+                                                <li key={testo} className="flex gap-2">
+                                                    <CheckCircle size={14} className="text-salvia shrink-0 mt-1" />
+                                                    <span>
+                                                        {testo}
+                                                        {nota && <span className="block mt-0.5 text-xs text-nebbia/45">{nota}</span>}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('vantaggi.come_funziona')}</p>
+                                    <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                                        <button
+                                            disabled={loading}
+                                            onClick={() => onScelta(chiave)}
+                                            className="btn-primary text-sm inline-flex items-center gap-2 disabled:opacity-40"
+                                        >
+                                            {t('vantaggi.verifica_come', { titolo: t(`scelta.${chiave}.titolo`) })} <ArrowRight size={14} />
+                                        </button>
+                                        <Link to={linkConsulenza(t, chiave)} className="inline-flex items-center gap-2 font-body text-sm text-nebbia/60 hover:text-oro transition-colors">
+                                            <MessageSquare size={14} /> {t('vantaggi.consulenza')}
+                                        </Link>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )
+                })}
             </div>
         </div>
     )
@@ -90,8 +154,8 @@ function SceltaDirezione({ onScelta, loading }) {
 // ── UPLOAD DOCUMENTI ──────────────────────────────────────────
 export function UserVerifica() {
     const { t } = useTranslation('user_verifica')
+    const voce = useVoce()
     const { profile, reloadProfile } = useAuth()
-    const navigate = useNavigate()
 
     const direzione = profile?.tipo_richiesta ?? null
     const [docs, setDocs] = useState({})
@@ -111,6 +175,8 @@ export function UserVerifica() {
                 .update({ tipo_richiesta: scelta })
                 .eq('id', user.id)
             if (error) throw new Error(error.message)
+            // i documenti cambiano da una professione all'altra: si ricomincia
+            setDocs({})
             // ricarica il profilo nel context così la pagina si aggiorna
             if (reloadProfile) await reloadProfile()
         } catch (err) {
@@ -177,13 +243,72 @@ export function UserVerifica() {
         </div>
     )
 
+    const strumenti = (DIREZIONI.find(d => d.chiave === direzione) ?? DIREZIONI[0]).strumenti
+
     return (
-        <div className="space-y-6 max-w-2xl">
+        <div className="space-y-6">
             <div>
                 <p className="section-label mb-3">{t('upload.label')}</p>
                 <h1 className="font-display text-4xl font-light text-nebbia mb-2">{t(`set.${direzione}.titolo`)}</h1>
                 <p className="font-body text-sm text-nebbia/50 leading-relaxed">{t(`set.${direzione}.intro`)}</p>
             </div>
+
+            {/* La professione sempre visibile (29-10-2026, come su IT): quella scelta evidenziata, le altre a un clic */}
+            <div className="grid sm:grid-cols-3 gap-4">
+                {DIREZIONI.map(({ chiave, icona: Icona }) => {
+                    const attiva = chiave === direzione
+                    const titolo = t(`scelta.${chiave}.titolo`)
+                    return (
+                        <button
+                            key={chiave}
+                            disabled={attiva || salvandoDirezione}
+                            onClick={() => handleScelta(chiave)}
+                            aria-pressed={attiva}
+                            className={`flex items-center gap-4 p-5 border text-left transition-colors ${attiva
+                                ? 'bg-slate border-oro/50 cursor-default'
+                                : 'bg-slate/40 border-white/5 hover:border-oro/30 disabled:opacity-40'}`}
+                        >
+                            <Icona size={26} className={attiva ? 'text-oro' : 'text-nebbia/40'} />
+                            <div className="flex-1">
+                                <p className={`font-display text-xl ${attiva ? 'text-nebbia' : 'text-nebbia/60'}`}>{titolo}</p>
+                                <p className="font-body text-xs text-nebbia/40">{attiva ? t('vantaggi.profilo_attivo') : t('vantaggi.passa_a', { titolo })}</p>
+                            </div>
+                            {attiva && <CheckCircle size={18} className="text-oro shrink-0" />}
+                        </button>
+                    )
+                })}
+            </div>
+
+            {/* Cosa hai ora, cosa si apre — il punto della pagina */}
+            <div className="grid sm:grid-cols-2 gap-4">
+                <div className="bg-slate border border-white/5 p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                        <Unlock size={15} className="text-salvia" />
+                        <p className="font-body text-sm font-medium text-nebbia">{t('vantaggi.gia_usi')}</p>
+                    </div>
+                    <ul className="space-y-1.5 font-body text-xs text-nebbia/50 leading-relaxed">
+                        {['banca_dati', 'lex', 'archivio', 'ricerche', 'assistenza'].map(k => (
+                            <li key={k}>· {t(`vantaggi.gia.${k}`)}</li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="bg-slate border border-oro/25 p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                        <Sparkles size={15} className="text-oro" />
+                        <p className="font-body text-sm font-medium text-oro">{t('vantaggi.si_apre')}</p>
+                    </div>
+                    <ul className="space-y-1.5 font-body text-xs text-nebbia/60 leading-relaxed">
+                        {strumenti.map(voce).map(({ testo, nota }) => (
+                            <li key={testo}>
+                                · {testo}
+                                {nota && <span className="block pl-2.5 text-nebbia/40">{nota}</span>}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+
+            <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('vantaggi.come_funziona')}</p>
 
             <div className="space-y-4">
                 {config.documenti.map(({ key, req }) => (

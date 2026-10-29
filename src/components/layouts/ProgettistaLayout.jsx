@@ -14,6 +14,7 @@ import RisposteRecuperate from '@/components/shared/RisposteRecuperate'
 import PallinoTicket from '@/components/shared/PallinoTicket'
 import { useTicketDaRispondere } from '@/hooks/useTicketDaRispondere'
 import { useCreditiDisponibili } from '@/hooks/useCreditiDisponibili'
+import { VoceNuovaChat, EtichetteMenu } from '@/components/layouts/MenuChatEtichette'
 
 const NAV = [
   { path: '/dashboard', key: 'dashboard', icon: LayoutDashboard },
@@ -96,13 +97,14 @@ export default function ProgettistaLayout({ children }) {
         w-52 bg-slate border-r border-white/5
         transition-transform duration-300
         ${open ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:z-auto
+        lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:z-auto
       `}>
         <Link to="/dashboard" onClick={() => setOpen(false)} className="flex items-center justify-center px-5 py-6 border-b border-white/5 group">
           <img src={logo} alt="Lexum" className="h-16 w-auto transition-transform group-hover:scale-105" />
         </Link>
 
         <nav className="flex-1 overflow-y-auto py-4 space-y-0.5 px-2">
+          <VoceNuovaChat to="/chat" onClick={() => setOpen(false)} />
           {NAV.map(({ path, key, icon: Icon }) => (
             <NavLink
               key={path}
@@ -121,6 +123,7 @@ export default function ProgettistaLayout({ children }) {
               <ChevronRight size={13} className="opacity-0 group-hover:opacity-30 transition-opacity" />
             </NavLink>
           ))}
+          <EtichetteMenu userId={profile?.id} base="/etichette" onApri={() => setOpen(false)} />
         </nav>
 
         <div className="border-t border-white/5 p-4">

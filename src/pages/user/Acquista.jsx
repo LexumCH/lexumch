@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl, getAccessToken } from '@/lib/supabase'
 import ConsensoRecesso, { useConsensoRecesso } from '@/components/ConsensoRecesso'
 import CodiceSconto, { useCodiceSconto, PrezzoScontato } from '@/components/CodiceSconto'
-import { useContoPrivato, RiquadroConto, SezionePiani, SezioneArchivioInPiu, FinestraGestisci, gestisciAbbonamento } from '@/components/ContoPrivato'
+import { useContoPrivato, RiquadroConto, SezionePiani, SezioneArchivioInPiu, FinestraGestisci, gestisciAbbonamento, nomePiano, lingua } from '@/components/ContoPrivato'
 import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 import { vociPiano, etichettaDurata, periodoPrezzo } from '@/lib/vociPiano'
@@ -17,8 +17,9 @@ import {
 const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
 export default function Acquista() {
-    const { t } = useTranslation('user_acquista')
+    const { t, i18n } = useTranslation('user_acquista')
     const { t: tc } = useTranslation('comp_conto_privato')
+    const { t: ts } = useTranslation('comp_codice_sconto')
     const { profile } = useAuth()
     const location = useLocation()
 
@@ -191,7 +192,8 @@ export default function Acquista() {
     const vai = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
     return (
-        <div className="space-y-6 max-w-5xl">
+        // a tutta larghezza (29-10-2026, come su IT)
+        <div className="space-y-6">
 
             {/* Header */}
             <div>
@@ -219,7 +221,16 @@ export default function Acquista() {
             {/* Prima dei prodotti: dati di fatturazione e codice sconto */}
             <AvvisoDatiFatturazione profile={profile} />
 
-            <CodiceSconto sconto={sconto} className="bg-slate border border-white/5 p-4" />
+            {/* nomi nella lingua dell'utente: una volta applicato, il codice dice su cosa vale */}
+            <CodiceSconto
+                sconto={sconto}
+                nomi={Object.fromEntries([
+                    ...piani.map(p => [p.id, nomePiano(p, lingua(i18n))]),
+                    ...archivioMensile.map(p => [p.id, ts('nome_archivio', { gb: p.spazio_gb })]),
+                    ...[...pacchettiCrediti, ...abbonamenti, ...seatAddon].map(p => [p.id, p.nome]),
+                ])}
+                className="bg-slate border border-white/5 p-4"
+            />
 
             {/* Errore e avvisi */}
             {errore && (
@@ -246,17 +257,6 @@ export default function Acquista() {
                 />
             )}
 
-            <SezioneArchivioInPiu
-                prodotti={archivioMensile}
-                conto={conto}
-                acquistando={acquistando}
-                onAcquista={acquista}
-                onGestisciUno={gestisciArchivio}
-                paga={consenso.pulsante}
-                sconto={sconto}
-                PrezzoScontato={PrezzoScontato}
-            />
-
             <div id="crediti" className="space-y-3 scroll-mt-24">
                 <p className="section-label">{tc('sez_crediti')}</p>
                 <SezioneCrediti
@@ -268,6 +268,18 @@ export default function Acquista() {
                     paga={consenso.pulsante}
                 />
             </div>
+
+            {/* L'archivio in più dopo i crediti (29-10-2026, come su IT, deciso da Antonino) */}
+            <SezioneArchivioInPiu
+                prodotti={archivioMensile}
+                conto={conto}
+                acquistando={acquistando}
+                onAcquista={acquista}
+                onGestisciUno={gestisciArchivio}
+                paga={consenso.pulsante}
+                sconto={sconto}
+                PrezzoScontato={PrezzoScontato}
+            />
 
             {/* La frase sul recesso accompagna i pulsanti «Paga e attiva subito»: in piccolo, sotto gli acquisti
                 (28-10-2026, deciso da Antonino: prima stava in mezzo alla pagina) */}

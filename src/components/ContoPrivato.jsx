@@ -21,7 +21,7 @@ const MB = 1024 * 1024
 const GB = 1024 * MB
 const LOCALE = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
-function lingua(i18n) {
+export function lingua(i18n) {
     return ['it', 'de', 'fr'].includes(i18n.language) ? i18n.language : 'it'
 }
 
@@ -178,8 +178,6 @@ export function RiquadroConto({ conto, prezzoDa, onAggiungiCrediti, onAggiungiAr
         archivio.extra > 0 && t('fonte_extra', { misura: misura(archivio.extra, d.l) }),
         archivio.gratuiti > 0 && t('fonte_gratis', { misura: misura(archivio.gratuiti, d.l) }),
     ].filter(Boolean)
-    const conAbbonamento = !!piano || !!vecchioPiano
-
     return (
         <div className="bg-slate border border-white/5 p-5">
             <p className="section-label mb-4">{t('titolo')}</p>
@@ -209,7 +207,8 @@ export function RiquadroConto({ conto, prezzoDa, onAggiungiCrediti, onAggiungiAr
                                 <span className="text-nebbia/40">{t('di_quota', { quota: misura(archivio.quota, d.l) })}</span>
                             </p>
                         </div>
-                        {conAbbonamento && <PulsantePiu onClick={onAggiungiArchivio} etichetta={t('aggiungi_archivio')} />}
+                        {/* sempre (29-10-2026, come su IT): senza abbonamento porta all'archivio in più, che dice di scegliere prima un piano */}
+                        <PulsantePiu onClick={onAggiungiArchivio} etichetta={t('aggiungi_archivio')} />
                     </div>
                     <div className="h-2 bg-petrolio border border-white/10 mt-3 overflow-hidden" role="progressbar"
                         aria-valuenow={pieno} aria-valuemin={0} aria-valuemax={100} aria-label={t('archivio')}>
@@ -318,13 +317,20 @@ export function SezionePiani({ piani, conto, acquistando, onAcquista, onCambia, 
     )
 }
 
-/** L'archivio in più, ogni mese: solo con un abbonamento attivo. */
+/** L'archivio in più, ogni mese. */
 export function SezioneArchivioInPiu({ prodotti, conto, acquistando, onAcquista, onGestisciUno, paga, sconto, PrezzoScontato }) {
     const { t } = useTranslation('comp_conto_privato')
-    if (!conto.piano && !conto.vecchioPiano) return null
+    // Si vede anche senza abbonamento (29-10-2026, come su IT): lo spazio in più si aggiunge a un piano,
+    // quindi il pulsante porta prima ai piani.
+    const conPiano = !!(conto.piano || conto.vecchioPiano)
+    // aspetta anche il conto: se i prodotti arrivano prima (si entra da un'altra pagina), archivioInPiu non c'è ancora
+    if (!prodotti.length || !conto.caricato) return null
     return (
         <div id="archivio-in-piu" className="space-y-3 scroll-mt-24">
             <p className="section-label">{t('sez_archivio')}</p>
+            {!conPiano && (
+                <p className="font-body text-xs text-nebbia/50">{t('archivio_prima_piano')}</p>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {prodotti.map(p => {
                     const isLoading = acquistando === p.id
@@ -335,9 +341,13 @@ export function SezioneArchivioInPiu({ prodotti, conto, acquistando, onAcquista,
                                 <PrezzoScontato prezzo={Number(p.prezzo).toFixed(2)} scontato={sconto.prezzo(p.id, p.prezzo)} />
                                 <span className="font-body text-sm text-nebbia/40 ml-2">{t('al_mese')}</span>
                             </p>
-                            <button onClick={() => onAcquista(p.id)} disabled={isLoading}
+                            <button
+                                onClick={() => (conPiano
+                                    ? onAcquista(p.id)
+                                    : document.getElementById('abbonamenti')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))}
+                                disabled={isLoading}
                                 className="mt-4 flex items-center justify-center gap-2 py-3 lg:py-2.5 bg-oro/10 border border-oro/30 text-oro font-body text-sm hover:bg-oro/20 transition-colors disabled:opacity-40">
-                                {isLoading ? <Loader2 size={14} className="animate-spin" /> : paga(t('aggiungi'))}
+                                {isLoading ? <Loader2 size={14} className="animate-spin" /> : conPiano ? paga(t('aggiungi')) : t('prima_scegli_piano')}
                             </button>
                         </div>
                     )
@@ -359,7 +369,9 @@ export function SezioneArchivioInPiu({ prodotti, conto, acquistando, onAcquista,
                     ))}
                 </ul>
             )}
-            <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('nota_archivio')}</p>
+            {conPiano && (
+                <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('nota_archivio')}</p>
+            )}
         </div>
     )
 }

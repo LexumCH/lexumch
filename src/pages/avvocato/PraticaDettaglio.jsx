@@ -697,8 +697,9 @@ export default function PraticaDettaglio() {
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 shrink-0">
                         <p className="section-label">{t('ricerche.titolo', { count: ricerche.length })}</p>
                         <div className="flex items-center gap-2">
+                            {/* prima portava alla Banca Dati, dove c'era Lex: dal 29-10-2026 Lex ha la sua pagina */}
                             <button
-                                onClick={() => navigate('/banca-dati')}
+                                onClick={() => navigate('/chat')}
                                 className="font-body text-xs text-nebbia/40 hover:text-oro transition-colors flex items-center gap-1"
                             >
                                 <Search size={11} /> {t('ricerche.cerca_banca_dati')}

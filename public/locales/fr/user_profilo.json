@@ -48,5 +48,28 @@
     "aggiorna": "Mettre à jour le mot de passe",
     "err_min": "Minimum 8 caractères",
     "err_mismatch": "Les mots de passe ne correspondent pas"
+  },
+  "storico": {
+    "titolo": "Historique des paiements",
+    "vuoto": "Aucun paiement pour l’instant.",
+    "rimborsato": "Remboursé",
+    "ricevuta": "Pour chaque paiement, vous recevez le reçu par e-mail.",
+    "mostra_tutti": "Tout afficher ({{n}})",
+    "mostra_ultimi": "Afficher seulement les derniers"
+  },
+  "elimina": {
+    "titolo": "Supprimer le compte",
+    "testo": "Vous supprimez crédits, abonnement, recherches, étiquettes et archive de Lexum. C’est définitif.",
+    "apri": "Supprimer le compte…",
+    "domanda": "Supprimer votre compte ? Vous supprimez crédits, abonnement, recherches, étiquettes et archive de Lexum. C’est définitif.",
+    "scarica": "Avant, si vous le souhaitez, téléchargez les documents de votre archive.",
+    "rinnovo_prima": "Vous avez un abonnement qui se renouvelle : résiliez-le d’abord depuis",
+    "rinnovo_link": "Acheter → Gérer",
+    "rinnovo_dopo": ", puis supprimez le compte.",
+    "iphone": "L’abonnement pris sur iPhone se résilie dans les réglages de l’iPhone, sous « Abonnements » : supprimer le compte ne l’arrête pas.",
+    "conferma": "Supprimer le compte",
+    "err_aal2": "Vous avez la vérification en deux étapes : déconnectez-vous, reconnectez-vous avec le code et réessayez.",
+    "err_409": "Ce compte ne peut pas être supprimé d’ici : écrivez-nous via l’assistance et nous le fermerons pour vous.",
+    "err": "Suppression non réussie : réessayez."
   }
 }

@@ -18,5 +18,9 @@
     "non_tuo": "Dieser Rabattcode ist für eine andere Person reserviert.",
     "non_per_te": "Dieser Rabattcode gilt nicht für Ihr Konto.",
     "non_vale": "Dieser Rabattcode gilt nicht für diese Käufe."
-  }
+  },
+  "su_tutti": " auf alle Käufe dieser Seite",
+  "su_prodotti": " auf {{elenco}}",
+  "e": "und",
+  "nome_archivio": "+{{gb}} GB Archiv pro Monat"
 }

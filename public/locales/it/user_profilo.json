@@ -48,5 +48,28 @@
     "aggiorna": "Aggiorna password",
     "err_min": "Minimo 8 caratteri",
     "err_mismatch": "Le password non corrispondono"
+  },
+  "storico": {
+    "titolo": "Storico pagamenti",
+    "vuoto": "Nessun pagamento finora.",
+    "rimborsato": "Rimborsato",
+    "ricevuta": "Per ogni pagamento ti arriva la ricevuta via email.",
+    "mostra_tutti": "Mostra tutti ({{n}})",
+    "mostra_ultimi": "Mostra solo gli ultimi"
+  },
+  "elimina": {
+    "titolo": "Elimina account",
+    "testo": "Elimini crediti, abbonamento, ricerche, etichette e archivio di Lexum. È definitivo.",
+    "apri": "Elimina account…",
+    "domanda": "Eliminare il tuo account? Elimini crediti, abbonamento, ricerche, etichette e archivio di Lexum. È definitivo.",
+    "scarica": "Prima, se vuoi, scarica i documenti dal tuo archivio.",
+    "rinnovo_prima": "Hai un abbonamento che si rinnova: prima disdicilo da",
+    "rinnovo_link": "Acquista → Gestisci",
+    "rinnovo_dopo": ", poi elimina l’account.",
+    "iphone": "L’abbonamento preso su iPhone si disdice dalle impostazioni dell’iPhone, alla voce Abbonamenti: eliminare l’account non lo ferma.",
+    "conferma": "Elimina l’account",
+    "err_aal2": "Hai la verifica in due passaggi: esci, rientra con il codice e riprova.",
+    "err_409": "Questo account non si elimina da qui: scrivici dall’assistenza e lo chiudiamo noi.",
+    "err": "Eliminazione non riuscita: riprova."
   }
 }

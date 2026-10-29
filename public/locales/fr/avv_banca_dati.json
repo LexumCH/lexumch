@@ -2,7 +2,7 @@
   "header": {
     "label": "Base de données",
     "title": "Droit suisse, jurisprudence et pratique",
-    "subtitle": "Recherchez avec Lex AI ou parcourez le droit fédéral, cantonal, la jurisprudence, la pratique administrative et le droit de l'UE"
+    "subtitle": "Parcourez et recherchez le droit fédéral et cantonal, la jurisprudence, la pratique administrative et le droit de l'UE"
   },
   "tabs": {
     "sfoglia": "Parcourir",
@@ -236,6 +236,13 @@
       "limite_giornaliero": "Vous avez atteint la limite quotidienne de documents analysés : réessayez demain.",
       "non_disponibile": "Le service est temporairement indisponible : réessayez dans un instant.",
       "errore": "L'analyse du document a échoué : veuillez réessayer."
+    }
+  },
+  "chat": {
+    "header": {
+      "label": "Nouveau chat",
+      "title": "Demandez à Lex AI",
+      "subtitle": "Lex recherche dans les normes, la jurisprudence et la pratique et vous répond en citant les sources"
     }
   }
 }

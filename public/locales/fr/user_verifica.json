@@ -5,11 +5,11 @@
     "intro": "Choisissez votre parcours. Selon votre profession, nous vous demanderons les documents appropriés et activerons les outils adaptés à vos besoins.",
     "avvocato": {
       "titolo": "Avocat",
-      "desc": "Gestion des clients, des dossiers, de la base de données juridique, des arrêts et des délais de procédure."
+      "desc": "Clients, dossiers, audiences, calendrier et actes avec Lex AI."
     },
     "fiduciario": {
       "titolo": "Fiduciaire",
-      "desc": "Gestion des mandats, comptabilité, reporting, facturation et outils de tableur."
+      "desc": "Mandats, comptabilité des clients, comptes annuels, facturation et documents avec Lex AI."
     },
     "progettista": {
       "titolo": "Projeteur",
@@ -109,5 +109,84 @@
     "non_autenticato": "Utilisateur non authentifié",
     "upload": "Erreur de téléversement",
     "file_grande": "Fichier trop volumineux. Maximum 10 MB."
+  },
+  "vantaggi": {
+    "scopri": "En savoir plus",
+    "si_apre": "Ce qu'un abonnement débloque",
+    "gia_usi": "Ce que vous utilisez déjà",
+    "gia": {
+      "banca_dati": "Base de données : droit fédéral et cantonal, jurisprudence, pratique et droit de l'UE",
+      "lex": "Lex AI : recherche raisonnée dans les sources",
+      "archivio": "Archive de vos documents avec recherche sémantique",
+      "ricerche": "Recherches enregistrées et étiquettes",
+      "assistenza": "Assistance : prioritaire avec un abonnement"
+    },
+    "come_funziona": "Vous téléchargez les documents demandés : nous les contrôlons sous 24 à 48 heures et, dès qu'ils sont approuvés, vous choisissez le plan pour votre bureau.",
+    "verifica_come": "Vérifier en tant que {{titolo}}",
+    "consulenza": "Demander une consultation",
+    "consulenza_oggetto": "Demande de consultation",
+    "consulenza_messaggio": "Bonjour, j'évalue Lexum pour mon bureau avec le profil « {{titolo}} » : je souhaiterais une consultation sur le plan à choisir et sur ce que je peux faire avec le profil professionnel. Merci.",
+    "profilo_attivo": "Le profil que vous complétez",
+    "passa_a": "Passer au profil « {{titolo}} »"
+  },
+  "strumenti": {
+    "avv_pratiche": {
+      "testo": "Dossiers, audiences et parties adverses",
+      "nota": "Un espace où vous gardez tout sous contrôle : chaque dossier réunit client, parties adverses, audiences et documents."
+    },
+    "avv_calendario": {
+      "testo": "Calendrier de l'étude",
+      "nota": "Audiences, échéances et rendez-vous au même endroit, aussi en visioconférence. Le client voit ses rendez-vous dans le portail."
+    },
+    "avv_clienti": {
+      "testo": "Clients et portail dédié",
+      "nota": "Une fiche pour chaque client, avec ses dossiers. Le client entre dans son portail avec son propre accès : il voit dossiers, rendez-vous et factures, échange des documents avec l'étude et vous écrit."
+    },
+    "avv_chat": {
+      "testo": "Rédaction d'actes et chat dans le dossier",
+      "nota": "Demandez à Lex AI dans le dossier : Lex répond en tenant compte de tout le dossier (client, parties adverses, audiences, documents téléchargés, recherches enregistrées) et, si nécessaire, des normes et arrêts de la base de données. Lex rédige les actes avec les données du dossier."
+    },
+    "fid_mandati": {
+      "testo": "Mandats, clients et échéances",
+      "nota": "Un espace où vous gardez tout sous contrôle : chaque mandat réunit client, échéances, recettes et dépenses et documents. Vos clients ont un portail où ils voient mandats et échéances et échangent des documents avec le bureau."
+    },
+    "fid_calendario": {
+      "testo": "Calendrier du bureau",
+      "nota": "Rendez-vous avec les clients, aussi en visioconférence. Le client voit ses rendez-vous dans le portail."
+    },
+    "fid_contabilita": {
+      "testo": "Comptabilité des clients",
+      "nota": "Comptabilité en partie double avec le plan comptable PME et comptes annuels selon l'art. 958 CO (bilan, compte de résultat et annexe), recettes et dépenses, budget et écarts, prévision de trésorerie, employés et salaires. À partir d'un document téléchargé dans le mandat, Lexum déduit la recette ou la dépense à enregistrer."
+    },
+    "fid_chat": {
+      "testo": "Rédaction de documents et chat dans le mandat",
+      "nota": "Demandez à Lex AI dans le mandat : Lex répond en tenant compte de tout (client, échéances, recettes et dépenses, employés, documents téléchargés, recherches enregistrées) et, si nécessaire, des normes et de la pratique de la base de données. Lex rédige les documents avec les données du mandat."
+    },
+    "prg_progetti": {
+      "testo": "Projets avec les phases SIA 102",
+      "nota": "Chaque projet réunit client, phases, plans, documents et notes au même endroit."
+    },
+    "prg_disegni": {
+      "testo": "Analyse des plans et normes",
+      "nota": "Vous téléchargez les plans en PDF : Lexum les analyse et les compare aux règles de construction du canton du projet et aux normes SIA que vous téléchargez vous-même, avec un feu de conformité."
+    },
+    "prg_documenti": {
+      "testo": "Documents techniques du projet",
+      "nota": "Lex rédige les documents techniques à partir du projet analysé : vous les relisez, les modifiez et les enregistrez en PDF dans le projet."
+    },
+    "prg_clienti": {
+      "testo": "Clients et calendrier",
+      "nota": "Les fiches de vos clients et les rendez-vous dans un seul calendrier, aussi en visioconférence."
+    },
+    "fatture": {
+      "testo": "Factures avec QR-facture",
+      "nota": "Vous établissez la facture avec la QR-facture suisse et la TVA, et gardez un œil sur les factures payées, en attente et échues."
+    },
+    "assistenza": {
+      "testo": "Assistance prioritaire"
+    },
+    "crediti": {
+      "testo": "Crédits Lex AI chaque mois"
+    }
   }
 }

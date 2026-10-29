@@ -5,11 +5,11 @@
     "intro": "Scegli il tuo percorso. In base alla tua professione ti chiederemo i documenti adeguati e attiveremo gli strumenti giusti per te.",
     "avvocato": {
       "titolo": "Avvocato",
-      "desc": "Gestione clienti, pratiche, banca dati legale, sentenze e termini processuali."
+      "desc": "Clienti, pratiche, udienze, calendario e atti con Lex AI."
     },
     "fiduciario": {
       "titolo": "Fiduciario",
-      "desc": "Gestione mandati, contabilità, reportistica, fatturazione e strumenti per fogli di calcolo."
+      "desc": "Mandati, contabilità dei clienti, conto annuale, fatturazione e documenti con Lex AI."
     },
     "progettista": {
       "titolo": "Progettista",
@@ -109,5 +109,84 @@
     "non_autenticato": "Utente non autenticato",
     "upload": "Errore upload",
     "file_grande": "File troppo grande. Massimo 10 MB."
+  },
+  "vantaggi": {
+    "scopri": "Scopri di più",
+    "si_apre": "Quello che si apre con un abbonamento",
+    "gia_usi": "Quello che stai già usando",
+    "gia": {
+      "banca_dati": "Banca Dati: diritto federale e cantonale, giurisprudenza, prassi e diritto UE",
+      "lex": "Lex AI: ricerca ragionata sulle fonti",
+      "archivio": "Archivio dei tuoi documenti con ricerca semantica",
+      "ricerche": "Ricerche salvate ed etichette",
+      "assistenza": "Assistenza: con un abbonamento è prioritaria"
+    },
+    "come_funziona": "Carichi i documenti richiesti: li controlliamo entro 24-48 ore e, appena approvati, scegli il piano per il tuo studio.",
+    "verifica_come": "Verifica come {{titolo}}",
+    "consulenza": "Richiedi una consulenza",
+    "consulenza_oggetto": "Richiesta di consulenza",
+    "consulenza_messaggio": "Buongiorno, sto valutando Lexum per il mio studio con il profilo «{{titolo}}»: vorrei una consulenza su quale piano scegliere e su cosa posso fare con il profilo professionale. Grazie.",
+    "profilo_attivo": "Il profilo che stai completando",
+    "passa_a": "Passa al profilo «{{titolo}}»"
+  },
+  "strumenti": {
+    "avv_pratiche": {
+      "testo": "Pratiche, udienze e controparti",
+      "nota": "Un ambiente in cui tieni traccia di tutto: ogni pratica raccoglie cliente, controparti, udienze e documenti."
+    },
+    "avv_calendario": {
+      "testo": "Calendario dello studio",
+      "nota": "Udienze, scadenze e appuntamenti in un posto solo, anche in videochiamata. Il cliente vede i suoi appuntamenti nel portale."
+    },
+    "avv_clienti": {
+      "testo": "Clienti e portale dedicato",
+      "nota": "Una scheda per ogni cliente, con le sue pratiche. Il cliente entra nel suo portale con un accesso suo: vede pratiche, appuntamenti e fatture, scambia documenti con lo studio e ti scrive."
+    },
+    "avv_chat": {
+      "testo": "Generazione di atti e chat sulla pratica",
+      "nota": "Chiedi a Lex AI dentro la pratica: risponde tenendo conto di tutto il fascicolo (cliente, controparti, udienze, documenti caricati, ricerche salvate) e, se serve, di norme e sentenze della Banca Dati. Gli atti li scrive con i dati della pratica."
+    },
+    "fid_mandati": {
+      "testo": "Mandati, clienti e scadenze",
+      "nota": "Un ambiente in cui tieni traccia di tutto: ogni mandato raccoglie cliente, scadenze, entrate e uscite e documenti. I tuoi clienti hanno un portale dove vedono mandati e scadenze e scambiano documenti con lo studio."
+    },
+    "fid_calendario": {
+      "testo": "Calendario dello studio",
+      "nota": "Appuntamenti con i clienti, anche in videochiamata. Il cliente vede i suoi appuntamenti nel portale."
+    },
+    "fid_contabilita": {
+      "testo": "Contabilità dei clienti",
+      "nota": "Partita doppia con il piano dei conti KMU e conto annuale secondo l'art. 958 CO (bilancio, conto economico e allegato), entrate e uscite, budget e scostamenti, liquidità prevista, dipendenti e salari. Da un documento caricato nel mandato Lexum ricava l'entrata o l'uscita da registrare."
+    },
+    "fid_chat": {
+      "testo": "Generazione di documenti e chat sul mandato",
+      "nota": "Chiedi a Lex AI dentro il mandato: risponde tenendo conto di tutto (cliente, scadenze, entrate e uscite, dipendenti, documenti caricati, ricerche salvate) e, se serve, di norme e prassi della Banca Dati. I documenti li scrive con i dati del mandato."
+    },
+    "prg_progetti": {
+      "testo": "Progetti con le fasi SIA 102",
+      "nota": "Ogni progetto raccoglie cliente, fasi, disegni, documenti e note in un posto solo."
+    },
+    "prg_disegni": {
+      "testo": "Analisi dei disegni e normativa",
+      "nota": "Carichi le tavole in PDF: Lexum le analizza e le confronta con la normativa edilizia del cantone del progetto e con le norme SIA che carichi tu, con un semaforo di conformità."
+    },
+    "prg_documenti": {
+      "testo": "Documenti tecnici dal progetto",
+      "nota": "Lex redige i documenti tecnici dal progetto analizzato: li rivedi, li modifichi e li salvi in PDF nel progetto."
+    },
+    "prg_clienti": {
+      "testo": "Clienti e calendario",
+      "nota": "Le schede dei tuoi clienti e gli appuntamenti in un calendario solo, anche in videochiamata."
+    },
+    "fatture": {
+      "testo": "Fatture con QR-fattura",
+      "nota": "Prepari la fattura con la QR-fattura svizzera e l’IVA e tieni traccia di quelle pagate, in attesa e scadute."
+    },
+    "assistenza": {
+      "testo": "Assistenza prioritaria"
+    },
+    "crediti": {
+      "testo": "Crediti Lex AI ogni mese"
+    }
   }
 }

@@ -48,5 +48,28 @@
     "aggiorna": "Passwort aktualisieren",
     "err_min": "Mindestens 8 Zeichen",
     "err_mismatch": "Die Passwörter stimmen nicht überein"
+  },
+  "storico": {
+    "titolo": "Zahlungsverlauf",
+    "vuoto": "Bisher keine Zahlungen.",
+    "rimborsato": "Erstattet",
+    "ricevuta": "Für jede Zahlung erhalten Sie die Quittung per E-Mail.",
+    "mostra_tutti": "Alle anzeigen ({{n}})",
+    "mostra_ultimi": "Nur die letzten anzeigen"
+  },
+  "elimina": {
+    "titolo": "Konto löschen",
+    "testo": "Sie löschen Credits, Abonnement, Recherchen, Etiketten und Archiv von Lexum. Das ist endgültig.",
+    "apri": "Konto löschen…",
+    "domanda": "Ihr Konto löschen? Sie löschen Credits, Abonnement, Recherchen, Etiketten und Archiv von Lexum. Das ist endgültig.",
+    "scarica": "Laden Sie vorher, wenn Sie möchten, die Dokumente aus Ihrem Archiv herunter.",
+    "rinnovo_prima": "Sie haben ein Abonnement, das sich verlängert: Kündigen Sie es zuerst unter",
+    "rinnovo_link": "Kaufen → Verwalten",
+    "rinnovo_dopo": ", dann löschen Sie das Konto.",
+    "iphone": "Ein auf dem iPhone abgeschlossenes Abonnement kündigen Sie in den iPhone-Einstellungen unter «Abonnements»: Das Löschen des Kontos beendet es nicht.",
+    "conferma": "Konto löschen",
+    "err_aal2": "Sie haben die Zwei-Faktor-Authentifizierung: Melden Sie sich ab, mit dem Code wieder an und versuchen Sie es erneut.",
+    "err_409": "Dieses Konto lässt sich nicht hier löschen: Schreiben Sie uns über den Support, wir schliessen es für Sie.",
+    "err": "Löschen nicht gelungen: Bitte versuchen Sie es erneut."
   }
 }

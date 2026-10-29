@@ -70,7 +70,7 @@ import AvvocatoFatturazione from './pages/avvocato/Fatturazione'
 import AvvocatoFatturazioneNuova from './pages/avvocato/FatturazioneNuova'
 import AvvocatoFatturazioneDettaglio from './pages/avvocato/FatturazioneDettaglio'
 import AvvocatoCalendar from './pages/avvocato/AvvocatoCalendar'
-import { BancaDati } from './pages/avvocato/BancaDati'
+import { BancaDati, NuovaChat } from './pages/avvocato/BancaDati'
 import MandatoDettaglio from './pages/fiduciario/MandatoDettaglio'
 import ProgettistaDashboard from './pages/progettista/Dashboard'
 import Progetti from './pages/progettista/Progetti'
@@ -295,6 +295,8 @@ export default function App() {
 
               {/* Banca dati avvocato (con pannello pratiche attivo) */}
               <Route path="/banca-dati" element={<BancaDatiSharedAvv><BancaDati /></BancaDatiSharedAvv>} />
+              {/* Lex ha la sua pagina (29-10-2026, come nell'app e su IT): in Banca Dati resta la ricerca manuale */}
+              <Route path="/chat" element={<BancaDatiSharedAvv><NuovaChat /></BancaDatiSharedAvv>} />
               <Route path="/banca-dati/norma-federale/:id" element={<BancaDatiSharedAvv><NormaDettaglio /></BancaDatiSharedAvv>} />
               <Route path="/banca-dati/norma-cantonale/:id" element={<BancaDatiSharedAvv><NormaDettaglio /></BancaDatiSharedAvv>} />
               <Route path="/banca-dati/norma-ue/:id" element={<BancaDatiSharedAvv><NormaDettaglio /></BancaDatiSharedAvv>} />
@@ -329,6 +331,7 @@ export default function App() {
                 ═══════════════════════════════════════════════════════ */}
               {/* Home utente = banca dati embedded */}
               <Route path="/area" element={<Usr><BancaDati /></Usr>} />
+              <Route path="/area/chat" element={<Usr><NuovaChat /></Usr>} />
               <Route path="/area/ricerche" element={<Usr><Ricerche /></Usr>} />
               {/* Archivio dei privati (02-10-2026): 50 MB gratuiti, 2 GB con il Piano Personale */}
               <Route path="/area/archivio" element={<Usr><Archivio /></Usr>} />

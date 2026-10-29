@@ -14,7 +14,7 @@ const HOME_PER_RUOLO = {
   fiduciario: '/dashboard',
   progettista: '/dashboard',
   cliente: '/portale',
-  user: '/area',
+  user: '/area/chat',   // la chat, come nell'app (29-10-2026)
 }
 
 export default function Navbar() {

@@ -5,11 +5,11 @@
     "intro": "Wählen Sie Ihren Weg. Je nach Beruf verlangen wir die passenden Dokumente und schalten die richtigen Werkzeuge für Sie frei.",
     "avvocato": {
       "titolo": "Anwalt",
-      "desc": "Verwaltung von Mandanten, Dossiers, juristischer Datenbank, Urteilen und Verfahrensfristen."
+      "desc": "Mandanten, Dossiers, Verhandlungen, Kalender und Rechtsschriften mit Lex AI."
     },
     "fiduciario": {
       "titolo": "Treuhänder",
-      "desc": "Verwaltung von Mandaten, Buchhaltung, Reporting, Rechnungsstellung und Tabellenkalkulations-Werkzeugen."
+      "desc": "Mandate, Buchhaltung der Kunden, Jahresrechnung, Rechnungsstellung und Dokumente mit Lex AI."
     },
     "progettista": {
       "titolo": "Planer",
@@ -109,5 +109,84 @@
     "non_autenticato": "Benutzer nicht authentifiziert",
     "upload": "Fehler beim Hochladen",
     "file_grande": "Datei zu gross. Maximal 10 MB."
+  },
+  "vantaggi": {
+    "scopri": "Mehr erfahren",
+    "si_apre": "Was ein Abonnement freischaltet",
+    "gia_usi": "Was Sie bereits nutzen",
+    "gia": {
+      "banca_dati": "Datenbank: Bundes- und kantonales Recht, Rechtsprechung, Praxis und EU-Recht",
+      "lex": "Lex AI: begründete Recherche in den Quellen",
+      "archivio": "Archiv Ihrer Dokumente mit semantischer Suche",
+      "ricerche": "Gespeicherte Recherchen und Etiketten",
+      "assistenza": "Support: mit einem Abonnement mit Priorität"
+    },
+    "come_funziona": "Sie laden die verlangten Dokumente hoch: Wir prüfen sie innert 24–48 Stunden, und sobald sie genehmigt sind, wählen Sie den Plan für Ihr Büro.",
+    "verifica_come": "Als {{titolo}} verifizieren",
+    "consulenza": "Beratung anfragen",
+    "consulenza_oggetto": "Beratungsanfrage",
+    "consulenza_messaggio": "Guten Tag, ich prüfe Lexum für mein Büro mit dem Profil «{{titolo}}»: Ich möchte eine Beratung dazu, welchen Plan ich wählen soll und was ich mit dem Berufsprofil tun kann. Vielen Dank.",
+    "profilo_attivo": "Das Profil, das Sie vervollständigen",
+    "passa_a": "Zum Profil «{{titolo}}» wechseln"
+  },
+  "strumenti": {
+    "avv_pratiche": {
+      "testo": "Dossiers, Verhandlungen und Gegenparteien",
+      "nota": "Ein Ort, an dem Sie alles im Blick behalten: Jedes Dossier vereint Mandant, Gegenparteien, Verhandlungen und Dokumente."
+    },
+    "avv_calendario": {
+      "testo": "Kanzleikalender",
+      "nota": "Verhandlungen, Fristen und Termine an einem Ort, auch per Videoanruf. Der Mandant sieht seine Termine im Portal."
+    },
+    "avv_clienti": {
+      "testo": "Mandanten und eigenes Portal",
+      "nota": "Eine Karte für jeden Mandanten mit seinen Dossiers. Der Mandant meldet sich mit eigenem Zugang in seinem Portal an: Er sieht Dossiers, Termine und Rechnungen, tauscht Dokumente mit der Kanzlei aus und schreibt Ihnen."
+    },
+    "avv_chat": {
+      "testo": "Rechtsschriften erstellen und Chat im Dossier",
+      "nota": "Fragen Sie Lex AI direkt im Dossier: Lex antwortet unter Berücksichtigung der ganzen Akte (Mandant, Gegenparteien, Verhandlungen, hochgeladene Dokumente, gespeicherte Recherchen) und, wenn nötig, der Gesetze und Urteile der Datenbank. Rechtsschriften verfasst Lex mit den Daten des Dossiers."
+    },
+    "fid_mandati": {
+      "testo": "Mandate, Kunden und Fristen",
+      "nota": "Ein Ort, an dem Sie alles im Blick behalten: Jedes Mandat vereint Kunde, Fristen, Einnahmen und Ausgaben sowie Dokumente. Ihre Kunden haben ein Portal, in dem sie Mandate und Fristen sehen und Dokumente mit dem Büro austauschen."
+    },
+    "fid_calendario": {
+      "testo": "Bürokalender",
+      "nota": "Termine mit den Kunden, auch per Videoanruf. Der Kunde sieht seine Termine im Portal."
+    },
+    "fid_contabilita": {
+      "testo": "Buchhaltung der Kunden",
+      "nota": "Doppelte Buchhaltung mit dem KMU-Kontenrahmen und Jahresrechnung nach Art. 958 OR (Bilanz, Erfolgsrechnung und Anhang), Einnahmen und Ausgaben, Budget und Abweichungen, Liquiditätsplanung, Mitarbeitende und Löhne. Aus einem im Mandat hochgeladenen Dokument ermittelt Lexum die zu buchende Einnahme oder Ausgabe."
+    },
+    "fid_chat": {
+      "testo": "Dokumente erstellen und Chat im Mandat",
+      "nota": "Fragen Sie Lex AI direkt im Mandat: Lex antwortet unter Berücksichtigung von allem (Kunde, Fristen, Einnahmen und Ausgaben, Mitarbeitende, hochgeladene Dokumente, gespeicherte Recherchen) und, wenn nötig, der Gesetze und Praxis der Datenbank. Dokumente verfasst Lex mit den Daten des Mandats."
+    },
+    "prg_progetti": {
+      "testo": "Projekte mit den Phasen nach SIA 102",
+      "nota": "Jedes Projekt vereint Kunde, Phasen, Pläne, Dokumente und Notizen an einem Ort."
+    },
+    "prg_disegni": {
+      "testo": "Planprüfung und Vorschriften",
+      "nota": "Sie laden die Pläne als PDF hoch: Lexum analysiert sie und vergleicht sie mit den Bauvorschriften des Projektkantons und mit den SIA-Normen, die Sie selbst hochladen, mit einer Konformitätsampel."
+    },
+    "prg_documenti": {
+      "testo": "Technische Dokumente aus dem Projekt",
+      "nota": "Lex verfasst die technischen Dokumente aus dem analysierten Projekt: Sie prüfen, ändern und speichern sie als PDF im Projekt."
+    },
+    "prg_clienti": {
+      "testo": "Kunden und Kalender",
+      "nota": "Die Karten Ihrer Kunden und die Termine in einem einzigen Kalender, auch per Videoanruf."
+    },
+    "fatture": {
+      "testo": "Rechnungen mit QR-Rechnung",
+      "nota": "Sie erstellen die Rechnung mit der Schweizer QR-Rechnung und der MWST und behalten bezahlte, offene und überfällige Rechnungen im Blick."
+    },
+    "assistenza": {
+      "testo": "Support mit Priorität"
+    },
+    "crediti": {
+      "testo": "Lex-AI-Credits jeden Monat"
+    }
   }
 }
