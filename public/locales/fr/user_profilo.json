@@ -33,7 +33,11 @@
     "indirizzo_placeholder": "Rue du Rhône 1",
     "cap": "NPA",
     "citta": "Localité",
-    "paese": "Pays"
+    "paese": "Pays",
+    "fattura_titolo": "Pour la facture à votre entreprise",
+    "fattura_testo": "Avec la raison sociale et le numéro IDE, vous recevez aussi par e-mail, à chaque paiement, la facture au nom de l'entreprise.",
+    "ragione_sociale": "Raison sociale",
+    "uid": "Numéro IDE"
   },
   "password": {
     "titolo": "Changer le mot de passe",
@@ -53,9 +57,10 @@
     "titolo": "Historique des paiements",
     "vuoto": "Aucun paiement pour l’instant.",
     "rimborsato": "Remboursé",
-    "ricevuta": "Pour chaque paiement, vous recevez le reçu par e-mail.",
+    "ricevuta": "Pour chaque paiement, vous recevez le reçu par e-mail. Avec la raison sociale et le numéro IDE dans les données de facturation, vous recevez aussi la facture.",
     "mostra_tutti": "Tout afficher ({{n}})",
-    "mostra_ultimi": "Afficher seulement les derniers"
+    "mostra_ultimi": "Afficher seulement les derniers",
+    "fattura": "Facture"
   },
   "elimina": {
     "titolo": "Supprimer le compte",

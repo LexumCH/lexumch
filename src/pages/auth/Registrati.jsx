@@ -19,7 +19,7 @@ const normLingua = (l) => {
 export default function Registrati() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation('auth')
-  const [form, setForm] = useState(() => ({ nome: '', cognome: '', email: '', lingua: normLingua(i18n.language), studio: '', password: '', conferma: '' }))
+  const [form, setForm] = useState(() => ({ nome: '', cognome: '', email: '', lingua: normLingua(i18n.language), studio: '', fattura: false, ragione_sociale: '', uid: '', password: '', conferma: '' }))
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -31,6 +31,10 @@ export default function Registrati() {
     if (!form.nome.trim()) e.nome = t('registrati.err_required')
     if (!form.cognome.trim()) e.cognome = t('registrati.err_required')
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = t('registrati.err_email')
+    if (form.fattura) {
+      if (!form.ragione_sociale.trim()) e.ragione_sociale = t('registrati.err_fattura')
+      if (!form.uid.trim()) e.uid = t('registrati.err_fattura')
+    }
     const errPassword = messaggioPassword(form.password, t)
     if (errPassword) e.password = errPassword
     if (form.password !== form.conferma) e.conferma = t('registrati.err_mismatch')
@@ -55,6 +59,9 @@ export default function Registrati() {
             nome: form.nome.trim(),
             cognome: form.cognome.trim(),
             studio: form.studio.trim() || null,
+            // Dati aziendali per la fattura (30-10-2026): il trigger li copia nel profilo.
+            ragione_sociale: form.fattura ? form.ragione_sociale.trim() : null,
+            uid: form.fattura ? form.uid.trim().toUpperCase() : null,
             lingua: normLingua(form.lingua),
           },
         },
@@ -177,6 +184,28 @@ export default function Registrati() {
             <p className="mt-1.5 font-body text-xs text-nebbia/25 leading-relaxed">
               {t('registrati.studio_hint')}
             </p>
+          </div>
+
+          {/* Fattura — facoltativa (30-10-2026): la ricevuta arriva sempre; la fattura a chi dà i dati aziendali */}
+          <div className="border border-white/10 p-4 space-y-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.fattura}
+                onChange={e => setForm(f => ({ ...f, fattura: e.target.checked }))}
+                className="mt-0.5 accent-oro"
+              />
+              <span>
+                <span className="block font-body text-sm text-nebbia">{t('registrati.fattura_label')}</span>
+                <span className="block font-body text-xs text-nebbia/40 leading-relaxed mt-0.5">{t('registrati.fattura_hint')}</span>
+              </span>
+            </label>
+            {form.fattura && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {field('ragione_sociale', t('registrati.ragione_sociale_label'), 'text', t('registrati.ragione_sociale_placeholder'))}
+                {field('uid', t('registrati.uid_label'), 'text', 'CHE-123.456.789')}
+              </div>
+            )}
           </div>
 
           {pwdField('password', t('registrati.password_label'), showPwd, () => setShowPwd(v => !v), suggerimentoPassword(t))}

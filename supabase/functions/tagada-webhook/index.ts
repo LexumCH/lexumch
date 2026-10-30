@@ -14,6 +14,8 @@
 // Il legame con l'utente è l'ordine aperto da tagada-checkout (lexum_tx), che porta anche il pro-rata.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { jsPDF } from "https://esm.sh/jspdf@2.5.1";
+import { pdfFattura, type Lingua } from "./fattura-pdf.ts";
 
 const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
@@ -54,7 +56,7 @@ function profiloRicevuta(p: any) {
   };
 }
 
-async function inviaEmail(to: string, templateAlias: string, templateModel: Record<string, unknown>, toUserId?: string) {
+async function inviaEmail(to: string, templateAlias: string, templateModel: Record<string, unknown>, toUserId?: string, allegati: Allegato[] = []) {
   try {
     await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-mail`, {
       method: "POST",
@@ -67,6 +69,7 @@ async function inviaEmail(to: string, templateAlias: string, templateModel: Reco
         tipo: templateAlias.replace(/-/g, "_"),
         origine: "tagada-webhook",
         toUserId,
+        ...(allegati.length ? { attachments: allegati } : {}),
         bccInterno: ALIAS_CON_BCC_INTERNO.has(templateAlias.replace(/-(it|de|fr)$/, "")),
       }),
     });
@@ -114,6 +117,63 @@ function metodoPagamento(corpo: any): string {
   const ultime = cerca(corpo, "last4") ?? cerca(corpo, "lastFour");
   const marca = cerca(corpo, "brand") ?? cerca(corpo, "cardBrand");
   return ultime ? `${(marca ?? "Carta").toUpperCase()} **** ${ultime}` : "Carta";
+}
+
+// ═══ FATTURA (30-10-2026) ═══
+// Chi ha dato i dati aziendali (ragione sociale o numero IDI) riceve la fattura di Mosaico Experiences SA,
+// allegata alla ricevuta, che parte comunque. IVA (risposta dell'amministratore di Mosaico, 30-10): 8,1%
+// inclusa nel prezzo per i clienti in Svizzera, nessuna per gli altri. Un errore qui non ferma l'accredito:
+// la ricevuta parte senza allegato e l'errore resta nel registro della funzione.
+type Allegato = { Name: string; Content: string; ContentType: string };
+
+function base64(dati: ArrayBuffer): string {
+  const byte = new Uint8Array(dati);
+  let s = "";
+  for (let i = 0; i < byte.length; i += 0x8000) s += String.fromCharCode(...byte.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+
+async function fatturaPerPagamento(
+  riferimento: string, userId: string, descrizione: string, totale: number, metodo: string,
+): Promise<{ allegati: Allegato[]; numero: string | null }> {
+  const nessuna = { allegati: [] as Allegato[], numero: null };
+  if (!(totale > 0)) return nessuna;
+  try {
+    const { data: c } = await supabase.from("profiles")
+      .select("nome, cognome, email, indirizzo, numero_civico, cap, citta, paese, ragione_sociale, uid, lingua")
+      .eq("id", userId).single();
+    if (!c || !(c.ragione_sociale?.trim() || c.uid?.trim())) return nessuna;
+    const paese = String(c.paese || "CH").toUpperCase();
+    const via = [c.indirizzo, c.numero_civico].filter(Boolean).join(" ");
+    const cliente = {
+      ragione_sociale: c.ragione_sociale?.trim() || null,
+      nome: `${c.nome ?? ""} ${c.cognome ?? ""}`.trim() || null,
+      indirizzo: [via, [c.cap, c.citta].filter(Boolean).join(" "), paese === "CH" ? null : paese].filter(Boolean).join(", ") || null,
+      partita_iva: c.uid?.trim() || null, cf: null, email: c.email || null, paese,
+    };
+    const lingua: Lingua = linguaEmail(c.lingua);
+    const { data: f, error } = await supabase.rpc("fattura_lexum_crea", {
+      p_riferimento: riferimento, p_user: userId, p_cliente: cliente, p_descrizione: descrizione,
+      p_totale: totale, p_iva_aliquota: paese === "CH" ? 8.1 : 0, p_valuta: "CHF",
+    });
+    if (error || !f) throw new Error(error?.message ?? "numero non assegnato");
+    const pdf = pdfFattura(jsPDF, {
+      numero: f.numero, data: new Date(f.emessa_il).toLocaleDateString("de-CH", { timeZone: "Europe/Zurich" }),
+      cliente: f.cliente, descrizione: f.descrizione, totale: Number(f.totale), imponibile: Number(f.imponibile),
+      iva_aliquota: Number(f.iva_aliquota), iva_importo: Number(f.iva_importo), valuta: f.valuta,
+      metodo, sito: "www.lexum.ch", email: "info@lexum.ch",
+    }, lingua);
+    const percorso = `${userId}/${f.numero}.pdf`;
+    const { error: upErr } = await supabase.storage.from("fatture-lexum")
+      .upload(percorso, new Uint8Array(pdf), { contentType: "application/pdf", upsert: true });
+    if (upErr) console.error(`Fattura ${f.numero}: PDF non salvato (${upErr.message})`);
+    else if (!f.pdf_path) await supabase.from("fatture_lexum").update({ pdf_path: percorso }).eq("id", f.id);
+    console.log(`Fattura ${f.numero} per ${riferimento}`);
+    return { allegati: [{ Name: `${f.numero}.pdf`, Content: base64(pdf), ContentType: "application/pdf" }], numero: f.numero };
+  } catch (e) {
+    console.error(`Fattura non emessa (${riferimento}):`, e instanceof Error ? e.message : e);
+    return nessuna;
+  }
 }
 
 // ═══ ABBONAMENTI DEI PRIVATI (rinnovo automatico, 28-10-2026, come su Lexum IT) ═══
@@ -293,7 +353,7 @@ async function chiudiSostituito(abbonamentoId: string) {
 
 // La ricevuta di un mese pagato (il primo o un rinnovo), nella lingua dell'utente, con il prossimo rinnovo.
 // deno-lint-ignore no-explicit-any
-async function ricevutaAbbonamento(userId: string, prodotto: any, esito: any, pagamento: any, recesso: any, rinnovo: boolean) {
+async function ricevutaAbbonamento(userId: string, prodotto: any, esito: any, pagamento: any, recesso: any, rinnovo: boolean, allegati: Allegato[] = []) {
   const { data: p } = await supabase.from("profiles")
     .select("id, email, nome, cognome, indirizzo, cap, citta, uid, ragione_sociale, sede_legale, lingua")
     .eq("id", userId).single();
@@ -306,13 +366,13 @@ async function ricevutaAbbonamento(userId: string, prodotto: any, esito: any, pa
       profilo: profiloRicevuta(p),
       prodotto: { nome: nomePianoPersonale(prodotto, l), crediti_ai_mensili: prodotto.crediti_ai_mensili ?? 0, spazio_gb: prodotto.spazio_gb ?? 0 },
       scadenza: fine, abbonamento, pagamento, recesso,
-    }, userId);
+    }, userId, allegati);
   } else {
     await inviaEmail(p.email, `spazio-di-archiviazione-attivato-${l}`, {
       profilo: profiloRicevuta(p),
       prodotto: { nome: prodotto.nome, gb_aggiunti: prodotto.spazio_gb ?? 0, durata_mesi: 1, durata_singolare: true, scadenza: fine },
       abbonamento, pagamento, recesso,
-    }, userId);
+    }, userId, allegati);
   }
 }
 
@@ -354,13 +414,14 @@ async function eventoAbbonamento(tipo: string, evento: any, eventId: string): Pr
     });
     if (error) throw new Error(`Rinnovo non registrato: ${error.message}`);
     if (esito?.esito === "ok") {
+      const fattura = await fatturaPerPagamento(chiave, ab.user_id, `${prodotto?.nome} - rinnovo mensile`, importo, metodoPagamento(evento));
       await supabase.from("transazioni").insert({
         user_id: ab.user_id, prodotto_id: ab.prodotto_id, prodotto_nome: prodotto?.nome, tipo: prodotto?.tipo,
         importo, valuta: "CHF", stato: "completato",
-        metadati: { fornitore: "tagada", rinnovo: true, abbonamento: ab.riferimento, order_id: dati?.orderId ?? null, payment_id: dati?.paymentId ?? null },
+        metadati: { fornitore: "tagada", rinnovo: true, abbonamento: ab.riferimento, order_id: dati?.orderId ?? null, payment_id: dati?.paymentId ?? null, ...(fattura.numero ? { fattura: fattura.numero } : {}) },
       });
       await ricevutaAbbonamento(ab.user_id, prodotto, esito,
-        { data: dataSvizzera(new Date()), metodo: metodoPagamento(evento), importo: importo.toFixed(2), valuta: "CHF" }, null, true);
+        { data: dataSvizzera(new Date()), metodo: metodoPagamento(evento), importo: importo.toFixed(2), valuta: "CHF" }, null, true, fattura.allegati);
     }
     console.log(`Rinnovo ${ab.riferimento}: ${esito?.esito} fino al ${esito?.periodo_fine}`);
   } else if (["subscription/pastDue", "subscription/rebillDeclined", "subscription/rebillCaptureFailed"].includes(tipo)) {
@@ -462,6 +523,13 @@ Deno.serve(async (req) => {
       ? { data: dataEstesa(new Date(ordine.consenso_il ?? Date.now()), lingua) }
       : null;
 
+    // La fattura, per chi ha dato i dati aziendali: allegata alla ricevuta (vedi «FATTURA»)
+    const { allegati, numero: numeroFattura } = await fatturaPerPagamento(
+      `tagada:${orderId || lexumTx}`, userId,
+      prodotto.rinnovo_automatico ? `${prodotto.nome} - abbonamento mensile` : prodotto.nome,
+      importoPagato, pagamento.metodo);
+    if (numeroFattura) Object.assign(metadatiTx, { fattura: numeroFattura });
+
     // ═══ ABBONAMENTI DEI PRIVATI: primo mese ═══
     if (prodotto.rinnovo_automatico === true) {
       let ab = await abbonamentoDaOrdine(ordine, prodotto, idAbbonamento(evento));
@@ -476,7 +544,7 @@ Deno.serve(async (req) => {
           user_id: userId, studio_id: profilo?.studio_id ?? null, prodotto_id: prodottoId, prodotto_nome: prodotto.nome,
           tipo: prodottoTipo, importo: importoPagato, valuta: "CHF", stato: "completato", metadati: { ...metadatiTx, abbonamento: ab.riferimento },
         });
-        await ricevutaAbbonamento(userId, prodotto, esito, pagamento, recesso, false);
+        await ricevutaAbbonamento(userId, prodotto, esito, pagamento, recesso, false, allegati);
       }
       await supabase.from("tagada_ordini").update({
         stato: "pagato", order_id: orderId || null, payment_id: dati?.paymentId ?? null, pagato_il: new Date().toISOString(),
@@ -512,7 +580,7 @@ Deno.serve(async (req) => {
       await inviaEmail(profilo.email, `seat-addon-attivato-${lingua}`, {
         profilo: profiloRicevuta(profilo), prodotto: { nome: prodotto.nome, posti: prodotto.posti ?? 1 },
         nuoviPosti, pagamento, recesso,
-      }, userId);
+      }, userId, allegati);
     }
 
     // ═══ CLIENTI ADD-ON ═══
@@ -536,7 +604,7 @@ Deno.serve(async (req) => {
       await inviaEmail(prop.email, `clienti-addon-attivato-${linguaEmail(prop.lingua)}`, {
         profilo: profiloRicevuta(prop), prodotto: { nome: prodotto.nome, clienti_extra: clientiExtra },
         nuovoTotaleExtra, scadenza: scadenza ? dataSvizzera(new Date(scadenza)) : null, pagamento, recesso,
-      }, propId);
+      }, propId, allegati);
     }
 
     // ═══ ABBONAMENTO (avvocato / fiduciario / progettista) ═══
@@ -594,7 +662,7 @@ Deno.serve(async (req) => {
         profilo: profiloRicevuta(profilo),
         prodotto: { nome: prodotto.nome, crediti_ai_mensili: prodotto.crediti_ai_mensili ?? 0, spazio_gb: prodotto.spazio_gb ?? 0, posti: prodotto.posti ?? 1 },
         scadenza: scadenza ? dataSvizzera(new Date(scadenza)) : null, pagamento, recesso,
-      }, userId);
+      }, userId, allegati);
     }
 
     // ═══ PIANO PERSONALE (privati) ═══
@@ -608,7 +676,7 @@ Deno.serve(async (req) => {
         profilo: profiloRicevuta(profilo),
         prodotto: { nome: nomePianoPersonale(prodotto, lingua), crediti_ai_mensili: a?.crediti ?? prodotto.crediti_ai_mensili ?? 0, spazio_gb: prodotto.spazio_gb ?? 0 },
         scadenza: dataSvizzera(new Date(a?.scadenza ?? Date.now())), pagamento, recesso,
-      }, userId);
+      }, userId, allegati);
     }
 
     // ═══ CREDITI AI (non scadono) ═══
@@ -622,7 +690,7 @@ Deno.serve(async (req) => {
       await inviaEmail(profilo?.email ?? "", `crediti-ai-attivati-${lingua}`, {
         profilo: profiloRicevuta(profilo), prodotto: { nome: prodotto.nome },
         creditiAcquistati: crediti, pagamento, recesso,
-      }, userId);
+      }, userId, allegati);
     }
 
     // ═══ SPAZIO DI ARCHIVIAZIONE ═══
@@ -661,7 +729,7 @@ Deno.serve(async (req) => {
         profilo: profiloRicevuta(prop),
         prodotto: { nome: prodotto.nome, gb_aggiunti: gb, durata_mesi: durataMesi, durata_singolare: Number(durataMesi) === 1, scadenza: dataSvizzera(fine) },
         pagamento, recesso,
-      }, userId);
+      }, userId, allegati);
       await supabase.from("tagada_ordini").update({ stato: "pagato", order_id: orderId || null, payment_id: dati?.paymentId ?? null, pagato_il: new Date().toISOString() }).eq("id", lexumTx);
       return new Response("OK", { status: 200 });
     } else {

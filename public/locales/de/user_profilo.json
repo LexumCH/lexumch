@@ -33,7 +33,11 @@
     "indirizzo_placeholder": "Bahnhofstrasse 1",
     "cap": "PLZ",
     "citta": "Ort",
-    "paese": "Land"
+    "paese": "Land",
+    "fattura_titolo": "Für die Rechnung an Ihre Firma",
+    "fattura_testo": "Mit Firmenname und UID-Nummer erhalten Sie bei jeder Zahlung auch die Rechnung auf Ihre Firma per E-Mail.",
+    "ragione_sociale": "Firmenname",
+    "uid": "UID-Nummer"
   },
   "password": {
     "titolo": "Passwort ändern",
@@ -53,9 +57,10 @@
     "titolo": "Zahlungsverlauf",
     "vuoto": "Bisher keine Zahlungen.",
     "rimborsato": "Erstattet",
-    "ricevuta": "Für jede Zahlung erhalten Sie die Quittung per E-Mail.",
+    "ricevuta": "Für jede Zahlung erhalten Sie die Quittung per E-Mail. Mit Firmenname und UID-Nummer in den Rechnungsdaten erhalten Sie auch die Rechnung.",
     "mostra_tutti": "Alle anzeigen ({{n}})",
-    "mostra_ultimi": "Nur die letzten anzeigen"
+    "mostra_ultimi": "Nur die letzten anzeigen",
+    "fattura": "Rechnung"
   },
   "elimina": {
     "titolo": "Konto löschen",

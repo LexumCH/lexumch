@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { messaggioPassword, messaggioErroreAuthPassword, suggerimentoPassword, messaggioErroreServer } from '@/lib/password'
 import { PageHeader, InputField } from '@/components/shared'
-import { Check, AlertCircle, Loader2, Receipt } from 'lucide-react'
+import { Check, AlertCircle, Loader2, Receipt, FileText } from 'lucide-react'
 import SelectLingua from '@/components/SelectLingua'
 import { elencoPaesi } from '@/lib/paesi'
 
@@ -35,6 +35,9 @@ export default function UserProfilo() {
         cap: profile?.cap ?? '',
         citta: profile?.citta ?? '',
         paese: profile?.paese ?? 'CH',
+        // dati aziendali: con questi arriva anche la fattura (30-10-2026)
+        ragione_sociale: profile?.ragione_sociale ?? '',
+        uid: profile?.uid ?? '',
     })
     const [datiOriginali, setDatiOriginali] = useState({ ...form })
 
@@ -50,6 +53,8 @@ export default function UserProfilo() {
                 cap: profile.cap ?? '',
                 citta: profile.citta ?? '',
                 paese: profile.paese ?? 'CH',
+                ragione_sociale: profile.ragione_sociale ?? '',
+                uid: profile.uid ?? '',
             }
             setForm(init)
             setDatiOriginali(init)
@@ -99,6 +104,8 @@ export default function UserProfilo() {
                     cap: form.cap.trim() || null,
                     citta: form.citta.trim() || null,
                     paese: form.paese || 'CH',
+                    ragione_sociale: form.ragione_sociale.trim() || null,
+                    uid: form.uid.trim().toUpperCase() || null,
                 })
                 .eq('id', user.id)
             // Errore del database: niente testo tecnico, il messaggio generico
@@ -235,6 +242,18 @@ export default function UserProfilo() {
                         <InputField label={t('dati.citta')} placeholder="Lugano" {...f('citta')} />
                     </div>
 
+                    {/* Dati aziendali (30-10-2026): con ragione sociale e numero IDI arriva anche la fattura */}
+                    <div className="pt-2 space-y-4">
+                        <div>
+                            <p className="font-body text-sm text-nebbia">{t('dati.fattura_titolo')}</p>
+                            <p className="font-body text-xs text-nebbia/40 mt-0.5">{t('dati.fattura_testo')}</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <InputField label={t('dati.ragione_sociale')} {...f('ragione_sociale')} />
+                            <InputField label={t('dati.uid')} placeholder="CHE-123.456.789" {...f('uid')} />
+                        </div>
+                    </div>
+
                     {erroreSezione('fatturazione')}
                     {fatturazioneCambiata && pulsantiSezione('fatturazione')}
                 </div>
@@ -308,6 +327,21 @@ function StoricoPagamenti({ userId }) {
     const [righe, setRighe] = useState(null)
     const [tutti, setTutti] = useState(false)
     const locale = LOCALE[i18n.language] ?? 'it-CH'
+    const [scaricando, setScaricando] = useState(null)
+
+    // La fattura (30-10-2026): il numero sta nei metadati della transazione, il PDF nel bucket fatture-lexum
+    async function scaricaFattura(numero) {
+        setScaricando(numero)
+        try {
+            const { data: f } = await supabase.from('fatture_lexum').select('pdf_path').eq('numero', numero).maybeSingle()
+            const { data } = f?.pdf_path
+                ? await supabase.storage.from('fatture-lexum').createSignedUrl(f.pdf_path, 60)
+                : { data: null }
+            if (data?.signedUrl) window.open(data.signedUrl, '_blank', 'noopener')
+        } finally {
+            setScaricando(null)
+        }
+    }
 
     useEffect(() => {
         if (!userId) return
@@ -345,6 +379,15 @@ function StoricoPagamenti({ userId }) {
                                 <div className="text-right shrink-0">
                                     <p className="font-body text-sm text-nebbia">{valuta} {Number(r.importo ?? 0).toFixed(2)}</p>
                                     {r.stato === 'rimborsato' && <p className="font-body text-xs text-amber-400">{t('storico.rimborsato')}</p>}
+                                    {r.metadati?.fattura && (
+                                        <button
+                                            onClick={() => scaricaFattura(r.metadati.fattura)}
+                                            disabled={scaricando === r.metadati.fattura}
+                                            className="inline-flex items-center gap-1 font-body text-xs text-oro hover:text-oro/70 transition-colors disabled:opacity-40"
+                                        >
+                                            <FileText size={11} /> {t('storico.fattura')}
+                                        </button>
+                                    )}
                                 </div>
                             </li>
                         )

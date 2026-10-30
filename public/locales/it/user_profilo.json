@@ -33,7 +33,11 @@
     "indirizzo_placeholder": "Via Nassa 1",
     "cap": "NPA",
     "citta": "Località",
-    "paese": "Paese"
+    "paese": "Paese",
+    "fattura_titolo": "Per la fattura alla tua azienda",
+    "fattura_testo": "Con ragione sociale e numero IDI, a ogni pagamento ti arriva via email anche la fattura intestata all'azienda.",
+    "ragione_sociale": "Ragione sociale",
+    "uid": "Numero IDI"
   },
   "password": {
     "titolo": "Cambia password",
@@ -53,9 +57,10 @@
     "titolo": "Storico pagamenti",
     "vuoto": "Nessun pagamento finora.",
     "rimborsato": "Rimborsato",
-    "ricevuta": "Per ogni pagamento ti arriva la ricevuta via email.",
+    "ricevuta": "Per ogni pagamento ti arriva la ricevuta via email. Con ragione sociale e numero IDI nei dati per la fatturazione ti arriva anche la fattura.",
     "mostra_tutti": "Mostra tutti ({{n}})",
-    "mostra_ultimi": "Mostra solo gli ultimi"
+    "mostra_ultimi": "Mostra solo gli ultimi",
+    "fattura": "Fattura"
   },
   "elimina": {
     "titolo": "Elimina account",
