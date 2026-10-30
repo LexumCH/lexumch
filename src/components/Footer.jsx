@@ -3,6 +3,7 @@ import { Mail, Shield, Lock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import logo from '@/assets/logo.png'
 import { SOCIAL, IconaInstagram, IconaTikTok } from '@/components/Social'
+import BadgeApp from '@/components/BadgeApp'
 
 export default function Footer() {
   const { t } = useTranslation('comp_footer')
@@ -39,6 +40,8 @@ export default function Footer() {
               <div className="w-1.5 h-1.5 rounded-full bg-salvia animate-pulse" />
               <span className="font-body text-xs text-nebbia/25">{t('brand.status')}</span>
             </div>
+            {/* L'app sul telefono (30-10-2026) */}
+            <BadgeApp altezza="h-12" allinea="items-start" className="mt-6" />
           </div>
 
           {/* Links */}

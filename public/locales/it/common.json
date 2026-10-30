@@ -45,5 +45,12 @@
     "uguale": "La nuova password deve essere diversa da quella di prima."
   },
   "pallino_da_rispondere_one": "{{count}} conversazione aspetta la tua risposta",
-  "pallino_da_rispondere_other": "{{count}} conversazioni aspettano la tua risposta"
+  "pallino_da_rispondere_other": "{{count}} conversazioni aspettano la tua risposta",
+  "app": {
+    "aria": "Scarica Lexum da Google Play",
+    "badge_alt": "Disponibile su Google Play",
+    "presto_iphone": "Presto anche su iPhone",
+    "riga": "Scarica l'app e porta Lexum sempre con te",
+    "riga_iphone": "presto anche su iPhone"
+  }
 }

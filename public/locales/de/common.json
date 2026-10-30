@@ -45,5 +45,12 @@
     "uguale": "Das neue Passwort muss sich vom bisherigen unterscheiden."
   },
   "pallino_da_rispondere_one": "{{count}} Unterhaltung wartet auf Ihre Antwort",
-  "pallino_da_rispondere_other": "{{count}} Unterhaltungen warten auf Ihre Antwort"
+  "pallino_da_rispondere_other": "{{count}} Unterhaltungen warten auf Ihre Antwort",
+  "app": {
+    "aria": "Lexum bei Google Play herunterladen",
+    "badge_alt": "Jetzt bei Google Play",
+    "presto_iphone": "Bald auch für iPhone",
+    "riga": "Laden Sie die App herunter und haben Sie Lexum immer dabei",
+    "riga_iphone": "bald auch für iPhone"
+  }
 }

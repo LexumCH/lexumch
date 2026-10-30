@@ -45,5 +45,12 @@
     "uguale": "Le nouveau mot de passe doit être différent de l'ancien."
   },
   "pallino_da_rispondere_one": "{{count}} conversation attend votre réponse",
-  "pallino_da_rispondere_other": "{{count}} conversations attendent votre réponse"
+  "pallino_da_rispondere_other": "{{count}} conversations attendent votre réponse",
+  "app": {
+    "aria": "Télécharger Lexum sur Google Play",
+    "badge_alt": "Disponible sur Google Play",
+    "presto_iphone": "Bientôt aussi sur iPhone",
+    "riga": "Téléchargez l'app et gardez Lexum toujours avec vous",
+    "riga_iphone": "bientôt aussi sur iPhone"
+  }
 }

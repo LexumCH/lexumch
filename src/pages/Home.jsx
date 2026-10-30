@@ -1,6 +1,7 @@
 // src/pages/Home.jsx — Home unificata con identità "Lex AI" (fusione Home + LexAI)
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { LinkApp } from '@/components/BadgeApp'
 import { useTranslation } from 'react-i18next'
 import ArchivioAnimatedDemo from '@/components/ArchivioAnimatedDemo'
 import ClientiLexAnimatedDemo from '@/components/ClientiLexAnimatedDemo'
@@ -280,7 +281,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
 
             {/* Sinistra: titolo, sottotitolo, pulsanti */}
-            <div className="lg:col-span-6 text-center lg:text-left">
+            <div className="lg:col-span-6 text-center lg:text-left lg:-mt-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 border border-salvia/25 bg-salvia/5 mb-8">
               <Sparkles size={11} className="text-salvia" />
               <span className="font-body text-xs text-nebbia/50 tracking-widest uppercase">{t('hero.badge')}</span>
@@ -309,6 +310,8 @@ export default function Home() {
             <p className="font-body text-xs text-nebbia/25">
               {t('hero.no_card')}
             </p>
+            {/* L'app sul telefono (30-10-2026) */}
+            <LinkApp className="mt-8" />
               </div>
             </div>
 
@@ -373,6 +376,7 @@ export default function Home() {
             <p className="font-body text-xs text-nebbia/25">
               {t('hero.no_card')}
             </p>
+            <LinkApp className="mt-6 flex-wrap justify-center" />
             </div>
           </div>
         </div>
