@@ -118,7 +118,7 @@ function disegnaQR(doc, payload, x, y, size) {
 export async function scaricaPdfFattura(d) {
     const t = T[d.lingua] ?? T.it
     const valuta = d.valuta
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+    const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true })
     const W = 210, H = 297, M = 15
     let y = M
 
