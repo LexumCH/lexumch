@@ -1,8 +1,8 @@
 {
   "scelta": {
-    "label": "Berufliche Verifizierung",
+    "label": "Profil vervollständigen",
     "titolo": "Welcher Berufsgruppe gehören Sie an?",
-    "intro": "Wählen Sie Ihren Weg. Je nach Beruf verlangen wir die passenden Dokumente und schalten die richtigen Werkzeuge für Sie frei.",
+    "intro": "Wählen Sie Ihr Berufsprofil: Die Plattform passt sich Ihrer Arbeitsweise an.",
     "avvocato": {
       "titolo": "Anwalt",
       "desc": "Mandanten, Dossiers, Verhandlungen, Kalender und Rechtsschriften mit Lex AI."
@@ -18,8 +18,8 @@
   },
   "set": {
     "avvocato": {
-      "titolo": "Identitätsprüfung — Anwalt",
-      "intro": "Um als Anwalt auf die Plattform zuzugreifen, müssen Sie Ihre berufliche Identität verifizieren. Laden Sie die erforderlichen Dokumente hoch, unser Team prüft sie innerhalb von 24-48 Stunden.",
+      "titolo": "Profil vervollständigen — Anwalt",
+      "intro": "Sie können die Testphase für Ihr Büro sofort aktivieren oder Ihre Rechnungsdaten ergänzen und ein Abonnement kaufen. Keine Wartezeit und keine Genehmigung.",
       "documenti": {
         "identita": {
           "label": "Ausweisdokument",
@@ -36,8 +36,8 @@
       }
     },
     "fiduciario": {
-      "titolo": "Identitätsprüfung — Treuhänder",
-      "intro": "Um als Treuhänder auf die Plattform zuzugreifen, müssen Sie Ihre berufliche Tätigkeit verifizieren. Laden Sie die erforderlichen Dokumente hoch, unser Team prüft sie innerhalb von 24-48 Stunden.",
+      "titolo": "Profil vervollständigen — Treuhänder",
+      "intro": "Sie können die Testphase für Ihr Büro sofort aktivieren oder Ihre Rechnungsdaten ergänzen und ein Abonnement kaufen. Keine Wartezeit und keine Genehmigung.",
       "documenti": {
         "identita": {
           "label": "Ausweisdokument",
@@ -54,8 +54,8 @@
       }
     },
     "progettista": {
-      "titolo": "Identitätsprüfung — Planer",
-      "intro": "Um als Planer (Architekt, Ingenieur oder Zeichner) auf die Plattform zuzugreifen, müssen Sie Ihre berufliche Identität verifizieren. Laden Sie die erforderlichen Dokumente hoch; unser Team prüft sie innert 24-48 Stunden.",
+      "titolo": "Profil vervollständigen — Planer",
+      "intro": "Sie können die Testphase für Ihr Büro sofort aktivieren oder Ihre Rechnungsdaten ergänzen und ein Abonnement kaufen. Keine Wartezeit und keine Genehmigung.",
       "documenti": {
         "identita": {
           "label": "Identitätsdokument",
@@ -73,28 +73,30 @@
     }
   },
   "upload": {
-    "label": "Identitätsprüfung",
+    "label": "Profil vervollständigen",
     "obbligatorio": "Obligatorisch",
     "opzionale": "Optional",
     "cambia": "Ändern",
     "carica": "Hochladen",
     "privacy": "Die Dokumente werden streng vertraulich behandelt und ausschliesslich zur Verifizierung der beruflichen Identität verwendet.",
     "caricamento": "Wird hochgeladen…",
-    "invia": "Zur Verifizierung einreichen"
+    "invia": "Für das Abzeichen einreichen",
+    "documenti_titolo": "Berufliche Dokumente",
+    "documenti_testo": "Sie sind weder für den Kauf noch für die Nutzung der Plattform nötig. Wenn Sie sie hochladen, erhalten Sie das Abzeichen «Verifizierte Fachperson»."
   },
   "inviato": {
     "titolo": "Dokumente eingereicht",
-    "desc": "Das Lexum-Team prüft Ihre Dokumente und Sie erhalten innerhalb von 24-48 Stunden eine Antwort.",
+    "desc": "Wir prüfen sie innert 24-48 Stunden und verleihen Ihnen das Abzeichen «Verifizierte Fachperson». In der Zwischenzeit können Sie Lexum uneingeschränkt weiter nutzen.",
     "controlla_stato": "Status prüfen"
   },
   "stato": {
     "pending": {
       "title": "Verifizierung läuft",
-      "desc": "Das Lexum-Team prüft Ihre Dokumente. Sie erhalten innerhalb von 24-48 Stunden eine E-Mail-Benachrichtigung."
+      "desc": "Das Lexum-Team prüft Ihre Dokumente für das Abzeichen «Verifizierte Fachperson»: Sie erhalten innert 24-48 Stunden eine E-Mail. In der Zwischenzeit können Sie Lexum nutzen und ohne Wartezeit ein Abonnement kaufen."
     },
     "approved": {
       "title": "Verifizierung genehmigt!",
-      "desc": "Ausgezeichnet! Sie können nun das für Sie passende Abonnement wählen, um Ihr Konto zu aktivieren.",
+      "desc": "Ihre Dokumente wurden geprüft: Sie haben das Abzeichen «Verifizierte Fachperson». Falls noch nicht geschehen, wählen Sie ein Abonnement, um Ihr Büro zu aktivieren.",
       "cta": "Abonnement wählen"
     },
     "rejected": {
@@ -121,7 +123,7 @@
       "ricerche": "Gespeicherte Recherchen und Etiketten",
       "assistenza": "Support: mit einem Abonnement mit Priorität"
     },
-    "come_funziona": "Sie laden die verlangten Dokumente hoch: Wir prüfen sie innert 24–48 Stunden, und sobald sie genehmigt sind, wählen Sie den Plan für Ihr Büro.",
+    "come_funziona": "Sie ergänzen Ihr Profil in zwei Minuten mit den Rechnungsdaten und wählen das Abonnement: Es ist sofort aktiv, ohne Wartezeit und ohne Genehmigung. Die Dokumente sind freiwillig und geben Ihnen das Abzeichen «Verifizierte Fachperson».",
     "verifica_come": "Als {{titolo}} verifizieren",
     "consulenza": "Beratung anfragen",
     "consulenza_oggetto": "Beratungsanfrage",
@@ -188,5 +190,18 @@
     "crediti": {
       "testo": "Lex-AI-Credits jeden Monat"
     }
+  },
+  "prova": {
+    "titolo": "Testen Sie Ihr Büro kostenlos: 7 Tage, mit 7 Credits für Lex",
+    "testo": "Ein Klick und Ihr Büro ist aktiv: keine Kreditkarte, keine Rechnungsdaten. Am Ende entscheiden Sie, ob Sie ein Abonnement wählen.",
+    "attiva": "Kostenlose Testphase aktivieren"
+  },
+  "fatturazione": {
+    "titolo": "Rechnungsdaten",
+    "testo": "Sie werden in Ihrem Profil erfasst. Sobald sie vollständig sind, ist der Kauf von Abonnementen sofort freigeschaltet.",
+    "completa": "Daten im Profil ergänzen",
+    "vedi": "Daten ansehen",
+    "completo": "Ihr Profil ist vollständig: Die Abonnemente sind freigeschaltet.",
+    "mancano": "Noch auszufüllen: {{campi}}"
   }
 }

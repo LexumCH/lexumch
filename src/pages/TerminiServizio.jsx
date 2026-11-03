@@ -126,7 +126,6 @@ export default function TerminiServizio() {
         <Section title={t('contenuti.title')}>
           <Sub title={t('contenuti.sub51_title')}><p>{t('contenuti.sub51_text')}</p></Sub>
           <Sub title={t('contenuti.sub52_title')}><p>{t('contenuti.sub52_text')}</p></Sub>
-          <Sub title={t('contenuti.sub53_title')}><p>{t('contenuti.sub53_text')}</p></Sub>
           <Sub title={t('contenuti.sub54_title')}>
             <p>{t('contenuti.sub54_intro')}</p>
             <ul className="list-disc list-inside space-y-1 pl-2">

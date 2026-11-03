@@ -76,10 +76,22 @@
   "user_studio": {
     "titolo": "Pourquoi avoir un forfait ?",
     "vantaggi": [
-      { "titolo": "Gestion des clients", "desc": "Créez et gérez vos clients, dossiers et documents au même endroit" },
-      { "titolo": "Base de données complète", "desc": "Normes, jurisprudence et pratique, avec des crédits Lex AI inclus chaque mois" },
-      { "titolo": "Documents, factures et calendrier", "desc": "Générateur de documents, émission de factures et calendrier des rendez-vous" },
-      { "titolo": "Étude multi-accès", "desc": "Invitez des collaborateurs et gérez ensemble clients et dossiers" }
+      {
+        "titolo": "Gestion des clients",
+        "desc": "Créez et gérez vos clients, dossiers et documents au même endroit"
+      },
+      {
+        "titolo": "Base de données complète",
+        "desc": "Normes, jurisprudence et pratique, avec des crédits Lex AI inclus chaque mois"
+      },
+      {
+        "titolo": "Documents, factures et calendrier",
+        "desc": "Générateur de documents, émission de factures et calendrier des rendez-vous"
+      },
+      {
+        "titolo": "Étude multi-accès",
+        "desc": "Invitez des collaborateurs et gérez ensemble clients et dossiers"
+      }
     ],
     "scegli_piano": "Choisir un forfait"
   },
@@ -96,8 +108,7 @@
       "spazio": "Espace d'archive",
       "gb_inclusi": "Go inclus dans le forfait",
       "gb_extra": "Go supplémentaires achetés",
-      "banca_dati": "Base de données",
-      "monetizzazione": "Monétisation"
+      "banca_dati": "Base de données"
     },
     "valore": {
       "clienti_con_limite": "{{conteggio}} sur {{totale}} ({{piano}} forfait · {{extra}} extra)",
@@ -169,7 +180,12 @@
   "storico": {
     "titolo": "Historique des paiements",
     "vuoto": "Aucun paiement enregistré",
-    "intestazioni": ["Description", "Montant", "Date", "Statut"],
+    "intestazioni": [
+      "Description",
+      "Montant",
+      "Date",
+      "Statut"
+    ],
     "stato": {
       "gratis": "Gratuit",
       "pagato": "Payé",
@@ -201,7 +217,6 @@
       "mesi_one": "{{count}} mois",
       "mesi_other": "{{count}} mois",
       "tag_banca_dati": "Base de données",
-      "tag_monetizzazione": "Monétisation",
       "tag_crediti_mese": "{{count}} crédits/mois",
       "tag_studio": "Étude",
       "upgrade_a": "Mise à niveau vers ",

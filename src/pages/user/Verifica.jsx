@@ -3,31 +3,34 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { attivaProvaGratuita, puoAttivareProva } from '@/lib/provaGratuita'
+import { mancantiAcquisto, paginaDatiFatturazione, useDatiFatturazione } from '@/lib/datiFatturazione'
 import { Upload, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2, Scale, Calculator, DraftingCompass, ChevronDown, Sparkles, MessageSquare, Unlock } from 'lucide-react'
 
 const toArray = (v) => Array.isArray(v) ? v : []
 
 // ── Config set documentale per direzione (chiavi i18n + flag req) ──
 // I testi (titolo/intro/label/hint) arrivano da t(); qui restano solo key e req.
+// 03-11-2026, come su IT: i documenti sono facoltativi, danno il distintivo e non il permesso di comprare.
 const SET_DOCUMENTALE = {
     avvocato: {
         documenti: [
-            { key: 'identita', req: true },
-            { key: 'albo', req: true },
+            { key: 'identita', req: false },
+            { key: 'albo', req: false },
             { key: 'laurea', req: false },
         ],
     },
     fiduciario: {
         documenti: [
-            { key: 'identita', req: true },
-            { key: 'registro', req: true },
+            { key: 'identita', req: false },
+            { key: 'registro', req: false },
             { key: 'affiliazione', req: false },
         ],
     },
     progettista: {
         documenti: [
-            { key: 'identita', req: true },
-            { key: 'reg', req: true },
+            { key: 'identita', req: false },
+            { key: 'reg', req: false },
             { key: 'diploma', req: false },
         ],
     },
@@ -163,6 +166,23 @@ export function UserVerifica() {
     const [salvandoDirezione, setSalvandoDirezione] = useState(false)
     const [errore, setErrore] = useState('')
     const [inviato, setInviato] = useState(false)
+    const [attivandoProva, setAttivandoProva] = useState(false)
+    const [erroreProva, setErroreProva] = useState('')
+    const datiFatt = useDatiFatturazione()
+    const mancanti = mancantiAcquisto(profile)
+
+    // Il ruolo cambia: la pagina si riapre sullo studio, con il profilo riletto dall'inizio
+    async function handleProva() {
+        setAttivandoProva(true)
+        setErroreProva('')
+        try {
+            await attivaProvaGratuita()
+            window.location.assign('/dashboard')
+        } catch (err) {
+            setErroreProva(err.message)
+            setAttivandoProva(false)
+        }
+    }
 
     // Se l'utente non ha ancora scelto la direzione, mostra la scelta
     async function handleScelta(scelta) {
@@ -191,11 +211,10 @@ export function UserVerifica() {
     }
 
     const config = SET_DOCUMENTALE[direzione] ?? SET_DOCUMENTALE.avvocato
-    const documentiObbligatori = config.documenti.filter(d => d.req).map(d => d.key)
-    const allReq = documentiObbligatori.every(k => docs[k])
+    const daCaricare = config.documenti.filter(d => docs[d.key])
 
     async function handleInvia() {
-        if (!allReq || loading) return
+        if (!daCaricare.length || loading) return
         setLoading(true)
         setErrore('')
 
@@ -203,9 +222,7 @@ export function UserVerifica() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error(t('errori.non_autenticato'))
 
-            const uploads = config.documenti
-                .filter(d => docs[d.key])
-                .map(d => ({ file: docs[d.key], path: `${user.id}/${d.key}` }))
+            const uploads = daCaricare.map(d => ({ file: docs[d.key], path: `${user.id}/${d.key}` }))
 
             for (const { file, path } of uploads) {
                 const ext = file.name.split('.').pop()
@@ -308,19 +325,64 @@ export function UserVerifica() {
                 </div>
             </div>
 
+            {/* La prova per chi era già iscritto (03-11-2026): chi si registra ora come professionista ce l'ha già da sola */}
+            {puoAttivareProva({ ...profile, tipo_richiesta: direzione }) && (
+                <div className="bg-slate border border-salvia/25 p-5 flex flex-col lg:flex-row lg:items-center gap-4">
+                    <div className="flex-1">
+                        <p className="font-body text-sm font-medium text-nebbia mb-1">{t('prova.titolo')}</p>
+                        <p className="font-body text-xs text-nebbia/50 leading-relaxed">{t('prova.testo')}</p>
+                        {erroreProva && <p className="font-body text-xs text-red-400 mt-2">{erroreProva}</p>}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-3 shrink-0">
+                        <button onClick={handleProva} disabled={attivandoProva} className="btn-primary text-sm inline-flex items-center gap-2 disabled:opacity-40">
+                            {attivandoProva ? <Loader2 size={14} className="animate-spin" /> : <>{t('prova.attiva')} <ArrowRight size={14} /></>}
+                        </button>
+                        <Link to={linkConsulenza(t, direzione)} className="inline-flex items-center gap-2 font-body text-sm text-nebbia/60 hover:text-oro transition-colors">
+                            <MessageSquare size={14} /> {t('vantaggi.consulenza')}
+                        </Link>
+                    </div>
+                </div>
+            )}
+
+            {/* Dati di fatturazione: sono loro a sbloccare i piani, si compilano nel Profilo */}
+            <div className="bg-slate border border-white/5 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex-1">
+                    <p className="font-body text-sm font-medium text-nebbia mb-1">{t('fatturazione.titolo')}</p>
+                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">
+                        {mancanti.length === 0 ? t('fatturazione.completo') : t('fatturazione.testo')}
+                    </p>
+                    {mancanti.length > 0 && (
+                        <p className="font-body text-xs text-nebbia/35 leading-relaxed mt-1">{t('fatturazione.mancano', { campi: datiFatt.elenco(mancanti) })}</p>
+                    )}
+                </div>
+                <Link to={mancanti.length === 0 ? '/area/acquista' : paginaDatiFatturazione(profile)} className="btn-primary text-sm inline-flex items-center gap-2 self-start sm:self-auto shrink-0">
+                    {mancanti.length === 0 ? t('stato.approved.cta') : t('fatturazione.completa')} <ArrowRight size={14} />
+                </Link>
+            </div>
+
             <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('vantaggi.come_funziona')}</p>
 
+            <div className="bg-slate/40 border border-white/5 p-5">
+                <div className="flex items-start gap-3">
+                    <Shield size={16} className="text-nebbia/40 mt-0.5 shrink-0" />
+                    <div>
+                        <p className="font-body text-sm font-medium text-nebbia mb-1">
+                            {t('upload.documenti_titolo')}
+                            <span className="ml-2 font-body text-[10px] text-nebbia/30 border border-white/10 px-1.5 py-0.5">{t('upload.opzionale')}</span>
+                        </p>
+                        <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('upload.documenti_testo')}</p>
+                    </div>
+                </div>
+            </div>
+
             <div className="space-y-4">
-                {config.documenti.map(({ key, req }) => (
+                {config.documenti.map(({ key }) => (
                     <div key={key} className={`bg-slate border p-5 ${docs[key] ? 'border-salvia/30' : 'border-white/5'}`}>
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
                                     <p className="font-body text-sm font-medium text-nebbia">{t(`set.${direzione}.documenti.${key}.label`)}</p>
-                                    {req
-                                        ? <span className="font-body text-[10px] text-red-400 border border-red-500/30 px-1.5 py-0.5">{t('upload.obbligatorio')}</span>
-                                        : <span className="font-body text-[10px] text-nebbia/30 border border-white/10 px-1.5 py-0.5">{t('upload.opzionale')}</span>
-                                    }
+                                    <span className="font-body text-[10px] text-nebbia/30 border border-white/10 px-1.5 py-0.5">{t('upload.opzionale')}</span>
                                 </div>
                                 <p className="font-body text-xs text-nebbia/40">{t(`set.${direzione}.documenti.${key}.hint`)}</p>
                                 {docs[key] && (
@@ -363,7 +425,7 @@ export function UserVerifica() {
             </div>
 
             <button
-                disabled={!allReq || loading}
+                disabled={!daCaricare.length || loading}
                 onClick={handleInvia}
                 className="btn-primary w-full justify-center disabled:opacity-40 disabled:cursor-not-allowed"
             >

@@ -66,14 +66,12 @@
     "durata_mesi": "{{mesi}} Monate",
     "una_tantum": "Einmalig",
     "badge_pro": "Pro",
-    "badge_monetizzazione": "Monetarisierung",
     "posti_badge": "{{posti}} Plätze",
     "feat_clienti": "Unbegrenzte Mandantenverwaltung",
     "feat_pratiche": "Dossiers und Dokumente",
     "feat_calendario": "Terminkalender",
     "feat_crediti": "{{crediti}} KI-Credits/Monat",
     "feat_banca_dati": "Zugang zur Urteilsdatenbank",
-    "feat_monetizzazione": "Urteile hochladen und monetarisieren",
     "feat_posti": "Bis zu {{posti}} Anwälte in der Kanzlei",
     "acquista": "Kaufen"
   },
@@ -85,16 +83,10 @@
     "acquista": "Kaufen"
   },
   "verifica": {
-    "pending_titolo": "Verifizierung läuft",
-    "pending_testo": "Wir prüfen Ihre Dokumente. Sie erhalten innerhalb von 24-48 Stunden eine Benachrichtigung per E-Mail.",
-    "pending_link": "Verifizierungsstatus ansehen",
-    "rejected_titolo": "Verifizierung nicht genehmigt",
-    "rejected_motivo": "Grund: {{nota}}",
-    "rejected_default": "Sie können es erneut versuchen, indem Sie die korrekten Dokumente hochladen.",
-    "rejected_link": "Verifizierung wiederholen",
-    "cta_titolo": "Sind Sie Anwalt?",
-    "cta_testo": "Verifizieren Sie Ihre Identität und erhalten Sie Zugang zu Abonnements mit inbegriffenen monatlichen Credits, vollständiger Verwaltung, Urteilsdatenbank und vielem mehr.",
-    "cta_link": "Verifizierung starten"
+    "cta_titolo": "Sind Sie Fachperson? Schalten Sie die Abonnemente für Ihr Büro frei",
+    "cta_testo": "Die Abonnemente für Ihr Büro umfassen monatliche Credits, die vollständige Verwaltung, das Kundenportal und die Rechnungsstellung. Zur Aktivierung brauchen Sie nur Ihre Rechnungsdaten: keine Wartezeit, keine Genehmigung.",
+    "cta_link": "Profil vervollständigen",
+    "mancano": "Noch auszufüllen: {{campi}}"
   },
   "footer": {
     "trust": "Sichere Zahlung per Karte. Die Produkte werden unmittelbar nach der Zahlung aktiviert."

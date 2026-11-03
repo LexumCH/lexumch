@@ -1,0 +1,31 @@
+{
+  "attiva_titolo": "La tua prova gratuita è attiva fino al {{giorno}}",
+  "attiva_testo": "Lo studio è tutto aperto e hai i crediti per provare Lex. Se vuoi una mano a partire, richiedi una consulenza con il team.",
+  "dopo": "Dopo",
+  "consulenza": "Richiedi una consulenza",
+  "vedi_piani": "Vedi i piani →",
+  "finita_titolo": "La tua prova gratuita è finita",
+  "finita_testo": "Per proseguire con lo studio completo scegli un piano. Altrimenti rimani con quello che hai, senza nessun addebito.",
+  "con_piano": "Con un piano",
+  "piano": [
+    "I crediti per Lex ogni mese",
+    "Nuovi clienti",
+    "L'archivio per caricare i tuoi documenti"
+  ],
+  "hai_gia": "Quello che hai già",
+  "resta": {
+    "avvocato": "Pratiche, calendario e fatture",
+    "fiduciario": "Mandati, calendario e fatture",
+    "progettista": "Progetti, disegni e fatture"
+  },
+  "resta_comuni": [
+    "I clienti che hai registrato",
+    "La Banca Dati",
+    "I documenti in archivio, in sola lettura"
+  ],
+  "scegli": "Scegli un piano",
+  "rimango": "Rimango con quello che ho",
+  "chiudi": "Chiudi",
+  "consulenza_oggetto": "Richiesta di consulenza",
+  "consulenza_messaggio": "Buongiorno, ho attivato la prova di Lexum per il mio studio: vorrei una consulenza su quale piano scegliere e su come usare al meglio la piattaforma. Grazie."
+}

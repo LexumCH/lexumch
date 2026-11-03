@@ -40,12 +40,6 @@
     "messaggi_nuovi_one": "1 neue Nachricht.",
     "messaggi_nuovi_other": "{{count}} neue Nachrichten."
   },
-  "trial": {
-    "titolo": "Ihre kostenlose Testphase ist abgelaufen",
-    "testo": "Wählen Sie einen Plan, um weiterhin mit Ihren Dossiers, Mandanten und Dokumenten zu arbeiten.",
-    "dopo": "Später",
-    "vedi_piani": "Pläne ansehen →"
-  },
   "contatori": {
     "clienti": "Mandanten",
     "clienti_sub": "Gesamt",

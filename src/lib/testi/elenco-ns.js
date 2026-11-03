@@ -38,6 +38,7 @@ export const ELENCO_NS = [
   "comp_aggiungi_etichetta",
   "comp_aggiungi_pratica",
   "comp_assegna_documento",
+  "comp_avviso_prova",
   "comp_bottoni_salvataggio",
   "comp_box_termini_pratica",
   "comp_box_udienze_termini",

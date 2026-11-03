@@ -48,7 +48,9 @@ export default function Acquista() {
     const consenso = useConsensoRecesso()
     const datiFatt = useDatiFatturazione()
 
-    const isApproved = profile?.verification_status === 'approved'
+    // 03-11-2026, come su IT: a sbloccare i piani dello studio sono i dati di fatturazione, non la verifica dei documenti
+    const mancanti = mancantiAcquisto(profile)
+    const isApproved = mancanti.length === 0
     const haPianoStudio = profile?.posti_acquistati > 1
 
     // Ritorno dalla cassa
@@ -89,9 +91,9 @@ export default function Acquista() {
             setArchivioMensile((tutti ?? []).filter(p => p.tipo === 'spazio_archiviazione' && p.target_role === 'user'))
             setPacchettiCrediti((tutti ?? []).filter(p => p.tipo === 'crediti_ai'))
 
-            // Piani per lo studio (solo se verificato) — filtrati per direzione professionale
+            // Piani per lo studio (con i dati di fatturazione) — filtrati per professione
             if (isApproved) {
-                const direzione = profile?.tipo_richiesta ?? 'avvocato'
+                const direzione = profile?.tipo_richiesta ?? (['fiduciario', 'progettista'].includes(profile?.professione) ? profile.professione : 'avvocato')
                 const { data: abb, error: errAbb } = await supabase
                     .from('prodotti')
                     .select('*')
@@ -287,7 +289,7 @@ export default function Acquista() {
                 <ConsensoRecesso consenso={consenso} />
             </div>
 
-            {/* Piani per lo studio (solo se verificato) */}
+            {/* Piani per lo studio (con i dati di fatturazione) */}
             {isApproved && abbonamenti.length > 0 && (
                 <div className="space-y-3">
                     <p className="section-label">{tc('sez_studio')}</p>
@@ -318,60 +320,26 @@ export default function Acquista() {
                 </div>
             )}
 
-            {/* CTA verifica — varia in base allo stato */}
-            {!isApproved && (() => {
-                const stato = profile?.verification_status
-                if (stato === 'pending') {
-                    return (
-                        <div className="bg-slate border border-amber-500/20 p-6 flex items-start gap-3">
-                            <Shield size={18} className="text-amber-400 shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                                <p className="font-body text-sm font-medium text-amber-400 mb-1">{t('verifica.pending_titolo')}</p>
-                                <p className="font-body text-xs text-nebbia/50 leading-relaxed mb-3">
-                                    {t('verifica.pending_testo')}
-                                </p>
-                                <Link to="/verifica/stato" className="font-body text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5">
-                                    {t('verifica.pending_link')} <ArrowRight size={12} />
-                                </Link>
-                            </div>
-                        </div>
-                    )
-                }
-                if (stato === 'rejected') {
-                    return (
-                        <div className="bg-slate border border-red-500/20 p-6 flex items-start gap-3">
-                            <Shield size={18} className="text-red-400 shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                                <p className="font-body text-sm font-medium text-red-400 mb-1">{t('verifica.rejected_titolo')}</p>
-                                <p className="font-body text-xs text-nebbia/50 leading-relaxed mb-3">
-                                    {profile?.verification_note
-                                        ? t('verifica.rejected_motivo', { nota: profile.verification_note })
-                                        : t('verifica.rejected_default')}
-                                </p>
-                                <Link to="/verifica" className="font-body text-xs text-red-400 hover:text-red-300 flex items-center gap-1.5">
-                                    {t('verifica.rejected_link')} <ArrowRight size={12} />
-                                </Link>
-                            </div>
-                        </div>
-                    )
-                }
-                return (
-                    <div className="bg-slate border border-oro/20 p-6">
-                        <div className="flex items-start gap-3">
-                            <Shield size={18} className="text-oro shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                                <p className="font-body text-sm font-medium text-nebbia mb-1">{t('verifica.cta_titolo')}</p>
-                                <p className="font-body text-xs text-nebbia/50 leading-relaxed mb-3">
-                                    {t('verifica.cta_testo')}
-                                </p>
-                                <Link to="/verifica" className="btn-primary text-xs">
-                                    {t('verifica.cta_link')} <ArrowRight size={12} />
-                                </Link>
-                            </div>
+            {/* CTA: cosa manca per sbloccare i piani dello studio */}
+            {!isApproved && (
+                <div className="bg-slate border border-oro/20 p-6">
+                    <div className="flex items-start gap-3">
+                        <Shield size={18} className="text-oro shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                            <p className="font-body text-sm font-medium text-nebbia mb-1">{t('verifica.cta_titolo')}</p>
+                            <p className="font-body text-xs text-nebbia/50 leading-relaxed mb-1">
+                                {t('verifica.cta_testo')}
+                            </p>
+                            <p className="font-body text-xs text-nebbia/35 leading-relaxed mb-3">
+                                {t('verifica.mancano', { campi: datiFatt.elenco(mancanti) })}
+                            </p>
+                            <Link to="/verifica" className="btn-primary text-xs">
+                                {t('verifica.cta_link')} <ArrowRight size={12} />
+                            </Link>
                         </div>
                     </div>
-                )
-            })()}
+                </div>
+            )}
 
             {/* Footer trust */}
             <p className="font-body text-xs text-nebbia/20 text-center pt-4">

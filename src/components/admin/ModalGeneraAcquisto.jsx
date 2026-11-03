@@ -5,7 +5,7 @@
 // webhook non scattato, omaggio, compensazione errore).
 //
 // STEP 1: Selezione utente destinatario (search dropdown tra user + avvocato)
-// STEP 2: Selezione prodotto + importo + sentenza (se accesso_singolo)
+// STEP 2: Selezione prodotto + importo
 // STEP 3: Motivo + conferma riepilogo + invio
 //
 // Chiama edge function 'admin-attiva-prodotto'.
@@ -73,7 +73,7 @@ export default function ModalGeneraAcquisto({ onClose, onSuccess }) {
         async function caricaProdotti() {
             const { data } = await supabase
                 .from('prodotti')
-                .select('id, nome, tipo, prezzo, posti, crediti_ai_mensili, spazio_gb, durata_mesi, include_banca_dati, include_monetizzazione')
+                .select('id, nome, tipo, prezzo, posti, crediti_ai_mensili, spazio_gb, durata_mesi, include_banca_dati')
                 .eq('attivo', true)
                 .order('tipo')
                 .order('prezzo')

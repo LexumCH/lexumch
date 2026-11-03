@@ -118,7 +118,7 @@
     "label": "Quellen",
     "title_part1": "Arbeitet auf einem rechtlichen und steuerlichen Bestand",
     "title_highlight": "in stetiger Erweiterung.",
-    "subtitle": "Lex AI durchsucht über 1,9 Millionen geprüfte Dokumente, aufgeteilt in Rechtsprechung, Gesetzgebung, Praxis der Behörden und fachliche Beiträge. Keine zufällige Websuche, keine generischen Quellen.",
+    "subtitle": "Lex AI durchsucht über 1,9 Millionen geprüfte Dokumente, aufgeteilt in Rechtsprechung, Gesetzgebung und Praxis der Behörden. Keine zufällige Websuche, keine generischen Quellen.",
     "cards": [
       {
         "t": "Schweizer Rechtsprechung",
@@ -134,7 +134,7 @@
       },
       {
         "t": "Praxis und geteiltes Korpus",
-        "d": "Kreisschreiben und Praxis von ESTV und EZV, kantonale Praxis und von verifizierten Fachpersonen — Anwälten und Treuhändern — hochgeladene Materialien."
+        "d": "Kreisschreiben und Praxis von ESTV und EZV sowie kantonale Praxis."
       }
     ],
     "highlight_strong": "Über 1,9 Millionen rechtliche und steuerliche Dokumente",
@@ -242,7 +242,7 @@
     "label": "Für Anwälte und Treuhänder",
     "title_part1": "Möchten Sie eine fortgeschrittenere Ebene?",
     "title_highlight": "In Lexum gibt es mehr.",
-    "text": "Die zugängliche Version von Lex AI ist auf die Recherche fokussiert. In Lexum arbeitet Lex AI für verifizierte Fachpersonen in einer breiteren Umgebung: verbunden mit Dossiers und Mandaten, Dokumenten, Klienten, Archiv, Buchhaltung und professionellen Werkzeugen.",
+    "text": "Die zugängliche Version von Lex AI ist auf die Recherche fokussiert. In Lexum arbeitet Lex AI für Fachpersonen in einer breiteren Umgebung: verbunden mit Dossiers und Mandaten, Dokumenten, Klienten, Archiv, Buchhaltung und professionellen Werkzeugen.",
     "note": "Sie können hier beginnen. Die nächste Ebene ist in Lexum.",
     "avvocati_label": "Für Anwälte",
     "avvocati_items": [

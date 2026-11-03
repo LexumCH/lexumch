@@ -80,9 +80,7 @@
     "sub51_text": "L'Utilisateur demeure le seul propriétaire des contenus chargés sur la plateforme (documents, jugements, dossiers, mandats, notes). Lexum ne revendique aucun droit de propriété sur ces contenus.",
     "sub52_title": "5.2 Licence d'utilisation",
     "sub52_text": "En chargeant des contenus sur la plateforme, l'Utilisateur accorde à Lexum une licence limitée, non exclusive et non transférable pour traiter ces contenus dans le seul but de fournir le service (archivage, OCR, indexation, recherche sémantique, analyse IA).",
-    "sub53_title": "5.3 Base de données partagée",
-    "sub53_text": "En chargeant des jugements dans la base de données partagée, l'Utilisateur déclare avoir le droit de partager ces documents et accepte que d'autres professionnels inscrits puissent acheter l'accès au document. La rémunération de chaque accès est répartie selon les pourcentages indiqués au moment du chargement.",
-    "sub54_title": "5.4 Contenus interdits",
+    "sub54_title": "5.3 Contenus interdits",
     "sub54_intro": "Il est interdit de charger sur la plateforme :",
     "sub54_items": [
       "Des contenus qui violent les droits de tiers (droit d'auteur, vie privée, secrets d'affaires)",
@@ -91,7 +89,7 @@
       "Des logiciels malveillants, virus ou code nuisible",
       "Des contenus faux ou trompeurs"
     ],
-    "sub55_title": "5.5 Responsabilité sur les contenus",
+    "sub55_title": "5.4 Responsabilité sur les contenus",
     "sub55_text": "L'Utilisateur est le responsable du traitement des données personnelles de ses clients au sens de la LPD suisse et, le cas échéant, du RGPD. Lexum agit en qualité de sous-traitant (data processor) pour les données chargées par l'Utilisateur. Les parties concluent implicitement un accord de traitement des données (DPA) conforme à l'art. 9 LPD et à l'art. 28 RGPD par l'acceptation des présentes conditions."
   },
   "uso": {

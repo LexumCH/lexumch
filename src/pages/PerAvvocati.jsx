@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import ArchivioRicercaAnimatedDemo from '@/components/ArchivioRicercaAnimatedDemo'
 import {
-    ArrowRight, BookOpen, TrendingUp, Users, Sparkles,
+    ArrowRight, BookOpen, Users, Sparkles,
     Shield, Check, ChevronDown, Brain, Star, Zap, Lock,
     FileText, FileSignature, Calendar, FolderOpen, Search,
     Eye, EyeOff, UserCheck, Briefcase, CreditCard,
@@ -19,7 +19,7 @@ import SezioneStrumenti from '@/components/strumenti/SezioneStrumenti'
 // Mapping icone Lex AI (l'ordine corrisponde all'array lexai.features nel JSON)
 const LEXAI_FEATURE_ICONS = [Search, Scale, Brain, Sparkles, BookOpen, FileSignature]
 // Mapping icone card Sicurezza (ordine = array sicurezza.cards nel JSON)
-const SICUREZZA_ICONS = [ShieldCheck, EyeOff, Activity, FileText]
+const SICUREZZA_ICONS = [ShieldCheck, Activity, FileText]
 // Colori riga "Cliente" per indice
 const CLIENTI_ROW_COLORS = [null, 'text-oro', 'text-salvia', 'text-oro']
 
@@ -121,8 +121,6 @@ export default function PerAvvocati() {
     const lexPagFatture = toArray(t('contabilita.lex_fatture', { returnObjects: true }))
     const bancaPoints = toArray(t('banca.points', { returnObjects: true }))
     const bancaCategorie = toArray(t('banca.categorie', { returnObjects: true }))
-    const monetPoints = toArray(t('monet.points', { returnObjects: true }))
-    const monetSentenze = toArray(t('monet.sentenze', { returnObjects: true }))
     const sicurezzaCards = toArray(t('sicurezza.cards', { returnObjects: true }))
 
     return (
@@ -714,48 +712,6 @@ export default function PerAvvocati() {
                                     <p className="font-body text-[11px] text-nebbia/55 leading-snug">
                                         {t('banca.msg')}
                                     </p>
-                                </div>
-                            </div>
-                        </VisualBlock>
-                    </FeatureRow>
-                </div>
-            </section>
-
-            {/* 10. MONETIZZAZIONE */}
-            <section className="py-24 px-6 bg-slate/20 border-t border-white/5">
-                <div className="max-w-5xl mx-auto">
-                    <FadeIn className="text-center mb-16 max-w-2xl mx-auto">
-                        <SectionLabel>{t('monet.label')}</SectionLabel>
-                        <h2 className="font-display text-3xl md:text-4xl font-light text-nebbia mb-4">
-                            {t('monet.title_part1')}{' '}
-                            <span className="text-oro">{t('monet.title_highlight')}</span>
-                        </h2>
-                        <p className="font-body text-base text-nebbia/40 leading-relaxed">
-                            {t('monet.subtitle')}
-                        </p>
-                    </FadeIn>
-
-                    <FeatureRow
-                        icon={TrendingUp}
-                        title={t('monet.feature_title')}
-                        text={t('monet.feature_text')}
-                        points={monetPoints}
-                    >
-                        <VisualBlock label={t('monet.visual_label')}>
-                            <div className="space-y-2">
-                                {monetSentenze.map((s, idx) => (
-                                    <div key={idx} className="flex items-center gap-3 p-3 bg-petrolio/50 border border-white/5">
-                                        <FileText size={12} className="text-oro shrink-0" />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-body text-xs text-nebbia/70 truncate">{s.t}</p>
-                                            <p className="font-body text-[10px] text-nebbia/30">{s.n}</p>
-                                        </div>
-                                        <span className="font-body text-xs text-oro font-medium shrink-0">{s.q}</span>
-                                    </div>
-                                ))}
-                                <div className="flex items-center justify-between p-3 bg-oro/5 border border-oro/15 mt-2">
-                                    <span className="font-body text-xs text-nebbia/55">{t('monet.totale_label')}</span>
-                                    <span className="font-body text-sm text-oro font-medium">{t('monet.totale_v')}</span>
                                 </div>
                             </div>
                         </VisualBlock>

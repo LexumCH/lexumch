@@ -1,8 +1,8 @@
 {
   "scelta": {
-    "label": "Vérification professionnelle",
+    "label": "Compléter le profil",
     "titolo": "Quel professionnel êtes-vous ?",
-    "intro": "Choisissez votre parcours. Selon votre profession, nous vous demanderons les documents appropriés et activerons les outils adaptés à vos besoins.",
+    "intro": "Choisissez votre profil professionnel : la plateforme s'adapte à votre façon de travailler.",
     "avvocato": {
       "titolo": "Avocat",
       "desc": "Clients, dossiers, audiences, calendrier et actes avec Lex AI."
@@ -18,8 +18,8 @@
   },
   "set": {
     "avvocato": {
-      "titolo": "Vérification d'identité — Avocat",
-      "intro": "Pour accéder à la plateforme en tant qu'avocat, vous devez vérifier votre identité professionnelle. Téléchargez les documents requis et notre équipe les examinera sous 24-48 heures.",
+      "titolo": "Complétez votre profil — Avocat",
+      "intro": "Vous pouvez activer tout de suite l'essai pour votre bureau, ou compléter vos données de facturation et acheter un abonnement. Sans attente et sans approbation.",
       "documenti": {
         "identita": {
           "label": "Pièce d'identité",
@@ -36,8 +36,8 @@
       }
     },
     "fiduciario": {
-      "titolo": "Vérification d'identité — Fiduciaire",
-      "intro": "Pour accéder à la plateforme en tant que fiduciaire, vous devez vérifier votre activité professionnelle. Téléchargez les documents requis et notre équipe les examinera sous 24-48 heures.",
+      "titolo": "Complétez votre profil — Fiduciaire",
+      "intro": "Vous pouvez activer tout de suite l'essai pour votre bureau, ou compléter vos données de facturation et acheter un abonnement. Sans attente et sans approbation.",
       "documenti": {
         "identita": {
           "label": "Pièce d'identité",
@@ -54,8 +54,8 @@
       }
     },
     "progettista": {
-      "titolo": "Vérification d'identité — Projeteur",
-      "intro": "Pour accéder à la plateforme comme projeteur (architecte, ingénieur ou dessinateur), vous devez vérifier votre identité professionnelle. Téléversez les documents requis; notre équipe les examinera sous 24-48 heures.",
+      "titolo": "Complétez votre profil — Projeteur",
+      "intro": "Vous pouvez activer tout de suite l'essai pour votre bureau, ou compléter vos données de facturation et acheter un abonnement. Sans attente et sans approbation.",
       "documenti": {
         "identita": {
           "label": "Document d'identité",
@@ -73,28 +73,30 @@
     }
   },
   "upload": {
-    "label": "Vérification d'identité",
+    "label": "Compléter le profil",
     "obbligatorio": "Obligatoire",
     "opzionale": "Facultatif",
     "cambia": "Changer",
     "carica": "Téléverser",
     "privacy": "Les documents sont traités avec la plus stricte confidentialité et utilisés exclusivement pour la vérification de l'identité professionnelle.",
     "caricamento": "Téléversement en cours…",
-    "invia": "Envoyer pour vérification"
+    "invia": "Envoyer pour le badge",
+    "documenti_titolo": "Documents professionnels",
+    "documenti_testo": "Ils ne sont nécessaires ni pour acheter ni pour utiliser la plateforme. En les téléversant, vous obtenez le badge de professionnel vérifié."
   },
   "inviato": {
     "titolo": "Documents envoyés",
-    "desc": "L'équipe Lexum examinera vos documents et vous recevrez une réponse sous 24-48 heures.",
+    "desc": "Nous les examinerons sous 24-48 heures pour vous attribuer le badge de professionnel vérifié. Entre-temps, vous pouvez continuer à utiliser Lexum sans limitation.",
     "controlla_stato": "Vérifier le statut"
   },
   "stato": {
     "pending": {
       "title": "Vérification en cours",
-      "desc": "L'équipe Lexum examine vos documents. Vous recevrez une notification par e-mail sous 24-48 heures."
+      "desc": "L'équipe Lexum examine vos documents pour le badge de professionnel vérifié : vous recevrez un e-mail sous 24-48 heures. Entre-temps, vous pouvez utiliser Lexum et acheter un abonnement sans attendre."
     },
     "approved": {
       "title": "Vérification approuvée !",
-      "desc": "Excellent ! Vous pouvez maintenant choisir l'abonnement qui vous convient pour activer votre compte.",
+      "desc": "Vos documents ont été vérifiés : vous avez le badge de professionnel vérifié. Si ce n'est pas déjà fait, choisissez un abonnement pour activer votre bureau.",
       "cta": "Choisir un abonnement"
     },
     "rejected": {
@@ -121,7 +123,7 @@
       "ricerche": "Recherches enregistrées et étiquettes",
       "assistenza": "Assistance : prioritaire avec un abonnement"
     },
-    "come_funziona": "Vous téléchargez les documents demandés : nous les contrôlons sous 24 à 48 heures et, dès qu'ils sont approuvés, vous choisissez le plan pour votre bureau.",
+    "come_funziona": "Vous complétez votre profil avec les données de facturation en deux minutes et choisissez l'abonnement : il s'active aussitôt, sans attente ni approbation. Les documents sont facultatifs et vous donnent le badge de professionnel vérifié.",
     "verifica_come": "Vérifier en tant que {{titolo}}",
     "consulenza": "Demander une consultation",
     "consulenza_oggetto": "Demande de consultation",
@@ -188,5 +190,18 @@
     "crediti": {
       "testo": "Crédits Lex AI chaque mois"
     }
+  },
+  "prova": {
+    "titolo": "Essayez votre bureau gratuitement : 7 jours, avec 7 crédits pour Lex",
+    "testo": "Un clic et votre bureau est actif : sans carte de crédit, sans données de facturation. À la fin, vous décidez de choisir ou non un abonnement.",
+    "attiva": "Activer l'essai gratuit"
+  },
+  "fatturazione": {
+    "titolo": "Données de facturation",
+    "testo": "Elles se remplissent dans votre Profil. Une fois complètes, elles débloquent aussitôt l'achat des abonnements.",
+    "completa": "Compléter les données dans le Profil",
+    "vedi": "Voir les données",
+    "completo": "Votre profil est complet : les abonnements sont débloqués.",
+    "mancano": "À compléter : {{campi}}"
   }
 }

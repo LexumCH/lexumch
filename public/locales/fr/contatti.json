@@ -37,7 +37,7 @@
     "items": [
       {
         "q": "Puis-je essayer Lexum gratuitement ?",
-        "a": "Oui. Vous bénéficiez d'une semaine d'essai gratuit, sans carte de crédit requise, avec accès à toutes les fonctions principales de l'abonnement. À la fin, si vous souhaitez continuer, vous choisissez l'abonnement adapté à votre étude. Si vous ne continuez pas, rien ne vous est facturé."
+        "a": "Oui, si vous êtes avocat, fiduciaire ou projeteur. Vous vous inscrivez en indiquant votre profession et, dès que vous confirmez votre e-mail, l'essai démarre tout seul : 7 jours, avec 7 crédits pour Lex et accès à toutes les fonctions principales de l'abonnement, sans carte de crédit. Si vous souhaitez un coup de main pour démarrer, vous pouvez demander une consultation à l'équipe : vous nous écrivez depuis votre espace et nous vous contactons sous 48 heures ouvrables pour un appel vidéo de 30 minutes sur votre bureau. Si vous souhaitez continuer, vous choisissez l'abonnement adapté à votre bureau. Si vous ne continuez pas, rien ne vous est facturé."
       },
       {
         "q": "Lexum remplace-t-il les bases de données que j'utilise aujourd'hui ?",
@@ -53,11 +53,11 @@
       },
       {
         "q": "Mes données restent-elles les miennes ?",
-        "a": "Oui. Lexum est conçu avec la confidentialité au cœur : les données de chaque étude sont cloisonnées et isolées, hébergées sur des serveurs en Suisse conformes à la LPD suisse et au RGPD, et ne sont jamais vendues ni partagées avec des tiers. Les jugements de vos archives restent privés. Ce n'est que si vous décidez de les publier dans la base de données partagée qu'ils sont d'abord anonymisés, et vous gardez toujours le contrôle final."
+        "a": "Oui. Lexum est conçu avec la confidentialité au cœur : les données de chaque étude sont cloisonnées et isolées, hébergées sur des serveurs en Suisse conformes à la LPD suisse et au RGPD, et ne sont jamais vendues ni partagées avec des tiers. Les jugements de vos archives restent privés."
       },
       {
         "q": "Comment fonctionne la vérification en tant qu'avocat ?",
-        "a": "Vous vous inscrivez en tant que professionnel, téléchargez votre attestation d'inscription au registre cantonal des avocats (ou un document équivalent), et l'équipe vérifie sous 48 heures ouvrables. Vous recevez un e-mail de confirmation et accédez aux fonctions réservées aux professionnels vérifiés : publication de jugements, monétisation des archives, accès étendu à la base de données."
+        "a": "Elle n'est pas nécessaire pour utiliser Lexum : vous vous inscrivez, complétez vos données de facturation et choisissez un abonnement, actif aussitôt. La vérification est facultative : si vous téléversez votre attestation d'inscription au registre cantonal des avocats (ou un document équivalent), l'équipe l'examine sous 48 heures ouvrables et vous attribue le badge d'avocat vérifié."
       },
       {
         "q": "Puis-je utiliser Lexum si je suis avocat individuel ?",
@@ -76,8 +76,7 @@
     "items": [
       "Données hébergées en Suisse",
       "Conforme à la LPD et au RGPD",
-      "Cloisonnement de l'étude",
-      "Anonymisation des contenus"
+      "Cloisonnement de l'étude"
     ]
   }
 }

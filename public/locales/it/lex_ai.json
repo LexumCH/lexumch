@@ -118,7 +118,7 @@
     "label": "Fonti",
     "title_part1": "Lavora su un patrimonio giuridico e fiscale",
     "title_highlight": "in continua espansione.",
-    "subtitle": "Lex AI consulta oltre 1,9 milioni di documenti verificati, suddivisi tra giurisprudenza, normativa, prassi delle autorità e contributi professionali. Niente ricerca web casuale, niente fonti generaliste.",
+    "subtitle": "Lex AI consulta oltre 1,9 milioni di documenti verificati, suddivisi tra giurisprudenza, normativa e prassi delle autorità. Niente ricerca web casuale, niente fonti generaliste.",
     "cards": [
       {
         "t": "Giurisprudenza svizzera",
@@ -134,7 +134,7 @@
       },
       {
         "t": "Prassi e corpus condiviso",
-        "d": "Circolari e prassi di AFC e AFD, prassi cantonali e materiali caricati dai professionisti verificati, avvocati e fiduciari."
+        "d": "Circolari e prassi di AFC e AFD e prassi cantonali."
       }
     ],
     "highlight_strong": "Oltre 1,9 milioni di documenti legali e fiscali",
@@ -242,7 +242,7 @@
     "label": "Per avvocati e fiduciari",
     "title_part1": "Vuoi un livello più avanzato?",
     "title_highlight": "Dentro Lexum c'è di più.",
-    "text": "La versione accessibile di Lex AI è focalizzata sulla ricerca. Dentro Lexum, per i professionisti verificati, Lex AI lavora in un ambiente più ampio: collegata a pratiche e mandati, documenti, clienti, archivio, contabilità e strumenti professionali.",
+    "text": "La versione accessibile di Lex AI è focalizzata sulla ricerca. Dentro Lexum, per i professionisti, Lex AI lavora in un ambiente più ampio: collegata a pratiche e mandati, documenti, clienti, archivio, contabilità e strumenti professionali.",
     "note": "Puoi iniziare da qui. Il livello successivo è dentro Lexum.",
     "avvocati_label": "Per gli avvocati",
     "avvocati_items": [

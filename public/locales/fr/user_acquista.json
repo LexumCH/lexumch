@@ -66,14 +66,12 @@
     "durata_mesi": "{{mesi}} mois",
     "una_tantum": "Paiement unique",
     "badge_pro": "Pro",
-    "badge_monetizzazione": "Monétisation",
     "posti_badge": "{{posti}} postes",
     "feat_clienti": "Gestion illimitée des clients",
     "feat_pratiche": "Dossiers et documents",
     "feat_calendario": "Calendrier des rendez-vous",
     "feat_crediti": "{{crediti}} crédits IA/mois",
     "feat_banca_dati": "Accès à la base de données de jurisprudence",
-    "feat_monetizzazione": "Téléversez des jugements et monétisez",
     "feat_posti": "Jusqu'à {{posti}} avocats dans l'étude",
     "acquista": "Acheter"
   },
@@ -85,16 +83,10 @@
     "acquista": "Acheter"
   },
   "verifica": {
-    "pending_titolo": "Vérification en cours",
-    "pending_testo": "Nous examinons vos documents. Vous recevrez une notification par e-mail dans un délai de 24 à 48 heures.",
-    "pending_link": "Voir l'état de la vérification",
-    "rejected_titolo": "Vérification non approuvée",
-    "rejected_motivo": "Motif : {{nota}}",
-    "rejected_default": "Vous pouvez réessayer en téléversant les documents corrects.",
-    "rejected_link": "Réessayer la vérification",
-    "cta_titolo": "Vous êtes avocat ?",
-    "cta_testo": "Vérifiez votre identité et accédez à des abonnements avec crédits mensuels inclus, gestion complète, base de données de jurisprudence et bien plus encore.",
-    "cta_link": "Démarrer la vérification"
+    "cta_titolo": "Vous êtes un professionnel ? Débloquez les abonnements pour votre bureau",
+    "cta_testo": "Les abonnements pour votre bureau comprennent des crédits mensuels, la gestion complète, le portail clients et la facturation. Pour les activer, il suffit de vos données de facturation : sans attente, sans approbation.",
+    "cta_link": "Compléter le profil",
+    "mancano": "À compléter : {{campi}}"
   },
   "footer": {
     "trust": "Paiement sécurisé par carte. Les produits sont activés immédiatement après le paiement."

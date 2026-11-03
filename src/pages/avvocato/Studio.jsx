@@ -13,6 +13,7 @@ import {
 import { supabase, supabaseUrl } from '@/lib/supabase'
 import { vociPiano, etichettaDurata } from '@/lib/vociPiano'
 import { useAuth } from '@/context/AuthContext'
+import { attivaProvaGratuita, puoAttivareProva } from '@/lib/provaGratuita'
 import { ricordaRitorno } from '@/lib/ritornoCassa'
 import { AvvisoDatiFatturazione, mancantiAcquisto, useDatiFatturazione } from '@/lib/datiFatturazione'
 import CodiceSconto, { useCodiceSconto, PrezzoScontato } from '@/components/CodiceSconto'
@@ -160,13 +161,13 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
             const { data: { user } } = await supabase.auth.getUser()
             const { data: prof } = await supabase
                 .from('profiles')
-                .select('prova_gratuita_usata')
+                .select('role, professione, tipo_richiesta, verification_status, titolare_id, prova_gratuita_usata')
                 .eq('id', user.id)
                 .single()
 
             const { data } = await supabase
                 .from('prodotti')
-                .select('id, nome, tipo, prezzo, posti, durata_mesi, include_banca_dati, include_monetizzazione, crediti_ai_mensili, spazio_gb, limite_clienti, target_role')
+                .select('id, nome, tipo, prezzo, posti, durata_mesi, include_banca_dati, crediti_ai_mensili, spazio_gb, limite_clienti, target_role')
                 .eq('attivo', true)
                 .in('tipo', ['abbonamento', 'seat_addon', 'clienti_addon', 'gratuito', 'crediti_ai', 'spazio_archiviazione'])
                 .order('prezzo')
@@ -179,7 +180,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
             // l'archivio in più al mese dei privati (28-10-2026) non è per lo studio
             setPacchettiStorage(tutti.filter(p => p.tipo === 'spazio_archiviazione' && p.target_role !== 'user'))
 
-            if (!prof?.prova_gratuita_usata && !pianoAttualeId) {
+            if (puoAttivareProva(prof) && !pianoAttualeId) {
                 setTrialProdotto(tutti.find(p => p.tipo === 'gratuito') ?? null)
             }
 
@@ -192,17 +193,7 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
         setAttivandoTrial(true)
         setErrore('')
         try {
-            const { data: { session } } = await supabase.auth.getSession()
-            const res = await fetch(
-                `${supabaseUrl}/functions/v1/activate-trial`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-                    body: JSON.stringify({ prodotto_id: trialProdotto.id }),
-                }
-            )
-            const json = await res.json()
-            if (!json.ok) throw new Error(json.error)
+            await attivaProvaGratuita()
             setTrialAttivato(true)
             setTrialProdotto(null)
             setTimeout(() => window.location.reload(), 1500)
@@ -559,7 +550,7 @@ function CollaboRow({ collabo, isTitolare, meId, onRefresh }) {
 // ─────────────────────────────────────────────────────────────
 // STORICO TRANSAZIONI
 // ─────────────────────────────────────────────────────────────
-function StoricoTransazioni({ meId, includiSentenze = false }) {
+function StoricoTransazioni({ meId }) {
     const { t, i18n } = useTranslation('avv_studio')
     const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
@@ -569,9 +560,7 @@ function StoricoTransazioni({ meId, includiSentenze = false }) {
 
     useEffect(() => {
         if (!meId) return
-        const tipi = includiSentenze
-            ? ['abbonamento', 'seat_addon', 'accesso_singolo', 'crediti_ai', 'spazio_archiviazione']
-            : ['abbonamento', 'seat_addon', 'crediti_ai', 'spazio_archiviazione']
+        const tipi = ['abbonamento', 'seat_addon', 'crediti_ai', 'spazio_archiviazione']
 
         supabase
             .from('transazioni')
@@ -580,7 +569,7 @@ function StoricoTransazioni({ meId, includiSentenze = false }) {
             .in('tipo', tipi)
             .order('created_at', { ascending: false })
             .then(({ data }) => { setStorico(data ?? []); setLoading(false) })
-    }, [meId, includiSentenze])
+    }, [meId])
 
     if (loading) return null
 
@@ -674,7 +663,7 @@ export default function AvvocatoStudio() {
 
         const { data: p } = await supabase
             .from('profiles')
-            .select('id, nome, cognome, email, studio, tipo_account, titolare_id, piano_id, abbonamento_tipo, abbonamento_scadenza, abbonamento_stato, grazia_fino_al, posti_acquistati, posti_usati, include_banca_dati, include_monetizzazione, spazio_gb_piano')
+            .select('id, nome, cognome, email, studio, tipo_account, titolare_id, piano_id, abbonamento_tipo, abbonamento_scadenza, abbonamento_stato, grazia_fino_al, posti_acquistati, posti_usati, include_banca_dati, spazio_gb_piano')
             .eq('id', meId)
             .single()
 
@@ -1169,7 +1158,7 @@ export default function AvvocatoStudio() {
                             {t('user_studio.scegli_piano')} <ChevronRight size={14} />
                         </button>
                     </div>
-                    <StoricoTransazioni meId={meId} includiSentenze={true} />
+                    <StoricoTransazioni meId={meId} />
                 </div>
             )}
 
@@ -1199,7 +1188,6 @@ export default function AvvocatoStudio() {
                                     [t('avv_piano.riga.gb_inclusi'), `${storage.gb_piano} GB`],
                                     [t('avv_piano.riga.gb_extra'), `${storage.gb_topup} GB`],
                                     [t('avv_piano.riga.banca_dati'), profilo?.include_banca_dati ? t('avv_piano.valore.inclusa') : t('avv_piano.valore.non_inclusa')],
-                                    [t('avv_piano.riga.monetizzazione'), profilo?.include_monetizzazione ? t('avv_piano.valore.inclusa') : t('avv_piano.valore.non_inclusa')],
                                 ].map(([label, value]) => (
                                     <div key={label} className="flex justify-between items-center py-2 border-b border-white/5">
                                         <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{label}</span>

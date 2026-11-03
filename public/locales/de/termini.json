@@ -80,9 +80,7 @@
     "sub51_text": "Der Nutzer bleibt alleiniger Eigentümer der auf die Plattform hochgeladenen Inhalte (Dokumente, Urteile, Dossiers, Mandate, Notizen). Lexum erhebt keinerlei Eigentumsanspruch an diesen Inhalten.",
     "sub52_title": "5.2 Nutzungslizenz",
     "sub52_text": "Durch das Hochladen von Inhalten auf die Plattform erteilt der Nutzer Lexum eine beschränkte, nicht ausschliessliche und nicht übertragbare Lizenz zur Verarbeitung dieser Inhalte ausschliesslich zum Zweck der Erbringung des Dienstes (Speicherung, OCR, Indexierung, semantische Suche, KI-Analyse).",
-    "sub53_title": "5.3 Geteilte Datenbank",
-    "sub53_text": "Durch das Hochladen von Urteilen in die geteilte Datenbank erklärt der Nutzer, zur Weitergabe dieser Dokumente berechtigt zu sein, und akzeptiert, dass andere registrierte Fachpersonen den Zugang zum Dokument erwerben können. Die Vergütung für jeden Zugriff wird gemäss den beim Hochladen angegebenen Prozentsätzen aufgeteilt.",
-    "sub54_title": "5.4 Verbotene Inhalte",
+    "sub54_title": "5.3 Verbotene Inhalte",
     "sub54_intro": "Es ist verboten, folgende Inhalte hochzuladen:",
     "sub54_items": [
       "Inhalte, die Rechte Dritter verletzen (Urheberrecht, Datenschutz, Geschäftsgeheimnisse)",
@@ -91,7 +89,7 @@
       "Malware, Viren oder schädlichen Code",
       "Falsche oder irreführende Inhalte"
     ],
-    "sub55_title": "5.5 Verantwortung für die Inhalte",
+    "sub55_title": "5.4 Verantwortung für die Inhalte",
     "sub55_text": "Der Nutzer ist Verantwortlicher der Bearbeitung der Personendaten seiner Kunden im Sinne des Schweizer DSG und, soweit anwendbar, der DSGVO. Lexum handelt als Auftragsbearbeiter (data processor) für die vom Nutzer hochgeladenen Daten. Die Parteien schliessen mit der Annahme dieser Bedingungen stillschweigend einen Auftragsbearbeitungsvertrag (AVV/DPA) gemäss Art. 9 DSG und Art. 28 DSGVO ab."
   },
   "uso": {

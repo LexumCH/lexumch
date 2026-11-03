@@ -76,10 +76,22 @@
   "user_studio": {
     "titolo": "Perché avere un piano?",
     "vantaggi": [
-      { "titolo": "Gestione clienti", "desc": "Crea e gestisci i tuoi clienti, pratiche e documenti in un unico posto" },
-      { "titolo": "Banca Dati completa", "desc": "Norme, giurisprudenza e prassi, con i crediti Lex AI inclusi ogni mese" },
-      { "titolo": "Documenti, fatture e calendario", "desc": "Generatore di documenti, emissione di fatture e calendario degli appuntamenti" },
-      { "titolo": "Studio multi-accesso", "desc": "Invita collaboratori e gestite insieme clienti e pratiche" }
+      {
+        "titolo": "Gestione clienti",
+        "desc": "Crea e gestisci i tuoi clienti, pratiche e documenti in un unico posto"
+      },
+      {
+        "titolo": "Banca Dati completa",
+        "desc": "Norme, giurisprudenza e prassi, con i crediti Lex AI inclusi ogni mese"
+      },
+      {
+        "titolo": "Documenti, fatture e calendario",
+        "desc": "Generatore di documenti, emissione di fatture e calendario degli appuntamenti"
+      },
+      {
+        "titolo": "Studio multi-accesso",
+        "desc": "Invita collaboratori e gestite insieme clienti e pratiche"
+      }
     ],
     "scegli_piano": "Scegli un piano"
   },
@@ -96,8 +108,7 @@
       "spazio": "Spazio archivio",
       "gb_inclusi": "GB inclusi nel piano",
       "gb_extra": "GB extra acquistati",
-      "banca_dati": "Banca dati",
-      "monetizzazione": "Monetizzazione"
+      "banca_dati": "Banca dati"
     },
     "valore": {
       "clienti_con_limite": "{{conteggio}} su {{totale}} ({{piano}} piano · {{extra}} extra)",
@@ -169,7 +180,12 @@
   "storico": {
     "titolo": "Storico pagamenti",
     "vuoto": "Nessun pagamento registrato",
-    "intestazioni": ["Descrizione", "Importo", "Data", "Stato"],
+    "intestazioni": [
+      "Descrizione",
+      "Importo",
+      "Data",
+      "Stato"
+    ],
     "stato": {
       "gratis": "Gratis",
       "pagato": "Pagato",
@@ -201,7 +217,6 @@
       "mesi_one": "{{count}} mese",
       "mesi_other": "{{count}} mesi",
       "tag_banca_dati": "Banca dati",
-      "tag_monetizzazione": "Monetizzazione",
       "tag_crediti_mese": "{{count}} crediti/mese",
       "tag_studio": "Studio",
       "upgrade_a": "Upgrade a ",

@@ -1,0 +1,31 @@
+{
+  "attiva_titolo": "Votre essai gratuit est actif jusqu'au {{giorno}}",
+  "attiva_testo": "Votre bureau est entièrement ouvert et vous avez les crédits pour essayer Lex. Si vous souhaitez un coup de main pour démarrer, demandez une consultation à l'équipe.",
+  "dopo": "Plus tard",
+  "consulenza": "Demander une consultation",
+  "vedi_piani": "Voir les abonnements →",
+  "finita_titolo": "Votre essai gratuit est terminé",
+  "finita_testo": "Pour continuer avec le bureau complet, choisissez un abonnement. Sinon, vous gardez ce que vous avez, sans aucun débit.",
+  "con_piano": "Avec un abonnement",
+  "piano": [
+    "Les crédits pour Lex chaque mois",
+    "De nouveaux clients",
+    "L'archive pour téléverser vos documents"
+  ],
+  "hai_gia": "Ce que vous avez déjà",
+  "resta": {
+    "avvocato": "Dossiers, agenda et factures",
+    "fiduciario": "Mandats, agenda et factures",
+    "progettista": "Projets, plans et factures"
+  },
+  "resta_comuni": [
+    "Les clients enregistrés",
+    "La base de données",
+    "Les documents de l'archive, en lecture seule"
+  ],
+  "scegli": "Choisir un abonnement",
+  "rimango": "Je garde ce que j'ai",
+  "chiudi": "Fermer",
+  "consulenza_oggetto": "Demande de consultation",
+  "consulenza_messaggio": "Bonjour, j'ai activé l'essai de Lexum pour mon bureau : je souhaiterais une consultation sur l'abonnement à choisir et sur la meilleure façon d'utiliser la plateforme. Merci."
+}

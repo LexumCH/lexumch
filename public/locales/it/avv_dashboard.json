@@ -40,12 +40,6 @@
     "messaggi_nuovi_one": "1 messaggio nuovo.",
     "messaggi_nuovi_other": "{{count}} messaggi nuovi."
   },
-  "trial": {
-    "titolo": "La tua prova gratuita e scaduta",
-    "testo": "Scegli un piano per continuare a lavorare con le tue pratiche, clienti e documenti.",
-    "dopo": "Dopo",
-    "vedi_piani": "Vedi i piani →"
-  },
   "contatori": {
     "clienti": "Clienti",
     "clienti_sub": "Totale",

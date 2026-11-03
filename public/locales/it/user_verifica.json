@@ -1,8 +1,8 @@
 {
   "scelta": {
-    "label": "Verifica professionale",
+    "label": "Completa il profilo",
     "titolo": "Che professionista sei?",
-    "intro": "Scegli il tuo percorso. In base alla tua professione ti chiederemo i documenti adeguati e attiveremo gli strumenti giusti per te.",
+    "intro": "Scegli il tuo profilo professionale: la piattaforma si adatta al tuo modo di lavorare.",
     "avvocato": {
       "titolo": "Avvocato",
       "desc": "Clienti, pratiche, udienze, calendario e atti con Lex AI."
@@ -18,8 +18,8 @@
   },
   "set": {
     "avvocato": {
-      "titolo": "Verifica identità — Avvocato",
-      "intro": "Per accedere alla piattaforma come avvocato devi verificare la tua identità professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.",
+      "titolo": "Completa il tuo profilo — Avvocato",
+      "intro": "Puoi attivare subito la prova dello studio, oppure compilare i dati di fatturazione e acquistare un abbonamento. Nessuna attesa e nessuna approvazione.",
       "documenti": {
         "identita": {
           "label": "Documento di identità",
@@ -36,8 +36,8 @@
       }
     },
     "fiduciario": {
-      "titolo": "Verifica identità — Fiduciario",
-      "intro": "Per accedere alla piattaforma come fiduciario devi verificare la tua attività professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.",
+      "titolo": "Completa il tuo profilo — Fiduciario",
+      "intro": "Puoi attivare subito la prova dello studio, oppure compilare i dati di fatturazione e acquistare un abbonamento. Nessuna attesa e nessuna approvazione.",
       "documenti": {
         "identita": {
           "label": "Documento di identità",
@@ -54,8 +54,8 @@
       }
     },
     "progettista": {
-      "titolo": "Verifica identità — Progettista",
-      "intro": "Per accedere alla piattaforma come progettista (architetto, ingegnere o disegnatore) devi verificare la tua identità professionale. Carica i documenti richiesti e il nostro team li esaminerà entro 24-48 ore.",
+      "titolo": "Completa il tuo profilo — Progettista",
+      "intro": "Puoi attivare subito la prova dello studio, oppure compilare i dati di fatturazione e acquistare un abbonamento. Nessuna attesa e nessuna approvazione.",
       "documenti": {
         "identita": {
           "label": "Documento di identità",
@@ -73,28 +73,30 @@
     }
   },
   "upload": {
-    "label": "Verifica identità",
+    "label": "Completa il profilo",
     "obbligatorio": "Obbligatorio",
     "opzionale": "Opzionale",
     "cambia": "Cambia",
     "carica": "Carica",
     "privacy": "I documenti sono trattati con la massima riservatezza e utilizzati esclusivamente per la verifica dell'identità professionale.",
     "caricamento": "Caricamento in corso…",
-    "invia": "Invia per verifica"
+    "invia": "Invia per il distintivo",
+    "documenti_titolo": "Documenti professionali",
+    "documenti_testo": "Non servono per acquistare né per usare la piattaforma. Caricandoli ottieni il distintivo di professionista verificato."
   },
   "inviato": {
     "titolo": "Documenti inviati",
-    "desc": "Il team Lexum esaminerà i tuoi documenti e riceverai una risposta entro 24-48 ore.",
+    "desc": "Li esamineremo entro 24-48 ore per assegnarti il distintivo di professionista verificato. Nel frattempo puoi continuare a usare Lexum senza limitazioni.",
     "controlla_stato": "Controlla lo stato"
   },
   "stato": {
     "pending": {
       "title": "Verifica in corso",
-      "desc": "Il team Lexum sta esaminando i tuoi documenti. Riceverai una notifica email entro 24-48 ore."
+      "desc": "Il team Lexum sta esaminando i tuoi documenti per il distintivo di professionista verificato: riceverai un'email entro 24-48 ore. Nel frattempo puoi usare Lexum e acquistare un abbonamento senza aspettare."
     },
     "approved": {
       "title": "Verifica approvata!",
-      "desc": "Ottimo! Ora puoi scegliere il piano di abbonamento adatto a te per attivare il tuo account.",
+      "desc": "I tuoi documenti sono stati verificati: hai il distintivo di professionista verificato. Se non l'hai già fatto, scegli un abbonamento per attivare lo studio.",
       "cta": "Scegli un piano"
     },
     "rejected": {
@@ -121,7 +123,7 @@
       "ricerche": "Ricerche salvate ed etichette",
       "assistenza": "Assistenza: con un abbonamento è prioritaria"
     },
-    "come_funziona": "Carichi i documenti richiesti: li controlliamo entro 24-48 ore e, appena approvati, scegli il piano per il tuo studio.",
+    "come_funziona": "Completi il profilo con i dati di fatturazione in due minuti e scegli il piano: si attiva subito, senza attese né approvazioni. I documenti sono facoltativi e ti danno il distintivo di professionista verificato.",
     "verifica_come": "Verifica come {{titolo}}",
     "consulenza": "Richiedi una consulenza",
     "consulenza_oggetto": "Richiesta di consulenza",
@@ -188,5 +190,18 @@
     "crediti": {
       "testo": "Crediti Lex AI ogni mese"
     }
+  },
+  "prova": {
+    "titolo": "Prova lo studio gratis: 7 giorni, con 7 crediti per Lex",
+    "testo": "Un clic e lo studio è attivo: niente carta di credito, niente dati di fatturazione. Alla fine decidi tu se scegliere un piano.",
+    "attiva": "Attiva la prova gratuita"
+  },
+  "fatturazione": {
+    "titolo": "Dati per la fatturazione",
+    "testo": "Si compilano nel tuo Profilo. Appena completati sbloccano subito l'acquisto degli abbonamenti.",
+    "completa": "Completa i dati nel Profilo",
+    "vedi": "Vedi i dati",
+    "completo": "Il tuo profilo è completo: i piani sono sbloccati.",
+    "mancano": "Da compilare: {{campi}}"
   }
 }

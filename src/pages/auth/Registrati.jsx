@@ -16,10 +16,15 @@ const normLingua = (l) => {
   return LINGUE_OK.includes(c) ? c : 'it'
 }
 
+// Valori del database (profiles_professione_check). Chi sceglie una delle prime tre ha la prova dello studio: parte da
+// sola alla conferma dell'email (trigger nel database). Come su Lexum IT, con le professioni svizzere.
+const PROFESSIONI = ['avvocato', 'fiduciario', 'progettista', 'dirigente_azienda', 'studente_giurisprudenza', 'imprenditore', 'privato']
+const PROFESSIONI_CON_PROVA = ['avvocato', 'fiduciario', 'progettista']
+
 export default function Registrati() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation('auth')
-  const [form, setForm] = useState(() => ({ nome: '', cognome: '', email: '', lingua: normLingua(i18n.language), studio: '', fattura: false, ragione_sociale: '', uid: '', password: '', conferma: '' }))
+  const [form, setForm] = useState(() => ({ nome: '', cognome: '', email: '', lingua: normLingua(i18n.language), professione: '', studio: '', fattura: false, ragione_sociale: '', uid: '', password: '', conferma: '' }))
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -31,6 +36,7 @@ export default function Registrati() {
     if (!form.nome.trim()) e.nome = t('registrati.err_required')
     if (!form.cognome.trim()) e.cognome = t('registrati.err_required')
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = t('registrati.err_email')
+    if (!form.professione) e.professione = t('registrati.err_required')
     if (form.fattura) {
       if (!form.ragione_sociale.trim()) e.ragione_sociale = t('registrati.err_fattura')
       if (!form.uid.trim()) e.uid = t('registrati.err_fattura')
@@ -58,6 +64,7 @@ export default function Registrati() {
           data: {
             nome: form.nome.trim(),
             cognome: form.cognome.trim(),
+            professione: form.professione,
             studio: form.studio.trim() || null,
             // Dati aziendali per la fattura (30-10-2026): il trigger li copia nel profilo.
             ragione_sociale: form.fattura ? form.ragione_sociale.trim() : null,
@@ -92,7 +99,7 @@ export default function Registrati() {
           <CheckCircle size={40} className="text-salvia mx-auto mb-4" />
           <h2 className="font-display text-3xl font-light text-nebbia mb-3">{t('registrati.success_title')}</h2>
           <p className="font-body text-sm text-nebbia/50 mb-6 leading-relaxed">
-            {t('registrati.success_text_prefix')}<span className="text-oro">{form.email}</span>{t('registrati.success_text_suffix')}
+            {t('registrati.success_text_prefix')}<span className="text-oro">{form.email}</span>{t(PROFESSIONI_CON_PROVA.includes(form.professione) ? 'registrati.success_text_suffix_prova' : 'registrati.success_text_suffix')}
           </p>
           <p className="font-body text-xs text-nebbia/30">
             {t('registrati.success_spam')}
@@ -166,6 +173,23 @@ export default function Registrati() {
           <div>
             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('registrati.lingua_label')}</label>
             <SelectLingua value={form.lingua} onChange={(v) => setForm(f => ({ ...f, lingua: v }))} />
+          </div>
+
+          {/* Professione — obbligatoria (03-11-2026, come su IT) */}
+          <div>
+            <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">{t('registrati.professione_label')}</label>
+            <select
+              value={form.professione}
+              onChange={e => setForm(f => ({ ...f, professione: e.target.value }))}
+              className={`w-full bg-petrolio border ${errors.professione ? 'border-red-500/60' : 'border-white/10'} text-nebbia font-body text-sm px-4 py-3 outline-none focus:border-oro/50 transition-colors`}
+            >
+              <option value="">{t('registrati.professione_placeholder')}</option>
+              {PROFESSIONI.map(v => <option key={v} value={v}>{t(`registrati.professioni.${v}`)}</option>)}
+            </select>
+            {errors.professione && <p className="mt-1 font-body text-xs text-red-400 flex items-center gap-1"><AlertCircle size={11} />{errors.professione}</p>}
+            {PROFESSIONI_CON_PROVA.includes(form.professione) && (
+              <p className="mt-2 font-body text-xs text-salvia leading-relaxed">{t('registrati.prova_compresa')}</p>
+            )}
           </div>
 
           {/* Studio — opzionale */}

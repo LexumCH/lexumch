@@ -76,10 +76,22 @@
   "user_studio": {
     "titolo": "Warum einen Plan haben?",
     "vantaggi": [
-      { "titolo": "Mandantenverwaltung", "desc": "Erstellen und verwalten Sie Ihre Mandanten, Dossiers und Dokumente an einem Ort" },
-      { "titolo": "Vollständige Datenbank", "desc": "Normen, Rechtsprechung und Praxis, mit monatlich inbegriffenen Lex-AI-Credits" },
-      { "titolo": "Dokumente, Rechnungen und Kalender", "desc": "Dokumentengenerator, Rechnungsstellung und Terminkalender" },
-      { "titolo": "Kanzlei mit mehreren Zugängen", "desc": "Laden Sie Mitarbeitende ein und verwalten Sie gemeinsam Mandanten und Dossiers" }
+      {
+        "titolo": "Mandantenverwaltung",
+        "desc": "Erstellen und verwalten Sie Ihre Mandanten, Dossiers und Dokumente an einem Ort"
+      },
+      {
+        "titolo": "Vollständige Datenbank",
+        "desc": "Normen, Rechtsprechung und Praxis, mit monatlich inbegriffenen Lex-AI-Credits"
+      },
+      {
+        "titolo": "Dokumente, Rechnungen und Kalender",
+        "desc": "Dokumentengenerator, Rechnungsstellung und Terminkalender"
+      },
+      {
+        "titolo": "Kanzlei mit mehreren Zugängen",
+        "desc": "Laden Sie Mitarbeitende ein und verwalten Sie gemeinsam Mandanten und Dossiers"
+      }
     ],
     "scegli_piano": "Plan wählen"
   },
@@ -96,8 +108,7 @@
       "spazio": "Archivspeicher",
       "gb_inclusi": "Im Plan enthaltene GB",
       "gb_extra": "Zusätzlich gekaufte GB",
-      "banca_dati": "Datenbank",
-      "monetizzazione": "Monetarisierung"
+      "banca_dati": "Datenbank"
     },
     "valore": {
       "clienti_con_limite": "{{conteggio}} von {{totale}} ({{piano}} Plan · {{extra}} zusätzlich)",
@@ -169,7 +180,12 @@
   "storico": {
     "titolo": "Zahlungsverlauf",
     "vuoto": "Keine Zahlung erfasst",
-    "intestazioni": ["Beschreibung", "Betrag", "Datum", "Status"],
+    "intestazioni": [
+      "Beschreibung",
+      "Betrag",
+      "Datum",
+      "Status"
+    ],
     "stato": {
       "gratis": "Gratis",
       "pagato": "Bezahlt",
@@ -201,7 +217,6 @@
       "mesi_one": "{{count}} Monat",
       "mesi_other": "{{count}} Monate",
       "tag_banca_dati": "Datenbank",
-      "tag_monetizzazione": "Monetarisierung",
       "tag_crediti_mese": "{{count}} Credits/Monat",
       "tag_studio": "Kanzlei",
       "upgrade_a": "Upgrade auf ",

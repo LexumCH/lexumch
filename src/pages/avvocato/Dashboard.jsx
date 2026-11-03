@@ -9,6 +9,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
+import AvvisoProva from '@/components/AvvisoProva'
 import { supabase } from '@/lib/supabase'
 import {
   Calendar, AlertTriangle, Briefcase, Receipt, MessageSquare,
@@ -314,7 +315,6 @@ export default function AvvocatoDashboard() {
   const { t, i18n } = useTranslation('avv_dashboard')
   const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
-  const [showTrialFeedback, setShowTrialFeedback] = useState(false)
   const [loading, setLoading] = useState(true)
 
   // ─── Range globale ───────────────────────────────────────
@@ -344,7 +344,6 @@ export default function AvvocatoDashboard() {
     if (!profile?.id) return
     caricaAgenda()
     caricaContatoriGlobali()
-    controllaTrial()
   }, [profile?.id])
 
   // ─── Carica metriche periodo (ad ogni cambio range) ──────
@@ -352,23 +351,6 @@ export default function AvvocatoDashboard() {
     if (!profile?.id) return
     caricaPeriodo()
   }, [profile?.id, range.inizio.getTime(), range.fine.getTime()])
-
-  async function controllaTrial() {
-    const { data: prof } = await supabase
-      .from('profiles')
-      .select('prova_gratuita_usata, abbonamento_scadenza, piano_id')
-      .eq('id', profile.id)
-      .single()
-
-    if (
-      prof?.prova_gratuita_usata &&
-      prof?.abbonamento_scadenza &&
-      new Date(prof.abbonamento_scadenza) < new Date() &&
-      !prof?.piano_id
-    ) {
-      setShowTrialFeedback(true)
-    }
-  }
 
   async function caricaContatoriGlobali() {
     // Clienti totali
@@ -587,30 +569,7 @@ export default function AvvocatoDashboard() {
         </div>
       </div>
 
-      {/* ─── Banner trial scaduto ───────────────────────── */}
-      {showTrialFeedback && (
-        <div className="bg-slate border border-oro/25 p-5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-oro/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none" />
-          <div className="relative flex items-start justify-between gap-4 flex-wrap">
-            <div className="space-y-1.5">
-              <p className="font-body text-sm font-medium text-oro">{t('trial.titolo')}</p>
-              <p className="font-body text-xs text-nebbia/50 leading-relaxed max-w-lg">
-                {t('trial.testo')}
-              </p>
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <button onClick={() => setShowTrialFeedback(false)}
-                className="font-body text-xs text-nebbia/30 hover:text-nebbia transition-colors">
-                {t('trial.dopo')}
-              </button>
-              <Link to="/studio?tab=acquista"
-                className="flex items-center gap-2 px-5 py-2.5 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors">
-                {t('trial.vedi_piani')}
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+      <AvvisoProva />
 
       {/* ─── 3 BOX CONTATORI ───────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

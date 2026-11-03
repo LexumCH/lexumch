@@ -1,0 +1,31 @@
+{
+  "attiva_titolo": "Ihre kostenlose Testphase läuft bis zum {{giorno}}",
+  "attiva_testo": "Ihr Büro ist vollständig freigeschaltet und Sie haben Credits, um Lex zu testen. Wenn Sie Unterstützung für den Start möchten, fragen Sie eine Beratung beim Team an.",
+  "dopo": "Später",
+  "consulenza": "Beratung anfragen",
+  "vedi_piani": "Abonnemente ansehen →",
+  "finita_titolo": "Ihre kostenlose Testphase ist beendet",
+  "finita_testo": "Um mit dem vollständigen Büro weiterzuarbeiten, wählen Sie ein Abonnement. Andernfalls behalten Sie, was Sie haben, ohne jede Belastung.",
+  "con_piano": "Mit einem Abonnement",
+  "piano": [
+    "Monatliche Credits für Lex",
+    "Neue Kunden",
+    "Das Archiv zum Hochladen Ihrer Dokumente"
+  ],
+  "hai_gia": "Was Sie bereits haben",
+  "resta": {
+    "avvocato": "Dossiers, Kalender und Rechnungen",
+    "fiduciario": "Mandate, Kalender und Rechnungen",
+    "progettista": "Projekte, Pläne und Rechnungen"
+  },
+  "resta_comuni": [
+    "Die erfassten Kunden",
+    "Die Datenbank",
+    "Die Dokumente im Archiv, nur zum Lesen"
+  ],
+  "scegli": "Abonnement wählen",
+  "rimango": "Ich bleibe bei dem, was ich habe",
+  "chiudi": "Schliessen",
+  "consulenza_oggetto": "Beratungsanfrage",
+  "consulenza_messaggio": "Guten Tag, ich habe die Testphase von Lexum für mein Büro aktiviert: Ich möchte eine Beratung dazu, welches Abonnement ich wählen soll und wie ich die Plattform am besten nutze. Vielen Dank."
+}

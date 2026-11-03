@@ -1,9 +1,9 @@
 {
     "meta": {
         "title": "Lexum per Studi Legali — Gestionale, AI e collaborazione di team",
-        "description": "Multi-accesso con permessi granulari, calendario condiviso, archivio intelligente, Lex AI e monetizzazione delle sentenze. Tutto il lavoro dello studio in un ambiente coerente.",
+        "description": "Multi-accesso con permessi granulari, calendario condiviso, archivio intelligente e Lex AI. Tutto il lavoro dello studio in un ambiente coerente.",
         "og_title": "Lexum per Studi Legali — Gestionale, AI e team",
-        "og_description": "Gestionale, multi-accesso, calendario, archivio intelligente, Lex AI e monetizzazione dell'archivio. Tutto in un ambiente coerente.",
+        "og_description": "Gestionale, multi-accesso, calendario, archivio intelligente e Lex AI. Tutto in un ambiente coerente.",
         "twitter_description": "Gestionale, AI e collaborazione di team per studi legali svizzeri."
     },
     "hero": {
@@ -390,40 +390,6 @@
         ],
         "msg": "Aperta a chiunque, gratis. Lavoriamo in modo continuo per ampliare e aggiornare le fonti."
     },
-    "monet": {
-        "label": "Monetizzazione",
-        "title_part1": "Il tuo archivio diventa",
-        "title_highlight": "una risorsa attiva.",
-        "subtitle": "Le sentenze che hai già lavorato, anonimizzate e pubblicate, fanno crescere il sapere collettivo della professione. E ti restituiscono valore economico ogni volta che vengono consultate.",
-        "feature_title": "Anonimizzi, pubblichi, monetizzi",
-        "feature_text": "Selezioni le sentenze che possono avere valore per altri professionisti. Lexum ti aiuta nell'anonimizzazione. Le pubblichi nella banca dati. Quando un altro avvocato le consulta, una quota va al tuo studio. Il lavoro già fatto continua a produrre valore nel tempo.",
-        "points": [
-            "Selezione libera dei contenuti da pubblicare",
-            "Supporto all'anonimizzazione",
-            "Quota sulle consultazioni",
-            "Visibilità professionale aumentata"
-        ],
-        "visual_label": "Le tue sentenze pubblicate",
-        "sentenze": [
-            {
-                "t": "Responsabilità medica — errore diagnostico",
-                "n": "12 consultazioni",
-                "q": "CHF 80.00"
-            },
-            {
-                "t": "Locazione — difetti della cosa locata",
-                "n": "8 consultazioni",
-                "q": "CHF 110.00"
-            },
-            {
-                "t": "Circolazione stradale — revoca della licenza",
-                "n": "5 consultazioni",
-                "q": "CHF 45.00"
-            }
-        ],
-        "totale_label": "Totale ricavi 2026",
-        "totale_v": "CHF 235.00"
-    },
     "sicurezza": {
         "label": "Sicurezza",
         "title_part1": "Riservatezza",
@@ -433,10 +399,6 @@
             {
                 "t": "Compartimentazione dati",
                 "d": "Ogni studio è isolato. I tuoi dati non sono mai accessibili ad altri studi, né agli altri membri del tuo team senza il tuo permesso esplicito."
-            },
-            {
-                "t": "Anonimizzazione prima della pubblicazione",
-                "d": "Prima che una sentenza diventi pubblica nella banca dati, i dati sensibili vengono rimossi. Lexum supporta il processo, ma il controllo finale resta tuo."
             },
             {
                 "t": "Audit log completo",

@@ -1,9 +1,9 @@
 {
   "meta": {
     "title": "Lexum pour les études d'avocats — Gestion, IA et collaboration d'équipe",
-    "description": "Accès multiple avec permissions granulaires, agenda partagé, archives intelligentes, Lex AI et monétisation des jugements. Tout le travail de l'étude dans un environnement cohérent.",
+    "description": "Accès multiple avec permissions granulaires, agenda partagé, archives intelligentes et Lex AI. Tout le travail de l'étude dans un environnement cohérent.",
     "og_title": "Lexum pour les études d'avocats — Gestion, IA et équipe",
-    "og_description": "Gestion, accès multiple, agenda, archives intelligentes, Lex AI et monétisation des archives. Le tout dans un environnement cohérent.",
+    "og_description": "Gestion, accès multiple, agenda, archives intelligentes et Lex AI. Le tout dans un environnement cohérent.",
     "twitter_description": "Gestion, IA et collaboration d'équipe pour les études d'avocats suisses."
   },
   "hero": {
@@ -31,10 +31,30 @@
     "visual_label": "Étude — Membres et permissions",
     "team_label": "Équipe de l'étude",
     "members": [
-      { "nome": "Marc Rey", "ruolo": "Associé fondateur", "avatar": "MR", "accesso": "Tout" },
-      { "nome": "Laure Blanc", "ruolo": "Associée senior", "avatar": "LB", "accesso": "Tout" },
-      { "nome": "André Favre", "ruolo": "Avocat", "avatar": "AF", "accesso": "Dossiers attribués uniquement" },
-      { "nome": "Julie Roux", "ruolo": "Secrétariat", "avatar": "JR", "accesso": "Données et agenda" }
+      {
+        "nome": "Marc Rey",
+        "ruolo": "Associé fondateur",
+        "avatar": "MR",
+        "accesso": "Tout"
+      },
+      {
+        "nome": "Laure Blanc",
+        "ruolo": "Associée senior",
+        "avatar": "LB",
+        "accesso": "Tout"
+      },
+      {
+        "nome": "André Favre",
+        "ruolo": "Avocat",
+        "avatar": "AF",
+        "accesso": "Dossiers attribués uniquement"
+      },
+      {
+        "nome": "Julie Roux",
+        "ruolo": "Secrétariat",
+        "avatar": "JR",
+        "accesso": "Données et agenda"
+      }
     ],
     "compartimentazione": "Cloisonnement actif : 4 membres, 2 niveaux d'accès, 12 dossiers segmentés."
   },
@@ -54,14 +74,30 @@
     "visual_label": "Dossier 2026/047 — Pierre Martin",
     "assegnati_label": "Avocats attribués",
     "membri_count": "3 membres",
-    "avatars": ["MR", "LB", "AF"],
+    "avatars": [
+      "MR",
+      "LB",
+      "AF"
+    ],
     "membri_names": "Marc (titulaire), Laure, André",
     "ricerche_label": "Recherches du dossier (4)",
     "ricerche_items": [
-      { "t": "Art. 256 CO — défauts de la chose louée", "autore": "MR" },
-      { "t": "TF 4A_211/2023 — responsabilité du bailleur", "autore": "LB" },
-      { "t": "Exception de réduction du loyer", "autore": "LB" },
-      { "t": "Art. 259a CO — droits du locataire", "autore": "AF" }
+      {
+        "t": "Art. 256 CO — défauts de la chose louée",
+        "autore": "MR"
+      },
+      {
+        "t": "TF 4A_211/2023 — responsabilité du bailleur",
+        "autore": "LB"
+      },
+      {
+        "t": "Exception de réduction du loyer",
+        "autore": "LB"
+      },
+      {
+        "t": "Art. 259a CO — droits du locataire",
+        "autore": "AF"
+      }
     ],
     "lex_prefix": "Lex a analysé toutes les recherches. Il suggère d'approfondir ",
     "lex_highlight": "l'art. 259d CO",
@@ -77,12 +113,36 @@
       "Synchronisation avec des agendas externes"
     ],
     "visual_label": "Agenda — Semaine en cours",
-    "giorni": ["L", "M", "M", "J", "V", "S", "D"],
+    "giorni": [
+      "L",
+      "M",
+      "M",
+      "J",
+      "V",
+      "S",
+      "D"
+    ],
     "eventi": [
-      { "ora": "09:00", "t": "Audience — Tribunal de première instance", "sub": "Pierre Martin — Bail" },
-      { "ora": "11:30", "t": "Rendez-vous — L. Roux", "sub": "Dossier 2026/051" },
-      { "ora": "14:30", "t": "Délai réponse à la demande", "sub": "Martin c. ACME" },
-      { "ora": "16:00", "t": "Call interne — Équipe civil", "sub": "Revue des dossiers" }
+      {
+        "ora": "09:00",
+        "t": "Audience — Tribunal de première instance",
+        "sub": "Pierre Martin — Bail"
+      },
+      {
+        "ora": "11:30",
+        "t": "Rendez-vous — L. Roux",
+        "sub": "Dossier 2026/051"
+      },
+      {
+        "ora": "14:30",
+        "t": "Délai réponse à la demande",
+        "sub": "Martin c. ACME"
+      },
+      {
+        "ora": "16:00",
+        "t": "Call interne — Équipe civil",
+        "sub": "Revue des dossiers"
+      }
     ]
   },
   "clienti": {
@@ -96,16 +156,43 @@
     ],
     "visual_label": "Client — Pierre Martin",
     "rows": [
-      { "l": "Type", "v": "Particulier" },
-      { "l": "Dossiers ouverts", "v": "2" },
-      { "l": "Chiffre d'affaires 2026", "v": "CHF 4'200.00" },
-      { "l": "À encaisser", "v": "CHF 1'100.00" }
+      {
+        "l": "Type",
+        "v": "Particulier"
+      },
+      {
+        "l": "Dossiers ouverts",
+        "v": "2"
+      },
+      {
+        "l": "Chiffre d'affaires 2026",
+        "v": "CHF 4'200.00"
+      },
+      {
+        "l": "À encaisser",
+        "v": "CHF 1'100.00"
+      }
     ],
     "pagamenti_label": "Paiements récents",
     "pagamenti": [
-      { "d": "12.03.2026", "t": "Acompte dossier 2026/047", "i": "1'500.00", "stato": "pagato" },
-      { "d": "28.02.2026", "t": "Honoraires de conseil", "i": "600.00", "stato": "pagato" },
-      { "d": "15.02.2026", "t": "Solde dossier 2025/118", "i": "1'100.00", "stato": "in_sospeso" }
+      {
+        "d": "12.03.2026",
+        "t": "Acompte dossier 2026/047",
+        "i": "1'500.00",
+        "stato": "pagato"
+      },
+      {
+        "d": "28.02.2026",
+        "t": "Honoraires de conseil",
+        "i": "600.00",
+        "stato": "pagato"
+      },
+      {
+        "d": "15.02.2026",
+        "t": "Solde dossier 2025/118",
+        "i": "1'100.00",
+        "stato": "in_sospeso"
+      }
     ],
     "stato_pagato": "Payé",
     "stato_sospeso": "En attente"
@@ -127,12 +214,30 @@
     "title_highlight": "sur vos documents.",
     "subtitle": "Lex n'est pas un chat générique. C'est un assistant qui connaît vos dossiers, vos recherches et tout le contexte du travail juridique suisse.",
     "features": [
-      { "t": "Recherche juridique intelligente", "d": "Cherchez dans les normes, jugements et pratiques suisses en langage naturel. Lex comprend le contexte et suggère les résultats les plus pertinents." },
-      { "t": "Stratégies de procédure", "d": "Analyse le dossier et propose des stratégies concrètes, des exceptions à soulever et des arguments à développer à l'audience." },
-      { "t": "Conversation continue", "d": "Approfondissez, changez d'angle, posez des questions de suivi. Lex se souvient du contexte de la conversation." },
-      { "t": "Stratégie sur mesure pour le dossier", "d": "Lit toutes les recherches et documents du dossier et génère une stratégie personnalisée." },
-      { "t": "Jugements connexes", "d": "Suggère quels jugements de la base de données il vaut la peine de consulter selon votre cas spécifique." },
-      { "t": "Actes déjà rédigés", "d": "Mises en demeure, écritures, requêtes, réquisitions de poursuite. Lex remplit les modèles avec les données du dossier et produit des actes prêts à être relus." }
+      {
+        "t": "Recherche juridique intelligente",
+        "d": "Cherchez dans les normes, jugements et pratiques suisses en langage naturel. Lex comprend le contexte et suggère les résultats les plus pertinents."
+      },
+      {
+        "t": "Stratégies de procédure",
+        "d": "Analyse le dossier et propose des stratégies concrètes, des exceptions à soulever et des arguments à développer à l'audience."
+      },
+      {
+        "t": "Conversation continue",
+        "d": "Approfondissez, changez d'angle, posez des questions de suivi. Lex se souvient du contexte de la conversation."
+      },
+      {
+        "t": "Stratégie sur mesure pour le dossier",
+        "d": "Lit toutes les recherches et documents du dossier et génère une stratégie personnalisée."
+      },
+      {
+        "t": "Jugements connexes",
+        "d": "Suggère quels jugements de la base de données il vaut la peine de consulter selon votre cas spécifique."
+      },
+      {
+        "t": "Actes déjà rédigés",
+        "d": "Mises en demeure, écritures, requêtes, réquisitions de poursuite. Lex remplit les modèles avec les données du dossier et produit des actes prêts à être relus."
+      }
     ],
     "chat_label": "Lex AI — Conversation",
     "chat_domanda": "Nous travaillons sur le dossier Martin en droit du bail, quelle est la meilleure stratégie pour la prochaine audience ?",
@@ -161,13 +266,28 @@
     "data_v": "15.05.2026",
     "prestazioni_label": "Prestations",
     "prestazioni": [
-      { "d": "Conseil procès civil", "i": "1'200.00" },
-      { "d": "Représentation — réponse", "i": "800.00" },
-      { "d": "Audience de débats", "i": "500.00" }
+      {
+        "d": "Conseil procès civil",
+        "i": "1'200.00"
+      },
+      {
+        "d": "Représentation — réponse",
+        "i": "800.00"
+      },
+      {
+        "d": "Audience de débats",
+        "i": "500.00"
+      }
     ],
     "totali": [
-      { "l": "Montant imposable", "v": "2'500.00" },
-      { "l": "TVA 8.1 %", "v": "202.50" }
+      {
+        "l": "Montant imposable",
+        "v": "2'500.00"
+      },
+      {
+        "l": "TVA 8.1 %",
+        "v": "202.50"
+      }
     ],
     "totale_label": "Montant à payer",
     "totale_v": "2'702.50",
@@ -176,22 +296,52 @@
     "scadenzario_title": "Échéancier sous contrôle",
     "scadenzario_text": "Vous voyez d'un coup d'œil qui doit payer, ce qui est échu, ce qui arrive. Statuts colorés par facture : en attente, payée, échue.",
     "scadenzario_stati": [
-      { "l": "Payée", "v": "4'200" },
-      { "l": "En attente", "v": "2'702" },
-      { "l": "Échue", "v": "1'100" }
+      {
+        "l": "Payée",
+        "v": "4'200"
+      },
+      {
+        "l": "En attente",
+        "v": "2'702"
+      },
+      {
+        "l": "Échue",
+        "v": "1'100"
+      }
     ],
     "parziali_title": "Paiements partiels suivis",
     "parziali_text": "Acomptes, soldes, virements, espèces. Chaque mode de paiement est suivi par facture. Le statut se met à jour de lui-même lorsque le solde est réglé.",
     "parziali_items": [
-      { "l": "Virement", "d": "12.03", "i": "1'500.00" },
-      { "l": "Espèces", "d": "20.03", "i": "700.00" },
-      { "l": "Solde à encaisser", "d": "—", "i": "502.50", "open": true }
+      {
+        "l": "Virement",
+        "d": "12.03",
+        "i": "1'500.00"
+      },
+      {
+        "l": "Espèces",
+        "d": "20.03",
+        "i": "700.00"
+      },
+      {
+        "l": "Solde à encaisser",
+        "d": "—",
+        "i": "502.50",
+        "open": true
+      }
     ],
     "promemoria_title": "Rappels automatiques",
     "promemoria_text": "Lexum vous avertit trois jours avant l'échéance et le jour où une facture prend du retard. Fini les relances oubliées, fini les e-mails oubliés au client.",
     "promemoria_items": [
-      { "tempo": "Dans 3 jours", "fattura": "Facture 2026/048 — Martin", "urgent": false },
-      { "tempo": "Échue aujourd'hui", "fattura": "Facture 2026/041 — Roux", "urgent": true }
+      {
+        "tempo": "Dans 3 jours",
+        "fattura": "Facture 2026/048 — Martin",
+        "urgent": false
+      },
+      {
+        "tempo": "Échue aujourd'hui",
+        "fattura": "Facture 2026/041 — Roux",
+        "urgent": true
+      }
     ],
     "lex_title_part1": "Demandez à Lex",
     "lex_title_highlight": "qui n'a pas encore payé.",
@@ -206,9 +356,21 @@
     "lex_domanda": "Quels clients ont des factures échues depuis plus de 30 jours ?",
     "lex_risposta": "J'ai trouvé 3 factures échues depuis plus de 30 jours, pour un total de CHF 4'150.00.",
     "lex_fatture": [
-      { "cliente": "Pierre Martin — 2026/041", "scaduta": "Échue depuis 42 jours", "importo": "1'100.00" },
-      { "cliente": "L. Roux Sàrl — 2026/035", "scaduta": "Échue depuis 35 jours", "importo": "1'800.00" },
-      { "cliente": "A. Blanc — 2026/028", "scaduta": "Échue depuis 31 jours", "importo": "1'250.00" }
+      {
+        "cliente": "Pierre Martin — 2026/041",
+        "scaduta": "Échue depuis 42 jours",
+        "importo": "1'100.00"
+      },
+      {
+        "cliente": "L. Roux Sàrl — 2026/035",
+        "scaduta": "Échue depuis 35 jours",
+        "importo": "1'800.00"
+      },
+      {
+        "cliente": "A. Blanc — 2026/028",
+        "scaduta": "Échue depuis 31 jours",
+        "importo": "1'250.00"
+      }
     ]
   },
   "banca": {
@@ -228,38 +390,24 @@
     ],
     "msg": "Ouverte à tous, gratuitement. Nous travaillons en continu pour élargir et mettre à jour les sources."
   },
-  "monet": {
-    "label": "Monétisation",
-    "title_part1": "Vos archives deviennent",
-    "title_highlight": "une ressource active.",
-    "subtitle": "Les jugements que vous avez déjà traités, anonymisés et publiés, font croître le savoir collectif de la profession. Et ils vous restituent une valeur économique chaque fois qu'ils sont consultés.",
-    "feature_title": "Vous anonymisez, publiez, monétisez",
-    "feature_text": "Vous sélectionnez les jugements qui peuvent avoir de la valeur pour d'autres professionnels. Lexum vous aide à l'anonymisation. Vous les publiez dans la base de données. Lorsqu'un autre avocat les consulte, une part revient à votre étude. Le travail déjà accompli continue de produire de la valeur dans le temps.",
-    "points": [
-      "Sélection libre des contenus à publier",
-      "Soutien à l'anonymisation",
-      "Part sur les consultations",
-      "Visibilité professionnelle accrue"
-    ],
-    "visual_label": "Vos jugements publiés",
-    "sentenze": [
-      { "t": "Responsabilité médicale — erreur de diagnostic", "n": "12 consultations", "q": "CHF 80.00" },
-      { "t": "Bail — défauts de la chose louée", "n": "8 consultations", "q": "CHF 110.00" },
-      { "t": "Circulation routière — retrait du permis", "n": "5 consultations", "q": "CHF 45.00" }
-    ],
-    "totale_label": "Total des revenus 2026",
-    "totale_v": "CHF 235.00"
-  },
   "sicurezza": {
     "label": "Sécurité",
     "title_part1": "Confidentialité",
     "title_highlight": "par défaut, non en option.",
     "subtitle": "Le travail juridique exige des protections réelles, non des promesses marketing. Lexum est conçu avec la confidentialité au cœur de chaque décision technique.",
     "cards": [
-      { "t": "Cloisonnement des données", "d": "Chaque étude est isolée. Vos données ne sont jamais accessibles à d'autres études, ni aux autres membres de votre équipe sans votre permission explicite." },
-      { "t": "Anonymisation avant la publication", "d": "Avant qu'un jugement ne devienne public dans la base de données, les données sensibles sont retirées. Lexum accompagne le processus, mais le contrôle final reste le vôtre." },
-      { "t": "Journal d'audit complet", "d": "Chaque accès, chaque modification, chaque opération est enregistré. Vous savez toujours qui a fait quoi, quand et où. Transparence interne comme instrument de gouvernance." },
-      { "t": "PDF en lecture seule", "d": "Les documents de la base de données partagée sont accessibles au format numérique via des liens signés. Non téléchargeables, non redistribuables sans autorisation." }
+      {
+        "t": "Cloisonnement des données",
+        "d": "Chaque étude est isolée. Vos données ne sont jamais accessibles à d'autres études, ni aux autres membres de votre équipe sans votre permission explicite."
+      },
+      {
+        "t": "Journal d'audit complet",
+        "d": "Chaque accès, chaque modification, chaque opération est enregistré. Vous savez toujours qui a fait quoi, quand et où. Transparence interne comme instrument de gouvernance."
+      },
+      {
+        "t": "PDF en lecture seule",
+        "d": "Les documents de la base de données partagée sont accessibles au format numérique via des liens signés. Non téléchargeables, non redistribuables sans autorisation."
+      }
     ]
   },
   "cta": {

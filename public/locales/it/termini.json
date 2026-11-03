@@ -80,9 +80,7 @@
     "sub51_text": "L'Utente rimane il solo proprietario dei contenuti caricati sulla piattaforma (documenti, sentenze, pratiche, mandati, note). Lexum non rivendica alcun diritto di proprietà su tali contenuti.",
     "sub52_title": "5.2 Licenza d'uso",
     "sub52_text": "Caricando contenuti sulla piattaforma, l'Utente concede a Lexum una licenza limitata, non esclusiva e non trasferibile per elaborare tali contenuti al solo scopo di erogare il servizio (archiviazione, OCR, indicizzazione, ricerca semantica, analisi AI).",
-    "sub53_title": "5.3 Banca dati condivisa",
-    "sub53_text": "Caricando sentenze nella banca dati condivisa, l'Utente dichiara di avere il diritto di condividere tali documenti e accetta che altri professionisti registrati possano acquistare l'accesso al documento. Il compenso per ogni accesso viene ripartito secondo le percentuali indicate al momento del caricamento.",
-    "sub54_title": "5.4 Contenuti vietati",
+    "sub54_title": "5.3 Contenuti vietati",
     "sub54_intro": "È vietato caricare sulla piattaforma:",
     "sub54_items": [
       "Contenuti che violano diritti di terzi (copyright, privacy, segreti aziendali)",
@@ -91,7 +89,7 @@
       "Malware, virus o codice dannoso",
       "Contenuti falsi o fuorvianti"
     ],
-    "sub55_title": "5.5 Responsabilità sui contenuti",
+    "sub55_title": "5.4 Responsabilità sui contenuti",
     "sub55_text": "L'Utente è il titolare del trattamento dei dati personali dei propri clienti ai sensi della LPD svizzera e, ove applicabile, del GDPR. Lexum agisce quale responsabile del trattamento (data processor) per i dati caricati dall'Utente. Le parti sottoscrivono implicitamente un accordo di trattamento dei dati (DPA) conforme all'art. 9 LPD e all'art. 28 GDPR con l'accettazione dei presenti Termini."
   },
   "uso": {

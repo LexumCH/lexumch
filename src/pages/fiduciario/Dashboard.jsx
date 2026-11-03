@@ -11,6 +11,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import AvvisoProva from '@/components/AvvisoProva'
 import {
     Users, FolderOpen, Receipt, CalendarClock, CalendarDays, AlertTriangle,
     TrendingUp, TrendingDown, Wallet, ChevronRight, Scale,
@@ -125,6 +126,7 @@ export default function FiduciarioDashboard() {
 
     return (
         <div className="space-y-6 pb-20">
+            <AvvisoProva />
             <div>
                 <p className="section-label"><Scale size={11} className="inline" /> {t('hero.etichetta')}</p>
                 <h1 className="font-display text-3xl text-nebbia leading-tight">{nome ? t('hero.titolo_nome', { nome }) : t('hero.titolo')}</h1>

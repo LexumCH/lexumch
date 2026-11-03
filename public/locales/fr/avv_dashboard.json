@@ -40,12 +40,6 @@
     "messaggi_nuovi_one": "1 nouveau message.",
     "messaggi_nuovi_other": "{{count}} nouveaux messages."
   },
-  "trial": {
-    "titolo": "Votre essai gratuit a expiré",
-    "testo": "Choisissez un forfait pour continuer à travailler avec vos dossiers, clients et documents.",
-    "dopo": "Plus tard",
-    "vedi_piani": "Voir les forfaits →"
-  },
   "contatori": {
     "clienti": "Clients",
     "clienti_sub": "Total",

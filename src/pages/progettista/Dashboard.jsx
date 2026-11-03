@@ -14,6 +14,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import AvvisoProva from '@/components/AvvisoProva'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import {
@@ -162,6 +163,7 @@ export default function ProgettistaDashboard() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-20">
+        <AvvisoProva />
       {/* Hero */}
       <div>
         <p className="section-label"><DraftingCompass size={11} className="inline" /> Studio di progettazione</p>

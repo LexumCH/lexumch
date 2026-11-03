@@ -8,18 +8,22 @@
     "verifica_identita": "Verifica identità",
     "assistenza": "Domande?",
     "acquista": "Acquista",
-    "profilo": "Profilo"
+    "profilo": "Profilo",
+    "completa_profilo": "Completa il profilo"
   },
   "badge": {
     "in_corso": "In corso",
-    "approvata": "Approvata"
+    "approvata": "Approvata",
+    "da_fare": "Da fare"
   },
   "banner": {
-    "pending": "I tuoi documenti sono in revisione. Riceverai una risposta entro 24-48 ore.",
-    "approved": "Verifica completata! Acquista un piano per accedere a pratiche, clienti e tutte le funzionalità Lexum.",
+    "pending": "I tuoi documenti sono in revisione per il distintivo: riceverai una risposta entro 24-48 ore. Lexum resta pienamente utilizzabile.",
+    "approved": "Profilo completo: i piani sono sbloccati. Scegli quello adatto al tuo studio.",
     "approved_link": "Vedi piani →",
-    "rejected": "La tua verifica non è stata approvata. Visita il profilo per vedere i dettagli.",
-    "rejected_link": "Profilo →"
+    "rejected": "I documenti inviati per il distintivo non sono stati approvati. La piattaforma resta pienamente utilizzabile.",
+    "rejected_link": "Profilo →",
+    "completa": "Completa il profilo e scegli un abbonamento: pratiche, clienti e fatture si attivano subito. Bastano due minuti.",
+    "completa_link": "Completa ora →"
   },
   "account": {
     "verificato": "Verificato",

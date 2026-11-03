@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { mancantiAcquisto } from '@/lib/datiFatturazione'
 import logo from '@/assets/logo.png'
 import {
   LogOut, Menu, X, Sparkles, Plus,
@@ -34,14 +35,17 @@ export default function UserLayout({ children }) {
   const isPending = status === 'pending'
   const isApproved = status === 'approved'
   const isRejected = status === 'rejected'
-  const isUnverified = !status || status === 'none'
 
-  // Voce sidebar verifica (nascosta se rejected)
-  const verifyItem = isRejected ? null : isUnverified
-    ? { path: '/verifica', label: t('nav.verifica_identita'), icon: ShieldCheck }
+  // Voce sidebar (03-11-2026, come su IT): a sbloccare i piani sono i DATI DI FATTURAZIONE, non la verifica dei
+  // documenti: la voce resta finché mancano dati, poi diventa il distintivo.
+  const completo = mancantiAcquisto(profile).length === 0
+  const verifyItem = !completo
+    ? { path: '/verifica', label: t('nav.completa_profilo'), icon: ShieldCheck, badge: t('badge.da_fare'), badgeColor: 'amber' }
     : isPending
-      ? { path: '/verifica/stato', label: t('nav.verifica_identita'), icon: ShieldCheck, badge: t('badge.in_corso'), badgeColor: 'amber' }
-      : { path: '/verifica/stato', label: t('nav.verifica_identita'), icon: ShieldCheck, badge: t('badge.approvata'), badgeColor: 'salvia' }
+      ? { path: '/verifica/stato', label: t('nav.profilo'), icon: ShieldCheck, badge: t('account.in_verifica'), badgeColor: 'amber' }
+      : isApproved
+        ? { path: '/verifica/stato', label: t('nav.profilo'), icon: ShieldCheck, badge: t('account.verificato'), badgeColor: 'salvia' }
+        : { path: '/verifica', label: t('nav.profilo'), icon: ShieldCheck }
 
   const NAV = [
     { path: '/area', label: t('nav.banca_dati'), icon: Library, end: true },
@@ -56,11 +60,12 @@ export default function UserLayout({ children }) {
 
   // Banner contestuale: non sulla pagina Acquista, dove un privato sceglie già il suo abbonamento (28-10-2026)
   const banner = bannerDismissed || paginaAcquista ? null
-    : isPending ? {
+    : !completo ? {
       icon: Clock, color: 'amber',
-      text: t('banner.pending'),
+      text: t('banner.completa'),
+      link: { to: '/verifica', label: t('banner.completa_link') },
     }
-      : isApproved && !profile?.piano_id ? {
+      : !profile?.piano_id ? {
         icon: CheckCircle, color: 'salvia',
         text: t('banner.approved'),
         link: { to: '/area/acquista', label: t('banner.approved_link') },
