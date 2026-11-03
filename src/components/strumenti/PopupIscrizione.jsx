@@ -23,12 +23,14 @@ export function usePopupIscrizione(strumento) {
     return { dopoDocumento, popup }
 }
 
+// Una sola strada: la registrazione è una per tutti e si entra come user. Ai professionisti lo studio arriva dopo,
+// con lo stesso account.
 function PopupIscrizione({ strumento, onChiudi }) {
     const { t } = useTranslation('strumenti')
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-petrolio/80 backdrop-blur-sm" onClick={onChiudi}>
             <div role="dialog" aria-modal="true" aria-labelledby="popup-iscrizione-titolo"
-                className="relative bg-slate border border-oro/25 w-full max-w-md p-7 shadow-2xl" onClick={e => e.stopPropagation()}>
+                className="relative bg-slate border border-oro/25 w-full max-w-md max-h-full overflow-y-auto p-7 shadow-2xl" onClick={e => e.stopPropagation()}>
                 <button onClick={onChiudi} aria-label={t('popup.chiudi')} className="absolute top-3 right-3 p-2 text-nebbia/40 hover:text-nebbia transition-colors"><X size={16} /></button>
                 <p className="flex items-center gap-2 font-body text-xs text-salvia tracking-widest uppercase mb-3">
                     <Check size={13} /> {t('popup.pronto')}
@@ -36,11 +38,22 @@ function PopupIscrizione({ strumento, onChiudi }) {
                 <h2 id="popup-iscrizione-titolo" className="font-display text-3xl font-light text-nebbia leading-tight mb-3">
                     {t('popup.titolo')} <span className="text-oro">{t('popup.evidenza')}</span>
                 </h2>
-                <p className="font-body text-sm text-nebbia/60 leading-relaxed mb-6">{t('popup.testo')}</p>
+                <p className="font-body text-sm text-nebbia/60 leading-relaxed mb-3">{t('popup.testo')}</p>
+                <ul className="space-y-2 mb-6">
+                    {t('popup.vantaggi', { returnObjects: true }).map(v => (
+                        <li key={v} className="flex items-start gap-2 font-body text-sm text-nebbia/70 leading-snug">
+                            <Check size={14} className="text-oro shrink-0 mt-0.5" /> {v}
+                        </li>
+                    ))}
+                </ul>
                 <Link to="/registrati" onClick={() => registraEvento(`/strumenti/${strumento}/iscrizione`)}
                     className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors">
                     {t('popup.cta')} <ArrowRight size={14} />
                 </Link>
+                <p className="font-body text-xs text-nebbia/40 text-center mt-2">{t('popup.nota')}</p>
+                <p className="font-body text-xs text-nebbia/50 leading-relaxed mt-5 pt-4 border-t border-white/5">
+                    <span className="text-nebbia/80">{t('popup.pro_domanda')}</span> {t('popup.pro_testo')}
+                </p>
                 <button onClick={onChiudi} className="block w-full mt-3 py-2 font-body text-xs text-nebbia/40 hover:text-nebbia transition-colors">
                     {t('popup.dopo')}
                 </button>

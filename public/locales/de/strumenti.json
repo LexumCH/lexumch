@@ -119,14 +119,25 @@
       }
     ],
     "totale": "Total",
-    "sigla_iva": "MWST"
+    "sigla_iva": "MWST",
+    "portale_label": "Tools",
+    "portale_titolo": "QR-Rechnung",
+    "portale_testo": "Kostenlos und ohne Guthaben. Ihre Daten bleiben in Ihrem Browser."
   },
   "popup": {
     "pronto": "Dokument bereit",
-    "titolo": "Eine Frage an Lex",
-    "evidenza": "schenken wir Ihnen.",
-    "testo": "Mit einem kostenlosen Konto haben Sie sofort eine Frage an Lex, mit verlinkten Normen und Urteilen, und die Schweizer Datenbank. Keine Kreditkarte.",
-    "cta": "Kostenlos registrieren und Lex testen",
+    "titolo": "Alles in einem",
+    "evidenza": "einzigen Portal.",
+    "testo": "Mit einem kostenlosen Konto finden Sie alles in Ihrem Bereich:",
+    "vantaggi": [
+      "Die QR-Rechnung, jederzeit griffbereit",
+      "Die Schweizer Datenbank: Normen, Urteile und Praxis",
+      "Eine Frage an Lex schenken wir Ihnen, mit verlinkten Normen und Urteilen"
+    ],
+    "cta": "Kostenloses Konto erstellen",
+    "nota": "Keine Kreditkarte.",
+    "pro_domanda": "Sind Sie Anwalt, Treuhänder oder Planer?",
+    "pro_testo": "Sie registrieren sich genauso. Danach aktivieren Sie in Ihrem Bereich das Abonnement für Ihr Büro: Mandate, Kunden und Rechnungen an einem Ort.",
     "dopo": "Ohne Konto weiter",
     "chiudi": "Schliessen"
   }

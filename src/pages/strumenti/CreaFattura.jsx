@@ -4,12 +4,15 @@
 // sezione di pagamento. Niente account, niente AI, niente server: tutto nel browser. Il QR e il PDF seguono
 // la stessa logica del gestionale (lib/strumenti/qrFattura.js e pdfFattura.js).
 // L'indirizzo cambia con la lingua (lib/strumenti/percorsi.js): dopo il cambio lingua dal menu si passa a quello giusto.
+// Con `portale` è la stessa pagina dentro l'area degli user: senza l'apertura, le domande frequenti e l'invito.
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, ArrowRight, Download, ImagePlus, Loader2, Plus, QrCode, Trash2 } from 'lucide-react'
 import { TestataPagina, Apertura, DomandeFrequenti, CAMPO, ETICHETTA } from '@/components/strumenti/Pagina'
 import { usePopupIscrizione } from '@/components/strumenti/PopupIscrizione'
+import { PageHeader } from '@/components/shared'
+import { caricaPdf, preparaPdf } from '@/lib/strumenti/caricaPdf'
 import { LINGUE_SUPPORTATE, LINGUA_DEFAULT } from '@/i18n'
 import { ALIQUOTE_IVA, ibanSvizzero, normalizzaUid } from '@/lib/fatturazione'
 import { datiQr, matriceQr } from '@/lib/strumenti/qrFattura'
@@ -120,10 +123,12 @@ function AnteprimaQr({ payload }) {
     )
 }
 
-export default function CreaFattura() {
+export default function CreaFattura({ portale = false }) {
     const { lang, strumento } = useParams()
-    const lingua = LINGUE_SUPPORTATE.includes(lang) ? lang : LINGUA_DEFAULT
-    const { t } = useTranslation('strumenti')
+    const { t, i18n } = useTranslation('strumenti')
+    // Nell'area degli user l'indirizzo non ha la lingua: vale quella del sito
+    const linguaSito = portale ? i18n.language?.slice(0, 2) : lang
+    const lingua = LINGUE_SUPPORTATE.includes(linguaSito) ? linguaSito : LINGUA_DEFAULT
 
     const [em, setEm] = useState(EMITTENTE_VUOTO)
     const [cl, setCl] = useState(CLIENTE_VUOTO)
@@ -145,6 +150,7 @@ export default function CreaFattura() {
 
     // Quello che il browser ricorda
     useEffect(() => {
+        preparaPdf()
         const salvato = leggi('emittente')
         if (salvato) setEm(x => ({ ...x, ...salvato }))
         aggDoc({ numero: numeroSuccessivo(leggi('ultimoNumero')) })
@@ -184,8 +190,8 @@ export default function CreaFattura() {
     const uidErrato = em.uid.trim() && !uidNormale
 
     // Cambio lingua dal menu: si passa all'indirizzo di quella lingua. Un indirizzo sconosciuto va agli strumenti.
-    if (!Object.values(SLUG_FATTURA).includes(strumento)) return <Navigate to={`/${lingua}/strumenti`} replace />
-    if (strumento !== SLUG_FATTURA[lingua]) return <Navigate to={`/${lingua}/strumenti/${SLUG_FATTURA[lingua]}`} replace />
+    if (!portale && !Object.values(SLUG_FATTURA).includes(strumento)) return <Navigate to={`/${lingua}/strumenti`} replace />
+    if (!portale && strumento !== SLUG_FATTURA[lingua]) return <Navigate to={`/${lingua}/strumenti/${SLUG_FATTURA[lingua]}`} replace />
 
     const indirizzoDi = (s) => {
         const via = [s.via, s.civico].filter(Boolean).join(' ')
@@ -203,7 +209,7 @@ export default function CreaFattura() {
         if (m.length || creando) return
         setCreando(true)
         try {
-            const { scaricaPdfFattura } = await import('@/lib/strumenti/pdfFattura')
+            const { scaricaPdfFattura } = await caricaPdf()
             await scaricaPdfFattura({
                 lingua: doc.lingua,
                 logo: em.logo,
@@ -246,12 +252,19 @@ export default function CreaFattura() {
     }
 
     return (
-        <div className="min-h-screen bg-petrolio text-nebbia overflow-x-hidden pt-20">
-            <TestataPagina lingua={lingua} percorsoDi={l => `/${l}/strumenti/${SLUG_FATTURA[l]}`}
-                titolo={t('fattura.meta_title')} descrizione={t('fattura.meta_description')} />
-            <Apertura etichetta={t('fattura.label')} titolo={t('fattura.title')} evidenza={t('fattura.highlight')} testo={t('fattura.text')} />
+        // overflow-x-clip e non hidden: hidden fa della pagina un contenitore a sé e la colonna di destra non segue più lo scorrimento
+        <div className={portale ? 'text-nebbia pb-16' : 'min-h-screen bg-petrolio text-nebbia overflow-x-clip pt-20'}>
+            {portale ? (
+                <PageHeader label={t('fattura.portale_label')} title={t('fattura.portale_titolo')} subtitle={t('fattura.portale_testo')} />
+            ) : (
+                <>
+                    <TestataPagina lingua={lingua} percorsoDi={l => `/${l}/strumenti/${SLUG_FATTURA[l]}`}
+                        titolo={t('fattura.meta_title')} descrizione={t('fattura.meta_description')} />
+                    <Apertura etichetta={t('fattura.label')} titolo={t('fattura.title')} evidenza={t('fattura.highlight')} testo={t('fattura.text')} />
+                </>
+            )}
 
-            <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16 grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-5 items-start">
+            <section className={`grid grid-cols-1 gap-5 items-start ${portale ? 'xl:grid-cols-[1fr_380px]' : 'max-w-6xl mx-auto px-4 sm:px-6 pb-16 lg:grid-cols-[1fr_400px]'}`}>
                 <div className="space-y-4 min-w-0">
                     <Scheda titolo={t('fattura.documento')}>
                         <div className="space-y-4">
@@ -400,9 +413,11 @@ export default function CreaFattura() {
                     </Scheda>
                 </div>
 
-                {/* Anteprima e azioni */}
-                <aside className="lg:sticky lg:top-24 space-y-3">
-                    <div className="bg-white text-[#0B1F2A] p-5 font-body text-[11px] leading-snug shadow-2xl shadow-black/40">
+                {/* Anteprima e azioni: seguono lo scorrimento. Se l'anteprima è lunga scorre lei e il pulsante resta a vista. */}
+                <aside className={`space-y-3 ${portale
+                    ? 'xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:flex xl:flex-col'
+                    : 'lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:flex lg:flex-col'}`}>
+                    <div className="bg-white text-[#0B1F2A] p-5 font-body text-[11px] leading-snug shadow-2xl shadow-black/40 min-h-0 lg:overflow-y-auto">
                         <div className="flex items-start justify-between gap-3 mb-4">
                             <div className="min-w-0">
                                 {em.logo && <img src={em.logo} alt="" className="max-h-10 max-w-[130px] mb-2" />}
@@ -460,16 +475,18 @@ export default function CreaFattura() {
                 </aside>
             </section>
 
-            <section className="max-w-3xl mx-auto px-6 pb-24">
-                <h2 className="font-display text-3xl font-light mb-6">{t('fattura.domande_titolo')}</h2>
-                <DomandeFrequenti domande={t('fattura.domande', { returnObjects: true })} />
-                <div className="mt-10 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p className="font-body text-sm text-nebbia/40">{t('fattura.cta_testo')}</p>
-                    <Link to="/registrati" className="flex items-center gap-2 px-6 py-3 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors">
-                        {t('fattura.cta')} <ArrowRight size={14} />
-                    </Link>
-                </div>
-            </section>
+            {!portale && (
+                <section className="max-w-3xl mx-auto px-6 pb-24">
+                    <h2 className="font-display text-3xl font-light mb-6">{t('fattura.domande_titolo')}</h2>
+                    <DomandeFrequenti domande={t('fattura.domande', { returnObjects: true })} />
+                    <div className="mt-10 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <p className="font-body text-sm text-nebbia/40">{t('fattura.cta_testo')}</p>
+                        <Link to="/registrati" className="flex items-center gap-2 px-6 py-3 bg-oro text-petrolio font-body text-sm font-medium hover:bg-oro/90 transition-colors">
+                            {t('fattura.cta')} <ArrowRight size={14} />
+                        </Link>
+                    </div>
+                </section>
+            )}
             {popup}
         </div>
     )

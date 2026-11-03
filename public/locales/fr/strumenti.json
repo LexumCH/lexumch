@@ -119,14 +119,25 @@
       }
     ],
     "totale": "Total",
-    "sigla_iva": "TVA"
+    "sigla_iva": "TVA",
+    "portale_label": "Outils",
+    "portale_titolo": "QR-facture",
+    "portale_testo": "Gratuit et sans crédits. Vos données restent dans votre navigateur."
   },
   "popup": {
     "pronto": "Document prêt",
-    "titolo": "Une question à Lex",
-    "evidenza": "vous est offerte.",
-    "testo": "Avec un compte gratuit, vous avez tout de suite une question à Lex, avec les normes et les arrêts liés, et la banque de données suisse. Pas de carte de crédit.",
-    "cta": "S'inscrire gratuitement et essayer Lex",
+    "titolo": "Tout dans un",
+    "evidenza": "portail unique.",
+    "testo": "Avec un compte gratuit, vous retrouvez tout dans votre espace :",
+    "vantaggi": [
+      "La QR-facture, toujours à portée de main",
+      "La banque de données suisse : normes, arrêts et pratique",
+      "Une question à Lex offerte, avec les normes et les arrêts liés"
+    ],
+    "cta": "Créer le compte gratuit",
+    "nota": "Pas de carte de crédit.",
+    "pro_domanda": "Vous êtes avocat, fiduciaire ou concepteur ?",
+    "pro_testo": "Vous vous inscrivez de la même façon. Ensuite, depuis votre espace, vous activez l'abonnement pour votre bureau : mandats, clients et factures au même endroit.",
     "dopo": "Continuer sans compte",
     "chiudi": "Fermer"
   }

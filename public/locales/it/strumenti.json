@@ -119,14 +119,25 @@
       }
     ],
     "totale": "Totale",
-    "sigla_iva": "IVA"
+    "sigla_iva": "IVA",
+    "portale_label": "Strumenti",
+    "portale_titolo": "QR-fattura",
+    "portale_testo": "Gratis e senza crediti. I dati restano nel tuo browser."
   },
   "popup": {
     "pronto": "Documento pronto",
-    "titolo": "Una domanda a Lex",
-    "evidenza": "te la offriamo noi.",
-    "testo": "Con un account gratuito hai subito una domanda a Lex, con le norme e le sentenze collegate, e la Banca Dati svizzera. Niente carta di credito.",
-    "cta": "Iscriviti gratis e prova Lex",
+    "titolo": "Tieni tutto in un",
+    "evidenza": "unico portale.",
+    "testo": "Con un account gratuito ritrovi tutto nella tua area:",
+    "vantaggi": [
+      "La QR-fattura, sempre a portata di mano",
+      "La Banca Dati svizzera: norme, sentenze e prassi",
+      "Una domanda a Lex offerta da noi, con le norme e le sentenze collegate"
+    ],
+    "cta": "Crea l'account gratuito",
+    "nota": "Niente carta di credito.",
+    "pro_domanda": "Sei un avvocato, un fiduciario o un progettista?",
+    "pro_testo": "Ti iscrivi allo stesso modo. Poi, dalla tua area, attivi il piano per lo studio: mandati, clienti e fatture in un posto solo.",
     "dopo": "Continua senza account",
     "chiudi": "Chiudi"
   }

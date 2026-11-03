@@ -6,7 +6,7 @@ import logo from '@/assets/logo.png'
 import {
   LogOut, Menu, X, Sparkles, Plus,
   Library, Search, ShieldCheck, CreditCard, Headphones, User, ChevronRight,
-  Clock, CheckCircle, XCircle, Archive
+  Clock, CheckCircle, XCircle, Archive, QrCode
 } from 'lucide-react'
 import CampanellaNotifiche from '@/components/shared/CampanellaNotifiche'
 import RisposteRecuperate from '@/components/shared/RisposteRecuperate'
@@ -24,7 +24,10 @@ export default function UserLayout({ children }) {
   const [open, setOpen] = useState(false)
   const crediti = useCreditiDisponibili(profile?.id)
   const [bannerDismissed, setBannerDismissed] = useState(false)
-  const paginaAcquista = useLocation().pathname.includes('/area/acquista')
+  const { pathname } = useLocation()
+  const paginaAcquista = pathname.includes('/area/acquista')
+  // Negli strumenti la colonna di destra segue lo scorrimento: con overflow-auto sul main non potrebbe
+  const paginaStrumenti = pathname.startsWith('/area/strumenti')
 
   // Stato verifica
   const status = profile?.verification_status
@@ -44,6 +47,7 @@ export default function UserLayout({ children }) {
     { path: '/area', label: t('nav.banca_dati'), icon: Library, end: true },
     { path: '/area/ricerche', label: t('nav.ricerche'), icon: Search },
     { path: '/area/archivio', label: t('nav.archivio'), icon: Archive },
+    { path: '/area/strumenti', label: t('nav.strumenti'), icon: QrCode },
     { path: '/area/assistenza', label: t('nav.assistenza'), icon: Headphones },
     { path: '/area/acquista', label: t('nav.acquista'), icon: CreditCard },
     ...(verifyItem ? [verifyItem] : []),
@@ -214,7 +218,7 @@ export default function UserLayout({ children }) {
         )}
 
         {/* Contenuto pagina */}
-        <main className="flex-1 p-6 overflow-auto">{children}</main>
+        <main className={`flex-1 p-6 ${paginaStrumenti ? 'overflow-x-clip' : 'overflow-auto'}`}>{children}</main>
       </div>
 
       {/* Popup «Mentre eri via, Lex ha finito» (risposte recuperate) */}
