@@ -15,22 +15,12 @@ import {
 import { Helmet } from 'react-helmet-async'
 import { LINGUE_SUPPORTATE, LINGUA_DEFAULT } from '@/i18n'
 import { testataLingue } from '@/lib/seo'
+import { useInView } from '@/hooks/useInView'
+import SezioneStrumenti from '@/components/strumenti/SezioneStrumenti'
 
 // Mapping icone per le lexai features (l'ordine corrisponde all'array lexai.features nel JSON)
 const LEXAI_FEATURE_ICONS = [Search, Scale, Brain, Sparkles, BookOpen, FileSignature]
 
-function useInView(threshold = 0.12) {
-  const ref = useRef(null)
-  const [inView, setInView] = useState(false)
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setInView(true); obs.disconnect() }
-    }, { threshold })
-    if (ref.current) obs.observe(ref.current)
-    return () => obs.disconnect()
-  }, [])
-  return [ref, inView]
-}
 
 function FadeIn({ children, delay = 0, className = '', up = true }) {
   const [ref, inView] = useInView()
@@ -975,6 +965,9 @@ export default function Home() {
 
         </div>
       </section>
+
+      {/* 7.9 GLI STRUMENTI GRATIS (03-11-2026) */}
+      <SezioneStrumenti />
 
       {/* 8. CTA FINALE */}
       <section className="py-24 px-6 border-t border-white/5 relative overflow-hidden">

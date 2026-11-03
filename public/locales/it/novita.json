@@ -24,6 +24,40 @@
     "instagram": "Guarda il post su Instagram",
     "tiktok": "Guarda il video su TikTok",
     "cta_testo": "Hai una domanda simile? Chiedila a Lex.",
-    "cta": "Inizia ora"
-  }
+    "cta": "Inizia ora",
+    "leggi_anche": "Leggi anche"
+  },
+  "argomenti": {
+    "famiglia": {
+      "nome": "Famiglia",
+      "titolo": "Famiglia: separazione, mantenimento e figli in Svizzera",
+      "descrizione": "Separazione, mantenimento e figli: cosa prevede il diritto svizzero, con le norme e le sentenze citate."
+    },
+    "lavoro-e-assicurazioni": {
+      "nome": "Lavoro e assicurazioni",
+      "titolo": "Lavoro e assicurazioni in Svizzera: infortuni, malattia, indennità",
+      "descrizione": "Infortuni, malattia e indennità giornaliere: chi paga e cosa puoi fare, con le norme e le sentenze citate."
+    },
+    "contratti-e-debiti": {
+      "nome": "Contratti e debiti",
+      "titolo": "Contratti e debiti in Svizzera: validità, crediti e fallimenti",
+      "descrizione": "Quando un contratto è valido e come si tutela un credito, anche se il debitore fallisce: le regole svizzere, con le fonti citate."
+    },
+    "imprese-e-societa": {
+      "nome": "Imprese e società",
+      "titolo": "Imprese e società in Svizzera: Sagl, SA e attività",
+      "descrizione": "Sagl o SA, conferimenti e autorizzazioni: come si apre e come si gestisce un'attività in Svizzera, con le fonti citate."
+    },
+    "fisco-e-imposte": {
+      "nome": "Fisco e imposte",
+      "titolo": "Fisco e imposte in Svizzera: conseguenze fiscali spiegate",
+      "descrizione": "Le conseguenze fiscali delle scelte di persone e imprese in Svizzera, spiegate con le norme citate."
+    },
+    "professioni-e-studio": {
+      "nome": "Professioni e studio",
+      "titolo": "Professioni in Svizzera: fiduciari, avvocati e obblighi",
+      "descrizione": "Autorizzazioni e obblighi di fiduciari, avvocati e altri professionisti in Svizzera, con le norme citate."
+    }
+  },
+  "argomenti_tutti": "Tutti"
 }

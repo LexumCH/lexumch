@@ -7,6 +7,15 @@ import { avviaOverlay } from './overlay'
 export const LINGUE_SUPPORTATE = ['it', 'de', 'fr']
 export const LINGUA_DEFAULT = 'it'
 
+// I namespace sempre caricati all'avvio (vetrina + layout/sidebar + shared)
+export const NS_PRECARICATI = [
+    'common', 'home', 'archivio_demo', 'lex_demo', 'per_avvocati', 'contatti', 'lex_ai', 'per_fiduciari', 'per_progettisti', 'privacy', 'termini', 'novita', 'strumenti', 'auth',
+    'comp_layout_avvocato', 'comp_layout_user', 'comp_layout_fiduciario', 'comp_layout_progettista', 'comp_layout_cliente', 'comp_shared', 'comp_notifiche', 'comp_footer',
+    'istituzioni',
+]
+
+// Nel build del testo già pronto (src/seo/) le traduzioni le carica src/seo/i18n-seo.js, tutte insieme.
+if (!import.meta.env.SSR) {
 i18n
     .use(HttpBackend)
     .use(LanguageDetector)
@@ -17,11 +26,7 @@ i18n
 
         // Precarica i namespace "chrome" sempre visibili (vetrina + layout/sidebar + shared).
         // I namespace delle singole pagine/componenti dell'app si caricano on-demand via useTranslation(ns).
-        ns: [
-            'common', 'home', 'archivio_demo', 'lex_demo', 'per_avvocati', 'contatti', 'lex_ai', 'per_fiduciari', 'per_progettisti', 'privacy', 'termini', 'novita', 'auth',
-            'comp_layout_avvocato', 'comp_layout_user', 'comp_layout_fiduciario', 'comp_layout_progettista', 'comp_layout_cliente', 'comp_shared', 'comp_notifiche', 'comp_footer',
-            'istituzioni',
-        ],
+        ns: NS_PRECARICATI,
         defaultNS: 'common',
 
         // Precarica le risorse anche per le lingue non attive (cache)
@@ -58,6 +63,7 @@ i18n
 // I testi cambiati dal pannello admin, sovrapposti a quelli spediti col deploy.
 // Non blocca l'avvio: arriva dopo e i18next ridisegna da solo.
 avviaOverlay(i18n)
+}
 
 // DEBUG: esponi i18n a window
 if (typeof window !== 'undefined') {

@@ -16,6 +16,8 @@ import {
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { testataLingue } from '@/lib/seo'
+import { useInView } from '@/hooks/useInView'
+import SezioneStrumenti from '@/components/strumenti/SezioneStrumenti'
 
 // Mapping icone (l'ordine corrisponde agli array nel JSON)
 const LEXAI_ICONS = [FileSignature, BarChart3, Scale, Search, Brain, Building2]
@@ -23,18 +25,6 @@ const SICUREZZA_ICONS = [ShieldCheck, Building2, Activity, EyeOff]
 const MANDATI_ROW_COLORS = [null, 'text-oro', null, 'text-salvia']
 
 // ─── Scroll animation hook ───────────────────────────────────
-function useInView(threshold = 0.12) {
-    const ref = useRef(null)
-    const [inView, setInView] = useState(false)
-    useEffect(() => {
-        const obs = new IntersectionObserver(([e]) => {
-            if (e.isIntersecting) { setInView(true); obs.disconnect() }
-        }, { threshold })
-        if (ref.current) obs.observe(ref.current)
-        return () => obs.disconnect()
-    }, [])
-    return [ref, inView]
-}
 
 function FadeIn({ children, delay = 0, className = '' }) {
     const [ref, inView] = useInView()
@@ -730,6 +720,9 @@ export default function PerFiduciari() {
 
                 </div>
             </section>
+
+            {/* 9b. GLI STRUMENTI GRATIS (03-11-2026) */}
+            <SezioneStrumenti />
 
             {/* 10. CTA FINALE */}
             <section className="py-28 px-6 border-t border-white/5 relative overflow-hidden">

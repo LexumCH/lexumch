@@ -7,12 +7,12 @@
 
 import { supabase } from '@/lib/supabase'
 
-const CAMPI_ELENCO = 'slug, lingua, gruppo, titolo, sommario, copertina_url, autore, categoria, pubblicato_il'
+const CAMPI_ELENCO = 'slug, lingua, gruppo, titolo, sommario, copertina_url, autore, categoria, argomenti, pubblicato_il'
 const CAMPI_ARTICOLO = `${CAMPI_ELENCO}, contenuto, instagram_url, tiktok_url, updated_at`
 
 export const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
 
-export async function elencoNovita(lingua, limite = 60) {
+export async function elencoNovita(lingua, limite = 200) {
     const { data } = await supabase
         .from('novita')
         .select(CAMPI_ELENCO)
@@ -61,6 +61,21 @@ export async function versioniArticolo(gruppo) {
         .eq('stato', 'pubblicato')
         .eq('gruppo', gruppo)
     return Object.fromEntries((data ?? []).map(r => [r.lingua, r.slug]))
+}
+
+// Gli altri articoli degli stessi argomenti nella stessa lingua, i più recenti (03-11-2026)
+export async function articoliCorrelati(articolo, quanti = 3) {
+    if (!articolo?.argomenti?.length) return []
+    const { data } = await supabase
+        .from('novita')
+        .select(CAMPI_ELENCO)
+        .eq('stato', 'pubblicato')
+        .eq('lingua', articolo.lingua)
+        .overlaps('argomenti', articolo.argomenti)
+        .neq('slug', articolo.slug)
+        .order('pubblicato_il', { ascending: false })
+        .limit(quanti)
+    return data ?? []
 }
 
 // Senza autore l'articolo si firma Lexum.

@@ -13,6 +13,8 @@ import {
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { testataLingue } from '@/lib/seo'
+import { useInView } from '@/hooks/useInView'
+import SezioneStrumenti from '@/components/strumenti/SezioneStrumenti'
 
 // Mapping icone Lex AI (l'ordine corrisponde all'array lexai.features nel JSON)
 const LEXAI_FEATURE_ICONS = [Search, Scale, Brain, Sparkles, BookOpen, FileSignature]
@@ -22,18 +24,6 @@ const SICUREZZA_ICONS = [ShieldCheck, EyeOff, Activity, FileText]
 const CLIENTI_ROW_COLORS = [null, 'text-oro', 'text-salvia', 'text-oro']
 
 // ─── Scroll animation hook ───────────────────────────────────
-function useInView(threshold = 0.12) {
-    const ref = useRef(null)
-    const [inView, setInView] = useState(false)
-    useEffect(() => {
-        const obs = new IntersectionObserver(([e]) => {
-            if (e.isIntersecting) { setInView(true); obs.disconnect() }
-        }, { threshold })
-        if (ref.current) obs.observe(ref.current)
-        return () => obs.disconnect()
-    }, [])
-    return [ref, inView]
-}
 
 function FadeIn({ children, delay = 0, className = '' }) {
     const [ref, inView] = useInView()
@@ -805,6 +795,9 @@ export default function PerAvvocati() {
                     </div>
                 </div>
             </section>
+
+            {/* 11b. GLI STRUMENTI GRATIS (03-11-2026) */}
+            <SezioneStrumenti />
 
             {/* 12. CTA FINALE */}
             <section className="py-28 px-6 border-t border-white/5 relative overflow-hidden">

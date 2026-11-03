@@ -24,6 +24,40 @@
     "instagram": "Beitrag auf Instagram ansehen",
     "tiktok": "Video auf TikTok ansehen",
     "cta_testo": "Haben Sie eine ähnliche Frage? Stellen Sie sie Lex.",
-    "cta": "Jetzt starten"
-  }
+    "cta": "Jetzt starten",
+    "leggi_anche": "Lesen Sie auch"
+  },
+  "argomenti": {
+    "famiglia": {
+      "nome": "Familie",
+      "titolo": "Familie: Trennung, Unterhalt und Kinder in der Schweiz",
+      "descrizione": "Trennung, Unterhalt und Kinder: Was das Schweizer Recht vorsieht, mit den zitierten Normen und Urteilen."
+    },
+    "lavoro-e-assicurazioni": {
+      "nome": "Arbeit und Versicherungen",
+      "titolo": "Arbeit und Versicherungen in der Schweiz: Unfall, Krankheit, Taggeld",
+      "descrizione": "Unfall, Krankheit und Taggeld: Wer zahlt und was Sie tun können, mit den zitierten Normen und Urteilen."
+    },
+    "contratti-e-debiti": {
+      "nome": "Verträge und Schulden",
+      "titolo": "Verträge und Schulden in der Schweiz: Gültigkeit, Forderungen, Konkurs",
+      "descrizione": "Wann ein Vertrag gültig ist und wie Sie eine Forderung sichern, auch wenn der Schuldner in Konkurs geht: die Schweizer Regeln, mit den zitierten Quellen."
+    },
+    "imprese-e-societa": {
+      "nome": "Unternehmen und Gesellschaften",
+      "titolo": "Unternehmen und Gesellschaften in der Schweiz: GmbH, AG und Tätigkeit",
+      "descrizione": "GmbH oder AG, Sacheinlagen und Bewilligungen: Wie man in der Schweiz ein Unternehmen gründet und führt, mit den zitierten Quellen."
+    },
+    "fisco-e-imposte": {
+      "nome": "Steuern",
+      "titolo": "Steuern in der Schweiz: Steuerfolgen verständlich erklärt",
+      "descrizione": "Die Steuerfolgen von Entscheidungen von Personen und Unternehmen in der Schweiz, erklärt mit den zitierten Normen."
+    },
+    "professioni-e-studio": {
+      "nome": "Berufe und Kanzlei",
+      "titolo": "Berufe in der Schweiz: Treuhänder, Anwälte und Pflichten",
+      "descrizione": "Bewilligungen und Pflichten von Treuhändern, Anwälten und anderen Fachleuten in der Schweiz, mit den zitierten Normen."
+    }
+  },
+  "argomenti_tutti": "Alle"
 }

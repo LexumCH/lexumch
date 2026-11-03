@@ -12,8 +12,10 @@ import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { LINGUE_SUPPORTATE, LINGUA_DEFAULT } from '@/i18n'
-import { articoloDaSlug, versioniArticolo, firmaAutore, fmtDataLunga } from '@/lib/novita'
+import { articoloDaSlug, articoliCorrelati, versioniArticolo, firmaAutore, fmtDataLunga } from '@/lib/novita'
+import { argomentoDaId } from '@/lib/argomenti'
 import { IconaInstagram, IconaTikTok } from '@/components/Social'
+import StaticoPronto from '@/components/StaticoPronto'
 
 const SITO = 'https://www.lexum.ch'
 const OG_LOCALE = { it: 'it_CH', de: 'de_CH', fr: 'fr_CH' }
@@ -45,14 +47,16 @@ const TESTO = {
     hr: () => <hr className="border-white/5 my-8" />,
 }
 
-export default function NovitaArticolo() {
+// pre...: già letti da chi prepara il testo dentro l'HTML (src/seo/entry-seo.jsx)
+export default function NovitaArticolo({ preArticolo = null, preVersioni = null, preCorrelati = null }) {
     const { lang, slug } = useParams()
     const lingua = LINGUE_SUPPORTATE.includes(lang) ? lang : LINGUA_DEFAULT
     const navigate = useNavigate()
     const { t } = useTranslation('novita')
-    const [articolo, setArticolo] = useState(null)
-    const [versioni, setVersioni] = useState({})
-    const [loading, setLoading] = useState(true)
+    const [articolo, setArticolo] = useState(preArticolo)
+    const [versioni, setVersioni] = useState(preVersioni ?? {})
+    const [correlati, setCorrelati] = useState(preCorrelati ?? [])
+    const [loading, setLoading] = useState(!preArticolo)
 
     useEffect(() => {
         let vivo = true
@@ -66,6 +70,7 @@ export default function NovitaArticolo() {
             setArticolo(a)
             setVersioni(a ? await versioniArticolo(a.gruppo) : {})
             if (vivo) setLoading(false)
+            if (a) articoliCorrelati(a).then(c => { if (vivo) setCorrelati(c) })
         })
         return () => { vivo = false }
     }, [lingua, slug, navigate])
@@ -81,6 +86,7 @@ export default function NovitaArticolo() {
     if (!articolo) {
         return (
             <div className="min-h-screen bg-petrolio text-nebbia pt-32 px-6">
+                <StaticoPronto />
                 <Helmet><meta name="robots" content="noindex" /></Helmet>
                 <div className="max-w-2xl mx-auto text-center">
                     <h1 className="font-display text-3xl font-light mb-3">{t('articolo.non_trovato')}</h1>
@@ -100,6 +106,7 @@ export default function NovitaArticolo() {
 
     return (
         <div className="min-h-screen bg-petrolio text-nebbia overflow-x-hidden pt-20">
+            <StaticoPronto />
             <Helmet>
                 <html lang={lingua} />
                 <title>{`${articolo.titolo} — Lexum`}</title>
@@ -148,6 +155,12 @@ export default function NovitaArticolo() {
                             {articolo.categoria}
                         </span>
                     )}
+                    {(articolo.argomenti ?? []).map(argomentoDaId).filter(Boolean).map(x => (
+                        <Link key={x.id} to={`/${lingua}/novita/argomento/${x.slug[lingua]}`}
+                            className="font-body text-xs px-2 py-0.5 border border-white/10 text-nebbia/50 hover:border-oro/30 hover:text-oro transition-colors">
+                            {t(`argomenti.${x.id}.nome`)}
+                        </Link>
+                    ))}
                     <span className="font-body text-xs text-nebbia/30">
                         {fmtDataLunga(articolo.pubblicato_il, lingua)} · {firmaAutore(articolo.autore)}
                     </span>
@@ -195,6 +208,21 @@ export default function NovitaArticolo() {
                         {t('articolo.cta')} <ArrowRight size={14} />
                     </Link>
                 </div>
+
+                {correlati.length > 0 && (
+                    <div className="mt-14">
+                        <p className="font-body text-xs text-nebbia/30 tracking-[0.25em] uppercase mb-4">{t('articolo.leggi_anche')}</p>
+                        <ul className="space-y-3">
+                            {correlati.map(c => (
+                                <li key={c.slug}>
+                                    <Link to={`/${lingua}/novita/${c.slug}`} className="font-display text-lg font-light text-nebbia hover:text-oro transition-colors">
+                                        {c.titolo}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </article>
         </div>
     )

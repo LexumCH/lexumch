@@ -4,55 +4,71 @@
 // lingua della pagina (/it/novita, /de/novita, /fr/novita).
 
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Newspaper } from 'lucide-react'
 import { LINGUE_SUPPORTATE, LINGUA_DEFAULT } from '@/i18n'
 import { elencoNovita, firmaAutore, fmtDataLunga } from '@/lib/novita'
+import { ARGOMENTI, argomentoDaSlug } from '@/lib/argomenti'
+import StaticoPronto from '@/components/StaticoPronto'
 
 const SITO = 'https://www.lexum.ch'
 const OG_LOCALE = { it: 'it_CH', de: 'de_CH', fr: 'fr_CH' }
 
-export default function Novita() {
-    const { lang } = useParams()
+// preArticoli: già letti da chi prepara il testo dentro l'HTML (src/seo/entry-seo.jsx)
+export default function Novita({ preArticoli = null }) {
+    const { lang, argomento: slugArgomento } = useParams()
     const lingua = LINGUE_SUPPORTATE.includes(lang) ? lang : LINGUA_DEFAULT
     const { t } = useTranslation('novita')
-    const [articoli, setArticoli] = useState([])
-    const [loading, setLoading] = useState(true)
+    const argomento = argomentoDaSlug(slugArgomento)
+    const [tutti, setTutti] = useState(preArticoli ?? [])
+    const [loading, setLoading] = useState(!preArticoli)
 
     useEffect(() => {
-        setLoading(true)
+        if (!tutti.length) setLoading(true)
         elencoNovita(lingua).then(righe => {
-            setArticoli(righe)
+            setTutti(righe)
             setLoading(false)
         })
     }, [lingua])
 
-    const url = `${SITO}/${lingua}/novita`
+    if (slugArgomento && !argomento) return <Navigate to={`/${lingua}/novita`} replace />
+    // Cambio lingua dal menu: si passa all'indirizzo di quella lingua
+    if (argomento && argomento.slug[lingua] !== slugArgomento) {
+        return <Navigate to={`/${lingua}/novita/argomento/${argomento.slug[lingua]}`} replace />
+    }
+
+    const articoli = argomento ? tutti.filter(a => a.argomenti?.includes(argomento.id)) : tutti
+    const argomentiConArticoli = ARGOMENTI.filter(x => tutti.some(a => a.argomenti?.includes(x.id)))
+    const percorsoDi = (l) => (argomento ? `/novita/argomento/${argomento.slug[l]}` : '/novita')
+    const url = `${SITO}/${lingua}${percorsoDi(lingua)}`
+    const titolo = argomento ? `${t(`argomenti.${argomento.id}.titolo`)} — Lexum` : t('meta.title')
+    const descrizione = argomento ? t(`argomenti.${argomento.id}.descrizione`) : t('meta.description')
 
     return (
         <div className="min-h-screen bg-petrolio text-nebbia overflow-x-hidden pt-20">
+            <StaticoPronto quando={!loading} />
             <Helmet>
                 <html lang={lingua} />
-                <title>{t('meta.title')}</title>
-                <meta name="description" content={t('meta.description')} />
+                <title>{titolo}</title>
+                <meta name="description" content={descrizione} />
                 <link rel="canonical" href={url} />
                 {LINGUE_SUPPORTATE.map(l => (
-                    <link key={l} rel="alternate" hrefLang={l} href={`${SITO}/${l}/novita`} />
+                    <link key={l} rel="alternate" hrefLang={l} href={`${SITO}/${l}${percorsoDi(l)}`} />
                 ))}
-                <link rel="alternate" hrefLang="x-default" href={`${SITO}/${LINGUA_DEFAULT}/novita`} />
+                <link rel="alternate" hrefLang="x-default" href={`${SITO}/${LINGUA_DEFAULT}${percorsoDi(LINGUA_DEFAULT)}`} />
 
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content={url} />
-                <meta property="og:title" content={t('meta.title')} />
-                <meta property="og:description" content={t('meta.description')} />
+                <meta property="og:title" content={titolo} />
+                <meta property="og:description" content={descrizione} />
                 <meta property="og:image" content={`${SITO}/logo.png`} />
                 <meta property="og:locale" content={OG_LOCALE[lingua]} />
 
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content={t('meta.title')} />
-                <meta name="twitter:description" content={t('meta.description')} />
+                <meta name="twitter:title" content={titolo} />
+                <meta name="twitter:description" content={descrizione} />
                 <meta name="twitter:image" content={`${SITO}/logo.png`} />
             </Helmet>
 
@@ -67,14 +83,39 @@ export default function Novita() {
                         <Newspaper size={11} className="text-oro/60" />
                         <span className="font-body text-xs text-nebbia/50 tracking-widest uppercase">{t('hero.badge')}</span>
                     </div>
-                    <h1 className="font-display text-4xl md:text-6xl font-light leading-[1.1] mb-5">
-                        {t('hero.title_part1')} <span className="text-oro-shimmer">{t('hero.title_highlight')}</span>{t('hero.title_part2')}
-                    </h1>
-                    <p className="font-body text-base text-nebbia/45 leading-relaxed max-w-2xl mx-auto">
-                        {t('hero.subtitle')}
-                    </p>
+                    {argomento ? (
+                        <>
+                            <h1 className="font-display text-4xl md:text-5xl font-light leading-[1.1] mb-5">{t(`argomenti.${argomento.id}.nome`)}</h1>
+                            <p className="font-body text-base text-nebbia/45 leading-relaxed max-w-2xl mx-auto">{t(`argomenti.${argomento.id}.descrizione`)}</p>
+                        </>
+                    ) : (
+                        <>
+                            <h1 className="font-display text-4xl md:text-6xl font-light leading-[1.1] mb-5">
+                                {t('hero.title_part1')} <span className="text-oro-shimmer">{t('hero.title_highlight')}</span>{t('hero.title_part2')}
+                            </h1>
+                            <p className="font-body text-base text-nebbia/45 leading-relaxed max-w-2xl mx-auto">
+                                {t('hero.subtitle')}
+                            </p>
+                        </>
+                    )}
                 </div>
             </section>
+
+            {/* Gli argomenti: compaiono solo quelli che hanno già articoli */}
+            {argomentiConArticoli.length > 0 && (
+                <nav aria-label={t('hero.badge')} className="max-w-5xl mx-auto px-6 pb-8 flex flex-wrap justify-center gap-2">
+                    <Link to={`/${lingua}/novita`}
+                        className={`font-body text-xs px-3 py-1.5 border transition-colors ${!argomento ? 'border-oro/50 bg-oro/10 text-oro' : 'border-white/10 text-nebbia/50 hover:border-oro/30 hover:text-oro'}`}>
+                        {t('argomenti_tutti')}
+                    </Link>
+                    {argomentiConArticoli.map(x => (
+                        <Link key={x.id} to={`/${lingua}/novita/argomento/${x.slug[lingua]}`}
+                            className={`font-body text-xs px-3 py-1.5 border transition-colors ${argomento?.id === x.id ? 'border-oro/50 bg-oro/10 text-oro' : 'border-white/10 text-nebbia/50 hover:border-oro/30 hover:text-oro'}`}>
+                            {t(`argomenti.${x.id}.nome`)}
+                        </Link>
+                    ))}
+                </nav>
+            )}
 
             {/* Elenco */}
             <section className="max-w-5xl mx-auto px-6 pb-24">

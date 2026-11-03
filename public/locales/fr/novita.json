@@ -24,6 +24,40 @@
     "instagram": "Voir la publication sur Instagram",
     "tiktok": "Voir la vidéo sur TikTok",
     "cta_testo": "Vous avez une question semblable ? Posez-la à Lex.",
-    "cta": "Commencer"
-  }
+    "cta": "Commencer",
+    "leggi_anche": "À lire aussi"
+  },
+  "argomenti": {
+    "famiglia": {
+      "nome": "Famille",
+      "titolo": "Famille : séparation, pension et enfants en Suisse",
+      "descrizione": "Séparation, pension et enfants : ce que prévoit le droit suisse, avec les normes et les arrêts cités."
+    },
+    "lavoro-e-assicurazioni": {
+      "nome": "Travail et assurances",
+      "titolo": "Travail et assurances en Suisse : accident, maladie, indemnités",
+      "descrizione": "Accident, maladie et indemnités journalières : qui paie et que pouvez-vous faire, avec les normes et les arrêts cités."
+    },
+    "contratti-e-debiti": {
+      "nome": "Contrats et dettes",
+      "titolo": "Contrats et dettes en Suisse : validité, créances et faillite",
+      "descrizione": "Quand un contrat est valable et comment protéger une créance, même si le débiteur fait faillite : les règles suisses, avec les sources citées."
+    },
+    "imprese-e-societa": {
+      "nome": "Entreprises et sociétés",
+      "titolo": "Entreprises et sociétés en Suisse : Sàrl, SA et activité",
+      "descrizione": "Sàrl ou SA, apports et autorisations : comment créer et gérer une activité en Suisse, avec les sources citées."
+    },
+    "fisco-e-imposte": {
+      "nome": "Fiscalité et impôts",
+      "titolo": "Fiscalité et impôts en Suisse : les conséquences fiscales expliquées",
+      "descrizione": "Les conséquences fiscales des choix des personnes et des entreprises en Suisse, expliquées avec les normes citées."
+    },
+    "professioni-e-studio": {
+      "nome": "Professions et étude",
+      "titolo": "Professions en Suisse : fiduciaires, avocats et obligations",
+      "descrizione": "Autorisations et obligations des fiduciaires, des avocats et des autres professionnels en Suisse, avec les normes citées."
+    }
+  },
+  "argomenti_tutti": "Tous"
 }

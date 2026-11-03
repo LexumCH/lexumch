@@ -1,0 +1,133 @@
+{
+  "hub": {
+    "meta_title": "Outils gratuits pour les professionnels et PME suisses — Lexum",
+    "meta_description": "Créez gratuitement votre QR-facture suisse avec logo et TVA : sans inscription, vos données restent dans votre navigateur.",
+    "label": "Outils gratuits",
+    "title": "Le travail de tous les jours,",
+    "highlight": "sans payer.",
+    "text": "Prêts à l'emploi pour les avocats, les fiduciaires et les petites entreprises : pas d'inscription ni d'intelligence artificielle, seulement des documents en ordre.",
+    "apri": "Créer la facture",
+    "lex_title": "Quand il faut un raisonnement,",
+    "lex_highlight": "il y a Lex.",
+    "lex_text": "Lex est l'intelligence artificielle de Lexum pour le droit suisse : elle répond avec les normes et les arrêts liés, sur vos cas et vos documents. Avec un compte gratuit, la première question est offerte.",
+    "lex_cta": "S'inscrire gratuitement"
+  },
+  "vantaggi": [
+    "Gratuit",
+    "Sans inscription",
+    "Vos données restent dans votre navigateur"
+  ],
+  "sezione": {
+    "label": "Outils gratuits",
+    "title": "Votre QR-facture,",
+    "highlight": "gratuite et sans inscription.",
+    "apri": "Ouvrir l'outil"
+  },
+  "fattura": {
+    "nome": "Prénom",
+    "breve": "Chargez votre logo, remplissez les données et téléchargez le PDF avec la section paiement et le code QR suisse. TVA suisse calculée, en français, allemand ou italien.",
+    "meta_title": "Créer une QR-facture gratuite en ligne, avec logo et TVA — Lexum",
+    "meta_description": "Créez gratuitement votre QR-facture suisse : logo, TVA à 8,1 %, section paiement et code QR dans le PDF, en français, allemand ou italien. Sans inscription.",
+    "label": "Outils gratuits",
+    "title": "Créez votre",
+    "highlight": "QR-facture gratuite",
+    "text": "Chargez le logo, remplissez les données et téléchargez le PDF avec la section paiement et le code QR : votre client paie avec l'application de sa banque.",
+    "documento": "Le document",
+    "lingua_documento": "Langue de la facture",
+    "numero": "Numéro",
+    "data": "Date",
+    "scadenza": "Échéance (facultative)",
+    "periodo": "Date ou période de la prestation",
+    "periodo_esempio": "Octobre 2026",
+    "valuta": "Monnaie",
+    "tuoi_dati": "Vos données",
+    "logo": "Votre logo",
+    "logo_aiuto": "PNG, JPG ou SVG. Facultatif : il apparaît en haut du PDF.",
+    "logo_togli": "Retirer le logo",
+    "logo_errore": "Ce fichier ne semble pas être une image.",
+    "persona": "Personne ou raison individuelle",
+    "societa": "Société ou étude",
+    "denominazione": "Raison sociale",
+    "cognome": "Nom",
+    "via": "Rue",
+    "civico": "N°",
+    "npa": "NPA",
+    "localita": "Localité",
+    "paese": "Pays (sigle)",
+    "email": "E-mail (facultatif)",
+    "telefono": "Téléphone (facultatif)",
+    "uid": "IDE (facultatif)",
+    "uid_errore": "Cet IDE n'est pas valable : la forme est CHE-123.456.789.",
+    "iban": "IBAN ou QR-IBAN",
+    "iban_aiuto": "Suisse ou liechtensteinois : nécessaire pour la section paiement.",
+    "iban_errore": "Cet IBAN n'est pas valable, ou il n'est ni suisse ni liechtensteinois : le PDF sort sans code QR.",
+    "ricorda": "Enregistrer mes données et le logo sur cet appareil",
+    "cliente": "Le client",
+    "cliente_persona": "Personne",
+    "cliente_azienda": "Entreprise ou institution",
+    "ragione_sociale": "Raison sociale",
+    "cliente_email": "E-mail (facultatif)",
+    "righe": "Les lignes",
+    "descrizione": "Description",
+    "descrizione_esempio": "Conseil du 3 novembre",
+    "quantita": "Quantité",
+    "prezzo": "Prix",
+    "togli_riga": "Retirer la ligne",
+    "aggiungi_riga": "Ajouter une ligne",
+    "imposte": "TVA et remarques",
+    "iva_attiva": "Je suis assujetti à la TVA",
+    "aliquota": "Taux",
+    "aliquota_8": "8,1 % normal",
+    "aliquota_2": "2,6 % réduit",
+    "aliquota_3": "3,8 % hébergement",
+    "iva_non": "Sans assujettissement, la facture indique « Non assujetti à la TVA ».",
+    "note": "Remarques (facultatives)",
+    "anteprima_tuoi": "Vos données",
+    "anteprima_cliente": "Le client",
+    "anteprima_righe": "Les lignes du document",
+    "manca": "Il manque encore :",
+    "manca_tuo_nome": "votre nom ou la raison sociale",
+    "manca_cliente": "le nom du client",
+    "manca_righe": "au moins une ligne avec description et montant",
+    "qr_ok": "Le PDF aura la section paiement avec le code QR.",
+    "qr_no": "Pour le code QR, il faut un IBAN suisse, votre adresse avec NPA et localité et un total supérieur à zéro.",
+    "scarica": "Télécharger le PDF",
+    "errore_pdf": "Le PDF n'a pas pu être créé. Réessayez dans quelques instants.",
+    "domande_titolo": "Questions fréquentes",
+    "cta_testo": "Factures, clients et mandats au même endroit ?",
+    "cta": "Essayer Lexum",
+    "domande": [
+      {
+        "d": "Qu'est-ce que la QR-facture ?",
+        "r": "Depuis le 1er octobre 2022, elle a remplacé les bulletins de versement : c'est la section au bas de la facture avec le code QR suisse. Le client le scanne avec l'application de sa banque, ou paie au guichet, et le montant et le compte sont déjà remplis."
+      },
+      {
+        "d": "Quel IBAN faut-il ?",
+        "r": "Un IBAN suisse ou liechtensteinois. Avec l'IBAN normal, la référence est celle du créancier (RF), avec un QR-IBAN c'est la référence QR : l'outil choisit tout seul."
+      },
+      {
+        "d": "Dois-je indiquer la TVA ?",
+        "r": "Seulement si vous êtes assujetti : en règle générale à partir de 100'000 francs de chiffre d'affaires par an (art. 10 LTVA). La facture indique alors le numéro TVA et le taux : 8,1 % normal, 2,6 % réduit, 3,8 % pour l'hébergement."
+      },
+      {
+        "d": "Que doit contenir la facture ?",
+        "r": "Pour la TVA, l'art. 26 LTVA demande le nom et l'adresse de celui qui facture et son numéro TVA, le nom et l'adresse du client, la date ou la période de la prestation, le genre et l'étendue de la prestation, le montant, le taux et l'impôt. L'outil a un champ pour chacun."
+      },
+      {
+        "d": "Mes données vont-elles quelque part ?",
+        "r": "Non. La facture se crée dans votre navigateur : les données, le logo et les montants n'arrivent pas sur nos serveurs. Si vous le souhaitez, vos données et le logo restent enregistrés sur cet appareil pour la facture suivante."
+      }
+    ],
+    "totale": "Total",
+    "sigla_iva": "TVA"
+  },
+  "popup": {
+    "pronto": "Document prêt",
+    "titolo": "Une question à Lex",
+    "evidenza": "vous est offerte.",
+    "testo": "Avec un compte gratuit, vous avez tout de suite une question à Lex, avec les normes et les arrêts liés, et la banque de données suisse. Pas de carte de crédit.",
+    "cta": "S'inscrire gratuitement et essayer Lex",
+    "dopo": "Continuer sans compte",
+    "chiudi": "Fermer"
+  }
+}

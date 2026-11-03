@@ -15,6 +15,7 @@ import {
     RefreshCw, AlertCircle, CheckCircle, Newspaper, Link2, CalendarClock,
 } from 'lucide-react'
 import { slugDa, firmaAutore, fmtDataLunga } from '@/lib/novita'
+import { ARGOMENTI } from '@/lib/argomenti'
 
 const LINGUE = ['it', 'de', 'fr']
 const NOMI = { it: 'Italiano', de: 'Deutsch', fr: 'Français' }
@@ -22,7 +23,7 @@ const NOMI = { it: 'Italiano', de: 'Deutsch', fr: 'Français' }
 const VERSIONE_VUOTA = { id: null, titolo: '', slug: '', sommario: '', contenuto: '', categoria: '' }
 const VUOTO = {
     gruppo: null,
-    autore: '', copertina_url: '', instagram_url: '', tiktok_url: '',
+    autore: '', copertina_url: '', instagram_url: '', tiktok_url: '', argomenti: [],
     stato: 'bozza', programmato_il: '',
     versioni: { it: { ...VERSIONE_VUOTA }, de: { ...VERSIONE_VUOTA }, fr: { ...VERSIONE_VUOTA } },
 }
@@ -79,6 +80,7 @@ function formDaGruppo(g) {
         gruppo: g.gruppo,
         autore: p.autore ?? '', copertina_url: p.copertina_url ?? '',
         instagram_url: p.instagram_url ?? '', tiktok_url: p.tiktok_url ?? '',
+        argomenti: p.argomenti ?? [],
         stato: p.stato, programmato_il: p.programmato_il ?? '',
         versioni,
     }
@@ -147,6 +149,7 @@ export default function AdminNovita() {
             copertina_url: form.copertina_url?.trim() || null,
             instagram_url: form.instagram_url?.trim() || null,
             tiktok_url: form.tiktok_url?.trim() || null,
+            argomenti: form.argomenti ?? [],
             stato,
             programmato_il: (modo === 'programma' || (!pubblica && form.stato === 'programmato'))
                 ? daCampoOra(form.programmato_il) : null,
@@ -334,6 +337,22 @@ export default function AdminNovita() {
                     <div className="border-t border-white/5 pt-4 space-y-4">
                         <p className="font-body text-xs text-nebbia/30">Uguali per tutte le lingue:</p>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            {/* Gli argomenti danno all'articolo un posto nelle pagine /:lang/novita/argomento/... */}
+                            <div className="lg:col-span-2">
+                                <label className={ETICHETTA}>Argomenti</label>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {ARGOMENTI.map(x => {
+                                        const scelto = form.argomenti?.includes(x.id)
+                                        return (
+                                            <button key={x.id} type="button"
+                                                onClick={() => setForm(f => ({ ...f, argomenti: scelto ? f.argomenti.filter(y => y !== x.id) : [...(f.argomenti ?? []), x.id] }))}
+                                                className={`font-body text-xs px-3 py-1.5 border transition-colors ${scelto ? 'border-oro/50 bg-oro/10 text-oro' : 'border-white/10 text-nebbia/50 hover:text-nebbia'}`}>
+                                                {x.slug.it.replace(/-/g, ' ')}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
                             <div>
                                 <label className={ETICHETTA}>Autore</label>
                                 <input

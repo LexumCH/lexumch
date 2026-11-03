@@ -1,0 +1,133 @@
+{
+  "hub": {
+    "meta_title": "Strumenti gratis per professionisti e PMI svizzere — Lexum",
+    "meta_description": "Crea gratis la tua QR-fattura svizzera con logo e IVA: senza registrazione, con i dati che restano nel tuo browser.",
+    "label": "Strumenti gratis",
+    "title": "Il lavoro di tutti i giorni,",
+    "highlight": "senza pagare.",
+    "text": "Pronti da usare per avvocati, fiduciari e piccole imprese: niente iscrizione e niente intelligenza artificiale, solo documenti in ordine.",
+    "apri": "Crea la fattura",
+    "lex_title": "Quando serve un ragionamento,",
+    "lex_highlight": "c'è Lex.",
+    "lex_text": "Lex è l'intelligenza artificiale di Lexum per il diritto svizzero: risponde con le norme e le sentenze collegate, sui tuoi casi e sui tuoi documenti. Con un account gratuito la prima domanda è in omaggio.",
+    "lex_cta": "Iscriviti gratis"
+  },
+  "vantaggi": [
+    "Gratis",
+    "Senza registrazione",
+    "I dati restano nel tuo browser"
+  ],
+  "sezione": {
+    "label": "Strumenti gratis",
+    "title": "La tua QR-fattura,",
+    "highlight": "gratis e senza iscrizione.",
+    "apri": "Apri lo strumento"
+  },
+  "fattura": {
+    "nome": "Nome",
+    "breve": "Carica il tuo logo, compila i dati e scarica il PDF con la sezione di pagamento e il codice QR svizzero. IVA svizzera calcolata, in italiano, tedesco o francese.",
+    "meta_title": "Crea QR-fattura gratis online, con logo e IVA svizzera — Lexum",
+    "meta_description": "Crea gratis la tua QR-fattura svizzera: logo, IVA all'8,1%, sezione di pagamento e codice QR nel PDF, in italiano, tedesco o francese. Senza registrazione.",
+    "label": "Strumenti gratis",
+    "title": "Crea la tua",
+    "highlight": "QR-fattura gratis",
+    "text": "Carica il logo, compila i dati e scarica il PDF con la sezione di pagamento e il codice QR: il tuo cliente paga con l'app della banca.",
+    "documento": "Il documento",
+    "lingua_documento": "Lingua della fattura",
+    "numero": "Numero",
+    "data": "Data",
+    "scadenza": "Scadenza (facoltativa)",
+    "periodo": "Data o periodo della prestazione",
+    "periodo_esempio": "Ottobre 2026",
+    "valuta": "Valuta",
+    "tuoi_dati": "I tuoi dati",
+    "logo": "Il tuo logo",
+    "logo_aiuto": "PNG, JPG o SVG. Facoltativo: compare in alto nel PDF.",
+    "logo_togli": "Togli il logo",
+    "logo_errore": "Questo file non sembra un'immagine.",
+    "persona": "Persona o ditta individuale",
+    "societa": "Società o studio associato",
+    "denominazione": "Denominazione",
+    "cognome": "Cognome",
+    "via": "Via",
+    "civico": "N.",
+    "npa": "NPA",
+    "localita": "Località",
+    "paese": "Paese (sigla)",
+    "email": "Email (facoltativa)",
+    "telefono": "Telefono (facoltativo)",
+    "uid": "IDI (facoltativo)",
+    "uid_errore": "Questo IDI non è valido: la forma è CHE-123.456.789.",
+    "iban": "IBAN o QR-IBAN",
+    "iban_aiuto": "Svizzero o del Liechtenstein: serve per la sezione di pagamento.",
+    "iban_errore": "Questo IBAN non è valido, oppure non è svizzero o del Liechtenstein: il PDF esce senza codice QR.",
+    "ricorda": "Ricorda i miei dati e il logo su questo dispositivo",
+    "cliente": "Il cliente",
+    "cliente_persona": "Persona",
+    "cliente_azienda": "Azienda o ente",
+    "ragione_sociale": "Ragione sociale",
+    "cliente_email": "Email (facoltativa)",
+    "righe": "Le righe",
+    "descrizione": "Descrizione",
+    "descrizione_esempio": "Consulenza del 3 novembre",
+    "quantita": "Quantità",
+    "prezzo": "Prezzo",
+    "togli_riga": "Togli la riga",
+    "aggiungi_riga": "Aggiungi una riga",
+    "imposte": "IVA e note",
+    "iva_attiva": "Sono assoggettato all'IVA",
+    "aliquota": "Aliquota",
+    "aliquota_8": "8,1% normale",
+    "aliquota_2": "2,6% ridotta",
+    "aliquota_3": "3,8% settore alberghiero",
+    "iva_non": "Senza assoggettamento, in fattura compare «Non assoggettato all'IVA».",
+    "note": "Note (facoltative)",
+    "anteprima_tuoi": "I tuoi dati",
+    "anteprima_cliente": "Il cliente",
+    "anteprima_righe": "Le righe del documento",
+    "manca": "Manca ancora:",
+    "manca_tuo_nome": "il tuo nome o la denominazione",
+    "manca_cliente": "il nome del cliente",
+    "manca_righe": "almeno una riga con descrizione e importo",
+    "qr_ok": "Il PDF avrà la sezione di pagamento con il codice QR.",
+    "qr_no": "Per il codice QR servono un IBAN svizzero, il tuo indirizzo con NPA e località e un totale maggiore di zero.",
+    "scarica": "Scarica il PDF",
+    "errore_pdf": "Non sono riuscito a creare il PDF. Riprova tra qualche istante.",
+    "domande_titolo": "Domande frequenti",
+    "cta_testo": "Vuoi fatture, clienti e mandati in un posto solo?",
+    "cta": "Prova Lexum",
+    "domande": [
+      {
+        "d": "Cos'è la QR-fattura?",
+        "r": "Dal 1° ottobre 2022 ha sostituito le polizze di versamento: è la sezione in fondo alla fattura con il codice QR svizzero. Il cliente lo inquadra con l'app della banca, o paga allo sportello, e l'importo e il conto sono già compilati."
+      },
+      {
+        "d": "Quale IBAN serve?",
+        "r": "Un IBAN svizzero o del Liechtenstein. Con l'IBAN normale il riferimento è quello del creditore (RF), con un QR-IBAN è il riferimento QR: lo strumento lo sceglie da solo."
+      },
+      {
+        "d": "Devo mettere l'IVA?",
+        "r": "Solo se sei assoggettato: di regola a partire da 100'000 franchi di cifra d'affari all'anno (art. 10 LIVA). In quel caso in fattura vanno il numero IVA e l'aliquota: 8,1% normale, 2,6% ridotta, 3,8% per il settore alberghiero."
+      },
+      {
+        "d": "Cosa deve contenere la fattura?",
+        "r": "Per l'IVA, l'art. 26 LIVA chiede nome e indirizzo di chi fattura e il numero IVA, nome e indirizzo del cliente, data o periodo della prestazione, tipo e quantità della prestazione, importo, aliquota e imposta. Lo strumento ha un campo per ognuno."
+      },
+      {
+        "d": "I miei dati finiscono da qualche parte?",
+        "r": "No. La fattura si crea nel tuo browser: dati, logo e importi non arrivano ai nostri server. Se vuoi, i tuoi dati e il logo restano salvati su questo dispositivo per la fattura successiva."
+      }
+    ],
+    "totale": "Totale",
+    "sigla_iva": "IVA"
+  },
+  "popup": {
+    "pronto": "Documento pronto",
+    "titolo": "Una domanda a Lex",
+    "evidenza": "te la offriamo noi.",
+    "testo": "Con un account gratuito hai subito una domanda a Lex, con le norme e le sentenze collegate, e la Banca Dati svizzera. Niente carta di credito.",
+    "cta": "Iscriviti gratis e prova Lex",
+    "dopo": "Continua senza account",
+    "chiudi": "Chiudi"
+  }
+}

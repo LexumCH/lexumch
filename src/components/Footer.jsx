@@ -4,16 +4,20 @@ import { useTranslation } from 'react-i18next'
 import logo from '@/assets/logo.png'
 import { SOCIAL, IconaInstagram, IconaTikTok } from '@/components/Social'
 import BadgeApp from '@/components/BadgeApp'
+import { LINGUE_SUPPORTATE, LINGUA_DEFAULT } from '@/i18n'
 
 export default function Footer() {
-  const { t } = useTranslation('comp_footer')
+  const { t, i18n } = useTranslation('comp_footer')
+  const lingua = LINGUE_SUPPORTATE.includes(i18n.language) ? i18n.language : LINGUA_DEFAULT
 
+  // Con la lingua nell'indirizzo: chi non esegue JavaScript non può seguire i rimandi
   const navLinks = [
-    { to: '/', key: 'home' },
-    { to: '/per-avvocati', key: 'lawyers' },
-    { to: '/#lexai', key: 'lex_ai' },
-    { to: '/novita', key: 'news' },
-    { to: '/contatti', key: 'contacts' },
+    { to: `/${lingua}`, key: 'home' },
+    { to: `/${lingua}/avvocati`, key: 'lawyers' },
+    { to: `/${lingua}#lexai`, key: 'lex_ai' },
+    { to: `/${lingua}/novita`, key: 'news' },
+    { to: `/${lingua}/strumenti`, key: 'strumenti' },
+    { to: `/${lingua}/contatti`, key: 'contacts' },
   ]
 
   const trustItems = [
@@ -109,10 +113,10 @@ export default function Footer() {
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2">
-            <Link to="/privacy" className="font-body text-xs text-nebbia/20 hover:text-nebbia/40 transition-colors">
+            <Link to={`/${lingua}/privacy`} className="font-body text-xs text-nebbia/20 hover:text-nebbia/40 transition-colors">
               {t('bottom.privacy')}
             </Link>
-            <Link to="/termini" className="font-body text-xs text-nebbia/20 hover:text-nebbia/40 transition-colors">
+            <Link to={`/${lingua}/termini`} className="font-body text-xs text-nebbia/20 hover:text-nebbia/40 transition-colors">
               {t('bottom.terms')}
             </Link>
             {/* La piattaforma gemella per l'Italia: solo un collegamento, niente hreflang (prodotti diversi). */}

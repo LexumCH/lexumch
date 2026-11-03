@@ -45,6 +45,7 @@ export default function Navbar() {
     { path: `/${langAttiva}/fiduciari`, label: t('navbar.fiduciari') },
     { path: `/${langAttiva}/progettisti`, label: t('navbar.progettisti') },
     { path: `/${langAttiva}/novita`, label: t('navbar.novita') },
+    { path: `/${langAttiva}/strumenti`, label: t('navbar.strumenti') },
     { path: `/${langAttiva}/contatti`, label: t('navbar.contatti') },
   ]
 
@@ -54,22 +55,22 @@ export default function Navbar() {
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-petrolio/95 backdrop-blur-sm border-b border-white/5 py-3' : 'bg-transparent py-5'
       }`}>
-      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between gap-4">
 
         {/* Logo — punta sempre alla home della lingua attiva */}
         <NavLink to={`/${langAttiva}`} className="shrink-0">
           <img src={logo} alt="Lexum" className="h-16 w-auto" />
         </NavLink>
 
-        {/* Desktop nav: da 1120 px; sotto, con le voci in tedesco e francese non ci sta in una riga, si usa il menu a tendina */}
-        <nav className="hidden min-[1120px]:flex items-center gap-4 xl:gap-7">
+        {/* Desktop nav: da 1200 px; sotto, con le voci in tedesco e francese non ci sta in una riga, si usa il menu a tendina */}
+        <nav className="hidden min-[1200px]:flex items-center gap-3 min-[1400px]:gap-5">
           {navLinks.map(({ path, label, exact }) => (
             <NavLink
               key={path}
               to={path}
               end={exact}
               className={({ isActive }) =>
-                `font-body text-xs tracking-widest uppercase whitespace-nowrap transition-colors ${isActive ? 'text-oro' : 'text-nebbia/40 hover:text-nebbia'
+                `font-body text-xs tracking-wider uppercase whitespace-nowrap transition-colors ${isActive ? 'text-oro' : 'text-nebbia/40 hover:text-nebbia'
                 }`
               }
             >
@@ -79,7 +80,7 @@ export default function Navbar() {
         </nav>
 
         {/* CTA Desktop + LanguageSwitcher */}
-        <div className="hidden min-[1120px]:flex items-center gap-4">
+        <div className="hidden min-[1200px]:flex items-center gap-3 shrink-0 whitespace-nowrap">
           <LanguageSwitcher variant="desktop" />
 
           <div className="w-px h-4 bg-white/10" />
@@ -108,7 +109,7 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="min-[1120px]:hidden text-nebbia/50 hover:text-nebbia transition-colors"
+          className="min-[1200px]:hidden text-nebbia/50 hover:text-nebbia transition-colors"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -116,7 +117,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      <div className={`min-[1120px]:hidden transition-all duration-300 overflow-hidden ${menuOpen ? 'max-h-[28rem] opacity-100' : 'max-h-0 opacity-0'
+      <div className={`min-[1200px]:hidden transition-all duration-300 overflow-hidden ${menuOpen ? 'max-h-[32rem] opacity-100' : 'max-h-0 opacity-0'
         }`}>
         <div className="bg-petrolio/95 backdrop-blur-sm border-t border-white/5 px-6 py-4 flex flex-col gap-1">
 

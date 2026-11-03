@@ -17,8 +17,8 @@ import FiduciarioLayout from './components/layouts/FiduciarioLayout'
 import ProgettistaLayout from './components/layouts/ProgettistaLayout'
 import ClienteLayout from './components/layouts/ClienteLayout'
 import UserLayout from './components/layouts/UserLayout'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
+import GuscioVetrina from './components/layouts/GuscioVetrina'
+import StaticoPronto from './components/StaticoPronto'
 
 // ── Vetrina ──
 import Home from './pages/Home'
@@ -29,6 +29,8 @@ import Contatti from './pages/Contatti'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import TerminiServizio from '@/pages/TerminiServizio'
 import PagamentoEsito from './pages/PagamentoEsito'
+import Strumenti from './pages/strumenti/Strumenti'
+import CreaFattura from './pages/strumenti/CreaFattura'
 import Novita from './pages/Novita'
 import NovitaArticolo from './pages/NovitaArticolo'
 import ContaVisite from './components/ContaVisite'
@@ -109,15 +111,16 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30
 // ─── Layout vetrina (con Navbar + Footer + Analytics) ───
 // Analytics attivo solo su vetrina + auth: misura il funnel
 // visitatore → registrato. L'area autenticata non viene tracciata.
-function VetrinaLayout({ children }) {
+function VetrinaLayout({ children, aspettaDati = false }) {
   return (
-    <div className="min-h-screen flex flex-col bg-petrolio">
-      <Navbar />
-      <main className="flex-1">{children}</main>
-      <Footer />
+    <GuscioVetrina coda={<>
       <Analytics />
       <ContaVisite />
-    </div>
+      {/* Il testo già pronto nell'HTML si toglie qui, o dalla pagina quando ha i suoi dati */}
+      {!aspettaDati && <StaticoPronto />}
+    </>}>
+      {children}
+    </GuscioVetrina>
   )
 }
 
@@ -173,10 +176,10 @@ function BancaDatiSharedAvv({ children }) {
 }
 
 // Wrapper vetrina con prefisso :lang
-function Vet({ children }) {
+function Vet({ children, aspettaDati }) {
   return (
     <LanguageWrapper>
-      <VetrinaLayout>{children}</VetrinaLayout>
+      <VetrinaLayout aspettaDati={aspettaDati}>{children}</VetrinaLayout>
     </LanguageWrapper>
   )
 }
@@ -207,8 +210,11 @@ export default function App() {
               <Route path="/:lang/contatti" element={<Vet><Contatti /></Vet>} />
               <Route path="/:lang/privacy" element={<Vet><PrivacyPolicy /></Vet>} />
               <Route path="/:lang/termini" element={<Vet><TerminiServizio /></Vet>} />
-              <Route path="/:lang/novita" element={<Vet><Novita /></Vet>} />
-              <Route path="/:lang/novita/:slug" element={<Vet><NovitaArticolo /></Vet>} />
+              <Route path="/:lang/novita" element={<Vet aspettaDati><Novita /></Vet>} />
+              <Route path="/:lang/novita/argomento/:argomento" element={<Vet aspettaDati><Novita /></Vet>} />
+              <Route path="/:lang/novita/:slug" element={<Vet aspettaDati><NovitaArticolo /></Vet>} />
+              <Route path="/:lang/strumenti" element={<Vet><Strumenti /></Vet>} />
+              <Route path="/:lang/strumenti/:strumento" element={<Vet><CreaFattura /></Vet>} />
 
               {/* Retrocompat: vecchie rotte senza prefisso → redirect alla lingua giusta */}
               <Route path="/avvocati" element={<RootRedirect to="/avvocati" />} />
@@ -219,6 +225,7 @@ export default function App() {
               <Route path="/privacy" element={<RootRedirect to="/privacy" />} />
               <Route path="/termini" element={<RootRedirect to="/termini" />} />
               <Route path="/novita" element={<RootRedirect to="/novita" />} />
+              <Route path="/strumenti" element={<RootRedirect to="/strumenti" />} />
 
               {/* Retrocompat vecchie URL "per-avvocati" / "per-fiduciari" senza prefisso */}
               <Route path="/per-avvocati" element={<RootRedirect to="/avvocati" />} />
