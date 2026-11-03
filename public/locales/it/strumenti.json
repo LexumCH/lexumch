@@ -111,7 +111,7 @@
       },
       {
         "d": "Cosa deve contenere la fattura?",
-        "r": "Per l'IVA, l'art. 26 LIVA chiede nome e indirizzo di chi fattura e il numero IVA, nome e indirizzo del cliente, data o periodo della prestazione, tipo e quantità della prestazione, importo, aliquota e imposta. Lo strumento ha un campo per ognuno."
+        "r": "Per l'IVA, l'art. 26 LIVA chiede nome e luogo di chi fattura e il numero IVA, nome e luogo del cliente, data o periodo della prestazione, genere, oggetto ed entità della prestazione, importo, aliquota e imposta. Lo strumento ha un campo per ognuno."
       },
       {
         "d": "I miei dati finiscono da qualche parte?",

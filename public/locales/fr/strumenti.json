@@ -111,7 +111,7 @@
       },
       {
         "d": "Que doit contenir la facture ?",
-        "r": "Pour la TVA, l'art. 26 LTVA demande le nom et l'adresse de celui qui facture et son numéro TVA, le nom et l'adresse du client, la date ou la période de la prestation, le genre et l'étendue de la prestation, le montant, le taux et l'impôt. L'outil a un champ pour chacun."
+        "r": "Pour la TVA, l'art. 26 LTVA demande le nom et la localité de celui qui facture et son numéro TVA, le nom et la localité du client, la date ou la période de la prestation, le genre, l'objet et l'étendue de la prestation, le montant, le taux et l'impôt. L'outil a un champ pour chacun."
       },
       {
         "d": "Mes données vont-elles quelque part ?",
