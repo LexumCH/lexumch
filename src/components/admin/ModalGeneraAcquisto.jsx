@@ -4,7 +4,7 @@
 // Sostituisce il flusso Stripe per casi di emergenza (es. pagamento ricevuto ma
 // webhook non scattato, omaggio, compensazione errore).
 //
-// STEP 1: Selezione utente destinatario (search dropdown tra user + avvocato)
+// STEP 1: Selezione utente destinatario (search dropdown tra user e professionisti)
 // STEP 2: Selezione prodotto + importo
 // STEP 3: Motivo + conferma riepilogo + invio
 //
@@ -59,7 +59,7 @@ export default function ModalGeneraAcquisto({ onClose, onSuccess }) {
             const { data } = await supabase
                 .from('profiles')
                 .select('id, nome, cognome, email, role, studio')
-                .in('role', ['user', 'avvocato'])
+                .in('role', ['user', 'avvocato', 'fiduciario', 'progettista'])
                 .or(`nome.ilike.%${q}%,cognome.ilike.%${q}%,email.ilike.%${q}%`)
                 .limit(15)
             setUtenti(data ?? [])
@@ -197,7 +197,7 @@ export default function ModalGeneraAcquisto({ onClose, onSuccess }) {
                                 <p className="font-body text-sm text-nebbia">Seleziona destinatario</p>
                             </div>
                             <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                                L'attivazione si applica solo a utenti gia registrati (user o avvocato).
+                                L'attivazione si applica solo a utenti gia registrati (user, avvocato, fiduciario o progettista).
                                 Cerca per nome, cognome o email.
                             </p>
 
@@ -243,7 +243,7 @@ export default function ModalGeneraAcquisto({ onClose, onSuccess }) {
                                                         <p className="font-body text-xs text-nebbia/30 truncate">{u.studio}</p>
                                                     )}
                                                 </div>
-                                                <span className={`font-body text-[10px] px-2 py-0.5 uppercase tracking-wider whitespace-nowrap ${u.role === 'avvocato'
+                                                <span className={`font-body text-[10px] px-2 py-0.5 uppercase tracking-wider whitespace-nowrap ${u.role !== 'user'
                                                     ? 'text-oro border border-oro/30 bg-oro/5'
                                                     : 'text-salvia border border-salvia/30 bg-salvia/5'
                                                     }`}>
