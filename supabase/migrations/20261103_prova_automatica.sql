@@ -1,8 +1,9 @@
 -- 03-11-2026: lo stesso funzionamento di Lexum IT («ch voglio lo stesso funzionamento di it, uguale»).
--- Chi si registra come avvocato, fiduciario o progettista, appena conferma l'email, ha lo studio attivo per la durata
+-- Chi si registra come avvocato o progettista, appena conferma l'email, ha lo studio attivo per la durata
 -- del prodotto 'gratuito' (dal 04-11-2026 3 giorni e 7 crediti, come su IT). Chi era già iscritto non viene toccato: attiva la prova con un
 -- clic da «Completa il profilo» (activate-trial chiama questa stessa funzione). Spegnendo il prodotto dal pannello si
 -- spegne anche la prova automatica.
+-- I fiduciari per ora non hanno la prova (04-11-2026), come i commercialisti su IT: il loro piano si compra.
 -- L'approvazione dei documenti non serve più per lavorare: resta facoltativa e dà il distintivo, come su IT.
 
 alter table public.profiles add column if not exists professione text;
@@ -87,16 +88,17 @@ begin
   if v_profilo.titolare_id is not null then raise exception 'La prova la attiva il titolare dello studio'; end if;
 
   -- Il ruolo: si tiene quello professionale che c'è, altrimenti quello dichiarato.
-  if v_profilo.role in ('avvocato', 'fiduciario', 'progettista') then
+  if v_profilo.role in ('avvocato', 'progettista') then
     v_ruolo := v_profilo.role;
   elsif v_profilo.role = 'user' then
-    v_ruolo := case
-      when v_profilo.tipo_richiesta in ('avvocato', 'fiduciario', 'progettista') then v_profilo.tipo_richiesta
-      when v_profilo.professione in ('avvocato', 'fiduciario', 'progettista') then v_profilo.professione
-      when v_profilo.verification_status = 'approved' then 'avvocato'
+    v_ruolo := case coalesce(v_profilo.tipo_richiesta, v_profilo.professione)
+      when 'fiduciario' then null
+      when 'avvocato' then 'avvocato'
+      when 'progettista' then 'progettista'
+      else case when v_profilo.verification_status = 'approved' then 'avvocato' end
     end;
   end if;
-  if v_ruolo is null then raise exception 'La prova gratuita è riservata ad avvocati, fiduciari e progettisti'; end if;
+  if v_ruolo is null then raise exception 'La prova gratuita per ora è riservata ad avvocati e progettisti'; end if;
 
   -- Il Piano Personale dei privati non conta: non è un piano professionale.
   if v_profilo.piano_id is not null and not exists (
@@ -206,7 +208,7 @@ begin
   if exists (
     select 1 from public.profiles p
     where p.id = new.id and p.role = 'user' and not coalesce(p.prova_gratuita_usata, false)
-      and p.professione in ('avvocato', 'fiduciario', 'progettista')
+      and p.professione in ('avvocato', 'progettista')
   ) then
     -- Se la prova non parte, la conferma dell'email deve andare a buon fine lo stesso: resta il pulsante.
     begin

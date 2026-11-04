@@ -1,7 +1,7 @@
 // supabase/functions/activate-trial/index.ts  (Lexum CH)
 //
 // Il pulsante «Attiva la prova gratuita» per chi era già iscritto. Dal 03-11-2026 la logica sta nel database, in
-// attiva_prova_gratuita, la stessa che parte da sola quando chi si registra come avvocato, fiduciario o progettista
+// attiva_prova_gratuita, la stessa che parte da sola quando chi si registra come avvocato o progettista
 // conferma l'email: controlli, ruolo, studio, crediti e transazione. Come su Lexum IT.
 // Prima questa funzione non creava lo studio e voleva la verifica approvata.
 //
