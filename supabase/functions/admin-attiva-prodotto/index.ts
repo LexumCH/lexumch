@@ -1,3 +1,7 @@
+// 04-11-2026: il ramo gratuito non leggeva né scriveva prova_gratuita_usata: l'admin poteva dare la prova più volte alla stessa persona.
+// Ora rifiuta con lo stesso messaggio di activate-trial e segna il flag e posti_usati.
+// La prova dà il ruolo che la persona ha già o che ha scelto nella verifica, come su IT; gli abbonamenti quello del prodotto.
+// La prova non sostituisce un abbonamento ancora valido: rifiuta.
 // 07-10-2026 (controllo di sicurezza): le azioni admin vogliono la verifica in due passaggi completata (aal2).
 // supabase/functions/admin-attiva-prodotto/index.ts
 //
@@ -119,7 +123,8 @@ Deno.serve(async (req) => {
       .from("profiles")
       .select(`
         id, email, nome, cognome, studio_id, role, tipo_account,
-        ragione_sociale, sede_legale, tipo_soggetto
+        ragione_sociale, sede_legale, tipo_soggetto, tipo_richiesta,
+        prova_gratuita_usata, piano_id, abbonamento_scadenza
       `)
       .eq("id", user_id)
       .single();
@@ -130,9 +135,11 @@ Deno.serve(async (req) => {
     }
 
     // ─── Ruolo da assegnare se l'utente viene promosso ──────
-    // Priorità: 1) override esplicito dal body, 2) target_role del prodotto
-    // (fonte di verità: il prodotto sa per chi è), 3) ruolo attuale se gia
-    // professionista, 4) fallback avvocato.
+    // Priorità: 1) override esplicito dal body, 2) solo per la prova: il ruolo
+    // professionale che ha già o la professione scelta nella verifica, come su IT
+    // (la prova è una sola per tutte le professioni), 3) target_role del prodotto
+    // (fonte di verità: il prodotto sa per chi è), 4) ruolo attuale se gia
+    // professionista, 5) fallback avvocato.
     // NB: dedurre dal profilo.role è sbagliato in fase di prima attivazione,
     // perche l'utente e ancora 'user' (il ruolo lo da il prodotto).
     const targetRoleProdotto =
@@ -142,8 +149,13 @@ Deno.serve(async (req) => {
         ? prodotto.target_role
         : null;
 
+    const ruoloDichiarato = prodotto.tipo === "gratuito"
+      ? [profilo.role, profilo.tipo_richiesta].find((r) => ["avvocato", "fiduciario", "progettista"].includes(r))
+      : null;
+
     const ruoloTarget: string =
       body.ruolo_target
+      ?? ruoloDichiarato
       ?? targetRoleProdotto
       ?? (profilo.role === "fiduciario" || profilo.role === "progettista"
         ? profilo.role
@@ -488,8 +500,20 @@ Deno.serve(async (req) => {
 
     // ═══════════════════════════════════════════════════════
     // GRATUITO (prova/trial)
+    // Una sola prova a persona: come activate-trial, rifiuta se è già usata e la segna
+    // Non sostituisce un abbonamento ancora valido; il Piano Personale dei privati non conta, come in activate-trial
     // ═══════════════════════════════════════════════════════
     else if (prodottoTipo === "gratuito") {
+      if (profilo.prova_gratuita_usata) throw new Error("Prova gratuita già utilizzata");
+
+      if (profilo.piano_id && (!profilo.abbonamento_scadenza || new Date(profilo.abbonamento_scadenza) > new Date())) {
+        const { data: pianoAttuale } = await supabase
+          .from("prodotti").select("tipo").eq("id", profilo.piano_id).maybeSingle();
+        if (pianoAttuale?.tipo === "abbonamento") {
+          throw new Error("Questa persona ha già un piano attivo: la prova lo sostituirebbe");
+        }
+      }
+
       const posti = prodotto.posti ?? 1;
       const tipoAccount = posti === 1 ? "singolo" : "titolare";
 
@@ -514,10 +538,12 @@ Deno.serve(async (req) => {
         grazia_fino_al: null,
         spazio_gb_piano: prodotto.spazio_gb ?? 0,
         posti_acquistati: posti,
+        posti_usati: 1,
         include_banca_dati: prodotto.include_banca_dati ?? false,
         include_monetizzazione: prodotto.include_monetizzazione ?? false,
         limite_clienti_piano: prodotto.limite_clienti ?? 0,
         limite_clienti_extra: 0,
+        prova_gratuita_usata: true,
       };
 
       if (profilo.studio_id) {
