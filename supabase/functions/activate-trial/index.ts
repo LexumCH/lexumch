@@ -48,7 +48,7 @@ async function spedisciAvviso(userId: string): Promise<Response> {
       templateModel: {
         nome: profilo.nome,
         piano_nome: profilo.abbonamento_tipo,
-        durata_giorni: Math.round(Number(prodotto?.durata_mesi ?? 0) * 30) || 7,
+        durata_giorni: Math.round(Number(prodotto?.durata_mesi ?? 0) * 30) || 3,
         scadenza: fine.toLocaleDateString(LOCALI[lingua], { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Zurich" }),
         crediti_ai: prodotto?.crediti_ai_mensili ?? 0,
         spazio_gb: prodotto?.spazio_gb ?? 0,

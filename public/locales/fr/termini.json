@@ -62,15 +62,14 @@
     "sub46_title": "4.7 Crédits IA",
     "sub46_text": "Les crédits IA achetés ont la validité indiquée au moment de l'achat et, sous réserve du point 4.6, ne sont ni remboursables ni transférables. Les crédits inclus dans l'abonnement mensuel ne se cumulent pas d'un mois à l'autre.",
     "sub47_title": "4.8 Essai gratuit",
-    "sub47_intro": "Lexum offre un essai gratuit d'une durée de 7 jours (ou une période différente indiquée au moment de l'activation) pour les nouveaux utilisateurs inscrits en tant qu'avocats ou fiduciaires. L'essai gratuit :",
+    "sub47_intro": "Lexum offre un essai gratuit d'une durée de 3 jours (ou une période différente indiquée au moment de l'activation) pour les utilisateurs qui s'inscrivent en tant qu'avocats, fiduciaires ou projeteurs. L'essai démarre tout seul à la confirmation de l'adresse e-mail ; les personnes déjà inscrites peuvent l'activer en un clic depuis leur espace. L'essai gratuit :",
     "sub47_items": [
       "Est activable une seule fois par compte et n'est pas transférable",
       "Ne requiert pas la saisie de données de paiement",
       "Inclut les fonctionnalités indiquées au moment de l'activation",
-      "Se termine automatiquement à l'échéance sans débit",
-      "À l'échéance, l'accès aux fonctionnalités payantes est suspendu",
-      "Les données saisies durant l'essai restent accessibles après l'achat d'un abonnement",
-      "Les données sont conservées pendant 30 jours à compter de l'échéance de l'essai, après quoi elles peuvent être définitivement supprimées"
+      "Se termine automatiquement à l'échéance, sans débit et sans obligation d'acheter un abonnement",
+      "À l'échéance, sans abonnement, les crédits de l'essai, l'ajout de nouveaux clients et le téléversement de documents dans l'archive ne sont plus disponibles",
+      "Le compte reste accessible : les données saisies durant l'essai restent disponibles et les documents de l'archive consultables en lecture seule, même sans acheter d'abonnement"
     ],
     "sub47_outro": "Lexum se réserve le droit de modifier les conditions de l'essai gratuit ou de le suspendre à tout moment pour les nouveaux utilisateurs, sans effet sur les essais déjà activés."
   },

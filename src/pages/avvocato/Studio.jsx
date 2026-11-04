@@ -251,7 +251,8 @@ export function SezioneAcquisto({ pianoAttualeId = null, prezzoAttuale = 0, dura
                                     <span className="font-body text-xs px-2 py-0.5 bg-salvia/15 border border-salvia/30 text-salvia">{t('acquisto.trial.badge_gratuito')}</span>
                                 </div>
                                 <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                                    {t('acquisto.trial.descrizione', { giorni: trialProdotto.durata_mesi ? trialProdotto.durata_mesi * 30 : 7 })}
+                                    {/* arrotondato: 0.1 × 30 in JavaScript fa 3.0000000000000004 */}
+                                    {t('acquisto.trial.descrizione', { giorni: trialProdotto.durata_mesi ? Math.round(trialProdotto.durata_mesi * 30) : 3 })}
                                 </p>
                                 <div className="flex flex-wrap gap-3 pt-1">
                                     {trialProdotto.posti > 1 && (

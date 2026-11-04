@@ -1,6 +1,6 @@
 -- 03-11-2026: lo stesso funzionamento di Lexum IT («ch voglio lo stesso funzionamento di it, uguale»).
 -- Chi si registra come avvocato, fiduciario o progettista, appena conferma l'email, ha lo studio attivo per la durata
--- del prodotto 'gratuito' (oggi 7 giorni e 7 crediti). Chi era già iscritto non viene toccato: attiva la prova con un
+-- del prodotto 'gratuito' (dal 04-11-2026 3 giorni e 7 crediti, come su IT). Chi era già iscritto non viene toccato: attiva la prova con un
 -- clic da «Completa il profilo» (activate-trial chiama questa stessa funzione). Spegnendo il prodotto dal pannello si
 -- spegne anche la prova automatica.
 -- L'approvazione dei documenti non serve più per lavorare: resta facoltativa e dà il distintivo, come su IT.
@@ -110,7 +110,7 @@ begin
   order by pr.created_at desc limit 1;
   if not found then raise exception 'La prova gratuita non è disponibile'; end if;
 
-  v_fine   := now() + round(coalesce(v_prodotto.durata_mesi * 30, 7)) * interval '1 day';
+  v_fine   := now() + round(coalesce(v_prodotto.durata_mesi * 30, 3)) * interval '1 day';
   v_posti  := coalesce(v_prodotto.posti, 1);
   v_nome   := nullif(btrim(coalesce(v_profilo.nome, '') || ' ' || coalesce(v_profilo.cognome, '')), '');
   v_studio := v_profilo.studio_id;
@@ -255,6 +255,67 @@ BEGIN
   END LOOP;
   RETURN NEW;
 END;
+$function$;
+
+-- La prova dura 3 giorni, come su IT («ch 3 giorni», 04-11-2026). Chi l'aveva già resta con la sua scadenza.
+update public.prodotti
+   set durata_mesi = 0.1, nome = to_jsonb('Prova gratuita 3 gg'::text), updated_at = now()
+ where id = 'c9a459fc-0d98-4aed-8968-58fec7a8153b';
+
+-- Con 3 giorni di prova il preavviso di 3 giorni «sta per scadere» sarebbe partito appena attivata: ora 1 giorno, come su IT.
+create or replace function public.scadenze_da_avvisare()
+returns table(user_id uuid, email text, nome text, lingua text, tipo text, scadenza timestamp with time zone, scadenza_testo text, piano_nome text, prova boolean, gb integer)
+language sql
+stable security definer
+set search_path to 'public', 'pg_temp'
+as $function$
+  with pro as (
+    select p.id, p.email, p.nome, coalesce(p.lingua, 'it') as lingua,
+           p.abbonamento_scadenza as scadenza,
+           greatest(p.abbonamento_scadenza, coalesce(p.grazia_fino_al, p.abbonamento_scadenza)) as fine,
+           coalesce(
+             case when p.abbonamento_tipo !~ '^\s*\{' then nullif(btrim(p.abbonamento_tipo), '') end,
+             pr.nome ->> coalesce(p.lingua, 'it'),
+             pr.nome ->> 'it',
+             case when jsonb_typeof(pr.nome) = 'string' then pr.nome #>> '{}' end,
+             'Lexum') as piano_nome,
+           pr.tipo = 'gratuito' as prova,
+           case when pr.tipo = 'gratuito'            then interval '1 day'
+                when coalesce(pr.durata_mesi, 1) < 3 then interval '7 days'
+                else                                      interval '15 days' end as preavviso
+    from public.profiles p
+    join public.prodotti pr on pr.id = p.piano_id and pr.tipo in ('abbonamento', 'gratuito')
+    where p.role in ('avvocato', 'fiduciario', 'progettista')
+      and p.titolare_id is null
+      and coalesce(p.email, '') <> ''
+      and p.abbonamento_scadenza is not null
+  ), candidati as (
+    select id, email, nome, lingua, 'in_scadenza'::text as tipo, scadenza, piano_nome, prova, null::integer as gb
+    from pro
+    where scadenza > now() and scadenza <= now() + preavviso
+    union all
+    select id, email, nome, lingua, 'scaduto', scadenza, piano_nome, prova, null
+    from pro
+    where fine <= now() and fine > now() - interval '3 days'
+    union all
+    select p.id, p.email, p.nome, coalesce(p.lingua, 'it'), 'spazio_in_scadenza', s.periodo_fine, null, false, sum(s.gb)::integer
+    from public.spazio_archiviazione s
+    join public.profiles p on p.id = s.proprietario_id
+    where s.periodo_fine > now() and s.periodo_fine <= now() + interval '3 days'
+      and coalesce(p.email, '') <> ''
+      -- l'archivio in più in abbonamento si rinnova da solo: niente avviso
+      and not exists (select 1 from public.abbonamenti b
+                      where b.id = s.abbonamento_id and b.stato in ('attivo', 'in_ritardo'))
+    group by p.id, p.email, p.nome, p.lingua, s.periodo_fine
+  )
+  select c.id, c.email, c.nome, c.lingua, c.tipo, c.scadenza,
+         to_char(c.scadenza at time zone 'Europe/Zurich', 'DD.MM.YYYY'),
+         c.piano_nome, c.prova, c.gb
+  from candidati c
+  where not exists (
+    select 1 from public.avvisi_abbonamento_inviati a
+    where a.user_id = c.id and a.tipo = c.tipo and a.scadenza = c.scadenza)
+  order by c.scadenza
 $function$;
 
 -- Monetizzazione e sentenze a pagamento spariscono dalla circolazione (03-11-2026): i segni nei dati si azzerano.
