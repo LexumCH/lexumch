@@ -24,6 +24,7 @@
       "Indirizzo email e numero di telefono",
       "Dati dello studio legale o fiduciario",
       "Dati di fatturazione (ragione sociale, numero IDI/IVA, indirizzo)",
+      "Documento di identità e attestazione di iscrizione al registro professionale, se richiedi la prova gratuita o la verifica del profilo professionale",
       "Contenuti caricati sulla piattaforma (documenti, pratiche, mandati)",
       "Comunicazioni inviate tramite la piattaforma"
     ],
@@ -42,6 +43,7 @@
     "title": "3. Finalità e basi giuridiche del trattamento",
     "items": [
       { "finalita": "Erogazione del servizio", "base": "Esecuzione del contratto (art. 31 cpv. 2 LPD / art. 6.1.b GDPR)", "desc": "Gestione dell'account, accesso alla piattaforma, elaborazione di pratiche e mandati, ricerche AI e funzionalità collegate." },
+      { "finalita": "Verifica del profilo professionale", "base": "Esecuzione del contratto (art. 31 cpv. 2 LPD / art. 6.1.b GDPR)", "desc": "Controllo del documento di identità e dell'iscrizione al registro professionale per l'attivazione della prova gratuita e per il distintivo di professionista verificato. I documenti sono visibili solo al team di Lexum." },
       { "finalita": "Fatturazione e adempimenti fiscali", "base": "Obbligo legale (art. 31 cpv. 1 LPD / art. 6.1.c GDPR)", "desc": "Emissione di fatture, gestione dei pagamenti tramite un fornitore di servizi di pagamento, conservazione della documentazione contabile secondo la legge svizzera." },
       { "finalita": "Sicurezza della piattaforma", "base": "Interesse legittimo (art. 31 cpv. 1 LPD / art. 6.1.f GDPR)", "desc": "Prevenzione di accessi non autorizzati, rilevamento di anomalie, protezione dei dati degli utenti." },
       { "finalita": "Intelligenza artificiale e ricerca", "base": "Esecuzione del contratto (art. 31 cpv. 2 LPD / art. 6.1.b GDPR)", "desc": "Elaborazione dei contenuti caricati per fornire le funzionalità di ricerca semantica e analisi AI (Lex). I contenuti non vengono usati per addestrare modelli AI di terze parti." },

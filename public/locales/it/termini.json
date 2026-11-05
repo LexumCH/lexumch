@@ -62,14 +62,15 @@
     "sub46_title": "4.7 Crediti AI",
     "sub46_text": "I crediti AI acquistati hanno la validità indicata al momento dell'acquisto e, fatto salvo il punto 4.6, non sono rimborsabili né trasferibili. I crediti inclusi nell'abbonamento mensile non si accumulano di mese in mese.",
     "sub47_title": "4.8 Prova gratuita",
-    "sub47_intro": "Lexum offre una prova gratuita della durata di 3 giorni (o periodo diverso indicato al momento dell'attivazione) per gli utenti che si registrano come avvocati o progettisti. La prova parte da sola alla conferma dell'indirizzo email; chi era già iscritto può attivarla con un clic dalla propria area. La prova gratuita:",
+    "sub47_intro": "Lexum offre una prova gratuita della durata di 3 giorni (o periodo diverso indicato al momento dell'attivazione) per gli avvocati e i progettisti. Si attiva dalla propria area, dopo aver caricato il documento di identità e l'attestazione di iscrizione al registro professionale e aver compilato i dati di fatturazione. La prova gratuita:",
     "sub47_items": [
       "È attivabile una sola volta per account e non è trasferibile",
       "Non richiede l'inserimento di dati di pagamento",
       "Include le funzionalità indicate al momento dell'attivazione",
       "Si conclude automaticamente alla scadenza, senza addebiti e senza obbligo di acquistare un piano",
       "Alla scadenza, senza un piano, non sono più disponibili i crediti della prova, l'aggiunta di nuovi clienti e il caricamento di documenti in archivio",
-      "L'account resta accessibile: i dati inseriti durante la prova restano disponibili e i documenti in archivio consultabili in sola lettura, anche senza acquistare un piano"
+      "L'account resta accessibile: i dati inseriti durante la prova restano disponibili e i documenti in archivio consultabili in sola lettura, anche senza acquistare un piano",
+      "Lexum controlla i documenti dopo l'attivazione: se non risultano validi, la prova viene interrotta e l'utente è informato del motivo. L'account torna a essere un account base; i dati inseriti restano conservati e tornano disponibili se nuovi documenti vengono approvati o se l'utente acquista un piano"
     ],
     "sub47_outro": "Lexum si riserva il diritto di modificare le condizioni della prova gratuita o di sospenderla in qualsiasi momento per i nuovi utenti, senza effetto sulle prove già attivate."
   },

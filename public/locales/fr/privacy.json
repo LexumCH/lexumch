@@ -24,6 +24,7 @@
       "Adresse e-mail et numéro de téléphone",
       "Données de l'étude d'avocats ou de la fiduciaire",
       "Données de facturation (raison sociale, numéro IDE/TVA, adresse)",
+      "Pièce d'identité et attestation d'inscription au registre professionnel, si vous demandez l'essai gratuit ou la vérification du profil professionnel",
       "Contenus chargés sur la plateforme (documents, dossiers, mandats)",
       "Communications envoyées via la plateforme"
     ],
@@ -42,6 +43,7 @@
     "title": "3. Finalités et bases juridiques du traitement",
     "items": [
       { "finalita": "Fourniture du service", "base": "Exécution du contrat (art. 31 al. 2 LPD / art. 6.1.b RGPD)", "desc": "Gestion du compte, accès à la plateforme, traitement des dossiers et mandats, recherches IA et fonctionnalités liées." },
+      { "finalita": "Vérification du profil professionnel", "base": "Exécution du contrat (art. 31 al. 2 LPD / art. 6.1.b RGPD)", "desc": "Contrôle de la pièce d'identité et de l'inscription au registre professionnel pour l'activation de l'essai gratuit et pour le badge de professionnel vérifié. Les documents ne sont visibles que par l'équipe Lexum." },
       { "finalita": "Facturation et obligations fiscales", "base": "Obligation légale (art. 31 al. 1 LPD / art. 6.1.c RGPD)", "desc": "Émission de factures, gestion des paiements via un prestataire de services de paiement, conservation des pièces comptables selon le droit suisse." },
       { "finalita": "Sécurité de la plateforme", "base": "Intérêt légitime (art. 31 al. 1 LPD / art. 6.1.f RGPD)", "desc": "Prévention des accès non autorisés, détection d'anomalies, protection des données des utilisateurs." },
       { "finalita": "Intelligence artificielle et recherche", "base": "Exécution du contrat (art. 31 al. 2 LPD / art. 6.1.b RGPD)", "desc": "Traitement des contenus chargés pour fournir les fonctionnalités de recherche sémantique et d'analyse IA (Lex). Les contenus ne sont pas utilisés pour entraîner des modèles d'IA de tiers." },

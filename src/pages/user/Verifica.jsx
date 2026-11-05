@@ -1,39 +1,21 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { attivaProvaGratuita, puoAttivareProva } from '@/lib/provaGratuita'
 import { mancantiAcquisto, paginaDatiFatturazione, useDatiFatturazione } from '@/lib/datiFatturazione'
-import { Upload, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2, Scale, Calculator, DraftingCompass, ChevronDown, Sparkles, MessageSquare, Unlock } from 'lucide-react'
+import { Upload, Check, CheckCircle, Clock, XCircle, Shield, ArrowRight, Loader2, Scale, Calculator, DraftingCompass, ChevronDown, Sparkles, MessageSquare, Unlock } from 'lucide-react'
 
 const toArray = (v) => Array.isArray(v) ? v : []
 
-// ── Config set documentale per direzione (chiavi i18n + flag req) ──
-// I testi (titolo/intro/label/hint) arrivano da t(); qui restano solo key e req.
-// 03-11-2026, come su IT: i documenti sono facoltativi, danno il distintivo e non il permesso di comprare.
+// ── Config set documentale per direzione (solo le chiavi: i testi arrivano da t()) ──
+// 05-11-2026: ad avvocati e progettisti documento e iscrizione servono per la prova gratuita, gli stessi che controlla
+// il server. Ai fiduciari, che per ora non hanno la prova, restano facoltativi: danno il distintivo.
 const SET_DOCUMENTALE = {
-    avvocato: {
-        documenti: [
-            { key: 'identita', req: false },
-            { key: 'albo', req: false },
-            { key: 'laurea', req: false },
-        ],
-    },
-    fiduciario: {
-        documenti: [
-            { key: 'identita', req: false },
-            { key: 'registro', req: false },
-            { key: 'affiliazione', req: false },
-        ],
-    },
-    progettista: {
-        documenti: [
-            { key: 'identita', req: false },
-            { key: 'reg', req: false },
-            { key: 'diploma', req: false },
-        ],
-    },
+    avvocato: { documenti: ['identita', 'albo'] },
+    fiduciario: { documenti: ['identita', 'registro', 'affiliazione'] },
+    progettista: { documenti: ['identita', 'reg'] },
 }
 
 // ── Cosa si apre con un abbonamento (29-10-2026, come su IT) ──
@@ -131,7 +113,7 @@ function SceltaDirezione({ onScelta, loading }) {
                                             ))}
                                         </ul>
                                     </div>
-                                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('vantaggi.come_funziona')}</p>
+                                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t(chiave === 'fiduciario' ? 'vantaggi.come_funziona' : 'vantaggi.come_funziona_prova')}</p>
                                     <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                                         <button
                                             disabled={loading}
@@ -155,13 +137,71 @@ function SceltaDirezione({ onScelta, loading }) {
 }
 
 // ── UPLOAD DOCUMENTI ──────────────────────────────────────────
+// Una riga da completare: il numero diventa una spunta quando è fatta.
+function Passo({ numero, fatto, children, azione }) {
+    return (
+        <div className={`border p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 ${fatto ? 'border-salvia/30' : 'border-white/5'}`}>
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+                {numero && (
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-body text-xs ${fatto ? 'bg-salvia/15 border border-salvia/30 text-salvia' : 'bg-oro/15 border border-oro/30 text-oro'}`}>
+                        {fatto ? <Check size={12} /> : numero}
+                    </span>
+                )}
+                <div className="min-w-0 flex-1">{children}</div>
+            </div>
+            {azione}
+        </div>
+    )
+}
+
+// Il documento si carica appena scelto: così resta anche se si va nel Profilo a compilare i dati di fatturazione.
+function RigaDocumento({ numero, direzione, chiave, file, inCarico, onFile }) {
+    const { t } = useTranslation('user_verifica')
+    return (
+        <Passo
+            numero={numero}
+            fatto={!!file}
+            azione={(
+                <label className={`btn-secondary text-xs px-3 py-3 sm:py-2 w-full sm:w-auto justify-center flex items-center gap-1.5 shrink-0 ${inCarico ? 'opacity-40 cursor-wait' : 'cursor-pointer'}`}>
+                    {inCarico
+                        ? <><Loader2 size={12} className="animate-spin" /> {t('upload.caricamento')}</>
+                        : <><Upload size={12} /> {file ? t('upload.cambia') : t('upload.carica')}</>}
+                    <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        disabled={inCarico}
+                        onChange={e => {
+                            const f = e.target.files?.[0]
+                            e.target.value = ''
+                            if (f) onFile(chiave, f)
+                        }}
+                    />
+                </label>
+            )}
+        >
+            <p className="font-body text-sm text-nebbia mb-0.5">{t(`set.${direzione}.documenti.${chiave}.label`)}</p>
+            <p className="font-body text-xs text-nebbia/40">{t(`set.${direzione}.documenti.${chiave}.hint`)}</p>
+            {file && (
+                <p className="font-body text-xs text-salvia mt-1 break-words">
+                    ✓ {file.name}{file.size ? ` (${(file.size / 1024).toFixed(0)} KB)` : ''}
+                </p>
+            )}
+        </Passo>
+    )
+}
+
 export function UserVerifica() {
     const { t } = useTranslation('user_verifica')
     const voce = useVoce()
     const { profile, reloadProfile } = useAuth()
 
-    const direzione = profile?.tipo_richiesta ?? null
-    const [docs, setDocs] = useState({})
+    // Chi si è registrato dichiarando la professione la trova già scelta: le altre restano a un clic
+    const direzione = profile?.tipo_richiesta ?? (['avvocato', 'fiduciario', 'progettista'].includes(profile?.professione) ? profile.professione : null)
+    const [caricati, setCaricati] = useState({})
+    const [letti, setLetti] = useState(false)
+    const [nuovi, setNuovi] = useState(false)
+    const [inCarico, setInCarico] = useState(null)
     const [loading, setLoading] = useState(false)
     const [salvandoDirezione, setSalvandoDirezione] = useState(false)
     const [errore, setErrore] = useState('')
@@ -170,6 +210,18 @@ export function UserVerifica() {
     const [erroreProva, setErroreProva] = useState('')
     const datiFatt = useDatiFatturazione()
     const mancanti = mancantiAcquisto(profile)
+
+    // I documenti già sul server: gli stessi che controlla attiva_prova_gratuita. Il più recente di ogni tipo.
+    useEffect(() => {
+        if (!profile?.id) return
+        supabase.storage.from('verification-docs').list(profile.id, { sortBy: { column: 'updated_at', order: 'asc' } })
+            .then(({ data }) => {
+                const presenti = {}
+                for (const f of data ?? []) presenti[f.name.split('.')[0]] = { name: f.name, size: f.metadata?.size }
+                setCaricati(presenti)
+                setLetti(true)
+            })
+    }, [profile?.id])
 
     // Il ruolo cambia: la pagina si riapre sullo studio, con il profilo riletto dall'inizio
     async function handleProva() {
@@ -195,8 +247,6 @@ export function UserVerifica() {
                 .update({ tipo_richiesta: scelta })
                 .eq('id', user.id)
             if (error) throw new Error(error.message)
-            // i documenti cambiano da una professione all'altra: si ricomincia
-            setDocs({})
             // ricarica il profilo nel context così la pagina si aggiorna
             if (reloadProfile) await reloadProfile()
         } catch (err) {
@@ -210,35 +260,58 @@ export function UserVerifica() {
         return <SceltaDirezione onScelta={handleScelta} loading={salvandoDirezione} />
     }
 
-    const config = SET_DOCUMENTALE[direzione] ?? SET_DOCUMENTALE.avvocato
-    const daCaricare = config.documenti.filter(d => docs[d.key])
+    const documenti = (SET_DOCUMENTALE[direzione] ?? SET_DOCUMENTALE.avvocato).documenti
+    const stato = profile?.verification_status
+    const respinti = stato === 'rejected'
+    const approvati = stato === 'approved'
+    const provaFermata = !!profile?.prova_fermata_il
+    const inAttesaDiRipartire = provaFermata && stato === 'pending'
+    const provaDisponibile = !respinti && puoAttivareProva({ ...profile, tipo_richiesta: direzione })
+    const documentiMancanti = approvati ? [] : documenti.filter(k => !caricati[k])
+    const completo = mancanti.length === 0
+    const provaPronta = letti && completo && documentiMancanti.length === 0
+    const tuttiCaricati = documenti.every(k => caricati[k])
+    const puoInviare = !loading && !inCarico && (respinti
+        ? nuovi && tuttiCaricati
+        : nuovi || (stato !== 'pending' && Object.keys(caricati).length > 0))
 
-    async function handleInvia() {
-        if (!daCaricare.length || loading) return
-        setLoading(true)
+    async function caricaDocumento(key, file) {
+        if (file.size > 10 * 1024 * 1024) { setErrore(t('errori.file_grande')); return }
         setErrore('')
-
+        setInCarico(key)
         try {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error(t('errori.non_autenticato'))
+            const ext = file.name.split('.').pop()
+            const { error } = await supabase.storage
+                .from('verification-docs')
+                .upload(`${user.id}/${key}.${ext}`, file, { upsert: true })
+            if (error) throw new Error(`${t('errori.upload')}: ${error.message}`)
+            setCaricati(c => ({ ...c, [key]: { name: file.name, size: file.size } }))
+            setNuovi(true)
+        } catch (err) {
+            setErrore(err.message)
+        } finally {
+            setInCarico(null)
+        }
+    }
 
-            const uploads = daCaricare.map(d => ({ file: docs[d.key], path: `${user.id}/${d.key}` }))
-
-            for (const { file, path } of uploads) {
-                const ext = file.name.split('.').pop()
-                const { error: upErr } = await supabase.storage
-                    .from('verification-docs')
-                    .upload(`${path}.${ext}`, file, { upsert: true })
-                if (upErr) throw new Error(`${t('errori.upload')}: ${upErr.message}`)
-            }
+    // I documenti sono già sul server: qui si chiede di guardarli (chi li ricarica dopo un rifiuto, i fiduciari)
+    async function handleInvia() {
+        if (!puoInviare) return
+        setLoading(true)
+        setErrore('')
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error(t('errori.non_autenticato'))
 
             const { error: updateErr } = await supabase
                 .from('profiles')
                 .update({ verification_status: 'pending' })
                 .eq('id', user.id)
-
             if (updateErr) throw new Error(updateErr.message)
 
+            if (reloadProfile) await reloadProfile()
             setInviato(true)
         } catch (err) {
             setErrore(err.message)
@@ -252,7 +325,7 @@ export function UserVerifica() {
             <CheckCircle size={48} className="text-salvia mx-auto mb-4" />
             <h2 className="font-display text-4xl font-light text-nebbia mb-3">{t('inviato.titolo')}</h2>
             <p className="font-body text-sm text-nebbia/50 mb-6 leading-relaxed max-w-sm mx-auto">
-                {t('inviato.desc')}
+                {t(provaFermata ? 'inviato.desc_ripartenza' : 'inviato.desc')}
             </p>
             <Link to="/verifica/stato" className="btn-primary justify-center inline-flex">
                 {t('inviato.controlla_stato')} <ArrowRight size={14} />
@@ -269,6 +342,48 @@ export function UserVerifica() {
                 <h1 className="font-display text-4xl font-light text-nebbia mb-2">{t(`set.${direzione}.titolo`)}</h1>
                 <p className="font-body text-sm text-nebbia/50 leading-relaxed">{t(`set.${direzione}.intro`)}</p>
             </div>
+
+            {/* Documenti rifiutati (05-11-2026): il motivo prima di tutto, e la strada per rimediare */}
+            {respinti && (
+                <div className="bg-red-900/10 border border-red-500/25 p-6 space-y-4">
+                    <div className="flex items-start gap-3">
+                        <XCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                            <p className="font-body text-sm font-medium text-nebbia mb-1">
+                                {t(provaFermata ? 'rifiuto.titolo_fermata' : 'rifiuto.titolo')}
+                            </p>
+                            {profile?.verification_note && (
+                                <p className="font-body text-sm text-nebbia/70 leading-relaxed break-words">
+                                    <span className="text-red-400">{t('rifiuto.motivo')}</span> {profile.verification_note}
+                                </p>
+                            )}
+                            <p className="font-body text-xs text-nebbia/50 leading-relaxed mt-2">
+                                {t(provaFermata ? 'rifiuto.testo_fermata' : 'rifiuto.testo')}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        {documenti.map(k => (
+                            <RigaDocumento key={k} direzione={direzione} chiave={k} file={caricati[k]} inCarico={inCarico === k} onFile={caricaDocumento} />
+                        ))}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+                        <button disabled={!puoInviare} onClick={handleInvia} className="btn-primary text-sm inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                            {loading ? <Loader2 size={14} className="animate-spin" /> : <>{t('rifiuto.invia')} <ArrowRight size={14} /></>}
+                        </button>
+                        <Link to={linkConsulenza(t, direzione)} className="inline-flex items-center gap-2 font-body text-sm text-nebbia/60 hover:text-oro transition-colors">
+                            <MessageSquare size={14} /> {t('rifiuto.scrivi')}
+                        </Link>
+                    </div>
+                </div>
+            )}
+
+            {inAttesaDiRipartire && (
+                <div className="bg-amber-500/8 border border-amber-500/20 px-4 py-3 flex items-center gap-3">
+                    <Clock size={15} className="text-amber-400 shrink-0" />
+                    <p className="font-body text-xs text-amber-400/90 leading-relaxed">{t('rifiuto.in_attesa')}</p>
+                </div>
+            )}
 
             {/* La professione sempre visibile (29-10-2026, come su IT): quella scelta evidenziata, le altre a un clic */}
             <div className="grid sm:grid-cols-3 gap-4">
@@ -325,16 +440,52 @@ export function UserVerifica() {
                 </div>
             </div>
 
-            {/* La prova per chi era già iscritto (03-11-2026): chi si registra ora come professionista ce l'ha già da sola */}
-            {puoAttivareProva({ ...profile, tipo_richiesta: direzione }) && (
-                <div className="bg-slate border border-salvia/25 p-5 flex flex-col lg:flex-row lg:items-center gap-4">
-                    <div className="flex-1">
-                        <p className="font-body text-sm font-medium text-nebbia mb-1">{t('prova.titolo')}</p>
-                        <p className="font-body text-xs text-nebbia/50 leading-relaxed">{t('prova.testo')}</p>
-                        {erroreProva && <p className="font-body text-xs text-red-400 mt-2">{erroreProva}</p>}
+            {/* La prova (05-11-2026): automatica, ma con documenti e dati di fatturazione, così prova solo chi è
+                intenzionato. La consulenza si lascia intendere: è la stessa delle domande frequenti. */}
+            {provaDisponibile && (
+                <div className="bg-slate border border-oro/25 p-5 sm:p-6 space-y-4">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <Sparkles size={15} className="text-oro" />
+                            <p className="font-body text-sm font-medium text-oro">{t('prova.titolo')}</p>
+                        </div>
+                        <p className="font-body text-sm text-nebbia/60 leading-relaxed">
+                            {t(direzione === 'progettista' ? 'prova.testo_progettista' : 'prova.testo_avvocato')}
+                        </p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-5 gap-y-3 shrink-0">
-                        <button onClick={handleProva} disabled={attivandoProva} className="btn-primary text-sm inline-flex items-center gap-2 disabled:opacity-40">
+
+                    <div className="space-y-2">
+                        {approvati ? (
+                            <Passo numero="1" fatto>
+                                <p className="font-body text-sm text-nebbia">{t('upload.documenti_titolo')}</p>
+                                <p className="font-body text-xs text-salvia mt-0.5">{t('prova.documenti_verificati')}</p>
+                            </Passo>
+                        ) : documenti.map((k, i) => (
+                            <RigaDocumento key={k} numero={String(i + 1)} direzione={direzione} chiave={k} file={caricati[k]} inCarico={inCarico === k} onFile={caricaDocumento} />
+                        ))}
+                        {/* I dati di fatturazione si compilano nel Profilo, in un posto solo */}
+                        <Passo
+                            numero={approvati ? '2' : String(documenti.length + 1)}
+                            fatto={completo}
+                            azione={(
+                                <Link to={paginaDatiFatturazione(profile)} className="btn-secondary text-xs px-3 py-3 sm:py-2 w-full sm:w-auto justify-center flex items-center gap-1.5 shrink-0">
+                                    {completo ? t('fatturazione.vedi') : t('prova.completa_profilo')} <ArrowRight size={12} />
+                                </Link>
+                            )}
+                        >
+                            <p className="font-body text-sm text-nebbia mb-0.5">{t('fatturazione.titolo')}</p>
+                            {completo
+                                ? <p className="font-body text-xs text-salvia">{t('prova.dati_completi')}</p>
+                                : <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('fatturazione.mancano', { campi: datiFatt.elenco(mancanti) })}</p>}
+                        </Passo>
+                    </div>
+
+                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('prova.condizioni')}</p>
+
+                    {erroreProva && <p className="font-body text-xs text-red-400">{erroreProva}</p>}
+
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+                        <button onClick={handleProva} disabled={!provaPronta || attivandoProva || !!inCarico} className="btn-primary text-sm inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
                             {attivandoProva ? <Loader2 size={14} className="animate-spin" /> : <>{t('prova.attiva')} <ArrowRight size={14} /></>}
                         </button>
                         <Link to={linkConsulenza(t, direzione)} className="inline-flex items-center gap-2 font-body text-sm text-nebbia/60 hover:text-oro transition-colors">
@@ -344,72 +495,65 @@ export function UserVerifica() {
                 </div>
             )}
 
-            {/* Dati di fatturazione: sono loro a sbloccare i piani, si compilano nel Profilo */}
-            <div className="bg-slate border border-white/5 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="flex-1">
-                    <p className="font-body text-sm font-medium text-nebbia mb-1">{t('fatturazione.titolo')}</p>
-                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">
-                        {mancanti.length === 0 ? t('fatturazione.completo') : t('fatturazione.testo')}
-                    </p>
-                    {mancanti.length > 0 && (
-                        <p className="font-body text-xs text-nebbia/35 leading-relaxed mt-1">{t('fatturazione.mancano', { campi: datiFatt.elenco(mancanti) })}</p>
-                    )}
-                </div>
-                <Link to={mancanti.length === 0 ? '/area/acquista' : paginaDatiFatturazione(profile)} className="btn-primary text-sm inline-flex items-center gap-2 self-start sm:self-auto shrink-0">
-                    {mancanti.length === 0 ? t('stato.approved.cta') : t('fatturazione.completa')} <ArrowRight size={14} />
-                </Link>
-            </div>
-
-            <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('vantaggi.come_funziona')}</p>
-
-            <div className="bg-slate/40 border border-white/5 p-5">
-                <div className="flex items-start gap-3">
-                    <Shield size={16} className="text-nebbia/40 mt-0.5 shrink-0" />
-                    <div>
-                        <p className="font-body text-sm font-medium text-nebbia mb-1">
-                            {t('upload.documenti_titolo')}
-                            <span className="ml-2 font-body text-[10px] text-nebbia/30 border border-white/10 px-1.5 py-0.5">{t('upload.opzionale')}</span>
+            {/* Dati di fatturazione: sono loro a sbloccare i piani, si compilano nel Profilo. Nella prova sono l'ultimo passo. */}
+            {!provaDisponibile && (
+                <div className="bg-slate border border-white/5 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex-1">
+                        <p className="font-body text-sm font-medium text-nebbia mb-1">{t('fatturazione.titolo')}</p>
+                        <p className="font-body text-xs text-nebbia/40 leading-relaxed">
+                            {completo ? t('fatturazione.completo') : t('fatturazione.testo')}
                         </p>
-                        <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('upload.documenti_testo')}</p>
+                        {!completo && (
+                            <p className="font-body text-xs text-nebbia/35 leading-relaxed mt-1">{t('fatturazione.mancano', { campi: datiFatt.elenco(mancanti) })}</p>
+                        )}
                     </div>
+                    <Link to={completo ? '/area/acquista' : paginaDatiFatturazione(profile)} className="btn-primary text-sm inline-flex items-center gap-2 self-start sm:self-auto shrink-0">
+                        {completo ? t('stato.approved.cta') : t('fatturazione.completa')} <ArrowRight size={14} />
+                    </Link>
                 </div>
-            </div>
+            )}
 
-            <div className="space-y-4">
-                {config.documenti.map(({ key }) => (
-                    <div key={key} className={`bg-slate border p-5 ${docs[key] ? 'border-salvia/30' : 'border-white/5'}`}>
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <p className="font-body text-sm font-medium text-nebbia">{t(`set.${direzione}.documenti.${key}.label`)}</p>
-                                    <span className="font-body text-[10px] text-nebbia/30 border border-white/10 px-1.5 py-0.5">{t('upload.opzionale')}</span>
-                                </div>
-                                <p className="font-body text-xs text-nebbia/40">{t(`set.${direzione}.documenti.${key}.hint`)}</p>
-                                {docs[key] && (
-                                    <p className="font-body text-xs text-salvia mt-1">
-                                        ✓ {docs[key].name} ({(docs[key].size / 1024).toFixed(0)} KB)
-                                    </p>
-                                )}
+            {provaDisponibile && completo && (
+                <Link to="/area/acquista" className="flex items-center gap-3 bg-salvia/8 border border-salvia/25 px-4 py-3 group">
+                    <Unlock size={15} className="text-salvia shrink-0" />
+                    <p className="font-body text-xs text-salvia flex-1">{t('fatturazione.completo')}</p>
+                    <ArrowRight size={13} className="text-salvia group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+            )}
+
+            {/* Documenti facoltativi: per chi non ha la prova (i fiduciari). Danno il distintivo «Verificato». */}
+            {!provaDisponibile && !respinti && !inAttesaDiRipartire && !approvati && (
+                <>
+                    <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('vantaggi.come_funziona')}</p>
+                    <div className="bg-slate/40 border border-white/5 p-6 space-y-4">
+                        <div className="flex items-start gap-3">
+                            <Shield size={16} className="text-nebbia/40 mt-0.5 shrink-0" />
+                            <div>
+                                <p className="font-body text-sm font-medium text-nebbia mb-1">
+                                    {t('upload.documenti_titolo')}
+                                    <span className="ml-2 font-body text-[10px] text-nebbia/30 border border-white/10 px-1.5 py-0.5">{t('upload.opzionale')}</span>
+                                </p>
+                                <p className="font-body text-xs text-nebbia/40 leading-relaxed">{t('upload.documenti_testo')}</p>
                             </div>
-                            <label className={`cursor-pointer ${docs[key] ? 'btn-secondary' : 'btn-primary'} text-xs px-3 py-2 flex items-center gap-1.5`}>
-                                <Upload size={12} /> {docs[key] ? t('upload.cambia') : t('upload.carica')}
-                                <input
-                                    type="file"
-                                    accept=".pdf,.jpg,.jpeg,.png"
-                                    className="hidden"
-                                    onChange={e => {
-                                        const f = e.target.files?.[0]
-                                        if (!f) return
-                                        if (f.size > 10 * 1024 * 1024) { setErrore(t('errori.file_grande')); return }
-                                        setErrore('')
-                                        setDocs(d => ({ ...d, [key]: f }))
-                                    }}
-                                />
-                            </label>
                         </div>
+                        <div className="space-y-3">
+                            {documenti.map(k => (
+                                <RigaDocumento key={k} direzione={direzione} chiave={k} file={caricati[k]} inCarico={inCarico === k} onFile={caricaDocumento} />
+                            ))}
+                        </div>
+                        <button
+                            disabled={!puoInviare}
+                            onClick={handleInvia}
+                            className="btn-primary w-full justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            {loading
+                                ? <><Loader2 size={16} className="animate-spin" /> {t('upload.caricamento')}</>
+                                : <><ArrowRight size={16} /> {t('upload.invia')}</>
+                            }
+                        </button>
                     </div>
-                ))}
-            </div>
+                </>
+            )}
 
             {errore && (
                 <div className="bg-red-900/15 border border-red-500/20 px-4 py-3">
@@ -417,23 +561,14 @@ export function UserVerifica() {
                 </div>
             )}
 
-            <div className="bg-slate/40 border border-salvia/15 p-4 flex items-start gap-3">
-                <Shield size={16} className="text-salvia mt-0.5 shrink-0" />
-                <p className="font-body text-xs text-nebbia/50 leading-relaxed">
-                    {t('upload.privacy')}
-                </p>
-            </div>
-
-            <button
-                disabled={!daCaricare.length || loading}
-                onClick={handleInvia}
-                className="btn-primary w-full justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-                {loading
-                    ? <><Loader2 size={16} className="animate-spin" /> {t('upload.caricamento')}</>
-                    : <><ArrowRight size={16} /> {t('upload.invia')}</>
-                }
-            </button>
+            {(provaDisponibile || respinti || (!inAttesaDiRipartire && !approvati)) && (
+                <div className="bg-slate/40 border border-salvia/15 p-4 flex items-start gap-3">
+                    <Shield size={16} className="text-salvia mt-0.5 shrink-0" />
+                    <p className="font-body text-xs text-nebbia/50 leading-relaxed">
+                        {t('upload.privacy')}
+                    </p>
+                </div>
+            )}
         </div>
     )
 }
@@ -453,7 +588,9 @@ export function UserVerificaStato() {
 
     const { icon: Icon, color } = STATO_META[stato] ?? STATO_META.pending
     const title = t(`stato.${stato in STATO_META ? stato : 'pending'}.title`)
-    const desc = t(`stato.${stato in STATO_META ? stato : 'pending'}.desc`)
+    const desc = stato === 'pending' && profile?.prova_fermata_il
+        ? t('stato.pending.desc_ripartenza')
+        : t(`stato.${stato in STATO_META ? stato : 'pending'}.desc`)
 
     return (
         <div className="text-center py-10 space-y-6 max-w-lg mx-auto">

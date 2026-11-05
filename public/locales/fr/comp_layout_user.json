@@ -14,7 +14,8 @@
   "badge": {
     "in_corso": "En cours",
     "approvata": "Approuvée",
-    "da_fare": "À faire"
+    "da_fare": "À faire",
+    "da_rifare": "À refaire"
   },
   "banner": {
     "pending": "Vos documents sont en cours d'examen pour le badge : vous recevrez une réponse sous 24-48 heures. Lexum reste pleinement utilisable.",
@@ -23,7 +24,12 @@
     "rejected": "Les documents envoyés pour le badge n'ont pas été approuvés. La plateforme reste pleinement utilisable.",
     "rejected_link": "Profil →",
     "completa": "Complétez votre profil et choisissez un abonnement : dossiers, clients et factures s'activent aussitôt. Deux minutes suffisent.",
-    "completa_link": "Compléter maintenant →"
+    "completa_link": "Compléter maintenant →",
+    "prova": "Essayez votre bureau gratuitement pendant 3 jours : il faut les documents professionnels et les données de facturation.",
+    "rifiuto_fermata": "L'essai pour votre bureau a été arrêté : les documents n'ont pas été approuvés.",
+    "rifiuto": "Les documents n'ont pas été approuvés.",
+    "motivo": "Motif :",
+    "rifiuto_link": "Téléverser à nouveau les documents →"
   },
   "account": {
     "verificato": "Vérifié",

@@ -64,7 +64,7 @@ const FATT_VUOTO = {
 
 export default function AvvocatoProfilo() {
     const { t, i18n } = useTranslation('avv_profilo')
-    const { reloadProfile } = useAuth()
+    const { profile, reloadProfile } = useAuth()
     const DATE_LOCALES = { it: 'it-CH', de: 'de-CH', fr: 'fr-CH' }
     const dateLocale = DATE_LOCALES[i18n.language] || 'it-CH'
 
@@ -403,7 +403,10 @@ export default function AvvocatoProfilo() {
                 {[
                     [t('info_account.tipo_account'), tipoLabel, false],
                     dati.studio ? [t('info_account.studio'), dati.studio, false] : null,
-                    [t('info_account.verifica_identita'), verificato ? t('info_account.identita_verificata') : t('info_account.in_attesa_verifica'), true],
+                    [t('info_account.verifica_identita'), verificato ? t('info_account.identita_verificata')
+                        : profile?.verification_status === 'pending' ? t('info_account.documenti_in_verifica')
+                            : profile?.verification_status === 'rejected' ? `${t('info_account.documenti_non_approvati')}${profile?.verification_note ? `: ${profile.verification_note}` : ''}`
+                                : t('info_account.documenti_non_inviati'), true],
                 ].filter(Boolean).map(([l, v, isVerifica]) => (
                     <div key={l} className="flex justify-between border-b border-white/5 pb-2">
                         <span className="font-body text-xs text-nebbia/30 uppercase tracking-widest">{l}</span>

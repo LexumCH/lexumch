@@ -71,10 +71,16 @@ Deno.serve(async (req) => {
     // L'utente resta 'user' con la sua tipo_richiesta come direzione.
     const { error } = await supabase
       .from("profiles")
-      .update({ verification_status: "approved" })
+      // 05-11-2026: via l'eventuale motivo di un rifiuto precedente
+      .update({ verification_status: "approved", verification_note: null })
       .eq("id", user_id);
 
     if (error) throw new Error(error.message);
+
+    // 05-11-2026: se un rifiuto aveva fermato la prova, l'approvazione la fa ripartire (e parte anche la mail della
+    // prova). L'approvazione vale anche se la prova non riparte: in quel caso all'utente resta il pulsante.
+    const { data: provaRipartita, error: provaErr } = await supabase.rpc("riprendi_prova_gratuita", { p_user: user_id });
+    if (provaErr) console.error("riprendi_prova_gratuita:", provaErr.message);
 
     // Email approvazione (parametrizzata per direzione e lingua)
     const { data: profilo } = await supabase
@@ -115,7 +121,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ ok: true }),
+      JSON.stringify({ ok: true, prova_ripartita: provaRipartita === true }),
       { headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
     );
 

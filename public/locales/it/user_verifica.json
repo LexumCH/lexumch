@@ -19,15 +19,15 @@
   "set": {
     "avvocato": {
       "titolo": "Completa il tuo profilo — Avvocato",
-      "intro": "Puoi attivare subito la prova dello studio, oppure compilare i dati di fatturazione e acquistare un abbonamento. Nessuna attesa e nessuna approvazione.",
+      "intro": "Puoi provare lo studio gratis per 3 giorni oppure scegliere subito un abbonamento. Per la prova servono i documenti professionali e i dati di fatturazione; per l'abbonamento bastano i dati di fatturazione, e si attiva subito.",
       "documenti": {
         "identita": {
           "label": "Documento di identità",
           "hint": "Carta d'identità o passaporto valido"
         },
         "albo": {
-          "label": "Iscrizione all'Albo",
-          "hint": "Certificato di iscrizione all'Albo degli Avvocati"
+          "label": "Iscrizione al registro degli avvocati",
+          "hint": "Attestato di iscrizione al registro cantonale degli avvocati"
         },
         "laurea": {
           "label": "Laurea in Giurisprudenza",
@@ -37,7 +37,7 @@
     },
     "fiduciario": {
       "titolo": "Completa il tuo profilo — Fiduciario",
-      "intro": "Puoi attivare subito la prova dello studio, oppure compilare i dati di fatturazione e acquistare un abbonamento. Nessuna attesa e nessuna approvazione.",
+      "intro": "Compila i dati di fatturazione e puoi subito acquistare un abbonamento: con l'abbonamento si attivano mandati, clienti e fatture. Nessuna attesa e nessuna approvazione.",
       "documenti": {
         "identita": {
           "label": "Documento di identità",
@@ -55,7 +55,7 @@
     },
     "progettista": {
       "titolo": "Completa il tuo profilo — Progettista",
-      "intro": "Puoi attivare subito la prova dello studio, oppure compilare i dati di fatturazione e acquistare un abbonamento. Nessuna attesa e nessuna approvazione.",
+      "intro": "Puoi provare lo studio gratis per 3 giorni oppure scegliere subito un abbonamento. Per la prova servono i documenti professionali e i dati di fatturazione; per l'abbonamento bastano i dati di fatturazione, e si attiva subito.",
       "documenti": {
         "identita": {
           "label": "Documento di identità",
@@ -87,12 +87,14 @@
   "inviato": {
     "titolo": "Documenti inviati",
     "desc": "Li esamineremo entro 24-48 ore per assegnarti il distintivo di professionista verificato. Nel frattempo puoi continuare a usare Lexum senza limitazioni.",
+    "desc_ripartenza": "Li esamineremo entro 24-48 ore: se sono a posto la prova dello studio riparte e ti avvisiamo via email.",
     "controlla_stato": "Controlla lo stato"
   },
   "stato": {
     "pending": {
       "title": "Verifica in corso",
-      "desc": "Il team Lexum sta esaminando i tuoi documenti per il distintivo di professionista verificato: riceverai un'email entro 24-48 ore. Nel frattempo puoi usare Lexum e acquistare un abbonamento senza aspettare."
+      "desc": "Il team Lexum sta esaminando i tuoi documenti per il distintivo di professionista verificato: riceverai un'email entro 24-48 ore. Nel frattempo puoi usare Lexum e acquistare un abbonamento senza aspettare.",
+      "desc_ripartenza": "Il team Lexum sta esaminando i tuoi nuovi documenti: riceverai un'email entro 24-48 ore e, se sono a posto, la prova dello studio riparte. Nel frattempo puoi usare Lexum e acquistare un abbonamento senza aspettare."
     },
     "approved": {
       "title": "Verifica approvata!",
@@ -124,6 +126,7 @@
       "assistenza": "Assistenza: con un abbonamento è prioritaria"
     },
     "come_funziona": "Completi il profilo con i dati di fatturazione in due minuti e scegli il piano: si attiva subito, senza attese né approvazioni. I documenti sono facoltativi e ti danno il distintivo di professionista verificato.",
+    "come_funziona_prova": "Prova lo studio gratis per 3 giorni, con 7 crediti per Lex: servono i documenti professionali e i dati di fatturazione. Oppure scegli subito il piano: bastano i dati di fatturazione e si attiva senza attese.",
     "verifica_come": "Verifica come {{titolo}}",
     "consulenza": "Richiedi una consulenza",
     "consulenza_oggetto": "Richiesta di consulenza",
@@ -193,8 +196,23 @@
   },
   "prova": {
     "titolo": "Prova lo studio gratis: 3 giorni, con 7 crediti per Lex",
-    "testo": "Un clic e lo studio è attivo: niente carta di credito, niente dati di fatturazione. Alla fine decidi tu se scegliere un piano.",
-    "attiva": "Attiva la prova gratuita"
+    "testo_avvocato": "La prova è riservata agli avvocati iscritti al registro che stanno valutando Lexum per il proprio studio. Mentre provi, il nostro team è a disposizione per una consulenza di 30 minuti, in videochiamata, sul tuo modo di lavorare.",
+    "testo_progettista": "La prova è riservata ai progettisti iscritti al REG o all'OTIA, o con un titolo equivalente, che stanno valutando Lexum per il proprio studio. Mentre provi, il nostro team è a disposizione per una consulenza di 30 minuti, in videochiamata, sul tuo modo di lavorare.",
+    "condizioni": "Nessuna attesa: con tutti i dati si attiva con un clic. Poi controlliamo i documenti: se non risultano validi la prova si ferma e ti scriviamo il motivo. Niente carta di credito e, alla fine, nessun addebito.",
+    "attiva": "Attiva la prova gratuita",
+    "dati_completi": "✓ Completi",
+    "completa_profilo": "Completa nel Profilo",
+    "documenti_verificati": "✓ Già verificati"
+  },
+  "rifiuto": {
+    "titolo_fermata": "La prova è stata fermata: i documenti non sono stati approvati",
+    "titolo": "I documenti non sono stati approvati",
+    "motivo": "Motivo:",
+    "testo_fermata": "Carica i documenti corretti: li controlliamo e, se sono a posto, la prova riparte. Quello che hai inserito resta conservato.",
+    "testo": "Carica i documenti corretti: li controlliamo di nuovo.",
+    "invia": "Invia i nuovi documenti",
+    "scrivi": "Scrivi al team",
+    "in_attesa": "I nuovi documenti sono in verifica: se sono a posto la prova dello studio riparte e ti avvisiamo via email."
   },
   "fatturazione": {
     "titolo": "Dati per la fatturazione",

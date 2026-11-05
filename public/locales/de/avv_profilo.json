@@ -21,6 +21,9 @@
     "verifica_identita": "Identitätsprüfung",
     "identita_verificata": "Identität verifiziert ✓",
     "in_attesa_verifica": "Verifizierung ausstehend",
+    "documenti_in_verifica": "Dokumente in Prüfung",
+    "documenti_non_approvati": "Dokumente nicht genehmigt",
+    "documenti_non_inviati": "Dokumente nicht eingereicht",
     "membro_note": "Sie sind Mitglied der Kanzlei. Um das Abonnement zu ändern, wenden Sie sich bitte an den Inhaber.",
     "gestisci_studio": "Kanzlei verwalten →"
   },

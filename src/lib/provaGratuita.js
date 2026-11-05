@@ -1,6 +1,8 @@
-// La prova gratuita dello studio (03-11-2026), come su Lexum IT: parte da sola quando chi si registra come avvocato
-// o progettista conferma l'email (trigger nel database, attiva_prova_gratuita). Chi era già iscritto la attiva da qui,
-// con un clic. I fiduciari per ora non la vedono (04-11-2026), come i commercialisti su IT.
+// La prova gratuita dello studio, come su Lexum IT. Dal 05-11-2026 non parte più alla conferma dell'email: avvocati e
+// progettisti la attivano con un clic da «Completa il profilo» quando ci sono documento d'identità, iscrizione al
+// registro e dati di fatturazione. Nessuno la deve approvare: il controllo è nel database (attiva_prova_gratuita) e i
+// documenti si guardano dopo. Se l'admin li rifiuta la prova si ferma e l'utente vede il motivo; se li ricarica e
+// vengono approvati, riparte. I fiduciari per ora non la vedono (04-11-2026), come i commercialisti su IT.
 // La consulenza resta per chi la vuole: è un ticket già scritto.
 import { supabase, supabaseUrl } from '@/lib/supabase'
 

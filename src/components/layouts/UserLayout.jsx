@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { mancantiAcquisto } from '@/lib/datiFatturazione'
+import { puoAttivareProva } from '@/lib/provaGratuita'
 import logo from '@/assets/logo.png'
 import {
   LogOut, Menu, X, Sparkles, Plus,
@@ -27,6 +28,7 @@ export default function UserLayout({ children }) {
   const [bannerDismissed, setBannerDismissed] = useState(false)
   const { pathname } = useLocation()
   const paginaAcquista = pathname.includes('/area/acquista')
+  const paginaVerifica = pathname.startsWith('/verifica')
   // Negli strumenti la colonna di destra segue lo scorrimento: con overflow-auto sul main non potrebbe
   const paginaStrumenti = pathname.startsWith('/area/strumenti')
 
@@ -37,10 +39,12 @@ export default function UserLayout({ children }) {
   const isRejected = status === 'rejected'
 
   // Voce sidebar (03-11-2026, come su IT): a sbloccare i piani sono i DATI DI FATTURAZIONE, non la verifica dei
-  // documenti: la voce resta finché mancano dati, poi diventa il distintivo.
+  // documenti: la voce resta finché mancano dati, poi diventa il distintivo. 05-11-2026: resta anche per attivare la
+  // prova, e dopo un rifiuto dei documenti.
   const completo = mancantiAcquisto(profile).length === 0
-  const verifyItem = !completo
-    ? { path: '/verifica', label: t('nav.completa_profilo'), icon: ShieldCheck, badge: t('badge.da_fare'), badgeColor: 'amber' }
+  const provaDisponibile = !isRejected && puoAttivareProva(profile)
+  const verifyItem = isRejected || provaDisponibile || !completo
+    ? { path: '/verifica', label: t('nav.completa_profilo'), icon: ShieldCheck, badge: t(isRejected ? 'badge.da_rifare' : 'badge.da_fare'), badgeColor: 'amber' }
     : isPending
       ? { path: '/verifica/stato', label: t('nav.profilo'), icon: ShieldCheck, badge: t('account.in_verifica'), badgeColor: 'amber' }
       : isApproved
@@ -59,23 +63,29 @@ export default function UserLayout({ children }) {
   ]
 
   // Banner contestuale: non sulla pagina Acquista, dove un privato sceglie già il suo abbonamento (28-10-2026)
-  const banner = bannerDismissed || paginaAcquista ? null
-    : !completo ? {
-      icon: Clock, color: 'amber',
-      text: t('banner.completa'),
-      link: { to: '/verifica', label: t('banner.completa_link') },
+  // 05-11-2026: il rifiuto dei documenti viene prima di tutto, con il motivo. Su «Completa il profilo» c'è già.
+  const banner = bannerDismissed || paginaAcquista || paginaVerifica ? null
+    : isRejected ? {
+      icon: XCircle, color: 'red',
+      text: `${t(profile?.prova_fermata_il ? 'banner.rifiuto_fermata' : 'banner.rifiuto')}${profile?.verification_note ? ` ${t('banner.motivo')} ${profile.verification_note}` : ''}`,
+      link: { to: '/verifica', label: t('banner.rifiuto_link') },
     }
-      : !profile?.piano_id ? {
-        icon: CheckCircle, color: 'salvia',
-        text: t('banner.approved'),
-        link: { to: '/area/acquista', label: t('banner.approved_link') },
+      : provaDisponibile ? {
+        icon: Clock, color: 'amber',
+        text: t('banner.prova'),
+        link: { to: '/verifica', label: t('banner.completa_link') },
       }
-        : isRejected ? {
-          icon: XCircle, color: 'red',
-          text: t('banner.rejected'),
-          link: { to: '/area/profilo', label: t('banner.rejected_link') },
+        : !completo ? {
+          icon: Clock, color: 'amber',
+          text: t('banner.completa'),
+          link: { to: '/verifica', label: t('banner.completa_link') },
         }
-          : null
+          : !profile?.piano_id ? {
+            icon: CheckCircle, color: 'salvia',
+            text: t('banner.approved'),
+            link: { to: '/area/acquista', label: t('banner.approved_link') },
+          }
+            : null
 
   const bannerColors = {
     amber: { bg: 'bg-amber-500/8', border: 'border-amber-500/20', text: 'text-amber-400/90', icon: 'text-amber-400' },
@@ -121,11 +131,11 @@ export default function UserLayout({ children }) {
                   : 'text-nebbia/50 hover:text-nebbia hover:bg-white/5'
                 }`
               }>
-              <Icon size={16} strokeWidth={1.5} />
+              <Icon size={16} strokeWidth={1.5} className="shrink-0" />
               <span className="flex-1">{label}</span>
               {path === '/area/assistenza' && <PallinoTicket n={daRispondere} />}
               {badge && (
-                <span className={`font-body text-[10px] px-1.5 py-0.5 border ${badgeColor === 'salvia' ? 'border-salvia/30 text-salvia' : 'border-amber-500/30 text-amber-400'
+                <span className={`font-body text-[10px] px-1.5 py-0.5 border whitespace-nowrap shrink-0 ${badgeColor === 'salvia' ? 'border-salvia/30 text-salvia' : 'border-amber-500/30 text-amber-400'
                   }`}>
                   {badge}
                 </span>

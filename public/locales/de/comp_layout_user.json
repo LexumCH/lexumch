@@ -14,7 +14,8 @@
   "badge": {
     "in_corso": "In Bearbeitung",
     "approvata": "Genehmigt",
-    "da_fare": "Offen"
+    "da_fare": "Offen",
+    "da_rifare": "Zu wiederholen"
   },
   "banner": {
     "pending": "Ihre Dokumente werden für das Abzeichen geprüft: Sie erhalten innert 24-48 Stunden eine Antwort. Lexum bleibt uneingeschränkt nutzbar.",
@@ -23,7 +24,12 @@
     "rejected": "Die für das Abzeichen eingereichten Dokumente wurden nicht genehmigt. Die Plattform bleibt uneingeschränkt nutzbar.",
     "rejected_link": "Profil →",
     "completa": "Vervollständigen Sie Ihr Profil und wählen Sie ein Abonnement: Dossiers, Kunden und Rechnungen sind sofort aktiv. Es dauert nur zwei Minuten.",
-    "completa_link": "Jetzt vervollständigen →"
+    "completa_link": "Jetzt vervollständigen →",
+    "prova": "Testen Sie Ihr Büro 3 Tage kostenlos: Dafür braucht es die beruflichen Dokumente und die Rechnungsdaten.",
+    "rifiuto_fermata": "Die Testphase für Ihr Büro wurde gestoppt: Die Dokumente wurden nicht genehmigt.",
+    "rifiuto": "Die Dokumente wurden nicht genehmigt.",
+    "motivo": "Grund:",
+    "rifiuto_link": "Dokumente erneut hochladen →"
   },
   "account": {
     "verificato": "Verifiziert",

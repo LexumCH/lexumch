@@ -21,6 +21,9 @@
     "verifica_identita": "Vérification de l'identité",
     "identita_verificata": "Identité vérifiée ✓",
     "in_attesa_verifica": "En attente de vérification",
+    "documenti_in_verifica": "Documents en cours de vérification",
+    "documenti_non_approvati": "Documents non approuvés",
+    "documenti_non_inviati": "Documents non envoyés",
     "membro_note": "Vous êtes membre de l'étude. Pour modifier l'abonnement, contactez le titulaire.",
     "gestisci_studio": "Gérer l'étude →"
   },

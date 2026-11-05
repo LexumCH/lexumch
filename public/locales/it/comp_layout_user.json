@@ -14,7 +14,8 @@
   "badge": {
     "in_corso": "In corso",
     "approvata": "Approvata",
-    "da_fare": "Da fare"
+    "da_fare": "Da fare",
+    "da_rifare": "Da rifare"
   },
   "banner": {
     "pending": "I tuoi documenti sono in revisione per il distintivo: riceverai una risposta entro 24-48 ore. Lexum resta pienamente utilizzabile.",
@@ -23,7 +24,12 @@
     "rejected": "I documenti inviati per il distintivo non sono stati approvati. La piattaforma resta pienamente utilizzabile.",
     "rejected_link": "Profilo →",
     "completa": "Completa il profilo e scegli un abbonamento: pratiche, clienti e fatture si attivano subito. Bastano due minuti.",
-    "completa_link": "Completa ora →"
+    "completa_link": "Completa ora →",
+    "prova": "Prova lo studio gratis per 3 giorni: servono i documenti professionali e i dati di fatturazione.",
+    "rifiuto_fermata": "La prova dello studio è stata fermata: i documenti non sono stati approvati.",
+    "rifiuto": "I documenti non sono stati approvati.",
+    "motivo": "Motivo:",
+    "rifiuto_link": "Ricarica i documenti →"
   },
   "account": {
     "verificato": "Verificato",

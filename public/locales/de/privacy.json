@@ -24,6 +24,7 @@
       "E-Mail-Adresse und Telefonnummer",
       "Daten der Anwaltskanzlei oder des Treuhandbüros",
       "Rechnungsdaten (Firma, UID/MWST-Nummer, Adresse)",
+      "Ausweisdokument und Nachweis der Eintragung im Berufsregister, wenn Sie die kostenlose Testphase oder die Verifizierung des beruflichen Profils beantragen",
       "Auf die Plattform hochgeladene Inhalte (Dokumente, Dossiers, Mandate)",
       "Über die Plattform versandte Mitteilungen"
     ],
@@ -42,6 +43,7 @@
     "title": "3. Zwecke und Rechtsgrundlagen der Bearbeitung",
     "items": [
       { "finalita": "Erbringung der Dienstleistung", "base": "Vertragserfüllung (Art. 31 Abs. 2 DSG / Art. 6.1.b DSGVO)", "desc": "Kontoverwaltung, Zugang zur Plattform, Bearbeitung von Dossiers und Mandaten, KI-Recherchen und damit verbundene Funktionen." },
+      { "finalita": "Verifizierung des beruflichen Profils", "base": "Vertragserfüllung (Art. 31 Abs. 2 DSG / Art. 6.1.b DSGVO)", "desc": "Prüfung des Ausweisdokuments und der Eintragung im Berufsregister für die Aktivierung der kostenlosen Testphase und für das Abzeichen «Verifizierte Fachperson». Die Dokumente sind nur für das Lexum-Team sichtbar." },
       { "finalita": "Rechnungsstellung und steuerliche Pflichten", "base": "Gesetzliche Pflicht (Art. 31 Abs. 1 DSG / Art. 6.1.c DSGVO)", "desc": "Ausstellung von Rechnungen, Zahlungsabwicklung über einen Zahlungsdienstleister, Aufbewahrung der Buchungsbelege nach Schweizer Recht." },
       { "finalita": "Sicherheit der Plattform", "base": "Berechtigtes Interesse (Art. 31 Abs. 1 DSG / Art. 6.1.f DSGVO)", "desc": "Verhinderung unbefugter Zugriffe, Erkennung von Anomalien, Schutz der Nutzerdaten." },
       { "finalita": "Künstliche Intelligenz und Recherche", "base": "Vertragserfüllung (Art. 31 Abs. 2 DSG / Art. 6.1.b DSGVO)", "desc": "Verarbeitung der hochgeladenen Inhalte zur Bereitstellung der semantischen Suche und KI-Analyse (Lex). Die Inhalte werden nicht zum Training von KI-Modellen Dritter verwendet." },

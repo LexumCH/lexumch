@@ -16,8 +16,8 @@ const normLingua = (l) => {
   return LINGUE_OK.includes(c) ? c : 'it'
 }
 
-// Valori del database (profiles_professione_check). Chi sceglie una delle prime tre ha la prova dello studio: parte da
-// sola alla conferma dell'email (trigger nel database). Come su Lexum IT, con le professioni svizzere.
+// Valori del database (profiles_professione_check). Avvocati e progettisti possono attivare la prova dello studio da
+// «Completa il profilo», con documenti e dati di fatturazione. Come su Lexum IT, con le professioni svizzere.
 const PROFESSIONI = ['avvocato', 'fiduciario', 'progettista', 'dirigente_azienda', 'studente_giurisprudenza', 'imprenditore', 'privato']
 const PROFESSIONI_CON_PROVA = ['avvocato', 'progettista']
 

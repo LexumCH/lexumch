@@ -62,14 +62,15 @@
     "sub46_title": "4.7 Crédits IA",
     "sub46_text": "Les crédits IA achetés ont la validité indiquée au moment de l'achat et, sous réserve du point 4.6, ne sont ni remboursables ni transférables. Les crédits inclus dans l'abonnement mensuel ne se cumulent pas d'un mois à l'autre.",
     "sub47_title": "4.8 Essai gratuit",
-    "sub47_intro": "Lexum offre un essai gratuit d'une durée de 3 jours (ou une période différente indiquée au moment de l'activation) pour les utilisateurs qui s'inscrivent en tant qu'avocats ou projeteurs. L'essai démarre tout seul à la confirmation de l'adresse e-mail ; les personnes déjà inscrites peuvent l'activer en un clic depuis leur espace. L'essai gratuit :",
+    "sub47_intro": "Lexum offre aux avocats et aux projeteurs un essai gratuit d'une durée de 3 jours (ou une période différente indiquée au moment de l'activation). Il s'active depuis son espace, après avoir téléversé la pièce d'identité et l'attestation d'inscription au registre professionnel et complété les données de facturation. L'essai gratuit :",
     "sub47_items": [
       "Est activable une seule fois par compte et n'est pas transférable",
       "Ne requiert pas la saisie de données de paiement",
       "Inclut les fonctionnalités indiquées au moment de l'activation",
       "Se termine automatiquement à l'échéance, sans débit et sans obligation d'acheter un abonnement",
       "À l'échéance, sans abonnement, les crédits de l'essai, l'ajout de nouveaux clients et le téléversement de documents dans l'archive ne sont plus disponibles",
-      "Le compte reste accessible : les données saisies durant l'essai restent disponibles et les documents de l'archive consultables en lecture seule, même sans acheter d'abonnement"
+      "Le compte reste accessible : les données saisies durant l'essai restent disponibles et les documents de l'archive consultables en lecture seule, même sans acheter d'abonnement",
+      "Lexum contrôle les documents après l'activation : s'ils ne sont pas valables, l'essai est interrompu et l'utilisateur est informé du motif. Le compte redevient un compte de base ; les données saisies restent conservées et redeviennent disponibles si de nouveaux documents sont approuvés ou si l'utilisateur achète un abonnement"
     ],
     "sub47_outro": "Lexum se réserve le droit de modifier les conditions de l'essai gratuit ou de le suspendre à tout moment pour les nouveaux utilisateurs, sans effet sur les essais déjà activés."
   },

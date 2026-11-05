@@ -557,10 +557,12 @@ function DocumentiVerifica({ userId }) {
 
   const LABEL = {
     identita: 'Documento identità',
-    albo: 'Iscrizione Albo',
+    albo: 'Iscrizione al registro',
     laurea: 'Laurea',
     registro: 'Registro di commercio',
     affiliazione: 'Affiliazione professionale',
+    reg: 'Iscrizione REG / OTIA',
+    diploma: 'Diploma',
   }
 
   if (loading) return (
@@ -606,6 +608,14 @@ function TabVerifiche({ data, loading, onDecision }) {
   const [motivazione, setMotivazione] = useState('')
   const [elaborando, setElaborando] = useState(false)
   const [errore, setErrore] = useState('')
+  const [pianiProva, setPianiProva] = useState([])
+
+  // Chi è in prova ha già lo studio attivo (05-11-2026): il rifiuto ferma anche quello
+  useEffect(() => {
+    supabase.from('prodotti').select('id').eq('tipo', 'gratuito')
+      .then(({ data: righe }) => setPianiProva((righe ?? []).map(r => r.id)))
+  }, [])
+  const inProva = u => !!u?.piano_id && pianiProva.includes(u.piano_id)
 
   const pending = data.filter(u => u.verification_status === 'pending')
 
@@ -661,6 +671,7 @@ function TabVerifiche({ data, loading, onDecision }) {
                       : u.tipo_richiesta === 'progettista'
                         ? <span className="font-body text-[10px] px-1.5 py-0.5 border border-sky-500/30 text-sky-400">Progettista</span>
                         : null}
+                  {inProva(u) && <span className="font-body text-[10px] px-1.5 py-0.5 border border-amber-500/30 text-amber-400">In prova</span>}
                 </div>
                 {u.studio && <p className="font-body text-xs text-nebbia/30">{u.studio}</p>}
                 <p className="font-body text-xs text-nebbia/40 truncate">{u.email}</p>
@@ -689,10 +700,15 @@ function TabVerifiche({ data, loading, onDecision }) {
             {selected.studio && <p className="font-body text-sm text-nebbia/40">{selected.studio}</p>}
             <p className="font-body text-sm text-nebbia/40">{selected.email}</p>
           </div>
+          {inProva(selected) && (
+            <p className="font-body text-xs text-amber-400/90 leading-relaxed p-3 bg-amber-500/8 border border-amber-500/20">
+              La prova è già attiva. Se approvi continua; se rifiuti si ferma subito e l'utente vede il motivo.
+            </p>
+          )}
           <DocumentiVerifica userId={selected.id} />
           <div>
             <label className="block font-body text-xs text-nebbia/50 tracking-widest uppercase mb-2">
-              Motivazione <span className="text-nebbia/25 normal-case tracking-normal">(obbligatoria in caso di rifiuto)</span>
+              Motivazione <span className="text-nebbia/25 normal-case tracking-normal">(obbligatoria in caso di rifiuto: la vede l'utente)</span>
             </label>
             <textarea rows={3} value={motivazione} onChange={e => setMotivazione(e.target.value)}
               placeholder="Es. documento di identità non leggibile..."
@@ -706,7 +722,7 @@ function TabVerifiche({ data, loading, onDecision }) {
             </button>
             <button onClick={() => handleDecisione(selected.id, 'rejected')} disabled={elaborando}
               className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-900/10 border border-red-500/30 text-red-400 font-body text-sm hover:bg-red-900/20 transition-colors disabled:opacity-40">
-              {elaborando ? <span className="animate-spin w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" /> : <><XCircle size={14} /> Rifiuta</>}
+              {elaborando ? <span className="animate-spin w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full" /> : <><XCircle size={14} /> {inProva(selected) ? 'Rifiuta e ferma la prova' : 'Rifiuta'}</>}
             </button>
           </div>
         </div>
@@ -736,7 +752,7 @@ export default function AdminUtenti() {
     const [{ data }] = await Promise.all([
       supabase
         .from('profiles')
-        .select('id, nome, cognome, email, role, studio, verification_status, tipo_richiesta, created_at')
+        .select('id, nome, cognome, email, role, studio, verification_status, tipo_richiesta, created_at, piano_id')
         .order('created_at', { ascending: false }),
       caricaContatori(),
     ])

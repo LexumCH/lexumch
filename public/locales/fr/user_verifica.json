@@ -19,7 +19,7 @@
   "set": {
     "avvocato": {
       "titolo": "Complétez votre profil — Avocat",
-      "intro": "Vous pouvez activer tout de suite l'essai pour votre bureau, ou compléter vos données de facturation et acheter un abonnement. Sans attente et sans approbation.",
+      "intro": "Vous pouvez essayer votre bureau gratuitement pendant 3 jours ou choisir tout de suite un abonnement. Pour l'essai, il faut les documents professionnels et les données de facturation ; pour l'abonnement, les données de facturation suffisent et il s'active aussitôt.",
       "documenti": {
         "identita": {
           "label": "Pièce d'identité",
@@ -37,7 +37,7 @@
     },
     "fiduciario": {
       "titolo": "Complétez votre profil — Fiduciaire",
-      "intro": "Vous pouvez activer tout de suite l'essai pour votre bureau, ou compléter vos données de facturation et acheter un abonnement. Sans attente et sans approbation.",
+      "intro": "Complétez vos données de facturation et vous pouvez acheter tout de suite un abonnement : il active mandats, clients et factures. Sans attente et sans approbation.",
       "documenti": {
         "identita": {
           "label": "Pièce d'identité",
@@ -55,7 +55,7 @@
     },
     "progettista": {
       "titolo": "Complétez votre profil — Projeteur",
-      "intro": "Vous pouvez activer tout de suite l'essai pour votre bureau, ou compléter vos données de facturation et acheter un abonnement. Sans attente et sans approbation.",
+      "intro": "Vous pouvez essayer votre bureau gratuitement pendant 3 jours ou choisir tout de suite un abonnement. Pour l'essai, il faut les documents professionnels et les données de facturation ; pour l'abonnement, les données de facturation suffisent et il s'active aussitôt.",
       "documenti": {
         "identita": {
           "label": "Document d'identité",
@@ -87,12 +87,14 @@
   "inviato": {
     "titolo": "Documents envoyés",
     "desc": "Nous les examinerons sous 24-48 heures pour vous attribuer le badge de professionnel vérifié. Entre-temps, vous pouvez continuer à utiliser Lexum sans limitation.",
+    "desc_ripartenza": "Nous les examinerons sous 24-48 heures : s'ils sont en règle, l'essai pour votre bureau repart et nous vous prévenons par e-mail.",
     "controlla_stato": "Vérifier le statut"
   },
   "stato": {
     "pending": {
       "title": "Vérification en cours",
-      "desc": "L'équipe Lexum examine vos documents pour le badge de professionnel vérifié : vous recevrez un e-mail sous 24-48 heures. Entre-temps, vous pouvez utiliser Lexum et acheter un abonnement sans attendre."
+      "desc": "L'équipe Lexum examine vos documents pour le badge de professionnel vérifié : vous recevrez un e-mail sous 24-48 heures. Entre-temps, vous pouvez utiliser Lexum et acheter un abonnement sans attendre.",
+      "desc_ripartenza": "L'équipe Lexum examine vos nouveaux documents : vous recevrez un e-mail sous 24-48 heures et, s'ils sont en règle, l'essai pour votre bureau repart. Entre-temps, vous pouvez utiliser Lexum et acheter un abonnement sans attendre."
     },
     "approved": {
       "title": "Vérification approuvée !",
@@ -124,6 +126,7 @@
       "assistenza": "Assistance : prioritaire avec un abonnement"
     },
     "come_funziona": "Vous complétez votre profil avec les données de facturation en deux minutes et choisissez l'abonnement : il s'active aussitôt, sans attente ni approbation. Les documents sont facultatifs et vous donnent le badge de professionnel vérifié.",
+    "come_funziona_prova": "Essayez votre bureau gratuitement pendant 3 jours, avec 7 crédits pour Lex : il faut les documents professionnels et les données de facturation. Ou choisissez tout de suite l'abonnement : les données de facturation suffisent et il s'active sans attente.",
     "verifica_come": "Vérifier en tant que {{titolo}}",
     "consulenza": "Demander une consultation",
     "consulenza_oggetto": "Demande de consultation",
@@ -193,8 +196,23 @@
   },
   "prova": {
     "titolo": "Essayez votre bureau gratuitement : 3 jours, avec 7 crédits pour Lex",
-    "testo": "Un clic et votre bureau est actif : sans carte de crédit, sans données de facturation. À la fin, vous décidez de choisir ou non un abonnement.",
-    "attiva": "Activer l'essai gratuit"
+    "testo_avvocato": "L'essai est réservé aux avocats inscrits au registre qui évaluent Lexum pour leur bureau. Pendant l'essai, notre équipe est à votre disposition pour une consultation de 30 minutes, en appel vidéo, sur votre façon de travailler.",
+    "testo_progettista": "L'essai est réservé aux projeteurs inscrits au REG ou à l'OTIA, ou titulaires d'un titre équivalent, qui évaluent Lexum pour leur bureau. Pendant l'essai, notre équipe est à votre disposition pour une consultation de 30 minutes, en appel vidéo, sur votre façon de travailler.",
+    "condizioni": "Aucune attente : avec toutes les données, il s'active en un clic. Nous contrôlons ensuite les documents : s'ils ne sont pas valables, l'essai s'arrête et nous vous écrivons le motif. Sans carte de crédit et, à la fin, sans aucun frais.",
+    "attiva": "Activer l'essai gratuit",
+    "dati_completi": "✓ Complètes",
+    "completa_profilo": "Compléter dans le Profil",
+    "documenti_verificati": "✓ Déjà vérifiés"
+  },
+  "rifiuto": {
+    "titolo_fermata": "L'essai a été arrêté : les documents n'ont pas été approuvés",
+    "titolo": "Les documents n'ont pas été approuvés",
+    "motivo": "Motif :",
+    "testo_fermata": "Téléversez les bons documents : nous les contrôlons et, s'ils sont en règle, l'essai repart. Ce que vous avez saisi reste conservé.",
+    "testo": "Téléversez les bons documents : nous les contrôlons à nouveau.",
+    "invia": "Envoyer les nouveaux documents",
+    "scrivi": "Écrire à l'équipe",
+    "in_attesa": "Les nouveaux documents sont en cours de vérification : s'ils sont en règle, l'essai pour votre bureau repart et nous vous prévenons par e-mail."
   },
   "fatturazione": {
     "titolo": "Données de facturation",

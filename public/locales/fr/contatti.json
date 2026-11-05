@@ -37,7 +37,7 @@
     "items": [
       {
         "q": "Puis-je essayer Lexum gratuitement ?",
-        "a": "Oui, si vous êtes avocat ou projeteur. Vous vous inscrivez en indiquant votre profession et, dès que vous confirmez votre e-mail, l'essai démarre tout seul : 3 jours, avec 7 crédits pour Lex et accès à toutes les fonctions principales de l'abonnement, sans carte de crédit. Si vous souhaitez un coup de main pour démarrer, vous pouvez demander une consultation à l'équipe : vous nous écrivez depuis votre espace et nous vous contactons sous 48 heures ouvrables pour un appel vidéo de 30 minutes sur votre bureau. Si vous souhaitez continuer, vous choisissez l'abonnement adapté à votre bureau. Si vous ne continuez pas, rien ne vous est facturé."
+        "a": "Oui, si vous êtes avocat ou projeteur. Vous vous inscrivez en indiquant votre profession, vous téléversez depuis « Compléter le profil » les documents professionnels (pièce d'identité et inscription au registre) et vous complétez les données de facturation : l'essai s'active alors en un clic, 3 jours, avec 7 crédits pour Lex et accès à toutes les fonctions principales de l'abonnement, sans carte de crédit. Nous contrôlons ensuite les documents : s'ils ne sont pas valables, l'essai s'arrête et nous vous écrivons le motif. Si vous souhaitez un coup de main pour démarrer, vous pouvez demander une consultation à l'équipe : vous nous écrivez depuis votre espace et nous vous contactons sous 48 heures ouvrables pour un appel vidéo de 30 minutes sur votre bureau. Si vous souhaitez continuer, vous choisissez l'abonnement adapté à votre bureau. Si vous ne continuez pas, rien ne vous est facturé."
       },
       {
         "q": "Lexum remplace-t-il les bases de données que j'utilise aujourd'hui ?",
@@ -57,7 +57,7 @@
       },
       {
         "q": "Comment fonctionne la vérification en tant qu'avocat ?",
-        "a": "Elle n'est pas nécessaire pour utiliser Lexum : vous vous inscrivez, complétez vos données de facturation et choisissez un abonnement, actif aussitôt. La vérification est facultative : si vous téléversez votre attestation d'inscription au registre cantonal des avocats (ou un document équivalent), l'équipe l'examine sous 48 heures ouvrables et vous attribue le badge d'avocat vérifié."
+        "a": "Elle n'est pas nécessaire pour acheter un abonnement : vous vous inscrivez, complétez vos données de facturation et le choisissez, il s'active aussitôt. La vérification sert pour l'essai gratuit : vous téléversez votre pièce d'identité et votre attestation d'inscription au registre cantonal des avocats (ou un document équivalent) et l'équipe les examine sous 48 heures ouvrables. S'ils sont en règle, vous recevez le badge d'avocat vérifié ; sinon, l'essai s'arrête et nous vous écrivons le motif."
       },
       {
         "q": "Puis-je utiliser Lexum si je suis avocat individuel ?",

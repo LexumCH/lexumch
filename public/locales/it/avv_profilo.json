@@ -21,6 +21,9 @@
     "verifica_identita": "Verifica identità",
     "identita_verificata": "Identità verificata ✓",
     "in_attesa_verifica": "In attesa di verifica",
+    "documenti_in_verifica": "Documenti in verifica",
+    "documenti_non_approvati": "Documenti non approvati",
+    "documenti_non_inviati": "Documenti non inviati",
     "membro_note": "Sei un membro dello studio. Per modificare il piano contatta il titolare.",
     "gestisci_studio": "Gestisci studio →"
   },

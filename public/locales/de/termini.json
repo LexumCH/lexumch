@@ -62,14 +62,15 @@
     "sub46_title": "4.7 KI-Guthaben",
     "sub46_text": "Erworbene KI-Guthaben haben die beim Kauf angegebene Gültigkeit und sind, vorbehaltlich Ziffer 4.6, weder rückerstattbar noch übertragbar. Die im Monatsabonnement enthaltenen Guthaben werden nicht von Monat zu Monat angesammelt.",
     "sub47_title": "4.8 Kostenlose Testphase",
-    "sub47_intro": "Lexum bietet eine kostenlose Testphase von 3 Tagen (oder einem bei der Aktivierung angegebenen anderen Zeitraum) für Nutzer, die sich als Anwälte oder Planer registrieren. Die Testphase startet von selbst, sobald die E-Mail-Adresse bestätigt ist; bereits registrierte Nutzer können sie mit einem Klick in ihrem Bereich aktivieren. Die kostenlose Testphase:",
+    "sub47_intro": "Lexum bietet Anwälten und Planern eine kostenlose Testphase von 3 Tagen (oder einem bei der Aktivierung angegebenen anderen Zeitraum). Sie wird im eigenen Bereich aktiviert, nachdem das Ausweisdokument und der Nachweis der Eintragung im Berufsregister hochgeladen und die Rechnungsdaten ausgefüllt wurden. Die kostenlose Testphase:",
     "sub47_items": [
       "Kann pro Konto nur einmal aktiviert werden und ist nicht übertragbar",
       "Erfordert keine Eingabe von Zahlungsdaten",
       "Umfasst die bei der Aktivierung angegebenen Funktionen",
       "Endet bei Ablauf automatisch, ohne Belastung und ohne Pflicht, ein Abonnement zu kaufen",
       "Nach Ablauf sind ohne Abonnement die Credits der Testphase, das Hinzufügen neuer Kunden und das Hochladen von Dokumenten ins Archiv nicht mehr verfügbar",
-      "Das Konto bleibt zugänglich: Die während der Testphase eingegebenen Daten bleiben verfügbar und die Dokumente im Archiv können weiterhin eingesehen werden, auch ohne Kauf eines Abonnements"
+      "Das Konto bleibt zugänglich: Die während der Testphase eingegebenen Daten bleiben verfügbar und die Dokumente im Archiv können weiterhin eingesehen werden, auch ohne Kauf eines Abonnements",
+      "Lexum prüft die Dokumente nach der Aktivierung: Sind sie nicht gültig, wird die Testphase unterbrochen und der Nutzer über den Grund informiert. Das Konto wird wieder zu einem Basiskonto; die eingegebenen Daten bleiben gespeichert und stehen wieder zur Verfügung, wenn neue Dokumente genehmigt werden oder der Nutzer ein Abonnement kauft"
     ],
     "sub47_outro": "Lexum behält sich das Recht vor, die Bedingungen der kostenlosen Testphase jederzeit für neue Nutzer zu ändern oder sie auszusetzen, ohne Auswirkung auf bereits aktivierte Testphasen."
   },

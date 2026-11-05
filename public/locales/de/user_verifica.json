@@ -19,7 +19,7 @@
   "set": {
     "avvocato": {
       "titolo": "Profil vervollständigen — Anwalt",
-      "intro": "Sie können die Testphase für Ihr Büro sofort aktivieren oder Ihre Rechnungsdaten ergänzen und ein Abonnement kaufen. Keine Wartezeit und keine Genehmigung.",
+      "intro": "Sie können Ihr Büro 3 Tage kostenlos testen oder gleich ein Abonnement wählen. Für die Testphase braucht es die beruflichen Dokumente und die Rechnungsdaten; für das Abonnement genügen die Rechnungsdaten, und es ist sofort aktiv.",
       "documenti": {
         "identita": {
           "label": "Ausweisdokument",
@@ -37,7 +37,7 @@
     },
     "fiduciario": {
       "titolo": "Profil vervollständigen — Treuhänder",
-      "intro": "Sie können die Testphase für Ihr Büro sofort aktivieren oder Ihre Rechnungsdaten ergänzen und ein Abonnement kaufen. Keine Wartezeit und keine Genehmigung.",
+      "intro": "Ergänzen Sie Ihre Rechnungsdaten und Sie können sofort ein Abonnement kaufen: Damit werden Mandate, Kunden und Rechnungen aktiviert. Keine Wartezeit und keine Genehmigung.",
       "documenti": {
         "identita": {
           "label": "Ausweisdokument",
@@ -55,7 +55,7 @@
     },
     "progettista": {
       "titolo": "Profil vervollständigen — Planer",
-      "intro": "Sie können die Testphase für Ihr Büro sofort aktivieren oder Ihre Rechnungsdaten ergänzen und ein Abonnement kaufen. Keine Wartezeit und keine Genehmigung.",
+      "intro": "Sie können Ihr Büro 3 Tage kostenlos testen oder gleich ein Abonnement wählen. Für die Testphase braucht es die beruflichen Dokumente und die Rechnungsdaten; für das Abonnement genügen die Rechnungsdaten, und es ist sofort aktiv.",
       "documenti": {
         "identita": {
           "label": "Identitätsdokument",
@@ -87,12 +87,14 @@
   "inviato": {
     "titolo": "Dokumente eingereicht",
     "desc": "Wir prüfen sie innert 24-48 Stunden und verleihen Ihnen das Abzeichen «Verifizierte Fachperson». In der Zwischenzeit können Sie Lexum uneingeschränkt weiter nutzen.",
+    "desc_ripartenza": "Wir prüfen sie innert 24-48 Stunden: Wenn sie in Ordnung sind, läuft die Testphase für Ihr Büro wieder an, und wir informieren Sie per E-Mail.",
     "controlla_stato": "Status prüfen"
   },
   "stato": {
     "pending": {
       "title": "Verifizierung läuft",
-      "desc": "Das Lexum-Team prüft Ihre Dokumente für das Abzeichen «Verifizierte Fachperson»: Sie erhalten innert 24-48 Stunden eine E-Mail. In der Zwischenzeit können Sie Lexum nutzen und ohne Wartezeit ein Abonnement kaufen."
+      "desc": "Das Lexum-Team prüft Ihre Dokumente für das Abzeichen «Verifizierte Fachperson»: Sie erhalten innert 24-48 Stunden eine E-Mail. In der Zwischenzeit können Sie Lexum nutzen und ohne Wartezeit ein Abonnement kaufen.",
+      "desc_ripartenza": "Das Lexum-Team prüft Ihre neuen Dokumente: Sie erhalten innert 24-48 Stunden eine E-Mail, und wenn sie in Ordnung sind, läuft die Testphase für Ihr Büro wieder an. In der Zwischenzeit können Sie Lexum nutzen und ohne Wartezeit ein Abonnement kaufen."
     },
     "approved": {
       "title": "Verifizierung genehmigt!",
@@ -124,6 +126,7 @@
       "assistenza": "Support: mit einem Abonnement mit Priorität"
     },
     "come_funziona": "Sie ergänzen Ihr Profil in zwei Minuten mit den Rechnungsdaten und wählen das Abonnement: Es ist sofort aktiv, ohne Wartezeit und ohne Genehmigung. Die Dokumente sind freiwillig und geben Ihnen das Abzeichen «Verifizierte Fachperson».",
+    "come_funziona_prova": "Testen Sie Ihr Büro 3 Tage kostenlos, mit 7 Credits für Lex: Dafür braucht es die beruflichen Dokumente und die Rechnungsdaten. Oder wählen Sie gleich das Abonnement: Die Rechnungsdaten genügen, und es ist ohne Wartezeit aktiv.",
     "verifica_come": "Als {{titolo}} verifizieren",
     "consulenza": "Beratung anfragen",
     "consulenza_oggetto": "Beratungsanfrage",
@@ -193,8 +196,23 @@
   },
   "prova": {
     "titolo": "Testen Sie Ihr Büro kostenlos: 3 Tage, mit 7 Credits für Lex",
-    "testo": "Ein Klick und Ihr Büro ist aktiv: keine Kreditkarte, keine Rechnungsdaten. Am Ende entscheiden Sie, ob Sie ein Abonnement wählen.",
-    "attiva": "Kostenlose Testphase aktivieren"
+    "testo_avvocato": "Die Testphase ist im Anwaltsregister eingetragenen Anwälten vorbehalten, die Lexum für ihr Büro prüfen. Während der Testphase steht Ihnen unser Team für eine 30-minütige Beratung per Videogespräch zu Ihrer Arbeitsweise zur Verfügung.",
+    "testo_progettista": "Die Testphase ist Planern mit REG- oder OTIA-Eintrag oder einem gleichwertigen Titel vorbehalten, die Lexum für ihr Büro prüfen. Während der Testphase steht Ihnen unser Team für eine 30-minütige Beratung per Videogespräch zu Ihrer Arbeitsweise zur Verfügung.",
+    "condizioni": "Keine Wartezeit: Mit allen Angaben aktivieren Sie sie mit einem Klick. Danach prüfen wir die Dokumente: Sind sie nicht gültig, wird die Testphase gestoppt und wir teilen Ihnen den Grund mit. Keine Kreditkarte und am Ende keine Kosten.",
+    "attiva": "Kostenlose Testphase aktivieren",
+    "dati_completi": "✓ Vollständig",
+    "completa_profilo": "Im Profil ergänzen",
+    "documenti_verificati": "✓ Bereits geprüft"
+  },
+  "rifiuto": {
+    "titolo_fermata": "Die Testphase wurde gestoppt: Die Dokumente wurden nicht genehmigt",
+    "titolo": "Die Dokumente wurden nicht genehmigt",
+    "motivo": "Grund:",
+    "testo_fermata": "Laden Sie die richtigen Dokumente hoch: Wir prüfen sie, und wenn sie in Ordnung sind, läuft die Testphase wieder an. Was Sie erfasst haben, bleibt gespeichert.",
+    "testo": "Laden Sie die richtigen Dokumente hoch: Wir prüfen sie erneut.",
+    "invia": "Neue Dokumente einreichen",
+    "scrivi": "Dem Team schreiben",
+    "in_attesa": "Die neuen Dokumente werden geprüft: Wenn sie in Ordnung sind, läuft die Testphase für Ihr Büro wieder an, und wir informieren Sie per E-Mail."
   },
   "fatturazione": {
     "titolo": "Rechnungsdaten",
