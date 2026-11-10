@@ -10,8 +10,12 @@
     "inizia_ora": "Inizia ora",
     "la_mia_area": "La mia area",
     "progettisti": "Progettisti",
-    "novita": "Novità",
-    "strumenti": "Strumenti gratis"
+    "novita": "Articoli",
+    "strumenti": "Strumenti gratis",
+    "professionisti": "Professionisti",
+    "avvocati_breve": "Gestionale di studio, banca dati e Lex per gli studi legali.",
+    "fiduciari_breve": "Mandati, scadenze fiscali, contabilità e Lex.",
+    "progettisti_breve": "Progetti, fasi SIA e verifica dei disegni con l'AI."
   },
   "footer": {
     "tagline": "La prima piattaforma all-in-one per studi legali e fiduciari svizzeri con AI integrata.",

@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Actualités — Lexum",
+    "title": "Articles — Lexum",
     "description": "Le droit suisse expliqué simplement : questions fréquentes, lois et arrêts, et les nouveautés de Lexum."
   },
   "hero": {
-    "badge": "Actualités",
+    "badge": "Articles",
     "title_part1": "Le droit suisse,",
     "title_highlight": "en pratique",
     "title_part2": ".",
@@ -15,10 +15,10 @@
     "text": "Revenez bientôt : le premier article arrive."
   },
   "articolo": {
-    "indietro": "Actualités",
+    "indietro": "Articles",
     "non_trovato": "Article introuvable",
     "non_trovato_testo": "Il a peut-être été déplacé ou n’est plus publié.",
-    "torna": "Retour aux actualités",
+    "torna": "Retour aux articles",
     "altre_lingue": "Lire en",
     "social": "Nous en parlons aussi sur les réseaux sociaux :",
     "instagram": "Voir la publication sur Instagram",

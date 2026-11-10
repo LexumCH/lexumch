@@ -10,8 +10,12 @@
     "inizia_ora": "Jetzt starten",
     "la_mia_area": "Mein Bereich",
     "progettisti": "Planer",
-    "novita": "Aktuelles",
-    "strumenti": "Gratis-Tools"
+    "novita": "Artikel",
+    "strumenti": "Gratis-Tools",
+    "professionisti": "Fachleute",
+    "avvocati_breve": "Kanzleisoftware, Rechtsdatenbank und Lex für Anwaltskanzleien.",
+    "fiduciari_breve": "Mandate, Steuerfristen, Buchhaltung und Lex.",
+    "progettisti_breve": "Projekte, SIA-Phasen und KI-Prüfung der Pläne."
   },
   "footer": {
     "tagline": "Die erste All-in-one-Plattform für Schweizer Anwaltskanzleien und Treuhänder mit integrierter KI.",

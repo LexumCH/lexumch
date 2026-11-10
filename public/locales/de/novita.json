@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Aktuelles — Lexum",
+    "title": "Artikel — Lexum",
     "description": "Schweizer Recht einfach erklärt: häufige Fragen, Gesetze und Urteile sowie Neuigkeiten von Lexum."
   },
   "hero": {
-    "badge": "Aktuelles",
+    "badge": "Artikel",
     "title_part1": "Schweizer Recht",
     "title_highlight": "in der Praxis",
     "title_part2": ".",
@@ -15,10 +15,10 @@
     "text": "Schauen Sie bald wieder vorbei: Der erste Beitrag ist unterwegs."
   },
   "articolo": {
-    "indietro": "Aktuelles",
+    "indietro": "Artikel",
     "non_trovato": "Beitrag nicht gefunden",
     "non_trovato_testo": "Vielleicht wurde er verschoben oder ist nicht mehr veröffentlicht.",
-    "torna": "Zurück zu Aktuelles",
+    "torna": "Zurück zu den Artikeln",
     "altre_lingue": "Lesen auf",
     "social": "Mehr dazu in den sozialen Medien:",
     "instagram": "Beitrag auf Instagram ansehen",

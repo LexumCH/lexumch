@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Link, useLocation } from 'react-router-dom'
-import { Menu, X, ArrowRight } from 'lucide-react'
+import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import logo from '@/assets/logo.png'
 import { useAuth } from '@/context/AuthContext'
@@ -30,7 +30,12 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', h)
   }, [])
 
-  useEffect(() => { setMenuOpen(false) }, [location])
+  // Cambiando pagina si chiude il menu; e la tendina, che resta aperta finché una sua voce ha il fuoco
+  useEffect(() => {
+    setMenuOpen(false)
+    const attivo = document.activeElement
+    if (attivo instanceof HTMLElement && attivo.closest('header')) attivo.blur()
+  }, [location])
 
   // Calcola la lingua attiva (per costruire i link vetrina con prefisso)
   // Se i18n.language è un codice valido lo usiamo, altrimenti fallback
@@ -38,16 +43,19 @@ export default function Navbar() {
     ? i18n.language
     : LINGUA_DEFAULT
 
-  // Link vetrina sempre prefissati con /:lang/
+  // Link vetrina sempre prefissati con /:lang/.
+  // Avvocati, fiduciari e progettisti in una tendina sola, come su Lexum IT (10-11-2026): la voce non è una pagina, apre la tendina
+  const professionisti = ['avvocati', 'fiduciari', 'progettisti'].map(chiave => ({
+    path: `/${langAttiva}/${chiave}`, label: t(`navbar.${chiave}`), breve: t(`navbar.${chiave}_breve`),
+  }))
   const navLinks = [
     { path: `/${langAttiva}`, label: t('navbar.home'), exact: true },
-    { path: `/${langAttiva}/avvocati`, label: t('navbar.avvocati') },
-    { path: `/${langAttiva}/fiduciari`, label: t('navbar.fiduciari') },
-    { path: `/${langAttiva}/progettisti`, label: t('navbar.progettisti') },
+    { label: t('navbar.professionisti'), sotto: professionisti },
     { path: `/${langAttiva}/novita`, label: t('navbar.novita') },
     { path: `/${langAttiva}/strumenti`, label: t('navbar.strumenti') },
     { path: `/${langAttiva}/contatti`, label: t('navbar.contatti') },
   ]
+  const dentro = (path) => location.pathname === path || location.pathname.startsWith(`${path}/`)
 
   const homeUtente = profile?.role ? HOME_PER_RUOLO[profile.role] ?? `/${langAttiva}` : null
   const labelUtente = profile?.nome || t('navbar.la_mia_area')
@@ -64,7 +72,25 @@ export default function Navbar() {
 
         {/* Desktop nav: da 1200 px; sotto, con le voci in tedesco e francese non ci sta in una riga, si usa il menu a tendina */}
         <nav className="hidden min-[1200px]:flex items-center gap-3 min-[1400px]:gap-5">
-          {navLinks.map(({ path, label, exact }) => (
+          {navLinks.map(({ path, label, exact, sotto }) => sotto ? (
+            <div key={label} className="relative group">
+              <button type="button" aria-haspopup="true"
+                className={`flex items-center gap-1 font-body text-xs tracking-wider uppercase whitespace-nowrap transition-colors ${sotto.some(x => dentro(x.path)) ? 'text-oro' : 'text-nebbia/40 hover:text-nebbia'
+                  }`}>
+                {label} <ChevronDown size={12} />
+              </button>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full pt-4 w-80 invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition-opacity">
+                <div className="bg-slate border border-white/10 shadow-2xl p-2">
+                  {sotto.map(x => (
+                    <Link key={x.path} to={x.path} className="block p-3 hover:bg-white/5 transition-colors">
+                      <span className={`block font-body text-sm ${dentro(x.path) ? 'text-oro' : 'text-nebbia'}`}>{x.label}</span>
+                      <span className="block font-body text-xs text-nebbia/40 leading-relaxed mt-0.5">{x.breve}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
             <NavLink
               key={path}
               to={path}
@@ -117,14 +143,24 @@ export default function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      <div className={`min-[1200px]:hidden transition-all duration-300 overflow-hidden ${menuOpen ? 'max-h-[32rem] opacity-100' : 'max-h-0 opacity-0'
+      <div className={`min-[1200px]:hidden transition-all duration-300 overflow-hidden ${menuOpen ? 'max-h-[40rem] opacity-100' : 'max-h-0 opacity-0'
         }`}>
         <div className="bg-petrolio/95 backdrop-blur-sm border-t border-white/5 px-6 py-4 flex flex-col gap-1">
 
           {/* LanguageSwitcher in cima al menu mobile */}
           <LanguageSwitcher variant="mobile" />
 
-          {navLinks.map(({ path, label, exact }) => (
+          {navLinks.map(({ path, label, exact, sotto }) => sotto ? (
+            <div key={label} className="flex flex-col border-b border-white/5">
+              <span className="py-3 px-2 font-body text-sm text-nebbia/60">{label}</span>
+              {sotto.map(x => (
+                <Link key={x.path} to={x.path}
+                  className={`pb-3 px-5 font-body text-sm transition-colors ${dentro(x.path) ? 'text-oro' : 'text-nebbia/40 hover:text-nebbia'}`}>
+                  {x.label}
+                </Link>
+              ))}
+            </div>
+          ) : (
             <NavLink
               key={path}
               to={path}

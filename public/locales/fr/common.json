@@ -10,8 +10,12 @@
     "inizia_ora": "Commencer",
     "la_mia_area": "Mon espace",
     "progettisti": "Concepteurs",
-    "novita": "Actualités",
-    "strumenti": "Outils gratuits"
+    "novita": "Articles",
+    "strumenti": "Outils gratuits",
+    "professionisti": "Professionnels",
+    "avvocati_breve": "Logiciel de cabinet, banque de données juridique et Lex pour les cabinets d'avocats.",
+    "fiduciari_breve": "Mandats, échéances fiscales, comptabilité et Lex.",
+    "progettisti_breve": "Projets, phases SIA et contrôle des plans par l'IA."
   },
   "footer": {
     "tagline": "La première plateforme tout-en-un pour les cabinets d'avocats et fiduciaires suisses avec IA intégrée.",
