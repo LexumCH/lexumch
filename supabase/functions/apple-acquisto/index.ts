@@ -27,7 +27,11 @@ import * as x509 from "npm:@peculiar/x509@1.14.3";
 
 x509.cryptoProvider.set(crypto);
 
-const BUNDLE = Deno.env.get("APPLE_BUNDLE_ID") ?? "ch.lexum.app";
+// L'app per iPhone è ch.lexum.ios dal 12-11-2026, sul conto Apple di Mosaico Experiences SA (ch.lexum.app era
+// l'identificativo sul conto Genius Company SA, mai approvato). APPLE_BUNDLE_ID, se impostato, se ne aggiunge.
+const BUNDLE = new Set(
+  ["ch.lexum.ios", ...(Deno.env.get("APPLE_BUNDLE_ID") ?? "").split(",")].map((s) => s.trim()).filter(Boolean),
+);
 
 // Il listino dell'App Store (prezzi decisi da Antonino il 28-10-2026, impostati su App Store Connect):
 // prodotto → crediti. Il nome va nelle transazioni dell'admin.
@@ -202,7 +206,7 @@ Deno.serve(async (req) => {
     return risposta({ ok: false, codice: "ricevuta", errore: "La ricevuta di Apple non è valida." }, 400);
   }
 
-  if (t.bundleId !== BUNDLE) return risposta({ ok: false, codice: "ricevuta", errore: "Ricevuta di un'altra app." }, 400);
+  if (!BUNDLE.has(String(t.bundleId ?? ""))) return risposta({ ok: false, codice: "ricevuta", errore: "Ricevuta di un'altra app." }, 400);
   const codiceAbbonamento = ABBONAMENTI[String(t.productId ?? "")];
   if (codiceAbbonamento && t.type === "Auto-Renewable Subscription") return await abbonamento(t, codiceAbbonamento, utente);
   const prodotto = PRODOTTI[String(t.productId ?? "")];

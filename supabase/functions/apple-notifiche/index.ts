@@ -25,7 +25,11 @@ import * as x509 from "npm:@peculiar/x509@1.14.3";
 
 x509.cryptoProvider.set(crypto);
 
-const BUNDLE = Deno.env.get("APPLE_BUNDLE_ID") ?? "ch.lexum.app";
+// L'app per iPhone è ch.lexum.ios dal 12-11-2026, sul conto Apple di Mosaico Experiences SA (ch.lexum.app era
+// l'identificativo sul conto Genius Company SA, mai approvato). APPLE_BUNDLE_ID, se impostato, se ne aggiunge.
+const BUNDLE = new Set(
+  ["ch.lexum.ios", ...(Deno.env.get("APPLE_BUNDLE_ID") ?? "").split(",")].map((s) => s.trim()).filter(Boolean),
+);
 // Dove passa le notifiche che non sono di questo paese (vuoto su CH: lì la catena finisce).
 const INOLTRO = "";
 
@@ -182,7 +186,7 @@ Deno.serve(async (req) => {
   try {
     notifica = await verificaApple(firmata);
     const dati = (notifica.data ?? {}) as Record<string, unknown>;
-    if (dati.bundleId && dati.bundleId !== BUNDLE) return new Response("Altra app", { status: 200 });
+    if (dati.bundleId && !BUNDLE.has(String(dati.bundleId))) return new Response("Altra app", { status: 200 });
     if (typeof dati.signedTransactionInfo === "string") transazione = await verificaApple(dati.signedTransactionInfo);
     if (typeof dati.signedRenewalInfo === "string") rinnovo = await verificaApple(dati.signedRenewalInfo);
   } catch (e) {
