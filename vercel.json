@@ -1,9 +1,9 @@
 {
   "rewrites": [{ "source": "/((?!api/).*)", "destination": "/app.html" }],
   "functions": {
-    "api/analizza_disegno.py": { "maxDuration": 60, "memory": 1024 },
-    "api/rendi_zone.py": { "maxDuration": 60, "memory": 1024 },
-    "api/rendi_pagina.py": { "maxDuration": 60, "memory": 1024 }
+    "api/analizza_disegno.py": { "maxDuration": 60, "memory": 1024, "excludeFiles": "{node_modules,dist,src,public,supabase,scripts,analisi-disegni,dwg-service,.git}/**" },
+    "api/rendi_zone.py": { "maxDuration": 60, "memory": 1024, "excludeFiles": "{node_modules,dist,src,public,supabase,scripts,analisi-disegni,dwg-service,.git}/**" },
+    "api/rendi_pagina.py": { "maxDuration": 60, "memory": 1024, "excludeFiles": "{node_modules,dist,src,public,supabase,scripts,analisi-disegni,dwg-service,.git}/**" }
   },
   "headers": [
     {
