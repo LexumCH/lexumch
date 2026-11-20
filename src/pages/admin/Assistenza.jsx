@@ -229,7 +229,7 @@ function ModalNuovoTicket({ open, onClose, onCreato, adminId }) {
 
 // ─────────────────────────────────────────────────────────────
 // TAB SUPPORTO — UNICA VISTA
-// Include sia i ticket aperti DA utenti verso l'admin (destinatario_id NULL)
+// Include sia i ticket aperti DA utenti verso Lexum (senza destinatario o verso un admin)
 // sia i ticket aperti DALL'admin verso utenti (mittente_ruolo='admin').
 // ─────────────────────────────────────────────────────────────
 function ListaTicketSupporto({ adminId, onNuovoTicket }) {
@@ -245,9 +245,19 @@ function ListaTicketSupporto({ adminId, onNuovoTicket }) {
 
   async function carica() {
     setLoading(true)
-    // Ticket "Supporto Lexum":
-    // - aperti da utenti verso admin: destinatario_id IS NULL
+    // Ticket "Supporto Lexum", come su lexum.it (20-11-2026): professionisti e privati scrivono a Lexum
+    // indirizzando il ticket a un admin, e prima qui non comparivano.
+    // - aperti da utenti senza destinatario: destinatario_id IS NULL
+    // - aperti da utenti verso un admin: destinatario_id IN (admin)
     // - aperti da admin verso utenti: mittente_ruolo = 'admin'
+    const { data: admins } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('role', 'admin')
+    const adminIds = (admins ?? []).map(a => a.id)
+    const filtro = adminIds.length
+      ? `destinatario_id.is.null,mittente_ruolo.eq.admin,destinatario_id.in.(${adminIds.join(',')})`
+      : 'destinatario_id.is.null,mittente_ruolo.eq.admin'
     const { data } = await supabase
       .from('ticket_assistenza')
       .select(`
@@ -256,7 +266,7 @@ function ListaTicketSupporto({ adminId, onNuovoTicket }) {
         destinatario:destinatario_id(id, nome, cognome, role),
         messaggi:messaggi_ticket(id, autore_tipo, created_at)
       `)
-      .or('destinatario_id.is.null,mittente_ruolo.eq.admin')
+      .or(filtro)
       .order('created_at', { ascending: false })
     setTickets(data ?? [])
     setLoading(false)
@@ -279,12 +289,12 @@ function ListaTicketSupporto({ adminId, onNuovoTicket }) {
     .filter(t => {
       if (statoF && t.stato !== statoF) return false
       // Filtro per "ruolo controparte":
-      // - ticket entrante (destinatario_id null) -> ruolo del mittente
+      // - ticket entrante (senza destinatario o verso un admin) -> ruolo del mittente
       // - ticket uscente (mittente_ruolo admin) -> ruolo del destinatario
       if (ruoloF) {
-        const ruoloControparte = t.destinatario_id === null
-          ? t.mittente_ruolo
-          : t.destinatario?.role
+        const ruoloControparte = t.mittente_ruolo === 'admin'
+          ? t.destinatario?.role
+          : t.mittente_ruolo
         if (ruoloControparte !== ruoloF) return false
       }
       if (dateFrom && t.created_at < dateFrom) return false
